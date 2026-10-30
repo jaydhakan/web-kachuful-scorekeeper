@@ -161,3 +161,4 @@ reports/**/*.png
 reports/parity/proto-dist/
 reports/parity/app-dist/
 reports/lighthouse/*.json
+reports/responsive/raw/
