@@ -129,6 +129,9 @@ export function Step2() {
       <div className="min-h-[22px] pt-2 text-14 font-medium text-[var(--warn)]" role="alert">
         {err}
       </div>
+      {tgt >= 0 && !recent.length && (
+        <p className="text-13 text-[var(--tx2)]">{t.setup.recentHint}</p>
+      )}
       <div className="flex flex-wrap gap-2">
         {tgt >= 0 &&
           recent.map((r, i) => (

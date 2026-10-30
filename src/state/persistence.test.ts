@@ -72,19 +72,13 @@ describe('loadInitial', () => {
     expect(curRound(l.game).bids.p4).toBe(1);
   });
 
-  it('seeds the demo game, last group and recent names on first run', () => {
+  it('seeds only the demo game on first run, never its names', () => {
     const l = loadInitial();
     expect(l.game.id).toBe('demo');
     expect(l.screen).toBe('home');
     expect(JSON.parse(localStorage.getItem(KEYS.game)!).schemaVersion).toBe(CURRENT_SCHEMA);
-    expect(JSON.parse(localStorage.getItem(KEYS.lastGroup)!).names).toEqual([
-      'Aarav',
-      'Riya',
-      'Kabir',
-      'Meera',
-      'Dev',
-    ]);
-    expect(JSON.parse(localStorage.getItem(KEYS.recentNames)!)).toHaveLength(5);
+    expect(localStorage.getItem(KEYS.lastGroup)).toBeNull();
+    expect(localStorage.getItem(KEYS.recentNames)).toBeNull();
   });
 
   it('only resumes the round or winner screen, otherwise goes home', () => {

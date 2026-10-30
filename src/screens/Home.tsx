@@ -29,6 +29,7 @@ export function Home() {
     });
   });
   const fin = g.status === 'finished';
+  const demo = g.id === 'demo';
   return (
     <div className="absolute inset-0 flex flex-col pt-[var(--sat)]">
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 px-5">
@@ -60,10 +61,24 @@ export function Home() {
         </motion.div>
         <motion.div {...stagger(1, 0.25)} className="w-full">
           <Glass glow onClick={actions.resume} className="w-full cursor-pointer p-5 text-left">
-            <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
-              {fin ? t.home.finished : t.home.resume}
-            </div>
-            {fin ? (
+            {demo ? (
+              <>
+                <span className="rounded-md bg-[var(--gold)] px-2 py-0.5 text-13 font-bold uppercase tracking-[0.12em] text-ink-gold">
+                  {t.home.demoBadge}
+                </span>
+                <div className="disp mt-2 text-24 font-bold tracking-[-0.025em]">
+                  {t.home.demoTitle}
+                </div>
+                <div className="mt-1 text-16 leading-[1.4] text-[var(--tx2)]">
+                  {t.home.demoBody}
+                </div>
+              </>
+            ) : (
+              <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+                {fin ? t.home.finished : t.home.resume}
+              </div>
+            )}
+            {demo ? null : fin ? (
               <>
                 <div className="disp mt-1 text-24 font-bold tracking-[-0.025em]">
                   {t.home.wonWith(ld.p.name, sgnN(ld.t))}
@@ -86,9 +101,11 @@ export function Home() {
                 </div>
               </>
             )}
-            <div className="mt-2 text-13 text-[var(--tx2)]">
-              {t.home.saved(agoTxt(g.updatedAt))}
-            </div>
+            {!demo && (
+              <div className="mt-2 text-13 text-[var(--tx2)]">
+                {t.home.saved(agoTxt(g.updatedAt))}
+              </div>
+            )}
           </Glass>
         </motion.div>
         <motion.button
