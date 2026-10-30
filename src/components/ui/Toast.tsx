@@ -8,7 +8,7 @@ export function Toast({ toast, onUndo }: { toast: ToastData | null; onUndo: () =
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none absolute inset-x-4 bottom-[112px] z-[66] flex justify-center"
+      className="pointer-events-none absolute inset-x-4 bottom-[calc(112px+var(--sab))] z-[66] flex justify-center"
     >
       <AnimatePresence>
         {toast && (

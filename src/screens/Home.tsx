@@ -30,7 +30,7 @@ export function Home() {
   });
   const fin = g.status === 'finished';
   return (
-    <div className="absolute inset-0 flex flex-col">
+    <div className="absolute inset-0 flex flex-col pt-[var(--sat)]">
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 px-5">
         <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 12 }}
@@ -101,7 +101,7 @@ export function Home() {
           {t.home.howToPlay}
         </motion.button>
       </div>
-      <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,env(safe-area-inset-bottom))] pt-[18px]">
+      <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,var(--sab))] pt-[18px]">
         <PrimaryButton
           className="w-full"
           onClick={() => (g.status === 'active' ? actions.ask('newGame') : actions.startSetup())}

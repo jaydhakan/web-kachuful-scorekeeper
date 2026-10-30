@@ -47,7 +47,7 @@ export function Sheet({ title, onClose, full, children }: SheetProps) {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', stiffness: 360, damping: 38 }}
-        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-[28px] bg-sheet/95 shadow-[0_-24px_80px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.08)] [backdrop-filter:blur(30px)_saturate(160%)] ${full ? 'top-9' : 'max-h-[90%]'}`}
+        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-[28px] bg-sheet/95 shadow-[0_-24px_80px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.08)] [backdrop-filter:blur(30px)_saturate(160%)] ${full ? 'top-[calc(36px+var(--sat))]' : 'max-h-[90%]'}`}
       >
         <div
           onPointerDown={(e) => controls.start(e)}
@@ -67,7 +67,7 @@ export function Sheet({ title, onClose, full, children }: SheetProps) {
           tabIndex={0}
           role="region"
           aria-labelledby={titleId}
-          className="no-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(24px,env(safe-area-inset-bottom))] pt-2"
+          className="no-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(24px,var(--sab))] pt-2"
         >
           {children}
         </div>
