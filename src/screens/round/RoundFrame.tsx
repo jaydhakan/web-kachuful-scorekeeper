@@ -10,12 +10,21 @@ interface RoundFrameProps {
   r: Round;
   title?: string;
   bar: ReactNode;
+  barNote?: ReactNode;
   children: ReactNode;
   navLeft?: ReactNode;
   scrollRef?: RefObject<HTMLDivElement>;
 }
 
-export function RoundFrame({ r, title, bar, children, navLeft, scrollRef }: RoundFrameProps) {
+export function RoundFrame({
+  r,
+  title,
+  bar,
+  barNote,
+  children,
+  navLeft,
+  scrollRef,
+}: RoundFrameProps) {
   const { actions } = useApp();
   return (
     <Scaffold
@@ -23,6 +32,7 @@ export function RoundFrame({ r, title, bar, children, navLeft, scrollRef }: Roun
       title={title}
       navTitle={t.round.title(r.index + 1)}
       bar={bar}
+      barNote={barNote}
       left={
         navLeft || (
           <IconButton label={t.round.menu} onClick={() => actions.openSheet({ type: 'menu' })}>
