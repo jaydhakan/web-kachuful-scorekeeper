@@ -28,7 +28,9 @@ export function EditBody({ i }: { i: number }) {
           <Glass key={p.id} spot={false} className="mb-2 flex items-center gap-2.5 p-2.5">
             <Dot p={p} s={40} />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-18 font-bold tracking-[-0.015em]">{p.name}</div>
+              <div className="break-words text-18 font-bold tracking-[-0.015em] [text-wrap:balance]">
+                {p.name}
+              </div>
               <div className="mt-1 flex items-center">
                 <motion.button
                   type="button"
