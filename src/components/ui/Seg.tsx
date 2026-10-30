@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
+import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { SPRING } from './motion';
 
 export interface SegOption<T extends string> {
@@ -14,6 +15,8 @@ interface SegProps<T extends string> {
   options: SegOption<T>[];
   onChange: (v: T) => void;
   size?: 'sm' | 'md';
+  /** Names the group for assistive tech. */
+  label?: string;
   className?: string;
 }
 
@@ -29,17 +32,25 @@ export function Seg<T extends string>({
   options,
   onChange,
   size = 'md',
+  label,
   className = '',
 }: SegProps<T>) {
+  const roving = useRovingFocus({ selected: options.findIndex((o) => o.v === value) });
   return (
-    <div className={`relative inline-flex rounded-2xl bg-white/[.06] p-[3px] ${className}`}>
-      {options.map((o) => {
+    <div
+      role="group"
+      aria-label={label}
+      {...roving.group}
+      className={`relative inline-flex rounded-2xl bg-white/[.06] p-[3px] ${className}`}
+    >
+      {options.map((o, i) => {
         const on = value === o.v;
         return (
           <motion.button
             key={o.v}
             type="button"
             aria-pressed={on}
+            {...roving.item(i)}
             // Commit on release: a touch that turns into a scroll never fires click.
             onClick={() => onChange(o.v)}
             whileTap={{ scale: 0.95, opacity: 0.85 }}

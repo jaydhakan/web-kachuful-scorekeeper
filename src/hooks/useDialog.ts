@@ -20,7 +20,11 @@ document.addEventListener('pointerdown', remember, true);
 
 const focusables = (root: HTMLElement) =>
   [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-    (el) => !el.closest('[hidden],[inert]') && getComputedStyle(el).visibility !== 'hidden',
+    // tabIndex excludes the non-stop options of a roving group, which Tab skips.
+    (el) =>
+      el.tabIndex >= 0 &&
+      !el.closest('[hidden],[inert]') &&
+      getComputedStyle(el).visibility !== 'hidden',
   );
 
 /**
@@ -63,11 +67,13 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
         root.focus();
         return;
       }
-      const a = document.activeElement;
-      if (e.shiftKey && (a === items[0] || !root.contains(a))) {
+      const a = document.activeElement as Element;
+      // Focus can sit on a roving option that is not a Tab stop, so "at the end" means no stop lies beyond it.
+      const beyond = (dir: number) => items.some((el) => a.compareDocumentPosition(el) & dir);
+      if (e.shiftKey && (!root.contains(a) || !beyond(Node.DOCUMENT_POSITION_PRECEDING))) {
         e.preventDefault();
         items[items.length - 1].focus();
-      } else if (!e.shiftKey && (a === items[items.length - 1] || !root.contains(a))) {
+      } else if (!e.shiftKey && (!root.contains(a) || !beyond(Node.DOCUMENT_POSITION_FOLLOWING))) {
         e.preventDefault();
         items[0].focus();
       }

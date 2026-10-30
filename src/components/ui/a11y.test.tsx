@@ -35,9 +35,12 @@ describe('keyboard and assistive tech', () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     render(<Demo />);
     expect(screen.getByRole('button', { name: 'Made' })).toHaveAttribute('aria-pressed', 'true');
+    // One Tab stop (the selected option); arrows move focus between options.
     await user.tab();
-    await user.tab();
+    expect(screen.getByRole('button', { name: 'Made' })).toHaveFocus();
+    await user.keyboard('{ArrowRight}');
     expect(screen.getByRole('button', { name: 'Missed' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Made' })).toHaveAttribute('aria-pressed', 'true');
     await user.keyboard('{Enter}');
     expect(screen.getByRole('button', { name: 'Missed' })).toHaveAttribute('aria-pressed', 'true');
     await user.keyboard('[Space]');

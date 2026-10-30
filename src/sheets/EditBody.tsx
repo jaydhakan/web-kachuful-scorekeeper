@@ -55,6 +55,7 @@ export function EditBody({ i }: { i: number }) {
             </div>
             <Seg<Outcome>
               uid={'e' + p.id}
+              label={t.results.resultFor(p.name)}
               size="sm"
               value={res[p.id]}
               onChange={(v) => setRes((s) => ({ ...s, [p.id]: v }))}
