@@ -28,9 +28,9 @@ const PANES =
 const BODY_PANES =
   'pane:grid pane:[grid-area:2/1/4/3] pane:grid-cols-subgrid pane:grid-rows-subgrid pane:overflow-visible pane:p-0';
 const MAIN_PANE =
-  'no-scroll pane:[grid-area:1/1/3/2] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2 pane:pb-[max(1.5rem,var(--sab))]';
+  'scroll-thin pane:[grid-area:1/1/3/2] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2 pane:pb-[max(1.5rem,var(--sab))]';
 const ASIDE_PANE =
-  'no-scroll pane:[grid-area:1/2/2/3] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2';
+  'scroll-thin pane:[grid-area:1/2/2/3] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2';
 
 /** The controls pane. Its heading is the large title's twin: the title hides in two panes and this shows. */
 function AsidePane({
@@ -132,7 +132,7 @@ export function Scaffold({
         role="region"
         aria-label={t.common.content}
         // A block, not a flex column: flex items stop vertical margins collapsing, which moves content.
-        className={`no-scroll min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(1.5rem,var(--sab))]'} ${aside ? BODY_PANES : ''}`}
+        className={`scroll-thin min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(1.5rem,var(--sab))]'} ${aside ? BODY_PANES : ''}`}
       >
         {title && (
           <motion.h1
