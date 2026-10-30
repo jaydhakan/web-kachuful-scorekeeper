@@ -3,8 +3,8 @@ import { useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
 interface Options {
   /** Index of the selected option, or -1 / undefined when none is. */
   selected?: number;
-  /** `grid` also moves with ArrowUp/Down, by this many options. */
-  columns?: number;
+  /** `grid` also moves with ArrowUp/Down, by this many options; 'auto' reads the row length from the layout. */
+  columns?: number | 'auto';
   orientation?: 'horizontal' | 'vertical' | 'grid';
 }
 
@@ -29,13 +29,21 @@ export function useRovingFocus({
   const indexOf = (el: EventTarget) =>
     items().indexOf((el as HTMLElement).closest<HTMLElement>(ITEM) as HTMLElement);
 
-  const step = (key: string): number | null => {
+  // A grid whose column count follows its width has no fixed number: count the options on the first row.
+  const columnCount = (list: HTMLElement[]) => {
+    if (columns !== 'auto') return columns;
+    // offsetTop ignores the scale a pill has while it is pressed.
+    const next = list.findIndex((el) => el.offsetTop !== list[0].offsetTop);
+    return next < 0 ? list.length : next;
+  };
+
+  const step = (key: string, cols: number): number | null => {
     const vertical = orientation === 'vertical';
     if (key === (vertical ? 'ArrowDown' : 'ArrowRight')) return 1;
     if (key === (vertical ? 'ArrowUp' : 'ArrowLeft')) return -1;
     if (orientation === 'grid') {
-      if (key === 'ArrowDown') return columns;
-      if (key === 'ArrowUp') return -columns;
+      if (key === 'ArrowDown') return cols;
+      if (key === 'ArrowUp') return -cols;
     }
     return null;
   };
@@ -44,14 +52,16 @@ export function useRovingFocus({
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
     const list = items();
     const from = indexOf(e.target);
-    const d = step(e.key);
-    if (from < 0 || d === null) return;
+    if (from < 0) return;
+    const cols = columnCount(list);
+    const d = step(e.key, cols);
+    if (d === null) return;
     const n = list.length;
     let to = from + d;
     if (Math.abs(d) === 1) to = (to + n) % n;
     // Vertical wrap in a grid keeps the column: past the last row goes to the top, above the first to the bottom.
-    else if (to >= n) to = from % columns;
-    else if (to < 0) to = from + Math.floor((n - 1 - from) / columns) * columns;
+    else if (to >= n) to = from % cols;
+    else if (to < 0) to = from + Math.floor((n - 1 - from) / cols) * cols;
     e.preventDefault();
     list[to].focus();
   };

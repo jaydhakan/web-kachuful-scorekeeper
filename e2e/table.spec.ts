@@ -56,9 +56,13 @@ test('a fitted table fills its slot both ways, keeps its shape and stops shrinki
 });
 
 test('a table that does not opt in keeps its fixed design size', async ({ page }) => {
+  // Tall enough that the Summary shows its Next-up table rather than the one-line version.
+  await page.setViewportSize({ width: 390, height: 1100 });
   await page.goto('/');
-  await openSeeded(page, seedGame(5, 'bidding'), 'round');
-  const box = (await page.locator('[data-table="bid"]').boundingBox())!;
+  await openSeeded(page, seedGame(5, 'summary'), 'round');
+  const table = page.locator('[data-table="sum"]');
+  await table.waitFor();
+  const box = (await table.boundingBox())!;
   expect(box.width).toBeCloseTo(320, 0);
   expect(box.height).toBeCloseTo(170, 0);
 });
