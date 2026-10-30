@@ -74,7 +74,10 @@ const withBanner = (s: AppState, text: string | null): AppState =>
   text ? { ...s, noteSeq: s.noteSeq + 1, banner: { id: s.noteSeq + 1, text } } : s;
 
 function freshGame(
-  base: Pick<Game, 'players' | 'direction' | 'firstDealerIndex' | 'maxCards' | 'lengthMode'>,
+  base: Pick<
+    Game,
+    'players' | 'direction' | 'firstDealerIndex' | 'decks' | 'maxCards' | 'lengthMode'
+  >,
   id: string,
   t: number,
 ): Game {
@@ -183,7 +186,16 @@ function step(s: AppState, a: Action): AppState {
         ...s,
         dir: 1,
         screen: 'setup',
-        setup: { step: 1, n: null, dir: 'cw', seats: [], dealer: 0, length: 'endless', lg: a.lg },
+        setup: {
+          step: 1,
+          decks: 1,
+          n: null,
+          dir: 'cw',
+          seats: [],
+          dealer: 0,
+          length: 'endless',
+          lg: a.lg,
+        },
       };
     case 'setupPatch':
       return s.setup ? { ...s, setup: { ...s.setup, ...a.patch } } : s;
@@ -223,7 +235,8 @@ function step(s: AppState, a: Action): AppState {
           players,
           direction: S.dir,
           firstDealerIndex: S.dealer,
-          maxCards: maxFor(S.n),
+          decks: S.decks,
+          maxCards: maxFor(S.n, S.decks),
           lengthMode: S.length,
         },
         a.id,
@@ -357,6 +370,7 @@ function step(s: AppState, a: Action): AppState {
           players: old.players.map((p) => ({ ...p })),
           direction: old.direction,
           firstDealerIndex: (old.firstDealerIndex + 1) % n,
+          decks: old.decks,
           maxCards: old.maxCards,
           lengthMode: old.lengthMode,
         },

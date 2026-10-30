@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   TRUMPS,
   maxFor,
+  playerCounts,
   cycleLen,
   cardsFor,
   clone,
@@ -38,7 +39,7 @@ const mkGame = (n, over = {}) => ({
   players: mkPlayers(n),
   direction: 'cw',
   firstDealerIndex: 0,
-  maxCards: maxFor(n),
+  maxCards: maxFor(n, 1),
   lengthMode: 'endless',
   rounds: [],
   status: 'active',
@@ -63,8 +64,36 @@ describe('players and cards', () => {
     [5, 10],
     [6, 8],
     [7, 7],
-  ])('%i players deal at most %i cards', (n, max) => {
-    expect(maxFor(n)).toBe(max);
+  ])('%i players deal at most %i cards from one deck', (n, max) => {
+    expect(maxFor(n, 1)).toBe(max);
+  });
+
+  // 104 cards: every hand of 10 fits up to 10 players, then the most that fits shrinks.
+  it.each([
+    [3, 10],
+    [7, 10],
+    [10, 10],
+    [11, 9],
+    [12, 8],
+    [13, 8],
+    [14, 7],
+  ])('%i players deal at most %i cards from two decks', (n, max) => {
+    expect(maxFor(n, 2)).toBe(max);
+  });
+
+  it('never deals more cards than the decks hold, nor fewer than the 3-card opening round', () => {
+    for (const decks of [1, 2])
+      for (const n of playerCounts(decks)) {
+        expect(maxFor(n, decks) * n).toBeLessThanOrEqual(52 * decks);
+        expect(maxFor(n, decks)).toBeGreaterThanOrEqual(3);
+      }
+  });
+
+  it.each([
+    [1, [3, 4, 5, 6, 7]],
+    [2, [3, 4, 5, 6, 7, 8, 9, 10]],
+  ])('%i deck(s) seat %j players', (decks, counts) => {
+    expect(playerCounts(decks)).toEqual(counts);
   });
 
   it.each([

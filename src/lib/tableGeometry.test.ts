@@ -1,4 +1,4 @@
-import { TD, angOf, minScale, posAt, seatPos, toPct } from './tableGeometry';
+import { TD, angOf, chipSide, minScale, posAt, seatPos, showNames, toPct } from './tableGeometry';
 
 describe('table geometry', () => {
   it('seats the first player bottom-centre', () => {
@@ -15,9 +15,9 @@ describe('table geometry', () => {
   });
 
   it.each(['full', 'mini'] as const)(
-    '%s table keeps every seat inside its box for 3–7 players',
+    '%s table keeps every seat inside its box for 3–10 players',
     (size) => {
-      for (let n = 3; n <= 7; n++)
+      for (let n = 3; n <= 10; n++)
         for (let k = 0; k < n; k++) {
           const { x, y } = posAt(size, angOf(n, k, 'cw'));
           expect(x - 36).toBeGreaterThanOrEqual(-4);
@@ -35,6 +35,49 @@ describe('table geometry', () => {
         expect(Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y)).toBeGreaterThan(
           TD[size].R * 2,
         );
+  });
+
+  it.each(['full', 'mini'] as const)('%s table: ten avatars never overlap', (size) => {
+    const pts = Array.from({ length: 10 }, (_, k) => seatPos(size, 10, k, 'cw'));
+    for (let i = 0; i < 10; i++)
+      for (let j = i + 1; j < 10; j++)
+        expect(Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y)).toBeGreaterThan(
+          TD[size].R * 2 + 8,
+        );
+  });
+
+  it.each(['full', 'mini'] as const)(
+    '%s table: eight or more seats are spaced evenly along the edge',
+    (size) => {
+      const pts = Array.from({ length: 9 }, (_, k) => seatPos(size, 9, k, 'cw'));
+      const gaps = pts.map((p, i) =>
+        Math.hypot(p.x - pts[(i + 1) % 9].x, p.y - pts[(i + 1) % 9].y),
+      );
+      expect(Math.max(...gaps) / Math.min(...gaps)).toBeLessThan(1.25);
+    },
+  );
+
+  it('keeps the seat angles of up to seven players evenly spread by angle', () => {
+    expect(angOf(7, 3, 'cw')).toBeCloseTo(90 + (3 * 360) / 7);
+    expect(angOf(7, 3, 'ccw')).toBeCloseTo(90 - (3 * 360) / 7);
+  });
+
+  it('starts at the bottom and mirrors for anticlockwise at ten seats too', () => {
+    expect(angOf(10, 0, 'cw')).toBe(90);
+    expect(seatPos('mini', 10, 1, 'cw').x).toBeCloseTo(TD.mini.W - seatPos('mini', 10, 1, 'ccw').x);
+  });
+
+  it('names players only up to seven seats', () => {
+    expect(showNames(7)).toBe(true);
+    expect(showNames(8)).toBe(false);
+  });
+
+  it("puts a crowded middle seat's dealer chip away from the next seat, and leaves the rest alone", () => {
+    expect(chipSide({ x: 50, y: 90 }, 'cw', 10)).toBe(true);
+    expect(chipSide({ x: 50, y: 90 }, 'ccw', 10)).toBe(false);
+    expect(chipSide({ x: 50, y: 10 }, 'cw', 10)).toBe(false);
+    expect(chipSide({ x: 50, y: 90 }, 'cw', 7)).toBe(false);
+    expect(chipSide({ x: 80, y: 50 }, 'cw', 10)).toBe(true);
   });
 
   it.each(['full', 'mini'] as const)(

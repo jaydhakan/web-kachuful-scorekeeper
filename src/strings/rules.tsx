@@ -16,9 +16,11 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
     '🔢',
     'Card sequence',
     <>
-      Start at <b>3</b> cards and go up one at a time to the maximum (<b>10</b> for 3–5 players,{' '}
-      <b>8</b> for 6, <b>7</b> for 7). Repeat the max once, come back down to 3, repeat 3 once, then
-      climb again.
+      Start at <b>3</b> cards and go up one at a time to the maximum: every player must get a full
+      hand, so it is the deck size ÷ players, rounded down, and never more than <b>10</b>. With{' '}
+      <b>one deck</b> that is 10 for 3–5 players, 8 for 6 and 7 for 7. With <b>two decks</b> it is
+      10 for 3–10 players. Repeat the max once, come back down to 3, repeat 3 once, then climb
+      again.
       <div className="mt-1 text-13 text-[var(--tx2)]">
         10-card game: 3 4 5 6 7 8 9 10 10 9 8 7 6 5 4 3 3 4 …
       </div>
@@ -55,7 +57,8 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
     <>
       The player after the dealer leads. Follow the led suit if you can. If you can’t, play a trump
       or discard anything. The highest trump wins; with no trump, the highest card of the led suit
-      wins. The winner leads next.
+      wins. The winner leads next. With two decks, two identical cards can meet in a trick: the one
+      played <b>first</b> wins.
     </>,
   ],
   [

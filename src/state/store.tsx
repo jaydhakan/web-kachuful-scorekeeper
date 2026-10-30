@@ -132,6 +132,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
           emojis: su.seats.map((p) => p?.emoji ?? ''),
           colors: su.seats.map((p) => p?.color ?? ''),
           direction: su.dir,
+          decks: su.decks,
         } satisfies LastGroup);
         pushRecentNames(names);
         const now = Date.now();

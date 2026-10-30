@@ -115,9 +115,9 @@ export function AvatarBody({ k }: { k: number }) {
           </motion.button>
         ))}
       </div>
-      {/* 44px circles do not fit seven across a phone: four and three until there is room for one row. */}
+      {/* 44px circles do not fit ten across a phone: rows of four until there is room for one row. */}
       <div
-        className="mb-4 grid grid-cols-4 justify-items-center gap-2 roomy:flex roomy:justify-start roomy:gap-2.5"
+        className="mb-4 grid grid-cols-4 justify-items-center gap-2 roomy:flex roomy:flex-wrap roomy:justify-start roomy:gap-2.5"
         {...colourNav.group}
       >
         {COLORS.map((c, i) => (

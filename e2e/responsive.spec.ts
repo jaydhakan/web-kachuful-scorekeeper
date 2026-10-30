@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { auditScreen, type ScreenReport } from './audit';
 import { violations } from './audit-rules';
-import { LONG_NAMES, openSeeded, seedGame } from './fixtures';
+import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
 import { btn } from './helpers';
 
 /** Every device class from docs/RESPONSIVE-PLAN.md §3. */
@@ -41,7 +41,7 @@ const SUBSET = [
   [1920, 1080],
 ] as const;
 const MATRIX = FULL ? VIEWPORTS : SUBSET;
-const PLAYERS = FULL ? [3, 5, 7] : [7];
+const PLAYERS = FULL ? [3, 5, 7, 10] : [7, 10];
 
 const settle = (page: Page) => page.waitForTimeout(650);
 
@@ -90,12 +90,13 @@ for (const [w, h] of MATRIX) {
           await shot('01-home', { primary: btn(page, 'New Game') });
 
           await btn(page, 'New Game').click();
+          if (n > 7) await btn(page, '2 decks').click();
           await btn(page, `${n} players`).click();
           await shot('02-setup1', { primary: btn(page, 'Next') });
 
           await btn(page, 'Next').click();
           const input = page.getByLabel('Player name');
-          for (const name of LONG_NAMES.slice(0, 2)) {
+          for (const name of LONG_NAMES_10.slice(0, 2)) {
             await input.fill(name);
             await input.press('Enter');
           }
@@ -111,7 +112,7 @@ for (const [w, h] of MATRIX) {
           await shot('06-sheet-avatar', { primary: btn(page, 'Close').last() });
           await close();
           await settle(page);
-          for (const name of LONG_NAMES.slice(2, n)) {
+          for (const name of LONG_NAMES_10.slice(2, n)) {
             await input.fill(name);
             await input.press('Enter');
           }

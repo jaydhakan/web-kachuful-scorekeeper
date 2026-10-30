@@ -1,3 +1,5 @@
+import type { Decks } from './cards';
+
 export type Trump = 'spades' | 'diamonds' | 'clubs' | 'hearts';
 export type Direction = 'cw' | 'ccw';
 export type LengthMode = 'endless' | '1cycle' | '2cycles';
@@ -42,6 +44,7 @@ export interface Game {
   players: Player[];
   direction: Direction;
   firstDealerIndex: number;
+  decks: Decks;
   maxCards: number;
   lengthMode: LengthMode;
   rounds: Round[];

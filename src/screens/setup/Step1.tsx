@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { COLORS, EMOJIS, maxFor } from '@/domain';
+import { COLORS, DECK_OPTIONS, EMOJIS, maxFor, playerCounts, type Decks } from '@/domain';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
 import { EASE, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { PREVIEW_SCALE } from '@/lib/tableGeometry';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
@@ -13,7 +14,15 @@ import { t } from '@/strings';
 export function Step1() {
   const { su, actions } = useSetup();
   const lg = su.lg;
-  const roving = useRovingFocus({ selected: [3, 4, 5, 6, 7].indexOf(su.n ?? 0) });
+  const counts = playerCounts(su.decks),
+    // Eight buttons do not fit one row on a phone: two even rows of four.
+    grid = counts.length > 5;
+  const roving = useRovingFocus({
+    selected: counts.indexOf(su.n ?? 0),
+    ...(grid && { columns: 4, orientation: 'grid' as const }),
+  });
+  const lgDecks = lg?.decks ?? 1,
+    lgFits = !!lg && playerCounts(lgDecks).includes(lg.names.length);
   return (
     <SetupFrame
       step={1}
@@ -31,13 +40,14 @@ export function Step1() {
       }
       aside={
         <>
-          {lg && (
+          {lg && lgFits && (
             <motion.button
               type="button"
               {...stagger(0)}
               whileTap={{ scale: 0.96 }}
               onClick={() =>
                 actions.setupPatch({
+                  decks: lgDecks,
                   n: lg.names.length,
                   dir: lg.direction || 'cw',
                   seats: lg.names.map((nm, i) => ({
@@ -54,13 +64,33 @@ export function Step1() {
               {t.setup.useLastGroup(lg.names)}
             </motion.button>
           )}
+          <div className="mt-2 flex flex-col items-center gap-1 @h-[45rem]:mt-1">
+            <Seg<`${Decks}`>
+              uid="deckseg"
+              label={t.setup.decksLabel}
+              size="sm"
+              value={`${su.decks}`}
+              onChange={(v) => {
+                const decks = +v as Decks;
+                // A count the new decks cannot seat is dropped rather than quietly changed.
+                actions.setupPatch({
+                  decks,
+                  n: su.n && playerCounts(decks).includes(su.n) ? su.n : null,
+                });
+              }}
+              options={DECK_OPTIONS.map((d) => ({ v: `${d}` as const, label: t.setup.deck(d) }))}
+            />
+            <p className="text-13 text-[var(--tx2)] @h-short:hidden">
+              {t.setup.decksHint(counts[counts.length - 1])}
+            </p>
+          </div>
           <div
-            className="my-2 flex justify-center gap-2.5 land:gap-2 land:@max-[40rem]:gap-[3px] @h-[45rem]:my-1"
+            className={`my-2 justify-center land:gap-2 land:@max-[40rem]:gap-[3px] @h-[45rem]:my-1 ${grid ? 'grid grid-cols-4 justify-items-center gap-2' : 'flex gap-2.5'}`}
             role="group"
             aria-label={t.setup.playerCount}
             {...roving.group}
           >
-            {[3, 4, 5, 6, 7].map((n, i) => (
+            {counts.map((n, i) => (
               <motion.button
                 key={n}
                 type="button"
@@ -73,7 +103,7 @@ export function Step1() {
                   actions.setupPatch({ n });
                   actions.vib();
                 }}
-                className={`disp relative grid h-16 w-16 min-w-11 max-w-16 flex-1 place-items-center rounded-[22px] text-30 font-extrabold tracking-[-0.03em] @h-[45rem]:h-12 @h-tiny:!h-11 @h-tiny:rounded-2xl ${su.n === n ? 'text-ink-on-accent' : 'glass'}`}
+                className={`disp relative grid w-16 min-w-11 max-w-16 place-items-center ${grid ? 'h-14 w-full @h-[45rem]:h-11' : 'h-16 flex-1 @h-[45rem]:h-12'} rounded-[22px] text-30 font-extrabold tracking-[-0.03em] @h-tiny:!h-11 @h-tiny:rounded-2xl ${su.n === n ? 'text-ink-on-accent' : 'glass'}`}
               >
                 {su.n === n && (
                   <motion.span
@@ -102,12 +132,12 @@ export function Step1() {
           <p
             className={`mt-3 text-center text-14 tracking-[0.005em] text-[var(--tx2)] [text-wrap:balance] @h-[45rem]:mt-1.5 ${lg ? '@h-short:hidden' : ''}`}
           >
-            {t.setup.info(su.n, maxFor(su.n ?? 0))}
+            {t.setup.info(su.n, su.n ? maxFor(su.n, su.decks) : 0)}
           </p>
         </>
       }
     >
-      <TableSlot players={su.n ?? 0}>
+      <TableSlot players={su.n ?? 0} minFit={PREVIEW_SCALE}>
         <AnimatePresence mode="wait">
           {su.n ? (
             <motion.div
@@ -121,6 +151,7 @@ export function Step1() {
               <Table
                 uid="su1"
                 fit
+                minFit={PREVIEW_SCALE}
                 n={su.n}
                 dir={su.dir}
                 center={<div className="text-13 text-[var(--tx2)]">{t.setup.seats(su.n)}</div>}

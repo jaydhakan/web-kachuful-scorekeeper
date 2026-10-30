@@ -5,7 +5,8 @@ import {
   DEALS_PILL,
   SMALL_CHIP,
   TD,
-  chipOnRight,
+  angOf,
+  chipSide,
   dpx,
   pillChip,
   posAt,
@@ -85,7 +86,7 @@ export function Step3() {
   const { su, actions } = useSetup();
   const n = su.n ?? 0,
     seats = su.seats as Seat[],
-    m = maxFor(n),
+    m = maxFor(n, su.decks),
     L = cycleLen(m);
   const [spin, setSpin] = useState<{ tgt: number; a0: number; a1: number } | null>(null),
     [ghost, setGhost] = useState<{ x: number; y: number; p: Seat } | null>(null);
@@ -97,9 +98,10 @@ export function Step3() {
   const sg = su.dir === 'cw' ? 1 : -1;
   const doSpin = () => {
     const tgt = Math.floor(Math.random() * n),
-      dk = (tgt - su.dealer + n) % n,
-      a0 = 90 + (sg * su.dealer * 360) / n;
-    setSpin({ tgt, a0, a1: a0 + sg * (720 + (dk * 360) / n) });
+      a0 = angOf(n, su.dealer, su.dir),
+      // Degrees to travel the same way round to the target seat, after two full turns.
+      turn = ((((angOf(n, tgt, su.dir) - a0) * sg) % 360) + 360) % 360;
+    setSpin({ tgt, a0, a1: a0 + sg * (720 + turn) });
     actions.vib();
   };
   const down = (e: PointerEvent<HTMLDivElement>) => {
@@ -246,7 +248,7 @@ export function Step3() {
               a0={spin.a0}
               a1={spin.a1}
               pill={pillChip('full', n)}
-              right={chipOnRight(toPct('full', seatPos('full', n, spin.tgt, su.dir)).x)}
+              right={chipSide(toPct('full', seatPos('full', n, spin.tgt, su.dir)), su.dir, n)}
               onDone={() => {
                 actions.setupPatch({ dealer: spin.tgt });
                 setSpin(null);
