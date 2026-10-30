@@ -44,7 +44,7 @@ try {
     await page.getByRole('button', { name, exact: true }).first().click();
     await page.waitForTimeout(ms);
   };
-  await page.getByText('Resume game').click();
+  await page.getByText(/Resume game|Try the demo/).click();
   await page.waitForTimeout(900);
   await click('Bid 1');
   await click('Bid 1');
