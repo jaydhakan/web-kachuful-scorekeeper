@@ -16,7 +16,7 @@ export function Toast({ toast, onUndo }: { toast: ToastData | null; onUndo: () =
             key={toast.id}
             initial={{ opacity: 0, y: 24, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.96 }}
+            exit={{ opacity: 0, y: 12 }}
             transition={SPRING}
             className="glass pointer-events-auto flex min-h-12 items-center gap-3 !rounded-full !bg-toast/90 py-1.5 pl-5 pr-2 text-16 font-medium"
           >
