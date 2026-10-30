@@ -39,6 +39,7 @@ Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.
 - Totals are never stored; every score is derived from round data (`domain/scoring.ts`).
 - A round's dealer, trump and first player derive from the index and `firstDealerIndex`. Direction only changes seat layout, never the rotation order.
 - Avatar colours are stored as hex strings inside each saved player.
+- A round has exactly as many tricks as cards and Made means winning exactly the bid, so the bids of the players marked Made never add up to more than the cards, and the rest must be shareable among players who missed without any of them hitting their own bid (`domain/tricks.ts`). The Results screen greys out a choice that cannot work, the reducer ignores it, the Edit sheet applies the same rule plus the dealer's forbidden total, and `resultsState` checks only real rounds (bids that do not add up to the cards).
 
 ## Layout
 

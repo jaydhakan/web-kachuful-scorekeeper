@@ -77,12 +77,10 @@ for (const [w, h, names] of [
     await page.getByRole('switch').click();
     await check('results exact');
     await page.getByRole('switch').click();
-    const made = page.getByRole('button', { name: /Made/ });
-    for (let k = 0; k < names.length - 1; k++) await made.nth(k).click();
-    await page
-      .getByRole('button', { name: /Missed/ })
-      .last()
-      .click();
+    // A real set of results: the first player made their 1, everyone else missed (the tricks can be shared out).
+    await page.getByRole('button', { name: /Made/ }).first().click();
+    const missed = page.getByRole('button', { name: /Missed/ });
+    for (let k = 1; k < names.length; k++) await missed.nth(k).click();
     await btn(page, 'Confirm round').click();
     await check('summary');
     await btn(page, 'End game').click();

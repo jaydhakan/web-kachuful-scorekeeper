@@ -195,6 +195,9 @@ export const t = {
     tricksMismatch: messages.tricksMismatch,
     allMade: messages.allMade,
     allMadeEdit: 'Someone has to miss — the bids can’t all be right. Check again.',
+    tricksLeft: (left: number, cards: number) => `Tricks left: ${left} of ${cards}`,
+    onlyLeft: (n: number) => `Only ${n} ${n === 1 ? 'trick' : 'tricks'} left`,
+    noFit: 'Doesn’t add up with the other results',
   },
 
   summary: {
@@ -283,6 +286,8 @@ export const t = {
     boardRound: 'Round',
     editRow: (n: number) => `Edit round ${n}`,
     editTitle: (n: number) => `Edit round ${n}`,
+    editBidsEqual: (cards: number) =>
+      `Bids can’t add up to ${cards} — that’s the total the dealer can’t reach.`,
     editInfo: (cards: number, trump: string, dealer: string) =>
       `${cards} cards · ${trump} · dealt by ${dealer}`,
     lowerBid: (name: string) => `Lower bid for ${name}`,

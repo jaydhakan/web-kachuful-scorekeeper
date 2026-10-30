@@ -31,9 +31,9 @@ test('the reason Confirm is disabled stays visible above it with 7 players at 36
   await bidEveryone(page);
   await btn(page, 'Start playing').click();
   await btn(page, 'Enter results').click();
-  const made = page.getByRole('button', { name: /Made/ });
-  for (let k = 0; k < NAMES7.length; k++) await made.nth(k).click();
-  const note = page.getByRole('status').filter({ hasText: 'Someone has to miss' });
+  // Exact tricks with nothing entered yet: the total is 0, which gives the bar a reason to show.
+  await page.getByRole('switch').click();
+  const note = page.getByRole('status').filter({ hasText: 'Tricks add up to' });
   await expect(note).toBeVisible();
   const n = (await note.boundingBox())!;
   const confirm = (await btn(page, 'Confirm round').boundingBox())!;
