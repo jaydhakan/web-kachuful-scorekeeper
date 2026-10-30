@@ -204,10 +204,9 @@ describe('bidding', () => {
 
 describe('results and rounds', () => {
   it('blocks confirming while everyone made', () => {
-    let st = run(bidAll(demo()), { type: 'phase', phase: 'results' });
-    st.game.players.forEach((p) => {
-      st = run(st, { type: 'setResult', id: p.id, v: 'made' });
-    });
+    const st = run(bidAll(demo()), { type: 'phase', phase: 'results' });
+    // setResult no longer lets this happen, but a stored round can still hold it, and Confirm must refuse it.
+    st.game.players.forEach((p) => (curRound(st.game).results[p.id] = 'made'));
     const same = run(st, { type: 'confirmRound' });
     expect(same).toBe(st);
     expect(curRound(same.game).phase).toBe('results');
@@ -422,5 +421,45 @@ describe('results that cannot add up', () => {
       { type: 'setResult', id: 'p1', v: 'made' },
     );
     expect(curRound(st.game).results).toEqual({ p0: 'missed', p1: 'made' });
+  });
+
+  it('fills in the last player when only one result is possible for them', () => {
+    // 5 cards: 4 and 1 made leaves nothing, so the last bid-2 player cannot have made it.
+    let st = fiveCards();
+    for (const [id, v] of [
+      ['p0', 'made'],
+      ['p4', 'made'],
+      ['p1', 'missed'],
+      ['p2', 'missed'],
+    ] as const)
+      st = run(st, { type: 'setResult', id, v });
+    expect(curRound(st.game).results).toEqual({
+      p0: 'made',
+      p4: 'made',
+      p1: 'missed',
+      p2: 'missed',
+      p3: 'missed',
+    });
+    expect(st.autoResult).toBe('p3');
+    // It is a note about what just happened, so the next action clears it.
+    expect(run(st, { type: 'setResult', id: 'p0', v: 'missed' }).autoResult).toBeNull();
+    expect(run(st, { type: 'sheet', sheet: null }).autoResult).toBeNull();
+  });
+
+  it('leaves the last player to the user when either result would work', () => {
+    let st = fiveCards();
+    for (const [id, v] of [
+      ['p0', 'made'],
+      ['p1', 'missed'],
+      ['p2', 'missed'],
+      ['p3', 'missed'],
+    ] as const)
+      st = run(st, { type: 'setResult', id, v });
+    expect(curRound(st.game).results.p4).toBeUndefined();
+  });
+
+  it('does not fill anything in while several players are still open', () => {
+    const st = run(fiveCards(), { type: 'setResult', id: 'p0', v: 'made' });
+    expect(Object.keys(curRound(st.game).results)).toEqual(['p0']);
   });
 });

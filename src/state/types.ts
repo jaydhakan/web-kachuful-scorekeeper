@@ -62,6 +62,8 @@ export interface AppState {
   advance: { idx: number } | null;
   noteSeq: number;
   corrupt: boolean;
+  /** The player whose result the app filled in because only one could work; cleared by the next action. */
+  autoResult: string | null;
 }
 
 export type Action =

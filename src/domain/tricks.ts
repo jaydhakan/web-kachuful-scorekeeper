@@ -72,3 +72,16 @@ export function resultsProblem(cards: number, ids: string[], bids: Bids, marks: 
   if (left < 0) return messages.tricksOver(cards - left, cards);
   return fits(cards, ids, bids, marks) ? '' : messages.resultsDontFit(cards);
 }
+
+/** The one result a player can have, when the other is ruled out by everyone else's marks; otherwise null. */
+export function onlyResult(
+  cards: number,
+  ids: string[],
+  bids: Bids,
+  marks: Marks,
+  id: string,
+): Outcome | null {
+  const made = blockedReason(cards, ids, bids, marks, id, 'made') === null;
+  const missed = blockedReason(cards, ids, bids, marks, id, 'missed') === null;
+  return made === missed ? null : made ? 'made' : 'missed';
+}
