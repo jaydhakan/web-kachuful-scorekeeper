@@ -157,3 +157,39 @@ describe('a save from the prototype', () => {
     expect(within(board).getByText('R6 · 8', { exact: false })).toBeInTheDocument();
   });
 });
+
+describe('a saved game that cannot be read', () => {
+  it('asks before touching it, backing the raw data up first', async () => {
+    localStorage.setItem(KEYS.game, '{"players": [');
+    const u = setup();
+    render(<App />);
+    expect(await screen.findByText(/Saved game couldn't be read/)).toBeInTheDocument();
+    expect(localStorage.getItem(KEYS.backup)).toBe('{"players": [');
+    expect(localStorage.getItem(KEYS.game)).toBe('{"players": [');
+
+    await u.click(screen.getByRole('button', { name: 'Keep backup' }));
+    await waitFor(() =>
+      expect(screen.queryByText(/Saved game couldn't be read/)).not.toBeInTheDocument(),
+    );
+    expect(localStorage.getItem(KEYS.backup)).toBe('{"players": [');
+    expect(JSON.parse(localStorage.getItem(KEYS.game)!).id).toBe('demo');
+    expect(await screen.findByText('Resume game')).toBeInTheDocument();
+  });
+
+  it('Reset discards the backup as well', async () => {
+    localStorage.setItem(KEYS.game, 'nope');
+    const u = setup();
+    render(<App />);
+    await u.click(await btn('Reset'));
+    await waitFor(() => expect(localStorage.getItem(KEYS.backup)).toBeNull());
+    expect(JSON.parse(localStorage.getItem(KEYS.game)!).id).toBe('demo');
+  });
+
+  it('does not overwrite the unreadable save while the question is open', async () => {
+    localStorage.setItem(KEYS.game, 'nope');
+    render(<App />);
+    await screen.findByText(/Saved game couldn't be read/);
+    await new Promise((r) => setTimeout(r, 100));
+    expect(localStorage.getItem(KEYS.game)).toBe('nope');
+  });
+});
