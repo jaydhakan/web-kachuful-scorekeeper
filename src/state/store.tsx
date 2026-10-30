@@ -1,5 +1,6 @@
 import {
   createContext,
+  startTransition,
   useContext,
   useEffect,
   useMemo,
@@ -21,7 +22,7 @@ import {
   type Loaded,
 } from './persistence';
 import { initialState, reducer } from './reducer';
-import type { AppState, Dir, ModalKind, Screen, SetupState, SheetState } from './types';
+import type { Action, AppState, Dir, ModalKind, Screen, SetupState, SheetState } from './types';
 import type { Trump } from '@/domain';
 
 export interface Actions {
@@ -111,11 +112,13 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     return () => clearTimeout(t);
   }, [advance]);
 
-  const actions = useMemo<Actions>(
-    () => ({
-      go: (screen, dir) => dispatch({ type: 'go', screen, dir }),
+  const actions = useMemo<Actions>(() => {
+    // Screen changes mount a lot of UI; as transitions React renders them in small slices and stays interruptible.
+    const nav = (a: Action) => startTransition(() => dispatch(a));
+    return {
+      go: (screen, dir) => nav({ type: 'go', screen, dir }),
       startSetup: () =>
-        dispatch({ type: 'startSetup', lg: storage.get<LastGroup | null>(KEYS.lastGroup, null) }),
+        nav({ type: 'startSetup', lg: storage.get<LastGroup | null>(KEYS.lastGroup, null) }),
       setupPatch: (patch) => dispatch({ type: 'setupPatch', patch }),
       setupSeat: (k, seat) => dispatch({ type: 'setupSeat', k, seat }),
       setupSeatPatch: (k, patch) => dispatch({ type: 'setupSeatPatch', k, patch }),
@@ -132,15 +135,15 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         } satisfies LastGroup);
         pushRecentNames(names);
         const now = Date.now();
-        dispatch({ type: 'beginGame', id: 'g' + now, now });
+        nav({ type: 'beginGame', id: 'g' + now, now });
       },
-      resume: () => dispatch({ type: 'resume' }),
+      resume: () => nav({ type: 'resume' }),
       bid: (v) => {
         dispatch({ type: 'bid', v });
         vib();
       },
       pickSeat: (k) => dispatch({ type: 'pickSeat', k }),
-      phase: (phase, dir) => dispatch({ type: 'phase', phase, dir }),
+      phase: (phase, dir) => nav({ type: 'phase', phase, dir }),
       setResult: (id, v) => {
         dispatch({ type: 'setResult', id, v });
         vib();
@@ -154,17 +157,17 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         const g = ref.current.game;
         if (!resultsState(g, curRound(g)).ok) return;
         vib();
-        dispatch({ type: 'confirmRound' });
+        nav({ type: 'confirmRound' });
       },
-      nextRound: () => dispatch({ type: 'nextRound' }),
+      nextRound: () => nav({ type: 'nextRound' }),
       finishGame: () => dispatch({ type: 'finishGame' }),
       rematch: () => {
         const now = Date.now();
-        dispatch({ type: 'rematch', id: 'g' + now, now });
+        nav({ type: 'rematch', id: 'g' + now, now });
       },
       editRound: (i, bids, results) => dispatch({ type: 'editRound', i, bids, results }),
       undo: () => dispatch({ type: 'undo' }),
-      openSheet: (sheet) => dispatch({ type: 'sheet', sheet }),
+      openSheet: (sheet) => nav({ type: 'sheet', sheet }),
       ask: (modal) => dispatch({ type: 'modal', modal }),
       seqDone: () => dispatch({ type: 'seqDone' }),
       setSumAnim: (v) => dispatch({ type: 'setSumAnim', v }),
@@ -172,9 +175,8 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       say: (msg) => dispatch({ type: 'say', msg }),
       vib,
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
-    }),
-    [vib],
-  );
+    };
+  }, [vib]);
 
   const value = useMemo(() => ({ state, actions, trump: trumpOf(state) }), [state, actions]);
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
