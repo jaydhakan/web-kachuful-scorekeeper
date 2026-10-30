@@ -14,8 +14,8 @@ test('a fitted table fills its slot both ways, keeps its shape and stops shrinki
   await openSeeded(page, seedGame(7, 'playing'), 'round');
   const table = page.locator('[data-table="play"]');
   await table.waitFor();
-  // The Play screen's own fixed-height wrapper stands in for any slot a screen gives it.
-  const wrapper = table.locator('xpath=ancestor::div[contains(@class,"h-[300px]")]');
+  // The slot the table fits itself to; any size a screen could give it can be set here.
+  const slot = table.locator('xpath=..');
   for (const [w, h] of [
     [390, 300],
     [390, 200],
@@ -24,8 +24,14 @@ test('a fitted table fills its slot both ways, keeps its shape and stops shrinki
     [900, 380],
     [120, 120],
   ]) {
-    await wrapper.evaluate(
-      (el, [w, h]) => Object.assign(el.style, { width: `${w}px`, height: `${h}px`, margin: '0' }),
+    await slot.evaluate(
+      (el, [w, h]) =>
+        Object.assign(el.style, {
+          flex: 'none',
+          width: `${w}px`,
+          height: `${h}px`,
+          minHeight: '0',
+        }),
       [w, h],
     );
     const box = (await table.boundingBox())!;
