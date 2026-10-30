@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useIsPresent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { t } from '@/strings';
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 
@@ -32,6 +32,11 @@ export function Scaffold({
   const hasBar = !!bar;
   const owner = useId();
   const ref = scrollRef || inner;
+  const isPresent = useIsPresent();
+  const present = useRef(isPresent);
+  useEffect(() => {
+    present.current = isPresent;
+  }, [isPresent]);
   // The scroll body and the toast clear the bar by its real height, which grows with the note and the home indicator.
   useEffect(() => {
     const el = barRef.current,
@@ -41,7 +46,8 @@ export function Scaffold({
     let last = 0;
     const ro = new ResizeObserver(([e]) => {
       const h = Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight);
-      if (h === last) return;
+      // A screen animating out still resizes (popLayout); it must not take the anchor back from the new one.
+      if (h === last || !present.current) return;
       last = h;
       // Written to the two elements that use it: a variable on the root would restyle the whole app.
       body.style.paddingBottom = `${h + 24}px`;
