@@ -7,7 +7,9 @@ const colors: Record<string, string> = {
   ...Object.fromEntries(tokens.color.tokens.map((t) => [t.name, t.value.midnight])),
   ...extended.colors,
 };
-const sizes = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 34, 36, 40, 52, 64, 72, 96];
+const sizes = [
+  13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 34, 36, 40, 52, 64, 72, 96,
+];
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -16,7 +18,12 @@ export default {
       colors,
       fontSize: Object.fromEntries(sizes.map((s) => [s, `${s}px`])),
       fontFamily: {
-        display: ['"Bricolage Grotesque Variable"', '"DM Sans Variable"', 'system-ui', 'sans-serif'],
+        display: [
+          '"Bricolage Grotesque Variable"',
+          '"DM Sans Variable"',
+          'system-ui',
+          'sans-serif',
+        ],
         sans: ['"DM Sans Variable"', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
       },
       backgroundImage: extended.backgroundImage,
