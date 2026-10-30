@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import {
   bidOrder,
   curRound,
@@ -51,16 +51,14 @@ export function Bidding() {
     diff = sum - r.cards;
   const [shake, setShake] = useState<number | null>(null);
   const dealer = g.players[r.dealerIndex];
-  const cap =
-    hookWarn && isD ? (
-      <span className="text-[var(--warn)]">{t.bidding.earlierBidInvalid}</span>
-    ) : isD ? (
-      t.bidding.dealerLast
-    ) : bi === 0 ? (
-      t.bidding.first
-    ) : (
-      t.bidding.nth(bi + 1, n)
-    );
+  const cap = isD ? t.bidding.dealerLast : bi === 0 ? t.bidding.first : t.bidding.nth(bi + 1, n);
+  const reason =
+    hookWarn && isD
+      ? t.bidding.earlierBidInvalid
+      : isD && forb != null
+        ? t.bidding.cantBid(forb, r.cards)
+        : '';
+  const reasonId = useId();
   const pick = (v: number) => {
     const locked = isD && v === forb;
     actions.bid(v);
@@ -73,15 +71,84 @@ export function Bidding() {
     <RoundFrame
       r={r}
       bar={
-        allBid && !hookWarn ? (
-          <PrimaryButton className="w-full" onClick={() => actions.phase('playing')}>
-            {t.bidding.startPlaying}
-          </PrimaryButton>
-        ) : (
-          <PrimaryButton className="w-full" disabled>
-            {t.bidding.bidsIn(cnt, n)}
-          </PrimaryButton>
-        )
+        // The dock: everything a bidder touches sits in the thumb's reach, above the button.
+        <div className="flex w-full flex-col gap-2.5">
+          <div>
+            <div className="flex justify-between text-15 font-bold tracking-[-0.01em]">
+              <span>{t.bidding.total(sum, r.cards)}</span>
+              <span className={diff === 0 ? 'text-[var(--pos)]' : 'text-[var(--warn)]'}>
+                {diff < 0
+                  ? t.bidding.under(-diff)
+                  : diff > 0
+                    ? t.bidding.over(diff)
+                    : t.bidding.level}
+              </span>
+            </div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[.08]">
+              <motion.div
+                className="h-full origin-left rounded-full"
+                animate={{
+                  scaleX: Math.min(1, sum / r.cards),
+                  backgroundColor: diff > 0 ? palette.warning : palette['accent-spades'],
+                }}
+                style={{ background: diff > 0 ? 'var(--warn)' : 'var(--accent)' }}
+                transition={SPRING}
+              />
+            </div>
+          </div>
+          <div
+            id={reasonId}
+            aria-live="polite"
+            className="min-h-5 text-14 font-medium leading-5 text-[var(--warn)]"
+          >
+            {reason}
+          </div>
+          <div
+            role="group"
+            aria-label={t.bidding.bidFor(p.name)}
+            className="grid grid-cols-6 justify-items-center gap-2"
+          >
+            {Array.from({ length: r.cards + 1 }, (_, v) => {
+              const lock = isD && forb === v,
+                sel = r.bids[p.id] === v;
+              return (
+                <motion.button
+                  key={v}
+                  type="button"
+                  aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
+                  aria-pressed={sel}
+                  aria-disabled={lock || undefined}
+                  aria-describedby={lock ? reasonId : undefined}
+                  animate={shake === v ? shakeKF : { x: 0 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => pick(v)}
+                  className={`disp relative grid aspect-square min-h-11 w-full max-w-[60px] place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
+                >
+                  {sel && (
+                    <motion.span
+                      layoutId="pillsel"
+                      transition={SPRING_POP}
+                      className="absolute inset-0 rounded-[18px] bg-[linear-gradient(135deg,var(--accent),color-mix(in_srgb,var(--accent)_58%,black))] shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
+                    />
+                  )}
+                  <span className={`relative ${lock ? 'line-through' : ''}`}>{v}</span>
+                  {lock && (
+                    <span className="absolute right-1 top-1 text-[var(--warn)]">{Icon.lock}</span>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+          {allBid && !hookWarn ? (
+            <PrimaryButton className="w-full" onClick={() => actions.phase('playing')}>
+              {t.bidding.startPlaying}
+            </PrimaryButton>
+          ) : (
+            <PrimaryButton className="w-full" disabled>
+              {t.bidding.bidsIn(cnt, n)}
+            </PrimaryButton>
+          )}
+        </div>
       }
     >
       <Glass glow spot={false} className="p-2 pb-2.5">
@@ -105,7 +172,7 @@ export function Bidding() {
           {dealLine(g, r)}
         </p>
       </Glass>
-      <div className="relative my-4 h-[104px]">
+      <div className="relative mt-4 h-[104px]">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={pI}
@@ -127,66 +194,11 @@ export function Bidding() {
                   {p.name}
                 </div>
                 <div className="mt-1 text-16 text-[var(--tx2)]">{cap}</div>
-                {isD && forb != null && !hookWarn && (
-                  <div className="text-14 text-[var(--warn)]">
-                    {t.bidding.cantBid(forb, r.cards)}
-                  </div>
-                )}
               </div>
             </Glass>
           </motion.div>
         </AnimatePresence>
       </div>
-      <div className="grid grid-cols-6 justify-items-center gap-1.5">
-        {Array.from({ length: r.cards + 1 }, (_, v) => {
-          const lock = isD && forb === v,
-            sel = r.bids[p.id] === v;
-          return (
-            <motion.button
-              key={v}
-              type="button"
-              aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
-              aria-pressed={sel}
-              aria-disabled={lock || undefined}
-              animate={shake === v ? shakeKF : { x: 0 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => pick(v)}
-              className={`disp relative grid aspect-square w-full max-w-14 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
-            >
-              {sel && (
-                <motion.span
-                  layoutId="pillsel"
-                  transition={SPRING_POP}
-                  className="absolute inset-0 rounded-[18px] bg-[linear-gradient(135deg,var(--accent),color-mix(in_srgb,var(--accent)_58%,black))] shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
-                />
-              )}
-              <span className={`relative ${lock ? 'line-through' : ''}`}>{v}</span>
-              {lock && (
-                <span className="absolute right-1 top-1 text-[var(--warn)]">{Icon.lock}</span>
-              )}
-            </motion.button>
-          );
-        })}
-      </div>
-      <Glass spot={false} className="mt-4 px-3.5 py-3">
-        <div className="flex justify-between text-16 font-bold tracking-[-0.01em]">
-          <span>{t.bidding.total(sum, r.cards)}</span>
-          <span className={diff === 0 ? 'text-[var(--pos)]' : 'text-[var(--warn)]'}>
-            {diff < 0 ? t.bidding.under(-diff) : diff > 0 ? t.bidding.over(diff) : t.bidding.level}
-          </span>
-        </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08]">
-          <motion.div
-            className="h-full origin-left rounded-full"
-            animate={{
-              scaleX: Math.min(1, sum / r.cards),
-              backgroundColor: diff > 0 ? palette.warning : palette['accent-spades'],
-            }}
-            style={{ background: diff > 0 ? 'var(--warn)' : 'var(--accent)' }}
-            transition={SPRING}
-          />
-        </div>
-      </Glass>
     </RoundFrame>
   );
 }
