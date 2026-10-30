@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemo, type KeyboardEvent, type ReactNode } from 'react';
+import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
 import { trunc } from '@/lib/format';
-import { TD, seatPos, type TableSize } from '@/lib/tableGeometry';
+import { TD, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
@@ -29,6 +29,8 @@ interface TableProps {
   bids?: Record<string, number>;
   res?: Record<string, Outcome>;
   big?: boolean;
+  /** Fill the slot it sits in (a definite-height parent) instead of keeping the fixed design size. */
+  fit?: boolean;
   center?: ReactNode;
   arrowFrom?: number;
   arrowTo?: number;
@@ -80,10 +82,9 @@ function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
   }
   return (
     <motion.svg
-      width={d.W}
-      height={d.H}
+      viewBox={`0 0 ${d.W} ${d.H}`}
       aria-hidden
-      className="pointer-events-none absolute inset-0"
+      className="pointer-events-none absolute inset-0 h-full w-full"
       initial={false}
       animate={{ scaleX: dir === 'cw' ? 1 : -1 }}
       transition={{ type: 'spring', stiffness: 160, damping: 22 }}
@@ -108,6 +109,7 @@ export function Table({
   bids,
   res,
   big,
+  fit,
   center,
   arrowFrom,
   arrowTo,
@@ -123,15 +125,26 @@ export function Table({
     () => Array.from({ length: N }, (_, k) => seatPos(size, N, k, dir)),
     [size, N, dir],
   );
-  return (
-    <div className="relative mx-auto shrink-0" style={{ width: d.W, height: d.H }} data-table={uid}>
+  // `v` design pixels at the table's current size (see .table-box); never more than 1.5× the design.
+  const sc = (v: number) => `calc(${v} * var(--s))`;
+  const felt = {
+    left: toPct(size, { x: d.W / 2 - (d.rx - 10), y: d.cy - (d.ry - 6) }),
+    w: (2 * (d.rx - 10) * 100) / d.W,
+    h: (2 * (d.ry - 6) * 100) / d.H,
+  };
+  const box = (
+    <div
+      className={`table-box @container relative ${fit ? 'table-fit' : 'mx-auto shrink-0'}`}
+      style={{ '--tw': d.W, '--th': d.H } as CSSProperties}
+      data-table={uid}
+    >
       <div
         className="felt absolute rounded-[50%]"
         style={{
-          left: d.W / 2 - (d.rx - 10),
-          top: d.cy - (d.ry - 6),
-          width: 2 * (d.rx - 10),
-          height: 2 * (d.ry - 6),
+          left: `${felt.left.x}%`,
+          top: `${felt.left.y}%`,
+          width: `${felt.w}%`,
+          height: `${felt.h}%`,
         }}
       />
       <Arcs sz={size} dir={dir} />
@@ -139,7 +152,9 @@ export function Table({
         <div
           className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-center"
           style={
-            size === 'mini' ? { top: 'calc(50% - 2px)', flexDirection: 'row', gap: 8 } : undefined
+            size === 'mini'
+              ? { top: `calc(50% - ${sc(2)})`, flexDirection: 'row', gap: sc(8) }
+              : undefined
           }
         >
           {center}
@@ -154,10 +169,9 @@ export function Table({
             my = (a.y + b.y) / 2 + (d.cy - (a.y + b.y) / 2) * 0.5;
           return (
             <svg
-              width={d.W}
-              height={d.H}
+              viewBox={`0 0 ${d.W} ${d.H}`}
               aria-hidden
-              className="pointer-events-none absolute inset-0 z-[1]"
+              className="pointer-events-none absolute inset-0 z-[1] h-full w-full"
             >
               <defs>
                 <marker
@@ -187,10 +201,12 @@ export function Table({
             </svg>
           );
         })()}
-      {seats.map(({ x, y }, k) => {
+      {seats.map((seat, k) => {
+        const at = toPct(size, seat),
+          av = sc(d.R * 2);
+        // Tappable seats keep a 44px box whatever the scale, with the avatar centred in it.
+        const boxH = onSeat ? `max(44px, ${av})` : av;
         const p = players[k];
-        // Mini seats are 32px tall; tappable ones grow their box to 44 without moving the avatar.
-        const slop = onSeat ? Math.max(0, 22 - d.R) : 0;
         const ring =
           cur === k ? 'ring-pulse' : warn === k ? 'warn-pulse' : hl === k ? 'ring-pulse' : '';
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
@@ -211,8 +227,13 @@ export function Table({
                 }
               },
             })}
-            className={`absolute z-[2] w-[72px] ${onSeat ? 'cursor-pointer' : ''}`}
-            style={{ left: x - 36, top: y - d.R - slop, height: d.R * 2 + slop * 2 }}
+            className={`absolute z-[2] ${onSeat ? 'cursor-pointer' : ''}`}
+            style={{
+              left: `calc(${at.x}% - ${sc(36)})`,
+              top: `calc(${at.y}% - ${boxH} / 2)`,
+              width: sc(72),
+              height: boxH,
+            }}
           >
             <motion.div
               initial={noSeatAnim ? false : { opacity: 0, scale: 0.3, y: dropIdx === k ? -60 : 0 }}
@@ -221,7 +242,7 @@ export function Table({
                 dropIdx === k ? SPRING_POP : { ...SPRING, delay: noSeatAnim ? 0 : k * 0.04 }
               }
               className="relative w-full"
-              style={{ height: d.R * 2, marginTop: slop }}
+              style={{ height: av, marginTop: onSeat ? `max(0px, calc((44px - ${av}) / 2))` : 0 }}
             >
               {p ? (
                 <motion.div
@@ -231,10 +252,10 @@ export function Table({
                   transition={SPRING}
                   className={`mx-auto grid place-items-center rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
                   style={{
-                    width: d.R * 2,
-                    height: d.R * 2,
+                    width: av,
+                    height: av,
                     background: p.color,
-                    fontSize: size === 'full' ? 24 : 18,
+                    fontSize: `max(0.8125rem, ${sc(size === 'full' ? 24 : 18)})`,
                   }}
                 >
                   {p.emoji}
@@ -242,7 +263,7 @@ export function Table({
               ) : (
                 <div
                   className={`mx-auto grid place-items-center rounded-full border-2 border-dashed border-white/30 bg-white/[.04] text-13 text-[var(--tx2)] ${ring}`}
-                  style={{ width: d.R * 2, height: d.R * 2 }}
+                  style={{ width: av, height: av }}
                 >
                   {k + 1}
                 </div>
@@ -251,7 +272,7 @@ export function Table({
                 <div
                   data-seat-name
                   className="absolute inset-x-0 text-center text-13 font-bold leading-4 tracking-[0.005em] [text-shadow:0_1px_3px_black]"
-                  style={{ top: d.R * 2 + 1 }}
+                  style={{ top: 'calc(100% + 1px)' }}
                 >
                   {trunc(p.name)}
                 </div>
@@ -260,11 +281,21 @@ export function Table({
                 <motion.div
                   layoutId={'dealer-' + uid}
                   transition={{ type: 'spring', stiffness: 170, damping: 22 }}
-                  className="absolute z-[4] flex items-center justify-center gap-[3px] bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_2px_8px_rgba(0,0,0,.5),0_0_16px_rgba(226,182,83,.55)]"
+                  className="absolute z-[4] flex items-center justify-center gap-[3px] rounded-full bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_2px_8px_rgba(0,0,0,.5),0_0_16px_rgba(226,182,83,.55)]"
                   style={
                     chipPill
-                      ? { width: 66, height: 20, borderRadius: 10, left: 3, top: -22 }
-                      : { width: 22, height: 22, borderRadius: 11, left: 12, top: -7 }
+                      ? {
+                          width: `max(66px, ${sc(66)})`,
+                          height: `max(20px, ${sc(20)})`,
+                          left: sc(3),
+                          top: `calc(-1 * max(20px, ${sc(20)}) - ${sc(2)})`,
+                        }
+                      : {
+                          width: `max(1.125rem, ${sc(22)})`,
+                          height: `max(1.125rem, ${sc(22)})`,
+                          left: sc(12),
+                          top: sc(-7),
+                        }
                   }
                 >
                   {Icon.deck}
@@ -279,10 +310,10 @@ export function Table({
                   className="absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] bg-[var(--accent)] px-1.5 text-13 font-extrabold leading-[18px] text-ink-on-accent"
                   style={
                     firstLabel && size === 'full'
-                      ? { left: '50%', top: -22, translate: '-50% 0' }
+                      ? { left: '50%', top: sc(-22), translate: '-50% 0' }
                       : {
-                          left: `calc(50% + ${size === 'full' ? 10 : 6}px)`,
-                          top: size === 'full' ? -8 : -9,
+                          left: `calc(50% + ${sc(size === 'full' ? 10 : 6)})`,
+                          top: sc(size === 'full' ? -8 : -9),
                         }
                   }
                 >
@@ -303,22 +334,22 @@ export function Table({
                     style={
                       big
                         ? {
-                            minWidth: 32,
-                            height: 32,
-                            borderRadius: 16,
-                            fontSize: 22,
-                            lineHeight: '29px',
-                            left: 36 + d.R - 16,
-                            top: d.R - 16,
+                            minWidth: sc(32),
+                            height: sc(32),
+                            borderRadius: sc(16),
+                            fontSize: `max(0.8125rem, ${sc(22)})`,
+                            lineHeight: sc(29),
+                            left: `calc(50% + ${sc(d.R - 16)})`,
+                            top: sc(d.R - 16),
                           }
                         : {
-                            minWidth: 22,
-                            height: 22,
-                            borderRadius: 11,
-                            fontSize: 14,
-                            lineHeight: '19px',
-                            left: 36 + d.R - 11,
-                            top: d.R - 11,
+                            minWidth: sc(22),
+                            height: sc(22),
+                            borderRadius: sc(11),
+                            fontSize: `max(0.8125rem, ${sc(14)})`,
+                            lineHeight: sc(19),
+                            left: `calc(50% + ${sc(d.R - 11)})`,
+                            top: sc(d.R - 11),
                           }
                     }
                   >
@@ -332,7 +363,7 @@ export function Table({
                   animate={{ scale: 1 }}
                   transition={SPRING_POP}
                   className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
-                  style={{ left: `calc(50% - ${d.R + 6}px)`, bottom: -4 }}
+                  style={{ left: `calc(50% - ${sc(d.R + 6)})`, bottom: sc(-4) }}
                 >
                   {out === 'made' ? t.table.made : t.table.missed}
                 </motion.div>
@@ -343,5 +374,10 @@ export function Table({
       })}
       {children}
     </div>
+  );
+  return fit ? (
+    <div className="cq-size grid h-full min-h-0 w-full place-items-center">{box}</div>
+  ) : (
+    box
   );
 }

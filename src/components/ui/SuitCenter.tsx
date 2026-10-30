@@ -11,7 +11,7 @@ interface SuitCenterProps {
 export const SuitCenter = ({ trump, cards, big }: SuitCenterProps) => (
   <>
     <div
-      className={`relative leading-none ${big ? 'text-96' : 'text-34'}`}
+      className={`relative leading-none ${big ? 'text-96' : 'text-34 @[26rem]:text-40 @[38rem]:text-52'}`}
       style={{ color: TR[trump].col, textShadow: `0 0 ${big ? 20 : 18}px var(--accent)` }}
     >
       {TR[trump].sym}
@@ -27,7 +27,7 @@ export const SuitCenter = ({ trump, cards, big }: SuitCenterProps) => (
       )}
     </div>
     <div
-      className={`${big ? 'text-14 text-[var(--tx)]' : 'text-13 text-[var(--tx2)]'} whitespace-nowrap font-medium tracking-[0.01em]`}
+      className={`${big ? 'text-14 text-[var(--tx)] @[38rem]:text-16' : 'text-13 text-[var(--tx2)] @[26rem]:text-14 @[38rem]:text-16'} whitespace-nowrap font-medium tracking-[0.01em]`}
     >
       {big ? t.suit.big(TR[trump].name, cards) : t.suit.cards(cards)}
     </div>
