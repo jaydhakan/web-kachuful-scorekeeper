@@ -10,7 +10,6 @@ export async function startGame(
   onStep: (step: string) => Promise<void> = async () => {},
 ) {
   await btn(page, 'New Game').click();
-  await btn(page, 'Start new').click();
   await btn(page, `${names.length} players`).click();
   await onStep('setup 1');
   await btn(page, 'Next').click();

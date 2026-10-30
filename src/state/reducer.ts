@@ -89,14 +89,18 @@ function freshGame(
 }
 
 function begin(s: AppState, g: Game): AppState {
-  return {
+  const old = s.game;
+  // A real game in progress (or just finished) stays one Undo away instead of being confirmed away.
+  const keep = old.id !== 'demo' && old.rounds.some((r) => Object.keys(r.bids).length > 0);
+  const next: AppState = {
     ...s,
     game: g,
-    undo: [],
+    undo: keep ? pushSnapshot([], JSON.stringify(old)) : [],
     dir: 1,
     screen: 'round',
     seq: { round: g.rounds[0], prev: null, banner: roundBanner(g, g.rounds[0]) },
   };
+  return keep ? say(next, m.toasts.previousReplaced, true) : next;
 }
 
 function bid(s: AppState, v: number): AppState {
@@ -148,6 +152,7 @@ function undoLast(s: AppState): AppState {
     advance: null,
     sumAnim: false,
     sheet: null,
+    seq: null,
     dir: -1 as const,
   };
   return say({ ...base, screen: g.status === 'finished' ? 'winner' : 'round' }, m.toasts.undone);

@@ -19,6 +19,13 @@ async function toResults(page) {
   await pause(page, 700);
 }
 
+/** The prototype confirms New Game; Phase 2 goes straight to setup (Undo after Deal instead). */
+async function startNew(page) {
+  await pause(page, 400);
+  const b = btn(page, 'Start new');
+  if (await b.count()) await b.click();
+}
+
 export const scenarios = [
   {
     seed: 'home',
@@ -26,7 +33,7 @@ export const scenarios = [
       await shot('home');
       await btn(page, 'New Game').click();
       await shot('home-new-game-modal');
-      await btn(page, 'Start new').click();
+      await startNew(page);
       await pause(page, 700);
       await shot('setup-1');
       await page.locator('button', { hasText: /^5$/ }).click();
@@ -46,7 +53,7 @@ export const scenarios = [
     seed: 'home',
     run: async ({ page, shot }) => {
       await btn(page, 'New Game').click();
-      await btn(page, 'Start new').click();
+      await startNew(page);
       await pause(page, 700);
       await page.locator('button', { hasText: /Use last group/ }).click();
       await pause(page, 800);
@@ -60,7 +67,7 @@ export const scenarios = [
     seed: 'home',
     run: async ({ page, shot }) => {
       await btn(page, 'New Game').click();
-      await btn(page, 'Start new').click();
+      await startNew(page);
       await pause(page, 700);
       await page.locator('button', { hasText: /^6$/ }).click();
       await pause(page, 500);

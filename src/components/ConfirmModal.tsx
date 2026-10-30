@@ -16,8 +16,7 @@ export function ConfirmModal({ kind }: { kind: ModalKind }) {
       onCancel={() => actions.ask(null)}
       onOk={() => {
         actions.ask(null);
-        if (kind === 'newGame') actions.startSetup();
-        else actions.finishGame();
+        actions.finishGame();
       }}
     />
   );

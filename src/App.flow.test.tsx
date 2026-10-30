@@ -15,7 +15,6 @@ const setup = () => userEvent.setup({ pointerEventsCheck: 0 });
 
 async function seatThree(u: ReturnType<typeof setup>) {
   await u.click(await btn('New Game'));
-  await u.click(await btn('Start new'));
   await u.click(await btn('3 players'));
   await u.click(await btn('Next'));
   for (const [i, n] of ['Asha', 'Bo', 'Cy'].entries()) {
@@ -88,7 +87,6 @@ describe('setup → bid → play → results → summary', () => {
     const u = setup();
     render(<App />);
     await u.click(await btn('New Game'));
-    await u.click(await btn('Start new'));
     await u.click(await btn('4 players'));
     await u.click(await btn('Next'));
     const input = await screen.findByLabelText('Player name');
@@ -106,7 +104,6 @@ describe('first run', () => {
     expect(await screen.findByText('Try the demo')).toBeInTheDocument();
     expect(screen.queryByText(/Saved /)).not.toBeInTheDocument();
     await u.click(await btn('New Game'));
-    await u.click(await btn('Start new'));
     expect(await btn('3 players')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Use last group/ })).not.toBeInTheDocument();
     await u.click(await btn('3 players'));

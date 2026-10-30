@@ -88,6 +88,36 @@ describe('setup and starting a game', () => {
     expect(st.seq).toMatchObject({ prev: null, round: { index: 0, cards: 3 } });
   });
 
+  it('dealing over a real game keeps it one Undo away instead of confirming', () => {
+    const seats = [0, 1, 2].map((i) => ({ name: 'Q' + i, emoji: 'x', color: 'c' }));
+    const mine = { ...demoGame(), id: 'mine' };
+    const st = run(
+      initialState(mine, 'home', []),
+      { type: 'startSetup', lg: null },
+      { type: 'setupPatch', patch: { n: 3, step: 3, seats } },
+      { type: 'beginGame', id: 'g1', now: 1_000 },
+    );
+    expect(st.game.id).toBe('g1');
+    expect(st.undo).toHaveLength(1);
+    expect(st.toast).toMatchObject({ msg: 'Previous game replaced', undo: true });
+    const back = run(st, { type: 'undo' });
+    expect(back.game.id).toBe('mine');
+    expect(back.screen).toBe('round');
+    expect(back.seq).toBeNull();
+  });
+
+  it('dealing over the demo, or over a game with no bids, keeps nothing', () => {
+    expect(setup(3).undo).toEqual([]);
+    expect(setup(3).toast).toBeNull();
+    const fresh = run(setup(3), { type: 'go', screen: 'home' }, { type: 'startSetup', lg: null });
+    const again = run(
+      fresh,
+      { type: 'setupPatch', patch: { n: 3, step: 3, seats: setup(3).setup!.seats } },
+      { type: 'beginGame', id: 'g2', now: 2_000 },
+    );
+    expect(again.undo).toEqual([]);
+  });
+
   it('swaps seats and keeps the dealer on the same person', () => {
     const st = run(
       setup(4),
@@ -300,7 +330,7 @@ describe('finishing, rematch and undo', () => {
     expect(run(st, { type: 'undo' }).game.status).toBe('active');
   });
 
-  it('a rematch keeps the players, moves the first dealer on and clears undo', () => {
+  it('a rematch of the demo keeps the players, moves the first dealer on and clears undo', () => {
     const st = run(demo(), { type: 'bid', v: 1 }, { type: 'rematch', id: 'g2', now: 5 });
     const g: Game = st.game;
     expect(g.id).toBe('g2');
@@ -309,6 +339,15 @@ describe('finishing, rematch and undo', () => {
     expect(curRound(g)).toMatchObject({ index: 0, dealerIndex: 1, phase: 'bidding' });
     expect(st.undo).toEqual([]);
     expect(st.screen).toBe('round');
+  });
+
+  it('a rematch of a real finished game keeps it one Undo away', () => {
+    const fin = run(initialState({ ...demoGame(), id: 'mine' }, 'winner', []), {
+      type: 'finishGame',
+    });
+    const st = run(fin, { type: 'rematch', id: 'g2', now: 5 });
+    expect(st.undo).toHaveLength(1);
+    expect(run(st, { type: 'undo' })).toMatchObject({ screen: 'winner', game: { id: 'mine' } });
   });
 
   it('says so when there is nothing to undo', () => {
