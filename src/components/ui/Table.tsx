@@ -1,7 +1,19 @@
 import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion';
 import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
-import { DEALS_PILL, TD, dpx, minScale, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
+import {
+  DEALS_PILL,
+  SMALL_CHIP,
+  TD,
+  chipOnRight,
+  dpx,
+  minScale,
+  pillChip,
+  seatPos,
+  smallChipOffset,
+  toPct,
+  type TableSize,
+} from '@/lib/tableGeometry';
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
@@ -119,7 +131,7 @@ export function Table({
 }: TableProps) {
   const d = TD[size],
     N = n || players.length;
-  const chipPill = size === 'full';
+  const chipPill = pillChip(size, N);
   const seats = useMemo(
     () => Array.from({ length: N }, (_, k) => seatPos(size, N, k, dir)),
     [size, N, dir],
@@ -295,10 +307,10 @@ export function Table({
                           top: `calc(-1 * ${DEALS_PILL.height} - ${dpx(2)})`,
                         }
                       : {
-                          width: `max(1.125rem, ${dpx(22)})`,
-                          height: `max(1.125rem, ${dpx(22)})`,
-                          left: dpx(12),
-                          top: dpx(-7),
+                          ...SMALL_CHIP,
+                          // The corner away from the seat above, whose name sits right there.
+                          left: `calc(50% + ${dpx(smallChipOffset(d.R, chipOnRight(at.x)).x)})`,
+                          top: dpx(smallChipOffset(d.R, chipOnRight(at.x)).y + d.R),
                         }
                   }
                 >
@@ -325,8 +337,8 @@ export function Table({
                   {firstLabel && size === 'full' ? (
                     // The long label would reach the centre text on a small table, so it falls back to the short one.
                     <>
-                      <span className="hidden @[26rem]:inline">{firstLabel}</span>
-                      <span className="@[26rem]:hidden">{t.table.first}</span>
+                      <span className="hidden @[34rem]:inline">{firstLabel}</span>
+                      <span className="@[34rem]:hidden">{t.table.first}</span>
                     </>
                   ) : (
                     firstLabel || t.table.first

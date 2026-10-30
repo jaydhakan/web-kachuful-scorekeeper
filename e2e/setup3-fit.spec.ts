@@ -68,6 +68,7 @@ test.describe('setup 3 fits the screen', () => {
 
     await btn(page, /Random/).click();
     await expect(page.locator('[data-table="su3"] .z-\\[6\\]')).toHaveCount(0, { timeout: 5000 });
-    await expect(table.locator('[data-seat-chip]').filter({ hasText: /Deals/i })).toHaveCount(1);
+    // The dealer chip (a pill with a label, or a bare icon on a crowded table); the first-player tag says 1st.
+    await expect(table.locator('[data-seat-chip]').filter({ hasNotText: /1st/i })).toHaveCount(1);
   });
 });
