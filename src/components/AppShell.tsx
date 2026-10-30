@@ -18,7 +18,7 @@ import { RepairSaveModal } from './RepairSaveModal';
 import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
 import { Toast } from './ui/Toast';
-import { EASE } from './ui/motion';
+import { EASE, SPRING_SOFT } from './ui/motion';
 
 const Winner = lazy(() => import('@/screens/Winner'));
 const Confetti = lazy(() => import('./ui/Confetti').then((m) => ({ default: m.Confetti })));
@@ -60,7 +60,14 @@ export function AppShell() {
       className="app-root scr-bg grain relative h-full w-full"
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
-      <div className="absolute inset-0" {...(blocked ? { inert: '' as const } : {})}>
+      {/* The page recedes while a sheet or modal is over it. Transform only, and not at all under reduced motion. */}
+      <motion.div
+        className="absolute inset-0"
+        initial={false}
+        animate={rm ? undefined : { scale: sheet || modal ? 0.975 : 1 }}
+        transition={SPRING_SOFT}
+        {...(blocked ? { inert: '' as const } : {})}
+      >
         <div
           aria-hidden
           className="ambient pointer-events-none absolute -top-32 left-1/2 h-[max(360px,45vh)] w-[max(520px,70vw)] rounded-full opacity-90 blur-3xl"
@@ -81,7 +88,7 @@ export function AppShell() {
           </motion.div>
         </AnimatePresence>
         <Banner banner={banner} />
-      </div>
+      </motion.div>
       <UpdatePrompt />
       <Toast toast={toast} onUndo={actions.undo} />
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
