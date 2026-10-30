@@ -13,13 +13,29 @@ interface RoundFrameProps {
   barNote?: ReactNode;
   children: ReactNode;
   navLeft?: ReactNode;
+  aside?: ReactNode;
+  asideFirst?: boolean;
+  fit?: boolean;
 }
 
-export function RoundFrame({ r, title, bar, barNote, children, navLeft }: RoundFrameProps) {
+export function RoundFrame({
+  r,
+  title,
+  bar,
+  barNote,
+  children,
+  navLeft,
+  aside,
+  asideFirst,
+  fit,
+}: RoundFrameProps) {
   const { actions } = useApp();
   return (
     <Scaffold
       title={title}
+      aside={aside}
+      asideFirst={asideFirst}
+      fit={fit}
       navTitle={t.round.title(r.index + 1)}
       bar={bar}
       barNote={barNote}

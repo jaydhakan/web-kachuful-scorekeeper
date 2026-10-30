@@ -34,9 +34,20 @@ interface SetupFrameProps {
   title: string;
   bar: ReactNode;
   children: ReactNode;
+  aside?: ReactNode;
+  asideFirst?: boolean;
+  fit?: boolean;
 }
 
-export function SetupFrame({ step, title, bar, children }: SetupFrameProps) {
+export function SetupFrame({
+  step,
+  title,
+  bar,
+  children,
+  aside,
+  asideFirst,
+  fit,
+}: SetupFrameProps) {
   const { actions } = useSetup();
   const back = () =>
     step === 1 ? actions.go('home', -1) : actions.setupPatch({ step: (step - 1) as 1 | 2 });
@@ -49,6 +60,9 @@ export function SetupFrame({ step, title, bar, children }: SetupFrameProps) {
       }
       navTitle={<Dots step={step} />}
       title={title}
+      aside={aside}
+      asideFirst={asideFirst}
+      fit={fit}
       bar={bar}
     >
       {children}

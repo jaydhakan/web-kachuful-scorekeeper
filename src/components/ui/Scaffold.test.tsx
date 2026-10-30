@@ -47,4 +47,15 @@ describe('Scaffold', () => {
   it('treats the two-pane layouts as one breakpoint', () => {
     expect(MQ.pane).toBe(`${MQ.land}, ${MQ.wide}`);
   });
+
+  it('wraps the main area in a flex column when it must fill the height left over', () => {
+    const { container } = render(
+      <Scaffold fit>
+        <p>Main</p>
+      </Scaffold>,
+    );
+    const main = screen.getByText('Main').parentElement!;
+    expect(main.className).toContain('flex-1');
+    expect(container.querySelector('[role="region"]')!.className).toContain('flex-col');
+  });
 });
