@@ -90,10 +90,10 @@ export function Summary() {
       aside={
         // On a short one-column screen the card is one line and the table hides; panes always have room.
         <Glass glow spot={false} className="mt-3.5 p-3 pane:mt-0">
-          <p className="hidden text-center text-14 leading-[1.4] [text-wrap:balance] @h-[52rem]:block pane:!hidden">
+          <p className="hidden text-center text-14 leading-[1.4] [text-wrap:balance] @h-[56rem]:block pane:!hidden">
             {t.summary.nextShort(nr.index + 1, nr.cards, nr.trump, nD.name, nF.name)}
           </p>
-          <div className="@h-[52rem]:hidden pane:!block">
+          <div className="@h-[56rem]:hidden pane:!block">
             <div className="flex items-center justify-between text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
               <span>{t.summary.nextUp}</span>
               {tag && (
@@ -102,9 +102,10 @@ export function Summary() {
                 </span>
               )}
             </div>
-            <div className="-mx-3">
+            {/* A phone on its side below 45rem leaves the pane narrower than the smallest table. */}
+            <div className="-mx-3 land:max-[45rem]:hidden">
               <div
-                className={`mx-auto flex w-full max-w-[17rem] flex-col md:max-w-[22rem] pane:max-w-[22rem] ${wide ? 'aspect-[34/30]' : 'aspect-[32/17]'}`}
+                className={`mx-auto flex w-full max-w-[20rem] flex-col md:max-w-[22rem] pane:max-w-none ${wide ? 'aspect-[34/30]' : 'aspect-[32/17]'}`}
               >
                 <Table
                   uid="sum"

@@ -223,8 +223,11 @@ export const t = {
       first: string,
     ): ReactNode => (
       <>
-        Round {round} · {b(`${cards} cards`)} · <SuitGlyph trump={trump} />
-        <span className="sr-only"> {TR[trump].name}</span> · {b(dealer)} deals, {b(first)} first
+        Round {round} · {b(`${cards} cards`)} ·{' '}
+        <span role="img" aria-label={TR[trump].name}>
+          <SuitGlyph trump={trump} />
+        </span>{' '}
+        · {b(dealer)} deals, {b(first)} first
       </>
     ),
   },
