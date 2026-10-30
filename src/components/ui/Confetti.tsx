@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { confettiCount } from '@/lib/confettiCount';
 
 interface ConfettiProps {
   colors: string[];
@@ -13,15 +14,27 @@ export function Confetti({ colors, onDone }: ConfettiProps) {
       p = c?.parentElement,
       x = c?.getContext('2d');
     if (!c || !p || !x) return;
-    const w = p.clientWidth,
-      h = p.clientHeight,
-      dpr = Math.min(2, window.devicePixelRatio || 1);
-    c.width = w * dpr;
-    c.height = h * dpr;
-    x.scale(dpr, dpr);
-    const P = Array.from({ length: 150 }, () => ({
-      x: w / 2 + (Math.random() - 0.5) * 80,
-      y: h * 0.3,
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const size = { w: 0, h: 0 };
+    // Setting width resets the context, so the scale is applied again every time; particles are untouched.
+    const fit = () => {
+      size.w = p.clientWidth;
+      size.h = p.clientHeight;
+      c.width = size.w * dpr;
+      c.height = size.h * dpr;
+      x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    fit();
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit);
+    ro?.observe(p);
+    // The burst starts at the podium when the screen has one, else high and centred.
+    const pr = p.getBoundingClientRect(),
+      pod = document.querySelector('[data-podium]')?.getBoundingClientRect();
+    const ox = pod ? pod.left + pod.width / 2 - pr.left : size.w / 2,
+      oy = pod ? pod.top + pod.height / 2 - pr.top : size.h * 0.3;
+    const P = Array.from({ length: confettiCount(size.w, size.h) }, () => ({
+      x: ox + (Math.random() - 0.5) * 80,
+      y: oy,
       vx: (Math.random() - 0.5) * 14,
       vy: -Math.random() * 13 - 3,
       r: Math.random() * 6 + 3,
@@ -37,7 +50,7 @@ export function Confetti({ colors, onDone }: ConfettiProps) {
         onDone?.();
         return;
       }
-      x.clearRect(0, 0, w, h);
+      x.clearRect(0, 0, size.w, size.h);
       P.forEach((q) => {
         q.vy += 0.35;
         q.x += q.vx;
@@ -55,7 +68,10 @@ export function Confetti({ colors, onDone }: ConfettiProps) {
       raf = requestAnimationFrame(f);
     };
     raf = requestAnimationFrame(f);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro?.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per mount
   }, []);
   return <canvas ref={ref} aria-hidden className="pointer-events-none absolute inset-0 z-[55]" />;
