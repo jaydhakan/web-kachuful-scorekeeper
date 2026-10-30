@@ -49,8 +49,6 @@ const ALLOWED = new Set<string>([
   'screens/round/Results.tsx: transition-colors',
   'screens/setup/Step2.tsx: transition-shadow',
   'sheets/MenuBody.tsx: whileTap backgroundColor',
-  'styles/index.css: transition --accent',
-  'styles/index.css: transition --glow',
 ]);
 
 describe('animations stay on transform and opacity', () => {
