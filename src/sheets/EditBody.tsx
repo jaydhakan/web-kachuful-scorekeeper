@@ -7,6 +7,7 @@ import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
+import { t } from '@/strings';
 
 export function EditBody({ i }: { i: number }) {
   const { state, actions } = useApp();
@@ -19,7 +20,7 @@ export function EditBody({ i }: { i: number }) {
   return (
     <>
       <div className="mb-2 text-13 text-[var(--tx2)]">
-        {r.cards} cards · {TR[r.trump].name} · dealt by {g.players[r.dealerIndex].name}
+        {t.sheets.editInfo(r.cards, TR[r.trump].name, g.players[r.dealerIndex].name)}
       </div>
       {od.map((k) => {
         const p = g.players[k];
@@ -32,7 +33,7 @@ export function EditBody({ i }: { i: number }) {
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.88 }}
-                  aria-label={`Lower bid for ${p.name}`}
+                  aria-label={t.sheets.lowerBid(p.name)}
                   onClick={() => setBids((b) => ({ ...b, [p.id]: Math.max(0, b[p.id] - 1) }))}
                   className="h-10 w-10 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
@@ -44,7 +45,7 @@ export function EditBody({ i }: { i: number }) {
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.88 }}
-                  aria-label={`Raise bid for ${p.name}`}
+                  aria-label={t.sheets.raiseBid(p.name)}
                   onClick={() => setBids((b) => ({ ...b, [p.id]: Math.min(r.cards, b[p.id] + 1) }))}
                   className="h-10 w-10 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
@@ -58,24 +59,22 @@ export function EditBody({ i }: { i: number }) {
               value={res[p.id]}
               onChange={(v) => setRes((s) => ({ ...s, [p.id]: v }))}
               options={[
-                { v: 'made', label: '✓', tone: 'pos' },
-                { v: 'missed', label: '✗', tone: 'neg' },
+                { v: 'made', label: t.table.made, tone: 'pos' },
+                { v: 'missed', label: t.table.missed, tone: 'neg' },
               ]}
             />
           </Glass>
         );
       })}
       {allMade && (
-        <div className="py-2 text-14 font-medium text-[var(--warn)]">
-          Someone has to miss — the bids can’t all be right. Check again.
-        </div>
+        <div className="py-2 text-14 font-medium text-[var(--warn)]">{t.results.allMadeEdit}</div>
       )}
       <PrimaryButton
         className="mt-2 w-full"
         disabled={allMade}
         onClick={() => actions.editRound(i, bids, res)}
       >
-        Save
+        {t.common.save}
       </PrimaryButton>
     </>
   );

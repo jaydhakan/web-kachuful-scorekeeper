@@ -7,13 +7,22 @@ interface IconButtonProps {
   onClick: () => void;
   label: string;
   className?: string;
+  /** Keeps a dialog from focusing this control first (close buttons). */
+  skipInitialFocus?: boolean;
 }
 
-export function IconButton({ children, onClick, label, className = '' }: IconButtonProps) {
+export function IconButton({
+  children,
+  onClick,
+  label,
+  className = '',
+  skipInitialFocus,
+}: IconButtonProps) {
   return (
     <motion.button
       type="button"
       aria-label={label}
+      data-skip-initial-focus={skipInitialFocus || undefined}
       onClick={onClick}
       whileTap={{ scale: 0.88 }}
       whileHover={{ backgroundColor: 'rgba(255,255,255,.08)' }}

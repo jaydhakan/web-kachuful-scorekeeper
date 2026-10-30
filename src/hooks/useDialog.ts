@@ -28,7 +28,7 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
 
     const first =
       root.querySelector<HTMLElement>('[data-autofocus]') ??
-      focusables(root).find((el) => !el.matches('[aria-label="Close"]'));
+      focusables(root).find((el) => !el.matches('[data-skip-initial-focus]'));
     (first ?? root).focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {

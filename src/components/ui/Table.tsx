@@ -5,6 +5,7 @@ import { trunc } from '@/lib/format';
 import { TD, seatPos, type TableSize } from '@/lib/tableGeometry';
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
+import { t } from '@/strings';
 
 export interface TablePlayer {
   id?: string;
@@ -199,7 +200,7 @@ export function Table({
             {...(onSeat && {
               role: 'button',
               tabIndex: 0,
-              'aria-label': p ? `Seat ${k + 1}: ${p.name}` : `Seat ${k + 1}`,
+              'aria-label': t.table.seat(k + 1, p?.name),
               onClick: () => onSeat(k),
               onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -263,7 +264,7 @@ export function Table({
                   }
                 >
                   {Icon.deck}
-                  {chipPill && 'DEALS'}
+                  {chipPill && t.table.deals}
                 </motion.div>
               )}
               {p && first === k && (
@@ -281,7 +282,7 @@ export function Table({
                         }
                   }
                 >
-                  {firstLabel || '1st'}
+                  {firstLabel || t.table.first}
                 </motion.div>
               )}
               <AnimatePresence>
@@ -327,7 +328,7 @@ export function Table({
                   className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
                   style={{ left: `calc(50% - ${d.R + 6}px)`, bottom: -4 }}
                 >
-                  {out === 'made' ? '✓' : '✗'}
+                  {out === 'made' ? t.table.made : t.table.missed}
                 </motion.div>
               )}
             </motion.div>

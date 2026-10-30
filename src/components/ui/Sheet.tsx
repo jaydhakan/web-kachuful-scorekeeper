@@ -4,6 +4,7 @@ import { useDialog } from '@/hooks/useDialog';
 import { EASE } from './motion';
 import { Icon } from './Icons';
 import { IconButton } from './IconButton';
+import { t } from '@/strings';
 
 interface SheetProps {
   title: string;
@@ -57,7 +58,7 @@ export function Sheet({ title, onClose, full, children }: SheetProps) {
             <h2 id={titleId} className="disp text-26 font-extrabold tracking-[-0.03em]">
               {title}
             </h2>
-            <IconButton label="Close" onClick={onClose} className="-mr-2">
+            <IconButton label={t.common.close} onClick={onClose} skipInitialFocus className="-mr-2">
               {Icon.close}
             </IconButton>
           </div>

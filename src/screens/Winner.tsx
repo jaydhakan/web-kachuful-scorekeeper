@@ -11,6 +11,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
+import { t } from '@/strings';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -90,7 +91,7 @@ export default function Winner() {
           style={{ height: h, originY: 1, opacity: m.length ? 1 : 0.25 }}
           className={`disp flex w-full flex-col items-center rounded-t-2xl pt-2 text-32 font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)] ${PODIUM_BG[k]}`}
         >
-          {k === 1 ? '1st' : k === 2 ? '2nd' : '3rd'}
+          {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
           <small className="font-sans text-13 font-bold">{m.length ? sgnN(m[0].t) : '—'}</small>
         </motion.div>
       </div>
@@ -99,11 +100,11 @@ export default function Winner() {
   return (
     <Scaffold
       left={
-        <IconButton label="Home" onClick={() => actions.go('home', -1)}>
+        <IconButton label={t.common.home} onClick={() => actions.go('home', -1)}>
           {Icon.back}
         </IconButton>
       }
-      navTitle="Final scores"
+      navTitle={t.winner.finalScores}
       bar={
         <>
           <PrimaryButton
@@ -111,10 +112,10 @@ export default function Winner() {
             className="gap-2 px-5"
             onClick={() => actions.openSheet({ type: 'share' })}
           >
-            {Icon.share} Share
+            {Icon.share} {t.winner.share}
           </PrimaryButton>
           <PrimaryButton className="flex-1" onClick={actions.rematch}>
-            Rematch
+            {t.winner.rematch}
           </PrimaryButton>
         </>
       }
@@ -157,25 +158,39 @@ export default function Winner() {
           </Glass>
         </motion.div>
       ))}
-      <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">Game highlights</h2>
+      <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
+        {t.winner.highlights}
+      </h2>
       <div className="grid grid-cols-2 gap-2.5">
-        <StatCard i={0} ic="🎯" t="Sharpshooter" p={S.sharp.p} s={`${S.sharp.exact} exact bids`} />
-        <StatCard i={1} ic="💥" t="Big round" p={S.big.p} s={`${sgnN(S.big.best)} in one round`} />
+        <StatCard
+          i={0}
+          ic="🎯"
+          t={t.winner.sharp}
+          p={S.sharp.p}
+          s={t.winner.exactBids(S.sharp.exact)}
+        />
+        <StatCard
+          i={1}
+          ic="💥"
+          t={t.winner.big}
+          p={S.big.p}
+          s={t.winner.inOneRound(sgnN(S.big.best))}
+        />
         <StatCard
           i={2}
           ic="🔥"
-          t="Hot streak"
+          t={t.winner.streak}
           p={S.streak.p}
-          s={`${S.streak.maxRun} exact in a row`}
+          s={t.winner.exactInRow(S.streak.maxRun)}
         />
+        <StatCard i={3} ic="🪝" t={t.winner.hook} p={S.hook.p} s={t.winner.blocked(S.hook.hook)} />
         <StatCard
-          i={3}
-          ic="🪝"
-          t="Hook victim"
-          p={S.hook.p}
-          s={S.hook.hook ? `blocked ${S.hook.hook}× as dealer` : 'nobody got hooked'}
+          i={4}
+          ic="😬"
+          t={t.winner.ouch}
+          p={S.ouch.p}
+          s={t.winner.inOneRound(sgnN(S.ouch.worst))}
         />
-        <StatCard i={4} ic="😬" t="Ouch" p={S.ouch.p} s={`${sgnN(S.ouch.worst)} in one round`} />
       </div>
       <div className="mt-4 flex justify-center">
         <button
@@ -183,7 +198,7 @@ export default function Winner() {
           onClick={() => actions.go('home', -1)}
           className="min-h-12 px-4 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"
         >
-          Home
+          {t.common.home}
         </button>
       </div>
     </Scaffold>

@@ -5,6 +5,7 @@ import { drawShareCanvas } from '@/lib/shareImage';
 import { shareText } from '@/lib/shareText';
 import { useApp } from '@/state/store';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { t } from '@/strings';
 
 export default function ShareBody() {
   const { state, actions } = useApp();
@@ -26,8 +27,8 @@ export default function ShareBody() {
   const share = async () => {
     if (!img) return;
     const r = await shareScores(img.blob, text);
-    if (r === 'saved') actions.say('Image saved · summary copied');
-    else if (r === 'failed') actions.say('Couldn’t share — try again');
+    if (r === 'saved') actions.say(t.toasts.imageSaved);
+    else if (r === 'failed') actions.say(t.toasts.shareFailed);
   };
   return (
     <div className="text-center">
@@ -36,7 +37,7 @@ export default function ShareBody() {
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           src={img.url}
-          alt="Final scores card"
+          alt={t.sheets.imageAlt}
           className="mx-auto max-h-[46dvh] max-w-full rounded-2xl shadow-[0_24px_60px_-12px_rgba(0,0,0,.7)]"
         />
       )}
@@ -46,13 +47,13 @@ export default function ShareBody() {
           className="!h-[52px] flex-1 !text-16"
           disabled={!img}
           onClick={async () =>
-            actions.say((await copySummary(text)) ? 'Summary copied' : 'Couldn’t copy')
+            actions.say((await copySummary(text)) ? t.toasts.copied : t.toasts.copyFailed)
           }
         >
-          Copy text
+          {t.sheets.copyText}
         </PrimaryButton>
         <PrimaryButton className="!h-[52px] flex-1 !text-16" disabled={!img} onClick={share}>
-          {direct ? 'Share' : 'Save image'}
+          {direct ? t.sheets.shareDirect : t.sheets.shareSave}
         </PrimaryButton>
       </div>
     </div>

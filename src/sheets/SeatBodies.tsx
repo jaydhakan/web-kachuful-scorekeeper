@@ -3,17 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 import { COLORS, EMOJIS, MOREMOJI } from '@/domain';
 import { useApp } from '@/state/store';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { t } from '@/strings';
 
 export function SeatBody({ k }: { k: number }) {
   const { state, actions } = useApp();
   const s = state.setup?.seats[k];
   if (!s) return null;
   const items: [string, string, () => void, boolean?][] = [
-    ['✏️', 'Rename', () => actions.openSheet({ type: 'rename', k })],
-    [s.emoji, 'Change avatar', () => actions.openSheet({ type: 'avatar', k })],
+    ['✏️', t.sheets.rename, () => actions.openSheet({ type: 'rename', k })],
+    [s.emoji, t.sheets.changeAvatar, () => actions.openSheet({ type: 'avatar', k })],
     [
       '🗑️',
-      'Clear seat',
+      t.sheets.clearSeat,
       () => {
         actions.setupSeat(k, null);
         actions.openSheet(null);
@@ -53,7 +54,7 @@ export function RenameBody({ k }: { k: number }) {
     const nm = v.trim();
     if (!nm) return;
     if (seats.some((q, i) => q && i !== k && q.name.toLowerCase() === nm.toLowerCase())) {
-      setErr(`${nm} is already at the table.`);
+      setErr(t.setup.alreadySeated(nm));
       return;
     }
     actions.setupSeatPatch(k, { name: nm });
@@ -64,7 +65,7 @@ export function RenameBody({ k }: { k: number }) {
       <input
         ref={input}
         id="rn"
-        aria-label="Player name"
+        aria-label={t.setup.playerName}
         value={v}
         maxLength={14}
         onChange={(e) => {
@@ -78,7 +79,7 @@ export function RenameBody({ k }: { k: number }) {
         {err}
       </div>
       <PrimaryButton className="w-full" onClick={save}>
-        Save
+        {t.common.save}
       </PrimaryButton>
     </>
   );
@@ -95,7 +96,7 @@ export function AvatarBody({ k }: { k: number }) {
           <motion.button
             key={e}
             type="button"
-            aria-label={`Avatar ${e}`}
+            aria-label={t.sheets.avatar(e)}
             aria-pressed={s.emoji === e}
             whileTap={{ scale: 0.88 }}
             onClick={() => actions.setupSeatPatch(k, { emoji: e })}
@@ -110,7 +111,7 @@ export function AvatarBody({ k }: { k: number }) {
           <motion.button
             key={c}
             type="button"
-            aria-label="Colour"
+            aria-label={t.sheets.colour}
             aria-pressed={s.color === c}
             whileTap={{ scale: 0.85 }}
             onClick={() => actions.setupSeatPatch(k, { color: c })}
@@ -120,7 +121,7 @@ export function AvatarBody({ k }: { k: number }) {
         ))}
       </div>
       <PrimaryButton className="w-full" onClick={() => actions.openSheet(null)}>
-        Done
+        {t.common.done}
       </PrimaryButton>
     </>
   );

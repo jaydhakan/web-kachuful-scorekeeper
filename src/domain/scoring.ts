@@ -1,3 +1,4 @@
+import { messages } from '@/strings/messages';
 import { doneRounds } from './rounds';
 import type { Game, Round, Totals } from './types';
 
@@ -37,8 +38,8 @@ export function resultsState(g: Game, r: Round): ResultsState {
   if (r.tricks) {
     const tricks = r.tricks;
     const tsum = rows.reduce((a, p) => a + (tricks[p.id] || 0), 0);
-    if (tsum !== r.cards) msg = `Tricks add up to ${tsum} — should be ${r.cards}.`;
+    if (tsum !== r.cards) msg = messages.tricksMismatch(tsum, r.cards);
   }
-  if (!msg && allMade) msg = "Someone has to miss — the bids can't all be right. Check again.";
+  if (!msg && allMade) msg = messages.allMade;
   return { all, msg, ok: all && !msg, exact };
 }

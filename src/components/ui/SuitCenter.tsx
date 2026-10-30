@@ -1,5 +1,6 @@
 import type { Trump } from '@/domain';
 import { TR } from '@/theme/trumps';
+import { t } from '@/strings';
 
 interface SuitCenterProps {
   trump: Trump;
@@ -18,13 +19,7 @@ export const SuitCenter = ({ trump, cards, big }: SuitCenterProps) => (
     <div
       className={`${big ? 'text-14 text-[var(--tx)]' : 'text-13 text-[var(--tx2)]'} whitespace-nowrap font-medium tracking-[0.01em]`}
     >
-      {big ? (
-        <>
-          <b>{TR[trump].name}</b> · {cards} cards
-        </>
-      ) : (
-        `${cards} cards`
-      )}
+      {big ? t.suit.big(TR[trump].name, cards) : t.suit.cards(cards)}
     </div>
   </>
 );

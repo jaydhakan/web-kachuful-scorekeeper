@@ -11,6 +11,7 @@ import {
   type Player,
 } from '@/domain';
 import { now } from '@/lib/clock';
+import { messages as m } from '@/strings/messages';
 import { parseSnapshot, type SavedScreen } from './persistence';
 import { pushSnapshot } from './undo';
 import type { Action, AppState, SetupState } from './types';
@@ -61,9 +62,9 @@ function commit(
 
 export const roundBanner = (g: Game, r: { cards: number; index: number }): string | null =>
   r.cards === g.maxCards
-    ? `Peak round — ${r.cards} cards!`
+    ? m.banner.peak(r.cards)
     : r.cards === 3 && r.index > 0
-      ? 'Back to 3 — climbing again'
+      ? m.banner.backTo3
       : null;
 
 const withBanner = (s: AppState, text: string | null): AppState =>
@@ -130,16 +131,16 @@ function bid(s: AppState, v: number): AppState {
         next = n - 1;
       }
     },
-    { undo: true, toast: 'Bid saved' },
+    { undo: true, toast: m.toasts.bidSaved },
   );
   return { ...out, advance: next !== bi ? { idx: next } : s.advance };
 }
 
 function undoLast(s: AppState): AppState {
-  if (!s.undo.length) return say(s, 'Nothing to undo');
+  if (!s.undo.length) return say(s, m.toasts.nothingToUndo);
   const undo = s.undo.slice(0, -1);
   const g = parseSnapshot(s.undo[s.undo.length - 1]);
-  if (!g) return say({ ...s, undo }, 'Nothing to undo');
+  if (!g) return say({ ...s, undo }, m.toasts.nothingToUndo);
   const base = {
     ...s,
     game: g,
@@ -149,7 +150,7 @@ function undoLast(s: AppState): AppState {
     sheet: null,
     dir: -1 as const,
   };
-  return say({ ...base, screen: g.status === 'finished' ? 'winner' : 'round' }, 'Undone');
+  return say({ ...base, screen: g.status === 'finished' ? 'winner' : 'round' }, m.toasts.undone);
 }
 
 function setupSeats(
@@ -287,7 +288,7 @@ export function reducer(s: AppState, a: Action): AppState {
       };
       return c.game.status === 'finished'
         ? { ...c, fresh: true, screen: 'winner' }
-        : say({ ...c, sumAnim: true, screen: 'round' }, 'Round saved', true);
+        : say({ ...c, sumAnim: true, screen: 'round' }, m.toasts.roundSaved, true);
     }
     case 'nextRound': {
       const pr = curRound(s.game);
@@ -341,7 +342,7 @@ export function reducer(s: AppState, a: Action): AppState {
             rr.results = { ...a.results };
             rr.tricks = null;
           },
-          { undo: true, toast: `Round ${a.i + 1} updated` },
+          { undo: true, toast: m.toasts.roundUpdated(a.i + 1) },
         ),
         sheet: { type: 'board' },
       };
