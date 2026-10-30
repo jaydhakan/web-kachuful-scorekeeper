@@ -1,4 +1,5 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { t } from '@/strings';
 import { useRef, type ReactNode, type RefObject } from 'react';
 
 interface ScaffoldProps {
@@ -37,6 +38,8 @@ export function Scaffold({
       <div
         ref={ref}
         tabIndex={0}
+        role="region"
+        aria-label={t.common.content}
         className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[120px] pt-[64px]"
       >
         {title && (
