@@ -35,10 +35,18 @@ export function MenuBody() {
           key={t}
           type="button"
           {...stagger(i)}
-          whileTap={{ scale: 0.97, backgroundColor: 'rgba(255,255,255,.07)' }}
+          whileTap="press"
+          variants={{ press: { scale: 0.97 } }}
           onClick={f}
-          className={`flex min-h-14 w-full items-center gap-3.5 rounded-2xl px-2 text-left text-18 font-medium tracking-[-0.012em] ${neg ? 'text-[var(--neg)]' : ''}`}
+          className={`relative isolate flex min-h-14 w-full items-center gap-3.5 rounded-2xl px-2 text-left text-18 font-medium tracking-[-0.012em] ${neg ? 'text-[var(--neg)]' : ''}`}
         >
+          <motion.span
+            aria-hidden
+            initial={false}
+            variants={{ press: { opacity: 1 } }}
+            style={{ opacity: 0 }}
+            className="absolute inset-0 -z-10 rounded-[inherit] bg-white/[.07]"
+          />
           <span aria-hidden className="w-7 text-center text-22">
             {ic}
           </span>
