@@ -7,7 +7,17 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 const HEX = '#[0-9a-fA-F]{3,8}\\b';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'prototype', 'playwright-report', 'test-results', 'reports', 'dev-dist'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'prototype',
+      'playwright-report',
+      'test-results',
+      'reports',
+      'dev-dist',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -32,9 +42,16 @@ export default tseslint.config(
       'no-restricted-syntax': [
         'error',
         { selector: `Literal[value=/${HEX}/]`, message: 'Use a design token, not a hex colour.' },
-        { selector: `TemplateElement[value.raw=/${HEX}/]`, message: 'Use a design token, not a hex colour.' },
+        {
+          selector: `TemplateElement[value.raw=/${HEX}/]`,
+          message: 'Use a design token, not a hex colour.',
+        },
       ],
     },
+  },
+  {
+    files: ['tools/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node } },
   },
   {
     files: ['src/**/*.test.{ts,tsx}', 'e2e/**', 'tools/**', 'src/test/**'],
