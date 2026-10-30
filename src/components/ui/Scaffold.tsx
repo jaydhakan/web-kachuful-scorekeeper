@@ -60,7 +60,7 @@ export function Scaffold({
         tabIndex={0}
         role="region"
         aria-label={t.common.content}
-        className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[calc(var(--bar-h,96px)+24px)] pt-[calc(64px+var(--sat))]"
+        className="no-scroll absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-[calc(var(--bar-h,96px)+24px)] pt-[calc(64px+var(--sat))]"
       >
         {title && (
           <motion.h1

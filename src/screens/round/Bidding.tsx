@@ -85,20 +85,22 @@ export function Bidding() {
       }
     >
       <Glass glow spot={false} className="p-2 pb-2.5">
-        <Table
-          uid="bid"
-          size="mini"
-          players={g.players}
-          dir={g.direction}
-          dealer={r.dealerIndex}
-          first={r.firstPlayerIndex}
-          bids={r.bids}
-          cur={pI}
-          warn={hookWarn && r.bids[dealer.id] === undefined ? r.dealerIndex : undefined}
-          onSeat={actions.pickSeat}
-          noSeatAnim
-          center={<SuitCenter trump={r.trump} cards={r.cards} />}
-        />
+        <div className="-mx-2">
+          <Table
+            uid="bid"
+            size="mini"
+            players={g.players}
+            dir={g.direction}
+            dealer={r.dealerIndex}
+            first={r.firstPlayerIndex}
+            bids={r.bids}
+            cur={pI}
+            warn={hookWarn && r.bids[dealer.id] === undefined ? r.dealerIndex : undefined}
+            onSeat={actions.pickSeat}
+            noSeatAnim
+            center={<SuitCenter trump={r.trump} cards={r.cards} />}
+          />
+        </div>
         <p className="px-2 pb-0.5 pt-2.5 text-center text-16 leading-[1.38] tracking-[-0.01em]">
           {dealLine(g, r)}
         </p>
