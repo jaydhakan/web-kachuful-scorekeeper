@@ -69,8 +69,17 @@ export async function auditScreen(
       (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40) ||
       el.tagName.toLowerCase();
     const W = innerWidth;
+    // Text that is hidden from sight on purpose (the sr-only utility, also applied through a variant).
+    const srOnly = (el: Element) => {
+      for (let n: Element | null = el; n; n = n.parentElement) {
+        const c = getComputedStyle(n);
+        if (c.position === 'absolute' && c.clip === 'rect(0px, 0px, 0px, 0px)') return true;
+      }
+      return false;
+    };
     const visible = (el: Element) =>
-      !el.closest('[aria-hidden="true"],[inert],.sr-only') &&
+      !el.closest('[aria-hidden="true"],[inert]') &&
+      !srOnly(el) &&
       el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
     const all = [...document.body.querySelectorAll('*')].filter(visible);
     const ownText = (el: Element) =>
