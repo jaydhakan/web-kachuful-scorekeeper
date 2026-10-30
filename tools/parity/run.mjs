@@ -76,6 +76,17 @@ try {
 // Differences introduced on purpose by a production-gap commit; anything else above 1% is a regression.
 const intentional = {
   'sheet-share': 'Share gap: the press-and-hold caption became Share / Copy buttons',
+  'home-new-game-modal':
+    'Phase 2 #9: New Game no longer confirms (Undo after Deal); this shot is setup',
+  home: 'Phase 2 #8: first run presents the demo as "Try the demo"',
+  'sheet-edit': 'Phase 2 #6: 44 px ± buttons and Made/Missed controls',
+  'results-empty': 'Phase 2 #2/#6: whole-row Exact switch, 44 px Made/Missed, note in the bar',
+  'results-filled': 'Phase 2 #2/#6/#7: as results-empty, lighter small negative text',
+  bidding: 'Phase 2 #5: number pills and meter in the bottom dock; #4 chips beside avatars',
+  'bidding-all-in': 'Phase 2 #4/#5/#10: dock, chips beside avatars, meter in the trump colour',
+  'bidding-dealer-locked':
+    'Phase 2 #4/#5/#10: dock with the reason above the pills, trump-coloured meter',
+  play: 'Phase 2 #4: bid chips beside the avatar so names stay readable',
 };
 const rows = [];
 for (const name of [...names]) {
