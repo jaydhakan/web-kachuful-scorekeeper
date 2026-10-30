@@ -4,7 +4,11 @@ import { SPRING } from './motion';
 
 export function Toast({ toast, onUndo }: { toast: ToastData | null; onUndo: () => void }) {
   return (
-    <div className="pointer-events-none absolute inset-x-4 bottom-[112px] z-[66] flex justify-center">
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none absolute inset-x-4 bottom-[112px] z-[66] flex justify-center"
+    >
       <AnimatePresence>
         {toast && (
           <motion.div
