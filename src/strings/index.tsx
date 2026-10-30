@@ -80,7 +80,7 @@ export const t = {
     playerCount: 'Number of players',
     directionLabel: 'Seating direction',
     seats: (n: number) => `${n} seats`,
-    tapNumber: 'Tap a number above',
+    tapNumber: 'Pick a player count',
     cw: '⟳ Clockwise',
     ccw: '⟲ Anticlockwise',
     info: (n: number | null, max: number) =>
