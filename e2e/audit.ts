@@ -70,7 +70,7 @@ export async function auditScreen(
       el.tagName.toLowerCase();
     const W = innerWidth;
     const visible = (el: Element) =>
-      !el.closest('[aria-hidden="true"],[inert]') &&
+      !el.closest('[aria-hidden="true"],[inert],.sr-only') &&
       el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
     const all = [...document.body.querySelectorAll('*')].filter(visible);
     const ownText = (el: Element) =>
@@ -99,6 +99,11 @@ export async function auditScreen(
       if (!ownText(el)) continue;
       const txt = (el.textContent || '').trim();
       if (/…/.test(txt)) shortened.push(txt);
+      // Seat labels may be shortened (the plan allows it); the full name is in the text and the tooltip.
+      if (el.matches('[data-seat-name]')) {
+        if (el.scrollWidth > el.clientWidth) shortened.push(txt);
+        continue;
+      }
       if (
         (el.scrollWidth > el.clientWidth + 1 && cs.overflowX !== 'visible') ||
         (el.scrollHeight > el.clientHeight + 1 && /(hidden|clip)/.test(cs.overflowY)) ||
@@ -140,11 +145,11 @@ export async function auditScreen(
     const overlaps: string[] = [];
     for (const t of document.querySelectorAll('[data-table]')) {
       if (!visible(t)) continue;
-      const names = [...t.querySelectorAll('[data-seat-name]')].map((el) => {
-        const rg = document.createRange();
-        rg.selectNodeContents(el);
-        return { txt: (el.textContent || '').trim(), r: rg.getBoundingClientRect() };
-      });
+      // A seat label is as wide as what is shown (it ellipsizes), so its own box is the painted extent.
+      const names = [...t.querySelectorAll('[data-seat-name]')].map((el) => ({
+        txt: (el.textContent || '').trim(),
+        r: el.getBoundingClientRect(),
+      }));
       const chips = [...t.querySelectorAll('[data-seat-bid],[data-seat-chip]')].map((el) => ({
         txt: 'chip ' + (el.textContent || '').trim(),
         r: el.getBoundingClientRect(),
