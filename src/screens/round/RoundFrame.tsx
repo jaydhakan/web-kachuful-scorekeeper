@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { ReactNode } from 'react';
 import type { Round } from '@/domain';
 import { useApp } from '@/state/store';
 import { IconButton } from '@/components/ui/IconButton';
@@ -13,22 +13,12 @@ interface RoundFrameProps {
   barNote?: ReactNode;
   children: ReactNode;
   navLeft?: ReactNode;
-  scrollRef?: RefObject<HTMLDivElement>;
 }
 
-export function RoundFrame({
-  r,
-  title,
-  bar,
-  barNote,
-  children,
-  navLeft,
-  scrollRef,
-}: RoundFrameProps) {
+export function RoundFrame({ r, title, bar, barNote, children, navLeft }: RoundFrameProps) {
   const { actions } = useApp();
   return (
     <Scaffold
-      scrollRef={scrollRef}
       title={title}
       navTitle={t.round.title(r.index + 1)}
       bar={bar}
