@@ -116,7 +116,7 @@ export function Results() {
           // The one result the app filled in because nothing else could work.
           const forced = state.autoResult === p.id && !!res && !tricks;
           return (
-            <motion.div key={p.id} {...stagger(k)} className="mb-1.5">
+            <motion.div key={p.id} {...stagger(k)} className="mb-1.5 last:mb-0">
               {/* The controls wrap under the name when the pane is too narrow for both. */}
               <Glass
                 spot={false}
@@ -192,18 +192,18 @@ export function Results() {
                     size="sm"
                     value={res}
                     onChange={(v) => actions.setResult(p.id, v)}
-                    className="ml-auto [&_button]:px-2 [&_button]:text-14 @[26rem]:[&_button]:px-3.5 @[26rem]:[&_button]:text-15"
+                    className="ml-auto [&_button]:px-2 [&_button]:text-18 @[26rem]:[&_button]:px-3.5 @[26rem]:[&_button]:text-15"
                     options={[
                       {
                         v: 'made',
-                        label: t.results.made,
+                        label: result(t.table.made, t.results.made),
                         tone: 'pos',
                         disabled: !!blocked(p.id, 'made'),
                         why: why(blocked(p.id, 'made')),
                       },
                       {
                         v: 'missed',
-                        label: t.results.missed,
+                        label: result(t.table.missed, t.results.missed),
                         tone: 'neg',
                         disabled: !!blocked(p.id, 'missed'),
                         why: why(blocked(p.id, 'missed')),
@@ -220,20 +220,35 @@ export function Results() {
   );
 }
 
+/**
+ * A tick or cross, with its word once the row has room. The word is always in the text, so the button keeps
+ * its name for assistive tech while a narrow row gives the player's name the space.
+ */
+const result = (icon: string, word: string) => (
+  <>
+    <span aria-hidden>{icon}</span>{' '}
+    <span className="sr-only @[26rem]:not-sr-only @[26rem]:ml-1">{word}</span>
+  </>
+);
+
 /** How many of the round's tricks the bids of the players marked Made have not claimed yet. */
 function TricksLeft({ left, cards }: { left: number; cards: number }) {
   return (
-    <div className="mb-3 rounded-2xl bg-white/[.06] px-4 py-3" role="status" aria-live="polite">
+    <div
+      className="mb-3 rounded-2xl bg-white/[.06] px-4 py-3 @h-[44rem]:mb-2 @h-[44rem]:py-2"
+      role="status"
+      aria-live="polite"
+    >
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-15 font-medium text-[var(--tx2)]">{t.results.tricksLeft}</span>
-        <span className="disp tick text-28 font-extrabold leading-none tracking-[-0.03em]">
+        <span className="disp tick text-28 font-extrabold leading-none tracking-[-0.03em] @h-[44rem]:text-22">
           {left}
           <span className="text-15 font-medium tracking-normal text-[var(--tx2)]">
             {t.results.tricksOf(cards)}
           </span>
         </span>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08]">
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08] @h-[44rem]:hidden">
         <motion.div
           className="h-full origin-left rounded-full bg-[var(--accent)]"
           initial={false}
