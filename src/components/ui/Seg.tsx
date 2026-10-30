@@ -44,7 +44,7 @@ export function Seg<T extends string>({
             onClick={() => onChange(o.v)}
             whileTap={{ scale: 0.95, opacity: 0.85 }}
             transition={SPRING}
-            className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-[42px] min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'}`}
+            className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-11 min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'}`}
           >
             {on && (
               <motion.span
