@@ -107,3 +107,16 @@ for (const [w, h, n] of [
     expect(await overlaps('play')).toEqual({ chips: n, covered: 0, off: 0 });
   });
 }
+
+test('the toast sits above the bidding dock, never over the pills', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto('/');
+  await startGame(page, NAMES7);
+  await btn(page, 'Bid 1').click();
+  const toast = page.getByRole('status').filter({ hasText: 'Bid saved' });
+  await expect(toast).toBeVisible();
+  await page.waitForTimeout(500);
+  const tb = (await toast.locator('> div').boundingBox())!;
+  const meter = (await page.getByText(/^Bids \d+ \/ \d+ cards$/).boundingBox())!;
+  expect(tb.y + tb.height).toBeLessThanOrEqual(meter.y);
+});
