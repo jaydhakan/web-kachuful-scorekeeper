@@ -1,5 +1,6 @@
 import { motion, useDragControls } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { useId, useRef, type ReactNode } from 'react';
+import { useDialog } from '@/hooks/useDialog';
 import { EASE } from './motion';
 import { Icon } from './Icons';
 import { IconButton } from './IconButton';
@@ -14,6 +15,9 @@ interface SheetProps {
 /** Bottom sheet with velocity-projected dismissal. */
 export function Sheet({ title, onClose, full, children }: SheetProps) {
   const controls = useDragControls();
+  const ref = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialog(ref, onClose);
   return (
     <div className="absolute inset-0 z-[60]">
       <motion.div
@@ -25,6 +29,11 @@ export function Sheet({ title, onClose, full, children }: SheetProps) {
         onClick={onClose}
       />
       <motion.div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         drag="y"
         dragControls={controls}
         dragListener={false}
@@ -45,7 +54,9 @@ export function Sheet({ title, onClose, full, children }: SheetProps) {
         >
           <div className="mx-auto mb-3 h-[5px] w-11 rounded-full bg-white/25" />
           <div className="flex items-center justify-between">
-            <h2 className="disp text-26 font-extrabold tracking-[-0.03em]">{title}</h2>
+            <h2 id={titleId} className="disp text-26 font-extrabold tracking-[-0.03em]">
+              {title}
+            </h2>
             <IconButton label="Close" onClick={onClose} className="-mr-2">
               {Icon.close}
             </IconButton>

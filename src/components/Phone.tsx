@@ -34,6 +34,7 @@ export function Phone() {
     center: { opacity: 1, x: 0, scale: 1 },
     exit: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * -36, scale: 0.985 }),
   };
+  const blocked = !!(sheet || modal || seq || state.corrupt);
   let content;
   if (screen === 'home') content = <Home />;
   else if (screen === 'setup') content = <Setup />;
@@ -51,28 +52,30 @@ export function Phone() {
       className="app-root scr-bg grain relative h-full w-full overflow-hidden"
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 left-1/2 h-[360px] w-[520px] -translate-x-1/2 rounded-full opacity-90 blur-3xl"
-        style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
-        animate={rm ? undefined : { scale: [1, 1.08, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <AnimatePresence custom={dir} initial={false} mode="popLayout">
+      <div className="absolute inset-0" {...(blocked ? { inert: '' as const } : {})}>
         <motion.div
-          key={screenKey}
-          custom={dir}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.42, ease: EASE }}
-          className="absolute inset-0"
-        >
-          {content}
-        </motion.div>
-      </AnimatePresence>
-      <Banner banner={banner} />
+          aria-hidden
+          className="pointer-events-none absolute -top-32 left-1/2 h-[360px] w-[520px] -translate-x-1/2 rounded-full opacity-90 blur-3xl"
+          style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
+          animate={rm ? undefined : { scale: [1, 1.08, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <AnimatePresence custom={dir} initial={false} mode="popLayout">
+          <motion.div
+            key={screenKey}
+            custom={dir}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.42, ease: EASE }}
+            className="absolute inset-0"
+          >
+            {content}
+          </motion.div>
+        </AnimatePresence>
+        <Banner banner={banner} />
+      </div>
       <UpdatePrompt />
       <Toast toast={toast} onUndo={actions.undo} />
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>

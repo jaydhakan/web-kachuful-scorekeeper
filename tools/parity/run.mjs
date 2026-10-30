@@ -73,6 +73,10 @@ try {
   await Promise.all(servers.map((s) => s.close()));
 }
 
+// Differences introduced on purpose by a production-gap commit; anything else above 1% is a regression.
+const intentional = {
+  'sheet-share': 'Share gap: the press-and-hold caption became Share / Copy buttons',
+};
 const rows = [];
 for (const name of [...names]) {
   const a = PNG.sync.read(readFileSync(path.join(out, 'proto', name + '.png')));
@@ -89,11 +93,14 @@ const md = [
   '',
   'Both apps seeded with the same demo fixture, clock fixed to 2026-01-01T12:00Z, `prefers-reduced-motion: reduce` so infinite animations are static, same self-hosted fonts.',
   '',
-  '| Screen | Diff % |',
-  '| --- | ---: |',
-  ...rows.map((r) => `| ${r.name} | ${r.pct.toFixed(3)}${r.pct > 1 ? ' ⚠' : ''} |`),
+  '| Screen | Diff % | Note |',
+  '| --- | ---: | --- |',
+  ...rows.map(
+    (r) =>
+      `| ${r.name} | ${r.pct.toFixed(3)} | ${intentional[r.name] ?? (r.pct > 1 ? '⚠ unexplained' : '')} |`,
+  ),
   '',
-  `Screens: ${rows.length}. Above 1%: ${rows.filter((r) => r.pct > 1).length}. Worst: ${rows[0]?.name} (${rows[0]?.pct.toFixed(3)}%).`,
+  `Screens: ${rows.length}. Above 1%: ${rows.filter((r) => r.pct > 1).length} (${rows.filter((r) => r.pct > 1 && !intentional[r.name]).length} unexplained). Worst: ${rows[0]?.name} (${rows[0]?.pct.toFixed(3)}%).`,
 ].join('\n');
 writeFileSync(path.join(out, 'report.md'), md + '\n');
 console.log(md);
