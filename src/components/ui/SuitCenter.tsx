@@ -11,10 +11,20 @@ interface SuitCenterProps {
 export const SuitCenter = ({ trump, cards, big }: SuitCenterProps) => (
   <>
     <div
-      className={`leading-none ${big ? 'suit-glow text-96' : 'text-34'}`}
-      style={{ color: TR[trump].col, textShadow: big ? undefined : '0 0 18px var(--accent)' }}
+      className={`relative leading-none ${big ? 'text-96' : 'text-34'}`}
+      style={{ color: TR[trump].col, textShadow: `0 0 ${big ? 20 : 18}px var(--accent)` }}
     >
       {TR[trump].sym}
+      {big && (
+        // The wide glow is painted once on a copy of the glyph and only its opacity pulses.
+        <span
+          aria-hidden
+          className="suit-glow absolute inset-0"
+          style={{ textShadow: '0 0 52px var(--accent), 0 0 90px var(--glow)' }}
+        >
+          {TR[trump].sym}
+        </span>
+      )}
     </div>
     <div
       className={`${big ? 'text-14 text-[var(--tx)]' : 'text-13 text-[var(--tx2)]'} whitespace-nowrap font-medium tracking-[0.01em]`}

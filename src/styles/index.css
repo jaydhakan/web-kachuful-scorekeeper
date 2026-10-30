@@ -240,18 +240,8 @@ input {
   }
 }
 .suit-glow {
-  animation: sg 3.2s ease-in-out infinite;
-}
-@keyframes sg {
-  0%,
-  100% {
-    text-shadow: 0 0 20px var(--accent);
-  }
-  50% {
-    text-shadow:
-      0 0 52px var(--accent),
-      0 0 90px var(--glow);
-  }
+  opacity: 0;
+  animation: pulse 3.2s ease-in-out infinite;
 }
 .no-scroll::-webkit-scrollbar {
   display: none;
