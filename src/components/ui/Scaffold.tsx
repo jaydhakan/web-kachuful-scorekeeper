@@ -72,6 +72,7 @@ export function Scaffold({
 }: ScaffoldProps) {
   const body = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
   const hasBar = !!bar;
   const owner = useId();
   const isPresent = useIsPresent();
@@ -79,28 +80,53 @@ export function Scaffold({
   useEffect(() => {
     present.current = isPresent;
   }, [isPresent]);
-  // The toast clears the bar by its real height, which grows with the note and the home indicator.
+  // Overlays follow the layout: the toast sits over the bar (so over the controls pane in two panes) and the
+  // banner over the main pane. Layout offsets, not bounding boxes, so a screen mid-transition measures true.
   useEffect(() => {
-    const el = barRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const anchor = el.closest('.app-root')?.querySelector<HTMLElement>('[data-bar-anchor]');
-    let last = 0;
-    const ro = new ResizeObserver(([e]) => {
-      const h = Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight);
-      // A screen animating out still resizes (popLayout); it must not take the anchor back from the new one.
-      if (h === last || !present.current || !anchor) return;
-      last = h;
-      // Written to the one element that uses it: a variable on the root would restyle the whole app.
-      anchor.style.setProperty('--bar-h', `${h}px`);
-      anchor.dataset.barOwner = owner;
-    });
-    ro.observe(el);
+    const bar = barRef.current,
+      pane = mainRef.current ?? body.current;
+    const root = pane?.closest<HTMLElement>('.app-root');
+    if (!pane || !root || typeof ResizeObserver === 'undefined') return;
+    const toast = bar ? root.querySelector<HTMLElement>('[data-bar-anchor]') : null,
+      banner = root.querySelector<HTMLElement>('[data-main-anchor]');
+    let last = '';
+    const publish = () => {
+      // A screen animating out still resizes (popLayout); it must not take the anchors back from the new one.
+      if (!present.current) return;
+      const cs = getComputedStyle(pane),
+        pl = parseFloat(cs.paddingLeft) || 0,
+        pr = parseFloat(cs.paddingRight) || 0;
+      const v = {
+        '--bar-h': `${bar?.offsetHeight ?? 0}px`,
+        '--bar-x': `${bar?.offsetLeft ?? 0}px`,
+        '--bar-w': `${bar?.offsetWidth ?? 0}px`,
+        '--main-x': `${Math.round(pane.offsetLeft + pl)}px`,
+        '--main-w': `${Math.round(pane.clientWidth - pl - pr)}px`,
+      };
+      const key = JSON.stringify(v);
+      if (key === last) return;
+      last = key;
+      // Written to the elements that use them: a variable on the root would restyle the whole app.
+      if (toast)
+        for (const k of ['--bar-h', '--bar-x', '--bar-w'] as const)
+          toast.style.setProperty(k, v[k]);
+      if (toast) toast.dataset.barOwner = owner;
+      if (banner)
+        for (const k of ['--main-x', '--main-w'] as const) banner.style.setProperty(k, v[k]);
+      if (banner) banner.dataset.mainOwner = owner;
+    };
+    const ro = new ResizeObserver(publish);
+    for (const el of [bar, pane, root]) if (el) ro.observe(el);
     return () => {
       ro.disconnect();
-      // Screens overlap while they cross-fade; only the screen that set the value may clear it.
-      if (anchor?.dataset.barOwner === owner) {
-        anchor.style.removeProperty('--bar-h');
-        delete anchor.dataset.barOwner;
+      // Screens overlap while they cross-fade; only the screen that set the values may clear them.
+      if (toast?.dataset.barOwner === owner) {
+        for (const k of ['--bar-h', '--bar-x', '--bar-w']) toast.style.removeProperty(k);
+        delete toast.dataset.barOwner;
+      }
+      if (banner?.dataset.mainOwner === owner) {
+        for (const k of ['--main-x', '--main-w']) banner.style.removeProperty(k);
+        delete banner.dataset.mainOwner;
       }
     };
   }, [hasBar, owner]);

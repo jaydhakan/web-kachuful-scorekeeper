@@ -12,7 +12,7 @@ export function UpdatePrompt() {
     updateServiceWorker,
   } = useRegisterSW({ onOfflineReady: () => actions.say(t.toasts.offlineReady) });
   return (
-    <div className="pointer-events-none absolute inset-x-4 top-[calc(68px+var(--sat))] z-[67] flex justify-center">
+    <div className="pointer-events-none absolute inset-x-0 top-[calc(4.25rem+var(--sat))] z-[67] flex justify-center pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))] land:top-[calc(3.5rem+var(--sat))]">
       <AnimatePresence>
         {needRefresh && (
           <motion.div
