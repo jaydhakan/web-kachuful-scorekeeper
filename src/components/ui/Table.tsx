@@ -246,6 +246,7 @@ export function Table({
               )}
               {p && (
                 <div
+                  data-seat-name
                   className="absolute inset-x-0 text-center text-13 font-bold leading-4 tracking-[0.005em] [text-shadow:0_1px_3px_black]"
                   style={{ top: d.R * 2 + 1 }}
                 >
@@ -287,8 +288,10 @@ export function Table({
               )}
               <AnimatePresence>
                 {p && bid !== undefined && (
+                  // Centred on the avatar's right edge: clear of the name below and the dealer pill above.
                   <motion.div
                     key={'b' + bid}
+                    data-seat-bid
                     initial={{ scale: 0.2, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.5, opacity: 0 }}
@@ -297,13 +300,13 @@ export function Table({
                     style={
                       big
                         ? {
-                            minWidth: 36,
-                            height: 36,
-                            borderRadius: 18,
-                            fontSize: 26,
-                            lineHeight: '33px',
-                            right: 36 - d.R + 14,
-                            bottom: -12,
+                            minWidth: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            fontSize: 22,
+                            lineHeight: '29px',
+                            left: 36 + d.R - 16,
+                            top: d.R - 16,
                           }
                         : {
                             minWidth: 22,
@@ -311,8 +314,8 @@ export function Table({
                             borderRadius: 11,
                             fontSize: 14,
                             lineHeight: '19px',
-                            right: 36 - d.R + (size === 'full' ? 8 : 12),
-                            bottom: size === 'full' ? -4 : -6,
+                            left: 36 + d.R - 11,
+                            top: d.R - 11,
                           }
                     }
                   >

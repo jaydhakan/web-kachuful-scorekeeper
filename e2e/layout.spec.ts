@@ -69,3 +69,41 @@ test('a scroll that starts on Made/Missed scrolls and never sets a result', asyn
   expect(scrolled).toBeGreaterThan(0);
   await expect(page.getByRole('button', { pressed: true, name: /Made|Missed/ })).toHaveCount(0);
 });
+
+for (const [w, h, n] of [
+  [390, 844, 5],
+  [360, 740, 7],
+] as const) {
+  test(`bid chips never cover a name and stay on screen (${n} players at ${w}px)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/');
+    await startGame(page, NAMES7.slice(0, n));
+    await bidEveryone(page);
+    const overlaps = (table: string) =>
+      page.evaluate((table) => {
+        const box = (el: Element) => el.getBoundingClientRect();
+        const root = document.querySelector(`[data-table="${table}"]`)!;
+        // The label box spans the whole seat; what must stay readable is the text itself.
+        const names = [...root.querySelectorAll('[data-seat-name]')].map((el) => {
+          const r = document.createRange();
+          r.selectNodeContents(el);
+          return r.getBoundingClientRect();
+        });
+        const chips = [...root.querySelectorAll('[data-seat-bid]')].map(box);
+        const hit = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        return {
+          chips: chips.length,
+          covered: chips.filter((c) => names.some((nm) => hit(c, nm))).length,
+          off: chips.filter((c) => c.left < 0 || c.right > innerWidth).length,
+        };
+      }, table);
+    await page.waitForTimeout(600);
+    expect(await overlaps('bid')).toEqual({ chips: n, covered: 0, off: 0 });
+    await btn(page, 'Start playing').click();
+    await page.waitForTimeout(700);
+    expect(await overlaps('play')).toEqual({ chips: n, covered: 0, off: 0 });
+  });
+}
