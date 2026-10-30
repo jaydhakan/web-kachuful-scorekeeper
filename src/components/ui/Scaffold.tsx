@@ -15,6 +15,8 @@ interface ScaffoldProps {
   asideFirst?: boolean;
   /** The main area takes the height left over and does not scroll, so a fitted table can fill it. */
   fit?: boolean;
+  /** Tuck the bar away on a very short one-column screen, such as while the keyboard is up. */
+  collapseBar?: boolean;
   bar?: ReactNode;
   /** Status line above the bar's buttons, announced politely (why a button is disabled). */
   barNote?: ReactNode;
@@ -66,6 +68,7 @@ export function Scaffold({
   aside,
   asideFirst,
   fit,
+  collapseBar,
   bar,
   barNote,
   className = '',
@@ -177,7 +180,7 @@ export function Scaffold({
         {title && (
           <motion.h1
             style={rm ? undefined : { opacity: lgO, y: lgY, scale: lgS, transformOrigin: '0 50%' }}
-            className={`disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance] ${aside ? 'pane:hidden' : ''}`}
+            className={`disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance] @h-tiny:hidden ${aside ? 'pane:hidden' : ''}`}
           >
             {title}
           </motion.h1>
@@ -203,7 +206,7 @@ export function Scaffold({
       {bar && (
         <div
           ref={barRef}
-          className={`chrome-bot relative z-20 px-5 pb-[max(1.125rem,var(--sab))] pt-[1.125rem] before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-b before:from-transparent before:to-felt-950/60 ${aside ? 'pane:[grid-area:3/2]' : ''}`}
+          className={`chrome-bot relative z-20 px-5 pb-[max(1.125rem,var(--sab))] pt-[1.125rem] before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-b before:from-transparent before:to-felt-950/60 ${aside ? 'pane:[grid-area:3/2]' : ''} ${collapseBar ? '@h-tiny:hidden pane:!block' : ''}`}
         >
           {barNote !== undefined && (
             <div
