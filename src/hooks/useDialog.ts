@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
@@ -19,6 +19,12 @@ const focusables = (root: HTMLElement) =>
  * can't take part in the spring enter/exit, and it would need the drag-to-dismiss rebuilt around it.
  */
 export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | undefined) {
+  // Read at key time so the effect below runs once per dialog: re-running it on every new closure would
+  // re-take the opener after a click moved focus out, and pull focus back to the first control.
+  const close = useRef(onClose);
+  useEffect(() => {
+    close.current = onClose;
+  });
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -32,10 +38,10 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
     (first ?? root).focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && onClose) {
+      if (e.key === 'Escape' && close.current) {
         e.preventDefault();
         e.stopPropagation();
-        onClose();
+        close.current();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -60,5 +66,5 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
       if (!document.querySelector('[aria-modal="true"]:not([data-closing])') && mine?.isConnected)
         mine.focus({ preventScroll: true });
     };
-  }, [ref, onClose]);
+  }, [ref]);
 }

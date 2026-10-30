@@ -98,3 +98,24 @@ describe('initial focus', () => {
     expect(screen.getByLabelText('Name')).toHaveFocus();
   });
 });
+
+describe('focus return when a click moved focus out of the dialog', () => {
+  it('still goes back to the opener, and a re-render does not steal focus again', () => {
+    const opener = document.createElement('button');
+    document.body.append(opener);
+    opener.focus();
+    const sheet = () => (
+      <Sheet title="Menu" onClose={() => {}}>
+        <button>First</button>
+      </Sheet>
+    );
+    const { rerender } = render(sheet());
+    // A click on the backdrop leaves focus on <body>; the parent then re-renders with a new onClose.
+    (document.activeElement as HTMLElement).blur();
+    rerender(sheet());
+    expect(document.activeElement).toBe(document.body);
+    rerender(<></>);
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+});
