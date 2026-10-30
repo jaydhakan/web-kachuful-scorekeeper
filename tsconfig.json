@@ -15,7 +15,12 @@
     "isolatedModules": true,
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
-    "types": ["vite/client", "vitest/globals", "vite-plugin-pwa/react", "@testing-library/jest-dom"],
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "vite-plugin-pwa/react",
+      "@testing-library/jest-dom"
+    ],
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "e2e", "tools", "*.config.ts"]

@@ -1,48 +1,41 @@
-# <Project name> — working notes
+# Kachuful — working notes
 
-<One line: what this app is and who uses it.> All data comes from <the API / backend name>.
+Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. There is no backend: all data lives in `localStorage`.
 
-Most conventions are already written down — read these rather than re-deriving them:
-[`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing),
-[`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, data fetching),
-[`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
+Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
 
 ## Stack — what this is NOT
 
-**<Bundler> + <UI library> + <Router> + <Styling> + <HTTP client> + <Validation> + <Test runner>.**
+**Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion + Vitest + Playwright.** No router, no state library (typed `useReducer` + context), no data-fetching library, no i18n library, no component kit, no Tailwind v4, no CSS-in-JS.
 
-List the tools people might assume are here but aren't (for example another framework, a
-data-fetching library, a component kit). Don't reach for them.
+## Commands — npm, not others
 
-## Commands — <package manager>, not others
-
-Only `<lockfile>` exists; commands from another package manager fail. Node <version range>.
-If typechecking is partial (opt-in per file, or only some folders), say which parts are covered.
-A green typecheck does not mean the whole app is typed.
+Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `src`, `e2e`, `tools` and the config files; `prototype/` is excluded and read-only.
 
 ## Reuse before you write
 
-| Need                  | Use                                               |
-| --------------------- | ------------------------------------------------- |
-| Dates, numbers, text  | The shared formatting utils in `src/utils/`       |
-| Network               | `src/api/`, one module per API area. No HTTP calls in components. |
-| UI primitives         | `src/components/ui/`                              |
-| Shared types, schemas | `src/types/`                                      |
+| Need                     | Use                                                              |
+| ------------------------ | ---------------------------------------------------------------- |
+| Rules, scoring, ranking  | `src/domain` (pure; never import UI into it)                     |
+| Numbers and text formats | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)           |
+| User-visible strings     | `src/strings`                                                    |
+| Storage                  | `src/state/persistence.ts` — never call `localStorage` elsewhere |
+| UI primitives            | `src/components/ui/`                                             |
+| Colours                  | Tailwind theme / CSS variables from `src/theme/tokens.json`      |
 
-Note any data quirks that cause bugs (for example timestamps without a timezone, ids as
-strings, money in minor units) and name the helper that handles each one.
+Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the prototype's shape; `direction` changes seat layout only, not rotation.
 
 ## Rules
 
-- **Git:** never add, commit, push, branch, or touch `.env*` / CI config unless asked.
+- **Git:** never push, force or touch CI unless asked. Conventional Commits, one concern each, no co-author trailer.
 - **No new dependency** without asking first.
-- **No temporary fixes.** Fix the root cause. If the right fix belongs to another system (backend,
-  config, infra), say so and stop. No workarounds, shims or hard-coded stand-ins to paper over it.
-- **Design tokens only.** No hardcoded colours, font sizes or off-scale spacing. Lint enforces it.
-- **Comments: 1–3 lines**, non-obvious _why_ only. No narration, no section banners.
-- Touching more than ~3 files: outline the plan and wait.
-- Match the surrounding file's style over any general preference.
-- Every screen that fetches data needs loading, empty, no-results and error states.
-- Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings.
-- Say plainly when something is stubbed, mocked or unverified. Never claim it works unrun.
-- keep commits small but never add your name in commit as co-author
+- **No temporary fixes.** Fix the root cause or say the fix belongs elsewhere.
+- **Design tokens only.** No hex colours in components (lint enforces it) and no off-scale font sizes.
+- **Game rules and scoring never change** without a failing characterisation test first.
+- **Saved data is sacred:** keep keys and shapes; add a migration instead of editing a shape.
+- **Comments: 1–3 lines**, non-obvious _why_ only.
+- Touching more than ~3 files: outline the plan first.
+- Every screen needs loading, empty, no-results and error states where data can be missing.
+- Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings, 44px targets.
+- Animate only `transform` and `opacity`; every animation has a reduced-motion fallback.
+- Say plainly when something is stubbed, mocked or unverified.

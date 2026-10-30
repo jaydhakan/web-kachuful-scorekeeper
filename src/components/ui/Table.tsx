@@ -200,7 +200,7 @@ export function Table({
             {...(onSeat && {
               role: 'button',
               tabIndex: 0,
-              'aria-label': t.table.seat(k + 1, p?.name),
+              'aria-label': p ? undefined : t.table.seat(k + 1),
               onClick: () => onSeat(k),
               onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
                 if (e.key === 'Enter' || e.key === ' ') {
