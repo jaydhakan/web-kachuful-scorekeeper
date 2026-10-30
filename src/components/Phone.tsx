@@ -13,6 +13,7 @@ import { Summary } from '@/screens/round/Summary';
 import { Setup } from '@/screens/setup/Setup';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
+import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
 import { Toast } from './ui/Toast';
 import { EASE } from './ui/motion';
@@ -71,6 +72,7 @@ export function Phone() {
         </motion.div>
       </AnimatePresence>
       <Banner banner={banner} />
+      <UpdatePrompt />
       <Toast toast={toast} onUndo={actions.undo} />
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
