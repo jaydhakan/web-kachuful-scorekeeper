@@ -21,7 +21,6 @@ export async function toSetup3(
     await page.getByText(`${i + 1} of ${names.length} seated`).waitFor();
   }
   await btn(page, 'Next').click();
-  await page.getByRole('button', { name: /Game length/ }).click();
   await onStep('setup 3');
 }
 
