@@ -22,7 +22,7 @@ import { EASE } from './ui/motion';
 const Winner = lazy(() => import('@/screens/Winner'));
 const Confetti = lazy(() => import('./ui/Confetti').then((m) => ({ default: m.Confetti })));
 
-export function Phone() {
+export function AppShell() {
   const { state, actions, trump } = useApp();
   const { game, screen, dir, seq, sheet, modal, toast, banner, fresh } = state;
   const th = TR[trump];
