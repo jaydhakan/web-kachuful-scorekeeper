@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
+import { MQ } from '@/theme/breakpoints';
 import { Modal } from './Modal';
 import { Sheet } from './Sheet';
 
@@ -136,5 +137,28 @@ describe('opener that lost focus before the dialog mounted', () => {
     rerender(<></>);
     expect(opener).toHaveFocus();
     opener.remove();
+  });
+});
+
+describe('a dialog where there is room for a modal or panel', () => {
+  const roomy = (q: string) => q === MQ.roomy || q.includes('prefers-reduced-motion');
+  beforeEach(() => {
+    const base = window.matchMedia;
+    window.matchMedia = (q: string) => ({ ...base(q), matches: roomy(q) }) as MediaQueryList;
+  });
+
+  it.each(['modal', 'board', 'panel'] as const)('%s keeps its dialog behaviour', async (roomy) => {
+    const user = u();
+    const onClose = vi.fn();
+    render(
+      <Sheet title="Menu" onClose={onClose} roomy={roomy}>
+        <button>First</button>
+      </Sheet>,
+    );
+    const d = screen.getByRole('dialog');
+    expect(d).toHaveAccessibleName('Menu');
+    expect(d).toContainElement(document.activeElement as HTMLElement);
+    await user.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalled();
   });
 });

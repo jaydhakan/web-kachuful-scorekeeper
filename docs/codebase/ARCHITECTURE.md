@@ -46,7 +46,9 @@ Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.
 
 ## Sheets and dialogs
 
-`useDialog` gives sheets and modals a focus trap, Escape, focus return and an inert page behind them (`AppShell` sets `inert` on the content layer). Native `<dialog>` was evaluated and rejected: its top layer escapes the phone-width column, `::backdrop` can't join the spring enter/exit, and drag-to-dismiss would need rebuilding.
+`useDialog` gives sheets and modals a focus trap, Escape, focus return and an inert page behind them (`AppShell` sets `inert` on the content layer). Native `<dialog>` was evaluated and rejected: `::backdrop` can't join the spring enter/exit, and drag-to-dismiss would need rebuilding.
+
+One `Sheet` has three presentations. On a phone it is a bottom (or full-height) sheet that can be dragged down. From tablet width (`MQ.roomy`) it becomes a centred modal, a wide modal (Scoreboard) or a right-hand panel (Rules, Upcoming, Edit), chosen by `SheetHost`. The layout is CSS (`roomy:` classes); `useMediaQuery` only picks the enter and exit motion, so rotating never remounts a dialog.
 
 ## Platform notes
 
