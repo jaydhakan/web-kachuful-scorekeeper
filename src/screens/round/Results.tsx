@@ -78,7 +78,7 @@ export function Results() {
                     <>
                       {' '}
                       ·{' '}
-                      <b className={pv > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}>
+                      <b className={pv > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}>
                         {sgnN(pv)}
                       </b>
                     </>

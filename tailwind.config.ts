@@ -40,6 +40,8 @@ export default {
           '--tx': colors['text-primary'],
           '--tx2': colors['text-secondary'],
           '--dis': colors['text-disabled'],
+          '--ph': colors['text-placeholder'],
+          '--neg-tx': colors['negative-text'],
           '--gold': colors['gold'],
           '--pos': colors['positive'],
           '--neg': colors['negative'],

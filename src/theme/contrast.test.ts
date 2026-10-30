@@ -1,4 +1,4 @@
-import { palette } from './palette';
+import { gradients, palette } from './palette';
 
 type RGB = [number, number, number];
 const rgb = (hex: string): RGB => {
@@ -30,6 +30,8 @@ const BG = {
 /** Label centre of the 135° accent button gradient (accent → `end`% accent mixed with black). */
 const accentLabel = (accent: string, end: number) => over(accent, (100 + end) / 200, '#000000');
 
+const gradientEnd = Number(/(\d+)%, black/.exec(gradients['accent-gradient'])![1]);
+
 const pairs: [string, string, string][] = [
   ['primary text on felt', palette['text-primary'], BG.felt],
   ['primary text on glass', palette['text-primary'], BG.glass],
@@ -41,30 +43,23 @@ const pairs: [string, string, string][] = [
   ['negative text on sheet', palette.negative, BG.sheet],
   ['ink on positive (✓ Made)', palette['ink-on-accent'], palette.positive],
   ['ink on negative (✗ Missed)', palette['ink-negative'], palette.negative],
-  ...(['spades', 'diamonds', 'clubs'] as const).map((s): [string, string, string] => [
+  ['placeholder on input', palette['text-placeholder'], BG.input],
+  ['status text in a disabled button', palette['text-secondary'], BG.disabled],
+  ['small negative text on glass', palette['negative-text'], BG.glass],
+  [
+    'negative text on its red tint',
+    palette['negative-text'],
+    over(palette.negative, 0.16, BG.glass),
+  ],
+  ...(['spades', 'diamonds', 'clubs', 'hearts'] as const).map((s): [string, string, string] => [
     `button label on ${s} accent`,
     palette['ink-on-accent'],
-    accentLabel(palette[`accent-${s}`], 58),
+    accentLabel(palette[`accent-${s}`], gradientEnd),
   ]),
-];
-
-// Below AA today; Phase 2 item 7 fixes each and turns these into ordinary checks.
-const failing: [string, string, string][] = [
-  ['placeholder on input', palette['text-disabled'], BG.input],
-  ['status text in a disabled button', palette['text-disabled'], BG.disabled],
-  ['small negative text on glass', palette.negative, BG.glass],
-  [
-    'button label on hearts accent',
-    palette['ink-on-accent'],
-    accentLabel(palette['accent-hearts'], 58),
-  ],
 ];
 
 describe('text contrast meets WCAG AA (4.5:1)', () => {
   it.each(pairs)('%s', (_name, fg, bg) => {
-    expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5);
-  });
-  it.fails.each(failing)('%s', (_name, fg, bg) => {
     expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5);
   });
 });

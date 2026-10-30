@@ -119,7 +119,7 @@ export function Step2() {
                 add(name);
               }
             }}
-            className={`h-14 min-w-0 flex-1 rounded-2xl bg-white/[.07] px-4 text-18 tracking-[-0.01em] outline-none transition-shadow duration-300 placeholder:text-[var(--dis)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
+            className={`h-14 min-w-0 flex-1 rounded-2xl bg-white/[.07] px-4 text-18 tracking-[-0.01em] outline-none transition-shadow duration-300 placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
           />
           <PrimaryButton onClick={() => add(name)} className="!h-14 w-24 !text-16">
             {t.setup.add}
