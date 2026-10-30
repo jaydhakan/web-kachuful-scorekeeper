@@ -29,3 +29,9 @@ export const toPct = (sz: TableSize, p: { x: number; y: number }) => ({
   x: (p.x / TD[sz].W) * 100,
   y: (p.y / TD[sz].H) * 100,
 });
+
+/** `v` design pixels at the table's current size (--s is set by .table-box, never more than 1.5×). */
+export const dpx = (v: number) => `calc(${v} * var(--s))`;
+
+/** The "deals" pill. The seat's chip and the spin token share it, so the token settles exactly on the chip. */
+export const DEALS_PILL = { width: `max(66px, ${dpx(66)})`, height: `max(20px, ${dpx(20)})` };

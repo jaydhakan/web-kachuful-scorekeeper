@@ -1,8 +1,8 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion';
 import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
 import { trunc } from '@/lib/format';
-import { TD, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
+import { DEALS_PILL, TD, dpx, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
@@ -125,8 +125,6 @@ export function Table({
     () => Array.from({ length: N }, (_, k) => seatPos(size, N, k, dir)),
     [size, N, dir],
   );
-  // `v` design pixels at the table's current size (see .table-box); never more than 1.5× the design.
-  const sc = (v: number) => `calc(${v} * var(--s))`;
   const felt = {
     left: toPct(size, { x: d.W / 2 - (d.rx - 10), y: d.cy - (d.ry - 6) }),
     w: (2 * (d.rx - 10) * 100) / d.W,
@@ -153,7 +151,7 @@ export function Table({
           className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-center"
           style={
             size === 'mini'
-              ? { top: `calc(50% - ${sc(2)})`, flexDirection: 'row', gap: sc(8) }
+              ? { top: `calc(50% - ${dpx(2)})`, flexDirection: 'row', gap: dpx(8) }
               : undefined
           }
         >
@@ -203,7 +201,7 @@ export function Table({
         })()}
       {seats.map((seat, k) => {
         const at = toPct(size, seat),
-          av = sc(d.R * 2);
+          av = dpx(d.R * 2);
         // Tappable seats keep a 44px box whatever the scale, with the avatar centred in it.
         const boxH = onSeat ? `max(44px, ${av})` : av;
         const p = players[k];
@@ -229,9 +227,9 @@ export function Table({
             })}
             className={`absolute z-[2] ${onSeat ? 'cursor-pointer' : ''}`}
             style={{
-              left: `calc(${at.x}% - ${sc(36)})`,
+              left: `calc(${at.x}% - ${dpx(36)})`,
               top: `calc(${at.y}% - ${boxH} / 2)`,
-              width: sc(72),
+              width: dpx(72),
               height: boxH,
             }}
           >
@@ -255,7 +253,7 @@ export function Table({
                     width: av,
                     height: av,
                     background: p.color,
-                    fontSize: `max(0.8125rem, ${sc(size === 'full' ? 24 : 18)})`,
+                    fontSize: `max(0.8125rem, ${dpx(size === 'full' ? 24 : 18)})`,
                   }}
                 >
                   {p.emoji}
@@ -285,16 +283,15 @@ export function Table({
                   style={
                     chipPill
                       ? {
-                          width: `max(66px, ${sc(66)})`,
-                          height: `max(20px, ${sc(20)})`,
-                          left: sc(3),
-                          top: `calc(-1 * max(20px, ${sc(20)}) - ${sc(2)})`,
+                          ...DEALS_PILL,
+                          left: dpx(3),
+                          top: `calc(-1 * ${DEALS_PILL.height} - ${dpx(2)})`,
                         }
                       : {
-                          width: `max(1.125rem, ${sc(22)})`,
-                          height: `max(1.125rem, ${sc(22)})`,
-                          left: sc(12),
-                          top: sc(-7),
+                          width: `max(1.125rem, ${dpx(22)})`,
+                          height: `max(1.125rem, ${dpx(22)})`,
+                          left: dpx(12),
+                          top: dpx(-7),
                         }
                   }
                 >
@@ -310,10 +307,10 @@ export function Table({
                   className="absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] bg-[var(--accent)] px-1.5 text-13 font-extrabold leading-[18px] text-ink-on-accent"
                   style={
                     firstLabel && size === 'full'
-                      ? { left: '50%', top: sc(-22), translate: '-50% 0' }
+                      ? { left: '50%', top: dpx(-22), translate: '-50% 0' }
                       : {
-                          left: `calc(50% + ${sc(size === 'full' ? 10 : 6)})`,
-                          top: sc(size === 'full' ? -8 : -9),
+                          left: `calc(50% + ${dpx(size === 'full' ? 10 : 6)})`,
+                          top: dpx(size === 'full' ? -8 : -9),
                         }
                   }
                 >
@@ -334,22 +331,22 @@ export function Table({
                     style={
                       big
                         ? {
-                            minWidth: sc(32),
-                            height: sc(32),
-                            borderRadius: sc(16),
-                            fontSize: `max(0.8125rem, ${sc(22)})`,
-                            lineHeight: sc(29),
-                            left: `calc(50% + ${sc(d.R - 16)})`,
-                            top: sc(d.R - 16),
+                            minWidth: dpx(32),
+                            height: dpx(32),
+                            borderRadius: dpx(16),
+                            fontSize: `max(0.8125rem, ${dpx(22)})`,
+                            lineHeight: dpx(29),
+                            left: `calc(50% + ${dpx(d.R - 16)})`,
+                            top: dpx(d.R - 16),
                           }
                         : {
-                            minWidth: sc(22),
-                            height: sc(22),
-                            borderRadius: sc(11),
-                            fontSize: `max(0.8125rem, ${sc(14)})`,
-                            lineHeight: sc(19),
-                            left: `calc(50% + ${sc(d.R - 11)})`,
-                            top: sc(d.R - 11),
+                            minWidth: dpx(22),
+                            height: dpx(22),
+                            borderRadius: dpx(11),
+                            fontSize: `max(0.8125rem, ${dpx(14)})`,
+                            lineHeight: dpx(19),
+                            left: `calc(50% + ${dpx(d.R - 11)})`,
+                            top: dpx(d.R - 11),
                           }
                     }
                   >
@@ -363,7 +360,7 @@ export function Table({
                   animate={{ scale: 1 }}
                   transition={SPRING_POP}
                   className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
-                  style={{ left: `calc(50% - ${sc(d.R + 6)})`, bottom: sc(-4) }}
+                  style={{ left: `calc(50% - ${dpx(d.R + 6)})`, bottom: dpx(-4) }}
                 >
                   {out === 'made' ? t.table.made : t.table.missed}
                 </motion.div>
@@ -381,3 +378,12 @@ export function Table({
     box
   );
 }
+
+/** Full-table layer for something that moves between seats: translate it by `x`/`y` in percent, no measuring. */
+export const TablePin = ({ className = '', ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div
+    aria-hidden
+    className={`pointer-events-none absolute inset-0 ${className}`}
+    {...rest}
+  />
+);

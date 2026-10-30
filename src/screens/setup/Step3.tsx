@@ -1,14 +1,14 @@
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { cycleLen, maxFor, type LengthMode } from '@/domain';
-import { posAt } from '@/lib/tableGeometry';
+import { DEALS_PILL, TD, dpx, posAt, toPct } from '@/lib/tableGeometry';
 import type { Seat } from '@/state/types';
 import { Glass } from '@/components/ui/Glass';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { Table } from '@/components/ui/Table';
+import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { SetupFrame } from './SetupFrame';
 import { useSetup } from './useSetup';
@@ -16,22 +16,28 @@ import { t } from '@/strings';
 
 function SpinToken({ a0, a1, onDone }: { a0: number; a1: number; onDone: () => void }) {
   const a = useMotionValue(a0);
-  const x = useTransform(a, (v) => posAt('full', v).x - 33),
-    y = useTransform(a, (v) => posAt('full', v).y - 44);
+  const x = useTransform(a, (v) => `${toPct('full', posAt('full', v)).x}%`),
+    y = useTransform(a, (v) => `${toPct('full', posAt('full', v)).y}%`);
   useEffect(() => {
     const c = animate(a, a1, { duration: 1.5, ease: [0.12, 0.8, 0.2, 1], onComplete: onDone });
     return () => c.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one spin per mount
   }, []);
   return (
-    <motion.div
-      aria-hidden
-      style={{ x, y }}
-      className="absolute left-0 top-0 z-[6] flex h-5 w-[66px] items-center justify-center gap-[3px] rounded-[10px] bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_0_24px_rgba(247,231,166,.8)]"
-    >
-      {Icon.deck}
-      {t.table.deals}
-    </motion.div>
+    <TablePin style={{ x, y }} className="z-[6]">
+      <div
+        className="absolute flex items-center justify-center gap-[3px] rounded-full bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_0_24px_rgba(247,231,166,.8)]"
+        // Where the seat's own chip sits: above the avatar, left edge 3 design pixels in from the seat.
+        style={{
+          ...DEALS_PILL,
+          left: dpx(3 - 36),
+          top: `calc(${dpx(-TD.full.R - 2)} - ${DEALS_PILL.height})`,
+        }}
+      >
+        {Icon.deck}
+        {t.table.deals}
+      </div>
+    </TablePin>
   );
 }
 
