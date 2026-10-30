@@ -19,13 +19,22 @@ export function Home() {
     ld = standings(g)[0];
   const els = useRef<(HTMLSpanElement | null)[]>([]);
   const rm = useReducedMotion();
+  const still = useRef(false);
   useAnimationFrame((t) => {
+    // Reduced motion places the suits once and then leaves the frame loop idle.
+    if (rm && still.current) return;
+    still.current = !!rm;
     els.current.forEach((el, i) => {
       if (!el) return;
       const a = rm ? (i * Math.PI) / 2 : (t / 9000) * Math.PI * 2 + (i * Math.PI) / 2;
+      const front = Math.sin(a) > 0;
       el.style.transform = `translate3d(${Math.cos(a) * 138}px, ${Math.sin(a) * 82}px, 0) scale(${0.85 + 0.25 * Math.sin(a)})`;
-      el.style.opacity = Math.sin(a) > 0 ? '1' : '0.5';
-      el.style.zIndex = Math.sin(a) > 0 ? '3' : '0';
+      // Stacking only changes twice a lap; writing it every frame would restack every frame.
+      if (el.dataset.front !== String(front)) {
+        el.dataset.front = String(front);
+        el.style.opacity = front ? '1' : '0.5';
+        el.style.zIndex = front ? '3' : '0';
+      }
     });
   });
   const fin = g.status === 'finished';
