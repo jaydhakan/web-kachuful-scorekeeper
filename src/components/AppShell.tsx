@@ -59,7 +59,7 @@ export function AppShell() {
       <div className="absolute inset-0" {...(blocked ? { inert: '' as const } : {})}>
         <div
           aria-hidden
-          className="ambient pointer-events-none absolute -top-32 left-1/2 h-[360px] w-[520px] rounded-full opacity-90 blur-3xl"
+          className="ambient pointer-events-none absolute -top-32 left-1/2 h-[max(360px,45vh)] w-[max(520px,70vw)] rounded-full opacity-90 blur-3xl"
           style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
         />
         <AnimatePresence custom={dir} initial={false} mode="popLayout">
