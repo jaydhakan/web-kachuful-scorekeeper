@@ -2,7 +2,7 @@ import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion';
 import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
 import { trunc } from '@/lib/format';
-import { DEALS_PILL, TD, dpx, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
+import { DEALS_PILL, TD, dpx, minScale, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
@@ -133,7 +133,7 @@ export function Table({
   const box = (
     <div
       className={`table-box @container relative ${fit ? 'table-fit' : 'mx-auto shrink-0'}`}
-      style={{ '--tw': d.W, '--th': d.H } as CSSProperties}
+      style={{ '--tw': d.W, '--th': d.H, '--min': minScale(N) } as CSSProperties}
       data-table={uid}
     >
       <div
@@ -148,6 +148,7 @@ export function Table({
       <Arcs sz={size} dir={dir} />
       {center && (
         <div
+          data-table-center
           className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-center"
           style={
             size === 'mini'
@@ -245,6 +246,7 @@ export function Table({
               {p ? (
                 <motion.div
                   key={p.emoji + p.color}
+                  data-seat-avatar
                   initial={false}
                   whileTap={onSeat ? { scale: 0.9 } : undefined}
                   transition={SPRING}
@@ -260,6 +262,7 @@ export function Table({
                 </motion.div>
               ) : (
                 <div
+                  data-seat-avatar
                   className={`mx-auto grid place-items-center rounded-full border-2 border-dashed border-white/30 bg-white/[.04] text-13 text-[var(--tx2)] ${ring}`}
                   style={{ width: av, height: av }}
                 >
@@ -277,6 +280,7 @@ export function Table({
               )}
               {p && dealer === k && (
                 <motion.div
+                  data-seat-chip
                   layoutId={'dealer-' + uid}
                   transition={{ type: 'spring', stiffness: 170, damping: 22 }}
                   className="absolute z-[4] flex items-center justify-center gap-[3px] rounded-full bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_2px_8px_rgba(0,0,0,.5),0_0_16px_rgba(226,182,83,.55)]"
@@ -301,6 +305,7 @@ export function Table({
               )}
               {p && first === k && (
                 <motion.div
+                  data-seat-chip
                   initial={{ scale: 0.2, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
@@ -314,7 +319,15 @@ export function Table({
                         }
                   }
                 >
-                  {firstLabel || t.table.first}
+                  {firstLabel && size === 'full' ? (
+                    // The long label would reach the centre text on a small table, so it falls back to the short one.
+                    <>
+                      <span className="hidden @[18rem]:inline">{firstLabel}</span>
+                      <span className="@[18rem]:hidden">{t.table.first}</span>
+                    </>
+                  ) : (
+                    firstLabel || t.table.first
+                  )}
                 </motion.div>
               )}
               <AnimatePresence>
@@ -356,6 +369,7 @@ export function Table({
               </AnimatePresence>
               {p && out && (
                 <motion.div
+                  data-seat-chip
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={SPRING_POP}

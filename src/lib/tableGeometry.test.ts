@@ -1,4 +1,4 @@
-import { TD, angOf, posAt, seatPos, toPct } from './tableGeometry';
+import { TD, angOf, minScale, posAt, seatPos, toPct } from './tableGeometry';
 
 describe('table geometry', () => {
   it('seats the first player bottom-centre', () => {
@@ -50,4 +50,9 @@ describe('table geometry', () => {
       }
     },
   );
+
+  it('lets seven players shrink the table less than fewer do', () => {
+    expect(minScale(7)).toBeGreaterThan(minScale(6));
+    expect(minScale(3)).toBe(minScale(6));
+  });
 });

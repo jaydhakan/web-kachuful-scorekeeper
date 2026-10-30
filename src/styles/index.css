@@ -193,10 +193,13 @@ input {
   --u: 1px;
   --s: 1px;
 }
-/* Fits its slot both ways but never below 0.72× the grid; browsers without container units keep the fixed size. */
+/* Fits its slot both ways but never below --min × the grid; browsers without container units keep the fixed size. */
 @supports (width: 1cqw) {
   .table-fit {
-    width: max(calc(var(--tw) * 0.72px), min(100cqw, calc(100cqh * var(--tw) / var(--th))));
+    width: max(
+      calc(var(--tw) * var(--min) * 1px),
+      min(100cqw, calc(100cqh * var(--tw) / var(--th)))
+    );
     --u: calc(100cqw / var(--tw));
     --s: min(var(--u), 1.5px);
   }
