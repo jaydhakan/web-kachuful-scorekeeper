@@ -6,6 +6,18 @@ const FOCUSABLE =
 // Sheets can replace each other (Menu → Rules); the element to restore focus to is the first opener, not the old sheet's button.
 let opener: HTMLElement | null = null;
 
+// The page behind a dialog goes inert as the dialog mounts, which blurs the trigger before any effect can read it;
+// so the trigger is remembered as it is used (pointerdown too: Safari does not focus a button on click).
+let trigger: HTMLElement | null = null;
+const remember = (e: Event) => {
+  const el = (e.target as Element | null)?.closest<HTMLElement>(
+    'button,a[href],input,select,textarea,[tabindex],[role="button"]',
+  );
+  if (el && !el.closest('[aria-modal="true"]')) trigger = el;
+};
+document.addEventListener('focusin', remember, true);
+document.addEventListener('pointerdown', remember, true);
+
 const focusables = (root: HTMLElement) =>
   [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
     (el) => !el.closest('[hidden],[inert]') && getComputedStyle(el).visibility !== 'hidden',
@@ -29,7 +41,7 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
     const root = ref.current;
     if (!root) return;
     const active = document.activeElement as HTMLElement | null;
-    if (!active?.closest('[aria-modal="true"]')) opener = active;
+    if (!active?.closest('[aria-modal="true"]')) opener = trigger?.isConnected ? trigger : active;
     const mine = opener;
 
     const first =

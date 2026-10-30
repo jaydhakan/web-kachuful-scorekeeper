@@ -119,3 +119,22 @@ describe('focus return when a click moved focus out of the dialog', () => {
     opener.remove();
   });
 });
+
+describe('opener that lost focus before the dialog mounted', () => {
+  it('is remembered from the pointer or focus, so focus can return to it', () => {
+    // The page behind a dialog goes inert as it mounts, which blurs the trigger before any effect can read it.
+    const opener = document.createElement('button');
+    document.body.append(opener);
+    opener.focus();
+    opener.blur();
+    opener.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    const { rerender } = render(
+      <Sheet title="Menu" onClose={() => {}}>
+        <button>First</button>
+      </Sheet>,
+    );
+    rerender(<></>);
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+});
