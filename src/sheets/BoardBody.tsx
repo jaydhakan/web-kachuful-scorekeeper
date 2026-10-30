@@ -27,7 +27,7 @@ export function BoardBody() {
                 return (
                   <th
                     key={p.id}
-                    className="sticky top-0 z-10 min-w-[76px] bg-sheet px-1 py-2 text-center"
+                    className="sticky top-0 z-10 min-w-[76px] bg-sheet px-1 py-2 text-center align-top"
                   >
                     {/* A container of its own, so the name switches on this column's width. */}
                     <div className="@container">
@@ -37,7 +37,8 @@ export function BoardBody() {
                       >
                         {p.emoji}
                       </div>
-                      <div className="font-medium text-[var(--tx2)]">
+                      {/* Two lines are reserved once full names show, so a wrapped name does not push its total out of line. */}
+                      <div className="font-medium text-[var(--tx2)] @[5.5rem]:min-h-10">
                         {short === p.name ? (
                           p.name
                         ) : (
