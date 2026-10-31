@@ -1,5 +1,6 @@
 import { demoGame, standings, curRound, doneRounds } from '@/domain';
 import fixture from './__fixtures__/prototype-save.json';
+import { UUID_RE } from '@/lib/ids';
 import { CURRENT_SCHEMA, isGameShape, migrateGame } from './migrations';
 import {
   KEYS,
@@ -10,6 +11,8 @@ import {
   storage,
   pushRecentNames,
 } from './persistence';
+
+const parsed = (s: string) => parseSnapshot(s)!;
 
 const seed = (entries: Record<string, unknown>) =>
   Object.entries(entries).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v)));
@@ -31,7 +34,13 @@ describe('migrations', () => {
 
   it('keeps every field of the prototype shape', () => {
     const raw = fixture['kachuful.v1'];
-    expect(migrateGame(raw)).toEqual({ ...raw, decks: 1, schemaVersion: CURRENT_SCHEMA });
+    expect(migrateGame(raw)).toEqual({
+      ...raw,
+      decks: 1,
+      syncId: expect.stringMatching(UUID_RE),
+      rev: 1,
+      schemaVersion: CURRENT_SCHEMA,
+    });
   });
 
   it('plays a save from before the deck question with one deck, and leaves a two-deck save alone', () => {
@@ -62,6 +71,26 @@ describe('migrations', () => {
   ])('rejects %s', (_n, v) => {
     expect(isGameShape(v)).toBe(false);
     expect(migrateGame(v)).toBeNull();
+  });
+
+  it('adds sync fields to a v2 save: a stable id from the device, revision 1, and a finish time', () => {
+    const raw: Record<string, unknown> = { ...demoGame(), status: 'finished', schemaVersion: 2 };
+    delete raw.syncId;
+    delete raw.rev;
+    const a = migrateGame(raw, { deviceId: 'dev-a' })!;
+    expect(a).toMatchObject({ rev: 1, finishedAt: raw.updatedAt, schemaVersion: 3 });
+    expect(a.syncId).toMatch(UUID_RE);
+    expect(migrateGame(raw, { deviceId: 'dev-a' })!.syncId).toBe(a.syncId);
+    expect(migrateGame(raw, { deviceId: 'dev-b' })!.syncId).not.toBe(a.syncId);
+    expect(a.rounds.every((r) => r.doneAt === undefined)).toBe(true);
+    expect(migrateGame({ ...raw, status: 'active' })).not.toHaveProperty('finishedAt');
+  });
+
+  it('gives a game and its undo snapshots the same sync id on this device', () => {
+    const g = fixture['kachuful.v1'];
+    const snap = parseSnapshot(fixture['kachuful.undo'][0])!;
+    expect(snap.syncId).toBe(parsed(JSON.stringify(g)).syncId);
+    expect(storage.get(KEYS.device, null)).toEqual(expect.any(String));
   });
 
   it('migrates undo snapshots too and drops unreadable ones', () => {

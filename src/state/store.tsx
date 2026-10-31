@@ -12,6 +12,7 @@ import { curRound, resultsState, type Outcome, type Phase } from '@/domain';
 import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
+import { uuid } from '@/lib/ids';
 import {
   KEYS,
   loadInitial,
@@ -137,7 +138,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         } satisfies LastGroup);
         pushRecentNames(names);
         const now = Date.now();
-        nav({ type: 'beginGame', id: 'g' + now, now });
+        nav({ type: 'beginGame', id: 'g' + now, syncId: uuid(), now });
       },
       resume: () => nav({ type: 'resume' }),
       bid: (v) => {
@@ -165,7 +166,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       finishGame: () => dispatch({ type: 'finishGame' }),
       rematch: () => {
         const now = Date.now();
-        nav({ type: 'rematch', id: 'g' + now, now });
+        nav({ type: 'rematch', id: 'g' + now, syncId: uuid(), now });
       },
       editRound: (i, bids, results) => dispatch({ type: 'editRound', i, bids, results }),
       undo: () => dispatch({ type: 'undo' }),

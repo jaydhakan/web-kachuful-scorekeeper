@@ -15,6 +15,8 @@ export function demoGame(): Game {
   ).map(([n, e], i) => ({ id: 'p' + i, name: n, emoji: e, color: COLORS[i] }));
   const g: Game = {
     id: 'demo',
+    syncId: '00000000-0000-8000-8000-000000000000',
+    rev: 1,
     createdAt: now - 3600e3,
     updatedAt: now - 12 * 60e3,
     players: P,

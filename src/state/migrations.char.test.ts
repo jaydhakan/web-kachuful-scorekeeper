@@ -31,8 +31,16 @@ const essence = (g: Game | null) =>
     done: doneRounds(g).length,
   };
 
+/** The demo as an older app saved it: no sync fields. */
+const old = (schemaVersion: number, patch: Partial<Game> = {}): Record<string, unknown> => {
+  const g: Record<string, unknown> = { ...demoGame(), ...patch, schemaVersion };
+  delete g.syncId;
+  delete g.rev;
+  return g;
+};
+
 const v1 = (): Record<string, unknown> => {
-  const g: Record<string, unknown> = { ...demoGame(), schemaVersion: 1 };
+  const g = old(1);
   delete g.decks;
   return g;
 };
@@ -58,18 +66,18 @@ describe('older saves keep their games', () => {
   });
 
   it('a v2 save keeps every field it had', () => {
-    const raw = { ...demoGame(), decks: 2 as const, schemaVersion: 2 };
+    const raw = old(2, { decks: 2 });
     const g = migrateGame(raw)!;
     for (const [k, v] of Object.entries(raw))
       if (k !== 'schemaVersion') expect(g).toHaveProperty(k, v);
-    expect(essence(g)).toEqual(essence(raw as Game));
+    expect(essence(g)).toEqual(essence(raw as unknown as Game));
   });
 
   it('a finished v2 save stays finished with the same winner', () => {
-    const raw = { ...demoGame(), status: 'finished' as const, schemaVersion: 2 };
-    raw.rounds = raw.rounds.filter((r) => r.phase === 'done');
+    const d = demoGame();
+    const raw = old(2, { status: 'finished', rounds: d.rounds.filter((r) => r.phase === 'done') });
     const g = migrateGame(raw)!;
     expect(g.status).toBe('finished');
-    expect(standings(g)[0].p.id).toBe(standings(raw as Game)[0].p.id);
+    expect(standings(g)[0].p.id).toBe(standings(raw as unknown as Game)[0].p.id);
   });
 });

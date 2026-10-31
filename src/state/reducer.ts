@@ -66,6 +66,7 @@ function commit(
   const undo = o.undo ? pushSnapshot(s.undo, JSON.stringify(s.game)) : s.undo;
   fn(g);
   g.updatedAt = now();
+  g.rev = s.game.rev + 1;
   const next = { ...s, game: g, undo };
   return o.toast ? say(next, o.toast, !!o.undo) : next;
 }
@@ -86,10 +87,13 @@ function freshGame(
     'players' | 'direction' | 'firstDealerIndex' | 'decks' | 'maxCards' | 'lengthMode'
   >,
   id: string,
+  syncId: string,
   t: number,
 ): Game {
   const g: Game = {
     id,
+    syncId,
+    rev: 1,
     createdAt: t,
     updatedAt: t,
     ...base,
@@ -158,9 +162,10 @@ function undoLast(s: AppState): AppState {
   const undo = s.undo.slice(0, -1);
   const g = parseSnapshot(s.undo[s.undo.length - 1]);
   if (!g) return say({ ...s, undo }, m.toasts.nothingToUndo);
+  // Undo is a change like any other as far as other devices are concerned.
   const base = {
     ...s,
-    game: g,
+    game: { ...g, rev: s.game.rev + 1, updatedAt: now() },
     undo,
     advance: null,
     sumAnim: false,
@@ -248,6 +253,7 @@ function step(s: AppState, a: Action): AppState {
           lengthMode: S.length,
         },
         a.id,
+        a.syncId,
         a.now,
       );
       return begin(s, g);
@@ -332,9 +338,13 @@ function step(s: AppState, a: Action): AppState {
         ...commit(
           s,
           (g) => {
-            curRound(g).phase = 'done';
-            if (g.rounds.length >= totalRounds(g)) g.status = 'finished';
-            else g.ui.view = 'summary';
+            const r = curRound(g);
+            r.phase = 'done';
+            r.doneAt = now();
+            if (g.rounds.length >= totalRounds(g)) {
+              g.status = 'finished';
+              g.finishedAt = r.doneAt;
+            } else g.ui.view = 'summary';
           },
           { undo: true },
         ),
@@ -367,6 +377,7 @@ function step(s: AppState, a: Action): AppState {
           s,
           (g) => {
             g.status = 'finished';
+            g.finishedAt = now();
           },
           { undo: true },
         ),
@@ -387,6 +398,7 @@ function step(s: AppState, a: Action): AppState {
           lengthMode: old.lengthMode,
         },
         a.id,
+        a.syncId,
         a.now,
       );
       return begin(s, g);

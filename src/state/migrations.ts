@@ -1,15 +1,28 @@
 import type { Game } from '@/domain';
+import { hashUuid } from '@/lib/ids';
 
-export const CURRENT_SCHEMA = 2;
+export const CURRENT_SCHEMA = 3;
 
 type Raw = Record<string, unknown>;
-type Migration = (g: Raw) => Raw;
+/** What a migration may know about the device; the same device always migrates a game the same way. */
+export interface MigrateCtx {
+  deviceId: string;
+}
+type Migration = (g: Raw, ctx: MigrateCtx) => Raw;
 
 /** `migrations[n]` upgrades a version-n save to n + 1. Version 0 is the prototype's unversioned save. */
 const migrations: Record<number, Migration> = {
   0: (g) => ({ ...g, schemaVersion: 1 }),
   // Every game saved before the deck question was played with one deck.
   1: (g) => ({ ...g, decks: 1, schemaVersion: 2 }),
+  // Sync fields. The id is a hash, so the game, its undo snapshots and its backup all become one remote game.
+  2: (g, { deviceId }) => ({
+    ...g,
+    syncId: hashUuid(`${deviceId}:${String(g.id)}:${String(g.createdAt)}`),
+    rev: 1,
+    ...(g.status === 'finished' && { finishedAt: g.updatedAt }),
+    schemaVersion: 3,
+  }),
 };
 
 const isObj = (v: unknown): v is Raw => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -37,11 +50,11 @@ export function isGameShape(g: unknown): g is Raw {
 }
 
 /** Returns the current-version game, or null when the data is unreadable or from a newer app. */
-export function migrateGame(raw: unknown): Game | null {
+export function migrateGame(raw: unknown, ctx: MigrateCtx = { deviceId: '' }): Game | null {
   if (!isGameShape(raw)) return null;
   const v = typeof raw.schemaVersion === 'number' ? raw.schemaVersion : 0;
   if (!Number.isInteger(v) || v < 0 || v > CURRENT_SCHEMA) return null;
   let g: Raw = raw;
-  for (let n = v; n < CURRENT_SCHEMA; n++) g = migrations[n](g);
+  for (let n = v; n < CURRENT_SCHEMA; n++) g = migrations[n](g, ctx);
   return g as unknown as Game;
 }

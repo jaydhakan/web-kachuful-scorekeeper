@@ -36,6 +36,8 @@ export function seedGame(
   }));
   const g: Game = {
     id: 'seed',
+    syncId: '11111111-1111-4111-8111-111111111111',
+    rev: 1,
     createdAt: Date.now() - 3600e3,
     updatedAt: Date.now() - 60e3,
     players,

@@ -85,7 +85,7 @@ export type Action =
   | { type: 'setupSeat'; k: number; seat: Seat | null }
   | { type: 'setupSeatPatch'; k: number; patch: Partial<Seat> }
   | { type: 'setupSwap'; a: number; b: number }
-  | { type: 'beginGame'; id: string; now: number }
+  | { type: 'beginGame'; id: string; syncId: string; now: number }
   | { type: 'resume' }
   | { type: 'bid'; v: number }
   | { type: 'advanceBid'; idx: number }
@@ -97,7 +97,7 @@ export type Action =
   | { type: 'confirmRound' }
   | { type: 'nextRound' }
   | { type: 'finishGame' }
-  | { type: 'rematch'; id: string; now: number }
+  | { type: 'rematch'; id: string; syncId: string; now: number }
   | { type: 'editRound'; i: number; bids: Record<string, number>; results: Record<string, Outcome> }
   | { type: 'undo' }
   | { type: 'sheet'; sheet: SheetState | null }

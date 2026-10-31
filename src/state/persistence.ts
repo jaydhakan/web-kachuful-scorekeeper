@@ -1,5 +1,6 @@
 import { demoGame, type Decks, type Game } from '@/domain';
-import { CURRENT_SCHEMA, migrateGame } from './migrations';
+import { uuid } from '@/lib/ids';
+import { CURRENT_SCHEMA, migrateGame as migrateRaw } from './migrations';
 
 export const KEYS = {
   game: 'kachuful.v1',
@@ -8,6 +9,8 @@ export const KEYS = {
   undo: 'kachuful.undo',
   screen: 'kachuful.screen',
   backup: 'kachuful.v1.backup',
+  device: 'kachuful.device',
+  session: 'kachuful.session',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -73,6 +76,17 @@ export const storage = {
     }
   },
 };
+
+/** This browser's id, made once; it keeps migrated sync ids stable across reloads. */
+export function deviceId(): string {
+  const v = storage.get<string | null>(KEYS.device, null);
+  if (typeof v === 'string' && v) return v;
+  const id = uuid();
+  storage.set(KEYS.device, id);
+  return id;
+}
+
+export const migrateGame = (raw: unknown): Game | null => migrateRaw(raw, { deviceId: deviceId() });
 
 /** Snapshots are kept as JSON strings, exactly as the prototype stored them. */
 export const parseSnapshot = (s: string): Game | null => {

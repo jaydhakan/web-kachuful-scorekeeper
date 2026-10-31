@@ -54,7 +54,7 @@ const setup = (
     initialState(demoGame(), 'home', []),
     { type: 'startSetup', lg: null },
     { type: 'setupPatch', patch: { n, step: 3, seats, length, decks } },
-    { type: 'beginGame', id: 'g1', now: 1_000 },
+    { type: 'beginGame', id: 'g1', syncId: 'sync-' + 'g1', now: 1_000 },
   );
 };
 
@@ -118,7 +118,7 @@ describe('setup and starting a game', () => {
     });
     st = run(st, { type: 'confirmRound' });
     expect(doneRounds(st.game)).toHaveLength(1);
-    const again = run(st, { type: 'rematch', id: 'g2', now: 5 });
+    const again = run(st, { type: 'rematch', id: 'g2', syncId: 'sync-' + 'g2', now: 5 });
     expect(again.game).toMatchObject({ decks: 2, maxCards: 10 });
     expect(again.game.players).toHaveLength(10);
   });
@@ -130,7 +130,7 @@ describe('setup and starting a game', () => {
       initialState(mine, 'home', []),
       { type: 'startSetup', lg: null },
       { type: 'setupPatch', patch: { n: 3, step: 3, seats } },
-      { type: 'beginGame', id: 'g1', now: 1_000 },
+      { type: 'beginGame', id: 'g1', syncId: 'sync-' + 'g1', now: 1_000 },
     );
     expect(st.game.id).toBe('g1');
     expect(st.undo).toHaveLength(1);
@@ -148,7 +148,7 @@ describe('setup and starting a game', () => {
     const again = run(
       fresh,
       { type: 'setupPatch', patch: { n: 3, step: 3, seats: setup(3).setup!.seats } },
-      { type: 'beginGame', id: 'g2', now: 2_000 },
+      { type: 'beginGame', id: 'g2', syncId: 'sync-' + 'g2', now: 2_000 },
     );
     expect(again.undo).toEqual([]);
   });
@@ -365,7 +365,11 @@ describe('finishing, rematch and undo', () => {
   });
 
   it('a rematch of the demo keeps the players, moves the first dealer on and clears undo', () => {
-    const st = run(demo(), { type: 'bid', v: 1 }, { type: 'rematch', id: 'g2', now: 5 });
+    const st = run(
+      demo(),
+      { type: 'bid', v: 1 },
+      { type: 'rematch', id: 'g2', syncId: 'sync-' + 'g2', now: 5 },
+    );
     const g: Game = st.game;
     expect(g.id).toBe('g2');
     expect(g.players.map((p) => p.name)).toEqual(['Aarav', 'Riya', 'Kabir', 'Meera', 'Dev']);
@@ -379,7 +383,7 @@ describe('finishing, rematch and undo', () => {
     const fin = run(initialState({ ...demoGame(), id: 'mine' }, 'winner', []), {
       type: 'finishGame',
     });
-    const st = run(fin, { type: 'rematch', id: 'g2', now: 5 });
+    const st = run(fin, { type: 'rematch', id: 'g2', syncId: 'sync-' + 'g2', now: 5 });
     expect(st.undo).toHaveLength(1);
     expect(run(st, { type: 'undo' })).toMatchObject({ screen: 'winner', game: { id: 'mine' } });
   });
@@ -510,5 +514,34 @@ describe('streak celebrations', () => {
     expect(st.streakFx?.map((e) => [e.p.name, e.kind, e.n])).toEqual([['P0', 'hot', 3]]);
     expect(run(st, { type: 'streakDone' }).streakFx).toBeNull();
     expect(run(st, { type: 'undo' }).streakFx).toBeNull();
+  });
+});
+
+describe('sync fields (schema 3)', () => {
+  it('a new game gets its sync id and revision 1; every committed change adds one', () => {
+    const st = setup(4);
+    expect(st.game).toMatchObject({ syncId: 'sync-g1', rev: 1 });
+    const a = run(st, { type: 'bid', v: 1 });
+    expect(a.game.rev).toBe(2);
+    expect(run(a, { type: 'undo' }).game.rev).toBe(3);
+  });
+
+  it('confirming a round stamps when it was done; the last round also stamps the finish', () => {
+    const st = playRound(setup(4));
+    expect(doneRounds(st.game)[0].doneAt).toEqual(expect.any(Number));
+    expect(st.game.finishedAt).toBeUndefined();
+    const fin = run(st, { type: 'finishGame' });
+    expect(fin.game.finishedAt).toEqual(expect.any(Number));
+    let one = setup(3, '1cycle');
+    while (one.game.status === 'active') {
+      one = playRound(one);
+      if (one.game.status === 'active') one = run(one, { type: 'nextRound' });
+    }
+    expect(one.game.finishedAt).toBe(curRound(one.game).doneAt);
+  });
+
+  it('a rematch is a new game with a new sync id', () => {
+    const st = run(playRound(setup(4)), { type: 'rematch', id: 'g2', syncId: 's2', now: 9 });
+    expect(st.game).toMatchObject({ id: 'g2', syncId: 's2', rev: 1 });
   });
 });

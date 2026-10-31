@@ -4,6 +4,8 @@ import { currentStreaks, streakMilestones, streakTier } from './streaks';
 
 const mkGame = (n: number): Game => ({
   id: 'g',
+  syncId: 'g',
+  rev: 1,
   createdAt: 0,
   updatedAt: 0,
   players: Array.from({ length: n }, (_, i) => ({

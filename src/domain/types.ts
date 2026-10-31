@@ -12,6 +12,8 @@ export interface Player {
   name: string;
   emoji: string;
   color: string;
+  /** The registry player this seat is (schema 3); absent until the player is first archived or uploaded. */
+  playerId?: string;
 }
 
 /** What every round derives from the seating order alone. */
@@ -29,6 +31,8 @@ export interface Round extends RoundPlan {
   tricks: Record<string, number> | null;
   hookHits: number;
   phase: Phase;
+  /** When the round was confirmed (schema 3); older rounds fall back to the game's updatedAt. */
+  doneAt?: number;
 }
 
 export interface GameUi {
@@ -39,6 +43,10 @@ export interface GameUi {
 
 export interface Game {
   id: string;
+  /** The game's id everywhere outside this device (schema 3). */
+  syncId: string;
+  /** Goes up by one on every committed change, undo included (schema 3). */
+  rev: number;
   createdAt: number;
   updatedAt: number;
   players: Player[];
@@ -49,6 +57,8 @@ export interface Game {
   lengthMode: LengthMode;
   rounds: Round[];
   status: GameStatus;
+  /** When the game ended (schema 3); older finished games use updatedAt. */
+  finishedAt?: number;
   ui: GameUi;
   schemaVersion?: number;
 }
