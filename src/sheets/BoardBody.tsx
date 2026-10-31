@@ -13,7 +13,7 @@ export function BoardBody() {
   return (
     <>
       <div className="mb-2 text-13 text-[var(--tx2)]">{t.sheets.boardHint}</div>
-      <div className="no-scroll max-h-[calc(100%-28px)] overflow-auto rounded-2xl">
+      <div className="scroll-thin max-h-[calc(100%-28px)] overflow-auto rounded-2xl">
         <table className="min-w-full border-separate border-spacing-0 text-13">
           <thead>
             <tr>

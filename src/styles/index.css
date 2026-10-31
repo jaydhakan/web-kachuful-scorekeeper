@@ -258,11 +258,16 @@ input {
   opacity: 0;
   animation: pulse 3.2s ease-in-out infinite;
 }
-.no-scroll::-webkit-scrollbar {
-  display: none;
-}
-.no-scroll {
+/* Touch hides the scrollbar; mouse and trackpad get a thin one so scrollable content is discoverable. */
+.scroll-thin {
   scrollbar-width: none;
+}
+/* Standard properties only: Chrome 121+ ignores ::-webkit-scrollbar once these are set. */
+@media (pointer: fine) {
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, theme('colors.text-secondary') 45%, transparent) transparent;
+  }
 }
 .tick {
   font-feature-settings: 'tnum' 1;
