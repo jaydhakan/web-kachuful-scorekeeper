@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { nameKey } from '@/domain';
+import { emailKey, emailOk, nameKey } from '@/domain';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
 import { agoTxt } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -283,6 +283,7 @@ function Players() {
   const [q, setQ] = useState('');
   const [from, setFrom] = useState<Player | null>(null);
   const [into, setInto] = useState<{ p: Player; games: number } | null>(null);
+  const [mail, setMail] = useState<{ p: Player; v: string; err: string } | null>(null);
   if (list instanceof Error) return <ErrorState msg={authError(list)} onRetry={reload} />;
   if (!list) return <Skeleton rows={5} />;
   const k = nameKey(q);
@@ -305,10 +306,20 @@ function Players() {
             </span>
             <span className="min-w-0 flex-1 text-16 font-bold [overflow-wrap:anywhere]">
               {p.displayName}
+              <span className="block text-13 font-medium text-[var(--tx2)]">
+                {p.email ?? ad.noEmail}
+              </span>
               {p.linkedUserId && (
                 <span className="ml-2 text-13 font-medium text-[var(--tx2)]">· {ad.linked}</span>
               )}
             </span>
+            <button
+              type="button"
+              onClick={() => setMail({ p, v: p.email ?? '', err: '' })}
+              className="min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
+            >
+              {ad.email}
+            </button>
             <button
               type="button"
               onClick={() => setFrom(p)}
@@ -319,6 +330,39 @@ function Players() {
           </li>
         ))}
       </ul>
+      {mail && (
+        <Sheet title={`${ad.email} · ${mail.p.displayName}`} onClose={() => setMail(null)}>
+          <form
+            noValidate
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!emailOk(mail.v)) return setMail({ ...mail, err: t.hub.sync2.emailInvalid });
+              try {
+                await ep.patchPlayer(mail.p.id, { email: emailKey(mail.v) });
+                setMail(null);
+                actions.say(t.hub.account.saved);
+                reload();
+              } catch (x) {
+                setMail({ ...mail, err: adminError(x) });
+              }
+            }}
+          >
+            <Field
+              label={ad.email}
+              type="email"
+              inputMode="email"
+              autoCapitalize="off"
+              value={mail.v}
+              onChange={(v) => setMail({ ...mail, v, err: '' })}
+              error={mail.err}
+              hint={t.hub.sync2.emailHint}
+            />
+            <PrimaryButton type="submit" className="w-full">
+              {t.common.save}
+            </PrimaryButton>
+          </form>
+        </Sheet>
+      )}
       {from && !into && (
         <Sheet title={`${ad.merge} ${from.displayName}`} onClose={() => setFrom(null)}>
           <ul className="flex flex-col gap-1">

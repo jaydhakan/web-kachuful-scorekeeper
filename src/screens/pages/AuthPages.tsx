@@ -155,7 +155,7 @@ export function InvitePage({ token }: { token: string }) {
     if (!k || !canCheck) return setCheck(null);
     const ctl = new AbortController();
     const tm = setTimeout(() => {
-      ep.checkName(name, { signal: ctl.signal })
+      ep.checkPlayer({ name }, { signal: ctl.signal })
         .then((r) => setCheck(r.available ? 'free' : r.existing))
         .catch(() => setCheck(null));
     }, 250);
@@ -195,6 +195,7 @@ export function InvitePage({ token }: { token: string }) {
         : {
             id,
             displayName: tidyName(name),
+            email: st.email,
             ...(first.trim() && { firstName: first.trim() }),
             ...(last.trim() && { lastName: last.trim() }),
             ...look,
@@ -282,6 +283,13 @@ export function InvitePage({ token }: { token: string }) {
                 onChange={setName}
                 hint={check === 'free' ? `✓ ${a.nameFree}` : a.displayHint}
                 error={clash ? a.nameTaken(clash.displayName) : ''}
+              />
+              <Field
+                label={a.yourEmail}
+                value={st.email}
+                onChange={() => {}}
+                readOnly
+                hint={a.emailFixed}
               />
               <div className="grid grid-cols-2 gap-3">
                 <Field

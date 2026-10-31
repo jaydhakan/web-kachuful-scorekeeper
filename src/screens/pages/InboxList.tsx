@@ -2,7 +2,8 @@ import { archive, type InboxItem } from '@/state/archive';
 import { useArchive } from '@/state/useArchive';
 import { useApp } from '@/state/store';
 import { livePlayers } from '@/state/registry';
-import { suggestName } from '@/domain';
+import { useState } from 'react';
+import { emailOk, suggestName } from '@/domain';
 import { resolveNameMatch } from '@/sync/engine';
 import { t } from '@/strings';
 
@@ -45,17 +46,24 @@ const describe = (i: InboxItem) => {
   const x = t.hub.inbox;
   if (i.kind === 'rejected') return x.rejected(String(i.data.reason ?? ''));
   if (i.kind === 'conflict') return x.conflict;
+  if (i.data.missing) return x.needEmail(String(i.data.name ?? ''));
+  if (i.data.field === 'email') return x.emailMatch(String(i.data.name ?? ''));
   return x.nameMatch(String(i.data.name ?? ''));
 };
 
-/** "Is it the same person?" for a name the server already has: yes moves the games to them, no renames. */
+/**
+ * "Is it the same person?" for a name or email the server already has (yes moves the games to them), or a missing
+ * email to fill in. A name clash can take a free name instead; an email clash needs the right email.
+ */
 function NameMatch({ i }: { i: InboxItem }) {
   const existing = i.data.existing as { id: string; displayName: string } | undefined;
   const name = String(i.data.name ?? '');
+  const byEmail = i.data.field === 'email';
+  const [email, setEmail] = useState('');
   const taken = new Set(livePlayers().map((p) => p.nameKey));
   const other = suggestName(name, taken);
   return (
-    <span className="flex flex-wrap gap-2">
+    <span className="flex w-full flex-wrap items-center gap-2">
       {existing && (
         <button
           type="button"
@@ -65,13 +73,39 @@ function NameMatch({ i }: { i: InboxItem }) {
           {t.hub.sync2.yes}
         </button>
       )}
-      <button
-        type="button"
-        onClick={() => resolveNameMatch(i.key, { rename: other })}
-        className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
-      >
-        {t.hub.sync2.useSuggestion(other)}
-      </button>
+      {byEmail ? (
+        <form
+          className="flex min-w-0 flex-1 basis-60 gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (emailOk(email)) resolveNameMatch(i.key, { email });
+          }}
+        >
+          <input
+            type="email"
+            aria-label={t.hub.sync2.emailFor(name)}
+            placeholder={t.hub.sync2.emailFor(name)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-11 min-w-0 flex-1 rounded-xl bg-white/[.07] px-3 text-15 outline-none"
+          />
+          <button
+            type="submit"
+            disabled={!emailOk(email)}
+            className="glass min-h-11 rounded-xl px-3 text-14 font-bold disabled:opacity-50"
+          >
+            {t.common.save}
+          </button>
+        </form>
+      ) : (
+        <button
+          type="button"
+          onClick={() => resolveNameMatch(i.key, { rename: other })}
+          className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+        >
+          {t.hub.sync2.useSuggestion(other)}
+        </button>
+      )}
     </span>
   );
 }

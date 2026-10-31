@@ -165,6 +165,9 @@ export function AccountPage() {
               <span className="block text-14 text-[var(--tx2)]">
                 {[p.firstName, p.lastName].filter(Boolean).join(' ')}
               </span>
+              {'email' in p && p.email && (
+                <span className="block text-13 text-[var(--tx2)]">{p.email}</span>
+              )}
             </span>
             <button
               type="button"

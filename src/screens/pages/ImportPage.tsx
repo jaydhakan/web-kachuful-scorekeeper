@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { doneRounds, nameKey, suggestName } from '@/domain';
+import { doneRounds, emailKey, emailOk, nameKey, suggestName } from '@/domain';
 import { dayLabel } from '@/lib/dates';
 import { archive } from '@/state/archive';
 import { idOf, livePlayers } from '@/state/registry';
@@ -37,6 +37,8 @@ export function ImportPage() {
   }, [games, chosen]);
   const [same, setSame] = useState<Record<string, boolean>>({});
   const [rename, setRename] = useState<Record<string, string>>({});
+  // A player new to the server needs an email; it tells people apart.
+  const [emails, setEmails] = useState<Record<string, string>>({});
   if (!games.length)
     return (
       <Page title={x.importTitle}>
@@ -55,8 +57,12 @@ export function ImportPage() {
       else {
         const nm =
           rename[p.id] ?? (match ? suggestName(p.displayName, taken, p.lastName) : p.displayName);
-        if (nm !== p.displayName)
-          archive.put('players', { ...p, displayName: nm, nameKey: nameKey(nm) });
+        archive.put('players', {
+          ...p,
+          displayName: nm,
+          nameKey: nameKey(nm),
+          email: emailKey(emails[p.id] ?? p.email ?? ''),
+        });
         matches[p.id] = null;
       }
     }
@@ -70,6 +76,17 @@ export function ImportPage() {
     else n.add(id);
     setPicked(n);
   };
+  const emailField = (p: { id: string; displayName: string; email?: string | null }) => (
+    <Field
+      label={x.emailFor(p.displayName)}
+      type="email"
+      inputMode="email"
+      autoCapitalize="off"
+      value={emails[p.id] ?? p.email ?? ''}
+      onChange={(v) => setEmails({ ...emails, [p.id]: v })}
+      hint={x.emailHint}
+    />
+  );
   if (step === 'players')
     return (
       <Page title={x.matchTitle}>
@@ -117,6 +134,7 @@ export function ImportPage() {
                     </div>
                     {!isSame && (
                       <div className="mt-3">
+                        {emailField(p)}
                         <Field
                           label={x.renameTo}
                           value={nm}
@@ -128,6 +146,7 @@ export function ImportPage() {
                     )}
                   </>
                 )}
+                {!match && emailField(p)}
               </motion.li>
             );
           })}
@@ -136,9 +155,12 @@ export function ImportPage() {
           className="mt-5 w-full"
           disabled={people.some(
             ({ p, match }) =>
-              match &&
-              same[p.id] === false &&
-              taken.has(nameKey(rename[p.id] ?? suggestName(p.displayName, taken, p.lastName))),
+              (match &&
+                same[p.id] === false &&
+                taken.has(
+                  nameKey(rename[p.id] ?? suggestName(p.displayName, taken, p.lastName)),
+                )) ||
+              ((!match || same[p.id] === false) && !emailOk(emails[p.id] ?? p.email ?? '')),
           )}
           onClick={finish}
         >
