@@ -50,6 +50,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,svg,png,webmanifest}'],
         navigateFallback: 'index.html',
+        // The API and the link-preview pages are the server's, never the app shell.
+        navigateFallbackDenylist: [/^\/api\//, /^\/r\//, /^\/l\//],
         cleanupOutdatedCaches: true,
       },
     }),
