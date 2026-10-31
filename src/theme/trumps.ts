@@ -15,8 +15,32 @@ export interface TrumpTheme {
 }
 
 export const TR: Record<Trump, TrumpTheme> = {
-  spades: { sym: '♠', name: 'Spades', acc: palette['accent-spades'], glow: glowOf(palette['accent-spades']), col: palette['suit-black'] },
-  diamonds: { sym: '♦', name: 'Diamonds', acc: palette['accent-diamonds'], glow: glowOf(palette['accent-diamonds']), col: palette['suit-red'] },
-  clubs: { sym: '♣', name: 'Clubs', acc: palette['accent-clubs'], glow: glowOf(palette['accent-clubs']), col: palette['suit-black'] },
-  hearts: { sym: '♥', name: 'Hearts', acc: palette['accent-hearts'], glow: glowOf(palette['accent-hearts']), col: palette['suit-red'] },
+  spades: {
+    sym: '♠',
+    name: 'Spades',
+    acc: palette['accent-spades'],
+    glow: glowOf(palette['accent-spades']),
+    col: palette['suit-black'],
+  },
+  diamonds: {
+    sym: '♦',
+    name: 'Diamonds',
+    acc: palette['accent-diamonds'],
+    glow: glowOf(palette['accent-diamonds']),
+    col: palette['suit-red'],
+  },
+  clubs: {
+    sym: '♣',
+    name: 'Clubs',
+    acc: palette['accent-clubs'],
+    glow: glowOf(palette['accent-clubs']),
+    col: palette['suit-black'],
+  },
+  hearts: {
+    sym: '♥',
+    name: 'Hearts',
+    acc: palette['accent-hearts'],
+    glow: glowOf(palette['accent-hearts']),
+    col: palette['suit-red'],
+  },
 };
