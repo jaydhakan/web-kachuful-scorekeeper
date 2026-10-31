@@ -12,7 +12,7 @@ const LOOK: Record<StreakKind, { color: string; bits: string[] }> = {
   cold: { color: palette['accent-spades'], bits: ['❄️', '🧊', '❄️', '💧'] },
 };
 /** How long each step holds the screen; longer runs get a little longer. */
-const HOLD_MS = [2300, 2700, 3200];
+const HOLD_MS = [2300, 2700, 3200, 3600];
 const BITS = 16;
 const POP = { type: 'spring', stiffness: 380, damping: 13, mass: 0.9 } as const;
 

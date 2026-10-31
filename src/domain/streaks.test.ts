@@ -68,7 +68,7 @@ describe('current streaks', () => {
 });
 
 describe('streak milestones', () => {
-  it('fires when a run reaches 3, 5 or 8, not in between or after', () => {
+  it('fires when a run reaches 3, 5, 8 or 12, not in between or after', () => {
     const hits = (rounds: number) =>
       streakMilestones(
         play(
@@ -95,7 +95,7 @@ describe('streak milestones', () => {
   });
 
   it('tiers a run by the last step it passed', () => {
-    expect([2, 3, 4, 5, 7, 8, 12].map(streakTier)).toEqual([-1, 0, 0, 1, 1, 2, 2]);
+    expect([2, 3, 4, 5, 7, 8, 11, 12, 20].map(streakTier)).toEqual([-1, 0, 0, 1, 1, 2, 2, 3, 3]);
   });
 });
 

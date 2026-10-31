@@ -254,16 +254,18 @@ export const t = {
   },
 
   streak: {
-    /** One look per step of STREAK_STEPS (3, 5, 8 in a row). */
+    /** One look per step of STREAK_STEPS (3, 5, 8, 12 in a row). */
     hot: [
       { emoji: '🔥', title: 'is on fire!' },
       { emoji: '🚀', title: 'is unstoppable!' },
       { emoji: '🐐', title: 'is the G.O.A.T.!' },
+      { emoji: '💎', title: 'is untouchable!' },
     ],
     cold: [
       { emoji: '🥶', title: 'has gone ice cold' },
       { emoji: '💀', title: 'is cursed' },
       { emoji: '🪦', title: 'rest in peace' },
+      { emoji: '🧟', title: 'has become a zombie' },
     ],
     count: (kind: 'hot' | 'cold', n: number) =>
       kind === 'hot' ? `${n} bids made in a row` : `${n} bids missed in a row`,

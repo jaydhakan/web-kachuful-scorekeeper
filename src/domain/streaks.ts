@@ -16,9 +16,9 @@ export interface StreakEvent extends Streak {
 }
 
 /** The runs worth a celebration. */
-export const STREAK_STEPS = [3, 5, 8] as const;
+export const STREAK_STEPS = [3, 5, 8, 12] as const;
 
-/** The last step a run has passed (0, 1 or 2), or -1 below the first. */
+/** The last step a run has passed (0 to 3), or -1 below the first. */
 export function streakTier(n: number): number {
   let tier = -1;
   STREAK_STEPS.forEach((s, i) => {
