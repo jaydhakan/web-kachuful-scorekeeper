@@ -39,3 +39,4 @@ Data quirks: avatar colours are stored as hex in saved players; totals are deriv
 - Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings, 44px targets.
 - Animate only `transform` and `opacity`; every animation has a reduced-motion fallback.
 - Say plainly when something is stubbed, mocked or unverified.
+- **Progress:** when a step of a multi-step plan is done, tell Jay where the whole plan stands as a percentage (and what's next).
