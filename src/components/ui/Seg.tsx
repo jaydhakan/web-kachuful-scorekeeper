@@ -7,6 +7,9 @@ export interface SegOption<T extends string> {
   v: T;
   label: ReactNode;
   tone?: 'pos' | 'neg';
+  /** Not allowed right now. It stays focusable so assistive tech can read why (`why`). */
+  disabled?: boolean;
+  why?: string;
 }
 
 interface SegProps<T extends string> {
@@ -50,12 +53,14 @@ export function Seg<T extends string>({
             key={o.v}
             type="button"
             aria-pressed={on}
+            aria-disabled={o.disabled || undefined}
+            title={o.disabled ? o.why : undefined}
             {...roving.item(i)}
             // Commit on release: a touch that turns into a scroll never fires click.
-            onClick={() => onChange(o.v)}
-            whileTap={{ scale: 0.95, opacity: 0.85 }}
+            onClick={() => !o.disabled && onChange(o.v)}
+            whileTap={o.disabled ? undefined : { scale: 0.95, opacity: 0.85 }}
             transition={SPRING}
-            className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-11 min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'}`}
+            className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-11 min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'} ${o.disabled ? 'opacity-35' : ''}`}
           >
             {on && (
               <motion.span

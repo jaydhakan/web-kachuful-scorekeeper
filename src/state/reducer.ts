@@ -2,6 +2,7 @@ import {
   bidOrder,
   clone,
   curRound,
+  blockedReason,
   forbiddenFor,
   maxFor,
   newRound,
@@ -252,10 +253,25 @@ export function reducer(s: AppState, a: Action): AppState {
         if (a.phase === 'bidding') g.ui.bidIdx = 0;
         if (a.phase === 'playing') g.ui.hookWarn = false;
       });
-    case 'setResult':
+    case 'setResult': {
+      const r = curRound(s.game);
+      // The screen greys these out; the rule is the domain's, so it holds whatever calls this.
+      if (
+        !r.tricks &&
+        blockedReason(
+          r.cards,
+          s.game.players.map((p) => p.id),
+          r.bids,
+          r.results,
+          a.id,
+          a.v,
+        )
+      )
+        return s;
       return commit(s, (g) => {
         curRound(g).results[a.id] = a.v;
       });
+    }
     case 'setTricks':
       return commit(s, (g) => {
         const r = curRound(g);

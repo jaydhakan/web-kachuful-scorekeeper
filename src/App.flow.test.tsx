@@ -48,10 +48,15 @@ describe('setup → bid → play → results → summary', () => {
 
     expect(await screen.findAllByText('Who made their bid?')).not.toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
+    // Bo and Cy bid 1 and Asha bid 0, on 3 cards. Everyone making it cannot add up to 3 tricks, so the last
+    // Made is not offered: the app does not let that state be reached.
     for (const made of screen.getAllByText('✓ Made')) await u.click(made);
-    expect(await screen.findByText(/Someone has to miss/)).toBeInTheDocument();
+    const last = screen.getAllByText('✓ Made')[2].closest('button')!;
+    expect(last).toHaveAttribute('aria-disabled', 'true');
+    expect(last).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText('Doesn’t add up with the other results')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
-    await u.click(screen.getAllByText('✗ Missed')[0]);
+    await u.click(screen.getAllByText('✗ Missed')[2]);
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Confirm round' })).toBeEnabled(),
     );
@@ -157,6 +162,8 @@ describe('a save from the prototype', () => {
     await u.click(rows[0]);
     await screen.findByText('Edit round 1');
     await u.click(await btn('Raise bid for Aarav'));
+    // Bids may not add up to the 3 cards, so Riya's goes down by the one Aarav's went up.
+    await u.click(await btn('Lower bid for Riya'));
     await u.click(screen.getByRole('button', { name: 'Save' }));
     expect(await screen.findByText('Round 1 updated')).toBeInTheDocument();
     const board = await screen.findByRole('table');
@@ -171,6 +178,23 @@ describe('a save from the prototype', () => {
     );
     // Later rounds are untouched and still counted.
     expect(within(board).getByText('R6 · 8', { exact: false })).toBeInTheDocument();
+  });
+});
+
+describe('editing a past round', () => {
+  it('does not save bids that add up to the cards, and says why', async () => {
+    seedPrototypeSave();
+    const u = setup();
+    render(<App />);
+    await u.click(await btn('Scoreboard'));
+    await u.click((await screen.findAllByRole('row', { name: /Edit round/ }))[0]);
+    await screen.findByText('Edit round 1');
+    // Round 1 deals 3 cards and the bids add up to 2: one more makes 3, the total the dealer cannot reach.
+    await u.click(await btn('Raise bid for Aarav'));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Bids can’t add up to 3/);
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await u.click(await btn('Lower bid for Aarav'));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
   });
 });
 

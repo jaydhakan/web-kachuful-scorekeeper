@@ -1,5 +1,14 @@
 import { motion } from 'framer-motion';
-import { bidOrder, curRound, pts, resultsState, type Outcome } from '@/domain';
+import {
+  bidOrder,
+  blockedReason,
+  curRound,
+  pts,
+  resultsState,
+  tricksLeft,
+  type Blocked,
+  type Outcome,
+} from '@/domain';
 import { sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { Glass } from '@/components/ui/Glass';
@@ -20,6 +29,12 @@ export function Results() {
     st = resultsState(g, r),
     od = bidOrder(g, r);
   const tricks = r.tricks;
+  const ids = g.players.map((p) => p.id);
+  // Only in the Made/Missed mode: with exact tricks the results follow from the counts.
+  const blocked = (id: string, c: Outcome) =>
+    tricks ? null : blockedReason(r.cards, ids, r.bids, r.results, id, c);
+  const why = (b: Blocked | null) =>
+    b ? (b.kind === 'left' ? t.results.onlyLeft(b.left) : t.results.noFit) : undefined;
   return (
     <RoundFrame
       r={r}
@@ -70,6 +85,11 @@ export function Results() {
               />
             </motion.span>
           </motion.button>
+          {!tricks && (
+            <div className="mb-3 px-1 text-13 text-[var(--tx2)]" aria-live="polite">
+              {t.results.tricksLeft(Math.max(0, tricksLeft(r.cards, r.bids, r.results)), r.cards)}
+            </div>
+          )}
           {tricks && (
             <div className="mb-3 px-1 text-13 text-[var(--tx2)]">
               {t.results.totalTricks(
@@ -116,6 +136,15 @@ export function Results() {
                     </div>
                     <div className="whitespace-nowrap text-13 font-medium leading-4 text-[var(--tx2)]">
                       {t.results.bid(b)}
+                      {!res && !tricks && (blocked(p.id, 'made') || blocked(p.id, 'missed')) && (
+                        <>
+                          {' '}
+                          ·{' '}
+                          <span className="text-[var(--warn)]">
+                            {why(blocked(p.id, 'made') ?? blocked(p.id, 'missed'))}
+                          </span>
+                        </>
+                      )}
                       {pv != null && (
                         <>
                           {' '}
@@ -161,8 +190,20 @@ export function Results() {
                     onChange={(v) => actions.setResult(p.id, v)}
                     className="ml-auto [&_button]:px-2 [&_button]:text-14 @[26rem]:[&_button]:px-3.5 @[26rem]:[&_button]:text-15"
                     options={[
-                      { v: 'made', label: t.results.made, tone: 'pos' },
-                      { v: 'missed', label: t.results.missed, tone: 'neg' },
+                      {
+                        v: 'made',
+                        label: t.results.made,
+                        tone: 'pos',
+                        disabled: !!blocked(p.id, 'made'),
+                        why: why(blocked(p.id, 'made')),
+                      },
+                      {
+                        v: 'missed',
+                        label: t.results.missed,
+                        tone: 'neg',
+                        disabled: !!blocked(p.id, 'missed'),
+                        why: why(blocked(p.id, 'missed')),
+                      },
                     ]}
                   />
                 )}

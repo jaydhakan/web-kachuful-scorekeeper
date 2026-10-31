@@ -4,6 +4,7 @@ export * from './cards';
 export * from './rounds';
 export * from './bidding';
 export * from './scoring';
+export * from './tricks';
 export * from './standings';
 export * from './stats';
 export * from './demo';

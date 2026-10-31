@@ -89,6 +89,11 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
         Exactly your bid scores bid × 10 (a bid of 0 counts as 10). Any other number of tricks loses
         the same amount. Totals can go negative.
       </div>
+      <div className="mt-2 text-13 text-[var(--tx2)]">
+        A round has exactly as many tricks as cards, so the bids of everyone who made it can’t add
+        up to more than that. When you enter results, a Made that can’t fit is greyed out and says
+        why.
+      </div>
     </>,
   ],
 ];

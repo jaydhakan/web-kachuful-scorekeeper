@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { bidOrder, type Outcome } from '@/domain';
+import { bidOrder, resultsProblem, type Outcome } from '@/domain';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
 import { Dot } from '@/components/ui/Dot';
@@ -16,7 +16,15 @@ export function EditBody({ i }: { i: number }) {
     od = bidOrder(g, r);
   const [bids, setBids] = useState({ ...r.bids }),
     [res, setRes] = useState({ ...r.results });
-  const allMade = g.players.every((p) => res[p.id] === 'made');
+  const ids = g.players.map((p) => p.id);
+  const allMade = ids.every((id) => res[id] === 'made');
+  // The same rules as when the round was first entered, on the edited bids and results.
+  const problem =
+    ids.reduce((a, id) => a + (bids[id] ?? 0), 0) === r.cards
+      ? t.sheets.editBidsEqual(r.cards)
+      : allMade
+        ? t.results.allMadeEdit
+        : resultsProblem(r.cards, ids, bids, res);
   return (
     <>
       <div className="mb-2 text-13 text-[var(--tx2)]">
@@ -69,12 +77,14 @@ export function EditBody({ i }: { i: number }) {
           </Glass>
         );
       })}
-      {allMade && (
-        <div className="py-2 text-14 font-medium text-[var(--warn)]">{t.results.allMadeEdit}</div>
+      {problem && (
+        <div className="py-2 text-14 font-medium text-[var(--warn)]" role="alert">
+          {problem}
+        </div>
       )}
       <PrimaryButton
         className="mt-2 w-full"
-        disabled={allMade}
+        disabled={!!problem}
         onClick={() => actions.editRound(i, bids, res)}
       >
         {t.common.save}

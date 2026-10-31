@@ -377,3 +377,50 @@ describe('navigation and notes', () => {
     expect(st).toMatchObject({ corrupt: false, undo: [], screen: 'home' });
   });
 });
+
+describe('results that cannot add up', () => {
+  /** A 5-card round (4, 2, 2, 2, 1) in the results phase with nothing marked. */
+  function fiveCards(): AppState {
+    const st = initialState(demoGame(), 'round', []);
+    const g = st.game;
+    const r = curRound(g);
+    g.players = Array.from({ length: 5 }, (_, i) => ({
+      id: 'p' + i,
+      name: 'P' + i,
+      emoji: 'x',
+      color: 'c',
+    }));
+    r.cards = 5;
+    r.phase = 'results';
+    r.bids = { p0: 4, p1: 2, p2: 2, p3: 2, p4: 1 };
+    r.results = {};
+    r.tricks = null;
+    return st;
+  }
+
+  it('ignores a Made that no longer fits in the tricks that are left', () => {
+    let st = run(fiveCards(), { type: 'setResult', id: 'p0', v: 'made' });
+    st = run(st, { type: 'setResult', id: 'p1', v: 'made' });
+    expect(curRound(st.game).results).toEqual({ p0: 'made' });
+  });
+
+  it('still takes a Made that fits, and any Missed', () => {
+    let st = run(fiveCards(), { type: 'setResult', id: 'p0', v: 'made' });
+    st = run(
+      st,
+      { type: 'setResult', id: 'p4', v: 'made' },
+      { type: 'setResult', id: 'p1', v: 'missed' },
+    );
+    expect(curRound(st.game).results).toEqual({ p0: 'made', p4: 'made', p1: 'missed' });
+  });
+
+  it('lets a mark be changed back', () => {
+    let st = run(fiveCards(), { type: 'setResult', id: 'p0', v: 'made' });
+    st = run(
+      st,
+      { type: 'setResult', id: 'p0', v: 'missed' },
+      { type: 'setResult', id: 'p1', v: 'made' },
+    );
+    expect(curRound(st.game).results).toEqual({ p0: 'missed', p1: 'made' });
+  });
+});
