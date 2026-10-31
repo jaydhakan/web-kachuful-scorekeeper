@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { Glass } from './Glass';
@@ -19,6 +19,16 @@ function Demo() {
     />
   );
 }
+
+describe('Seg commits on release', () => {
+  it('ignores a press that never becomes a click (a scroll starting on it)', () => {
+    render(<Demo />);
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Missed' }));
+    expect(screen.getByRole('button', { name: 'Made' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Missed' }));
+    expect(screen.getByRole('button', { name: 'Missed' })).toHaveAttribute('aria-pressed', 'true');
+  });
+});
 
 describe('keyboard and assistive tech', () => {
   it('Seg is operable with the keyboard and exposes its state', async () => {
