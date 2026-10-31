@@ -25,10 +25,13 @@ export function IconButton({
       data-skip-initial-focus={skipInitialFocus || undefined}
       onClick={onClick}
       whileTap={{ scale: 0.88 }}
-      whileHover={{ backgroundColor: 'rgba(255,255,255,.08)' }}
       transition={SPRING}
-      className={`grid h-12 w-12 place-items-center rounded-2xl ${className}`}
+      className={`group relative isolate grid h-12 w-12 place-items-center rounded-2xl ${className}`}
     >
+      <span
+        aria-hidden
+        className="absolute inset-0 -z-10 rounded-[inherit] bg-white/[.08] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-hover:opacity-100"
+      />
       {children}
     </motion.button>
   );

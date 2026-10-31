@@ -47,8 +47,11 @@ export function Results() {
         <motion.span
           aria-hidden
           variants={{ press: { scale: 0.94 } }}
-          className={`relative h-[30px] w-[52px] shrink-0 rounded-full transition-colors duration-300 ease-apple ${st.exact ? 'bg-[var(--accent)]' : 'bg-white/[.14]'}`}
+          className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-white/[.14]"
         >
+          <span
+            className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
+          />
           <motion.span
             animate={{ x: st.exact ? 22 : 0 }}
             transition={SPRING_POP}

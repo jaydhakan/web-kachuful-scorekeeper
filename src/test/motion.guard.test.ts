@@ -42,22 +42,8 @@ function offenders(): string[] {
   return out;
 }
 
-// Inherited from the prototype; Phase 2 Tier C removes each one. Must end empty.
-const ALLOWED = new Set<string>([
-  'components/ui/IconButton.tsx: whileHover backgroundColor',
-  'screens/round/Results.tsx: transition-colors',
-  'screens/setup/Step2.tsx: transition-shadow',
-  'sheets/MenuBody.tsx: whileTap backgroundColor',
-]);
-
 describe('animations stay on transform and opacity', () => {
-  const found = offenders();
-
-  it('adds no new non-composited animation', () => {
-    expect(found.filter((o) => !ALLOWED.has(o))).toEqual([]);
-  });
-
-  it('keeps the allowlist honest (remove entries once fixed)', () => {
-    expect([...ALLOWED].filter((a) => !found.includes(a))).toEqual([]);
+  it('finds no animation that leaves the compositor', () => {
+    expect(offenders()).toEqual([]);
   });
 });
