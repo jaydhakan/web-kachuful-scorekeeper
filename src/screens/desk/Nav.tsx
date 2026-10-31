@@ -5,25 +5,30 @@ import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { SPRING } from '@/components/ui/motion';
 import { GhostButton, Kbd } from './DeskParts';
+import { DESTS, destRoute, type Dest } from '@/components/hubNav';
+import type { RouteName } from '@/state/types';
 import { t } from '@/strings';
 
-type Where = 'home' | 'game' | 'scores' | 'rules' | 'rounds';
+type Where = 'home' | 'game' | 'scores' | 'rules' | 'rounds' | `dest:${RouteName}`;
 
 /** What the rail and the top bar can do, and which item is current; both read the same model. */
 function useNav(onKeys: () => void) {
   const { state, actions } = useApp();
   const { screen, sheet, game } = state;
   const inGame = screen === 'round' || screen === 'winner';
+  const top = state.nav.at(-1);
   const where: Where =
-    sheet?.type === 'rules'
-      ? 'rules'
-      : sheet?.type === 'upcoming'
-        ? 'rounds'
-        : sheet?.type === 'board' || sheet?.type === 'edit'
-          ? 'scores'
-          : screen === 'home'
-            ? 'home'
-            : 'game';
+    sheet?.type === 'board' || sheet?.type === 'edit'
+      ? 'scores'
+      : top && sheet?.type !== 'rules' && sheet?.type !== 'upcoming'
+        ? (`dest:${state.nav[0].screen}` as const)
+        : sheet?.type === 'rules'
+          ? 'rules'
+          : sheet?.type === 'upcoming'
+            ? 'rounds'
+            : screen === 'home'
+              ? 'home'
+              : 'game';
   return {
     where,
     inGame,
@@ -32,16 +37,23 @@ function useNav(onKeys: () => void) {
     home: () => {
       if (sheet) actions.openSheet(null);
       if (screen !== 'home') actions.go('home', -1);
+      else if (top) actions.navReset();
     },
     game: () => {
       if (sheet) actions.openSheet(null);
       if (screen === 'home') actions.resume();
+      else if (top) actions.navReset();
+    },
+    dest: (d: Dest) => {
+      if (sheet) actions.openSheet(null);
+      actions.navReset([destRoute(d)]);
     },
     scores: () => actions.openSheet({ type: 'board' }),
     rules: () => actions.openSheet({ type: 'rules' }),
     rounds: () => actions.openSheet({ type: 'upcoming' }),
     undo: () => actions.undo(),
     menu: () => actions.openSheet({ type: 'menu' }),
+    top,
     keys: onKeys,
     hasRounds: game.rounds.length > 0 && screen !== 'setup',
   };
@@ -90,7 +102,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
   return (
     <nav
       aria-label={t.desk.nav.label}
-      className="relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 border-r border-white/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
+      className="scroll-thin relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-white/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
     >
       <motion.button
         type="button"
@@ -128,9 +140,19 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         disabled={!n.inGame}
         onClick={n.rounds}
       />
+      <div aria-hidden className="my-1 h-px w-10 shrink-0 bg-white/10" />
+      {DESTS.map((d) => (
+        <RailItem
+          key={d.screen}
+          icon={d.icon}
+          label={d.label}
+          on={n.where === `dest:${d.screen}`}
+          onClick={() => n.dest(d)}
+        />
+      ))}
       <div className="flex-1" />
       <RailItem icon={Icon.undo} label={t.desk.nav.undo} disabled={!n.canUndo} onClick={n.undo} />
-      <RailItem icon={Icon.menu} label={t.desk.nav.menu} disabled={!n.inGame} onClick={n.menu} />
+      <RailItem icon={Icon.menu} label={t.desk.nav.menu} onClick={n.menu} />
       <div className="hidden kbd:block">
         <RailItem icon={Icon.keyboard} label={t.desk.nav.keys} onClick={n.keys} />
       </div>
@@ -145,17 +167,19 @@ export function TopBar({ onKeys }: { onKeys: () => void }) {
   const g = state.game,
     r = curRound(g);
   const title =
-    n.where === 'scores'
-      ? t.desk.nav.scoreboard
-      : state.screen === 'home'
-        ? t.appName
-        : state.screen === 'setup'
-          ? t.desk.setup.eyebrow
-          : state.screen === 'winner'
-            ? t.winner.finalScores
-            : g.ui.view === 'summary'
-              ? t.summary.title(r.index + 1)
-              : t.desk.roundShort(r.index + 1, r.cards, r.trump);
+    n.top && n.where.startsWith('dest:')
+      ? (DESTS.find((d) => `dest:${d.screen}` === n.where)?.label ?? t.appName)
+      : n.where === 'scores'
+        ? t.desk.nav.scoreboard
+        : state.screen === 'home'
+          ? t.appName
+          : state.screen === 'setup'
+            ? t.desk.setup.eyebrow
+            : state.screen === 'winner'
+              ? t.winner.finalScores
+              : g.ui.view === 'summary'
+                ? t.summary.title(r.index + 1)
+                : t.desk.roundShort(r.index + 1, r.cards, r.trump);
   return (
     <header className="relative z-[2] mx-6 mt-[calc(1.25rem+var(--sat))] hidden h-[60px] shrink-0 items-center gap-3 pl-2 pr-3 tp:flex glass">
       <motion.button
@@ -176,15 +200,13 @@ export function TopBar({ onKeys }: { onKeys: () => void }) {
       {n.where === 'scores' && <GhostButton onClick={n.game}>{t.desk.board.back}</GhostButton>}
       <GhostButton onClick={n.rules}>{t.desk.nav.rules}</GhostButton>
       {n.inGame && (
-        <>
-          <GhostButton icon aria-label={t.desk.nav.undo} disabled={!n.canUndo} onClick={n.undo}>
-            {Icon.undo}
-          </GhostButton>
-          <GhostButton icon aria-label={t.desk.nav.menu} onClick={n.menu}>
-            {Icon.menu}
-          </GhostButton>
-        </>
+        <GhostButton icon aria-label={t.desk.nav.undo} disabled={!n.canUndo} onClick={n.undo}>
+          {Icon.undo}
+        </GhostButton>
       )}
+      <GhostButton icon aria-label={t.desk.nav.menu} onClick={n.menu}>
+        {Icon.menu}
+      </GhostButton>
       <GhostButton
         icon
         aria-label={t.desk.keys.open}

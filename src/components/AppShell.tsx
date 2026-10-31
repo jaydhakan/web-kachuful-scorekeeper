@@ -5,6 +5,7 @@ import { useApp } from '@/state/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { MQ } from '@/theme/breakpoints';
+import { routeKey } from '@/lib/route';
 import { palette } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
 import { Home } from '@/screens/Home';
@@ -24,6 +25,7 @@ import { Toast } from './ui/Toast';
 import { EASE, SPRING_SOFT } from './ui/motion';
 
 const Winner = lazy(() => import('@/screens/Winner'));
+const Pages = lazy(() => import('@/screens/pages/Pages'));
 // The large-screen UI is its own chunk, so phones never download it.
 const DeskShell = lazy(() => import('@/screens/desk/DeskShell'));
 const Confetti = lazy(() => import('./ui/Confetti').then((m) => ({ default: m.Confetti })));
@@ -45,7 +47,12 @@ function PhoneShell() {
   const { game, screen, dir, seq, sheet, modal, toast, banner, fresh } = state;
   const th = TR[trump];
   const r = curRound(game);
-  const screenKey = screen === 'round' ? `round-${game.ui.view}-${r.phase}` : screen;
+  const top = state.nav.at(-1);
+  const screenKey = top
+    ? routeKey(top)
+    : screen === 'round'
+      ? `round-${game.ui.view}-${r.phase}`
+      : screen;
   const rm = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
   useVisualViewport(root);
@@ -60,7 +67,13 @@ function PhoneShell() {
     if (rm && fresh) actions.setFresh(false);
   }, [rm, fresh, actions]);
   let content;
-  if (screen === 'home') content = <Home />;
+  if (top)
+    content = (
+      <Suspense fallback={null}>
+        <Pages route={top} />
+      </Suspense>
+    );
+  else if (screen === 'home') content = <Home />;
   else if (screen === 'setup') content = <Setup />;
   else if (screen === 'winner')
     content = (

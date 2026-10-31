@@ -1,11 +1,18 @@
 import { motion } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
+import { DESTS, destRoute } from '@/components/hubNav';
 import { t } from '@/strings';
 
 export function MenuBody() {
-  const { actions } = useApp();
-  const items: [string, string, () => void, boolean?][] = [
+  const { state, actions } = useApp();
+  const inGame = state.screen === 'round' || state.screen === 'winner';
+  const go: [string, string, () => void, boolean?][] = DESTS.map((d) => [
+    d.emoji,
+    d.label,
+    () => actions.open(destRoute(d)),
+  ]);
+  const game: [string, string, () => void, boolean?][] = [
     ['📖', t.sheets.menu.rules, () => actions.openSheet({ type: 'rules' })],
     ['📊', t.sheets.menu.board, () => actions.openSheet({ type: 'board' })],
     ['🗓️', t.sheets.menu.upcoming, () => actions.openSheet({ type: 'upcoming' })],
@@ -28,6 +35,7 @@ export function MenuBody() {
       },
     ],
   ];
+  const items = inGame ? [...game, ...go] : go;
   return (
     <>
       {items.map(([ic, t, f, neg], i) => (

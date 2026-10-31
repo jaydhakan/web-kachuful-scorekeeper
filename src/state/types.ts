@@ -142,4 +142,6 @@ export type Action =
   | { type: 'setFresh'; v: boolean }
   | { type: 'setSumAnim'; v: boolean }
   | { type: 'streakDone' }
-  | { type: 'replaceGame'; game: Game };
+  | { type: 'replaceGame'; game: Game }
+  /** Makes a saved game the current one (the current one is already in History). */
+  | { type: 'openGame'; game: Game };

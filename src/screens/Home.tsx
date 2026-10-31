@@ -8,6 +8,7 @@ import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { DESTS, destRoute } from '@/components/hubNav';
 import { t } from '@/strings';
 
 const SUITS = ['♠', '♦', '♣', '♥'] as const;
@@ -157,9 +158,27 @@ export function Home() {
                 )}
               </Glass>
             </motion.div>
+            <motion.nav
+              {...stagger(2, 0.28)}
+              aria-label={t.hub.nav.label}
+              className="flex w-full flex-wrap justify-center gap-2 md:max-w-[26rem] land:mt-2"
+            >
+              {DESTS.map((d) => (
+                <motion.button
+                  key={d.screen}
+                  type="button"
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => actions.open(destRoute(d))}
+                  className="glass inline-flex min-h-12 flex-1 basis-[7rem] items-center justify-center gap-2 !rounded-2xl px-3 text-16 font-bold"
+                >
+                  <span aria-hidden>{d.emoji}</span>
+                  {d.label}
+                </motion.button>
+              ))}
+            </motion.nav>
             <motion.button
               type="button"
-              {...stagger(2, 0.3)}
+              {...stagger(3, 0.3)}
               whileTap={{ scale: 0.95 }}
               onClick={() => actions.openSheet({ type: 'rules' })}
               className="min-h-12 px-3 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"

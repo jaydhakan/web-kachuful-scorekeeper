@@ -193,7 +193,14 @@ export function reducer(s: AppState, a: Action): AppState {
   return a.type === 'setResult' || n.autoResult === null ? n : { ...n, autoResult: null };
 }
 
-const LEAVES_NAV = new Set<Action['type']>(['go', 'resume', 'startSetup', 'beginGame', 'rematch']);
+const LEAVES_NAV = new Set<Action['type']>([
+  'go',
+  'resume',
+  'startSetup',
+  'beginGame',
+  'rematch',
+  'openGame',
+]);
 
 function step(s: AppState, a: Action): AppState {
   switch (a.type) {
@@ -448,6 +455,19 @@ function step(s: AppState, a: Action): AppState {
       return { ...s, sumAnim: a.v };
     case 'streakDone':
       return { ...s, streakFx: null };
+    case 'openGame':
+      return {
+        ...s,
+        game: a.game,
+        undo: [],
+        dir: 1,
+        sheet: null,
+        seq: null,
+        streakFx: null,
+        sumAnim: false,
+        advance: null,
+        screen: a.game.status === 'finished' ? 'winner' : 'round',
+      };
     case 'replaceGame':
       return { ...s, game: a.game, undo: [], corrupt: false, screen: 'home' };
   }

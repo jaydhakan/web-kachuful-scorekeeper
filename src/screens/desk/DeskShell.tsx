@@ -4,6 +4,7 @@ import { useApp } from '@/state/store';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { palette } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
+import { routeKey } from '@/lib/route';
 import { RoundStart } from '@/screens/round/RoundStart';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from '@/components/ConfirmModal';
@@ -24,6 +25,7 @@ import { RulesDrawer } from './RulesDrawer';
 import { UpcomingDrawer } from './UpcomingDrawer';
 import { Workspace } from './Workspace';
 
+const Pages = lazy(() => import('@/screens/pages/Pages'));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((m) => ({ default: m.Confetti })),
 );
@@ -57,19 +59,29 @@ export default function DeskShell() {
     },
     !blocked,
   );
-  const key = screen === 'round' ? (game.ui.view === 'summary' ? 'summary' : 'round') : screen;
-  const content =
-    screen === 'home' ? (
-      <DeskHome />
-    ) : screen === 'setup' ? (
-      <DeskSetup />
-    ) : screen === 'winner' ? (
-      <DeskWinner />
-    ) : game.ui.view === 'summary' ? (
-      <DeskSummary />
-    ) : (
-      <Workspace />
-    );
+  const top = state.nav.at(-1);
+  const key = top
+    ? routeKey(top)
+    : screen === 'round'
+      ? game.ui.view === 'summary'
+        ? 'summary'
+        : 'round'
+      : screen;
+  const content = top ? (
+    <Suspense fallback={null}>
+      <Pages route={top} />
+    </Suspense>
+  ) : screen === 'home' ? (
+    <DeskHome />
+  ) : screen === 'setup' ? (
+    <DeskSetup />
+  ) : screen === 'winner' ? (
+    <DeskWinner />
+  ) : game.ui.view === 'summary' ? (
+    <DeskSummary />
+  ) : (
+    <Workspace />
+  );
   const variants = {
     enter: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * 48, scale: 0.985 }),
     center: { opacity: 1, x: 0, scale: 1 },

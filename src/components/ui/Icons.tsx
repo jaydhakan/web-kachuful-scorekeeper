@@ -137,4 +137,42 @@ export const Icon: Record<string, ReactElement> = {
       <rect x="9" y="3" width="12" height="15" rx="2" className="fill-ink-gold" />
     </svg>
   ),
+  history: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8 M3 3v5h5 M12 7v5l3 2" />
+    </svg>
+  ),
+  boards: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <path d="M4 20v-7h5v7 M9 20V8h6v12 M15 20v-4h5v4 M3 20h18" />
+    </svg>
+  ),
+  players: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20a6.5 6.5 0 0 1 13 0 M16 4.6a3.5 3.5 0 0 1 0 6.8 M18 14.5a6.5 6.5 0 0 1 3.5 5.5" />
+    </svg>
+  ),
+  awards: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="14" r="6" />
+      <path d="M8.5 9.2 6 3h4l2 4 2-4h4l-2.5 6.2 M12 11.5l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 13.6l2-.3z" />
+    </svg>
+  ),
+  account: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </svg>
+  ),
+  admin: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z M9 12l2 2 4-4" />
+    </svg>
+  ),
+  cloud: (
+    <svg {...base} className="h-5 w-5" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18z" />
+    </svg>
+  ),
 };

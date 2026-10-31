@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Direction, Trump } from '@/domain';
 import { messages } from './messages';
+import { hub } from './hub';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { TR } from '@/theme/trumps';
 
@@ -19,6 +20,7 @@ const stacked = (title: string, rounds: number) => (
 );
 
 export const t = {
+  hub,
   appName: 'Kachuful',
   tagline: 'Judgement scorekeeper',
   common: {

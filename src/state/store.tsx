@@ -36,7 +36,7 @@ import type {
 } from './types';
 import { useHistorySync } from '@/hooks/useHistorySync';
 import { messages } from '@/strings/messages';
-import type { Trump } from '@/domain';
+import type { Game, Trump } from '@/domain';
 
 export interface Actions {
   go(screen: Screen, dir?: Dir): void;
@@ -72,6 +72,8 @@ export interface Actions {
   back(): void;
   /** Replaces the open screens (none: back to the game screens). */
   navReset(routes?: Route[]): void;
+  /** Makes a saved game the current one. */
+  openGame(game: Game): void;
   repairSave(choice: 'reset' | 'keep'): void;
 }
 
@@ -226,6 +228,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       open: (route) => nav({ type: 'navPush', route }),
       back: () => nav({ type: 'navPop' }),
       navReset: (routes) => nav({ type: 'navReset', routes }),
+      openGame: (game) => nav({ type: 'openGame', game }),
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
     };
   }, [vib]);
