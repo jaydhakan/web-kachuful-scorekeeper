@@ -157,3 +157,7 @@ test-results/
 !.env.example
 .DS_Store
 kachuful-handoff
+reports/**/*.png
+reports/parity/proto-dist/
+reports/parity/app-dist/
+reports/lighthouse/*.json
