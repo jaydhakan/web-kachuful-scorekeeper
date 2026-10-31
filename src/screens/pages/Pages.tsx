@@ -8,6 +8,7 @@ import { BoardsPage } from './BoardsPage';
 import { GamePage } from './GamePage';
 import { H2HPage } from './H2HPage';
 import { HistoryPage } from './HistoryPage';
+import { ImportPage } from './ImportPage';
 import { PlayerPage } from './PlayerPage';
 import { PlayersPage } from './PlayersPage';
 import { WrappedPage } from './WrappedPage';
@@ -44,6 +45,8 @@ export default function Pages({ route }: { route: Route }) {
       return <AccountPage />;
     case 'admin':
       return <AdminPage />;
+    case 'import':
+      return <ImportPage />;
     default:
       return <HistoryPage />;
   }
