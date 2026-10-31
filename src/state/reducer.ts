@@ -4,6 +4,7 @@ import {
   curRound,
   blockedReason,
   forbiddenFor,
+  onlyResult,
   maxFor,
   newRound,
   resultsState,
@@ -38,6 +39,7 @@ export function initialState(
     sumAnim: false,
     advance: null,
     noteSeq: 0,
+    autoResult: null,
     corrupt,
   };
 }
@@ -166,7 +168,13 @@ function setupSeats(
   return { ...su, seats: f(su.seats) };
 }
 
+/** `autoResult` lasts only until the next action, so a hint about it never outlives what it explains. */
 export function reducer(s: AppState, a: Action): AppState {
+  const n = step(s, a);
+  return a.type === 'setResult' || n.autoResult === null ? n : { ...n, autoResult: null };
+}
+
+function step(s: AppState, a: Action): AppState {
   switch (a.type) {
     case 'go':
       return { ...s, dir: a.dir ?? 1, screen: a.screen };
@@ -254,23 +262,27 @@ export function reducer(s: AppState, a: Action): AppState {
         if (a.phase === 'playing') g.ui.hookWarn = false;
       });
     case 'setResult': {
-      const r = curRound(s.game);
+      const r = curRound(s.game),
+        ids = s.game.players.map((p) => p.id);
       // The screen greys these out; the rule is the domain's, so it holds whatever calls this.
-      if (
-        !r.tricks &&
-        blockedReason(
-          r.cards,
-          s.game.players.map((p) => p.id),
-          r.bids,
-          r.results,
-          a.id,
-          a.v,
-        )
-      )
-        return s;
-      return commit(s, (g) => {
-        curRound(g).results[a.id] = a.v;
-      });
+      if (!r.tricks && blockedReason(r.cards, ids, r.bids, r.results, a.id, a.v)) return s;
+      const next = { ...r.results, [a.id]: a.v };
+      // The last player left has nothing to decide when only one result can work, so it is filled in.
+      const open = ids.filter((id) => !next[id]);
+      let auto: string | null = null;
+      if (!r.tricks && open.length === 1) {
+        const v = onlyResult(r.cards, ids, r.bids, next, open[0]);
+        if (v) {
+          next[open[0]] = v;
+          auto = open[0];
+        }
+      }
+      return {
+        ...commit(s, (g) => {
+          curRound(g).results = { ...next };
+        }),
+        autoResult: auto,
+      };
     }
     case 'setTricks':
       return commit(s, (g) => {

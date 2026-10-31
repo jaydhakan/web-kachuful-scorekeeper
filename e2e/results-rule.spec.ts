@@ -12,8 +12,13 @@ async function fiveCardResults(page: Page) {
   r.results = {};
   await page.goto('/');
   await openSeeded(page, g, 'round');
-  await expect(page.getByText('Tricks left: 5 of 5')).toBeVisible();
+  await left(page, 5);
 }
+/** The prominent card above the list: how many of the 5 tricks no Made bid has claimed. */
+const left = (page: Page, n: number) =>
+  expect(
+    page.getByRole('status').filter({ hasText: new RegExp(`Tricks left\\s*${n} of 5`) }),
+  ).toBeVisible();
 const made = (page: Page, name: string) =>
   page.getByRole('group', { name: `Result for ${name}` }).getByRole('button', { name: /Made/ });
 const missed = (page: Page, name: string) =>
@@ -24,7 +29,7 @@ test('a Made that no longer fits in the tricks left is greyed out with the reaso
 }) => {
   await fiveCardResults(page);
   await made(page, 'Bartholomew Jr').click(); // bid 4
-  await expect(page.getByText('Tricks left: 1 of 5')).toBeVisible();
+  await left(page, 1);
 
   // Bid 2 needs two tricks and only one is left; the row says so and the button is not offered.
   await expect(made(page, 'Maximilian Ray')).toHaveAttribute('aria-disabled', 'true');
@@ -42,7 +47,7 @@ test('the bid-1 player can take the last trick, and the round then confirms', as
   await made(page, 'Bartholomew Jr').click();
   // The seeded names run in order; the fifth player (bid 1) is Guadalupe Mora.
   await made(page, 'Guadalupe Mora').click();
-  await expect(page.getByText('Tricks left: 0 of 5')).toBeVisible();
+  await left(page, 0);
   for (const name of ['Maximilian Ray', 'Annapurna Devi', 'Christopher Lo'])
     await missed(page, name).click();
   await expect(btn(page, 'Confirm round')).toBeEnabled();
@@ -55,6 +60,31 @@ test('changing a mark frees the tricks again', async ({ page }) => {
   await made(page, 'Bartholomew Jr').click();
   await expect(made(page, 'Maximilian Ray')).toHaveAttribute('aria-disabled', 'true');
   await missed(page, 'Bartholomew Jr').click();
-  await expect(page.getByText('Tricks left: 5 of 5')).toBeVisible();
+  await left(page, 5);
   await expect(made(page, 'Maximilian Ray')).not.toHaveAttribute('aria-disabled', 'true');
+});
+
+test('the last player is filled in when only one result is possible, and says so', async ({
+  page,
+}) => {
+  await fiveCardResults(page);
+  await made(page, 'Bartholomew Jr').click(); // 4
+  await made(page, 'Guadalupe Mora').click(); // 1: all five tricks are claimed
+  await missed(page, 'Maximilian Ray').click();
+  await missed(page, 'Annapurna Devi').click();
+  // Christopher Lo bid 2 and nothing is left, so Missed is the only result; it is set without a tap.
+  await expect(missed(page, 'Christopher Lo')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByText('Only option')).toBeVisible();
+  await expect(btn(page, 'Confirm round')).toBeEnabled();
+});
+
+test('nothing is filled in while either result would work', async ({ page }) => {
+  await fiveCardResults(page);
+  await made(page, 'Bartholomew Jr').click();
+  for (const name of ['Maximilian Ray', 'Annapurna Devi', 'Christopher Lo'])
+    await missed(page, name).click();
+  // Guadalupe Mora (bid 1) can still be Made or Missed, so it is left for the user.
+  await expect(made(page, 'Guadalupe Mora')).toHaveAttribute('aria-pressed', 'false');
+  await expect(missed(page, 'Guadalupe Mora')).toHaveAttribute('aria-pressed', 'false');
+  await expect(btn(page, 'Confirm round')).toBeDisabled();
 });

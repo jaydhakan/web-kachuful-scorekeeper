@@ -17,7 +17,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
-import { SPRING_POP } from '@/components/ui/motion';
+import { SPRING, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
@@ -30,6 +30,7 @@ export function Results() {
     od = bidOrder(g, r);
   const tricks = r.tricks;
   const ids = g.players.map((p) => p.id);
+  const left = Math.max(0, tricksLeft(r.cards, r.bids, r.results));
   // Only in the Made/Missed mode: with exact tricks the results follow from the counts.
   const blocked = (id: string, c: Outcome) =>
     tricks ? null : blockedReason(r.cards, ids, r.bids, r.results, id, c);
@@ -48,6 +49,7 @@ export function Results() {
       }
       aside={
         <>
+          {!tricks && <TricksLeft left={left} cards={r.cards} />}
           {/* Marks and bids already exist in the round; only a pane with room shows them on a table. */}
           <div className="mb-4 hidden aspect-[34/30] w-full flex-col wide:flex">
             <Table
@@ -85,11 +87,6 @@ export function Results() {
               />
             </motion.span>
           </motion.button>
-          {!tricks && (
-            <div className="mb-3 px-1 text-13 text-[var(--tx2)]" aria-live="polite">
-              {t.results.tricksLeft(Math.max(0, tricksLeft(r.cards, r.bids, r.results)), r.cards)}
-            </div>
-          )}
           {tricks && (
             <div className="mb-3 px-1 text-13 text-[var(--tx2)]">
               {t.results.totalTricks(
@@ -116,6 +113,8 @@ export function Results() {
             b = r.bids[p.id],
             res = r.results[p.id],
             pv = pts(r, p.id);
+          // The one result the app filled in because nothing else could work.
+          const forced = state.autoResult === p.id && !!res && !tricks;
           return (
             <motion.div key={p.id} {...stagger(k)} className="mb-1.5">
               {/* The controls wrap under the name when the pane is too narrow for both. */}
@@ -155,6 +154,11 @@ export function Results() {
                         </>
                       )}
                     </div>
+                    {forced && (
+                      <div className="text-13 font-medium leading-4 text-[var(--tx2)]">
+                        {t.results.onlyOption}
+                      </div>
+                    )}
                   </div>
                 </div>
                 {tricks ? (
@@ -213,5 +217,30 @@ export function Results() {
         })}
       </div>
     </RoundFrame>
+  );
+}
+
+/** How many of the round's tricks the bids of the players marked Made have not claimed yet. */
+function TricksLeft({ left, cards }: { left: number; cards: number }) {
+  return (
+    <div className="mb-3 rounded-2xl bg-white/[.06] px-4 py-3" role="status" aria-live="polite">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-15 font-medium text-[var(--tx2)]">{t.results.tricksLeft}</span>
+        <span className="disp tick text-28 font-extrabold leading-none tracking-[-0.03em]">
+          {left}
+          <span className="text-15 font-medium tracking-normal text-[var(--tx2)]">
+            {t.results.tricksOf(cards)}
+          </span>
+        </span>
+      </div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08]">
+        <motion.div
+          className="h-full origin-left rounded-full bg-[var(--accent)]"
+          initial={false}
+          animate={{ scaleX: cards ? left / cards : 0 }}
+          transition={SPRING}
+        />
+      </div>
+    </div>
   );
 }

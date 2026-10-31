@@ -48,15 +48,19 @@ describe('setup → bid → play → results → summary', () => {
 
     expect(await screen.findAllByText('Who made their bid?')).not.toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
-    // Bo and Cy bid 1 and Asha bid 0, on 3 cards. Everyone making it cannot add up to 3 tricks, so the last
-    // Made is not offered: the app does not let that state be reached.
-    for (const made of screen.getAllByText('✓ Made')) await u.click(made);
-    const last = screen.getAllByText('✓ Made')[2].closest('button')!;
-    expect(last).toHaveAttribute('aria-disabled', 'true');
-    expect(last).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByText('Doesn’t add up with the other results')).toBeInTheDocument();
+    // Bo and Cy bid 1 and Asha bid 0, on 3 cards. With Bo and Cy made, one trick is left and Asha cannot have
+    // made a bid of 0 (that would leave a trick unaccounted for), so Missed is filled in for her.
+    const made = screen.getAllByText('✓ Made');
+    await u.click(made[0]);
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
-    await u.click(screen.getAllByText('✗ Missed')[2]);
+    await u.click(made[1]);
+    const asha = screen.getAllByText('✗ Missed')[2].closest('button')!;
+    await waitFor(() => expect(asha).toHaveAttribute('aria-pressed', 'true'));
+    expect(screen.getByText('Only option')).toBeInTheDocument();
+    expect(screen.getAllByText('✓ Made')[2].closest('button')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Confirm round' })).toBeEnabled(),
     );
