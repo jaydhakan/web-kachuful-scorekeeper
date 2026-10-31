@@ -24,6 +24,7 @@ import {
 } from './persistence';
 import { initialState, reducer } from './reducer';
 import { archive, archiveGame } from './archive';
+import { backfillRegistry, ensurePlayer } from './registry';
 import type {
   Action,
   AppState,
@@ -133,6 +134,11 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     [],
   );
 
+  // Names seen before the registry existed become registry players once the archive is read.
+  useEffect(() => {
+    void archive.ready.then(backfillRegistry);
+  }, []);
+
   // System Back closes a sheet first, then the top screen.
   useHistorySync(state.nav.length + (state.sheet ? 1 : 0), () => {
     const s = ref.current;
@@ -184,8 +190,9 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
           decks: su.decks,
         } satisfies LastGroup);
         pushRecentNames(names);
+        const playerIds = su.seats.map((p) => (p ? ensurePlayer(p).id : ''));
         const now = Date.now();
-        nav({ type: 'beginGame', id: 'g' + now, syncId: uuid(), now });
+        nav({ type: 'beginGame', id: 'g' + now, syncId: uuid(), now, playerIds });
       },
       resume: () => nav({ type: 'resume' }),
       bid: (v) => {

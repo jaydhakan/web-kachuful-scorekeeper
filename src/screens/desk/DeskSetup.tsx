@@ -6,11 +6,14 @@ import {
   DECK_OPTIONS,
   EMOJIS,
   maxFor,
+  nameKey,
   playerCounts,
   type Decks,
   type LengthMode,
 } from '@/domain';
-import { KEYS, storage } from '@/state/persistence';
+import { people, type Person } from '@/state/registry';
+import { useArchive } from '@/state/useArchive';
+import { lookFor } from '@/screens/setup/seatLook';
 import { useApp } from '@/state/store';
 import type { Seat } from '@/state/types';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
@@ -77,7 +80,8 @@ export function DeskSetup() {
   const n = su?.n ?? 0,
     seats = su ? resize(su.seats, n) : [],
     filled = seats.filter((s) => s && s.name.trim()).length;
-  const names = seats.map((s) => s?.name.trim().toLowerCase() ?? '');
+  const names = seats.map((s) => (s ? nameKey(s.name) : ''));
+  const known = useArchive(() => people());
   const dupe = names.find((x, i) => x && names.indexOf(x) !== i);
   const ready = !!n && filled === n && !dupe;
   const deal = () => ready && actions.beginGame();
@@ -86,10 +90,7 @@ export function DeskSetup() {
   const lg = su.lg,
     lgDecks = lg?.decks ?? 1,
     lgFits = !!lg && playerCounts(lgDecks).includes(lg.names.length);
-  const recent = storage
-    .get<string[]>(KEYS.recentNames, [])
-    .filter((x) => !names.includes(x.toLowerCase()))
-    .slice(0, 6);
+  const recent = known.filter((x) => !names.includes(x.nameKey)).slice(0, 6);
   const dealer = Math.min(su.dealer, Math.max(0, n - 1)),
     shown = spin ?? dealer,
     first = n ? (shown + 1) % n : 0;
@@ -117,14 +118,10 @@ export function DeskSetup() {
     if (next >= 0) inputs.current[next]?.focus();
     else document.querySelector<HTMLElement>('[data-deal]')?.focus();
   };
-  const fill = (name: string) => {
+  const fill = (who: Person) => {
     const k = seats.findIndex((s) => !s?.name.trim());
     if (k < 0) return;
-    actions.setupSeat(k, {
-      name,
-      emoji: seats[k]?.emoji ?? EMOJIS[k],
-      color: seats[k]?.color ?? COLORS[k],
-    });
+    actions.setupSeat(k, { name: who.displayName, ...lookFor(who, seats, k) });
     actions.vib();
   };
   // The two rows trade places on screen: each starts where the other was and settles.
@@ -396,13 +393,16 @@ export function DeskSetup() {
                     <span className="text-13 text-[var(--tx2)]">{t.desk.setup.recent}</span>
                     {recent.map((r) => (
                       <motion.button
-                        key={r}
+                        key={r.id}
                         type="button"
                         whileTap={{ scale: 0.94 }}
                         onClick={() => fill(r)}
-                        className="inline-flex min-h-12 items-center rounded-full border border-white/10 bg-white/[.06] px-3.5 text-14 font-bold"
+                        className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-white/10 bg-white/[.06] pl-2 pr-3.5 text-14 font-bold"
                       >
-                        {r}
+                        <span aria-hidden className="text-16">
+                          {r.emoji}
+                        </span>
+                        {r.displayName}
                       </motion.button>
                     ))}
                   </div>

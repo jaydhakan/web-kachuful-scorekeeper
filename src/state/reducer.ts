@@ -254,6 +254,7 @@ function step(s: AppState, a: Action): AppState {
         name: p?.name ?? '',
         emoji: p?.emoji ?? '',
         color: p?.color ?? '',
+        ...(a.playerIds?.[i] && { playerId: a.playerIds[i] }),
       }));
       const g = freshGame(
         {

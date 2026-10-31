@@ -1,0 +1,160 @@
+import { COLORS, nameKey, pidOf, tidyName, type Game, type Player } from '@/domain';
+import { uuid } from '@/lib/ids';
+import { archive, type PlayerRec } from './archive';
+import { KEYS, storage } from './persistence';
+
+/**
+ * The people this device knows: one row per player, unique by name key. Signed out these are local rows; signed
+ * in they mirror the server's registry. Games refer to them by `Player.playerId`.
+ */
+
+/** Follows merges to the player an id ended up as. */
+export function resolveId(id: string): string {
+  let cur = id;
+  for (let i = 0; i < 20; i++) {
+    const next = archive.get('players', cur)?.mergedInto;
+    if (!next) return cur;
+    cur = next;
+  }
+  return cur;
+}
+
+/** Live (not merged) players. */
+export const livePlayers = (): PlayerRec[] => archive.all('players').filter((p) => !p.mergedInto);
+
+export const findByName = (name: string): PlayerRec | undefined => {
+  const k = nameKey(name);
+  return livePlayers().find((p) => p.nameKey === k);
+};
+
+/** The registry row for a seat: by id when it has one, else by name, else a new local player. */
+export function ensurePlayer(seat: {
+  name: string;
+  emoji: string;
+  color: string;
+  playerId?: string;
+}) {
+  if (seat.playerId) {
+    const p = archive.get('players', resolveId(seat.playerId));
+    if (p) return p;
+  }
+  const found = findByName(seat.name);
+  if (found) return found;
+  const now = Date.now();
+  const rec: PlayerRec = {
+    id: seat.playerId ?? uuid(),
+    displayName: tidyName(seat.name),
+    nameKey: nameKey(seat.name),
+    emoji: seat.emoji,
+    color: seat.color,
+    createdAt: now,
+    updatedAt: now,
+    local: true,
+  };
+  archive.put('players', rec);
+  return rec;
+}
+
+/** A player's registry id in a game: its own (after merges), or the registry player with its name. */
+export function idOf(p: Player): string {
+  if (p.playerId) return resolveId(p.playerId);
+  return findByName(p.name)?.id ?? pidOf(p);
+}
+
+/** Games with every seat pointing at a live registry player, so stats count each person once. */
+export const identify = (games: Game[]): Game[] =>
+  games.map((g) => ({ ...g, players: g.players.map((p) => ({ ...p, playerId: idOf(p) })) }));
+
+/**
+ * Gives every name this device has seen (archived games, recent names) a registry row, once the archive has
+ * loaded. Older games keep their shape: they are matched by name when read.
+ */
+export function backfillRegistry() {
+  const known = new Set(livePlayers().map((p) => p.nameKey));
+  const add: PlayerRec[] = [];
+  const now = Date.now();
+  const see = (name: string, emoji: string, color: string, at: number) => {
+    const k = nameKey(name);
+    if (!k || known.has(k)) return;
+    known.add(k);
+    add.push({
+      id: uuid(),
+      displayName: tidyName(name),
+      nameKey: k,
+      emoji,
+      color,
+      createdAt: at,
+      updatedAt: now,
+      local: true,
+    });
+  };
+  for (const r of archive.games())
+    for (const p of r.game.players)
+      if (!p.playerId) see(p.name, p.emoji, p.color, r.game.createdAt);
+  for (const n of storage.get<string[]>(KEYS.recentNames, [])) see(n, '🙂', COLORS[0], now);
+  archive.put('players', ...add);
+}
+
+export interface Person extends PlayerRec {
+  games: number;
+  lastPlayedAt: number | null;
+}
+
+/** Live players with how often and how recently they played on this device, most recent first. */
+export function people(): Person[] {
+  const stats = new Map<string, { games: number; last: number }>();
+  for (const r of archive.games()) {
+    if (r.conflictOf) continue;
+    for (const p of r.game.players) {
+      const id = idOf(p);
+      const s = stats.get(id) ?? { games: 0, last: 0 };
+      s.games++;
+      s.last = Math.max(s.last, r.updatedAt);
+      stats.set(id, s);
+    }
+  }
+  return livePlayers()
+    .map((p) => {
+      const s = stats.get(p.id);
+      return {
+        ...p,
+        games: Math.max(p.games ?? 0, s?.games ?? 0),
+        lastPlayedAt: s?.last ?? p.lastPlayedAt ?? null,
+      };
+    })
+    .sort(
+      (a, b) =>
+        (b.lastPlayedAt ?? 0) - (a.lastPlayedAt ?? 0) || a.displayName.localeCompare(b.displayName),
+    );
+}
+
+/** Counts one player as another from now on (this device only). */
+export function mergeLocal(fromId: string, intoId: string) {
+  const from = archive.get('players', fromId),
+    into = archive.get('players', resolveId(intoId));
+  if (!from || !into || from.id === into.id) return;
+  archive.put('players', { ...from, mergedInto: into.id, updatedAt: Date.now() });
+}
+
+/** Edits a local player's look or name; returns false when the name belongs to someone else. */
+export function patchLocal(
+  id: string,
+  patch: Partial<Pick<PlayerRec, 'displayName' | 'emoji' | 'color' | 'firstName' | 'lastName'>>,
+) {
+  const p = archive.get('players', id);
+  if (!p) return false;
+  if (patch.displayName) {
+    const other = findByName(patch.displayName);
+    if (other && other.id !== id) return false;
+  }
+  archive.put('players', {
+    ...p,
+    ...patch,
+    ...(patch.displayName && {
+      displayName: tidyName(patch.displayName),
+      nameKey: nameKey(patch.displayName),
+    }),
+    updatedAt: Date.now(),
+  });
+  return true;
+}

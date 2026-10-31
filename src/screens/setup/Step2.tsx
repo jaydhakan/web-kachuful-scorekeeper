@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
-import { COLORS, EMOJIS } from '@/domain';
-import { KEYS, storage } from '@/state/persistence';
+import { nameKey } from '@/domain';
+import { people, type Person } from '@/state/registry';
+import { useArchive } from '@/state/useArchive';
+import { findPerson, lookFor } from './seatLook';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Table } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
@@ -30,15 +32,15 @@ export function Step2() {
       ? t.setup.finally(pn, su.dir)
       : t.setup.sittingOn(pn, su.dir);
   })();
-  const recent = storage
-    .get<string[]>(KEYS.recentNames, [])
-    .filter((x) => !seats.some((s) => s && s.name.toLowerCase() === x.toLowerCase()))
+  const known = useArchive(() => people());
+  const recent = known
+    .filter((x) => !seats.some((s) => s && nameKey(s.name) === x.nameKey))
     .slice(0, 10);
   useEffect(() => {
     const t = setTimeout(() => inp.current?.focus(), 350);
     return () => clearTimeout(t);
   }, [tgt]);
-  const add = (raw: string) => {
+  const add = (raw: string, who?: Person) => {
     const nm = (raw || '').trim().replace(/\s+/g, ' ');
     if (!nm || tgt < 0) return;
     const ex = seats.find((s) => s && s.name.toLowerCase() === nm.toLowerCase());
@@ -47,11 +49,8 @@ export function Step2() {
       actions.vib();
       return;
     }
-    actions.setupSeat(tgt, {
-      name: nm.charAt(0).toUpperCase() + nm.slice(1),
-      emoji: EMOJIS[tgt],
-      color: COLORS[tgt],
-    });
+    const look = lookFor(who ?? findPerson(known, nm), seats, tgt);
+    actions.setupSeat(tgt, { name: nm.charAt(0).toUpperCase() + nm.slice(1), ...look });
     setDrop(tgt);
     setName('');
     setErr('');
@@ -143,14 +142,17 @@ export function Step2() {
             >
               {recent.map((r, i) => (
                 <motion.button
-                  key={r}
+                  key={r.id}
                   type="button"
                   {...stagger(i)}
                   whileTap={{ scale: 0.94 }}
-                  onClick={() => add(r)}
-                  className="glass min-h-12 shrink-0 whitespace-nowrap !rounded-full px-4 text-16 font-medium @h-[45rem]:min-h-11"
+                  onClick={() => add(r.displayName, r)}
+                  className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 whitespace-nowrap !rounded-full pl-2 pr-4 text-16 font-medium @h-[45rem]:min-h-11"
                 >
-                  {r}
+                  <span aria-hidden className="text-18">
+                    {r.emoji}
+                  </span>
+                  {r.displayName}
                 </motion.button>
               ))}
             </div>

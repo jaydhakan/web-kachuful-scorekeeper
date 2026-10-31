@@ -43,6 +43,8 @@ export interface Seat {
   name: string;
   emoji: string;
   color: string;
+  /** The registry player picked for this seat, when picked from the list. */
+  playerId?: string;
 }
 
 export interface SetupState {
@@ -115,7 +117,7 @@ export type Action =
   | { type: 'setupSeat'; k: number; seat: Seat | null }
   | { type: 'setupSeatPatch'; k: number; patch: Partial<Seat> }
   | { type: 'setupSwap'; a: number; b: number }
-  | { type: 'beginGame'; id: string; syncId: string; now: number }
+  | { type: 'beginGame'; id: string; syncId: string; now: number; playerIds?: string[] }
   | { type: 'resume' }
   | { type: 'bid'; v: number }
   | { type: 'advanceBid'; idx: number }
