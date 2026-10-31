@@ -137,17 +137,19 @@ export const t = {
     scoreboard: 'Scoreboard',
     title: (n: number) => `Round ${n}`,
     banner: messages.banner,
-    deal: (
-      dealer: string,
-      cards: number,
-      first: string,
-      trump: Trump,
-      arrow: string,
-    ): ReactNode => (
+    dealSub: (first: string, trump: Trump, arrow: string): ReactNode => (
       <>
-        👑 {b(dealer)} deals {b(cards)} cards each · first card to {b(first)} ·{' '}
-        <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
+        First card to {b(first)} · <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
         <b className="text-[var(--accent)]">{arrow}</b>
+      </>
+    ),
+  },
+
+  deal: {
+    /** The line read from across the table. The count is marked so each screen can size it up. */
+    head: (dealer: string, cards: number): ReactNode => (
+      <>
+        👑 {b(dealer)} deals <b data-n>{cards}</b> cards each
       </>
     ),
   },
@@ -244,14 +246,31 @@ export const t = {
   start: {
     skip: 'Skip the deal animation',
     trumpIs: (name: string) => `${name} are trump`,
-    dealsCards: (dealer: string, cards: number): ReactNode => (
-      <>
-        👑 {b(dealer)} deals {cards} cards each
-      </>
-    ),
     firstCard: (name: string): ReactNode => <>First card to {b(name)}</>,
     tapToSkip: 'Tap to skip',
     clickToSkip: 'Click or press Space to skip',
+  },
+
+  streak: {
+    /** One look per step of STREAK_STEPS (3, 5, 8 in a row). */
+    hot: [
+      { emoji: '🔥', title: 'is on fire!' },
+      { emoji: '🚀', title: 'is unstoppable!' },
+      { emoji: '🐐', title: 'is the G.O.A.T.!' },
+    ],
+    cold: [
+      { emoji: '🥶', title: 'has gone ice cold' },
+      { emoji: '💀', title: 'is cursed' },
+      { emoji: '🪦', title: 'rest in peace' },
+    ],
+    count: (kind: 'hot' | 'cold', n: number) =>
+      kind === 'hot' ? `${n} bids made in a row` : `${n} bids missed in a row`,
+    kicker: (kind: 'hot' | 'cold', n: number) =>
+      kind === 'hot' ? `${n} in a row` : `${n} misses in a row`,
+    of: (i: number, n: number) => `${i} of ${n}`,
+    tapToContinue: 'Tap to continue',
+    clickToContinue: 'Click or press Space to continue',
+    continue: 'Continue',
   },
 
   winner: {
@@ -365,19 +384,12 @@ export const t = {
       level: 'Exactly level: the dealer has to break it',
     },
     /** `delta` is the change in cards from the last round; null for the first round. */
-    dealLine: (
-      dealer: string,
-      cards: number,
-      first: string,
-      trump: Trump,
-      delta: number | null,
-    ): ReactNode => (
+    dealSub: (first: string, trump: Trump, delta: number | null): ReactNode => (
       <>
-        {b(dealer)} deals {b(cards)} cards each · first card to {b(first)} ·{' '}
-        <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
+        First card to {b(first)} · <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
         {delta != null && delta !== 0 && (
           <>
-            <b className="text-[var(--accent)]">{delta > 0 ? '↑' : '↓'}</b> one{' '}
+            · <b className="text-[var(--accent)]">{delta > 0 ? '↑' : '↓'}</b> one{' '}
             {delta > 0 ? 'more' : 'fewer'} card than last round
           </>
         )}

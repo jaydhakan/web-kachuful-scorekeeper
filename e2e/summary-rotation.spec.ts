@@ -22,6 +22,12 @@ async function openAnimatedSummary(page: Page, vp: { width: number; height: numb
   }
   await btn(page, 'Confirm round').click();
   await page.getByRole('region', { name: 'Standings' }).waitFor();
+  // The seeded results start a streak celebration; the count-up runs once it is tapped away.
+  const fx = page.getByRole('button', { name: 'Continue' });
+  while (await fx.isVisible()) {
+    await fx.click();
+    await page.waitForTimeout(350);
+  }
 }
 
 const savedGame = (page: Page) =>

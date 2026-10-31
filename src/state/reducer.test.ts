@@ -498,3 +498,17 @@ describe('results that cannot add up', () => {
     expect(Object.keys(curRound(st.game).results)).toEqual(['p0']);
   });
 });
+
+describe('streak celebrations', () => {
+  it('queue when a confirmed round takes someone to 3 in a row, and clear when done or undone', () => {
+    // Everyone but the first bidder makes it each round; seat 0 is never first in rounds 1 to 3 of four.
+    let st = playRound(setup(4));
+    expect(st.streakFx).toBeNull();
+    st = playRound(run(st, { type: 'nextRound' }));
+    expect(st.streakFx).toBeNull();
+    st = playRound(run(st, { type: 'nextRound' }));
+    expect(st.streakFx?.map((e) => [e.p.name, e.kind, e.n])).toEqual([['P0', 'hot', 3]]);
+    expect(run(st, { type: 'streakDone' }).streakFx).toBeNull();
+    expect(run(st, { type: 'undo' }).streakFx).toBeNull();
+  });
+});

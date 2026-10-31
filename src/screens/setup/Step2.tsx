@@ -98,6 +98,12 @@ export function Step2() {
                 value={name}
                 maxLength={14}
                 autoComplete="off"
+                autoCapitalize="words"
+                autoCorrect="off"
+                spellCheck={false}
+                // An explicit hint makes Android send Enter (which adds the name) instead of moving focus on and
+                // closing the keyboard; the field stays focused for the next seat.
+                enterKeyHint={filled === n - 1 ? 'done' : 'next'}
                 placeholder={t.setup.typeName}
                 onChange={(e) => {
                   setName(e.target.value);

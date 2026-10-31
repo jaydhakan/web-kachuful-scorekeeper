@@ -1,9 +1,10 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import { curRound, doneRounds, pts, roundAt, standings, streaks, totals } from '@/domain';
+import { currentStreaks, curRound, doneRounds, pts, roundAt, standings, totals } from '@/domain';
 import { useApp } from '@/state/store';
 import { useDeskKeys } from './useDeskKeys';
 import { Counter } from '@/components/ui/Counter';
+import { StreakBadge } from '@/components/ui/StreakBadge';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
@@ -30,11 +31,13 @@ export function DeskSummary() {
   /* eslint-enable react-hooks/exhaustive-deps */
   const cur = standings(g),
     ct = totals(g),
-    sk = streaks(g),
+    sk = currentStreaks(g),
     done = doneRounds(g);
   const [stage, setStage] = useState(anim ? 0 : 5);
+  // A streak celebration plays first; the count-up waits for it.
+  const celebrating = !!state.streakFx;
   useEffect(() => {
-    if (!anim) return;
+    if (!anim || celebrating) return;
     const T = rm ? [60, 120, 180, 240, 300] : [300, 900, 1700, 2300, 3000];
     const ts = T.map((ms, i) => setTimeout(() => setStage(i + 1), ms));
     const end = setTimeout(() => actions.setSumAnim(false), T[4] + 100);
@@ -42,8 +45,8 @@ export function DeskSummary() {
       ts.forEach(clearTimeout);
       clearTimeout(end);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run per mount
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run, once nothing plays over the screen
+  }, [celebrating]);
   useDeskKeys({ enter: actions.nextRound });
   const list = stage >= 3 ? cur : prev;
   const before = Object.fromEntries(prev.map((x) => [x.p.id, x.rank]));
@@ -121,7 +124,7 @@ export function DeskSummary() {
                   </span>
                   <span className="min-w-0 flex-1 text-20 font-bold leading-tight tracking-[-0.015em] [overflow-wrap:anywhere] dt:text-24">
                     {x.p.name}
-                    {sk[id] >= 3 && <span className="ml-1.5 text-16">🔥{sk[id]}</span>}
+                    <StreakBadge s={sk[id]} />
                   </span>
                   <span
                     className={`hidden w-[5.5rem] shrink-0 text-14 font-bold rail:block ${move > 0 ? 'text-[var(--pos)]' : move < 0 ? 'text-[var(--neg-tx)]' : 'text-[var(--tx2)]'} ${showMove ? '' : 'opacity-0'}`}

@@ -1,4 +1,13 @@
-import type { Decks, Direction, Game, LengthMode, Outcome, Phase, Round } from '@/domain';
+import type {
+  Decks,
+  Direction,
+  Game,
+  LengthMode,
+  Outcome,
+  Phase,
+  Round,
+  StreakEvent,
+} from '@/domain';
 import type { LastGroup } from './persistence';
 
 export type Screen = 'home' | 'setup' | 'round' | 'winner';
@@ -59,6 +68,8 @@ export interface AppState {
   seq: RoundStartSeq | null;
   fresh: boolean;
   sumAnim: boolean;
+  /** Streaks that reached a step in the round just confirmed, celebrated before the summary counts up. */
+  streakFx: StreakEvent[] | null;
   /** A pending move of the "who bids now" pointer, applied shortly after a bid. */
   advance: { idx: number } | null;
   noteSeq: number;
@@ -97,4 +108,5 @@ export type Action =
   | { type: 'bannerDone' }
   | { type: 'setFresh'; v: boolean }
   | { type: 'setSumAnim'; v: boolean }
+  | { type: 'streakDone' }
   | { type: 'replaceGame'; game: Game };

@@ -112,7 +112,7 @@ for (const [w, h, n] of [
   });
 }
 
-test('the toast sits above the bidding dock, never over the pills', async ({ page }) => {
+test('the toast sits in the top bar, never over the table or the bid pad', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await page.goto('/');
   await startGame(page, NAMES7);
@@ -121,6 +121,6 @@ test('the toast sits above the bidding dock, never over the pills', async ({ pag
   await expect(toast).toBeVisible();
   await page.waitForTimeout(500);
   const tb = (await toast.locator('> div').boundingBox())!;
-  const meter = (await page.getByText(/^Bids \d+ \/ \d+ cards$/).boundingBox())!;
-  expect(tb.y + tb.height).toBeLessThanOrEqual(meter.y);
+  const menu = (await btn(page, 'Menu').boundingBox())!;
+  expect(tb.y + tb.height).toBeLessThanOrEqual(menu.y + menu.height + 6);
 });

@@ -12,7 +12,7 @@ const VIEWPORTS = [
 ] as const;
 
 for (const [w, h] of VIEWPORTS) {
-  test(`${w}×${h}: the toast sits just above the bar and over its width`, async ({ page }) => {
+  test(`${w}×${h}: the toast sits in the top bar, between its buttons`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await page.goto('/');
     await openSeeded(page, seedGame(5, 'playing'), 'round');
@@ -22,12 +22,14 @@ for (const [w, h] of VIEWPORTS) {
     await expect(toast).toBeVisible();
     await page.waitForTimeout(500);
     const t = (await toast.boundingBox())!,
-      bar = (await page.locator('.chrome-bot').boundingBox())!,
-      primary = (await btn(page, 'Enter results').boundingBox())!;
-    expect(t.y + t.height, 'clear of the primary action').toBeLessThanOrEqual(primary.y);
-    expect(t.y + t.height, 'close above the bar, not floating away').toBeGreaterThan(bar.y - 40);
-    // Over the bar's own width: the controls pane in two panes, the column otherwise.
-    expect(t.x).toBeGreaterThanOrEqual(bar.x - 1);
-    expect(t.x + t.width).toBeLessThanOrEqual(bar.x + bar.width + 1);
+      menu = (await btn(page, 'Menu').boundingBox())!,
+      // The open menu sheet has a Scoreboard button too; the top bar's comes first.
+      board = (await btn(page, 'Scoreboard').first().boundingBox())!;
+    expect(t.y, 'on screen').toBeGreaterThanOrEqual(0);
+    expect(t.y + t.height, 'in the bar, not over the content').toBeLessThanOrEqual(
+      menu.y + menu.height + 6,
+    );
+    expect(t.x, 'clear of the menu button').toBeGreaterThanOrEqual(menu.x + menu.width);
+    expect(t.x + t.width, 'clear of the scoreboard button').toBeLessThanOrEqual(board.x);
   });
 }

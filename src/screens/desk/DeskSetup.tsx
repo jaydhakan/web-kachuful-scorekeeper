@@ -353,6 +353,11 @@ export function DeskSetup() {
                         value={s?.name ?? ''}
                         maxLength={14}
                         autoComplete="off"
+                        autoCapitalize="words"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        // Enter moves to the next empty seat itself, keeping a tablet's keyboard up.
+                        enterKeyHint="next"
                         placeholder={t.setup.typeName}
                         onChange={(e) => type(k, e.target.value)}
                         onBlur={() => commit(k)}

@@ -8,6 +8,7 @@ import { RoundStart } from '@/screens/round/RoundStart';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { RepairSaveModal } from '@/components/RepairSaveModal';
+import { StreakCelebration } from '@/components/StreakCelebration';
 import { UpdatePrompt } from '@/components/UpdatePrompt';
 import { Banner } from '@/components/ui/Banner';
 import { Toast } from '@/components/ui/Toast';
@@ -27,9 +28,10 @@ const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((m) => ({ default: m.Confetti })),
 );
 
-// The toast sits at the top, centred on the content, where it never covers an action; the banner too, clear of the rail.
+// The toast sits at the top, centred on the content, above the page title (under the top bar on an upright tablet),
+// where it never covers an action; the banner too, clear of the rail.
 const OVERLAY_VARS =
-  '[--bar-h:calc(100%-9.5rem-var(--sat))] rail:[--bar-h:calc(100%-5.5rem-var(--sat))] [--main-w:min(32rem,calc(100%-3rem))] [--main-x:calc((100%-var(--main-w))/2)] rail:[--bar-x:88px] rail:[--bar-w:calc(100%-88px)] rail:[--main-x:calc(88px+(100%-88px-var(--main-w))/2)]';
+  '[--toast-top:calc(var(--sat)+5.875rem)] rail:[--toast-top:calc(var(--sat)+0.375rem)] rail:[--toast-x:88px] rail:[--toast-w:calc(100%-88px)] [--main-w:min(32rem,calc(100%-3rem))] [--main-x:calc((100%-var(--main-w))/2)] rail:[--main-x:calc(88px+(100%-88px-var(--main-w))/2)]';
 
 /**
  * The tablet and desktop app: rail (or top bar), one content area, drawers on the right. Bidding, Play and Results are
@@ -43,7 +45,7 @@ export default function DeskShell() {
   const [keys, setKeys] = useState(false);
   const board = sheet?.type === 'board' || sheet?.type === 'edit';
   const overlay = !!sheet && !board;
-  const blocked = overlay || !!modal || !!seq || state.corrupt || keys;
+  const blocked = overlay || !!modal || !!seq || !!state.streakFx || state.corrupt || keys;
   const inGame = screen === 'round' || screen === 'winner';
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
@@ -131,6 +133,7 @@ export default function DeskShell() {
       </AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
+      <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>
