@@ -94,7 +94,7 @@ function useLoad<T>(f: () => Promise<T>) {
 function Users() {
   const { actions } = useApp();
   const [rows, reload] = useLoad(ep.adminUsers);
-  const [players] = useLoad(() => ep.players().then((p) => p.items.filter((x) => !x.mergedInto)));
+  const [players] = useLoad(allPlayers);
   const [invite, setInvite] = useState(false);
   const [email, setEmail] = useState('');
   const [pid, setPid] = useState<string | null>(null);

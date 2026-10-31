@@ -45,3 +45,24 @@ test('awards, seasons and the activity feed come from the server', async ({ page
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'Awards' })).toBeVisible();
 });
+
+test('a player page leads to head-to-head, and Wrapped comes from the server', async ({ page }) => {
+  await signIn(page);
+  await page
+    .getByRole('button', { name: /Boards/ })
+    .first()
+    .click();
+  await btn(page, 'All time').click();
+  await page.getByRole('button', { name: /^#1 / }).click();
+  const vs = page.getByRole('button', { name: /^Head to head: / }).first();
+  await expect(vs).toBeVisible();
+  await vs.click();
+  await expect(page.getByText('Games together')).toBeVisible();
+  await page.goto('/');
+  await page
+    .getByRole('button', { name: /Awards/ })
+    .first()
+    .click();
+  await page.getByRole('button', { name: /Wrapped/ }).click();
+  await expect(page.getByText(/You played \d+ rounds?/)).toBeVisible();
+});

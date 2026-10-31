@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ACCOUNTS, freshBackend, makeInvite, makeResetLink, signIn } from './backend';
+import { ACCOUNTS, addPlayer, freshBackend, makeInvite, makeResetLink, signIn } from './backend';
 import { btn } from './helpers';
 
 // Accounts against the mock API, or a real backend with E2E_API=local (e2e/backend.ts).
@@ -83,15 +83,18 @@ test('signing out asks what to keep, then shows Sign in again', async ({ page })
 test("an invite to a player's email offers that player, who claims their history", async ({
   page,
 }) => {
-  // Asha (asha@kachuful.test) is seeded with games and no account.
-  await page.goto(`/?invite=${await makeInvite(page, 'asha@kachuful.test')}`);
+  // A player Riya added, with an email and no account yet.
+  const name = 'Ivy' + uniq().slice(-5);
+  const email = `${name.toLowerCase()}@example.com`;
+  await addPlayer('riya', name, email);
+  await page.goto(`/?invite=${await makeInvite(page, email)}`);
   await expect(page.getByText('Is this you?')).toBeVisible();
-  await expect(page.getByText('Asha', { exact: true })).toBeVisible();
+  await expect(page.getByText(name, { exact: true })).toBeVisible();
   await btn(page, "Yes, that's me").click();
-  await page.getByLabel('Password', { exact: true }).fill('asha1');
-  await page.getByLabel('Password again').fill('asha1');
+  await page.getByLabel('Password', { exact: true }).fill('ivy1');
+  await page.getByLabel('Password again').fill('ivy1');
   await btn(page, 'Set password and start').click();
-  await expect(page.getByText('Signed in as Asha')).toBeVisible();
+  await expect(page.getByText(`Signed in as ${name}`)).toBeVisible();
 });
 
 test('the admin list shows a pending invite, and a new link replaces it', async ({ page }) => {
@@ -103,4 +106,29 @@ test('the admin list shows a pending invite, and a new link replaces it', async 
   await expect(row).toBeVisible();
   await row.getByRole('button', { name: 'New link' }).click();
   await expect(page.locator('code')).toContainText('?invite=');
+});
+
+test("the admin edits a player's email, and players who sat at one table are never merged", async ({
+  page,
+}) => {
+  const email = `zoya.${uniq()}@kachuful.test`;
+  await signIn(page, 'admin');
+  await btn(page, 'Account').click();
+  await btn(page, '🛡️ Admin').click();
+  await page.getByRole('button', { name: 'Players', exact: true }).click();
+  const zoya = page
+    .locator('li')
+    .filter({ hasText: /^.*Zoya/ })
+    .first();
+  await zoya.getByRole('button', { name: 'Edit' }).click();
+  await page.getByLabel('Email').fill(email);
+  await btn(page, 'Save').click();
+  await expect(zoya).toContainText(email);
+  // Zoya and Ishan have played together in the demo games.
+  await zoya.getByRole('button', { name: 'Merge into…' }).click();
+  await page.getByRole('button', { name: 'Ishan', exact: true }).click();
+  await btn(page, 'Merge into').click();
+  await expect(
+    page.getByText('They played at the same table, so they are two people. Not merged.'),
+  ).toBeVisible();
 });
