@@ -128,7 +128,7 @@ export function Bidding() {
                     <motion.span
                       layoutId="pillsel"
                       transition={SPRING_POP}
-                      className="absolute inset-0 rounded-[18px] bg-[linear-gradient(135deg,var(--accent),color-mix(in_srgb,var(--accent)_58%,black))] shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
+                      className="absolute inset-0 rounded-[18px] bg-accent-gradient shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
                     />
                   )}
                   <span className={`relative ${lock ? 'line-through' : ''}`}>{v}</span>

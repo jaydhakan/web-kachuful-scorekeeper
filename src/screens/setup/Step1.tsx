@@ -68,7 +68,7 @@ export function Step1() {
               <motion.span
                 layoutId="nsel"
                 transition={SPRING_POP}
-                className="absolute inset-0 rounded-[22px] bg-[linear-gradient(135deg,var(--accent),color-mix(in_srgb,var(--accent)_58%,black))] shadow-[0_0_0_4px_var(--glow),0_12px_32px_-8px_var(--accent)]"
+                className="absolute inset-0 rounded-[22px] bg-accent-gradient shadow-[0_0_0_4px_var(--glow),0_12px_32px_-8px_var(--accent)]"
               />
             )}
             <span className="relative">{n}</span>

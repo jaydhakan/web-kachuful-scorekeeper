@@ -8,7 +8,7 @@ interface PrimaryButtonProps extends HTMLMotionProps<'button'> {
 
 const TONES = {
   accent:
-    'bg-[linear-gradient(135deg,var(--accent),color-mix(in_srgb,var(--accent)_58%,black))] text-ink-on-accent shadow-[0_14px_36px_-10px_var(--accent),inset_0_1px_0_rgba(255,255,255,.35)]',
+    'bg-accent-gradient text-ink-on-accent shadow-[0_14px_36px_-10px_var(--accent),inset_0_1px_0_rgba(255,255,255,.35)]',
   danger: 'bg-[rgba(255,92,108,.16)] text-[var(--neg)]',
   glass: 'glass text-[var(--tx)]',
 };
