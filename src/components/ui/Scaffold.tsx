@@ -96,18 +96,20 @@ export function Scaffold({
         tabIndex={0}
         role="region"
         aria-label={t.common.content}
-        className={`no-scroll flex min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(24px,var(--sab))]'}`}
+        // A block, not a flex column: flex items stop vertical margins collapsing, which moves content.
+        className={`no-scroll min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(24px,var(--sab))]'}`}
       >
         {title && (
           <motion.h1
             style={rm ? undefined : { opacity: lgO, y: lgY, scale: lgS, transformOrigin: '0 50%' }}
-            className="disp order-[-2] mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance]"
+            className="disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance]"
           >
             {title}
           </motion.h1>
         )}
-        <div className="flex flex-1 flex-col">{children}</div>
-        {aside && <div className={`shrink-0 ${asideFirst ? 'order-[-1]' : ''}`}>{aside}</div>}
+        {asideFirst && aside}
+        {children}
+        {!asideFirst && aside}
       </div>
       {bar && (
         <div
