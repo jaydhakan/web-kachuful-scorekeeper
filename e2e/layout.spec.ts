@@ -42,7 +42,7 @@ test('the reason Confirm is disabled stays visible above it with 7 players at 36
 });
 
 test('a scroll that starts on Made/Missed scrolls and never sets a result', async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
+  await page.setViewportSize({ width: 360, height: 640 });
   await page.goto('/');
   await startGame(page, NAMES7);
   await bidEveryone(page);
@@ -63,9 +63,13 @@ test('a scroll that starts on Made/Missed scrolls and never sets a result', asyn
   for (let d = 10; d <= 120; d += 10) await touch('touchMove', y - d);
   await touch('touchEnd', y - 120);
   await page.waitForTimeout(400);
-  const scrolled = await page
-    .getByRole('region', { name: 'Content' })
-    .evaluate((el) => el.scrollTop);
+  // The list is its own scroll region now, so ask the nearest scroller around the control.
+  const scrolled = await seg.evaluate((el) => {
+    for (let a = el.parentElement; a; a = a.parentElement)
+      if (a.scrollHeight > a.clientHeight && /auto|scroll/.test(getComputedStyle(a).overflowY))
+        return a.scrollTop;
+    return 0;
+  });
   expect(scrolled).toBeGreaterThan(0);
   await expect(page.getByRole('button', { pressed: true, name: /Made|Missed/ })).toHaveCount(0);
 });

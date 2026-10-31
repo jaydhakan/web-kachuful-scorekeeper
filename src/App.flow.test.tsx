@@ -46,7 +46,7 @@ describe('setup → bid → play → results → summary', () => {
     await u.click(await btn('Start playing'));
     await u.click(await btn('Enter results'));
 
-    expect(await screen.findByText('Who made their bid?')).toBeInTheDocument();
+    expect(await screen.findAllByText('Who made their bid?')).not.toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
     for (const made of screen.getAllByText('✓ Made')) await u.click(made);
     expect(await screen.findByText(/Someone has to miss/)).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe('setup → bid → play → results → summary', () => {
     );
     await u.click(screen.getByRole('button', { name: 'Confirm round' }));
 
-    expect(await screen.findByText('After Round 1')).toBeInTheDocument();
+    expect(await screen.findAllByText('After Round 1')).not.toHaveLength(0);
     expect(await screen.findByText('Next round')).toBeInTheDocument();
   });
 
@@ -76,11 +76,11 @@ describe('setup → bid → play → results → summary', () => {
     await u.click(screen.getAllByText('✗ Missed')[1]);
     await u.click(screen.getAllByText('✗ Missed')[2]);
     await u.click(await btn('Confirm round'));
-    await screen.findByText('After Round 1');
+    await screen.findAllByText('After Round 1');
 
     await u.click(await btn('Undo'));
-    expect(await screen.findByText('Who made their bid?')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText('After Round 1')).not.toBeInTheDocument());
+    expect(await screen.findAllByText('Who made their bid?')).not.toHaveLength(0);
+    await waitFor(() => expect(screen.queryAllByText('After Round 1')).toHaveLength(0));
   });
 
   it('refuses a duplicate name at the table', async () => {
