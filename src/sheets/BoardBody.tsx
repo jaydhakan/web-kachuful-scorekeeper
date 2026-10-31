@@ -1,4 +1,4 @@
-import { doneRounds, pts, totals } from '@/domain';
+import { doneRounds, pts, totals, type Game } from '@/domain';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
@@ -6,13 +6,23 @@ import { t } from '@/strings';
 
 export function BoardBody() {
   const { state, actions } = useApp();
-  const g = state.game,
-    done = doneRounds(g),
-    tot = totals(g);
-  if (!done.length) return <p className="py-5 text-16 text-[var(--tx2)]">{t.sheets.boardEmpty}</p>;
+  const g = state.game;
+  if (!doneRounds(g).length)
+    return <p className="py-5 text-16 text-[var(--tx2)]">{t.sheets.boardEmpty}</p>;
   return (
     <>
       <div className="mb-2 text-13 text-[var(--tx2)]">{t.sheets.boardHint}</div>
+      <BoardTable g={g} onRow={(i) => actions.openSheet({ type: 'edit', i })} />
+    </>
+  );
+}
+
+/** Every finished round, one column per player; rows open the round when `onRow` is given. */
+export function BoardTable({ g, onRow }: { g: Game; onRow?: (i: number) => void }) {
+  const done = doneRounds(g),
+    tot = totals(g);
+  return (
+    <>
       {/* The scroller is the container, so the table follows the width it is given, not the viewport. */}
       <div className="scroll-thin max-h-[calc(100%-28px)] overflow-auto rounded-2xl @container">
         {/* Below 40rem columns size to their content and may scroll; above it they share the width equally. */}
@@ -66,16 +76,18 @@ export function BoardBody() {
             {done.map((r) => (
               <tr
                 key={r.index}
-                tabIndex={0}
-                aria-label={t.sheets.editRow(r.index + 1)}
-                onClick={() => actions.openSheet({ type: 'edit', i: r.index })}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    actions.openSheet({ type: 'edit', i: r.index });
-                  }
-                }}
-                className="cursor-pointer active:bg-white/5"
+                {...(onRow && {
+                  tabIndex: 0,
+                  'aria-label': t.sheets.editRow(r.index + 1),
+                  onClick: () => onRow(r.index),
+                  onKeyDown: (e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onRow(r.index);
+                    }
+                  },
+                  className: 'cursor-pointer active:bg-white/5',
+                })}
               >
                 <td className="sticky left-0 z-[5] min-w-[112px] bg-sheet px-2.5 py-1.5 text-left font-bold @[40rem]:break-words">
                   R{r.index + 1} · {r.cards}
