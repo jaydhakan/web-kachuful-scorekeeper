@@ -6,11 +6,15 @@ interface ModalProps {
   text: string;
   ok: string;
   danger?: boolean;
+  /** Label for the secondary button. */
+  cancel?: string;
+  /** A locked modal ignores backdrop taps, so a choice must be made. */
+  locked?: boolean;
   onOk: () => void;
   onCancel: () => void;
 }
 
-export function Modal({ text, ok, danger, onOk, onCancel }: ModalProps) {
+export function Modal({ text, ok, danger, cancel = 'Cancel', locked, onOk, onCancel }: ModalProps) {
   return (
     <div className="absolute inset-0 z-[65] grid place-items-center p-7">
       <motion.div
@@ -18,7 +22,7 @@ export function Modal({ text, ok, danger, onOk, onCancel }: ModalProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={onCancel}
+        onClick={locked ? undefined : onCancel}
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 12 }}
@@ -29,8 +33,12 @@ export function Modal({ text, ok, danger, onOk, onCancel }: ModalProps) {
       >
         <p className="mb-5 text-19 font-medium leading-snug tracking-[-0.012em]">{text}</p>
         <div className="flex gap-2.5">
-          <PrimaryButton tone="glass" onClick={onCancel} className="!h-[52px] flex-1 !text-16">
-            Cancel
+          <PrimaryButton
+            tone="glass"
+            onClick={onCancel}
+            className="!h-[52px] flex-1 !text-16"
+          >
+            {cancel}
           </PrimaryButton>
           <PrimaryButton
             tone={danger ? 'danger' : 'accent'}

@@ -13,6 +13,7 @@ import { Summary } from '@/screens/round/Summary';
 import { Setup } from '@/screens/setup/Setup';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
+import { RepairSaveModal } from './RepairSaveModal';
 import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
 import { Toast } from './ui/Toast';
@@ -77,6 +78,7 @@ export function Phone() {
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
+      <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && (
         <Suspense fallback={null}>
           <Confetti
