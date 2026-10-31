@@ -115,7 +115,11 @@ export function AvatarBody({ k }: { k: number }) {
           </motion.button>
         ))}
       </div>
-      <div className="mb-4 flex gap-2.5" {...colourNav.group}>
+      {/* 44px circles do not fit seven across a phone: four and three until there is room for one row. */}
+      <div
+        className="mb-4 grid grid-cols-4 justify-items-center gap-2 roomy:flex roomy:justify-start roomy:gap-2.5"
+        {...colourNav.group}
+      >
         {COLORS.map((c, i) => (
           <motion.button
             key={c}
@@ -125,7 +129,7 @@ export function AvatarBody({ k }: { k: number }) {
             {...colourNav.item(i)}
             whileTap={{ scale: 0.85 }}
             onClick={() => actions.setupSeatPatch(k, { color: c })}
-            className={`h-11 w-11 rounded-full border-[3px] ${s.color === c ? 'border-text-primary' : 'border-transparent'}`}
+            className={`h-11 w-11 shrink-0 rounded-full border-[3px] ${s.color === c ? 'border-text-primary' : 'border-transparent'}`}
             style={{ background: c }}
           />
         ))}
