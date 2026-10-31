@@ -45,17 +45,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@property --accent {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: theme('colors.accent-spades');
-}
-@property --glow {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: rgba(127, 179, 255, 0.25);
-}
-
 :root {
   color-scheme: dark;
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -118,9 +107,6 @@ input {
   --accent: theme('colors.accent-spades');
   --glow: rgba(127, 179, 255, 0.25);
   --suit: theme('colors.suit-black');
-  transition:
-    --accent 0.6s var(--ease),
-    --glow 0.6s var(--ease);
 }
 .gold-text {
   background: theme('backgroundImage.gold-gradient');
