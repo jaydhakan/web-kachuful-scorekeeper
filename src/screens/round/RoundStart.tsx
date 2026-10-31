@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { seatPos } from '@/lib/tableGeometry';
+import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { Table } from '@/components/ui/Table';
+import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
 
@@ -31,7 +31,7 @@ export function RoundStart() {
   }, [stage]);
   if (!r) return null;
   const th = TR[r.trump];
-  const from = seatPos('full', n, r.dealerIndex, g.direction);
+  const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
     <motion.div
       role="button"
@@ -87,20 +87,29 @@ export function RoundStart() {
         {stage === 2 &&
           Array.from({ length: n }, (_, k) => {
             const idx = (r.dealerIndex + 1 + k) % n,
-              to = seatPos('full', n, idx, g.direction),
-              rot = ((idx * 47) % 40) - 20;
+              to = toPct('full', seatPos('full', n, idx, g.direction)),
+              rot = ((idx * 47) % 40) - 20,
+              delay = k * 0.06;
             return (
-              <motion.div
+              <TablePin
                 key={k}
-                aria-hidden
-                initial={{ x: from.x - 8, y: from.y - 11, opacity: 1, rotate: 0 }}
-                animate={{ x: to.x - 8, y: to.y - 11, rotate: rot, opacity: [1, 1, 0] }}
-                transition={{
-                  default: { duration: 0.52, delay: k * 0.06, ease: EASE },
-                  opacity: { duration: 0.52, delay: k * 0.06, times: [0, 0.8, 1] },
-                }}
-                className="absolute left-0 top-0 z-[7] h-[22px] w-4 rounded-[3px] border-[1.5px] border-text-primary bg-card-deal"
-              />
+                initial={{ x: `${from.x}%`, y: `${from.y}%` }}
+                animate={{ x: `${to.x}%`, y: `${to.y}%` }}
+                transition={{ duration: 0.52, delay, ease: EASE }}
+                className="z-[7]"
+              >
+                <motion.div
+                  initial={{ rotate: 0, opacity: 1 }}
+                  animate={{ rotate: rot, opacity: [1, 1, 0] }}
+                  transition={{
+                    default: { duration: 0.52, delay, ease: EASE },
+                    opacity: { duration: 0.52, delay, times: [0, 0.8, 1] },
+                  }}
+                  className="absolute left-0 top-0 rounded-[3px] border-[1.5px] border-text-primary bg-card-deal"
+                  // Centred on the point the layer is translated to.
+                  style={{ width: dpx(16), height: dpx(22), translate: '-50% -50%' }}
+                />
+              </TablePin>
             );
           })}
       </Table>
