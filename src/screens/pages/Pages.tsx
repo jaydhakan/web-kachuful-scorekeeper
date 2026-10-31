@@ -1,5 +1,6 @@
 import type { Route } from '@/state/types';
 import { AccountPage } from './AccountPage';
+import { ActivityPage } from './ActivityPage';
 import { AchievementsPage } from './AchievementsPage';
 import { AdminPage } from './AdminPage';
 import { InvitePage, ResetPage, SignInPage } from './AuthPages';
@@ -45,6 +46,8 @@ export default function Pages({ route }: { route: Route }) {
       return <AccountPage />;
     case 'admin':
       return <AdminPage />;
+    case 'activity':
+      return <ActivityPage />;
     case 'import':
       return <ImportPage />;
     default:

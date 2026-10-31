@@ -8,7 +8,7 @@ import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
-import { DESTS, destRoute } from '@/components/hubNav';
+import { destRoute, destsFor } from '@/components/hubNav';
 import { TodayStrip } from '@/components/TodayStrip';
 import { AccountChip } from '@/components/AccountChip';
 import { ContinueCard } from '@/components/ContinueCard';
@@ -171,7 +171,7 @@ export function Home() {
               className="grid w-full auto-cols-fr grid-flow-col gap-2 md:max-w-[26rem] land:mt-2"
             >
               {[
-                ...DESTS.map((d) => ({
+                ...destsFor(false).map((d) => ({
                   key: d.screen,
                   emoji: d.emoji,
                   label: d.label,

@@ -170,6 +170,11 @@ export const Icon: Record<string, ReactElement> = {
       <path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z M9 12l2 2 4-4" />
     </svg>
   ),
+  activity: (
+    <svg {...base} className="h-6 w-6" strokeWidth="2" strokeLinejoin="round" aria-hidden>
+      <path d="M3 12h4l3-8 4 16 3-8h4" />
+    </svg>
+  ),
   cloud: (
     <svg {...base} className="h-5 w-5" strokeWidth="2" strokeLinejoin="round" aria-hidden>
       <path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18z" />

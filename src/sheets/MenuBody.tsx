@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
-import { DESTS, destRoute } from '@/components/hubNav';
+import { destRoute, destsFor } from '@/components/hubNav';
 import { t } from '@/strings';
 
 export function MenuBody() {
   const { state, actions } = useApp();
   const inGame = state.screen === 'round' || state.screen === 'winner';
   const go: [string, string, () => void, boolean?][] = [
-    ...DESTS.map((d): [string, string, () => void] => [
+    ...destsFor(!!state.session).map((d): [string, string, () => void] => [
       d.emoji,
       d.label,
       () => actions.open(destRoute(d)),

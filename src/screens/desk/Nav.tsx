@@ -5,7 +5,7 @@ import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { SPRING } from '@/components/ui/motion';
 import { GhostButton, Kbd } from './DeskParts';
-import { DESTS, destRoute, type Dest } from '@/components/hubNav';
+import { DESTS, destRoute, destsFor, type Dest } from '@/components/hubNav';
 import { SyncDot } from '@/components/SyncDot';
 import type { RouteName } from '@/state/types';
 import { t } from '@/strings';
@@ -143,7 +143,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         onClick={n.rounds}
       />
       <div aria-hidden className="my-1 h-px w-10 shrink-0 bg-white/10" />
-      {DESTS.map((d) => (
+      {destsFor(!!state.session).map((d) => (
         <RailItem
           key={d.screen}
           icon={d.icon}

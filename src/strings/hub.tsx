@@ -19,6 +19,7 @@ export const hub = {
     achievements: 'Achievements',
     players: 'Players',
     awards: 'Awards',
+    activity: 'Activity',
     account: 'Account',
     signIn: 'Sign in',
     admin: 'Admin',
@@ -99,6 +100,7 @@ export const hub = {
   },
   player: {
     title: 'Player',
+    rank: (r: number, of: number) => `#${r} of ${of} all time`,
     notFound: 'No games for this player',
     stats: 'Stats',
     points: 'Points',
@@ -375,6 +377,15 @@ export const hub = {
       `A game wasn't accepted by the server (${reason}). It stays on this phone.`,
     conflict: 'A game was changed on two devices. Both copies are in History.',
     nameMatch: (name: string) => `“${name}” is already a player. Is it the same person?`,
+  },
+  activity: {
+    title: 'Activity',
+    empty: 'Nothing yet',
+    more: 'Show more',
+    earned: (name: string, ach: string) => `${name} earned ${ach}`,
+    finished: (name: string, pts: string) => `${name} won a game · ${pts}`,
+    joined: (name: string) => `${name} joined`,
+    season: (m: string) => `Season ${m} closed`,
   },
   pops: {
     more: (n: number) => `+${n} more ${n === 1 ? 'streak' : 'streaks'}`,
