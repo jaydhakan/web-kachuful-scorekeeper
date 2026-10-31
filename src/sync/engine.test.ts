@@ -400,6 +400,35 @@ describe('sync engine', () => {
     expect(importable().map((x) => x.syncId)).not.toContain('old');
   });
 
+  it("remembers who this account's player has sat with, for setup's suggestions", async () => {
+    bindEngine({
+      session: () => ({
+        ...session,
+        player: { id: 'me', displayName: 'Me', emoji: '🙂', color: 'c' },
+      }),
+      game: () => current,
+      setSession: () => {},
+      syncGame: () => {},
+      open: () => {},
+    });
+    urls.length = 0;
+    server({
+      ...base,
+      'GET /players/me/games': () => [
+        200,
+        {
+          items: [{ id: 'x', players: [{ playerId: 'me' }, { playerId: 'zed' }] }],
+          nextCursor: null,
+        },
+      ],
+    });
+    await syncNow({ full: true });
+    expect(archive.get('cache', 'met')!.value).toEqual(['me', 'zed']);
+    // The next pull asks only about recent days.
+    await syncNow({ full: true });
+    expect(urls.filter((u) => u.startsWith('/api/players/me/games')).pop()).toContain('from=');
+  });
+
   it('the wire game is the game as it is, with registry ids; a stored one keeps its key', () => {
     const g = myGame('w1');
     const w = toWire(g);

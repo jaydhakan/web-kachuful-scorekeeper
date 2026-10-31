@@ -191,7 +191,33 @@ async function pullAll() {
     cacheSet('players:since', max);
   }
   await pullMyGames();
+  await pullMet();
   lastPull = Date.now();
+}
+
+/**
+ * Everyone this account's player has sat with, from the server's list of their games (wherever they were scored),
+ * for setup's suggestions. Later pulls only ask about the days since, with a day's overlap.
+ */
+async function pullMet() {
+  const me = ctx!.session()!.player?.id;
+  if (!me) return;
+  const since = cacheGet<number>('met:since');
+  const now = Date.now();
+  const met = new Set(cacheGet<string[]>('met') ?? []);
+  let cursor: string | null = null;
+  do {
+    const page = await ep.playerGames(
+      me,
+      since === undefined ? undefined : since - 864e5,
+      since === undefined ? undefined : now + 864e5,
+      cursor,
+    );
+    for (const g of page.items) for (const p of g.players) met.add(p.playerId);
+    cursor = page.nextCursor;
+  } while (cursor);
+  cacheSet('met', [...met]);
+  cacheSet('met:since', now);
 }
 
 const newest = (xs: { updatedAt: number }[]) => Math.max(0, ...xs.map((x) => x.updatedAt));

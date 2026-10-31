@@ -4,7 +4,10 @@ import { archive, archiveGame } from './archive';
 import { KEYS, storage } from './persistence';
 import {
   backfillRegistry,
+  circle,
   ensurePlayer,
+  mayEdit,
+  rememberSame,
   findByName,
   identify,
   mergeLocal,
@@ -13,6 +16,64 @@ import {
   resolveId,
 } from './registry';
 import { initialState, reducer } from './reducer';
+
+const server = (id: string, name: string, createdBy: string | null = null) => ({
+  id,
+  displayName: name,
+  nameKey: name.toLowerCase(),
+  emoji: '🙂',
+  color: 'c',
+  createdAt: 0,
+  updatedAt: 0,
+  local: false,
+  createdBy,
+});
+
+describe("an account's circle (setup suggestions, HANDOFF §5.7)", () => {
+  it('is the players it added, people it played with, ones it confirmed, its own and local ones', async () => {
+    await archive.ready;
+    archive.put(
+      'players',
+      server('mine', 'Mine'),
+      server('added', 'Added', 'u1'),
+      server('met', 'Met'),
+      server('table', 'Table'),
+      server('ok', 'Confirmed'),
+      server('stranger', 'Stranger', 'u2'),
+      { ...server('here', 'Here'), local: true },
+    );
+    archive.put('cache', { key: 'met', value: ['met'], fetchedAt: 0 });
+    rememberSame('ok');
+    archiveGame(
+      {
+        ...demoGame(),
+        id: 'g1',
+        syncId: 'g1',
+        players: demoGame()
+          .players.slice(0, 3)
+          .map((p, i) => ({
+            ...p,
+            playerId: ['mine', 'table', 'met'][i],
+          })),
+      },
+      { account: 'u1' },
+    );
+    expect(
+      circle('u1', 'mine')
+        .map((p) => p.id)
+        .sort(),
+    ).toEqual(['added', 'here', 'met', 'mine', 'ok', 'table']);
+  });
+
+  it('only the admin, the creator and the linked user may change a photo or email', () => {
+    const p = { createdBy: 'c', linkedUserId: 'l' };
+    expect(mayEdit(p, { id: 'x', role: 'admin' })).toBe(true);
+    expect(mayEdit(p, { id: 'c', role: 'member' })).toBe(true);
+    expect(mayEdit(p, { id: 'l', role: 'member' })).toBe(true);
+    expect(mayEdit(p, { id: 'x', role: 'member' })).toBe(false);
+    expect(mayEdit(p, null)).toBe(false);
+  });
+});
 
 describe('local player registry', () => {
   it('finds a player by name whatever the case or spacing, and creates one only once', () => {
