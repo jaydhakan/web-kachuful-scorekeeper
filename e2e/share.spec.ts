@@ -63,7 +63,9 @@ test('a recap link opens the game for anyone, signed out', async ({ page, browse
   await signedInGame(page);
   await btn(page, 'Menu').click();
   await btn(page, 'Links').click();
-  const recap = page.locator('section[aria-label="Links"] .glass').filter({ hasText: 'Recap link' });
+  const recap = page
+    .locator('section[aria-label="Links"] .glass')
+    .filter({ hasText: 'Recap link' });
   await recap.getByRole('button', { name: 'Make link' }).click();
   const url = await recap.locator('code').innerText();
   const viewer = await browser.newPage();
