@@ -18,6 +18,9 @@ import { StreakBadge } from '@/components/ui/StreakBadge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SPRING } from '@/components/ui/motion';
 import { rankTone } from '@/screens/desk/DeskParts';
+import { ep } from '@/sync/endpoints';
+import { useRemote } from '@/sync/useRemote';
+import { RemoteGate } from '@/components/RemoteGate';
 import { t } from '@/strings';
 
 const b = t.hub.boards;
@@ -42,12 +45,10 @@ export interface BoardData {
   facts: Facts | null;
 }
 
-export function BoardsPage({
-  global,
-}: {
-  global?: (q: { range: Range; metric: Metric }) => BoardData | 'signedOut' | 'loading';
-}) {
-  const [scope, setScope] = useState<'global' | 'device'>(global ? 'global' : 'device');
+export function BoardsPage() {
+  const { state } = useApp();
+  const signedIn = !!state.session;
+  const [scope, setScope] = useState<'global' | 'device'>(signedIn ? 'global' : 'device');
   const [range, setRange] = useState<Range>(() => rangeFor('month', Date.now()));
   const [metric, setMetric] = useState<Metric>('avgPerRound');
   const f = useDeviceFacts();
@@ -55,7 +56,6 @@ export function BoardsPage({
     () => ({ ...leaderboard(f, { from: range.from, to: range.to, metric }), facts: f }),
     [f, range, metric],
   );
-  const data = scope === 'device' ? device : (global?.({ range, metric }) ?? 'signedOut');
   return (
     <Page
       title={b.title}
@@ -74,16 +74,41 @@ export function BoardsPage({
         </div>
       }
     >
-      {data === 'signedOut' ? (
-        <SignedOut />
-      ) : data === 'loading' ? null : (
+      {scope === 'device' ? (
         <BoardList
-          data={data}
+          data={device}
           metric={metric}
-          key={`${scope}-${range.from}-${range.to}-${metric}`}
+          key={`d-${range.from}-${range.to}-${metric}`}
+          you={state.session?.player?.id}
         />
+      ) : !signedIn ? (
+        <SignedOut />
+      ) : (
+        <GlobalBoard range={range} metric={metric} you={state.session?.player?.id} />
       )}
     </Page>
+  );
+}
+
+/** The server's board for everyone; the row of the signed-in player stays pinned in view. */
+function GlobalBoard({ range, metric, you }: { range: Range; metric: Metric; you?: string }) {
+  const key = `lb:${range.from}:${range.to}:${metric}`;
+  const r = useRemote(key, (o) => ep.leaderboard(range.from, range.to, metric, o));
+  return (
+    <RemoteGate r={r}>
+      {(lb) => (
+        <BoardList
+          key={key}
+          you={you}
+          metric={metric}
+          data={{
+            minRounds: lb.minRounds,
+            facts: null,
+            rows: lb.rows.map(({ player, ...row }) => ({ ...row, playerId: player.id })),
+          }}
+        />
+      )}
+    </RemoteGate>
   );
 }
 

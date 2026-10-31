@@ -12,6 +12,9 @@ import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { Chip, ChipRow, Page, Section } from '@/components/ui/Page';
 import { stagger } from '@/components/ui/stagger';
 import { achievements as names } from '@/strings/achievements';
+import { useApp } from '@/state/store';
+import { ep } from '@/sync/endpoints';
+import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 
 const a = t.hub.ach;
@@ -30,7 +33,12 @@ export function AchievementsPage({
   const device = useDeviceFacts();
   const f = facts ?? device;
   const [who, setWho] = useState<string | null>(id ?? null);
-  const all = useMemo(() => [...allAchievements(f), ...extra], [f, extra]);
+  const signedIn = !!useApp().state.session;
+  const remote = useRemote(signedIn ? 'ach:all' : null, () => ep.achievements(undefined));
+  const all = useMemo(
+    () => remote.data?.items ?? [...allAchievements(f), ...extra],
+    [f, extra, remote.data],
+  );
   const players = useMemo(() => [...new Set(all.map((e) => e.playerId))], [all]);
   const mine = who ? all.filter((e) => e.playerId === who) : all;
   const by = new Map<string, Earned[]>();

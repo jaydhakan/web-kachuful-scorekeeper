@@ -35,6 +35,8 @@ import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { stagger } from '@/components/ui/stagger';
 import { TR } from '@/theme/trumps';
 import { achName } from '@/strings/achievements';
+import { ep } from '@/sync/endpoints';
+import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 
 const p = t.hub.player;
@@ -57,24 +59,47 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const { actions } = useApp();
   const [range, setRange] = useState<Range>(() => rangeFor('all', Date.now()));
   const w = whoIs(f, id);
-  const s = useMemo(() => profileStats(f, id, range.from, range.to), [f, id, range]);
+  const { state } = useApp();
+  const signedIn = !!state.session;
+  const year = new Date().getFullYear();
+  // Signed in, the numbers are the server's (every game everyone scored); signed out, this device's.
+  const rStats = useRemote(signedIn ? `ps:${id}:${range.from}:${range.to}` : null, (o) =>
+    ep.playerStats(id, range.from, range.to === Infinity ? Date.now() + 864e5 : range.to, o),
+  );
+  const rProfile = useRemote(signedIn ? `p:${id}` : null, () => ep.player(id));
+  const rCal = useRemote(signedIn ? `cal:${id}:${year}` : null, () => ep.calendar(id, year));
+  const rGames = useRemote(signedIn ? `pg:${id}` : null, () => ep.playerGames(id));
+  const localStats = useMemo(() => profileStats(f, id, range.from, range.to), [f, id, range]);
+  const s = rStats.data ?? localStats;
   const line = useMemo(() => pointsOverTime(f, id, range.from, range.to), [f, id, range]);
-  const earned = useMemo(() => allAchievements(f).filter((e) => e.playerId === id), [f, id]);
-  const cal = useMemo(() => calendar(f, id), [f, id]);
+  const localEarned = useMemo(() => allAchievements(f).filter((e) => e.playerId === id), [f, id]);
+  const earned: Earned[] = rProfile.data?.achievements ?? localEarned;
+  const localCal = useMemo(() => calendar(f, id), [f, id]);
+  const cal = rCal.data?.days ?? localCal;
   const rivals = useMemo(() => opponents(f, id).slice(0, 5), [f, id]);
   const recent = useMemo(
     () =>
-      f.players
-        .filter((x) => x.playerId === id)
-        .sort((a, b) => (b.endedAt ?? Infinity) - (a.endedAt ?? Infinity))
-        .slice(0, 6),
-    [f, id],
+      rGames.data
+        ? rGames.data.items.slice(0, 6).map((g) => {
+            const me = g.players.find((x) => x.playerId === id);
+            return {
+              gameId: g.id,
+              place: me?.place ?? null,
+              points: me?.points ?? 0,
+              endedAt: g.endedAt,
+            };
+          })
+        : f.players
+            .filter((x) => x.playerId === id)
+            .sort((a, b) => (b.endedAt ?? Infinity) - (a.endedAt ?? Infinity))
+            .slice(0, 6),
+    [f, id, rGames.data],
   );
+  const rank = rProfile.data?.rank;
   const [merge, setMerge] = useState(false);
   const [into, setInto] = useState<string | null>(null);
-  const local = archive.get('players', id)?.local;
-  const played = f.rounds.some((r) => r.playerId === id);
-  const year = new Date().getFullYear();
+  const local = archive.get('players', id)?.local && !signedIn;
+  const played = s.rounds > 0 || f.rounds.some((r) => r.playerId === id);
   const accBars = (
     o: Record<string, { made: number; total: number }>,
     label: (k: string) => React.ReactNode,
@@ -91,7 +116,14 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
     <Page
       wide
       label={w.name}
-      eyebrow={[w.firstName, w.lastName].filter(Boolean).join(' ') || p.title}
+      eyebrow={
+        [
+          [w.firstName, w.lastName].filter(Boolean).join(' '),
+          rank?.global ? p.rank(rank.global, rank.outOf) : '',
+        ]
+          .filter(Boolean)
+          .join(' · ') || p.title
+      }
       title={
         <span className="inline-flex items-center gap-3">
           <span

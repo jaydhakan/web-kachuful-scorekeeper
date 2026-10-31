@@ -22,6 +22,8 @@ import { SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { BoardList } from './BoardsPage';
 import { achName } from '@/strings/achievements';
+import { ep } from '@/sync/endpoints';
+import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 
 const aw = t.hub.awards;
@@ -89,8 +91,33 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
   const thisMonth = monthOf(Date.now());
   const [month, setMonth] = useState(thisMonth);
   const today = dayOf(Date.now());
-  const d = src.daily(day);
-  const s = tab === 'season' ? src.season(month) : null;
+  // Signed in, the awards are the server's (Kolkata days and months); signed out, this device's.
+  const signedIn = !!useApp().state.session;
+  const rDay = useRemote(signedIn ? `daily:${day}` : null, () => ep.daily(day));
+  const rSeason = useRemote(signedIn && tab === 'season' ? `season:${month}` : null, () =>
+    ep.season(month),
+  );
+  const rSeasons = useRemote(signedIn ? 'seasons' : null, () => ep.seasons());
+  const unwrap = <T extends { player: { id: string } }>(xs: T[]) =>
+    xs.map(({ player, ...x }) => ({ ...x, playerId: player.id }));
+  const d = !signedIn
+    ? src.daily(day)
+    : rDay.data
+      ? { awards: unwrap(rDay.data.awards), final: rDay.data.final }
+      : 'loading';
+  const s =
+    tab !== 'season'
+      ? null
+      : !signedIn
+        ? src.season(month)
+        : rSeason.data
+          ? {
+              season: month,
+              standings: unwrap(rSeason.data.standings),
+              awards: unwrap(rSeason.data.awards),
+            }
+          : 'loading';
+  const months = signedIn && rSeasons.data ? rSeasons.data.map((x) => x.season) : src.months;
   const year = new Date().getFullYear();
   return (
     <Page
@@ -103,6 +130,11 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
           <Chip on={tab === 'season'} onClick={() => setTab('season')}>
             👑 {aw.season}
           </Chip>
+          {signedIn && (
+            <Chip onClick={() => actions.open({ screen: 'activity' })}>
+              📰 {t.hub.nav.activity}
+            </Chip>
+          )}
           <Chip onClick={() => actions.open({ screen: 'wrapped', params: { year: String(year) } })}>
             🎁 {aw.wrapped(year)}
           </Chip>
@@ -144,7 +176,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
       ) : (
         <>
           <ChipRow label={aw.season}>
-            {[...new Set([thisMonth, ...src.months])].slice(0, 12).map((m) => (
+            {[...new Set([thisMonth, ...months])].slice(0, 12).map((m) => (
               <Chip key={m} on={m === month} onClick={() => setMonth(m)}>
                 {monthLabel(parseDay(m + '-01'))}
               </Chip>

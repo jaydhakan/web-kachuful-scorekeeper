@@ -10,6 +10,9 @@ import { pct } from '@/components/ui/Stats';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { EASE } from '@/components/ui/motion';
 import { TR } from '@/theme/trumps';
+import { useApp } from '@/state/store';
+import { ep } from '@/sync/endpoints';
+import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 
 const wr = t.hub.wrapped;
@@ -100,8 +103,16 @@ export function WrappedPage({
   const device = useDeviceFacts();
   const f = facts ?? device;
   const ids = useMemo(() => [...new Set(f.rounds.map((r) => r.playerId))], [f]);
-  const [who, setWho] = useState(playerId ?? ids[0] ?? null);
-  const w = useMemo(() => data ?? (who ? wrapped(f, who, year) : null), [data, f, who, year]);
+  const session = useApp().state.session;
+  const [who, setWho] = useState(playerId ?? session?.player?.id ?? ids[0] ?? null);
+  const remote = useRemote(session && who ? `wr:${year}:${who}` : null, () =>
+    ep.wrapped(year, who!),
+  );
+  const w = useMemo(
+    () =>
+      data ?? (remote.data as Wrapped | null) ?? (who && !session ? wrapped(f, who, year) : null),
+    [data, f, who, year, remote.data, session],
+  );
   const slides = w && w.totals.rounds ? slidesOf(w, f) : [];
   const [i, setI] = useState(0);
   const rm = useReducedMotion();
