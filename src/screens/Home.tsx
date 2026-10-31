@@ -9,6 +9,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { DESTS, destRoute } from '@/components/hubNav';
+import { TodayStrip } from '@/components/TodayStrip';
 import { t } from '@/strings';
 
 const SUITS = ['♠', '♦', '♣', '♥'] as const;
@@ -158,6 +159,7 @@ export function Home() {
                 )}
               </Glass>
             </motion.div>
+            <TodayStrip className="md:max-w-[26rem]" />
             {/* One row of small tiles: where to go, and the rules, without pushing New Game off a small phone. */}
             <motion.nav
               {...stagger(2, 0.28)}

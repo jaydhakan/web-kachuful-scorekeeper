@@ -9,6 +9,7 @@ import { Table } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { DeskPage, Eyebrow, Kbd } from './DeskParts';
+import { TodayStrip } from '@/components/TodayStrip';
 import { t } from '@/strings';
 
 const SUITS = [
@@ -85,6 +86,7 @@ export function DeskHome() {
               </li>
             ))}
           </motion.ul>
+          <TodayStrip className="max-w-[32.5rem]" />
         </section>
         <motion.section
           initial={{ opacity: 0, y: 30, scale: 0.97 }}
