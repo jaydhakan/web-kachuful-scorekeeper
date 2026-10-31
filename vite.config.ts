@@ -24,7 +24,13 @@ const preloadFonts = (): Plugin => ({
   },
 });
 
+// The real backend (HANDOFF §2) behind the dev and preview servers, so the app and the API share one origin.
+const API_TARGET = process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000';
+const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
+
 export default defineConfig(({ mode }) => ({
+  server: mode === 'mock' ? {} : { proxy: apiProxy },
+  preview: mode === 'mock' ? {} : { proxy: apiProxy },
   plugins: [
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
