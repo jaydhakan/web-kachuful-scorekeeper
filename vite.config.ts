@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 import tokens from './src/theme/tokens.json' with { type: 'json' };
+import { mockApiPlugin } from './tools/mock-api';
 
 const felt = tokens.color.tokens.find((t) => t.name === 'felt-950')!.value.midnight;
 
@@ -23,8 +24,10 @@ const preloadFonts = (): Plugin => ({
   },
 });
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
+    // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
+    ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),
     preloadFonts(),
     VitePWA({
@@ -64,4 +67,4 @@ export default defineConfig({
     include: ['src/**/*.test.{js,ts,tsx}'],
     coverage: { provider: 'v8', include: ['src/domain/**'], reporter: ['text', 'html'] },
   },
-});
+}));
