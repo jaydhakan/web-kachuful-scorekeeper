@@ -387,7 +387,13 @@ export function Table({
     </div>
   );
   return fit ? (
-    <div className="cq-size grid h-full min-h-0 w-full place-items-center">{box}</div>
+    <div
+      className="cq-size grid h-full min-h-0 w-full flex-1 place-items-center"
+      // Below its minimum the table is not shrunk further: the parent scrolls instead.
+      style={{ minHeight: `calc(${d.H} * ${minScale(N)} * 1px)` }}
+    >
+      {box}
+    </div>
   ) : (
     box
   );

@@ -13,6 +13,8 @@ interface ScaffoldProps {
   aside?: ReactNode;
   /** Put the aside above the main area in the one-column layout. */
   asideFirst?: boolean;
+  /** The main area takes the height left over and does not scroll, so a fitted table can fill it. */
+  fit?: boolean;
   bar?: ReactNode;
   /** Status line above the bar's buttons, announced politely (why a button is disabled). */
   barNote?: ReactNode;
@@ -30,7 +32,7 @@ const BODY_PANES =
 const MAIN_PANE =
   'scroll-thin pane:[grid-area:1/1/3/2] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2 pane:pb-[max(1.5rem,var(--sab))]';
 const ASIDE_PANE =
-  'scroll-thin pane:[grid-area:1/2/2/3] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2';
+  'scroll-thin shrink-0 pane:[grid-area:1/2/2/3] pane:min-h-0 pane:overflow-y-auto pane:overflow-x-hidden pane:overscroll-contain pane:px-5 pane:pt-2';
 
 /** The controls pane. Its heading is the large title's twin: the title hides in two panes and this shows. */
 function AsidePane({
@@ -63,6 +65,7 @@ export function Scaffold({
   children,
   aside,
   asideFirst,
+  fit,
   bar,
   barNote,
   className = '',
@@ -108,9 +111,17 @@ export function Scaffold({
   const lgY = useTransform(scrollY, [0, 80], [0, -14]);
   const lgS = useTransform(scrollY, [0, 80], [1, 0.94]);
   const rm = useReducedMotion();
+  const main =
+    aside || fit ? (
+      <div className={`${aside ? MAIN_PANE : ''} ${fit ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
+        {children}
+      </div>
+    ) : (
+      children
+    );
   return (
     <div
-      className={`absolute inset-0 grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden ${COLUMN} ${aside ? PANES : ''} ${className}`}
+      className={`absolute inset-0 grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto] cq-size overflow-hidden ${COLUMN} ${aside ? PANES : ''} ${className}`}
     >
       <motion.div
         style={{ opacity: topBg }}
@@ -132,7 +143,7 @@ export function Scaffold({
         role="region"
         aria-label={t.common.content}
         // A block, not a flex column: flex items stop vertical margins collapsing, which moves content.
-        className={`scroll-thin min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(1.5rem,var(--sab))]'} ${aside ? BODY_PANES : ''}`}
+        className={`scroll-thin min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(1.5rem,var(--sab))]'} ${fit ? 'flex flex-col' : ''} ${aside ? BODY_PANES : ''}`}
       >
         {title && (
           <motion.h1
@@ -149,7 +160,7 @@ export function Scaffold({
                 {aside}
               </AsidePane>
             )}
-            <div className={MAIN_PANE}>{children}</div>
+            {main}
             {!asideFirst && (
               <AsidePane title={title} bar={hasBar}>
                 {aside}
@@ -157,7 +168,7 @@ export function Scaffold({
             )}
           </>
         ) : (
-          children
+          main
         )}
       </div>
       {bar && (
