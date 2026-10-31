@@ -131,7 +131,7 @@ function Users() {
       <ul className="flex flex-col gap-2">
         {rows.map((r, i) => (
           <motion.li
-            key={r.user.id}
+            key={r.user?.id ?? 'invite:' + r.invite?.email}
             {...stagger(Math.min(i, 10))}
             className="glass flex flex-col gap-2 p-4"
           >
@@ -145,11 +145,11 @@ function Users() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-16 font-bold [overflow-wrap:anywhere]">
-                  {r.user.email}
+                  {r.user?.email ?? r.invite?.email}
                 </span>
                 <span className="block text-13 text-[var(--tx2)]">
                   {r.player?.displayName ? `${r.player.displayName} · ` : ''}
-                  {r.user.role === 'admin' ? '🛡️ admin · ' : ''}
+                  {r.user?.role === 'admin' ? '🛡️ admin · ' : ''}
                   {r.invite
                     ? ad.pendingInvite(new Date(r.invite.expiresAt).toLocaleDateString())
                     : !r.active
@@ -163,32 +163,36 @@ function Users() {
             <div className="flex flex-wrap gap-2">
               {r.invite && (
                 <>
+                  {/* Links are kept only as hashes: a fresh one replaces the pending invite. */}
                   <button
                     type="button"
                     className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
-                    onClick={async () =>
-                      actions.say((await copyText(r.invite!.url)) ? ad.copied : r.invite!.url)
+                    onClick={() =>
+                      act(async () => {
+                        const x = await ep.invitePerson(r.invite!.email, r.player?.id);
+                        setLink({ url: x.inviteUrl, note: ad.linkReady });
+                      })
                     }
                   >
-                    {ad.copy}
+                    {ad.newLink}
                   </button>
                   <button
                     type="button"
                     className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
-                    onClick={() => act(() => ep.revokeInvite(r.user.email))}
+                    onClick={() => act(() => ep.revokeInvite(r.invite!.email))}
                   >
                     {ad.revoke}
                   </button>
                 </>
               )}
-              {!r.user.id.startsWith('invite:') && (
+              {r.user && (
                 <>
                   <button
                     type="button"
                     className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
                     onClick={() =>
                       act(async () => {
-                        const x = await ep.resetLink(r.user.id);
+                        const x = await ep.resetLink(r.user!.id);
                         setLink({ url: x.resetUrl, note: ad.resetReady });
                       })
                     }
@@ -199,7 +203,7 @@ function Users() {
                     type="button"
                     className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
                     onClick={() =>
-                      r.active ? setOff(r) : act(() => ep.setActive(r.user.id, true))
+                      r.active ? setOff(r) : act(() => ep.setActive(r.user!.id, true))
                     }
                   >
                     {r.active ? ad.deactivate : ad.activate}
@@ -259,12 +263,12 @@ function Users() {
         {off && (
           <Modal
             key="off"
-            text={ad.deactivateAsk(off.user.email)}
+            text={ad.deactivateAsk(off.user!.email)}
             ok={ad.deactivate}
             danger
             onCancel={() => setOff(null)}
             onOk={() => {
-              const id = off.user.id;
+              const id = off.user!.id;
               setOff(null);
               void act(() => ep.setActive(id, false));
             }}
