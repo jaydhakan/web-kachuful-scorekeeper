@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING } from '@/components/ui/motion';
+import { minScale } from '@/lib/tableGeometry';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
 
@@ -28,6 +29,25 @@ const Dots = ({ step }: { step: number }) => (
     ))}
   </div>
 );
+
+// Scaffold's fitted area may shrink to nothing, which would let the table overlap the controls below it. This stops it
+// at the table's minimum (0.72 or 0.8 of 300px) plus the slot's mt-2, so the screen scrolls instead.
+const FIT_MIN =
+  '[&_div:has(>[data-fit-min="72"])]:min-h-[224px] [&_div:has(>[data-fit-min="80"])]:min-h-[248px]';
+
+/** Where a fitted table sits: full width on a phone, the left pane in two panes. */
+export const TableSlot = forwardRef<
+  HTMLDivElement,
+  HTMLAttributes<HTMLDivElement> & { players: number }
+>(({ players, className = '', ...rest }, ref) => (
+  <div
+    ref={ref}
+    data-fit-min={Math.round(minScale(players) * 100)}
+    className={`-mx-5 mt-2 flex min-h-0 flex-1 flex-col pane:mx-0 ${className}`}
+    {...rest}
+  />
+));
+TableSlot.displayName = 'TableSlot';
 
 interface SetupFrameProps {
   step: 1 | 2 | 3;
@@ -63,6 +83,7 @@ export function SetupFrame({
       aside={aside}
       asideFirst={asideFirst}
       fit={fit}
+      className={fit ? FIT_MIN : ''}
       bar={bar}
     >
       {children}
