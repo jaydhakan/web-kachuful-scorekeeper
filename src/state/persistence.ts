@@ -94,21 +94,10 @@ export function saveGame(game: Game, undo: string[]): WriteResult {
   return res;
 }
 
+/** The demo is saved as the game so it can be explored, but its players never become the user's names. */
 export function seedFirstRun(): Game {
   const g = demoGame();
   storage.set(KEYS.game, { ...g, schemaVersion: CURRENT_SCHEMA });
-  if (!storage.get(KEYS.lastGroup, null)) {
-    storage.set(KEYS.lastGroup, {
-      names: g.players.map((p) => p.name),
-      emojis: g.players.map((p) => p.emoji),
-      colors: g.players.map((p) => p.color),
-      direction: 'cw',
-    } satisfies LastGroup);
-    storage.set(
-      KEYS.recentNames,
-      g.players.map((p) => p.name),
-    );
-  }
   return g;
 }
 

@@ -13,8 +13,8 @@ test('smoke: demo game opens, a bid is taken and the scoreboard shows the verifi
   page,
 }) => {
   await page.goto('/');
-  await expect(page.getByText('Resume game')).toBeVisible();
-  await page.getByText('Resume game').click();
+  await expect(page.getByText('Try the demo')).toBeVisible();
+  await page.getByText('Try the demo').click();
   await expect(page.getByText('Round 7', { exact: true })).toBeVisible();
   await btn(page, 'Bid 1').click();
   await expect(
@@ -63,7 +63,7 @@ test('works offline after the first visit', async ({ page, context }) => {
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByText('Resume game')).toBeVisible();
+  await expect(page.getByText('Try the demo')).toBeVisible();
   await expect(page.locator('h1')).toHaveCSS('font-family', /Bricolage/);
   await context.setOffline(false);
 });

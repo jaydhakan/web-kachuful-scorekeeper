@@ -44,6 +44,9 @@ export const t = {
 
   home: {
     resume: 'Resume game',
+    demoBadge: 'Demo',
+    demoTitle: 'Try the demo',
+    demoBody: 'A 5-player game, 6 rounds in. Tap around — your own games start with New Game.',
     finished: 'Game finished',
     wonWith: (name: string, pts: string) => `${name} won with ${pts}`,
     roundsPlayed: (n: number) => `${n} rounds played`,
@@ -90,6 +93,7 @@ export const t = {
     sittingOn: (prev: string, dir: Direction) => `Who's sitting on ${prev}'s ${side(dir)}?`,
     thePlayerBefore: 'the player before',
     typeName: 'Type a name',
+    recentHint: 'Names you add are remembered for next time.',
     playerName: 'Player name',
     add: 'Add',
     alreadySeated: (name: string) => `${name} is already at the table.`,

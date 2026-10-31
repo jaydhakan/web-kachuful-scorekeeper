@@ -99,6 +99,25 @@ describe('setup → bid → play → results → summary', () => {
   });
 });
 
+describe('first run', () => {
+  it('presents the demo as a demo and keeps its players out of setup', async () => {
+    const u = setup();
+    render(<App />);
+    expect(await screen.findByText('Try the demo')).toBeInTheDocument();
+    expect(screen.queryByText(/Saved /)).not.toBeInTheDocument();
+    await u.click(await btn('New Game'));
+    await u.click(await btn('Start new'));
+    expect(await btn('3 players')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Use last group/ })).not.toBeInTheDocument();
+    await u.click(await btn('3 players'));
+    await u.click(await btn('Next'));
+    expect(
+      await screen.findByText('Names you add are remembered for next time.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Aarav' })).not.toBeInTheDocument();
+  });
+});
+
 describe('a save from the prototype', () => {
   it('opens on the round it was left on, with the verified leaderboard', async () => {
     seedPrototypeSave();
@@ -173,7 +192,7 @@ describe('a saved game that cannot be read', () => {
     );
     expect(localStorage.getItem(KEYS.backup)).toBe('{"players": [');
     expect(JSON.parse(localStorage.getItem(KEYS.game)!).id).toBe('demo');
-    expect(await screen.findByText('Resume game')).toBeInTheDocument();
+    expect(await screen.findByText('Try the demo')).toBeInTheDocument();
   });
 
   it('Reset discards the backup as well', async () => {
