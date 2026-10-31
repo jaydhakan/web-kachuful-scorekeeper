@@ -50,14 +50,14 @@ describe('setup → bid → play → results → summary', () => {
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
     // Bo and Cy bid 1 and Asha bid 0, on 3 cards. With Bo and Cy made, one trick is left and Asha cannot have
     // made a bid of 0 (that would leave a trick unaccounted for), so Missed is filled in for her.
-    const made = screen.getAllByText('✓ Made');
+    const made = screen.getAllByRole('button', { name: 'Made' });
     await u.click(made[0]);
     expect(screen.getByRole('button', { name: 'Confirm round' })).toBeDisabled();
     await u.click(made[1]);
-    const asha = screen.getAllByText('✗ Missed')[2].closest('button')!;
+    const asha = screen.getAllByRole('button', { name: 'Missed' })[2];
     await waitFor(() => expect(asha).toHaveAttribute('aria-pressed', 'true'));
     expect(screen.getByText('Only option')).toBeInTheDocument();
-    expect(screen.getAllByText('✓ Made')[2].closest('button')).toHaveAttribute(
+    expect(screen.getAllByRole('button', { name: 'Made' })[2]).toHaveAttribute(
       'aria-disabled',
       'true',
     );
@@ -81,9 +81,9 @@ describe('setup → bid → play → results → summary', () => {
     await u.click(screen.getByRole('button', { name: 'Bid 0' }));
     await u.click(await btn('Start playing'));
     await u.click(await btn('Enter results'));
-    await u.click((await screen.findAllByText('✓ Made'))[0]);
-    await u.click(screen.getAllByText('✗ Missed')[1]);
-    await u.click(screen.getAllByText('✗ Missed')[2]);
+    await u.click((await screen.findAllByRole('button', { name: 'Made' }))[0]);
+    await u.click(screen.getAllByRole('button', { name: 'Missed' })[1]);
+    await u.click(screen.getAllByRole('button', { name: 'Missed' })[2]);
     await u.click(await btn('Confirm round'));
     await screen.findAllByText('After Round 1');
 
