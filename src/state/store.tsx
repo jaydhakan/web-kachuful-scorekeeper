@@ -23,7 +23,17 @@ import {
   type Loaded,
 } from './persistence';
 import { initialState, reducer } from './reducer';
-import type { Action, AppState, Dir, ModalKind, Screen, SetupState, SheetState } from './types';
+import type {
+  Action,
+  AppState,
+  Dir,
+  ModalKind,
+  Route,
+  Screen,
+  SetupState,
+  SheetState,
+} from './types';
+import { useHistorySync } from '@/hooks/useHistorySync';
 import type { Trump } from '@/domain';
 
 export interface Actions {
@@ -55,6 +65,11 @@ export interface Actions {
   setFresh(v: boolean): void;
   say(msg: string): void;
   vib(): void;
+  /** Opens a screen over the current one. */
+  open(route: Route): void;
+  back(): void;
+  /** Replaces the open screens (none: back to the game screens). */
+  navReset(routes?: Route[]): void;
   repairSave(choice: 'reset' | 'keep'): void;
 }
 
@@ -92,6 +107,13 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
 
   usePersistence(state, dispatch);
   useWakeLock(state.game.status === 'active');
+
+  // System Back closes a sheet first, then the top screen.
+  useHistorySync(state.nav.length + (state.sheet ? 1 : 0), () => {
+    const s = ref.current;
+    if (s.sheet) dispatch({ type: 'sheet', sheet: null });
+    else dispatch({ type: 'navPop' });
+  });
 
   const toastId = state.toast?.id;
   useEffect(() => {
@@ -178,6 +200,9 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       setFresh: (v) => dispatch({ type: 'setFresh', v }),
       say: (msg) => dispatch({ type: 'say', msg }),
       vib,
+      open: (route) => nav({ type: 'navPush', route }),
+      back: () => nav({ type: 'navPop' }),
+      navReset: (routes) => nav({ type: 'navReset', routes }),
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
     };
   }, [vib]);

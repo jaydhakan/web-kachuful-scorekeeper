@@ -545,3 +545,25 @@ describe('sync fields (schema 3)', () => {
     expect(st.game).toMatchObject({ id: 'g2', syncId: 's2', rev: 1 });
   });
 });
+
+describe('screens opened over the game (nav stack)', () => {
+  it('pushes and pops, and Back on the last one goes back to the game screen', () => {
+    let st = run(demo(), { type: 'navPush', route: { screen: 'history' } });
+    st = run(st, { type: 'navPush', route: { screen: 'game', params: { id: 'x' } } });
+    expect(st.nav.map((r) => r.screen)).toEqual(['history', 'game']);
+    st = run(st, { type: 'navPop' }, { type: 'navPop' }, { type: 'navPop' });
+    expect(st.nav).toEqual([]);
+    expect(st.screen).toBe('round');
+  });
+
+  it('closes a sheet when a screen opens, and clears the stack when a game screen is chosen', () => {
+    let st = run(demo(), { type: 'sheet', sheet: { type: 'menu' } });
+    st = run(st, { type: 'navPush', route: { screen: 'history' } });
+    expect(st.sheet).toBeNull();
+    expect(run(st, { type: 'resume' }).nav).toEqual([]);
+    expect(run(st, { type: 'go', screen: 'home' }).nav).toEqual([]);
+    expect(run(st, { type: 'navReset', routes: [{ screen: 'account' }] }).nav).toEqual([
+      { screen: 'account' },
+    ]);
+  });
+});

@@ -11,6 +11,32 @@ import type {
 import type { LastGroup } from './persistence';
 
 export type Screen = 'home' | 'setup' | 'round' | 'winner';
+
+/** Screens opened over the game screens; the stack is what Back walks through. */
+export type RouteName =
+  | 'history'
+  | 'game'
+  | 'leaderboard'
+  | 'player'
+  | 'h2h'
+  | 'achievements'
+  | 'awards'
+  | 'wrapped'
+  | 'activity'
+  | 'players'
+  | 'signin'
+  | 'invite'
+  | 'reset'
+  | 'account'
+  | 'admin'
+  | 'live'
+  | 'recap'
+  | 'import';
+
+export interface Route {
+  screen: RouteName;
+  params?: Record<string, string>;
+}
 export type Dir = 1 | -1;
 
 export interface Seat {
@@ -58,6 +84,8 @@ export interface RoundStartSeq {
 export interface AppState {
   game: Game;
   screen: Screen;
+  /** Screens opened on top of `screen`, last one showing. Never saved: a reload starts at the game screens. */
+  nav: Route[];
   dir: Dir;
   setup: SetupState | null;
   undo: string[];
@@ -104,6 +132,9 @@ export type Action =
   | { type: 'modal'; modal: ModalKind | null }
   | { type: 'seqDone' }
   | { type: 'say'; msg: string; undo?: boolean }
+  | { type: 'navPush'; route: Route }
+  | { type: 'navPop' }
+  | { type: 'navReset'; routes?: Route[] }
   | { type: 'toastDone' }
   | { type: 'bannerDone' }
   | { type: 'setFresh'; v: boolean }

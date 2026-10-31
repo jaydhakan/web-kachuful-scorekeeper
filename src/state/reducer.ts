@@ -28,6 +28,7 @@ export function initialState(
   return {
     game,
     screen,
+    nav: [],
     dir: 1,
     setup: null,
     undo,
@@ -186,9 +187,13 @@ function setupSeats(
 
 /** `autoResult` lasts only until the next action, so a hint about it never outlives what it explains. */
 export function reducer(s: AppState, a: Action): AppState {
-  const n = step(s, a);
+  let n = step(s, a);
+  // Going to a game screen leaves whatever was opened over it.
+  if (n.nav.length && LEAVES_NAV.has(a.type)) n = { ...n, nav: [] };
   return a.type === 'setResult' || n.autoResult === null ? n : { ...n, autoResult: null };
 }
+
+const LEAVES_NAV = new Set<Action['type']>(['go', 'resume', 'startSetup', 'beginGame', 'rematch']);
 
 function step(s: AppState, a: Action): AppState {
   switch (a.type) {
@@ -427,6 +432,12 @@ function step(s: AppState, a: Action): AppState {
       return withBanner({ ...s, seq: null }, s.seq?.banner ?? null);
     case 'say':
       return say(s, a.msg, a.undo);
+    case 'navPush':
+      return { ...s, nav: [...s.nav, a.route], dir: 1, sheet: null };
+    case 'navPop':
+      return s.nav.length ? { ...s, nav: s.nav.slice(0, -1), dir: -1 } : s;
+    case 'navReset':
+      return { ...s, nav: a.routes ?? [], dir: a.routes?.length ? 1 : -1, sheet: null };
     case 'toastDone':
       return { ...s, toast: null };
     case 'bannerDone':
