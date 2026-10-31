@@ -10,7 +10,7 @@ import { Seg } from '@/components/ui/Seg';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
-import { SetupFrame } from './SetupFrame';
+import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
 
@@ -56,14 +56,12 @@ export function Step3() {
     m = maxFor(n),
     L = cycleLen(m);
   const [spin, setSpin] = useState<{ tgt: number; a0: number; a1: number } | null>(null),
-    [openLen, setOpenLen] = useState(false),
     [ghost, setGhost] = useState<{ x: number; y: number; p: Seat } | null>(null);
   const wrap = useRef<HTMLDivElement>(null),
     drag = useRef<DragState | null>(null),
     suppress = useRef(0);
   const dl = seats[su.dealer],
     fp = seats[(su.dealer + 1) % n];
-  const lenLabel = t.setup.lengthLabel(su.length, L);
   const sg = su.dir === 'cw' ? 1 : -1;
   const doSpin = () => {
     const tgt = Math.floor(Math.random() * n),
@@ -124,15 +122,74 @@ export function Step3() {
     <SetupFrame
       step={3}
       title={t.setup.step3Title}
+      fit
       bar={
         <PrimaryButton className="w-full" onClick={actions.beginGame}>
           {t.setup.deal}
         </PrimaryButton>
       }
+      aside={
+        <div className="flex flex-col gap-3 @h-[45rem]:gap-1 pane:pt-1">
+          <Glass
+            glow
+            spot={false}
+            className="px-4 py-3.5 text-18 leading-[1.5] tracking-[-0.01em] @h-[45rem]:py-1 @h-[45rem]:text-17 @h-[45rem]:leading-[1.3]"
+          >
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={su.dealer}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: EASE }}
+                className="[text-wrap:balance]"
+              >
+                <div>{t.setup.dealsFirst(dl.name)}</div>
+                <div className="@h-[45rem]:hidden">{t.setup.firstCardTo(fp.name)}</div>
+                <div className="text-14 text-[var(--tx2)] @h-[45rem]:hidden">
+                  {t.setup.roundOne}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+            <div className="mt-2.5 flex items-center gap-3 @h-[45rem]:mt-0.5">
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.94 }}
+                onClick={doSpin}
+                className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 !rounded-full px-4 text-16 font-medium @h-[45rem]:min-h-11"
+              >
+                {t.setup.random}
+              </motion.button>
+              <span className="text-13 leading-[1.35] text-[var(--tx2)] @h-[45rem]:leading-[1.25]">
+                <span className="@h-[45rem]:hidden">{t.setup.dragHint}</span>
+                <span className="hidden @h-[45rem]:inline">{t.setup.dragHintShort}</span>
+              </span>
+            </div>
+          </Glass>
+          <div>
+            <div
+              aria-hidden
+              className="mb-1 @h-[45rem]:mb-0.5 text-13 font-medium text-[var(--tx2)]"
+            >
+              {t.setup.gameLength}
+            </div>
+            <Seg<LengthMode>
+              uid="lenseg"
+              label={t.setup.gameLength}
+              size="sm"
+              className="flex w-full [&>button]:min-w-0 [&>button]:flex-1 [&>button]:px-1"
+              value={su.length}
+              onChange={(v) => actions.setupPatch({ length: v })}
+              options={t.setup.lengthOptions(L)}
+            />
+          </div>
+        </div>
+      }
     >
-      <div
+      <TableSlot
         ref={wrap}
-        className="relative h-[300px] touch-none select-none"
+        players={n}
+        className="relative touch-none select-none"
         onPointerDown={down}
         onPointerMove={move}
         onPointerUp={up}
@@ -140,6 +197,7 @@ export function Step3() {
       >
         <Table
           uid="su3"
+          fit
           n={n}
           dir={su.dir}
           players={seats}
@@ -172,71 +230,7 @@ export function Step3() {
             {ghost.p.emoji}
           </div>
         )}
-      </div>
-      <Glass
-        glow
-        spot={false}
-        className="mt-3 px-4 py-3.5 text-18 leading-[1.7] tracking-[-0.01em]"
-      >
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={su.dealer}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3, ease: EASE }}
-          >
-            {t.setup.dealsFirst(dl.name)}
-            <br />
-            {t.setup.firstCardTo(fp.name)}
-          </motion.div>
-        </AnimatePresence>
-      </Glass>
-      <div className="mt-3 flex items-center gap-3">
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.94 }}
-          onClick={doSpin}
-          className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 !rounded-full px-4 text-16 font-medium"
-        >
-          {t.setup.random}
-        </motion.button>
-        <span className="text-13 leading-[1.35] text-[var(--tx2)]">{t.setup.dragHint}</span>
-      </div>
-      <Glass spot={false} className="mt-3 px-4">
-        <button
-          type="button"
-          aria-expanded={openLen}
-          onClick={() => setOpenLen(!openLen)}
-          className="flex min-h-14 w-full items-center justify-between text-18 font-bold tracking-[-0.015em]"
-        >
-          {t.setup.gameLength}
-          <span className="text-13 font-medium text-[var(--tx2)]">
-            {lenLabel} {openLen ? '▴' : '▾'}
-          </span>
-        </button>
-        <AnimatePresence initial={false}>
-          {openLen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: EASE }}
-              className="pb-4"
-            >
-              <Seg<LengthMode>
-                uid="lenseg"
-                label={t.setup.gameLength}
-                size="sm"
-                className="w-full [&>button]:flex-1"
-                value={su.length}
-                onChange={(v) => actions.setupPatch({ length: v })}
-                options={t.setup.lengthOptions(L)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Glass>
+      </TableSlot>
     </SetupFrame>
   );
 }

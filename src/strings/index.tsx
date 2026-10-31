@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Direction, LengthMode, Trump } from '@/domain';
+import type { Direction, Trump } from '@/domain';
 import { messages } from './messages';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { TR } from '@/theme/trumps';
@@ -10,6 +10,13 @@ import { TR } from '@/theme/trumps';
  */
 const side = (dir: Direction) => (dir === 'cw' ? 'left' : 'right');
 const b = (s: ReactNode) => <b>{s}</b>;
+// A two-line segmented option, so "2 cycles / 14 rounds" never has to wrap mid-label.
+const stacked = (title: string, rounds: number) => (
+  <span className="flex flex-col items-center leading-[1.15]">
+    {title}
+    <span className="text-13 font-medium">{rounds} rounds</span>
+  </span>
+);
 
 export const t = {
   appName: 'Kachuful',
@@ -102,32 +109,23 @@ export const t = {
     seated: (filled: number, n: number) => `${filled} of ${n} seated`,
     step3Title: 'Ready to deal',
     deal: 'Deal!',
-    dealsFirst: (name: string): ReactNode => (
-      <>
-        👑 {b(name)} deals first
-        <br />
-        🃏 3 cards each
-      </>
-    ),
-    firstCardTo: (name: string): ReactNode => (
-      <>
-        👉 First card to {b(name)}
-        <br />♠ Spades are trump
-      </>
-    ),
+    dealsFirst: (name: string): ReactNode => <>👑 {b(name)} deals first</>,
+    firstCardTo: (name: string): ReactNode => <>👉 First card to {b(name)}</>,
+    roundOne: '🃏 3 cards each · ♠ Spades are trump',
     random: '🎲 Random',
     dragHint: 'Tap a seat to move the dealer. Press and hold, then drag, to swap seats.',
+    dragHintShort: 'Tap a seat to move the dealer. Hold and drag to swap.',
     gameLength: 'Game length',
-    lengthLabel: (mode: LengthMode, L: number) =>
-      mode === 'endless'
-        ? 'Endless'
-        : mode === '1cycle'
-          ? `1 cycle · ${L} rounds`
-          : `2 cycles · ${2 * L} rounds`,
     lengthOptions: (L: number) => [
       { v: 'endless' as const, label: 'Endless' },
-      { v: '1cycle' as const, label: `1 cycle · ${L}` },
-      { v: '2cycles' as const, label: `2 cycles · ${2 * L}` },
+      {
+        v: '1cycle' as const,
+        label: stacked('1 cycle', L),
+      },
+      {
+        v: '2cycles' as const,
+        label: stacked('2 cycles', 2 * L),
+      },
     ],
   },
 
