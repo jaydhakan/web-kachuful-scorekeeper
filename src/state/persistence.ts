@@ -58,6 +58,10 @@ export const storage = {
       return isQuota(e) ? 'quota' : 'unavailable';
     }
   },
+  /** Forgets the in-memory fallback copies (used when the browser storage is reset underneath us). */
+  clearMemory() {
+    for (const k of Object.keys(mem)) delete mem[k];
+  },
   remove(key: string) {
     delete mem[key];
     try {
