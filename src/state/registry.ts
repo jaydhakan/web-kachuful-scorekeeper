@@ -1,4 +1,4 @@
-import { COLORS, nameKey, pidOf, tidyName, type Game, type Player } from '@/domain';
+import { COLORS, emailKey, nameKey, pidOf, tidyName, type Game, type Player } from '@/domain';
 import { uuid } from '@/lib/ids';
 import { archive, type PlayerRec } from './archive';
 import { KEYS, storage } from './persistence';
@@ -31,7 +31,7 @@ export const findByName = (name: string): PlayerRec | undefined => {
 
 /** The registry row for a seat: by id when it has one, else by name, else a new local player. */
 export function ensurePlayer(
-  seat: { name: string; emoji: string; color: string; playerId?: string },
+  seat: { name: string; emoji: string; color: string; playerId?: string; email?: string },
   online = false,
 ) {
   if (seat.playerId) {
@@ -45,6 +45,7 @@ export function ensurePlayer(
     id: seat.playerId ?? uuid(),
     displayName: tidyName(seat.name),
     nameKey: nameKey(seat.name),
+    ...(seat.email && { email: emailKey(seat.email) }),
     emoji: seat.emoji,
     color: seat.color,
     createdAt: now,

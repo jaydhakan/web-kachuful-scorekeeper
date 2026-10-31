@@ -14,6 +14,8 @@ export interface User {
 export interface Player {
   id: string;
   displayName: string;
+  /** Identifies the person; null unless you are the admin, its creator or its linked user. */
+  email: string | null;
   firstName: string | null;
   lastName: string | null;
   emoji: string;
@@ -34,6 +36,7 @@ export interface PlayerSummary extends Player {
 export interface NewPlayer {
   id: string;
   displayName: string;
+  email: string;
   firstName?: string;
   lastName?: string;
   emoji: string;

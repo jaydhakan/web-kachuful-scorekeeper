@@ -3,7 +3,7 @@
  * settles stale uploads with a conflict copy (nothing is ever dropped). It runs only while signed in. Screens never
  * wait for it: they read the archive, which this keeps up to date.
  */
-import { doneRounds, nameKey, type Game } from '@/domain';
+import { doneRounds, emailKey, nameKey, type Game } from '@/domain';
 import { uuid } from '@/lib/ids';
 import { archive, type GameRec, type InboxItem, type PlayerRec } from '@/state/archive';
 import type { Session } from '@/state/persistence';
@@ -134,6 +134,8 @@ const toRec = (p: Player, prev?: PlayerRec): PlayerRec => ({
   id: p.id,
   displayName: p.displayName,
   nameKey: nameKey(p.displayName),
+  // The server hides other people's emails; keep one this device already had.
+  email: p.email ?? prev?.email ?? null,
   firstName: p.firstName,
   lastName: p.lastName,
   emoji: p.emoji,
@@ -217,10 +219,22 @@ async function pullMyGames() {
 
 async function pushPlayers() {
   for (const p of archive.all('players').filter((x) => x.pendingCreate && !x.mergedInto)) {
+    // A player goes up with its email; one without waits for someone to add it (the inbox asks).
+    if (!p.email) {
+      inbox('nameMatch', p.id, {
+        name: p.displayName,
+        playerId: p.id,
+        field: 'email',
+        missing: true,
+      });
+      archive.put('players', { ...p, pendingCreate: false });
+      continue;
+    }
     try {
       const out = await ep.createPlayer({
         id: p.id,
         displayName: p.displayName,
+        email: p.email,
         emoji: p.emoji,
         color: p.color,
         ...(p.firstName && { firstName: p.firstName }),
@@ -231,7 +245,12 @@ async function pushPlayers() {
       if (!(e instanceof ApiError) || e.status !== 409) throw e;
       // Someone else has this name: the person decides whether it's the same player (the games wait).
       archive.put('players', { ...p, pendingCreate: false });
-      inbox('nameMatch', p.id, { name: p.displayName, playerId: p.id, existing: e.body.existing });
+      inbox('nameMatch', p.id, {
+        name: p.displayName,
+        playerId: p.id,
+        field: e.code === 'email_taken' ? 'email' : 'name',
+        existing: e.body.existing,
+      });
     }
   }
 }
@@ -370,14 +389,16 @@ export function resolveConflict(copyId: string, keepCopy: boolean) {
 /** Settles a name clash from the inbox: the same person (games move to them) or a new name. */
 export function resolveNameMatch(
   localId: string,
-  same: { existingId: string } | { rename: string },
+  same: { existingId: string } | { rename: string } | { email: string },
 ) {
   const p = archive.get('players', localId);
   if (!p) return;
   if ('existingId' in same) {
     archive.put('players', { ...p, mergedInto: same.existingId, pendingCreate: false });
     remap({ [localId]: same.existingId });
-  } else
+  } else if ('email' in same)
+    archive.put('players', { ...p, email: emailKey(same.email), pendingCreate: true });
+  else
     archive.put('players', {
       ...p,
       displayName: same.rename,

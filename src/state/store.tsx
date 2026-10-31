@@ -36,6 +36,7 @@ import type {
   ModalKind,
   Route,
   Screen,
+  Seat,
   SetupState,
   SheetState,
 } from './types';
@@ -50,8 +51,8 @@ export interface Actions {
   go(screen: Screen, dir?: Dir): void;
   startSetup(): void;
   setupPatch(patch: Partial<SetupState>): void;
-  setupSeat(k: number, seat: { name: string; emoji: string; color: string } | null): void;
-  setupSeatPatch(k: number, patch: Partial<{ name: string; emoji: string; color: string }>): void;
+  setupSeat(k: number, seat: Seat | null): void;
+  setupSeatPatch(k: number, patch: Partial<Seat>): void;
   setupSwap(a: number, b: number): void;
   beginGame(): void;
   resume(): void;

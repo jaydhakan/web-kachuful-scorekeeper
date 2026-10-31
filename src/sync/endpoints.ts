@@ -63,16 +63,16 @@ export const ep = {
   // §6.3 players
   players: (updatedSince?: number, cursor?: string | null) =>
     get<Page<Player>>('/players', { updatedSince, cursor }),
-  checkName: (name: string, o?: CallOpts) =>
-    get<{ available: true } | { available: false; existing: PlayerSummary }>(
-      '/players/check',
-      { name },
-      o,
-    ),
+  checkPlayer: (q: { name?: string; email?: string }, o?: CallOpts) =>
+    get<
+      { available: true } | { available: false; field: 'name' | 'email'; existing: PlayerSummary }
+    >('/players/check', q, o),
   createPlayer: (p: NewPlayer) => post<Player>('/players', p),
   patchPlayer: (
     id: string,
-    p: Partial<Pick<Player, 'displayName' | 'firstName' | 'lastName' | 'emoji' | 'color'>>,
+    p: Partial<
+      Pick<Player, 'displayName' | 'email' | 'firstName' | 'lastName' | 'emoji' | 'color'>
+    >,
   ) => patch<Player>(`/players/${id}`, p),
   player: (id: string) =>
     get<{

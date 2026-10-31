@@ -103,29 +103,35 @@ describe('sync engine', () => {
   it('creates new players first, then uploads the game, and marks it synced', async () => {
     archive.put('players', serverPlayer('a', 'Ann'), serverPlayer('b', 'Ben'), {
       ...serverPlayer('c', 'Cat'),
+      email: 'cat@example.com',
       local: true,
       pendingCreate: true,
     });
     const g = myGame();
+    let sent: unknown;
     const calls = server({
       ...base,
-      'POST /players': (b) => [
-        201,
-        {
-          ...(b as object),
-          createdBy: ME,
-          linkedUserId: null,
-          mergedInto: null,
-          createdAt: 1,
-          updatedAt: 1,
-          firstName: null,
-          lastName: null,
-        },
-      ],
+      'POST /players': (b) => {
+        sent = b;
+        return [
+          201,
+          {
+            ...(b as object),
+            createdBy: ME,
+            linkedUserId: null,
+            mergedInto: null,
+            createdAt: 1,
+            updatedAt: 1,
+            firstName: null,
+            lastName: null,
+          },
+        ];
+      },
       'PUT /games/g1': (b) => [200, { rev: (b as WireGame).rev, earned: [] }],
     });
     await syncNow({ full: true });
     expect(calls.filter((c) => !c.startsWith('GET'))).toEqual(['POST /players', 'PUT /games/g1']);
+    expect(sent).toMatchObject({ email: 'cat@example.com' });
     expect(archive.get('games', 'g1')!.syncedRev).toBe(g.rev);
     expect(archive.get('players', 'c')!.local).toBe(false);
     expect(syncStatus()).toMatchObject({ phase: 'idle', waiting: 0 });
@@ -221,6 +227,7 @@ describe('sync engine', () => {
   it('a name the server already has asks; "same person" moves the games to that player', async () => {
     archive.put('players', serverPlayer('a', 'Ann'), serverPlayer('b', 'Ben'), {
       ...serverPlayer('c', 'Cat'),
+      email: 'cat@example.com',
       local: true,
       pendingCreate: true,
     });
@@ -233,11 +240,32 @@ describe('sync engine', () => {
       ],
     });
     await syncNow({ full: true });
-    expect(archive.get('inbox', 'nameMatch:c')).toBeDefined();
+    expect(archive.get('inbox', 'nameMatch:c')!.data).toMatchObject({ field: 'name' });
     archive.put('players', serverPlayer('cat2', 'Cat'));
     resolveNameMatch('c', { existingId: 'cat2' });
     expect(archive.get('games', 'g1')!.game.players[2].playerId).toBe('cat2');
     expect(archive.get('inbox', 'nameMatch:c')).toBeUndefined();
+  });
+
+  it('a new player without an email waits, and the inbox asks for it', async () => {
+    archive.put('players', serverPlayer('a', 'Ann'), serverPlayer('b', 'Ben'), {
+      ...serverPlayer('c', 'Cat'),
+      local: true,
+      pendingCreate: true,
+    });
+    myGame();
+    const calls = server(base);
+    await syncNow({ full: true });
+    expect(calls).not.toContain('POST /players');
+    expect(archive.get('inbox', 'nameMatch:c')!.data).toMatchObject({
+      field: 'email',
+      missing: true,
+    });
+    resolveNameMatch('c', { email: ' Cat@Example.com ' });
+    expect(archive.get('players', 'c')).toMatchObject({
+      email: 'cat@example.com',
+      pendingCreate: true,
+    });
   });
 
   it('a 401 stops the run and needs a fresh sign-in', async () => {

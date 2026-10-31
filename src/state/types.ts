@@ -45,6 +45,8 @@ export interface Seat {
   color: string;
   /** The registry player picked for this seat, when picked from the list. */
   playerId?: string;
+  /** A new player's email (signed in), which says who they are. */
+  email?: string;
 }
 
 export interface SetupState {

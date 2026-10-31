@@ -32,6 +32,8 @@ export interface PlayerRec {
   id: string;
   displayName: string;
   nameKey: string;
+  /** Who the person is (unique); only known for players this account may see it for. */
+  email?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   emoji: string;

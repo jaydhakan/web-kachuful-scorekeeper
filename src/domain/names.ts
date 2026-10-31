@@ -9,6 +9,11 @@ export const tidyName = (s: string): string => {
 
 export const NAME_MAX = 14;
 
+/** Emails compare trimmed and lower-cased. */
+export const emailKey = (s: string): string => s.trim().toLowerCase();
+/** The shape check the server makes: something@something.something, no spaces. */
+export const emailOk = (s: string): boolean => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.trim());
+
 /**
  * A free name for someone whose name is taken: the first name plus a last-name initial ("Riya S"), then the
  * whole last name, then a number. `taken` holds name keys.
