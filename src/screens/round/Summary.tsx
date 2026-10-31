@@ -132,7 +132,7 @@ export function Summary() {
                       initial={{ scale: 0.4, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={SPRING_POP}
-                      className={`min-w-[46px] rounded-xl px-2 py-0.5 text-center text-15 font-extrabold ${d > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : d < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
+                      className={`min-w-[46px] rounded-xl px-2 py-0.5 text-center text-15 font-extrabold ${d > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : d < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
                     >
                       {sgnN(d)}
                     </motion.span>

@@ -122,7 +122,7 @@ export function Bidding() {
                   animate={shake === v ? shakeKF : { x: 0 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => pick(v)}
-                  className={`disp relative grid aspect-square min-h-11 w-full max-w-[60px] place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
+                  className={`disp relative grid aspect-square min-h-11 w-full max-w-[60px] place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--ph)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
                 >
                   {sel && (
                     <motion.span

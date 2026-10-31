@@ -9,7 +9,7 @@ interface PrimaryButtonProps extends HTMLMotionProps<'button'> {
 const TONES = {
   accent:
     'bg-accent-gradient text-ink-on-accent shadow-[0_14px_36px_-10px_var(--accent),inset_0_1px_0_rgba(255,255,255,.35)]',
-  danger: 'bg-[rgba(255,92,108,.16)] text-[var(--neg)]',
+  danger: 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]',
   glass: 'glass text-[var(--tx)]',
 };
 
@@ -47,7 +47,7 @@ export function PrimaryButton({
       style={{ x, y }}
       whileTap={disabled ? undefined : { scale: 0.96 }}
       transition={SPRING}
-      className={`flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] transition-[background,color,box-shadow] duration-300 ease-apple disabled:cursor-default ${disabled ? 'bg-white/[.06] text-[var(--dis)] shadow-none' : TONES[tone]} ${className}`}
+      className={`flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] transition-[background,color,box-shadow] duration-300 ease-apple disabled:cursor-default ${disabled ? 'bg-white/[.06] text-[var(--tx2)] shadow-none' : TONES[tone]} ${className}`}
       {...rest}
     >
       {children}

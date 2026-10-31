@@ -15,7 +15,9 @@
     "podium-silver-dark": "#8793a0",
     "podium-bronze-light": "#e3a57e",
     "podium-bronze-dark": "#8f5a38",
-    "share-ink": "#1a1a1a"
+    "share-ink": "#1a1a1a",
+    "text-placeholder": "#8a9a92",
+    "negative-text": "#ff8a96"
   },
   "backgroundImage": {
     "gold-gradient": "linear-gradient(135deg, #f7e7a6, #d4a23a 55%, #a8761e)",
@@ -24,6 +26,6 @@
     "bronze-gradient-v": "linear-gradient(#e3a57e, #8f5a38)",
     "card-back": "repeating-linear-gradient(45deg, #8e2b20, #8e2b20 6px, #b5392b 6px, #b5392b 12px)",
     "card-deal": "repeating-linear-gradient(45deg, #c0392b, #c0392b 3px, #e2b653 3px, #e2b653 4px)",
-    "accent-gradient": "linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 58%, black))"
+    "accent-gradient": "linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 72%, black))"
   }
 }
