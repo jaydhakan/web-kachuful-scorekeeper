@@ -39,7 +39,7 @@ describe('setup → bid → play → results → summary', () => {
     await screen.findByText('Bids 2 of 3', undefined, { timeout: 2000 });
     await u.click(await btn('Bid 1'));
     await screen.findByText(/Dealer — bids last/, undefined, { timeout: 2000 });
-    expect(screen.getByText(/Can’t bid 1/)).toBeInTheDocument();
+    expect(screen.getByText(/Can’t bid 1 — total/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Locked 1' })).toBeInTheDocument();
 
     await u.click(screen.getByRole('button', { name: 'Bid 0' }));

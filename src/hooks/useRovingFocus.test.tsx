@@ -4,7 +4,17 @@ import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
 import { useRovingFocus } from './useRovingFocus';
 
-function Group({ count = 5, selected = -1, columns = 1, grid = false }) {
+function Group({
+  count = 5,
+  selected = -1,
+  columns = 1,
+  grid = false,
+}: {
+  count?: number;
+  selected?: number;
+  columns?: number | 'auto';
+  grid?: boolean;
+}) {
   const [sel, setSel] = useState(selected);
   const roving = useRovingFocus({
     selected: sel,
@@ -115,5 +125,29 @@ describe('useRovingFocus', () => {
     expect(opt(1)).toHaveFocus();
     await user.keyboard('{ArrowUp}');
     expect(opt(7)).toHaveFocus();
+  });
+
+  it('reads the row length from the layout when columns is auto', async () => {
+    // jsdom has no layout: put three options on each row.
+    const desc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetTop')!;
+    Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
+      configurable: true,
+      get() {
+        const i = Number((this as HTMLElement).textContent?.slice(1));
+        return Number.isNaN(i) ? 0 : Math.floor(i / 3) * 50;
+      },
+    });
+    try {
+      const user = setup();
+      render(<Group count={8} columns="auto" grid />);
+      await user.tab();
+      await user.tab();
+      await user.keyboard('{ArrowDown}');
+      expect(opt(3)).toHaveFocus();
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      expect(opt(0)).toHaveFocus();
+    } finally {
+      Object.defineProperty(HTMLElement.prototype, 'offsetTop', desc);
+    }
   });
 });

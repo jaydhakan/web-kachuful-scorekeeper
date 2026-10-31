@@ -156,6 +156,7 @@ export const t = {
     nth: (i: number, n: number) => `Bids ${i} of ${n}`,
     cantBid: (forb: number, cards: number) =>
       `Can’t bid ${forb} — total would equal ${cards} cards`,
+    cantBidShort: (forb: number, cards: number) => `Can’t bid ${forb}: total would be ${cards}`,
     startPlaying: 'Start playing',
     bidsIn: (cnt: number, n: number) => `${cnt} of ${n} bids in`,
     bid: (v: number) => `Bid ${v}`,
