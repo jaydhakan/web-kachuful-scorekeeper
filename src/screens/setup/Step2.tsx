@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
-import { nameKey } from '@/domain';
+import { nameKey, suggestName } from '@/domain';
+import { useApp } from '@/state/store';
+import { knownSame, rememberSame, SameCard, serverMatch } from './SamePerson';
 import { people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
 import { findPerson, lookFor } from './seatLook';
@@ -14,6 +16,7 @@ import { t } from '@/strings';
 
 export function Step2() {
   const { su, actions } = useSetup();
+  const { state } = useApp();
   const [name, setName] = useState(''),
     [err, setErr] = useState(''),
     [drop, setDrop] = useState<number | null>(null);
@@ -40,9 +43,21 @@ export function Step2() {
     const t = setTimeout(() => inp.current?.focus(), 350);
     return () => clearTimeout(t);
   }, [tgt]);
+  const [same, setSame] = useState<Person | null>(null);
+  const signedIn = !!state.session;
   const add = (raw: string, who?: Person) => {
     const nm = (raw || '').trim().replace(/\s+/g, ' ');
     if (!nm || tgt < 0) return;
+    // Signed in, a typed name the server already has asks whether it's the same person first.
+    if (signedIn && !who) {
+      const m = serverMatch(nm);
+      if (m) {
+        setSame(m);
+        return;
+      }
+      who = knownSame(nm);
+    }
+    setSame(null);
     const ex = seats.find((s) => s && s.name.toLowerCase() === nm.toLowerCase());
     if (ex) {
       setErr(t.setup.alreadySeated(ex.name));
@@ -123,6 +138,22 @@ export function Step2() {
                 {t.setup.add}
               </PrimaryButton>
             </div>
+          )}
+          {same && tgt >= 0 && (
+            <SameCard
+              className="mt-2 land:order-3"
+              match={same}
+              suggestion={suggestName(same.displayName, new Set(known.map((p) => p.nameKey)))}
+              onYes={() => {
+                rememberSame(same.displayName, same.id);
+                add(same.displayName, same);
+              }}
+              onNo={() => {
+                const alt = suggestName(same.displayName, new Set(known.map((p) => p.nameKey)));
+                setSame(null);
+                add(alt, undefined);
+              }}
+            />
           )}
           <div
             className="min-h-[22px] pt-2 text-14 font-medium leading-[1.3] text-[var(--warn)] [text-wrap:balance] @h-[45rem]:min-h-[18px] @h-[45rem]:pt-0 land:order-3"

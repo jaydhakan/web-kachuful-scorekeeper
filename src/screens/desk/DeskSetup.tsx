@@ -7,6 +7,7 @@ import {
   EMOJIS,
   maxFor,
   nameKey,
+  suggestName,
   playerCounts,
   type Decks,
   type LengthMode,
@@ -14,6 +15,7 @@ import {
 import { people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
 import { lookFor } from '@/screens/setup/seatLook';
+import { rememberSame, SameCard, serverMatch } from '@/screens/setup/SamePerson';
 import { useApp } from '@/state/store';
 import type { Seat } from '@/state/types';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
@@ -83,7 +85,13 @@ export function DeskSetup() {
   const names = seats.map((s) => (s ? nameKey(s.name) : ''));
   const known = useArchive(() => people());
   const dupe = names.find((x, i) => x && names.indexOf(x) !== i);
-  const ready = !!n && filled === n && !dupe;
+  const signedIn = !!state.session;
+  // Signed in, a typed name the server already has waits for a yes or no before dealing.
+  const ask = signedIn
+    ? seats.findIndex((x) => x && !x.playerId && x.name.trim() && serverMatch(x.name))
+    : -1;
+  const askMatch = ask >= 0 ? serverMatch(seats[ask]!.name) : undefined;
+  const ready = !!n && filled === n && !dupe && ask < 0;
   const deal = () => ready && actions.beginGame();
   useDeskKeys({ enter: deal });
   if (!su) return null;
@@ -508,7 +516,26 @@ export function DeskSetup() {
             </div>
           )}
           <div className="mt-auto flex flex-col gap-2">
-            {n > 0 && !ready && (
+            {askMatch && (
+              <SameCard
+                match={askMatch}
+                suggestion={suggestName(askMatch.displayName, new Set(known.map((p) => p.nameKey)))}
+                onYes={() => {
+                  rememberSame(askMatch.displayName, askMatch.id);
+                  actions.setupSeatPatch(ask, {
+                    name: askMatch.displayName,
+                    ...lookFor(askMatch, seats, ask),
+                  });
+                }}
+                onNo={() =>
+                  actions.setupSeatPatch(ask, {
+                    name: suggestName(askMatch.displayName, new Set(known.map((p) => p.nameKey))),
+                  })
+                }
+              />
+            )}
+            {signedIn && <p className="text-13 text-[var(--tx2)]">☁️ {t.hub.sync2.countOnline}</p>}
+            {n > 0 && !ready && !askMatch && (
               <p role="status" className="text-14 font-medium text-[var(--warn)]">
                 {dupe ? t.desk.setup.dupe(tidy(dupe)) : t.desk.setup.missing(n - filled)}
               </p>

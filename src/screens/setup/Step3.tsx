@@ -24,6 +24,7 @@ import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
+import { useApp } from '@/state/store';
 import { t } from '@/strings';
 
 function SpinToken({
@@ -84,6 +85,7 @@ interface DragState {
 
 export function Step3() {
   const { su, actions } = useSetup();
+  const signedIn = !!useApp().state.session;
   const n = su.n ?? 0,
     seats = su.seats as Seat[],
     m = maxFor(n, su.decks),
@@ -158,9 +160,14 @@ export function Step3() {
       title={t.setup.step3Title}
       fit
       bar={
-        <PrimaryButton className="w-full" onClick={actions.beginGame}>
-          {t.setup.deal}
-        </PrimaryButton>
+        <div className="flex w-full flex-col gap-1.5">
+          {signedIn && (
+            <p className="text-center text-13 text-[var(--tx2)]">☁️ {t.hub.sync2.countOnline}</p>
+          )}
+          <PrimaryButton className="w-full" onClick={actions.beginGame}>
+            {t.setup.deal}
+          </PrimaryButton>
+        </div>
       }
       aside={
         <div className="flex flex-col gap-3 @h-[45rem]:gap-1 pane:pt-1">
