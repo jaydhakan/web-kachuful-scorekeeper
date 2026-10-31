@@ -87,3 +87,14 @@ describe('locked modal', () => {
     expect(onCancel).toHaveBeenCalled();
   });
 });
+
+describe('initial focus', () => {
+  it('lands on the first control inside the sheet, not on its scroll region or close button', () => {
+    render(
+      <Sheet title="Rename" onClose={() => undefined}>
+        <input aria-label="Name" />
+      </Sheet>,
+    );
+    expect(screen.getByLabelText('Name')).toHaveFocus();
+  });
+});

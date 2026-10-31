@@ -5,7 +5,6 @@ Both apps seeded with the same demo fixture, clock fixed to 2026-01-01T12:00Z, `
 | Screen | Diff % | Note |
 | --- | ---: | --- |
 | sheet-share | 12.619 | Share gap: the press-and-hold caption became Share / Copy buttons |
-| sheet-rename | 1.220 | ⚠ unexplained |
 | winner | 0.105 |  |
 | bidding-all-in | 0.074 |  |
 | bidding-dealer-locked | 0.065 |  |
@@ -14,7 +13,7 @@ Both apps seeded with the same demo fixture, clock fixed to 2026-01-01T12:00Z, `
 | results-empty | 0.046 |  |
 | sheet-rules | 0.037 |  |
 | bidding | 0.022 |  |
-| home | 0.019 |  |
+| home | 0.006 |  |
 | setup-1 | 0.006 |  |
 | setup-1-n5 | 0.006 |  |
 | sheet-edit | 0.006 |  |
@@ -26,10 +25,11 @@ Both apps seeded with the same demo fixture, clock fixed to 2026-01-01T12:00Z, `
 | setup-2 | 0.000 |  |
 | sheet-seat | 0.000 |  |
 | sheet-avatar | 0.000 |  |
+| sheet-rename | 0.000 |  |
 | sheet-board | 0.000 |  |
 | results-filled | 0.000 |  |
 | results-exact | 0.000 |  |
 | summary | 0.000 |  |
 | summary-end-modal | 0.000 |  |
 
-Screens: 27. Above 1%: 2 (1 unexplained). Worst: sheet-share (12.619%).
+Screens: 27. Above 1%: 1 (0 unexplained). Worst: sheet-share (12.619%).

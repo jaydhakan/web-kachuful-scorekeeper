@@ -8,7 +8,7 @@ let opener: HTMLElement | null = null;
 
 const focusables = (root: HTMLElement) =>
   [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-    (el) => el.offsetParent !== null || el === document.activeElement,
+    (el) => !el.closest('[hidden],[inert]') && getComputedStyle(el).visibility !== 'hidden',
   );
 
 /**
@@ -28,7 +28,7 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
 
     const first =
       root.querySelector<HTMLElement>('[data-autofocus]') ??
-      focusables(root).find((el) => !el.matches('[data-skip-initial-focus]'));
+      focusables(root).find((el) => !el.matches('[data-skip-initial-focus],[role="region"]'));
     (first ?? root).focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {
