@@ -1,10 +1,12 @@
 import type { Direction } from '@/domain';
 
-export type TableSize = 'full' | 'mini';
+export type TableSize = 'full' | 'mini' | 'wide';
 
 export const TD = {
   full: { W: 340, H: 300, cy: 150, R: 22, rx: 134, ry: 104 },
   mini: { W: 320, H: 170, cy: 82, R: 16, rx: 128, ry: 56 },
+  /** The large-screen table: a wider oval with bigger seats (design board Table, 560×380). */
+  wide: { W: 560, H: 380, cy: 190, R: 34, rx: 224, ry: 130 },
 } as const;
 
 /** Up to this many seats a table names each player; beyond it there is no room under an avatar, so only avatars show. */
@@ -75,7 +77,7 @@ export const minScale = (players: number) => (players >= 7 ? 0.8 : 0.72);
 export const PREVIEW_SCALE = 0.45;
 
 /** The wide "deals" pill needs room above the avatar; seven seats are too close for it, so they use the small chip. */
-export const pillChip = (size: TableSize, players: number) => size === 'full' && players < 7;
+export const pillChip = (size: TableSize, players: number) => size !== 'mini' && players < 7;
 
 /** The small round chip on an avatar's upper-left corner, the same on the flat table and on crowded ones. */
 export const SMALL_CHIP = {

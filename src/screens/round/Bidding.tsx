@@ -1,14 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useId, useState, type CSSProperties } from 'react';
-import {
-  bidOrder,
-  curRound,
-  forbiddenFor,
-  roundAt,
-  sumBids,
-  type Game,
-  type Round,
-} from '@/domain';
+import { roundAt, type Game, type Round } from '@/domain';
 import { useApp } from '@/state/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
@@ -21,6 +13,7 @@ import { Table } from '@/components/ui/Table';
 import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
+import { bidView } from './roundView';
 import { t } from '@/strings';
 
 export const dealLine = (g: Game, r: Round) => {
@@ -40,23 +33,9 @@ const pillColumns = (pills: number) => Math.min(6, pills <= 6 ? pills : Math.cei
 
 export function Bidding() {
   const { state, actions } = useApp();
-  const g = state.game,
-    r = curRound(g),
-    n = g.players.length,
-    od = bidOrder(g, r);
-  const bi = Math.min(g.ui.bidIdx, n - 1),
-    pI = od[bi],
-    p = g.players[pI],
-    isD = pI === r.dealerIndex;
-  const allBid = g.players.every((q) => r.bids[q.id] !== undefined),
-    forb = isD ? forbiddenFor(g, r) : null,
-    hookWarn = g.ui.hookWarn;
-  const sum = sumBids(r),
-    cnt = Object.keys(r.bids).length,
-    diff = sum - r.cards;
+  const g = state.game;
+  const { r, n, pI, p, isD, allBid, forb, hookWarn, sum, cnt, diff, dealer, cap } = bidView(g);
   const [shake, setShake] = useState<number | null>(null);
-  const dealer = g.players[r.dealerIndex];
-  const cap = isD ? t.bidding.dealerLast : bi === 0 ? t.bidding.first : t.bidding.nth(bi + 1, n);
   // Two lines of text do not fit a short, narrow pane, so it swaps to a one-line wording there.
   const reason =
     hookWarn && isD ? (

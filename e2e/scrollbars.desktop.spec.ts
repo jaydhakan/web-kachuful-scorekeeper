@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+// A narrow window with a mouse and keyboard gets the phone UI; the large-screen UI has large-screen.desktop.spec.
+test.use({ viewport: { width: 740, height: 900 } });
+
 test('mouse and trackpad devices get a thin scrollbar on every scroll region', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'How to play' }).click();

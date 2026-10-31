@@ -3,7 +3,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
-import tokens from './src/theme/tokens.json';
+import tokens from './src/theme/tokens.json' with { type: 'json' };
 
 const felt = tokens.color.tokens.find((t) => t.name === 'felt-950')!.value.midnight;
 

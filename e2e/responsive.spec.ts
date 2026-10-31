@@ -5,8 +5,11 @@ import { violations } from './audit-rules';
 import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
 import { btn } from './helpers';
 
-/** Every device class from docs/RESPONSIVE-PLAN.md §3. */
-const VIEWPORTS = [
+/**
+ * Every device class from docs/RESPONSIVE-PLAN.md §3 that still gets the phone UI. From 768×501 up the app shows the
+ * large-screen UI (MQ.big), which large-screen.desktop.spec covers.
+ */
+const ALL = [
   [320, 568],
   [360, 640],
   [375, 667],
@@ -25,6 +28,7 @@ const VIEWPORTS = [
   [1920, 1080],
   [2560, 1440],
 ] as const;
+const VIEWPORTS = ALL.filter(([w, h]) => w < 768 || h <= 500);
 
 const LABEL = process.env.RESPONSIVE_LABEL ?? 'current';
 const OUT = `reports/responsive/raw/${LABEL}`;
@@ -37,8 +41,7 @@ const FULL = !!process.env.RESPONSIVE || !!process.env.RESPONSIVE_FULL;
 const SUBSET = [
   [360, 640],
   [844, 390],
-  [1024, 768],
-  [1920, 1080],
+  [740, 360],
 ] as const;
 const MATRIX = FULL ? VIEWPORTS : SUBSET;
 const PLAYERS = FULL ? [3, 5, 7, 10] : [7, 10];

@@ -18,6 +18,18 @@ export const MQ = {
   roomy: '(min-width: 768px) and (min-height: 501px)',
   /** Mouse or trackpad. */
   fine: '(pointer: fine)',
+  /** The large-screen UI (tablet and desktop). A phone on its side stays on the phone UI. */
+  big: '(min-width: 768px) and (min-height: 501px)',
+  /** Large screen, tablet held upright: a top bar instead of the rail. */
+  tp: '(min-width: 768px) and (max-width: 1023.98px) and (min-height: 501px)',
+  /** Large screen with a side rail (tablet on its side and up). */
+  rail: '(min-width: 1024px) and (min-height: 501px)',
+  /** Tablet on its side: rail and two columns. */
+  tl: '(min-width: 1024px) and (max-width: 1279.98px) and (min-height: 501px)',
+  /** Desktop: rail and three panes. */
+  dt: '(min-width: 1280px) and (min-height: 501px)',
+  /** Any mouse or trackpad attached, so keyboard hints are worth showing. */
+  kbd: '(any-pointer: fine)',
 } as const;
 
 /** Height steps for `@h-*` container variants, in rem so large text compacts a layout sooner. */

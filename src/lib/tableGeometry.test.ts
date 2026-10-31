@@ -14,7 +14,7 @@ describe('table geometry', () => {
     expect(angOf(4, 1, 'ccw')).toBe(0);
   });
 
-  it.each(['full', 'mini'] as const)(
+  it.each(['full', 'mini', 'wide'] as const)(
     '%s table keeps every seat inside its box for 3–10 players',
     (size) => {
       for (let n = 3; n <= 10; n++)
@@ -28,7 +28,7 @@ describe('table geometry', () => {
     },
   );
 
-  it.each(['full', 'mini'] as const)('%s table: seven avatars never overlap', (size) => {
+  it.each(['full', 'mini', 'wide'] as const)('%s table: seven avatars never overlap', (size) => {
     const pts = Array.from({ length: 7 }, (_, k) => seatPos(size, 7, k, 'cw'));
     for (let i = 0; i < 7; i++)
       for (let j = i + 1; j < 7; j++)
@@ -37,7 +37,7 @@ describe('table geometry', () => {
         );
   });
 
-  it.each(['full', 'mini'] as const)('%s table: ten avatars never overlap', (size) => {
+  it.each(['full', 'mini', 'wide'] as const)('%s table: ten avatars never overlap', (size) => {
     const pts = Array.from({ length: 10 }, (_, k) => seatPos(size, 10, k, 'cw'));
     for (let i = 0; i < 10; i++)
       for (let j = i + 1; j < 10; j++)
@@ -46,7 +46,7 @@ describe('table geometry', () => {
         );
   });
 
-  it.each(['full', 'mini'] as const)(
+  it.each(['full', 'mini', 'wide'] as const)(
     '%s table: eight or more seats are spaced evenly along the edge',
     (size) => {
       const pts = Array.from({ length: 9 }, (_, k) => seatPos(size, 9, k, 'cw'));
@@ -80,7 +80,7 @@ describe('table geometry', () => {
     expect(chipSide({ x: 80, y: 50 }, 'cw', 10)).toBe(true);
   });
 
-  it.each(['full', 'mini'] as const)(
+  it.each(['full', 'mini', 'wide'] as const)(
     '%s table: percent positions map back to design pixels',
     (size) => {
       for (let k = 0; k < 7; k++) {

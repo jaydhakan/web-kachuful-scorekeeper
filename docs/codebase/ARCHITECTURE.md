@@ -62,6 +62,15 @@ The app fills the viewport and rearranges itself by page layout, not by device. 
 
 **Audit.** `e2e/responsive.spec.ts` plays a game through every screen and sheet and `e2e/audit-rules.ts` decides what is a violation (a missing or covered primary action, anything past the screen edge, clipped text, overlaps, targets under 44px, a page that scrolls sideways, and a screen that should fit but scrolls on a portrait phone of 360x640 and up). It runs a four-viewport subset by default, the whole matrix with `RESPONSIVE_FULL=1`, and writes reports without failing with `RESPONSIVE=1` (`tools/responsive/report.mjs`).
 
+## Large-screen UI
+
+From 768px wide and 501px tall (`MQ.big`) the app renders `screens/desk/DeskShell` instead of the phone shell; a phone on its side keeps the phone UI. It is its own lazy chunk, so phones never download it. Inside it, three Tailwind screens switch the layout of one DOM tree: `tp` (768–1023, top bar), `tl` (1024–1279, rail and two columns) and `dt` (1280 and up, rail and three panes). The phone screens' `md`/`wide` styles are no longer reached at these sizes.
+
+- **Same state, same rules.** Desk screens use the store's actions and the domain. What the bidding and results screens derive lives in `screens/round/roundView.ts`, and editing a finished round in `hooks/useRoundEdit.ts`; phone and desk both read them.
+- **One workspace.** Bidding, Play and Results are `Workspace`: the table (`size="wide"`, the 560×380 geometry in `TD.wide`) and the `ScorePanel` stay mounted; only the action pane changes, and focus moves into the new pane (the old one is inert while it animates out). A bid is picked, then locked in (Enter, the button, or the picked key again); the reducer is unchanged.
+- **Scoreboard** is the `board` / `edit` sheet state drawn as a screen over the game, which stays mounted under it. **Rules** and **Upcoming** are right-hand drawers (`Drawer`, `useDialog`); the other sheets keep their centred-modal presentation.
+- **Shortcuts.** `hooks/useShortcuts.ts` (0–9, Enter, Z or ⌘/Ctrl+Z, E, R, N, ?). Keys typed into a field, held keys and every key while a dialog is open are ignored, and Enter on a focused button is left to the button unless that option is already picked. `screens/desk/useDeskKeys.ts` also turns a screen's keys off while the Scoreboard, the deal animation or the repair prompt covers it, or while it animates out. Key hints show only with a fine pointer attached (`MQ.kbd`).
+
 ## Motion
 
 `SPRING`, `SPRING_POP`, `SPRING_SOFT`, `SPRING_SHEET` and `EASE = [0.32, 0.72, 0, 1]` live in `components/ui/motion.ts`. Animate transform and opacity. Known exceptions inherited from the prototype are listed in the Phase 2 proposal.

@@ -7,6 +7,9 @@ const WIDTHS = process.env.WIDTHS
   ? process.env.WIDTHS.split(',').map(Number)
   : [245, 270, 300, 340, 420, 510];
 
+/** The large-screen table (560 wide) never goes below 0.62 of that, and is capped at 1.5×. */
+const WIDE_WIDTHS = [340, 420, 510, 600, 720, 840];
+
 /** Stands in for a screen that fits its table to a slot: the same width and --s the CSS would give. */
 const scaleTable = (page: Page, uid: string, width: number) =>
   page.locator(`[data-table="${uid}"]`).evaluate((el, w) => {
@@ -63,7 +66,8 @@ const collisions = (page: Page, uid: string) =>
 
 for (const n of [3, 5, 7, 8, 9, 10]) {
   test(`nothing on a table overlaps at any size (${n} players)`, async ({ page }) => {
-    await page.setViewportSize({ width: 800, height: 900 });
+    // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
+    await page.setViewportSize({ width: 740, height: 900 });
     await page.goto('/');
     await startGame(page, LONG_NAMES_10.slice(0, n));
     await bidEveryone(page);
@@ -86,7 +90,8 @@ for (const n of [3, 5, 7, 8, 9, 10]) {
 
 for (const n of [3, 5, 7, 8, 9, 10]) {
   test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
-    await page.setViewportSize({ width: 800, height: 900 });
+    // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
+    await page.setViewportSize({ width: 740, height: 900 });
     await page.goto('/');
     await toSetup3(page, LONG_NAMES_10.slice(0, n));
     await btn(page, 'Deal!').click();
@@ -103,18 +108,18 @@ for (const n of [3, 5, 7, 8, 9, 10]) {
 
 for (const n of [3, 5, 7, 8, 9, 10]) {
   test(`the made and missed marks stay clear of the names (${n} players)`, async ({ page }) => {
-    // The Results table with its marks only shows beside the list on wide screens.
+    // The large-screen workspace keeps its table while results are entered, with the marks on it.
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await openSeeded(page, seedGame(n, 'results'), 'round');
     const made = page.getByRole('button', { name: /Made/ });
     for (let k = 2; k < n; k++) await made.nth(k).click();
-    await page.locator('[data-table="results"]').waitFor();
+    await page.locator('[data-table="ws"]').waitFor();
     const found: string[] = [];
-    for (const w of WIDTHS) {
-      await scaleTable(page, 'results', w);
+    for (const w of WIDE_WIDTHS) {
+      await scaleTable(page, 'ws', w);
       await page.waitForTimeout(150);
-      found.push(...(await collisions(page, 'results')).map((c) => `results ${w}px: ${c}`));
+      found.push(...(await collisions(page, 'ws')).map((c) => `results ${w}px: ${c}`));
     }
     expect(found).toEqual([]);
   });
@@ -122,7 +127,7 @@ for (const n of [3, 5, 7, 8, 9, 10]) {
 
 for (const [w, h, what] of [
   [390, 1100, 'flat'],
-  [1280, 800, 'full'],
+  [1280, 800, 'wide'],
 ] as const) {
   for (const n of [3, 5, 7, 8, 9, 10]) {
     test(`the Next-up table has no overlaps at any size (${n} players, ${what})`, async ({
@@ -131,14 +136,40 @@ for (const [w, h, what] of [
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
       await openSeeded(page, seedGame(n, 'summary'), 'round');
-      await page.locator('[data-table="sum"]').waitFor({ state: 'visible' });
+      // The phone's Next-up card and the large-screen one draw different tables.
+      const uid = what === 'wide' ? 'dsum' : 'sum';
+      await page.locator(`[data-table="${uid}"]`).waitFor({ state: 'visible' });
       const found: string[] = [];
-      for (const width of WIDTHS) {
-        await scaleTable(page, 'sum', width);
+      for (const width of what === 'wide' ? WIDE_WIDTHS : WIDTHS) {
+        await scaleTable(page, uid, width);
         await page.waitForTimeout(150);
-        found.push(...(await collisions(page, 'sum')).map((c) => `summary ${width}px: ${c}`));
+        found.push(...(await collisions(page, uid)).map((c) => `summary ${width}px: ${c}`));
       }
       expect(found).toEqual([]);
     });
   }
+}
+
+for (const n of [3, 5, 7, 8, 9, 10]) {
+  test(`the large-screen workspace table has no overlaps at any size (${n} players)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await openSeeded(page, seedGame(n, 'bidding'), 'round');
+    await page.locator('[data-table="ws"]').waitFor();
+    const found: string[] = [];
+    for (const step of ['bidding', 'playing'] as const) {
+      if (step === 'playing') {
+        await openSeeded(page, seedGame(n, 'playing'), 'round');
+        await page.locator('[data-table="ws"]').waitFor();
+      }
+      for (const w of WIDE_WIDTHS) {
+        await scaleTable(page, 'ws', w);
+        await page.waitForTimeout(150);
+        found.push(...(await collisions(page, 'ws')).map((c) => `${step} ${w}px: ${c}`));
+      }
+    }
+    expect(found).toEqual([]);
+  });
 }

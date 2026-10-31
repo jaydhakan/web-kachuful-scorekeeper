@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { bidOrder, resultsProblem, type Outcome } from '@/domain';
-import { useApp } from '@/state/store';
+import type { Outcome } from '@/domain';
+import { useRoundEdit } from '@/hooks/useRoundEdit';
 import { TR } from '@/theme/trumps';
 import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
@@ -10,21 +9,7 @@ import { Seg } from '@/components/ui/Seg';
 import { t } from '@/strings';
 
 export function EditBody({ i }: { i: number }) {
-  const { state, actions } = useApp();
-  const g = state.game,
-    r = g.rounds[i],
-    od = bidOrder(g, r);
-  const [bids, setBids] = useState({ ...r.bids }),
-    [res, setRes] = useState({ ...r.results });
-  const ids = g.players.map((p) => p.id);
-  const allMade = ids.every((id) => res[id] === 'made');
-  // The same rules as when the round was first entered, on the edited bids and results.
-  const problem =
-    ids.reduce((a, id) => a + (bids[id] ?? 0), 0) === r.cards
-      ? t.sheets.editBidsEqual(r.cards)
-      : allMade
-        ? t.results.allMadeEdit
-        : resultsProblem(r.cards, ids, bids, res);
+  const { g, r, od, bids, res, problem, step, mark, save } = useRoundEdit(i);
   return (
     <>
       <div className="mb-2 text-13 text-[var(--tx2)]">
@@ -44,7 +29,7 @@ export function EditBody({ i }: { i: number }) {
                   type="button"
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.lowerBid(p.name)}
-                  onClick={() => setBids((b) => ({ ...b, [p.id]: Math.max(0, b[p.id] - 1) }))}
+                  onClick={() => step(p.id, -1)}
                   className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
                   −
@@ -56,7 +41,7 @@ export function EditBody({ i }: { i: number }) {
                   type="button"
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.raiseBid(p.name)}
-                  onClick={() => setBids((b) => ({ ...b, [p.id]: Math.min(r.cards, b[p.id] + 1) }))}
+                  onClick={() => step(p.id, 1)}
                   className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
                   +
@@ -68,7 +53,7 @@ export function EditBody({ i }: { i: number }) {
               label={t.results.resultFor(p.name)}
               size="sm"
               value={res[p.id]}
-              onChange={(v) => setRes((s) => ({ ...s, [p.id]: v }))}
+              onChange={(v) => mark(p.id, v)}
               options={[
                 { v: 'made', label: t.table.made, tone: 'pos' },
                 { v: 'missed', label: t.table.missed, tone: 'neg' },
@@ -82,11 +67,7 @@ export function EditBody({ i }: { i: number }) {
           {problem}
         </div>
       )}
-      <PrimaryButton
-        className="mt-2 w-full"
-        disabled={!!problem}
-        onClick={() => actions.editRound(i, bids, res)}
-      >
+      <PrimaryButton className="mt-2 w-full" disabled={!!problem} onClick={save}>
         {t.common.save}
       </PrimaryButton>
     </>

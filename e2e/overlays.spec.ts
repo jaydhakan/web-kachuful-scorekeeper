@@ -2,15 +2,13 @@ import { expect, test } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
 import { btn } from './helpers';
 
+// The phone UI's layouts; the large-screen UI places these in large-screen.desktop.spec.
 const VIEWPORTS = [
   [390, 844],
   [320, 568],
   [844, 390],
   [568, 320],
-  [768, 1024],
-  [1024, 768],
-  [1280, 800],
-  [1920, 1080],
+  [740, 900],
 ] as const;
 
 for (const [w, h] of VIEWPORTS) {
