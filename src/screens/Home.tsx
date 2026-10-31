@@ -159,7 +159,7 @@ export function Home() {
                 )}
               </Glass>
             </motion.div>
-            <TodayStrip className="md:max-w-[26rem]" />
+            <TodayStrip className="md:max-w-[26rem] @h-short:hidden land:hidden" />
             {/* One row of small tiles: where to go, and the rules, without pushing New Game off a small phone. */}
             <motion.nav
               {...stagger(2, 0.28)}
