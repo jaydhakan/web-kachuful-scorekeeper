@@ -8,7 +8,7 @@ Kachuful is a client-only PWA: Vite + React 18 + strict TypeScript + Tailwind 3 
 src/domain      pure TypeScript: types, card sequence, rotation, bidding rule, scoring, standings, stats, demo game
 src/state       reducer + actions (types.ts), persistence + migrations, undo ring, provider (store.tsx)
 src/hooks       useWakeLock, useHaptics, usePersistence, useDialog, useShare
-src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and app shell (Phone, UpdatePrompt)
+src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and app shell (AppShell, UpdatePrompt)
 src/screens     one file per screen (setup/ and round/ hold the multi-step flows); Winner is lazy
 src/sheets      one file per sheet body; SheetHost chooses the body and captures it at mount
 src/strings     every user-visible string (messages.ts is plain text used by domain/reducer)
@@ -46,7 +46,7 @@ Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.
 
 ## Sheets and dialogs
 
-`useDialog` gives sheets and modals a focus trap, Escape, focus return and an inert page behind them (`Phone` sets `inert` on the content layer). Native `<dialog>` was evaluated and rejected: its top layer escapes the phone-width column, `::backdrop` can't join the spring enter/exit, and drag-to-dismiss would need rebuilding.
+`useDialog` gives sheets and modals a focus trap, Escape, focus return and an inert page behind them (`AppShell` sets `inert` on the content layer). Native `<dialog>` was evaluated and rejected: its top layer escapes the phone-width column, `::backdrop` can't join the spring enter/exit, and drag-to-dismiss would need rebuilding.
 
 ## Platform notes
 
