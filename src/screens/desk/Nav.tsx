@@ -76,7 +76,7 @@ function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
       aria-current={on ? 'page' : undefined}
       whileTap={disabled ? undefined : { scale: 0.92 }}
       transition={SPRING}
-      className={`group relative isolate flex min-h-[3.75rem] w-[68px] flex-col items-center justify-center gap-1 rounded-2xl pb-2 pt-2.5 text-13 font-bold disabled:cursor-default disabled:opacity-35 ${on ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}
+      className={`group relative isolate flex min-h-[3.75rem] w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl pb-2 pt-2.5 text-13 [@media(max-height:900px)]:min-h-[3.125rem] [@media(max-height:900px)]:gap-0.5 [@media(max-height:900px)]:py-1 font-bold disabled:cursor-default disabled:opacity-35 ${on ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}
     >
       {on && (
         <motion.span
@@ -109,7 +109,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         onClick={n.home}
         aria-label={t.desk.nav.home}
         whileTap={{ scale: 0.92 }}
-        className="disp mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-gold-gradient text-26 font-extrabold text-ink-gold shadow-[0_0_28px_rgba(247,231,166,.35)]"
+        className="disp mb-5 grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-gradient [@media(max-height:900px)]:mb-2 text-26 font-extrabold text-ink-gold shadow-[0_0_28px_rgba(247,231,166,.35)]"
       >
         <span aria-hidden>{t.desk.logo}</span>
       </motion.button>

@@ -12,7 +12,10 @@ export interface Dest {
 
 /** The places Home, the menu and the large-screen rail lead to, in one order. */
 export const DESTS: Dest[] = [
+  { screen: 'leaderboard', label: t.hub.nav.boards, emoji: '🏆', icon: Icon.boards },
   { screen: 'history', label: t.hub.nav.history, emoji: '🗂️', icon: Icon.history },
+  { screen: 'players', label: t.hub.nav.players, emoji: '👥', icon: Icon.players },
+  { screen: 'awards', label: t.hub.nav.awards, emoji: '🎖️', icon: Icon.awards },
 ];
 
 export const destRoute = (d: Dest): Route => ({ screen: d.screen });
