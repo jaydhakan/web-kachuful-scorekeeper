@@ -1,7 +1,9 @@
 import { ApiError, call, errorText, get, onUnauthenticated, post } from './api';
 
 const reply = (status: number, body?: unknown, headers: Record<string, string> = {}) =>
-  vi.fn(async () => new Response(body === undefined ? null : JSON.stringify(body), { status, headers }));
+  vi.fn(
+    async () => new Response(body === undefined ? null : JSON.stringify(body), { status, headers }),
+  );
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -21,7 +23,10 @@ describe('api client', () => {
   });
 
   it('maps an error body to its code and status', async () => {
-    vi.stubGlobal('fetch', reply(409, { code: 'name_taken', message: 'taken', existing: { id: 'p' } }));
+    vi.stubGlobal(
+      'fetch',
+      reply(409, { code: 'name_taken', message: 'taken', existing: { id: 'p' } }),
+    );
     const e = await post('/players', {}).catch((x: unknown) => x);
     expect(e).toBeInstanceOf(ApiError);
     expect(e).toMatchObject({ status: 409, code: 'name_taken', body: { existing: { id: 'p' } } });
@@ -29,7 +34,10 @@ describe('api client', () => {
   });
 
   it('a network failure is "offline", a 5xx without a body is "server"', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('Failed to fetch'))));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Promise.reject(new TypeError('Failed to fetch'))),
+    );
     expect(await get('/x').catch((e: ApiError) => [e.code, e.offline])).toEqual(['offline', true]);
     vi.stubGlobal('fetch', reply(502));
     expect(await get('/x').catch((e: ApiError) => e.code)).toBe('server');
