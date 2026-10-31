@@ -85,7 +85,7 @@ export const ep = {
   playerStats: (id: string, from: number, to: number, o?: CallOpts) =>
     call<PlayerStats>('GET', `/players/${id}/stats?from=${from}&to=${to}`, undefined, o),
   playerGames: (id: string, from?: number, to?: number, cursor?: string | null) =>
-    get<Page<GameSummary>>(`/players/${id}/games`, { from, to, cursor }),
+    get<Page<GameSummary>>(`/players/${id}/games`, { from, to, cursor, limit: 200 }),
   calendar: (id: string, year: number, o?: CallOpts) =>
     call<{ days: Record<string, number> }>(
       'GET',

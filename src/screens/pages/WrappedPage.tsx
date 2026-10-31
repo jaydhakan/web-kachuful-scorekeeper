@@ -105,8 +105,8 @@ export function WrappedPage({
   const ids = useMemo(() => [...new Set(f.rounds.map((r) => r.playerId))], [f]);
   const session = useApp().state.session;
   const [who, setWho] = useState(playerId ?? session?.player?.id ?? ids[0] ?? null);
-  const remote = useRemote(session && who ? `wr:${year}:${who}` : null, () =>
-    ep.wrapped(year, who!),
+  const remote = useRemote(session && who ? `wr:${year}:${who}` : null, (o) =>
+    ep.wrapped(year, who!, o),
   );
   const w = useMemo(
     () =>

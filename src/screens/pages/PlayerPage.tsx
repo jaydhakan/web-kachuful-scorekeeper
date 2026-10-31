@@ -69,8 +69,8 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const rStats = useRemote(signedIn ? `ps:${id}:${range.from}:${range.to}` : null, (o) =>
     ep.playerStats(id, range.from, range.to === Infinity ? Date.now() + 864e5 : range.to, o),
   );
-  const rProfile = useRemote(signedIn ? `p:${id}` : null, () => ep.player(id));
-  const rCal = useRemote(signedIn ? `cal:${id}:${year}` : null, () => ep.calendar(id, year));
+  const rProfile = useRemote(signedIn ? `p:${id}` : null, (o) => ep.player(id, o));
+  const rCal = useRemote(signedIn ? `cal:${id}:${year}` : null, (o) => ep.calendar(id, year, o));
   const rGames = useRemote(signedIn ? `pg:${id}` : null, () => ep.playerGames(id));
   const localStats = useMemo(() => profileStats(f, id, range.from, range.to), [f, id, range]);
   const s = rStats.data ?? localStats;

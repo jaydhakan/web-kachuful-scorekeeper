@@ -29,6 +29,7 @@ import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 
 const aw = t.hub.awards;
+const isFinal = (v: { final: boolean }) => v.final;
 
 const shiftDay = (day: string, d: number) => dayOf(parseDay(day) + d * 864e5 + 12 * 3600e3);
 
@@ -95,11 +96,14 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
   const today = dayOf(Date.now());
   // Signed in, the awards are the server's (Kolkata days and months); signed out, this device's.
   const signedIn = !!useApp().state.session;
-  const rDay = useRemote(signedIn ? `daily:${day}` : null, () => ep.daily(day));
-  const rSeason = useRemote(signedIn && tab === 'season' ? `season:${month}` : null, () =>
-    ep.season(month),
+  // Closed days and seasons never change (HANDOFF §5.5): a cached one is never asked for again.
+  const rDay = useRemote(signedIn ? `daily:${day}` : null, (o) => ep.daily(day, o), isFinal);
+  const rSeason = useRemote(
+    signedIn && tab === 'season' ? `season:${month}` : null,
+    (o) => ep.season(month, o),
+    isFinal,
   );
-  const rSeasons = useRemote(signedIn ? 'seasons' : null, () => ep.seasons());
+  const rSeasons = useRemote(signedIn ? 'seasons' : null, (o) => ep.seasons(o));
   const unwrap = <T extends { player: { id: string } }>(xs: T[]) =>
     xs.map(({ player, ...x }) => ({ ...x, playerId: player.id }));
   // The server sends null where the device engine leaves a field out.

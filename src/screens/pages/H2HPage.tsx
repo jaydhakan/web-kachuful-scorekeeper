@@ -34,7 +34,9 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
   const { actions } = useApp();
   const rm = useReducedMotion();
   const signedIn = !!useApp().state.session;
-  const remote = useRemote(signedIn ? `vs:${a}:${b}` : null, () => ep.vs(a, b));
+  const remote = useRemote(signedIn ? `vs:${a}:${b}` : null, (o) =>
+    ep.vs(a, b, undefined, undefined, o),
+  );
   const x = useMemo((): View => {
     const r = remote.data;
     if (r)

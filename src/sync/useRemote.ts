@@ -23,9 +23,14 @@ const isRes = <T>(v: unknown): v is { data: T | null; status: number; etag: stri
 /**
  * Cache first, refresh second: the last answer for `key` renders at once (from the archive's cache), then the
  * server is asked again (with If-None-Match when the loader passes it on). A changed key aborts the old request.
- * `key` null means nothing to load (signed out).
+ * `key` null means nothing to load (signed out). A cached answer that `settled` says can never change (a closed day
+ * or season) isn't asked for again.
  */
-export function useRemote<T>(key: string | null, load: Loader<T>): Remote<T> {
+export function useRemote<T>(
+  key: string | null,
+  load: Loader<T>,
+  settled?: (v: T) => boolean,
+): Remote<T> {
   const cached = key ? archive.get('cache', 'r:' + key) : undefined;
   const [state, setState] = useState<Omit<Remote<T>, 'reload'>>(() => ({
     data: (cached?.value as T) ?? null,
@@ -37,9 +42,21 @@ export function useRemote<T>(key: string | null, load: Loader<T>): Remote<T> {
   const [n, setN] = useState(0);
   const loader = useRef(load);
   loader.current = load;
+  const done = useRef(settled);
+  done.current = settled;
   useEffect(() => {
     if (!key) return;
     const c = archive.get('cache', 'r:' + key);
+    if (c && done.current?.(c.value as T)) {
+      setState({
+        data: c.value as T,
+        fetchedAt: c.fetchedAt,
+        loading: false,
+        error: null,
+        offline: false,
+      });
+      return;
+    }
     setState({
       data: (c?.value as T) ?? null,
       fetchedAt: c?.fetchedAt ?? null,
