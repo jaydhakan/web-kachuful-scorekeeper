@@ -79,7 +79,18 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const earned: Earned[] = rProfile.data?.achievements ?? localEarned;
   const localCal = useMemo(() => calendar(f, id), [f, id]);
   const cal = rCal.data?.days ?? localCal;
-  const rivals = useMemo(() => opponents(f, id).slice(0, 5), [f, id]);
+  // Signed in, who they play with comes from the server's list of their games, not just this device's.
+  const rivals = useMemo(() => {
+    if (!rGames.data) return opponents(f, id).slice(0, 5);
+    const n = new Map<string, number>();
+    for (const g of rGames.data.items)
+      for (const x of g.players)
+        if (x.playerId !== id) n.set(x.playerId, (n.get(x.playerId) ?? 0) + 1);
+    return [...n]
+      .map(([playerId, games]) => ({ playerId, games }))
+      .sort((a, b) => b.games - a.games || (a.playerId < b.playerId ? -1 : 1))
+      .slice(0, 5);
+  }, [f, id, rGames.data]);
   const recent = useMemo(
     () =>
       rGames.data
