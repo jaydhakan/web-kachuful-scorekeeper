@@ -1,4 +1,4 @@
-import { messages } from '@/strings/messages';
+import { messages } from '../strings/messages';
 import { doneRounds } from './rounds';
 import { resultsProblem } from './tricks';
 import type { Game, Round, Totals } from './types';

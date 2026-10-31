@@ -1,4 +1,4 @@
-import { messages } from '@/strings/messages';
+import { messages } from '../strings/messages';
 import type { Outcome } from './types';
 
 type Bids = Record<string, number>;
