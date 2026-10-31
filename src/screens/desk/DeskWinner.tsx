@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
 import { doneRounds, gameStats, standings, type Player } from '@/domain';
 import { fmt, sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -8,6 +9,8 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { DeskPage, GhostButton, Kbd, PageHead, rankTone } from './DeskParts';
 import { ChartLegend, ScoreChart } from './ScoreChart';
+import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
+import { Sheet } from '@/components/ui/Sheet';
 import { t } from '@/strings';
 
 const STEP = {
@@ -71,6 +74,8 @@ export function DeskWinner() {
     S = gameStats(g),
     rm = useReducedMotion();
   useDeskKeys({ r: actions.rematch });
+  const reel = useGameAchievements(g);
+  const [showReel, setShowReel] = useState(false);
   const top = st.filter((x) => x.rank === 1);
   const title =
     top.length > 1
@@ -132,6 +137,11 @@ export function DeskWinner() {
         title={title}
         actions={
           <>
+            {reel.length > 0 && (
+              <GhostButton onClick={() => setShowReel(true)}>
+                🏅 {t.hub.game.achievementsN(reel.length)}
+              </GhostButton>
+            )}
             <GhostButton onClick={() => actions.openSheet({ type: 'share' })}>
               {Icon.share}
               {t.winner.share}
@@ -237,6 +247,16 @@ export function DeskWinner() {
           )}
         </aside>
       </div>
+      {showReel && (
+        <Sheet
+          title={t.hub.game.achievements}
+          roomy="panel"
+          full
+          onClose={() => setShowReel(false)}
+        >
+          <AchievementReel g={g} max={40} />
+        </Sheet>
+      )}
     </DeskPage>
   );
 }

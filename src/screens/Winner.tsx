@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { gameStats, standings, type Player } from '@/domain';
+import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { palette } from '@/theme/palette';
@@ -73,6 +74,7 @@ export default function Winner() {
   const g = state.game,
     st = standings(g),
     S = gameStats(g);
+  const reel = useGameAchievements(g);
   const col = (k: 1 | 2 | 3) => {
     const m = st.filter((x) => x.rank === k),
       h = k === 1 ? 128 : k === 2 ? 96 : 76;
@@ -257,7 +259,17 @@ export default function Winner() {
               />
             </div>
           </div>
-          <div className="mt-4 flex justify-center wide:[grid-area:3/1/4/3]">
+          <div className="wide:[grid-area:3/1/4/3]">
+            {reel.length > 0 && (
+              <>
+                <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
+                  {t.hub.game.achievements}
+                </h2>
+                <AchievementReel g={g} />
+              </>
+            )}
+          </div>
+          <div className="mt-4 flex justify-center wide:[grid-area:4/1/5/3]">
             <button
               type="button"
               onClick={() => actions.go('home', -1)}
