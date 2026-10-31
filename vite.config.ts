@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
@@ -7,9 +7,26 @@ import tokens from './src/theme/tokens.json';
 
 const felt = tokens.color.tokens.find((t) => t.name === 'felt-950')!.value.midnight;
 
+/** Preloads the two Latin font files the first screen needs so text never paints in a fallback face. */
+const preloadFonts = (): Plugin => ({
+  name: 'preload-latin-fonts',
+  transformIndexHtml: {
+    order: 'post',
+    handler: (_html, ctx) =>
+      Object.keys(ctx.bundle ?? {})
+        .filter((f) => /(bricolage-grotesque|dm-sans)-latin-wght-normal.*\.woff2$/.test(f))
+        .map((f) => ({
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `/${f}` },
+          injectTo: 'head' as const,
+        })),
+  },
+});
+
 export default defineConfig({
   plugins: [
     react(),
+    preloadFonts(),
     VitePWA({
       // A waiting update is applied only when the player taps "Reload", never mid-round.
       registerType: 'prompt',
