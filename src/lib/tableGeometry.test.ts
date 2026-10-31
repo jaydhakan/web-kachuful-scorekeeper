@@ -1,4 +1,4 @@
-import { TD, angOf, posAt, seatPos } from './tableGeometry';
+import { TD, angOf, posAt, seatPos, toPct } from './tableGeometry';
 
 describe('table geometry', () => {
   it('seats the first player bottom-centre', () => {
@@ -36,4 +36,18 @@ describe('table geometry', () => {
           TD[size].R * 2,
         );
   });
+
+  it.each(['full', 'mini'] as const)(
+    '%s table: percent positions map back to design pixels',
+    (size) => {
+      for (let k = 0; k < 7; k++) {
+        const p = seatPos(size, 7, k, 'cw'),
+          pct = toPct(size, p);
+        expect((pct.x * TD[size].W) / 100).toBeCloseTo(p.x);
+        expect((pct.y * TD[size].H) / 100).toBeCloseTo(p.y);
+        expect(pct.x).toBeGreaterThan(0);
+        expect(pct.x).toBeLessThan(100);
+      }
+    },
+  );
 });

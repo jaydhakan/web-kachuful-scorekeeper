@@ -37,6 +37,7 @@ export function Play() {
       <div className="-mx-5 mt-2 h-[300px]">
         <Table
           uid="play"
+          fit
           players={g.players}
           dir={g.direction}
           dealer={r.dealerIndex}

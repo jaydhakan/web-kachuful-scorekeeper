@@ -23,3 +23,9 @@ export const angOf = (n: number, k: number, dir: Direction): number =>
   90 + ((dir === 'cw' ? 1 : -1) * (k * 360)) / n;
 export const seatPos = (sz: TableSize, n: number, k: number, dir: Direction) =>
   posAt(sz, angOf(n, k, dir));
+
+/** A design-space point as percentages of the table box, so seats follow the box as it is resized. */
+export const toPct = (sz: TableSize, p: { x: number; y: number }) => ({
+  x: (p.x / TD[sz].W) * 100,
+  y: (p.y / TD[sz].H) * 100,
+});
