@@ -319,6 +319,260 @@ export const t = {
     imageAlt: 'Final scores card',
   },
 
+  desk: {
+    nav: {
+      label: 'Main',
+      home: 'Home',
+      game: 'Game',
+      scores: 'Scores',
+      rules: 'Rules',
+      rounds: 'Rounds',
+      undo: 'Undo',
+      menu: 'Menu',
+      scoreboard: 'Scoreboard',
+      keys: 'Keys',
+    },
+    logo: 'K',
+    endGame: 'End game',
+    roundEyebrow: (n: number) => `Round ${n}`,
+    roundTitle: (cards: number, trump: Trump): ReactNode => (
+      <>
+        {cards} cards · <SuitGlyph trump={trump} /> {TR[trump].name} trump
+      </>
+    ),
+    roundShort: (n: number, cards: number, trump: Trump): ReactNode => (
+      <>
+        R{n} · {cards} cards · <SuitGlyph trump={trump} /> {TR[trump].name}
+      </>
+    ),
+    steps: {
+      label: 'Round steps',
+      bid: 'Bid',
+      play: 'Play',
+      results: 'Results',
+      done: 'done',
+      now: 'current step',
+    },
+    bid: {
+      order: (i: number, n: number) => ` · ${i} of ${n}`,
+      lockIn: (v: number) => `Lock in ${v}`,
+      pick: 'Pick a bid',
+      keyHint: 'pick a bid',
+      confirmHint: 'confirm',
+      undoHint: 'undo',
+      soFar: 'Bids so far',
+      change: (name: string, v: number) => `${name} bid ${v}. Change it`,
+      level: 'Exactly level: the dealer has to break it',
+    },
+    /** `delta` is the change in cards from the last round; null for the first round. */
+    dealLine: (
+      dealer: string,
+      cards: number,
+      first: string,
+      trump: Trump,
+      delta: number | null,
+    ): ReactNode => (
+      <>
+        {b(dealer)} deals {b(cards)} cards each · first card to {b(first)} ·{' '}
+        <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
+        {delta != null && delta !== 0 && (
+          <>
+            <b className="text-[var(--accent)]">{delta > 0 ? '↑' : '↓'}</b> one{' '}
+            {delta > 0 ? 'more' : 'fewer'} card than last round
+          </>
+        )}
+        {delta === 0 && <>· same cards as last round</>}
+      </>
+    ),
+    comingUp: 'Coming up',
+    peak: 'Peak',
+    deals: (name: string) => `${name} deals`,
+    leads: (name: string) => `${name} leads`,
+    roundN: (n: number) => `Round ${n}`,
+    lastRound: 'Last round of the game',
+    play: {
+      title: (sum: number, cards: number) => `Bids ${sum} · Cards ${cards}`,
+      over: (d: number) => `Over by ${d}: someone will miss.`,
+      under: (d: number) => `Under by ${d}: someone will miss.`,
+      leads: 'Leads',
+      dealer: 'dealer',
+      hint: (name: string): ReactNode => (
+        <>
+          {b(name)} leads the first trick. Follow the led suit if you can, otherwise play a trump or
+          discard.
+        </>
+      ),
+      order: 'Bids in playing order',
+    },
+    results: {
+      valid: 'The results add up, so the round is valid',
+      validShort: 'Round is valid',
+      pending: (k: number) => `${k} still to mark`,
+      bidsCards: (sum: number, cards: number): ReactNode => (
+        <>
+          {b(`Bids ${sum}`)} · Cards {cards}
+        </>
+      ),
+      hint: 'A tick on the table means the bid was made. Change a result and the table and scores update.',
+      dealer: ' · dealer',
+      exactShort: 'Exact',
+    },
+    scores: {
+      title: 'Scores',
+      after: (n: number) => (n ? `After round ${n}` : 'Before round 1'),
+      projected: (n: number) => `Projected after round ${n}`,
+      open: 'Open full scoreboard →',
+      up: (k: number) => `▲ up ${k}`,
+      down: (k: number) => `▼ down ${k}`,
+      holds: '— holds',
+      holdsFirst: 'holds 1st',
+      newLeader: 'takes the lead',
+      leader: 'Leader',
+      empty: 'Scores appear after the first round.',
+    },
+    summary: {
+      eyebrow: (n: number) => `Round ${n} complete`,
+      history: 'Score history',
+      chart: (n: number) => `Total score after each round for all ${n} players`,
+      chartEmpty: 'The chart fills in as rounds are played.',
+      full: 'Full scoreboard',
+      nextLine: (round: number, cards: number, trump: Trump): ReactNode => (
+        <>
+          {b(`Round ${round}`)} · {b(`${cards} cards`)} · <SuitGlyph trump={trump} />{' '}
+          {TR[trump].name}
+        </>
+      ),
+      dealsFirst: (dealer: string, first: string): ReactNode => (
+        <>
+          {b(dealer)} deals · first card to {b(first)}
+        </>
+      ),
+      axis: (n: number) => `R${n}`,
+    },
+    winner: {
+      eyebrow: (n: number) => `Game over · ${n} ${n === 1 ? 'round' : 'rounds'}`,
+      title: (name: string, pts: string) => `${name} wins with ${pts}`,
+      tie: (names: string, pts: string) => `${names} share the win with ${pts}`,
+      trophy: 'Trophy',
+      mostExact: 'Most exact bids',
+      exactOf: (k: number, n: number) => `${k} of ${n}`,
+      biggestRound: 'Biggest round',
+      biggestMiss: 'Biggest miss',
+      hotStreak: 'Hot streak',
+      hookVictim: 'Hook victim',
+      ranking: 'Final ranking',
+    },
+    home: {
+      eyebrow: 'Judgement scorekeeper',
+      pitch:
+        'One screen on the table. It deals out every round, enforces the dealer’s restriction and keeps the score, so everyone just plays cards.',
+      players: (max: number) => `3 to ${max} players`,
+      hook: 'Dealer’s hook built in',
+      offline: 'Works offline',
+      newGame: 'New game',
+      howToPlay: 'How to play',
+      resume: 'Resume',
+      results: 'See results',
+      firstCard: (dealer: string, first: string): ReactNode => (
+        <>
+          {b(dealer)} is dealing · first card to {b(first)}
+        </>
+      ),
+      leadsWith: (name: string, pts: string): ReactNode => (
+        <>
+          {name} leads with <b className="tick text-[var(--tx)]">{pts}</b>
+        </>
+      ),
+    },
+    setup: {
+      eyebrow: 'New game',
+      title: 'Set the table',
+      count: '1 · How many players?',
+      seats: '2 · Who sits where?',
+      dealer: '3 · Who deals first?',
+      seatHint: 'Seat 1 is at the bottom of the table · drag to swap',
+      seatName: (k: number) => `Seat ${k} name`,
+      move: (name: string) => `Move ${name}: drag, or use the up and down arrow keys`,
+      avatar: (name: string) => `Change ${name}’s avatar`,
+      dealerTag: 'Dealer',
+      firstTag: '1st card',
+      recent: 'Recent',
+      randomDealer: '🎲 Random dealer',
+      makeDealer: (name: string) => `${name} deals first`,
+      preview: 'Table preview',
+      pickCount: 'Pick how many are playing to lay out the seats.',
+      dealsFirst: (name: string): ReactNode => <>👑 {b(name)} deals first</>,
+      cardsEach: '🃏 3 cards each',
+      firstCardTo: (first: string, dealer: string, dir: Direction): ReactNode => (
+        <>
+          👉 First card to {b(first)}, on {dealer}’s {side(dir)}
+        </>
+      ),
+      spades: (
+        <>
+          <SuitGlyph trump="spades" /> Spades are trump
+        </>
+      ),
+      missing: (k: number) =>
+        k === 1 ? 'One seat still needs a name' : `${k} seats still need a name`,
+      dupe: (name: string) => `${name} is at the table twice`,
+      lengthRounds: (L: number) => `${L} rounds`,
+    },
+    board: {
+      eyebrow: (n: number) => `${n} ${n === 1 ? 'round' : 'rounds'} played`,
+      hint: 'Pick a round to edit it · totals recalculate',
+      header: 'Round · cards · dealer',
+      grid: 'Rounds by player',
+      edit: 'Edit round',
+      note: 'Totals and every later round recalculate when you save. You can undo this change.',
+      saveChanges: 'Save changes',
+      back: 'Back to game',
+      row: (n: number, cards: number, trump: Trump, dealer: string): ReactNode => (
+        <>
+          R{n} · {cards} <SuitGlyph trump={trump} /> · {dealer}
+        </>
+      ),
+      empty: 'No finished rounds yet. Scores appear here after each round.',
+    },
+    rules: {
+      eyebrow: 'How to play',
+      title: 'Rules',
+      close: 'Close rules',
+      keyboard: 'Keyboard',
+    },
+    upcoming: {
+      eyebrow: 'Schedule',
+      title: 'Upcoming rounds',
+      note: 'Cards, trump and dealer are fixed from the start, so you can plan who deals when.',
+      now: 'Now',
+      next: 'Next',
+      leads: (name: string) => `${name} leads`,
+      end: 'The game ends after this round.',
+    },
+    keys: {
+      title: 'Keyboard shortcuts',
+      open: 'Keyboard shortcuts',
+      list: [
+        ['0 – 9', 'Pick a bid (type 1 then 0 for 10)'],
+        [
+          '⏎',
+          'Confirm: lock in a bid, start playing, enter results, confirm a round, next round, deal',
+        ],
+        ['Z', 'Undo'],
+        ['E', 'Edit bids while playing'],
+        ['R', 'Rematch when the game is over'],
+        ['N', 'New game, from Home'],
+        ['Esc', 'Close a drawer or panel'],
+        ['?', 'Show this list'],
+      ] as const,
+      bid: 'bid',
+      confirm: 'confirm',
+      undo: 'undo',
+      shortcuts: 'shortcuts',
+      esc: 'Esc',
+    },
+  },
+
   toasts: {
     ...messages.toasts,
     imageSaved: 'Image saved · summary copied',

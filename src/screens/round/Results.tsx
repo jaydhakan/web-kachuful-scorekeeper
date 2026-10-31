@@ -1,14 +1,5 @@
 import { motion } from 'framer-motion';
-import {
-  bidOrder,
-  blockedReason,
-  curRound,
-  pts,
-  resultsState,
-  tricksLeft,
-  type Blocked,
-  type Outcome,
-} from '@/domain';
+import { pts, type Outcome } from '@/domain';
 import { sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { Glass } from '@/components/ui/Glass';
@@ -20,22 +11,13 @@ import { Table } from '@/components/ui/Table';
 import { SPRING, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
+import { resultsView } from './roundView';
 import { t } from '@/strings';
 
 export function Results() {
   const { state, actions } = useApp();
-  const g = state.game,
-    r = curRound(g),
-    st = resultsState(g, r),
-    od = bidOrder(g, r);
-  const tricks = r.tricks;
-  const ids = g.players.map((p) => p.id);
-  const left = Math.max(0, tricksLeft(r.cards, r.bids, r.results));
-  // Only in the Made/Missed mode: with exact tricks the results follow from the counts.
-  const blocked = (id: string, c: Outcome) =>
-    tricks ? null : blockedReason(r.cards, ids, r.bids, r.results, id, c);
-  const why = (b: Blocked | null) =>
-    b ? (b.kind === 'left' ? t.results.onlyLeft(b.left) : t.results.noFit) : undefined;
+  const g = state.game;
+  const { r, st, od, tricks, left, blocked, why } = resultsView(g);
   return (
     <RoundFrame
       r={r}

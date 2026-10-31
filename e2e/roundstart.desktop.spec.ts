@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { NAMES7, btn, toSetup3 } from './helpers';
 
+// A narrow window with a mouse and keyboard gets the phone UI; the large-screen UI has large-screen.desktop.spec.
+test.use({ viewport: { width: 740, height: 900 } });
+
 test('the deal animation tells mouse users to click or press Space, and Space skips it', async ({
   page,
 }) => {

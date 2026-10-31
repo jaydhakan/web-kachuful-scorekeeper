@@ -2,7 +2,9 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
+import { MQ } from '@/theme/breakpoints';
 import { palette } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
 import { Home } from '@/screens/Home';
@@ -21,9 +23,23 @@ import { Toast } from './ui/Toast';
 import { EASE, SPRING_SOFT } from './ui/motion';
 
 const Winner = lazy(() => import('@/screens/Winner'));
+// The large-screen UI is its own chunk, so phones never download it.
+const DeskShell = lazy(() => import('@/screens/desk/DeskShell'));
 const Confetti = lazy(() => import('./ui/Confetti').then((m) => ({ default: m.Confetti })));
 
+/** Phones (and phones on their side) get the phone UI; tablets and desktops get the purpose-built large-screen one. */
 export function AppShell() {
+  const big = useMediaQuery(MQ.big);
+  return big ? (
+    <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
+      <DeskShell />
+    </Suspense>
+  ) : (
+    <PhoneShell />
+  );
+}
+
+function PhoneShell() {
   const { state, actions, trump } = useApp();
   const { game, screen, dir, seq, sheet, modal, toast, banner, fresh } = state;
   const th = TR[trump];

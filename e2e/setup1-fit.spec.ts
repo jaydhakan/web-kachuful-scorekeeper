@@ -27,14 +27,18 @@ test.describe('setup 1 fits the screen', () => {
     expect(lines).toBeGreaterThan(1);
   });
 
-  test('a mouse on a laptop gets the table beside the controls', async ({ page }) => {
+  test('a laptop gets the whole setup on one page, with the table beside the controls', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await toSetup1(page, 5);
+    await page.goto('/');
+    await page.getByRole('button', { name: /New game/ }).click();
     await btn(page, '5 players').click();
     await page.waitForTimeout(500);
-    const t = (await page.locator('[data-table="su1"]').boundingBox())!;
+    const t = (await page.locator('[data-table="dsu"]').boundingBox())!;
     const pills = (await btn(page, '5 players').boundingBox())!;
-    expect(t.x + t.width).toBeLessThan(pills.x);
-    expect(await inView(page, btn(page, 'Next'))).toBe(true);
+    expect(t.x).toBeGreaterThan(pills.x + pills.width);
+    await expect(page.getByLabel('Seat 1 name')).toBeVisible();
+    expect(await inView(page, btn(page, 'Deal!'))).toBe(true);
   });
 });

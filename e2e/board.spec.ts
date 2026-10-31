@@ -16,37 +16,31 @@ async function openBoard(page: Page, width: number, height: number, n = 7) {
 const scroller = (page: Page) =>
   page.getByRole('table').locator('xpath=ancestor::div[contains(@class, "overflow-auto")][1]');
 
+/** Tablets and desktops get the large-screen Scoreboard: a screen over the game, reached from Scores. */
+async function openDeskBoard(page: Page, width: number, height: number, n = 7) {
+  await page.setViewportSize({ width, height });
+  await page.goto('/');
+  await openSeeded(page, seedGame(n, 'bidding'), 'round');
+  await page.getByRole('button', { name: 'Scores', exact: true }).click();
+  const grid = page.getByRole('region', { name: 'Rounds by player' });
+  await expect(grid).toBeVisible();
+  await page.waitForTimeout(600);
+  return grid;
+}
+
 for (const [w, h] of [
   [768, 1024],
   [1024, 768],
   [1440, 900],
 ]) {
-  test(`7 players fit the Scoreboard without sideways scroll at ${w}x${h}`, async ({ page }) => {
-    await openBoard(page, w, h);
-    const m = await scroller(page).evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
+  test(`7 players fit the large-screen Scoreboard without sideways scroll, names in full, at ${w}x${h}`, async ({
+    page,
+  }) => {
+    const grid = await openDeskBoard(page, w, h);
+    const m = await grid.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
     expect(m.sw).toBeLessThanOrEqual(m.cw + 1);
-    // The player columns share the width evenly.
-    const widths = await page
-      .getByRole('columnheader')
-      .evaluateAll((ths) => ths.slice(1).map((th) => Math.round(th.getBoundingClientRect().width)));
-    expect(widths).toHaveLength(7);
-    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
-  });
-}
-
-for (const [w, h] of [
-  [1024, 768],
-  [1440, 900],
-]) {
-  test(`headers show full names at ${w}x${h}`, async ({ page }) => {
-    await openBoard(page, w, h);
-    const heads = page.getByRole('columnheader');
-    for (const [i, name] of LONG_NAMES.entries()) {
-      const th = heads.nth(i + 1);
-      const text = await th.evaluate((el) => (el as HTMLElement).innerText);
-      expect(text).toContain(name);
-      await expect(th.getByText(name, { exact: true }).locator('visible=true')).toHaveCount(1);
-    }
+    const text = await grid.innerText();
+    for (const name of LONG_NAMES) expect(text).toContain(name);
   });
 }
 

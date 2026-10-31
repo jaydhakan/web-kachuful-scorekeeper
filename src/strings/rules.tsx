@@ -100,3 +100,67 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
     </>,
   ],
 ];
+
+/**
+ * The large-screen Rules drawer: one short paragraph per step. Side, peak and length come from the game, so the text
+ * matches the table it is read at (the design's draft said "left" and "10" for every table).
+ */
+export const drawerRules = (
+  dir: Direction,
+  peak: number | null,
+  endless: boolean,
+): [string, ReactNode][] => {
+  const s = dir === 'cw' ? 'left' : 'right';
+  return [
+    [
+      'Deal',
+      <>
+        Rounds start at <b>3 cards</b> and climb one at a time to the peak: the deck ÷ players,
+        rounded down, never more than <b>10</b>
+        {peak && peak < 10 ? (
+          <>
+            {' '}
+            (<b>{peak}</b> at this table)
+          </>
+        ) : null}
+        , then back down to 3 and up again. The peak and 3 are each dealt twice in a row where the
+        count turns. The deal moves one seat every round.
+      </>,
+    ],
+    [
+      'Trump suit',
+      <>
+        Trump follows a fixed order: <b>♠ ♦ ♣ ♥</b>. Round 1 is spades, round 2 diamonds, and so on.
+      </>,
+    ],
+    [
+      'Bid',
+      <>
+        Starting on the dealer’s <b>{s}</b>, each player says how many tricks they will win. The{' '}
+        <b>dealer bids last</b> and cannot make the total equal the number of cards.
+      </>,
+    ],
+    [
+      'Play',
+      <>
+        The player on the dealer’s {s} leads. Follow the led suit if you can, otherwise play a trump
+        or discard. The highest trump wins, else the highest card of the led suit; the winner leads
+        next.
+      </>,
+    ],
+    [
+      'Score',
+      <>
+        Win exactly your bid: <b>+10 per trick bid</b> (a bid of 0 scores +10). Any other number of
+        tricks: <b>−10 per trick bid</b> (a bid of 0 loses 10).
+      </>,
+    ],
+    [
+      'Win',
+      <>
+        {endless ? 'When you end the game' : 'After the last round'}, the highest total wins. Ties
+        share the rank.
+      </>,
+    ],
+  ];
+};

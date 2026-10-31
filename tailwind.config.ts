@@ -9,8 +9,10 @@ const colors: Record<string, string> = {
   ...Object.fromEntries(tokens.color.tokens.map((t) => [t.name, t.value.midnight])),
   ...extended.colors,
 };
+// 44 to 148 are the large-screen display sizes (design boards: page titles, bidder name, keys, the Home hero).
 const sizes = [
-  13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 34, 36, 40, 52, 64, 72, 96,
+  13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 48, 52, 56, 64, 72,
+  96, 148,
 ];
 
 export default {

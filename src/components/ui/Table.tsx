@@ -56,8 +56,8 @@ interface TableProps {
 
 function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
   const d = TD[sz],
-    rx = sz === 'full' ? d.rx - 52 : d.rx - 60,
-    ry = sz === 'full' ? d.ry - 40 : d.ry - 30;
+    rx = sz === 'mini' ? d.rx - 60 : d.rx - 52,
+    ry = sz === 'mini' ? d.ry - 30 : d.ry - 40;
   const pt = (a: number) => [d.W / 2 + rx * Math.cos(a), d.cy + ry * Math.sin(a)];
   const items = [];
   for (let k = 0; k < 4; k++) {
@@ -138,7 +138,10 @@ export function Table({
     floor = minFit ?? minScale(N),
     named = showNames(N),
     // The long "Leads first" tag is wider than the gap between crowded seats.
-    lead = named ? firstLabel : undefined;
+    lead = named ? firstLabel : undefined,
+    // The large-screen table has bigger seats, so its seat box, labels and emoji grow with them.
+    wide = size === 'wide',
+    half = wide ? 40 : 36;
   const chipPill = pillChip(size, N);
   const seats = useMemo(
     () => Array.from({ length: N }, (_, k) => seatPos(size, N, k, dir)),
@@ -249,9 +252,9 @@ export function Table({
             })}
             className={`absolute z-[2] ${onSeat ? 'cursor-pointer' : ''}`}
             style={{
-              left: `calc(${at.x}% - ${dpx(36)})`,
+              left: `calc(${at.x}% - ${dpx(half)})`,
               top: `calc(${at.y}% - ${boxH} / 2)`,
-              width: dpx(72),
+              width: dpx(half * 2),
               height: boxH,
             }}
           >
@@ -277,7 +280,7 @@ export function Table({
                     width: av,
                     height: av,
                     background: p.color,
-                    fontSize: `max(0.8125rem, ${dpx(size === 'full' ? 24 : 18)})`,
+                    fontSize: `max(0.8125rem, ${dpx(wide ? 36 : size === 'full' ? 24 : 18)})`,
                   }}
                 >
                   {p.emoji}
@@ -298,7 +301,16 @@ export function Table({
                   // table, so it shrinks with the seats. The full name stays in the text and the tooltip.
                   title={p.name}
                   className="absolute left-1/2 w-max -translate-x-1/2 overflow-hidden text-ellipsis whitespace-nowrap text-center text-13 font-bold leading-4 tracking-[0.005em] [text-shadow:0_1px_3px_black]"
-                  style={{ top: 'calc(100% + 1px)', maxWidth: dpx(64) }}
+                  style={
+                    wide
+                      ? {
+                          top: `calc(100% + ${dpx(5)})`,
+                          maxWidth: dpx(N >= 7 ? 76 : 104),
+                          fontSize: `max(0.8125rem, ${dpx(15)})`,
+                          lineHeight: 1.2,
+                        }
+                      : { top: 'calc(100% + 1px)', maxWidth: dpx(64) }
+                  }
                 >
                   {p.name}
                 </div>
@@ -336,15 +348,15 @@ export function Table({
                   transition={SPRING_POP}
                   className="absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] bg-[var(--accent)] px-1.5 text-13 font-extrabold leading-[18px] text-ink-on-accent"
                   style={
-                    lead && size === 'full'
-                      ? { left: '50%', top: dpx(-22), translate: '-50% 0' }
+                    lead && size !== 'mini'
+                      ? { left: '50%', top: dpx(wide ? -24 : -22), translate: '-50% 0' }
                       : {
-                          left: `calc(50% + ${dpx(size === 'full' ? 10 : 6)})`,
-                          top: dpx(size === 'full' ? -8 : -9),
+                          left: `calc(50% + ${dpx(size === 'mini' ? 6 : 10)})`,
+                          top: dpx(size === 'mini' ? -9 : -8),
                         }
                   }
                 >
-                  {lead && size === 'full' ? (
+                  {lead && size !== 'mini' ? (
                     // The long label would reach the centre text on a small table, so it falls back to the short one.
                     <>
                       <span className="hidden @[34rem]:inline">{lead}</span>

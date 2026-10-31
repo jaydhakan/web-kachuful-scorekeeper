@@ -70,24 +70,43 @@ test('turning the phone mid-count-up lets it finish on the right totals, in the 
   expect(kept).toEqual({ region: 'region', table: 'table', rows: Array(N).fill(true) });
 });
 
-test('crossing into the wide layout keeps the Summary mounted and its seats in place', async ({
+test('turning a tablet keeps the large-screen Summary mounted, its rows and its table in place', async ({
   page,
 }) => {
-  await openAnimatedSummary(page, { width: 768, height: 1024 });
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto('/');
+  await openSeeded(page, seedGame(N, 'results'), 'round');
+  for (const name of LONG_NAMES.slice(2, N)) {
+    await page
+      .getByRole('group', { name: `Result for ${name}` })
+      .getByRole('button', { name: /Made/ })
+      .click();
+  }
+  await btn(page, 'Confirm round').click();
+  const list = page.locator('ol[aria-label="Standings"]');
+  await list.waitFor();
   await page.waitForTimeout(1200);
   await page.evaluate(() => {
-    Object.assign(document.querySelector('[data-table="sum"] [data-seat="0"]')!, {
+    Object.assign(document.querySelector('ol[aria-label="Standings"]')!, { marker: 'list' });
+    Object.assign(document.querySelector('[data-table="dsum"] [data-seat="0"]')!, {
       marker: 'seat',
     });
   });
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.waitForTimeout(3500);
-  await expectStandings(page);
+  const g = await savedGame(page);
+  const order = standings(g),
+    tot = totals(g);
+  const rows = list.locator('li');
+  await expect(rows).toHaveCount(N);
+  for (const [k, x] of order.entries()) {
+    await expect(rows.nth(k)).toContainText(x.p.name);
+    await expect(rows.nth(k)).toContainText(fmt(tot[x.p.id]));
+  }
   expect(
-    await page.evaluate(
-      () =>
-        (document.querySelector('[data-table="sum"] [data-seat="0"]') as { marker?: string })
-          .marker,
-    ),
-  ).toBe('seat');
+    await page.evaluate(() => [
+      (document.querySelector('ol[aria-label="Standings"]') as { marker?: string }).marker,
+      (document.querySelector('[data-table="dsum"] [data-seat="0"]') as { marker?: string }).marker,
+    ]),
+  ).toEqual(['list', 'seat']);
 });
