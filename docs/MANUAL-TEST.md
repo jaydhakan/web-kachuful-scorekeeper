@@ -25,11 +25,12 @@ Run once on a mid-range Android phone (Chrome) and once on an iPhone (Safari). U
 
 1. **Signed out stays offline.** With airplane mode on and signed out, play a round: nothing complains about the network. History, Boards (This device), Players and Awards all work.
 2. **Invite.** As the admin: Account → Admin → Invite someone → copy the link → open it on the second phone. Take an existing player ("Is this you?") or make one; set a 3-letter password. A second open of the link says it was used.
-3. **First sign-in import.** On a phone with signed-out games, sign in: it offers to add them. Choose, match players (an existing name asks "Is this the same …?"), add.
+3. **First sign-in import.** On a phone with signed-out games, sign in: it offers to add them. Choose, give each player an email, Check players (name and email of someone already there asks "Is this …?"; a taken name or email says so without naming anyone), add.
 4. **Sync.** Signed in, play a round with airplane mode on, then turn it off: the dot in the Home chip goes from a number to ✓ within a minute, and the game shows on the global board.
-5. **Same name.** In setup, type a name the server has: "Is this the same …?" appears once; Yes uses that player.
-6. **Conflict.** Open the same game on two phones, play a round on each offline, reconnect both: one copy wins, the other is in History as a conflict copy with Keep this one / Keep the other.
-7. **Live link.** Game menu → Links → Live link → Make link. Scan the QR with the other phone: the table follows each bid. Turn it off: the viewer says so.
-8. **Recap preview.** Make a recap link and paste it in WhatsApp: the preview shows the title and image (needs the backend's `/r/` pages).
-9. **Back gesture.** Open Boards → a player → head-to-head; Android back walks back one screen at a time and closes sheets first.
-10. **Sign out.** With an upload waiting, Sign out asks first, then Keep or Remove.
+5. **Someone new to you.** In setup, your own players are suggested. Type someone else's name and email: both right asks "Is this …?"; their name with another email (or another name with their email) is refused without saying whose.
+6. **Photo.** Account → Add photo → take one with the camera: it shows instead of the emoji on Home, the boards and the table, and on the other phone after a sync. A live link shows it too. Remove photo brings the emoji back.
+7. **Conflict.** Open the same game on two phones, play a round on each offline, reconnect both: one copy wins, the other is in History as a conflict copy with Keep this one / Keep the other.
+8. **Live link.** Game menu → Links → Live link → Make link. Scan the QR with the other phone: the table follows each bid. Turn it off: the viewer says so.
+9. **Recap preview.** Make a recap link and paste it in WhatsApp: the preview shows the title and image (needs the backend's `/r/` pages).
+10. **Back gesture.** Open Boards → a player → head-to-head; Android back walks back one screen at a time and closes sheets first.
+11. **Sign out.** With an upload waiting, Sign out asks first, then Keep or Remove.

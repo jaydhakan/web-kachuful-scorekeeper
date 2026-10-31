@@ -1,6 +1,6 @@
 # Kachuful — working notes
 
-Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to a FastAPI backend built separately from `plan-backend.md`; `plan-frontend.md` is this app's plan, and §6 of the backend plan is the API contract.
+Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to a FastAPI backend built separately from `plan-backend.md`; `plan-frontend.md` is this app's plan. The backend's `HANDOFF.md` (in `../backend-kachuful-scorekeeper`) is the API as built and wins over §6 of the backend plan; never change the API's behaviour to suit the app.
 
 Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
 
