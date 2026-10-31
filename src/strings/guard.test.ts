@@ -33,7 +33,9 @@ function literals(file: string): string[] {
       ts.isJsxAttribute(n) &&
       TEXT_ATTRS.has(n.name.getText()) &&
       n.initializer &&
-      ts.isStringLiteral(n.initializer)
+      ts.isStringLiteral(n.initializer) &&
+      // An empty alt marks a decorative image; only words need translating.
+      /[A-Za-z]{2,}/.test(n.initializer.text)
     )
       found.push(n.initializer.text);
     ts.forEachChild(n, visit);
