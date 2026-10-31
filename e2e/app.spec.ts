@@ -96,9 +96,6 @@ test.describe('accessibility (axe)', () => {
     await scan(page, 'rules sheet');
     await page.keyboard.press('Escape');
     await btn(page, 'New Game').click();
-    await page.waitForTimeout(400);
-    await scan(page, 'new game dialog');
-    await btn(page, 'Start new').click();
     await page.waitForTimeout(600);
     await scan(page, 'setup 1');
     await btn(page, '4 players').click();

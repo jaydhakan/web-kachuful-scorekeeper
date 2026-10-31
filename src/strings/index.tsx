@@ -63,7 +63,6 @@ export const t = {
   },
 
   modals: {
-    newGame: { text: 'Start a new game? Your current game will be lost.', ok: 'Start new' },
     endGame: { text: 'End the game and crown the winner?', ok: 'End game' },
     repair: {
       text: "Saved game couldn't be read. Reset starts fresh. Keep backup starts fresh too, but stores a copy of the unreadable data on this device.",

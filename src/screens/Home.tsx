@@ -119,10 +119,7 @@ export function Home() {
         </motion.button>
       </div>
       <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,var(--sab))] pt-[18px]">
-        <PrimaryButton
-          className="w-full"
-          onClick={() => (g.status === 'active' ? actions.ask('newGame') : actions.startSetup())}
-        >
+        <PrimaryButton className="w-full" onClick={actions.startSetup}>
           {t.home.newGame}
         </PrimaryButton>
       </div>

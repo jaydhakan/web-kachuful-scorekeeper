@@ -10,6 +10,7 @@ export const messages = {
     bidSaved: 'Bid saved',
     roundSaved: 'Round saved',
     undone: 'Undone',
+    previousReplaced: 'Previous game replaced',
     nothingToUndo: 'Nothing to undo',
     roundUpdated: (n: number) => `Round ${n} updated`,
     storageFull: 'Storage is full — this game may not be saved',

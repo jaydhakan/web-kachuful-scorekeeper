@@ -25,7 +25,7 @@ export type SheetState =
   | { type: 'edit'; i: number }
   | { type: 'seat' | 'rename' | 'avatar'; k: number };
 
-export type ModalKind = 'newGame' | 'endGame';
+export type ModalKind = 'endGame';
 
 export interface Toast {
   id: number;
