@@ -190,6 +190,16 @@ input {
     0 0 44px 4px var(--glow),
     inset 0 0 44px rgba(0, 0, 0, 0.4);
 }
+/* A CSS animation on transform runs on the compositor, so it never competes with a busy main thread. */
+.ambient {
+  transform: translateX(-50%);
+  animation: ambient 8s ease-in-out infinite;
+}
+@keyframes ambient {
+  50% {
+    transform: translateX(-50%) scale(1.08);
+  }
+}
 .ring-pulse,
 .warn-pulse {
   position: relative;
@@ -239,6 +249,7 @@ input {
   font-feature-settings: 'tnum' 1;
 }
 @media (prefers-reduced-motion: reduce) {
+  .ambient,
   .ring-pulse::after,
   .warn-pulse::after,
   .suit-glow {

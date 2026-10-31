@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, type CSSProperties } from 'react';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
 import { palette } from '@/theme/palette';
@@ -35,6 +35,10 @@ export function Phone() {
     exit: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * -36, scale: 0.985 }),
   };
   const blocked = !!(sheet || modal || seq || state.corrupt);
+  // Confetti is skipped under reduced motion; the podium still marks the moment.
+  useEffect(() => {
+    if (rm && fresh) actions.setFresh(false);
+  }, [rm, fresh, actions]);
   let content;
   if (screen === 'home') content = <Home />;
   else if (screen === 'setup') content = <Setup />;
@@ -53,12 +57,10 @@ export function Phone() {
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
       <div className="absolute inset-0" {...(blocked ? { inert: '' as const } : {})}>
-        <motion.div
+        <div
           aria-hidden
-          className="pointer-events-none absolute -top-32 left-1/2 h-[360px] w-[520px] -translate-x-1/2 rounded-full opacity-90 blur-3xl"
+          className="ambient pointer-events-none absolute -top-32 left-1/2 h-[360px] w-[520px] rounded-full opacity-90 blur-3xl"
           style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
-          animate={rm ? undefined : { scale: [1, 1.08, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <AnimatePresence custom={dir} initial={false} mode="popLayout">
           <motion.div
@@ -82,7 +84,7 @@ export function Phone() {
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
-      {fresh && screen === 'winner' && (
+      {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>
           <Confetti
             colors={[...game.players.map((p) => p.color), palette['gold-light']]}
