@@ -1,6 +1,6 @@
 import type { Game } from '@/domain';
 
-export const CURRENT_SCHEMA = 1;
+export const CURRENT_SCHEMA = 2;
 
 type Raw = Record<string, unknown>;
 type Migration = (g: Raw) => Raw;
@@ -8,6 +8,8 @@ type Migration = (g: Raw) => Raw;
 /** `migrations[n]` upgrades a version-n save to n + 1. Version 0 is the prototype's unversioned save. */
 const migrations: Record<number, Migration> = {
   0: (g) => ({ ...g, schemaVersion: 1 }),
+  // Every game saved before the deck question was played with one deck.
+  1: (g) => ({ ...g, decks: 1, schemaVersion: 2 }),
 };
 
 const isObj = (v: unknown): v is Raw => typeof v === 'object' && v !== null && !Array.isArray(v);

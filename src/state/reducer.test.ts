@@ -44,12 +44,16 @@ function playRound(s: AppState): AppState {
   return run(st, { type: 'confirmRound' });
 }
 
-const setup = (n: number, length: 'endless' | '1cycle' | '2cycles' = 'endless') => {
+const setup = (
+  n: number,
+  length: 'endless' | '1cycle' | '2cycles' = 'endless',
+  decks: 1 | 2 = 1,
+) => {
   const seats = Array.from({ length: n }, (_, i) => ({ name: 'P' + i, emoji: 'x', color: 'c' }));
   return run(
     initialState(demoGame(), 'home', []),
     { type: 'startSetup', lg: null },
-    { type: 'setupPatch', patch: { n, step: 3, seats, length } },
+    { type: 'setupPatch', patch: { n, step: 3, seats, length, decks } },
     { type: 'beginGame', id: 'g1', now: 1_000 },
   );
 };
@@ -86,6 +90,37 @@ describe('setup and starting a game', () => {
     );
     expect(st.undo).toEqual([]);
     expect(st.seq).toMatchObject({ prev: null, round: { index: 0, cards: 3 } });
+  });
+
+  it('starts with one deck, and deals the most the chosen decks allow', () => {
+    const fresh = run(initialState(demoGame(), 'home', []), { type: 'startSetup', lg: null });
+    expect(fresh.setup?.decks).toBe(1);
+    expect(setup(7).game).toMatchObject({ decks: 1, maxCards: 7 });
+    expect(setup(7, 'endless', 2).game).toMatchObject({ decks: 2, maxCards: 10 });
+    expect(setup(10, 'endless', 2).game).toMatchObject({ decks: 2, maxCards: 10 });
+  });
+
+  it('a ten-player two-deck game plays a round and keeps its decks in a rematch', () => {
+    // Ten bids of 1 would not fit in 3 cards, so everyone bids 0 and one player takes the tricks.
+    let st = setup(10, 'endless', 2);
+    for (let i = 0; i < 10; i++) {
+      st = run(st, { type: 'bid', v: 0 });
+      if (st.advance) st = run(st, { type: 'advanceBid', idx: st.advance.idx });
+    }
+    st = run(st, { type: 'phase', phase: 'playing' }, { type: 'phase', phase: 'results' });
+    const r = curRound(st.game);
+    st.game.players.forEach((p, i) => {
+      st = run(st, {
+        type: 'setResult',
+        id: p.id,
+        v: i === r.firstPlayerIndex ? 'missed' : 'made',
+      });
+    });
+    st = run(st, { type: 'confirmRound' });
+    expect(doneRounds(st.game)).toHaveLength(1);
+    const again = run(st, { type: 'rematch', id: 'g2', now: 5 });
+    expect(again.game).toMatchObject({ decks: 2, maxCards: 10 });
+    expect(again.game.players).toHaveLength(10);
   });
 
   it('dealing over a real game keeps it one Undo away instead of confirming', () => {

@@ -11,7 +11,8 @@ Run once on a mid-range Android phone (Chrome) and once on an iPhone (Safari). U
 5. **Refresh mid-round.** Pull to refresh or relaunch during bidding: same round, same bids.
 6. **Share.** Finish a game → Share. Android: the system sheet offers the PNG. iPhone: same. If the sheet is dismissed nothing breaks. On a desktop browser the PNG downloads and the text is copied.
 7. **Rotate / safe areas.** Portrait only. Buttons clear the home indicator; nothing sits under the notch.
-8. **Large text / zoom.** Increase system text size one step: nothing overlaps or clips.
+8. **Decks.** New Game: _1 deck_ is selected and offers 3 to 7 players. Pick _2 decks_: 3 to 10 are offered. Choose 10 players, seat everyone, Deal: the table shows ten avatars (no names), nothing overlaps, and the Rules sheet explains the decks. Switch back to _1 deck_: the count clears.
+9. **Large text / zoom.** Increase system text size one step: nothing overlaps or clips.
 
 ## Device specific
 

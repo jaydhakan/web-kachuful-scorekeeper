@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { COLORS, EMOJIS, maxFor, newRound, type Game, type Outcome } from '@/domain';
+import { COLORS, EMOJIS, maxFor, newRound, type Decks, type Game, type Outcome } from '@/domain';
 import { CURRENT_SCHEMA } from '@/state/migrations';
 
 /** Seven names at the 14-character input limit, the widest a seat label, row or podium must hold. */
@@ -13,13 +13,21 @@ export const LONG_NAMES = [
   'Wilhelmina Fox',
 ];
 
+/** The same, for the 8–10 seats a two-deck table adds. */
+export const LONG_NAMES_10 = [...LONG_NAMES, 'Maximiliano Q', 'Bartolomeo Vi', 'Ferdinand Ode'];
+
 export type SeedView = 'bidding' | 'playing' | 'results' | 'summary' | 'winner';
 
 /**
  * A saved game with `n` players at the round dealing the most cards, built from the domain so it is always a
  * shape the app can load. Earlier rounds are finished with a fixed mix of made and missed bids.
  */
-export function seedGame(n: number, view: SeedView, names = LONG_NAMES): Game {
+export function seedGame(
+  n: number,
+  view: SeedView,
+  names = LONG_NAMES_10,
+  decks: Decks = n > 7 ? 2 : 1,
+): Game {
   const players = names.slice(0, n).map((name, i) => ({
     id: 'p' + i,
     name,
@@ -33,14 +41,15 @@ export function seedGame(n: number, view: SeedView, names = LONG_NAMES): Game {
     players,
     direction: 'cw',
     firstDealerIndex: 0,
-    maxCards: maxFor(n),
+    decks,
+    maxCards: maxFor(n, decks),
     lengthMode: 'endless',
     rounds: [],
     status: view === 'winner' ? 'finished' : 'active',
     ui: { view: view === 'summary' ? 'summary' : 'round', bidIdx: 0 },
     schemaVersion: CURRENT_SCHEMA,
   };
-  const cur = maxFor(n) - 3;
+  const cur = g.maxCards - 3;
   for (let i = 0; i <= cur; i++) {
     const r = newRound(g, i);
     players.forEach((p, k) => {

@@ -80,11 +80,14 @@ export const t = {
 
   setup: {
     stepOf: (n: number) => `Step ${n} of 3`,
-    step1Title: 'How many players?',
+    step1Title: 'Decks and players',
     useLastGroup: (names: string[]) =>
       `↺ Use last group: ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` +${names.length - 3}` : ''}`,
     players: (n: number) => `${n} players`,
     playerCount: 'Number of players',
+    decksLabel: 'Decks of cards',
+    deck: (d: number) => `${d} ${d === 1 ? 'deck' : 'decks'}`,
+    decksHint: (max: number) => `Seats 3 to ${max} players`,
     directionLabel: 'Seating direction',
     seats: (n: number) => `${n} seats`,
     tapNumber: 'Pick a player count',

@@ -5,11 +5,12 @@ import {
   DEALS_PILL,
   SMALL_CHIP,
   TD,
-  chipOnRight,
+  chipSide,
   dpx,
   minScale,
   pillChip,
   seatPos,
+  showNames,
   smallChipOffset,
   toPct,
   type TableSize,
@@ -42,6 +43,8 @@ interface TableProps {
   big?: boolean;
   /** Fill the slot it sits in (a definite-height parent) instead of keeping the fixed design size. */
   fit?: boolean;
+  /** The smallest a fitted table may get, as a share of the design size; defaults to `minScale` for the seat count. */
+  minFit?: number;
   center?: ReactNode;
   arrowFrom?: number;
   arrowTo?: number;
@@ -121,6 +124,7 @@ export function Table({
   res,
   big,
   fit,
+  minFit,
   center,
   arrowFrom,
   arrowTo,
@@ -130,7 +134,11 @@ export function Table({
   children,
 }: TableProps) {
   const d = TD[size],
-    N = n || players.length;
+    N = n || players.length,
+    floor = minFit ?? minScale(N),
+    named = showNames(N),
+    // The long "Leads first" tag is wider than the gap between crowded seats.
+    lead = named ? firstLabel : undefined;
   const chipPill = pillChip(size, N);
   const seats = useMemo(
     () => Array.from({ length: N }, (_, k) => seatPos(size, N, k, dir)),
@@ -144,7 +152,7 @@ export function Table({
   const box = (
     <div
       className={`table-box @container relative ${fit ? 'table-fit' : 'mx-auto shrink-0'}`}
-      style={{ '--tw': d.W, '--th': d.H, '--min': minScale(N) } as CSSProperties}
+      style={{ '--tw': d.W, '--th': d.H, '--min': floor } as CSSProperties}
       data-table={uid}
     >
       <div
@@ -229,7 +237,8 @@ export function Table({
             {...(onSeat && {
               role: 'button',
               tabIndex: 0,
-              'aria-label': p ? undefined : t.table.seat(k + 1),
+              // With no name label the seat is named for assistive tech and on hover instead.
+              'aria-label': p ? (named ? undefined : p.name) : t.table.seat(k + 1),
               onClick: () => onSeat(k),
               onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -259,6 +268,7 @@ export function Table({
                 <motion.div
                   key={p.emoji + p.color}
                   data-seat-avatar
+                  title={named ? undefined : p.name}
                   initial={false}
                   whileTap={onSeat ? { scale: 0.9 } : undefined}
                   transition={SPRING}
@@ -281,7 +291,7 @@ export function Table({
                   {k + 1}
                 </div>
               )}
-              {p && (
+              {p && named && (
                 <div
                   data-seat-name
                   // The label may be shortened, but only by width: it can never be wider than its share of the
@@ -309,8 +319,8 @@ export function Table({
                       : {
                           ...SMALL_CHIP,
                           // The corner away from the seat above, whose name sits right there.
-                          left: `calc(50% + ${dpx(smallChipOffset(d.R, chipOnRight(at.x)).x)})`,
-                          top: dpx(smallChipOffset(d.R, chipOnRight(at.x)).y + d.R),
+                          left: `calc(50% + ${dpx(smallChipOffset(d.R, chipSide(at, dir, N)).x)})`,
+                          top: dpx(smallChipOffset(d.R, chipSide(at, dir, N)).y + d.R),
                         }
                   }
                 >
@@ -326,7 +336,7 @@ export function Table({
                   transition={SPRING_POP}
                   className="absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] bg-[var(--accent)] px-1.5 text-13 font-extrabold leading-[18px] text-ink-on-accent"
                   style={
-                    firstLabel && size === 'full'
+                    lead && size === 'full'
                       ? { left: '50%', top: dpx(-22), translate: '-50% 0' }
                       : {
                           left: `calc(50% + ${dpx(size === 'full' ? 10 : 6)})`,
@@ -334,14 +344,14 @@ export function Table({
                         }
                   }
                 >
-                  {firstLabel && size === 'full' ? (
+                  {lead && size === 'full' ? (
                     // The long label would reach the centre text on a small table, so it falls back to the short one.
                     <>
-                      <span className="hidden @[34rem]:inline">{firstLabel}</span>
+                      <span className="hidden @[34rem]:inline">{lead}</span>
                       <span className="@[34rem]:hidden">{t.table.first}</span>
                     </>
                   ) : (
-                    firstLabel || t.table.first
+                    lead || t.table.first
                   )}
                 </motion.div>
               )}
@@ -410,7 +420,7 @@ export function Table({
     <div
       className="cq-size grid h-full min-h-0 w-full flex-1 place-items-center"
       // Below its minimum the table is not shrunk further: the parent scrolls instead.
-      style={{ minHeight: `calc(${d.H} * ${minScale(N)} * 1px)` }}
+      style={{ minHeight: `calc(${d.H} * ${floor} * 1px)` }}
     >
       {box}
     </div>

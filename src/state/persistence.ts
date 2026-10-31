@@ -1,4 +1,4 @@
-import { demoGame, type Game } from '@/domain';
+import { demoGame, type Decks, type Game } from '@/domain';
 import { CURRENT_SCHEMA, migrateGame } from './migrations';
 
 export const KEYS = {
@@ -18,6 +18,8 @@ export interface LastGroup {
   emojis: string[];
   colors: string[];
   direction: 'cw' | 'ccw';
+  /** Absent in a group saved before the deck question; that was one deck. */
+  decks?: Decks;
 }
 
 const mem: Record<string, unknown> = {};

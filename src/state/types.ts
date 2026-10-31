@@ -1,4 +1,4 @@
-import type { Direction, Game, LengthMode, Outcome, Phase, Round } from '@/domain';
+import type { Decks, Direction, Game, LengthMode, Outcome, Phase, Round } from '@/domain';
 import type { LastGroup } from './persistence';
 
 export type Screen = 'home' | 'setup' | 'round' | 'winner';
@@ -12,6 +12,7 @@ export interface Seat {
 
 export interface SetupState {
   step: 1 | 2 | 3;
+  decks: Decks;
   n: number | null;
   dir: Direction;
   seats: (Seat | null)[];

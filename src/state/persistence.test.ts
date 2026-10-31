@@ -31,7 +31,15 @@ describe('migrations', () => {
 
   it('keeps every field of the prototype shape', () => {
     const raw = fixture['kachuful.v1'];
-    expect(migrateGame(raw)).toEqual({ ...raw, schemaVersion: CURRENT_SCHEMA });
+    expect(migrateGame(raw)).toEqual({ ...raw, decks: 1, schemaVersion: CURRENT_SCHEMA });
+  });
+
+  it('plays a save from before the deck question with one deck, and leaves a two-deck save alone', () => {
+    const old: Record<string, unknown> = { ...demoGame(), schemaVersion: 1 };
+    delete old.decks;
+    expect(migrateGame(old)).toMatchObject({ decks: 1, schemaVersion: CURRENT_SCHEMA });
+    const two = { ...demoGame(), decks: 2, schemaVersion: CURRENT_SCHEMA };
+    expect(migrateGame(two)).toEqual(two);
   });
 
   it('does not touch a current-version save', () => {

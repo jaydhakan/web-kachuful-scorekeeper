@@ -10,6 +10,8 @@ export async function toSetup3(
   onStep: (step: string) => Promise<void> = async () => {},
 ) {
   await btn(page, 'New Game').click();
+  // One deck seats seven; more players need the second.
+  if (names.length > 7) await btn(page, '2 decks').click();
   await btn(page, `${names.length} players`).click();
   await onStep('setup 1');
   await btn(page, 'Next').click();

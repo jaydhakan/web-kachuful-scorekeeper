@@ -20,6 +20,7 @@ export function demoGame(): Game {
     players: P,
     direction: 'cw',
     firstDealerIndex: 0,
+    decks: 1,
     maxCards: 10,
     lengthMode: 'endless',
     rounds: [],

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LONG_NAMES, openSeeded, seedGame } from './fixtures';
+import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
 import { bidEveryone, btn, startGame, toSetup3 } from './helpers';
 
 /** Requested box widths; a table never goes below its own minimum, so 245 means "as small as it gets". */
@@ -61,11 +61,11 @@ const collisions = (page: Page, uid: string) =>
     return out;
   }, uid);
 
-for (const n of [3, 5, 7]) {
+for (const n of [3, 5, 7, 8, 9, 10]) {
   test(`nothing on a table overlaps at any size (${n} players)`, async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 900 });
     await page.goto('/');
-    await startGame(page, LONG_NAMES.slice(0, n));
+    await startGame(page, LONG_NAMES_10.slice(0, n));
     await bidEveryone(page);
     const found: string[] = [];
     for (const w of WIDTHS) {
@@ -84,11 +84,11 @@ for (const n of [3, 5, 7]) {
   });
 }
 
-for (const n of [3, 5, 7]) {
+for (const n of [3, 5, 7, 8, 9, 10]) {
   test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 900 });
     await page.goto('/');
-    await toSetup3(page, LONG_NAMES.slice(0, n));
+    await toSetup3(page, LONG_NAMES_10.slice(0, n));
     await btn(page, 'Deal!').click();
     await page.locator('[data-table="rs"]').waitFor();
     const found: string[] = [];
@@ -101,7 +101,7 @@ for (const n of [3, 5, 7]) {
   });
 }
 
-for (const n of [3, 5, 7]) {
+for (const n of [3, 5, 7, 8, 9, 10]) {
   test(`the made and missed marks stay clear of the names (${n} players)`, async ({ page }) => {
     // The Results table with its marks only shows beside the list on wide screens.
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -124,7 +124,7 @@ for (const [w, h, what] of [
   [390, 1100, 'flat'],
   [1280, 800, 'full'],
 ] as const) {
-  for (const n of [3, 5, 7]) {
+  for (const n of [3, 5, 7, 8, 9, 10]) {
     test(`the Next-up table has no overlaps at any size (${n} players, ${what})`, async ({
       page,
     }) => {

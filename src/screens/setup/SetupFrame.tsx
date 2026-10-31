@@ -31,18 +31,18 @@ const Dots = ({ step }: { step: number }) => (
 );
 
 // Scaffold's fitted area may shrink to nothing, which would let the table overlap the controls below it. This stops it
-// at the table's minimum (0.72 or 0.8 of 300px) plus the slot's mt-2, so the screen scrolls instead.
+// at the table's minimum (0.45 for the setup preview, else 0.72 or 0.8 of 300px) plus the slot's mt-2, so the screen scrolls instead.
 const FIT_MIN =
-  '[&_div:has(>[data-fit-min="72"])]:min-h-[224px] [&_div:has(>[data-fit-min="80"])]:min-h-[248px]';
+  '[&_div:has(>[data-fit-min="45"])]:min-h-[143px] [&_div:has(>[data-fit-min="72"])]:min-h-[224px] [&_div:has(>[data-fit-min="80"])]:min-h-[248px]';
 
 /** Where a fitted table sits: full width on a phone, the left pane in two panes. */
 export const TableSlot = forwardRef<
   HTMLDivElement,
-  HTMLAttributes<HTMLDivElement> & { players: number }
->(({ players, className = '', ...rest }, ref) => (
+  HTMLAttributes<HTMLDivElement> & { players: number; minFit?: number }
+>(({ players, minFit = minScale(players), className = '', ...rest }, ref) => (
   <div
     ref={ref}
-    data-fit-min={Math.round(minScale(players) * 100)}
+    data-fit-min={Math.round(minFit * 100)}
     className={`-mx-5 mt-2 flex min-h-0 flex-1 flex-col pane:mx-0 ${className}`}
     {...rest}
   />
