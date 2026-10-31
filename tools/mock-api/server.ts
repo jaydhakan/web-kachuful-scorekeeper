@@ -1,7 +1,8 @@
 /**
- * The whole API contract (plan-backend §6) in memory, for building and testing the app before the backend exists.
- * Dev and e2e only. It reuses the app's domain for every number, so boards and achievements match the app; the real
- * server must match the golden fixtures instead. Not covered: OG images, real QR codes, persistence across restarts.
+ * The API as built (the backend's HANDOFF.md §6) in memory, for building and testing the app without the backend.
+ * Dev and e2e only; its seed has the backend's demo accounts and players (HANDOFF §3), so the same tests run against
+ * either. It reuses the app's domain for every number. Not covered: OG images, real QR codes, photo re-encoding,
+ * rate limits other than login, persistence across restarts.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
@@ -36,11 +37,14 @@ import type {
   Achievement,
   Activity,
   GameSummary,
+  AdminUserRow,
   Player,
   PlayerSummary,
   User,
   WireGame,
 } from '../../src/sync/types';
+
+type Seen = Omit<Activity, 'id'>;
 
 const TZ = 'Asia/Kolkata';
 const ORIGIN = 'https://play.vectanix.com';
@@ -52,6 +56,8 @@ interface UserRec extends User {
   lastSeenAt: number | null;
 }
 interface GameRec {
+  /** The key it is stored under: the game's `syncId`, else its `id`. */
+  key: string;
   payload: WireGame;
   ownerId: string;
   rev: number;
@@ -60,6 +66,11 @@ interface GameRec {
   deletedAt: number | null;
   links: Partial<Record<'live' | 'recap', string>>;
   scorerSeenAt: number;
+}
+
+interface Photo {
+  bytes: Buffer;
+  type: string;
 }
 
 interface Db {
@@ -71,9 +82,13 @@ interface Db {
   >;
   resets: Map<string, { userId: string; expiresAt: number; done: boolean }>;
   players: Map<string, Player>;
+  photos: Map<string, Photo>;
+  /** Bumped by every upload and delete, so each photo has its own URL. */
+  photoRev: Map<string, number>;
   games: Map<string, GameRec>;
   achievements: Map<string, Achievement>;
   activity: Activity[];
+  nextActivity: number;
   links: Map<string, { gameId: string; kind: 'live' | 'recap'; revoked: boolean }>;
   failed: Map<string, number[]>;
   version: number;
@@ -94,6 +109,7 @@ function newPlayer(
     id: p.id ?? randomUUID(),
     displayName: p.displayName,
     email: p.email ? emailKey(p.email) : null,
+    photoUrl: null,
     firstName: p.firstName ?? null,
     lastName: p.lastName ?? null,
     emoji: p.emoji,
@@ -106,7 +122,21 @@ function newPlayer(
   };
 }
 
-/** Two accounts, six players and a week of games, so every screen has something to show. */
+const account = (email: string, password: string, role: User['role'], at: number): UserRec => ({
+  id: randomUUID(),
+  email,
+  role,
+  playerId: null,
+  createdAt: at,
+  password,
+  active: true,
+  lastSeenAt: null,
+});
+
+/**
+ * The backend's demo seed (HANDOFF §3): three accounts, nine players with `<name>@kachuful.test` emails, a pending
+ * invite for new.player@kachuful.test, and a week of games so every screen has something to show.
+ */
 export function seed(now = Date.now()) {
   db = {
     users: new Map(),
@@ -114,42 +144,30 @@ export function seed(now = Date.now()) {
     invites: new Map(),
     resets: new Map(),
     players: new Map(),
+    photos: new Map(),
+    photoRev: new Map(),
     games: new Map(),
     achievements: new Map(),
     activity: [],
+    nextActivity: 1,
     links: new Map(),
     failed: new Map(),
     version: 1,
   };
-  const admin: UserRec = {
-    id: randomUUID(),
-    email: 'jaydhakan11@gmail.com',
-    role: 'admin',
-    playerId: null,
-    createdAt: now - 30 * DAY,
-    password: 'kachuful',
-    active: true,
-    lastSeenAt: null,
-  };
-  const riya: UserRec = {
-    id: randomUUID(),
-    email: 'riya@example.com',
-    role: 'member',
-    playerId: null,
-    createdAt: now - 20 * DAY,
-    password: 'riya',
-    active: true,
-    lastSeenAt: null,
-  };
-  db.users.set(admin.id, admin);
-  db.users.set(riya.id, riya);
+  const admin = account('admin@kachuful.test', 'admin-demo', 'admin', now - 30 * DAY);
+  const riya = account('riya@kachuful.test', 'riya-demo', 'member', now - 20 * DAY);
+  const kabir = account('kabir@kachuful.test', 'kabir-demo', 'member', now - 20 * DAY);
+  for (const u of [admin, riya, kabir]) db.users.set(u.id, u);
   const look: [string, string, string, string?][] = [
-    ['Jay', '🦁', '#f59e0b', admin.id],
-    ['Riya', '🦊', '#f87171', riya.id],
-    ['Kabir', '🐯', '#60a5fa'],
-    ['Meera', '🐼', '#34d399'],
-    ['Aarav', '🐸', '#a78bfa'],
-    ['Dev', '🐙', '#f472b6'],
+    ['Jay', '🦊', '#ff8a65', admin.id],
+    ['Riya', '🐯', '#60a5fa', riya.id],
+    ['Kabir', '🐼', '#34d399', kabir.id],
+    ['Asha', '🐸', '#f472b6'],
+    ['Om', '🦁', '#facc15'],
+    ['Neha', '🐙', '#a78bfa'],
+    ['Dev', '🐵', '#f87171'],
+    ['Zoya', '🦉', '#2dd4bf'],
+    ['Ishan', '🐳', '#38bdf8'],
   ];
   const ps = look.map(([n, e, c, u]) => {
     const p = newPlayer(
@@ -158,59 +176,60 @@ export function seed(now = Date.now()) {
         emoji: e,
         color: c,
         linkedUserId: u ?? null,
-        email: u ? db.users.get(u)!.email : `${n.toLowerCase()}@example.com`,
+        email: `${n.toLowerCase()}@kachuful.test`,
       },
-      admin.id,
+      riya.id,
       now - 25 * DAY,
     );
     db.players.set(p.id, p);
     if (u) db.users.get(u)!.playerId = p.id;
     return p;
   });
-  for (let k = 0; k < 8; k++) {
-    const seats = ps.filter((_, i) => (i + k) % 6 < 4);
+  db.invites.set(token(), {
+    email: 'new.player@kachuful.test',
+    playerId: null,
+    expiresAt: now + 7 * DAY,
+    done: false,
+  });
+  // Two games a day for two weeks, four or five at each table, so the boards have ranked players.
+  for (let k = 0; k < 28; k++) {
+    const seats = ps.filter((_, i) => (i + k) % 9 < 4 + (k % 2));
     const g = kitGame({
       id: randomUUID(),
       players: seats.map((p) => p.id),
       names: seats.map((p) => p.displayName),
-      start: now - (8 - k) * DAY + 3600e3 * 2,
+      start: now - (14 - Math.floor(k / 2)) * DAY + 3600e3 * (2 + 4 * (k % 2)),
       rounds: rows(seats.length, 10 + (k % 4), (i) =>
         i % 3 ? [(i + k) % seats.length] : [0, (i + 1) % seats.length],
       ),
       finished: true,
     });
     g.players.forEach((p, i) => ((p.emoji = seats[i].emoji), (p.color = seats[i].color)));
-    store(toWire(g), admin.id, now);
+    store(g, admin.id, now);
   }
   recompute(now);
   // The feed a real server would have written while these games were played.
-  for (const r of liveGames()) {
+  for (const r of [...liveGames()].reverse()) {
     const sum = gameSummary(r, now);
     if (sum.endedAt)
-      db.activity.push({
-        id: randomUUID(),
-        kind: 'game_finished',
-        game: sum,
-        data: {},
-        createdAt: sum.endedAt,
-      });
+      feed({ kind: 'game_finished', game: sum, player: null, data: {}, createdAt: sum.endedAt });
   }
   db.activity.sort((a, b) => b.createdAt - a.createdAt);
 }
 
-export const toWire = (g: Game): WireGame => {
-  const { syncId, ...rest } = g;
-  return { ...rest, id: syncId, localId: g.id };
-};
-const fromWire = (w: WireGame): Game => ({
-  ...(w as unknown as Game),
-  id: w.localId ?? w.id,
-  syncId: w.id,
-});
+/** Adds to the activity feed (newest first), numbered as the server numbers it. */
+function feed(item: Seen) {
+  db.activity.unshift({ ...item, id: db.nextActivity++ } as Activity);
+}
+
+const keyOf = (w: WireGame) => w.syncId ?? w.id;
+const fromWire = (r: GameRec): Game => ({ ...r.payload, syncId: r.key });
 
 function store(w: WireGame, ownerId: string, now: number) {
-  const prev = db.games.get(w.id);
-  db.games.set(w.id, {
+  const key = keyOf(w);
+  const prev = db.games.get(key);
+  db.games.set(key, {
+    key,
     payload: w,
     ownerId: prev?.ownerId ?? ownerId,
     rev: w.rev,
@@ -235,7 +254,7 @@ const liveGames = () => [...db.games.values()].filter((g) => !g.deletedAt);
 function facts(now = Date.now()): Facts {
   return buildFacts(
     liveGames().map((r) => {
-      const g = fromWire(r.payload);
+      const g = fromWire(r);
       return {
         ...g,
         players: g.players.map((p) => ({ ...p, playerId: p.playerId && resolve(p.playerId) })),
@@ -277,22 +296,33 @@ function summaryOf(id: string, f?: Facts): PlayerSummary {
   return {
     ...p,
     email: null,
+    photoUrl: photoUrl(p.id),
     games: mine.length,
     lastPlayedAt: last || null,
     createdByName: userName(p.createdBy),
   };
 }
 
-function gameSummary(r: GameRec, now = Date.now()): GameSummary {
-  const g = fromWire(r.payload);
+const photoUrl = (id: string | null) => {
+  const r = id ? resolve(id) : '';
+  return db.photos.has(r) ? `/api/players/${r}/photo?v=${db.photoRev.get(r) ?? 0}` : null;
+};
+
+function gameSummary(r: GameRec, now = Date.now(), pub = false): GameSummary {
+  const g = fromWire(r);
   const end = gameEndedAt(g, now).at;
   return {
-    id: r.payload.id,
-    owner: { id: r.ownerId, name: userName(r.ownerId) },
+    id: r.key,
+    owner: { id: pub ? null : r.ownerId, name: userName(r.ownerId) },
     createdAt: g.createdAt,
+    updatedAt: r.updatedAt,
     endedAt: end,
     status: g.status,
-    players: summaryPlayers(g, end != null),
+    players: summaryPlayers(g, end != null).map((p) => ({
+      ...p,
+      playerId: p.playerId ?? '',
+      photoUrl: photoUrl(p.playerId),
+    })),
     rounds: doneRounds(g).length,
     lengthMode: g.lengthMode,
     live: !!r.links.live,
@@ -311,6 +341,19 @@ class Http extends Error {
 }
 const err = (status: number, code: string, extra: Record<string, unknown> = {}) =>
   new Http(status, { code, message: code.replace(/_/g, ' '), ...extra });
+
+function readBytes(req: IncomingMessage, max: number): Promise<Buffer> {
+  return new Promise((ok, no) => {
+    const parts: Buffer[] = [];
+    let n = 0;
+    req.on('data', (c: Buffer) => {
+      n += c.length;
+      if (n > max) no(err(413, 'too_large'));
+      else parts.push(c);
+    });
+    req.on('end', () => ok(Buffer.concat(parts)));
+  });
+}
 
 function readBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((ok, no) => {
@@ -370,33 +413,50 @@ function page<T>(items: T[], cursor: unknown, limit = 50) {
   };
 }
 
+const livePlayers = (exceptId?: string) =>
+  [...db.players.values()].filter((p) => !p.mergedInto && p.id !== exceptId);
+
+/** HANDOFF §5.7: the same player is name AND email of one live player; a partial match names nobody. */
+function identify(name: string, email: string): 'match' | 'email_taken' | 'name_taken' | 'new' {
+  const live = livePlayers();
+  const byEmail = email ? live.find((p) => p.email === emailKey(email)) : undefined;
+  const byName = live.find((p) => nameKey(p.displayName) === nameKey(name));
+  if (byEmail && byEmail === byName) return 'match';
+  if (byEmail) return 'email_taken';
+  if (byName) return 'name_taken';
+  return 'new';
+}
+
 /** Name and email rules for a new or renamed player; `exceptId` is the player being edited. */
 function checkPlayer(
   body: Record<string, unknown>,
   exceptId?: string,
   need = { name: true, email: true },
 ) {
-  const live = [...db.players.values()].filter((p) => !p.mergedInto && p.id !== exceptId);
+  const live = livePlayers(exceptId);
   if (need.email) {
-    const email = String(body.email ?? '');
-    if (!emailOk(email)) throw err(422, 'invalid', { fields: { email: 'required' } });
-    const c = live.find((p) => p.email === emailKey(email));
-    if (c) throw err(409, 'email_taken', { existing: summaryOf(c.id) });
+    const email = body.email;
+    if (typeof email !== 'string' || !emailOk(email))
+      throw err(422, 'invalid', { fields: { email: 'must look like x@y.z' } });
+    if (live.some((p) => p.email === emailKey(email))) throw err(409, 'email_taken');
   }
   if (need.name) {
     const name = String(body.displayName ?? '').trim();
     if (!name || name.length > 14)
-      throw err(422, 'invalid', { fields: { displayName: 'required' } });
-    const c = live.find((p) => nameKey(p.displayName) === nameKey(name));
-    if (c) throw err(409, 'name_taken', { existing: summaryOf(c.id) });
+      throw err(422, 'invalid', { fields: { displayName: 'must be 1-14 characters' } });
+    if (live.some((p) => nameKey(p.displayName) === nameKey(name))) throw err(409, 'name_taken');
   }
 }
 
 /** A player as `me` may see it: the email only for the admin, its creator and its linked user. */
-const view = (p: Player, me: User | null): Player =>
-  me && (me.role === 'admin' || p.createdBy === me.id || p.linkedUserId === me.id)
-    ? p
-    : { ...p, email: null };
+const view = (p: Player, me: User | null): Player => ({
+  ...p,
+  photoUrl: photoUrl(p.id),
+  email:
+    me && (me.role === 'admin' || p.createdBy === me.id || p.linkedUserId === me.id)
+      ? p.email
+      : null,
+});
 
 function notify(gameId: string, event: string, data: unknown, id?: number) {
   for (const res of sse.get(gameId) ?? [])
@@ -440,7 +500,7 @@ on(
     }
     if (!u.active) throw err(403, 'inactive');
     signIn(res, u);
-    return { user: userOut(u) };
+    return { user: userOut(u), player: u.playerId ? view(db.players.get(u.playerId)!, u) : null };
   },
   'public',
 );
@@ -501,13 +561,14 @@ on(
       const p = db.players.get(resolve(pl.id));
       if (!p) throw err(422, 'unknown_player', { playerIds: [pl.id] });
       if (p.linkedUserId) throw err(409, 'player_linked');
-      if (p.email && p.email !== inv.email)
-        throw err(409, 'email_taken', { existing: summaryOf(p.id) });
-      p.email = inv.email;
+      if (inv.playerId && inv.playerId !== p.id) throw err(422, 'invalid');
+      if (p.email && p.email !== inv.email && inv.playerId !== p.id) throw err(409, 'email_taken');
+      p.email ??= inv.email;
       player = p;
     } else {
       // A new player takes the invite's email, whatever was sent.
       checkPlayer({ ...(pl ?? {}), email: inv.email });
+      if (db.players.has(String(pl?.id))) throw err(409, 'id_conflict');
       player = newPlayer({ ...(pl as unknown as Player), email: inv.email }, null, Date.now());
       db.players.set(player.id, player);
     }
@@ -526,10 +587,10 @@ on(
     player.createdBy ??= u.id;
     player.updatedAt = Date.now();
     inv.done = true;
-    db.activity.unshift({
-      id: randomUUID(),
+    feed({
       kind: 'player_joined',
       player: summaryOf(player.id),
+      game: null,
       data: {},
       createdAt: Date.now(),
     });
@@ -556,11 +617,12 @@ on(
     if (!r || r.done || r.expiresAt < Date.now()) throw err(410, 'gone');
     if (!strong(body.password)) throw err(422, 'weak_password');
     const u = db.users.get(r.userId)!;
+    if (!u.active) throw err(403, 'inactive');
     u.password = String(body.password);
     r.done = true;
     for (const [t, id] of db.sessions) if (id === u.id) db.sessions.delete(t);
     signIn(res, u);
-    return { user: userOut(u), player: u.playerId ? (db.players.get(u.playerId) ?? null) : null };
+    return { user: userOut(u), player: u.playerId ? view(db.players.get(u.playerId)!, u) : null };
   },
   'public',
 );
@@ -578,35 +640,30 @@ on('POST', '/api/me/password', ({ me, body, req }) => {
 on(
   'GET',
   '/api/admin/users',
-  () =>
-    [...db.users.values()]
-      .map((u) => {
-        const inv = [...db.invites.entries()].find(([, i]) => i.email === u.email && !i.done);
-        return {
-          user: userOut(u),
-          player: u.playerId ? (db.players.get(u.playerId) ?? null) : null,
-          active: u.active,
-          lastSeenAt: u.lastSeenAt,
-          invite: inv ? { expiresAt: inv[1].expiresAt, url: `${ORIGIN}/?invite=${inv[0]}` } : null,
-        };
-      })
-      .concat(
-        [...db.invites.entries()]
-          .filter(([, i]) => !i.done && ![...db.users.values()].some((u) => u.email === i.email))
-          .map(([t, i]) => ({
-            user: {
-              id: 'invite:' + i.email,
-              email: i.email,
-              role: 'member' as const,
-              playerId: i.playerId,
-              createdAt: 0,
-            },
-            player: i.playerId ? (db.players.get(i.playerId) ?? null) : null,
-            active: false,
-            lastSeenAt: null,
-            invite: { expiresAt: i.expiresAt, url: `${ORIGIN}/?invite=${t}` },
-          })),
-      ),
+  ({ me }) => {
+    const pending = [...db.invites.values()].filter((i) => !i.done && i.expiresAt > Date.now());
+    const rows: AdminUserRow[] = [...db.users.values()].map((u) => {
+      const inv = pending.find((i) => i.email === u.email);
+      return {
+        user: userOut(u),
+        player: u.playerId ? view(db.players.get(u.playerId)!, me) : null,
+        active: u.active,
+        lastSeenAt: u.lastSeenAt,
+        invite: inv ? { email: inv.email, expiresAt: inv.expiresAt } : null,
+      };
+    });
+    // Then invites nobody has accepted yet; their links are only shown once, when made.
+    for (const i of pending)
+      if (![...db.users.values()].some((u) => u.email === i.email))
+        rows.push({
+          user: null,
+          player: i.playerId ? view(db.players.get(i.playerId)!, me) : null,
+          active: false,
+          lastSeenAt: null,
+          invite: { email: i.email, expiresAt: i.expiresAt },
+        });
+    return rows;
+  },
   'admin',
 );
 on(
@@ -619,12 +676,15 @@ on(
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
       throw err(422, 'invalid', { fields: { email: 'invalid' } });
     if ([...db.users.values()].some((u) => u.email === email)) throw err(409, 'user_exists');
+    const pid = typeof body.playerId === 'string' ? body.playerId : null;
+    if (pid && !db.players.has(pid)) throw err(422, 'unknown_player', { playerIds: [pid] });
+    if (pid && db.players.get(pid)!.linkedUserId) throw err(409, 'player_linked');
     for (const [t, i] of db.invites) if (i.email === email) db.invites.delete(t);
     const t = token(),
       expiresAt = Date.now() + 7 * DAY;
     db.invites.set(t, {
       email,
-      playerId: typeof body.playerId === 'string' ? body.playerId : null,
+      playerId: pid,
       expiresAt,
       done: false,
     });
@@ -679,8 +739,17 @@ on(
       b = db.players.get(resolve(String(body.intoId)));
     if (!a || !b || a.id === b.id) throw err(404, 'not_found');
     if (a.linkedUserId && b.linkedUserId) throw err(409, 'both_linked');
+    // Two players at one table are two people.
+    const together = liveGames().some(
+      (g) =>
+        g.payload.players.some((p) => p.playerId === a.id) &&
+        g.payload.players.some((p) => p.playerId === b.id),
+    );
+    if (together) throw err(422, 'invalid', { fields: { intoId: 'they played at one table' } });
     a.mergedInto = b.id;
     b.email ??= a.email;
+    if (!db.photos.has(b.id) && db.photos.has(a.id)) db.photos.set(b.id, db.photos.get(a.id)!);
+    a.email = null;
     a.updatedAt = b.updatedAt = Date.now();
     if (a.linkedUserId) {
       b.linkedUserId = a.linkedUserId;
@@ -691,7 +760,7 @@ on(
       g.payload.players.forEach((p) => p.playerId === a.id && (p.playerId = b.id));
     db.version++;
     recompute();
-    return { player: b };
+    return { player: view(b, null) };
   },
   'admin',
 );
@@ -722,29 +791,35 @@ on('GET', '/api/players', ({ url, me }) => {
   );
 });
 on('GET', '/api/players/check', ({ url }) => {
-  const live = [...db.players.values()].filter((x) => !x.mergedInto);
-  const email = emailKey(url.searchParams.get('email') ?? '');
-  const byEmail = email && live.find((x) => x.email === email);
-  if (byEmail) return { available: false, field: 'email', existing: summaryOf(byEmail.id) };
-  const k = nameKey(url.searchParams.get('name') ?? '');
-  const byName = k && live.find((x) => nameKey(x.displayName) === k);
-  return byName
-    ? { available: false, field: 'name', existing: summaryOf(byName.id) }
-    : { available: true };
+  const name = url.searchParams.get('name') ?? '';
+  const email = url.searchParams.get('email') ?? '';
+  if (email && !emailOk(email))
+    throw err(422, 'invalid', { fields: { email: 'must look like x@y.z' } });
+  const status = identify(name, email);
+  if (status !== 'match') return { status, player: null };
+  const p = livePlayers().find((x) => x.email === emailKey(email))!;
+  return { status, player: summaryOf(p.id) };
 });
 on('POST', '/api/players', ({ body, me }) => {
   const prev = db.players.get(String(body.id));
   if (prev) {
-    if (prev.displayName === body.displayName) return view(prev, me);
-    throw err(409, 'name_taken', { existing: summaryOf(prev.id) });
+    // Idempotent by id: the same body again is fine, a different one is a conflict.
+    if (prev.displayName === body.displayName && prev.email === emailKey(String(body.email ?? '')))
+      return view(prev, me);
+    throw err(409, 'id_conflict');
   }
+  if (typeof body.email === 'string' && emailOk(body.email) && typeof body.displayName === 'string')
+    if (identify(body.displayName, body.email) === 'match') {
+      const p = livePlayers().find((x) => x.email === emailKey(String(body.email)))!;
+      throw err(409, 'same_player', { player: summaryOf(p.id) });
+    }
   checkPlayer(body);
   const p = newPlayer(body as unknown as Player, me!.id, Date.now());
   db.players.set(p.id, p);
-  db.activity.unshift({
-    id: randomUUID(),
+  feed({
     kind: 'player_joined',
     player: summaryOf(p.id),
+    game: null,
     data: {},
     createdAt: Date.now(),
   });
@@ -758,6 +833,7 @@ on('PATCH', '/api/players/:id', ({ m, body, me }) => {
     creator = p.createdBy === me!.id;
   if (body.displayName !== undefined && !admin && !linked) throw err(403, 'forbidden');
   if (!admin && !linked && !creator) throw err(403, 'forbidden');
+  if (body.email === null) throw err(422, 'invalid', { fields: { email: "can't be cleared" } });
   checkPlayer(body, p.id, {
     name: body.displayName !== undefined,
     email: body.email !== undefined,
@@ -770,6 +846,52 @@ on('PATCH', '/api/players/:id', ({ m, body, me }) => {
   db.version++;
   return view(p, me);
 });
+/** Who may change a player's photo or email: the admin, its creator and its linked user. */
+function mayEdit(p: Player | undefined, me: UserRec) {
+  if (!p || p.mergedInto) throw err(404, 'not_found');
+  if (me.role !== 'admin' && p.createdBy !== me.id && p.linkedUserId !== me.id)
+    throw err(403, 'forbidden');
+  return p;
+}
+const PHOTO_TYPES = ['image/webp', 'image/jpeg', 'image/png'];
+on('PUT', '/api/players/:id/photo', async ({ m, me, req }) => {
+  const p = mayEdit(db.players.get(m[0]), me!);
+  const type = String(req.headers['content-type'] ?? '').split(';')[0];
+  const bytes = await readBytes(req, 2 * 1024 * 1024);
+  if (!PHOTO_TYPES.includes(type) || !bytes.length)
+    throw err(415, 'unsupported_media_type', {
+      message: 'Send a WebP, JPEG or PNG image (at most 2 MB).',
+    });
+  // The real server re-encodes to a 256×256 WebP; the mock keeps the bytes as sent.
+  db.photos.set(p.id, { bytes, type });
+  db.photoRev.set(p.id, (db.photoRev.get(p.id) ?? 0) + 1);
+  p.updatedAt = Date.now();
+  db.version++;
+  return { photoUrl: photoUrl(p.id) };
+});
+on('DELETE', '/api/players/:id/photo', ({ m, me }) => {
+  const p = mayEdit(db.players.get(m[0]), me!);
+  db.photos.delete(p.id);
+  db.photoRev.set(p.id, (db.photoRev.get(p.id) ?? 0) + 1);
+  p.updatedAt = Date.now();
+  db.version++;
+  return null;
+});
+on(
+  'GET',
+  '/api/players/:id/photo',
+  ({ m, res }) => {
+    const ph = db.photos.get(resolve(m[0]));
+    if (!ph) throw err(404, 'not_found');
+    res.writeHead(200, {
+      'Content-Type': ph.type,
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    });
+    res.end(ph.bytes);
+    return RAW;
+  },
+  'public',
+);
 on('GET', '/api/players/:id', ({ m }) => {
   const id = resolve(m[0]);
   if (!db.players.has(id)) throw err(404, 'not_found');
@@ -828,7 +950,11 @@ on('GET', '/api/players/:a/vs/:b', ({ m, url }) => {
     a: summaryOf(a, f),
     b: summaryOf(b, f),
     lastGames: h.lastGames.map(sum),
-    biggestWin: h.biggestWin && { by: h.biggestWin.by, game: sum(h.biggestWin.gameId) },
+    biggestWin: h.biggestWin && {
+      by: h.biggestWin.by,
+      game: sum(h.biggestWin.gameId),
+      winner: h.biggestWin.winner,
+    },
   };
 });
 
@@ -836,14 +962,18 @@ on('GET', '/api/players/:a/vs/:b', ({ m, url }) => {
 
 on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const w = body as unknown as WireGame;
-  if (w.id !== m[0]) throw err(422, 'invalid', { fields: { id: 'mismatch' } });
-  const prev = db.games.get(w.id);
+  const key = keyOf(w);
+  if (key !== m[0]) throw err(422, 'invalid_game', { reason: 'id', roundIndex: null });
+  const prev = db.games.get(key);
+  if (prev?.deletedAt) throw err(410, 'gone');
   const h = hash(JSON.stringify(w));
-  if (prev && !prev.deletedAt) {
+  if (prev) {
     if (prev.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
     if (prev.hash === h) return { rev: prev.rev, earned: [] };
     if (w.rev <= prev.rev) throw err(409, 'stale', { server: prev.payload });
   }
+  if (w.players.some((p) => !p.playerId))
+    throw err(422, 'invalid_game', { reason: 'players', roundIndex: null });
   const unknown = w.players.map((p) => p.playerId ?? '').filter((id) => !db.players.has(id));
   if (unknown.length) throw err(422, 'unknown_player', { playerIds: unknown });
   const remap: Record<string, string> = {};
@@ -854,24 +984,18 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
       p.playerId = r;
     }
   }
-  const v = validate(fromWire(w), Date.now());
+  const v = validate({ ...w, syncId: key }, Date.now());
   if (!v.ok) throw err(422, 'invalid_game', { reason: v.reason, roundIndex: v.roundIndex ?? null });
-  const wasEnded = prev ? gameEndedAt(fromWire(prev.payload), Date.now()).at != null : false;
+  const wasEnded = prev ? gameEndedAt(fromWire(prev), Date.now()).at != null : false;
   store(w, me!.id, Date.now());
   const earned = recompute();
-  const rec = db.games.get(w.id)!;
+  const rec = db.games.get(key)!;
   const sum = gameSummary(rec);
   if (!wasEnded && sum.endedAt)
-    db.activity.unshift({
-      id: randomUUID(),
-      kind: 'game_finished',
-      game: sum,
-      data: {},
-      createdAt: Date.now(),
-    });
-  for (const e of earned.filter((x) => !x.code.startsWith('hot_3') && !x.code.startsWith('cold_')))
-    db.activity.unshift({
-      id: randomUUID(),
+    feed({ kind: 'game_finished', player: null, game: sum, data: {}, createdAt: Date.now() });
+  // The server feeds every achievement, round moments included (HANDOFF §10).
+  for (const e of earned)
+    feed({
       kind: 'achievement',
       player: summaryOf(e.playerId),
       game: sum,
@@ -879,21 +1003,31 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
       createdAt: e.earnedAt,
     });
   notify(
-    w.id,
+    key,
     'game',
-    { game: w, summary: sum, updatedAt: rec.updatedAt, scorerSeenAt: rec.scorerSeenAt },
+    {
+      game: w,
+      summary: gameSummary(rec, Date.now(), true),
+      updatedAt: rec.updatedAt,
+      scorerSeenAt: rec.scorerSeenAt,
+    },
     w.rev,
   );
   return { rev: w.rev, earned, ...(Object.keys(remap).length && { remap }) };
 });
 on('GET', '/api/games', ({ url, me }) => {
   const since = Number(url.searchParams.get('updatedSince')) || 0;
-  const mine = url.searchParams.get('mine') === '1';
-  const list = liveGames()
-    .filter((g) => g.updatedAt > since && (!mine || g.ownerId === me!.id))
+  const mine = url.searchParams.get('mine') === 'true';
+  const list = [...db.games.values()]
+    .filter(
+      (g) => g.updatedAt > since && (!mine || g.ownerId === me!.id) && (!g.deletedAt || since > 0),
+    )
     .sort((a, b) => b.updatedAt - a.updatedAt)
-    .map((g) => gameSummary(g));
-  return page(list, url.searchParams.get('cursor'));
+    // Deleted games come back only to a caller catching up, as tombstones.
+    .map((g) =>
+      g.deletedAt ? { id: g.key, deleted: true as const, updatedAt: g.updatedAt } : gameSummary(g),
+    );
+  return page(list, url.searchParams.get('cursor'), Number(url.searchParams.get('limit')) || 50);
 });
 on('GET', '/api/games/:id', ({ m }) => {
   const r = db.games.get(m[0]);
@@ -908,7 +1042,13 @@ on('DELETE', '/api/games/:id', ({ m, me }) => {
   const r = db.games.get(m[0]);
   if (!r || r.deletedAt) throw err(404, 'not_found');
   if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
-  r.deletedAt = Date.now();
+  r.deletedAt = r.updatedAt = Date.now();
+  for (const k of ['live', 'recap'] as const)
+    if (r.links[k]) {
+      db.links.get(r.links[k]!)!.revoked = true;
+      if (k === 'live') notify(r.key, 'revoked', {});
+      delete r.links[k];
+    }
   db.version++;
   recompute();
   return null;
@@ -987,8 +1127,16 @@ on('GET', '/api/leaderboard', ({ url, req, res }) => {
     rows: b.rows.map((r) => ({ ...r, player: summaryOf(r.playerId, f) })),
   };
 });
-const awardsOut = (f: Facts, list: { code: string; playerId: string; value: number }[]) =>
-  list.map(({ playerId, ...a }) => ({ ...a, player: summaryOf(playerId, f) }));
+const awardsOut = (
+  f: Facts,
+  list: { code: string; playerId: string; value: number; gameId?: string; roundIndex?: number }[],
+) =>
+  list.map(({ playerId, gameId, roundIndex, ...a }) => ({
+    ...a,
+    player: summaryOf(playerId, f),
+    gameId: gameId ?? null,
+    roundIndex: roundIndex ?? null,
+  }));
 on('GET', '/api/awards/daily', ({ url }) => {
   const date = url.searchParams.get('date') ?? dayOf(Date.now(), TZ);
   const f = facts();
@@ -1016,8 +1164,22 @@ on('GET', '/api/seasons', () => {
     return { season: mo, champion: ch ? summaryOf(ch.playerId, f) : null };
   });
 });
-on('GET', '/api/wrapped/:y/:id', ({ m }) => wrapped(facts(), resolve(m[1]), Number(m[0]), TZ));
-on('GET', '/api/activity', ({ url }) => page(db.activity, url.searchParams.get('cursor')));
+on('GET', '/api/wrapped/:y/:id', ({ m }) => {
+  const id = resolve(m[1]);
+  if (!db.players.has(id)) throw err(404, 'not_found');
+  const f = facts();
+  const w = wrapped(f, id, Number(m[0]), TZ);
+  return {
+    ...w,
+    player: summaryOf(id, f),
+    totals: statsOut(f, id, 0, Infinity),
+    nemesis: w.nemesis && { ...w.nemesis, player: summaryOf(w.nemesis.playerId, f) },
+    partner: w.partner && { ...w.partner, player: summaryOf(w.partner.playerId, f) },
+  };
+});
+on('GET', '/api/activity', ({ url }) =>
+  page(db.activity, url.searchParams.get('cursor'), Number(url.searchParams.get('limit')) || 50),
+);
 on('GET', '/api/achievements', ({ url }) => {
   const pid = url.searchParams.get('playerId');
   const list = [...db.achievements.values()]
@@ -1031,12 +1193,11 @@ on('GET', '/api/achievements', ({ url }) => {
 function linkGame(t: string, kind: 'live' | 'recap') {
   const l = db.links.get(t);
   if (!l || l.kind !== kind) throw err(404, 'not_found');
-  if (l.revoked) throw err(410, 'gone');
   const r = db.games.get(l.gameId);
-  if (!r || r.deletedAt) throw err(404, 'not_found');
+  if (l.revoked || !r || r.deletedAt) throw err(410, 'gone');
   return r;
 }
-const pub = (s: GameSummary) => s;
+const pub = (r: GameRec) => gameSummary(r, Date.now(), true);
 on(
   'GET',
   '/api/public/live/:t',
@@ -1044,7 +1205,7 @@ on(
     const r = linkGame(m[0], 'live');
     return {
       game: r.payload,
-      summary: pub(gameSummary(r)),
+      summary: pub(r),
       updatedAt: r.updatedAt,
       scorerSeenAt: r.scorerSeenAt,
     };
@@ -1061,13 +1222,14 @@ on(
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
     });
-    const id = r.payload.id;
+    const id = r.key;
     const set = sse.get(id) ?? new Set();
     set.add(res);
     sse.set(id, set);
-    res.write(
-      `event: game\nid: ${r.rev}\ndata: ${JSON.stringify({ game: r.payload, summary: gameSummary(r), updatedAt: r.updatedAt, scorerSeenAt: r.scorerSeenAt })}\n\n`,
-    );
+    if (req.headers['last-event-id'] !== String(r.rev))
+      res.write(
+        `event: game\nid: ${r.rev}\ndata: ${JSON.stringify({ game: r.payload, summary: pub(r), updatedAt: r.updatedAt, scorerSeenAt: r.scorerSeenAt })}\n\n`,
+      );
     const ping = setInterval(() => res.write('event: ping\ndata: {}\n\n'), 25e3);
     req.on('close', () => {
       clearInterval(ping);
@@ -1084,8 +1246,8 @@ on(
     const r = linkGame(m[0], 'recap');
     return {
       game: r.payload,
-      summary: pub(gameSummary(r)),
-      achievements: [...db.achievements.values()].filter((a) => a.gameId === r.payload.id),
+      summary: pub(r),
+      achievements: [...db.achievements.values()].filter((a) => a.gameId === r.key),
     };
   },
   'public',
@@ -1153,12 +1315,27 @@ export function mockApi(req: IncomingMessage, res: ServerResponse, next: () => v
   if (!/^\/(api|r|l)\//.test(url.pathname)) return next();
   if (!db) seed();
   const route = routes.find(([m, re]) => m === req.method && re.test(url.pathname));
+  const rawBody = req.method === 'PUT' && url.pathname.endsWith('/photo');
   const send = (status: number, body: unknown) => {
     if (res.headersSent) return;
+    if (status === 204 || status === 304 || body === null) {
+      res.statusCode = status;
+      return res.end();
+    }
+    const json = JSON.stringify(body);
+    // Every signed-in read answers If-None-Match, as the server's ETag reads do.
+    if (req.method === 'GET' && status === 200 && !url.pathname.startsWith('/api/public')) {
+      const etag = (res.getHeader('ETag') as string | undefined) ?? `W/"${hash(json)}"`;
+      res.setHeader('ETag', etag);
+      res.setHeader('Cache-Control', 'private, no-cache');
+      if (req.headers['if-none-match'] === etag) {
+        res.statusCode = 304;
+        return res.end();
+      }
+    }
     res.statusCode = status;
-    if (status === 204 || status === 304 || body === null) return res.end();
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(body));
+    res.end(json);
   };
   if (!route)
     return url.pathname.startsWith('/api/')
@@ -1175,7 +1352,7 @@ export function mockApi(req: IncomingMessage, res: ServerResponse, next: () => v
     if (route[3] !== 'public' && !me) throw err(401, 'unauthenticated');
     if (route[3] === 'admin' && me!.role !== 'admin') throw err(403, 'forbidden');
     const body =
-      req.method === 'GET' || req.method === 'DELETE'
+      req.method === 'GET' || req.method === 'DELETE' || rawBody
         ? {}
         : ((await readBody(req)) as Record<string, unknown>);
     const out = await route[2]({
