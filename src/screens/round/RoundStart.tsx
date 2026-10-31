@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
@@ -8,6 +8,10 @@ import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
 
+// One column when upright; the title group on the left and the table on the right when short or wide.
+const ROOT =
+  'scr-bg absolute inset-0 z-[45] cq-size flex cursor-pointer flex-col items-center pt-[calc(3rem+var(--sat))] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))] focus-visible:rounded-none focus-visible:[outline-offset:-3px] @h-short:pt-[calc(2rem+var(--sat))] pane:grid pane:items-stretch pane:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] pane:grid-rows-[1fr_auto_auto_auto_auto_auto_1fr] pane:justify-items-center pane:gap-x-6 pane:pb-[max(1rem,var(--sab))] pane:pl-[max(var(--sal),calc((100%-72rem)/2))] pane:pr-[max(var(--sar),calc((100%-72rem)/2))] pane:pt-[calc(1rem+var(--sat))]';
+
 /** The deal animation at the start of a round; one tap skips it. */
 export function RoundStart() {
   const { state, actions } = useApp();
@@ -15,6 +19,9 @@ export function RoundStart() {
   const g = state.game,
     n = g.players.length;
   const [stage, setStage] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  // The rest of the app is inert during the deal, so keys only reach the skip control if it holds focus.
+  useEffect(() => root.current?.focus({ preventScroll: true }), []);
   const r = seq?.round,
     prev = seq?.prev ?? null;
   const needPass = r !== undefined && prev != null && prev !== r.dealerIndex;
@@ -34,6 +41,7 @@ export function RoundStart() {
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
     <motion.div
+      ref={root}
       role="button"
       tabIndex={0}
       aria-label={t.start.skip}
@@ -43,14 +51,20 @@ export function RoundStart() {
       transition={{ duration: 0.25 }}
       onClick={() => setStage(4)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') setStage(4);
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+          e.preventDefault();
+          setStage(4);
+        }
       }}
-      className="scr-bg absolute inset-0 z-[45] flex cursor-pointer flex-col items-center pt-[calc(48px+var(--sat))]"
+      className={ROOT}
     >
-      <div className="disp text-30 font-extrabold tracking-[-0.035em]">
+      <div className="disp text-30 font-extrabold tracking-[-0.035em] @h-short:text-24 pane:[grid-area:2/1]">
         {t.round.title(r.index + 1)}
       </div>
-      <div className="my-3 h-[132px] w-24" style={{ perspective: 800 }}>
+      <div
+        className="my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
+        style={{ perspective: 800 }}
+      >
         <motion.div
           initial={{ rotateY: 0, scale: 0.9 }}
           animate={{ rotateY: 180, scale: 1 }}
@@ -60,7 +74,7 @@ export function RoundStart() {
         >
           <div className="absolute inset-0 rounded-[14px] border-4 border-text-primary bg-card-back [backface-visibility:hidden]" />
           <div
-            className={`absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 shadow-[0_0_44px_var(--accent)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
+            className={`absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--accent)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
             style={{ transform: 'rotateY(180deg)' }}
           >
             {th.sym}
@@ -71,50 +85,53 @@ export function RoundStart() {
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mb-2 text-17 font-bold text-[var(--accent)]"
+        className="mb-2 px-7 text-center text-17 font-bold text-[var(--accent)] @h-short:mb-1 pane:[grid-area:4/1]"
       >
         {t.start.trumpIs(th.name)}
       </motion.div>
-      <Table
-        uid="rs"
-        players={g.players}
-        dir={g.direction}
-        dealer={stage < 1 ? (prev ?? r.dealerIndex) : r.dealerIndex}
-        first={stage >= 2 ? r.firstPlayerIndex : undefined}
-        noSeatAnim={false}
-        center={<SuitCenter trump={r.trump} cards={r.cards} />}
-      >
-        {stage === 2 &&
-          Array.from({ length: n }, (_, k) => {
-            const idx = (r.dealerIndex + 1 + k) % n,
-              to = toPct('full', seatPos('full', n, idx, g.direction)),
-              rot = ((idx * 47) % 40) - 20,
-              delay = k * 0.06;
-            return (
-              <TablePin
-                key={k}
-                initial={{ x: `${from.x}%`, y: `${from.y}%` }}
-                animate={{ x: `${to.x}%`, y: `${to.y}%` }}
-                transition={{ duration: 0.52, delay, ease: EASE }}
-                className="z-[7]"
-              >
-                <motion.div
-                  initial={{ rotate: 0, opacity: 1 }}
-                  animate={{ rotate: rot, opacity: [1, 1, 0] }}
-                  transition={{
-                    default: { duration: 0.52, delay, ease: EASE },
-                    opacity: { duration: 0.52, delay, times: [0, 0.8, 1] },
-                  }}
-                  className="absolute left-0 top-0 rounded-[3px] border-[1.5px] border-text-primary bg-card-deal"
-                  // Centred on the point the layer is translated to.
-                  style={{ width: dpx(16), height: dpx(22), translate: '-50% -50%' }}
-                />
-              </TablePin>
-            );
-          })}
-      </Table>
+      <div className="flex min-h-0 w-full flex-1 flex-col pane:[grid-area:1/2/8/3]">
+        <Table
+          uid="rs"
+          fit
+          players={g.players}
+          dir={g.direction}
+          dealer={stage < 1 ? (prev ?? r.dealerIndex) : r.dealerIndex}
+          first={stage >= 2 ? r.firstPlayerIndex : undefined}
+          noSeatAnim={false}
+          center={<SuitCenter trump={r.trump} cards={r.cards} />}
+        >
+          {stage === 2 &&
+            Array.from({ length: n }, (_, k) => {
+              const idx = (r.dealerIndex + 1 + k) % n,
+                to = toPct('full', seatPos('full', n, idx, g.direction)),
+                rot = ((idx * 47) % 40) - 20,
+                delay = k * 0.06;
+              return (
+                <TablePin
+                  key={k}
+                  initial={{ x: `${from.x}%`, y: `${from.y}%` }}
+                  animate={{ x: `${to.x}%`, y: `${to.y}%` }}
+                  transition={{ duration: 0.52, delay, ease: EASE }}
+                  className="z-[7]"
+                >
+                  <motion.div
+                    initial={{ rotate: 0, opacity: 1 }}
+                    animate={{ rotate: rot, opacity: [1, 1, 0] }}
+                    transition={{
+                      default: { duration: 0.52, delay, ease: EASE },
+                      opacity: { duration: 0.52, delay, times: [0, 0.8, 1] },
+                    }}
+                    className="absolute left-0 top-0 rounded-[3px] border-[1.5px] border-text-primary bg-card-deal"
+                    // Centred on the point the layer is translated to.
+                    style={{ width: dpx(16), height: dpx(22), translate: '-50% -50%' }}
+                  />
+                </TablePin>
+              );
+            })}
+        </Table>
+      </div>
       <div
-        className="min-h-[70px] px-7 py-3 text-center text-17 leading-[1.45] tracking-[-0.01em]"
+        className="min-h-[70px] px-7 py-3 text-center text-17 leading-[1.45] tracking-[-0.01em] @h-short:min-h-[4.25rem] @h-short:py-1 land:text-15 pane:[grid-area:5/1]"
         aria-live="polite"
       >
         <AnimatePresence>
@@ -127,8 +144,10 @@ export function RoundStart() {
           )}
         </AnimatePresence>
       </div>
-      <div className="absolute bottom-[calc(28px+var(--sab))] text-13 text-[var(--tx2)]">
-        {t.start.tapToSkip}
+      {/* Both hints are mounted; the pointer type decides which one shows. */}
+      <div className="pb-[max(1.75rem,var(--sab))] text-13 text-[var(--tx2)] @h-short:pb-[max(0.75rem,var(--sab))] pane:[grid-area:6/1]">
+        <span className="fine:hidden">{t.start.tapToSkip}</span>
+        <span className="hidden fine:inline">{t.start.clickToSkip}</span>
       </div>
     </motion.div>
   );

@@ -226,6 +226,7 @@ export const t = {
     ),
     firstCard: (name: string): ReactNode => <>First card to {b(name)}</>,
     tapToSkip: 'Tap to skip',
+    clickToSkip: 'Click or press Space to skip',
   },
 
   winner: {
