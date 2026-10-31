@@ -23,6 +23,8 @@ export interface GameRec {
   earned?: unknown[];
   /** The last revision the server accepted; equal to game.rev when synced. */
   syncedRev?: number;
+  /** The account this game syncs to: set for games scored signed in, or added at import. */
+  account?: string;
   deleted?: boolean;
 }
 
@@ -42,6 +44,8 @@ export interface PlayerRec {
   createdByName?: string | null;
   linkedUserId?: string | null;
   mergedInto?: string | null;
+  /** Made signed in (or chosen at import): to be created on the server. */
+  pendingCreate?: boolean;
   /** Server counts, when known. */
   games?: number;
   lastPlayedAt?: number | null;

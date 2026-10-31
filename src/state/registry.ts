@@ -22,18 +22,18 @@ export function resolveId(id: string): string {
 /** Live (not merged) players. */
 export const livePlayers = (): PlayerRec[] => archive.all('players').filter((p) => !p.mergedInto);
 
+/** The live player with this name; the server's copy wins over a same-named one made on this device. */
 export const findByName = (name: string): PlayerRec | undefined => {
   const k = nameKey(name);
-  return livePlayers().find((p) => p.nameKey === k);
+  const all = livePlayers().filter((p) => p.nameKey === k);
+  return all.find((p) => !p.local) ?? all[0];
 };
 
 /** The registry row for a seat: by id when it has one, else by name, else a new local player. */
-export function ensurePlayer(seat: {
-  name: string;
-  emoji: string;
-  color: string;
-  playerId?: string;
-}) {
+export function ensurePlayer(
+  seat: { name: string; emoji: string; color: string; playerId?: string },
+  online = false,
+) {
   if (seat.playerId) {
     const p = archive.get('players', resolveId(seat.playerId));
     if (p) return p;
@@ -50,6 +50,8 @@ export function ensurePlayer(seat: {
     createdAt: now,
     updatedAt: now,
     local: true,
+    // Signed in, a new name becomes a server player on the next sync.
+    ...(online && { pendingCreate: true }),
   };
   archive.put('players', rec);
   return rec;

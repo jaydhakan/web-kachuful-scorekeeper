@@ -152,4 +152,6 @@ export type Action =
   | { type: 'popsDone' }
   | { type: 'replaceGame'; game: Game }
   /** Makes a saved game the current one (the current one is already in History). */
-  | { type: 'openGame'; game: Game };
+  | { type: 'openGame'; game: Game }
+  /** The same game, changed by sync (a merge remap or the other device's copy); `fresh` also clears Undo. */
+  | { type: 'syncGame'; game: Game; fresh: boolean };

@@ -474,6 +474,19 @@ function step(s: AppState, a: Action): AppState {
       return { ...s, streakFx: null };
     case 'popsDone':
       return { ...s, pops: null };
+    case 'syncGame':
+      if (a.game.syncId !== s.game.syncId) return s;
+      return a.fresh
+        ? {
+            ...s,
+            game: a.game,
+            undo: [],
+            seq: null,
+            advance: null,
+            screen:
+              a.game.status === 'finished' ? 'winner' : s.screen === 'winner' ? 'round' : s.screen,
+          }
+        : { ...s, game: a.game };
     case 'openGame':
       return {
         ...s,

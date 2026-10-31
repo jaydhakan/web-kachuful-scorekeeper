@@ -41,6 +41,8 @@ import type {
 } from './types';
 import { useHistorySync } from '@/hooks/useHistorySync';
 import { onUnauthenticated } from '@/sync/api';
+import { bindEngine, hasWork, importable, importAsked, scheduleSync, syncNow } from '@/sync/engine';
+import { setSyncStatus } from '@/sync/status';
 import { messages } from '@/strings/messages';
 import type { Game, Trump } from '@/domain';
 
@@ -127,7 +129,10 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   // Every real game is also kept in the archive, so finishing or replacing it never loses it.
   useEffect(() => {
     if (state.corrupt) return;
-    archiveGame(state.game);
+    // A game scored signed in syncs to that account; one begun signed out waits for the import.
+    const acct = ref.current.session?.user.id;
+    const prev = archive.get('games', state.game.syncId);
+    archiveGame(state.game, acct && (!prev || prev.account) ? { account: acct } : {});
     if (state.game.status === 'finished') void navigator.storage?.persist?.().catch(() => {});
   }, [state.game, state.corrupt]);
   useEffect(
@@ -155,6 +160,45 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       }),
     [],
   );
+
+  // The sync engine reads the session and game through these, and runs only while signed in.
+  useEffect(() => {
+    bindEngine({
+      session: () => ref.current.session,
+      game: () => ref.current.game,
+      setSession: (session) => dispatch({ type: 'session', session }),
+      syncGame: (game, fresh) => dispatch({ type: 'syncGame', game, fresh }),
+      open: (route) => dispatch({ type: 'navPush', route }),
+    });
+    const kick = () => ref.current.session && scheduleSync(300);
+    const onVis = () => document.visibilityState === 'visible' && kick();
+    const offArchive = archive.subscribe(() => {
+      const s = ref.current.session;
+      if (s && !s.stale && hasWork(s.user.id)) scheduleSync(1500);
+    });
+    const tick = setInterval(() => document.visibilityState === 'visible' && kick(), 60e3);
+    window.addEventListener('online', kick);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      bindEngine(null);
+      offArchive();
+      clearInterval(tick);
+      window.removeEventListener('online', kick);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
+  const userId = state.session && !state.session.stale ? state.session.user.id : null;
+  useEffect(() => {
+    if (!userId) {
+      setSyncStatus({ phase: 'signedOut', waiting: 0, attention: 0 });
+      return;
+    }
+    void syncNow({ full: true }).then(() => {
+      // First sign-in on a phone with games of its own: offer to add them to the account.
+      if (!importAsked() && importable().length && ref.current.screen !== 'round')
+        dispatch({ type: 'navPush', route: { screen: 'import' } });
+    });
+  }, [userId]);
 
   // Names seen before the registry existed become registry players once the archive is read.
   useEffect(() => {
@@ -212,7 +256,8 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
           decks: su.decks,
         } satisfies LastGroup);
         pushRecentNames(names);
-        const playerIds = su.seats.map((p) => (p ? ensurePlayer(p).id : ''));
+        const online = !!ref.current.session;
+        const playerIds = su.seats.map((p) => (p ? ensurePlayer(p, online).id : ''));
         const now = Date.now();
         nav({ type: 'beginGame', id: 'g' + now, syncId: uuid(), now, playerIds });
       },
