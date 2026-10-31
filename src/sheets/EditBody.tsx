@@ -35,7 +35,7 @@ export function EditBody({ i }: { i: number }) {
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.lowerBid(p.name)}
                   onClick={() => setBids((b) => ({ ...b, [p.id]: Math.max(0, b[p.id] - 1) }))}
-                  className="h-10 w-10 rounded-xl bg-white/[.07] text-22 font-bold"
+                  className="h-11 w-11 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
                   −
                 </motion.button>
@@ -47,7 +47,7 @@ export function EditBody({ i }: { i: number }) {
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.raiseBid(p.name)}
                   onClick={() => setBids((b) => ({ ...b, [p.id]: Math.min(r.cards, b[p.id] + 1) }))}
-                  className="h-10 w-10 rounded-xl bg-white/[.07] text-22 font-bold"
+                  className="h-11 w-11 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
                   +
                 </motion.button>

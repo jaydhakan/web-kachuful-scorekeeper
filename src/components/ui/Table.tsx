@@ -189,6 +189,8 @@ export function Table({
         })()}
       {seats.map(({ x, y }, k) => {
         const p = players[k];
+        // Mini seats are 32px tall; tappable ones grow their box to 44 without moving the avatar.
+        const slop = onSeat ? Math.max(0, 22 - d.R) : 0;
         const ring =
           cur === k ? 'ring-pulse' : warn === k ? 'warn-pulse' : hl === k ? 'ring-pulse' : '';
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
@@ -210,7 +212,7 @@ export function Table({
               },
             })}
             className={`absolute z-[2] w-[72px] ${onSeat ? 'cursor-pointer' : ''}`}
-            style={{ left: x - 36, top: y - d.R, height: d.R * 2 }}
+            style={{ left: x - 36, top: y - d.R - slop, height: d.R * 2 + slop * 2 }}
           >
             <motion.div
               initial={noSeatAnim ? false : { opacity: 0, scale: 0.3, y: dropIdx === k ? -60 : 0 }}
@@ -218,7 +220,8 @@ export function Table({
               transition={
                 dropIdx === k ? SPRING_POP : { ...SPRING, delay: noSeatAnim ? 0 : k * 0.04 }
               }
-              className="h-full w-full"
+              className="relative w-full"
+              style={{ height: d.R * 2, marginTop: slop }}
             >
               {p ? (
                 <motion.div

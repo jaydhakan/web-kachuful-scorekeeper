@@ -35,24 +35,27 @@ export function Results() {
         </PrimaryButton>
       }
     >
-      <div className="mb-3 flex min-h-12 items-center justify-between px-1">
+      <motion.button
+        type="button"
+        role="switch"
+        aria-checked={st.exact}
+        onClick={actions.toggleExact}
+        whileTap="press"
+        className="mb-3 flex min-h-12 w-full items-center justify-between rounded-2xl px-1 text-left"
+      >
         <span className="text-16 font-medium">{t.results.exactSwitch}</span>
-        <motion.button
-          type="button"
-          role="switch"
-          aria-checked={st.exact}
-          aria-label={t.results.exactSwitch}
-          onClick={actions.toggleExact}
-          whileTap={{ scale: 0.94 }}
-          className={`relative h-[30px] w-[52px] rounded-full transition-colors duration-300 ease-apple ${st.exact ? 'bg-[var(--accent)]' : 'bg-white/[.14]'}`}
+        <motion.span
+          aria-hidden
+          variants={{ press: { scale: 0.94 } }}
+          className={`relative h-[30px] w-[52px] shrink-0 rounded-full transition-colors duration-300 ease-apple ${st.exact ? 'bg-[var(--accent)]' : 'bg-white/[.14]'}`}
         >
           <motion.span
             animate={{ x: st.exact ? 22 : 0 }}
             transition={SPRING_POP}
             className="absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-text-primary shadow-[0_2px_6px_rgba(0,0,0,.4)]"
           />
-        </motion.button>
-      </div>
+        </motion.span>
+      </motion.button>
       {od.map((i, k) => {
         const p = g.players[i],
           b = r.bids[p.id],

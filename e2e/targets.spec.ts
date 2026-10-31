@@ -33,7 +33,6 @@ for (const [w, h, names] of [
   [360, 740, NAMES7],
 ] as const) {
   test(`every control is at least 44px at ${w}×${h}`, async ({ page }) => {
-    test.fail(true, 'Phase 2 item 6 brings every control to 44px');
     await page.setViewportSize({ width: w, height: h });
     const found: Small[] = [];
     const check = async (screen: string) => {
