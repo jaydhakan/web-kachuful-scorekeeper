@@ -23,6 +23,7 @@ import {
   type Loaded,
 } from './persistence';
 import { initialState, reducer } from './reducer';
+import { archive, archiveGame } from './archive';
 import type {
   Action,
   AppState,
@@ -34,6 +35,7 @@ import type {
   SheetState,
 } from './types';
 import { useHistorySync } from '@/hooks/useHistorySync';
+import { messages } from '@/strings/messages';
 import type { Trump } from '@/domain';
 
 export interface Actions {
@@ -107,6 +109,27 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
 
   usePersistence(state, dispatch);
   useWakeLock(state.game.status === 'active');
+
+  // Every real game is also kept in the archive, so finishing or replacing it never loses it.
+  useEffect(() => {
+    if (state.corrupt) return;
+    archiveGame(state.game);
+    if (state.game.status === 'finished') void navigator.storage?.persist?.().catch(() => {});
+  }, [state.game, state.corrupt]);
+  useEffect(
+    () =>
+      archive.onError((e) =>
+        dispatch({
+          type: 'say',
+          msg: e === 'quota' ? messages.toasts.storageFull : messages.toasts.storageOff,
+          link:
+            e === 'quota'
+              ? { label: messages.toasts.openHistory, route: { screen: 'history' } }
+              : undefined,
+        }),
+      ),
+    [],
+  );
 
   // System Back closes a sheet first, then the top screen.
   useHistorySync(state.nav.length + (state.sheet ? 1 : 0), () => {

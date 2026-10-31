@@ -134,7 +134,7 @@ describe('setup and starting a game', () => {
     );
     expect(st.game.id).toBe('g1');
     expect(st.undo).toHaveLength(1);
-    expect(st.toast).toMatchObject({ msg: 'Previous game replaced', undo: true });
+    expect(st.toast).toMatchObject({ msg: 'Previous game saved to History', undo: true });
     const back = run(st, { type: 'undo' });
     expect(back.game.id).toBe('mine');
     expect(back.screen).toBe('round');

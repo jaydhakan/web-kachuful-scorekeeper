@@ -13,10 +13,11 @@ export const messages = {
     bidSaved: 'Bid saved',
     roundSaved: 'Round saved',
     undone: 'Undone',
-    previousReplaced: 'Previous game replaced',
+    previousSaved: 'Previous game saved to History',
     nothingToUndo: 'Nothing to undo',
     roundUpdated: (n: number) => `Round ${n} updated`,
     storageFull: 'Storage is full — this game may not be saved',
     storageOff: 'Saving is unavailable in this browser',
+    openHistory: 'History',
   },
 } as const;

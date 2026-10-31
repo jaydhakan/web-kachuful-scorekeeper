@@ -107,7 +107,7 @@ function PhoneShell() {
         <Banner banner={banner} />
       </motion.div>
       <UpdatePrompt />
-      <Toast toast={toast} onUndo={actions.undo} />
+      <Toast toast={toast} onUndo={actions.undo} onOpen={actions.open} />
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>

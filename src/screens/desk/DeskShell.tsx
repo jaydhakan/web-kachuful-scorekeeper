@@ -117,7 +117,7 @@ export default function DeskShell() {
         <Banner banner={banner} />
       </motion.div>
       <UpdatePrompt />
-      <Toast toast={toast} onUndo={actions.undo} />
+      <Toast toast={toast} onUndo={actions.undo} onOpen={actions.open} />
       <AnimatePresence>
         {overlay &&
           (sheet.type === 'rules' ? (

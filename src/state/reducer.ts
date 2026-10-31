@@ -17,7 +17,7 @@ import { now } from '@/lib/clock';
 import { messages as m } from '@/strings/messages';
 import { parseSnapshot, type SavedScreen } from './persistence';
 import { pushSnapshot } from './undo';
-import type { Action, AppState, SetupState } from './types';
+import type { Action, AppState, SetupState, Toast } from './types';
 
 export function initialState(
   game: Game,
@@ -52,10 +52,10 @@ const celebrate = (g: Game) => {
   return fx.length ? fx : null;
 };
 
-const say = (s: AppState, msg: string, undo = false): AppState => ({
+const say = (s: AppState, msg: string, undo = false, link?: Toast['link']): AppState => ({
   ...s,
   noteSeq: s.noteSeq + 1,
-  toast: { id: s.noteSeq + 1, msg, undo },
+  toast: { id: s.noteSeq + 1, msg, undo, ...(link && { link }) },
 });
 
 function commit(
@@ -118,7 +118,7 @@ function begin(s: AppState, g: Game): AppState {
     screen: 'round',
     seq: { round: g.rounds[0], prev: null, banner: roundBanner(g, g.rounds[0]) },
   };
-  return keep ? say(next, m.toasts.previousReplaced, true) : next;
+  return keep ? say(next, m.toasts.previousSaved, true) : next;
 }
 
 function bid(s: AppState, v: number): AppState {
@@ -431,7 +431,7 @@ function step(s: AppState, a: Action): AppState {
     case 'seqDone':
       return withBanner({ ...s, seq: null }, s.seq?.banner ?? null);
     case 'say':
-      return say(s, a.msg, a.undo);
+      return say(s, a.msg, a.undo, a.link);
     case 'navPush':
       return { ...s, nav: [...s.nav, a.route], dir: 1, sheet: null };
     case 'navPop':

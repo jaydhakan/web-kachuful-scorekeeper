@@ -67,6 +67,8 @@ export interface Toast {
   id: number;
   msg: string;
   undo: boolean;
+  /** A screen the toast offers to open instead of Undo. */
+  link?: { label: string; route: Route };
 }
 
 export interface Banner {
@@ -131,7 +133,7 @@ export type Action =
   | { type: 'sheet'; sheet: SheetState | null }
   | { type: 'modal'; modal: ModalKind | null }
   | { type: 'seqDone' }
-  | { type: 'say'; msg: string; undo?: boolean }
+  | { type: 'say'; msg: string; undo?: boolean; link?: Toast['link'] }
   | { type: 'navPush'; route: Route }
   | { type: 'navPop' }
   | { type: 'navReset'; routes?: Route[] }
