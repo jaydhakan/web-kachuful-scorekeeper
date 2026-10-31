@@ -213,6 +213,20 @@ export const t = {
         👑 {b(dealer)} deals · first card to {b(first)}
       </>
     ),
+    standings: 'Standings',
+    /** The Next-up card on a short screen: the two lines above, as one. */
+    nextShort: (
+      round: number,
+      cards: number,
+      trump: Trump,
+      dealer: string,
+      first: string,
+    ): ReactNode => (
+      <>
+        Round {round} · {b(`${cards} cards`)} · <SuitGlyph trump={trump} />
+        <span className="sr-only"> {TR[trump].name}</span> · {b(dealer)} deals, {b(first)} first
+      </>
+    ),
   },
 
   start: {

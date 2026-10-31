@@ -2,8 +2,10 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { curRound, doneRounds, pts, roundAt, standings, streaks, totals } from '@/domain';
 import { sgnN } from '@/lib/format';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useApp } from '@/state/store';
 import { palette } from '@/theme/palette';
+import { MQ } from '@/theme/breakpoints';
 import { Counter } from '@/components/ui/Counter';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -50,6 +52,8 @@ export function Summary() {
   const g = state.game,
     r = curRound(g),
     anim = state.sumAnim;
+  // CSS cannot swap the table's geometry, so this is the one place a layout rule is read in JS.
+  const wide = useMediaQuery(MQ.wide);
   /* The "before" board is frozen when the screen opens so the count-up has something to animate from. */
   /* eslint-disable react-hooks/exhaustive-deps */
   const prevR = useMemo(() => doneRounds(g).filter((x) => x !== r), []);
@@ -75,12 +79,54 @@ export function Summary() {
   const list = stage >= 3 ? cur : prev;
   const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
   const nr = roundAt(g, r.index + 1),
-    nD = g.players[nr.dealerIndex];
+    nD = g.players[nr.dealerIndex],
+    nF = g.players[nr.firstPlayerIndex];
   const tag = nr.cards === g.maxCards ? t.summary.peak : nr.cards === 3 ? t.summary.backTo3 : null;
   return (
     <RoundFrame
       r={r}
       title={t.summary.title(r.index + 1)}
+      fit
+      aside={
+        // On a short one-column screen the card is one line and the table hides; panes always have room.
+        <Glass glow spot={false} className="mt-3.5 p-3 pane:mt-0">
+          <p className="hidden text-center text-14 leading-[1.4] [text-wrap:balance] @h-[52rem]:block pane:!hidden">
+            {t.summary.nextShort(nr.index + 1, nr.cards, nr.trump, nD.name, nF.name)}
+          </p>
+          <div className="@h-[52rem]:hidden pane:!block">
+            <div className="flex items-center justify-between text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+              <span>{t.summary.nextUp}</span>
+              {tag && (
+                <span className="rounded-[10px] bg-[var(--gold)] px-2.5 py-0.5 text-13 normal-case tracking-normal text-ink-gold">
+                  {tag}
+                </span>
+              )}
+            </div>
+            <div className="-mx-3">
+              <div
+                className={`mx-auto flex w-full max-w-[17rem] flex-col md:max-w-[22rem] pane:max-w-[22rem] ${wide ? 'aspect-[34/30]' : 'aspect-[32/17]'}`}
+              >
+                <Table
+                  uid="sum"
+                  fit
+                  size={wide ? 'full' : 'mini'}
+                  players={g.players}
+                  dir={g.direction}
+                  dealer={stage >= 5 ? nr.dealerIndex : r.dealerIndex}
+                  first={nr.firstPlayerIndex}
+                  noSeatAnim
+                  center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
+                />
+              </div>
+            </div>
+            <p className="pt-1.5 text-center text-16 leading-[1.45] tracking-[-0.01em]">
+              {t.summary.nextLine(nr.index + 1, nr.cards, nr.trump)}
+              <br />
+              {t.summary.dealsFirst(nD.name, nF.name)}
+            </p>
+          </div>
+        </Glass>
+      }
       bar={
         <>
           <PrimaryButton tone="glass" className="px-5" onClick={() => actions.ask('endGame')}>
@@ -92,7 +138,12 @@ export function Summary() {
         </>
       }
     >
-      <div className="relative">
+      <div
+        role="region"
+        aria-label={t.summary.standings}
+        tabIndex={0}
+        className="@container scroll-thin relative min-h-[8.5rem] flex-1 overflow-y-auto overflow-x-hidden"
+      >
         {list.map((x) => {
           const id = x.p.id,
             d = r.results[id] ? (pts(r, id) ?? 0) : 0,
@@ -104,14 +155,14 @@ export function Summary() {
               key={id}
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
               animate={stage === 1 && d < 0 ? shakeKF : undefined}
-              className="mb-2"
+              className="mb-1.5"
             >
               <Glass
                 spot={false}
-                className={`relative flex min-h-16 items-center gap-2.5 overflow-hidden px-3 py-2.5 ${lead ? 'ring-1 ring-[rgba(226,182,83,.55)]' : ''}`}
+                className={`relative flex min-h-14 items-center gap-2 overflow-hidden px-2.5 py-1.5 ${lead ? 'ring-1 ring-[rgba(226,182,83,.55)]' : ''}`}
               >
                 <div
-                  className="disp w-[30px] shrink-0 text-center text-22 font-extrabold"
+                  className="disp w-[22px] shrink-0 text-center text-22 font-extrabold"
                   style={{ color: rankColor(rank) }}
                 >
                   {rank}
@@ -122,7 +173,7 @@ export function Summary() {
                 >
                   {x.p.emoji}
                 </div>
-                <div className="min-w-0 flex-1 truncate text-18 font-bold tracking-[-0.015em]">
+                <div className="min-w-0 flex-1 break-words text-16 font-bold leading-[1.2] tracking-[-0.015em] [text-wrap:balance] @[26rem]:text-18">
                   {x.p.name}
                   {sk[id] >= 3 && <span className="ml-1.5 text-16">🔥{sk[id]}</span>}
                 </div>
@@ -132,14 +183,14 @@ export function Summary() {
                       initial={{ scale: 0.4, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={SPRING_POP}
-                      className={`min-w-[46px] rounded-xl px-2 py-0.5 text-center text-15 font-extrabold ${d > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : d < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
+                      className={`min-w-10 rounded-xl px-1.5 py-0.5 text-center text-14 font-extrabold @[26rem]:min-w-[46px] @[26rem]:px-2 @[26rem]:text-15 ${d > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : d < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
                     >
                       {sgnN(d)}
                     </motion.span>
                   )}
                 </AnimatePresence>
                 {stage === 1 && d > 0 && !rm && <Spark color={palette.positive} />}
-                <div className="disp min-w-[70px] text-right text-28 font-extrabold tracking-[-0.03em]">
+                <div className="disp min-w-[3.25rem] text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:min-w-[70px] @[26rem]:text-28">
                   <Counter from={anim ? pt[id] : ct[id]} to={ct[id]} run={anim && stage >= 2} />
                 </div>
                 {lead && (
@@ -168,33 +219,6 @@ export function Summary() {
           );
         })}
       </div>
-      <Glass glow spot={false} className="mt-3.5 p-3">
-        <div className="flex items-center justify-between text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
-          <span>{t.summary.nextUp}</span>
-          {tag && (
-            <span className="rounded-[10px] bg-[var(--gold)] px-2.5 py-0.5 text-13 normal-case tracking-normal text-ink-gold">
-              {tag}
-            </span>
-          )}
-        </div>
-        <div className="-mx-3">
-          <Table
-            uid="sum"
-            size="mini"
-            players={g.players}
-            dir={g.direction}
-            dealer={stage >= 5 ? nr.dealerIndex : r.dealerIndex}
-            first={nr.firstPlayerIndex}
-            noSeatAnim
-            center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
-          />
-        </div>
-        <p className="pt-1.5 text-center text-16 leading-[1.45] tracking-[-0.01em]">
-          {t.summary.nextLine(nr.index + 1, nr.cards, nr.trump)}
-          <br />
-          {t.summary.dealsFirst(nD.name, g.players[nr.firstPlayerIndex].name)}
-        </p>
-      </Glass>
     </RoundFrame>
   );
 }
