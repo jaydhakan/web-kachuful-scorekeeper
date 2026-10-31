@@ -8,20 +8,23 @@ export function Banner({ banner }: { banner: BannerData | null }) {
       <div role="status" className="sr-only">
         {banner?.text}
       </div>
-      <AnimatePresence>
-        {banner && (
-          <motion.div
-            key={banner.id}
-            initial={{ opacity: 0, y: -24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={SPRING}
-            className="glass glass-glow disp pointer-events-none absolute inset-x-5 top-[calc(68px+var(--sat))] z-[50] !rounded-[20px] p-3 text-center text-20 font-extrabold tracking-[-0.02em]"
-          >
-            {banner.text}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Anchor for the Scaffold to write the main pane's edges on; the banner never spans the controls pane. */}
+      <div data-main-anchor className="pointer-events-none absolute inset-0 z-[50]">
+        <AnimatePresence>
+          {banner && (
+            <motion.div
+              key={banner.id}
+              initial={{ opacity: 0, y: -24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={SPRING}
+              className="glass glass-glow disp absolute left-[var(--main-x,1.25rem)] top-[calc(4.25rem+var(--sat))] w-[var(--main-w,calc(100%-2.5rem))] !rounded-[20px] p-3 text-center text-20 font-extrabold tracking-[-0.02em] land:top-[calc(3.5rem+var(--sat))]"
+            >
+              {banner.text}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </>
   );
 }
