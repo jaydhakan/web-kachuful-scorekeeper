@@ -29,7 +29,7 @@ export function Toast({
             key={toast.id}
             initial={{ opacity: 0, y: -16, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.96 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={SPRING}
             className={`pointer-events-auto flex min-h-11 max-w-full items-center gap-1 rounded-full border border-white/10 bg-toast text-15 font-semibold leading-tight shadow-[0_10px_28px_-8px_rgba(0,0,0,.7)] [[data-desk]_&]:min-h-9 ${act ? 'pl-4 pr-1' : 'px-4'}`}
           >
