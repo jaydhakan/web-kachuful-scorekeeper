@@ -71,6 +71,7 @@ const KINDS = [
   'overlaps',
   'scrolls',
   'smallTargets',
+  'pageOverflow',
   'shortened',
 ];
 const found = Object.fromEntries(KINDS.map((k) => [k, new Map()]));

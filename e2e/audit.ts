@@ -20,6 +20,8 @@ export interface ScreenReport {
   smallTargets: string[];
   /** Controls and table seats on screen whose centre is covered by something else (the bar, another panel). */
   covered: string[];
+  /** The page itself scrolls sideways: its scroll width is wider than the viewport. */
+  pageOverflow: string[];
 }
 
 /** Measures one settled screen. It never fails a test by itself; the caller decides what is a violation. */
@@ -173,7 +175,20 @@ export async function auditScreen(
         chips.forEach((c) => hit(a.r, c.r) && overlaps.push(`${a.txt} × ${c.txt}`));
       });
     }
-    return { offscreen, clipped, shortened, scrolls, overlaps, smallTargets, covered };
+    const pageOverflow =
+      document.documentElement.scrollWidth > innerWidth
+        ? [`${document.documentElement.scrollWidth} > ${innerWidth}`]
+        : [];
+    return {
+      offscreen,
+      clipped,
+      shortened,
+      scrolls,
+      overlaps,
+      smallTargets,
+      covered,
+      pageOverflow,
+    };
   });
   const uniq = (xs: string[]) => [...new Set(xs)];
   return {
@@ -187,5 +202,6 @@ export async function auditScreen(
     overlaps: uniq(rest.overlaps),
     smallTargets: uniq(rest.smallTargets),
     covered: uniq(rest.covered),
+    pageOverflow: rest.pageOverflow,
   };
 }

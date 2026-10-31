@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { auditScreen, type ScreenReport } from './audit';
+import { violations } from './audit-rules';
 import { LONG_NAMES, openSeeded, seedGame } from './fixtures';
 import { btn } from './helpers';
 
@@ -28,11 +29,23 @@ const VIEWPORTS = [
 const LABEL = process.env.RESPONSIVE_LABEL ?? 'current';
 const OUT = `reports/responsive/raw/${LABEL}`;
 
-test.skip(!process.env.RESPONSIVE, 'Set RESPONSIVE=1 to run the responsive audit');
+// By default a small subset runs and must be clean, so the normal e2e run (and CI) guards the layout.
+// RESPONSIVE_FULL=1 runs every viewport and player count under the same rule; RESPONSIVE=1 runs all of them
+// without failing, to write the reports and contact sheets (tools/responsive/report.mjs).
+const REPORT_ONLY = !!process.env.RESPONSIVE && !process.env.RESPONSIVE_FULL;
+const FULL = !!process.env.RESPONSIVE || !!process.env.RESPONSIVE_FULL;
+const SUBSET = [
+  [360, 640],
+  [844, 390],
+  [1024, 768],
+  [1920, 1080],
+] as const;
+const MATRIX = FULL ? VIEWPORTS : SUBSET;
+const PLAYERS = FULL ? [3, 5, 7] : [7];
 
 const settle = (page: Page) => page.waitForTimeout(650);
 
-for (const [w, h] of VIEWPORTS) {
+for (const [w, h] of MATRIX) {
   const phone = Math.min(w, h) < 500,
     touch = Math.max(w, h) <= 1180;
   test.describe(`${w}×${h}`, () => {
@@ -43,7 +56,7 @@ for (const [w, h] of VIEWPORTS) {
       deviceScaleFactor: phone ? 2 : 1,
       actionTimeout: 5000,
     });
-    for (const n of [3, 5, 7]) {
+    for (const n of PLAYERS) {
       test(`${n} players`, async ({ page }) => {
         test.setTimeout(180_000);
         const dir = `${OUT}/${w}x${h}/${n}`;
@@ -158,6 +171,10 @@ for (const [w, h] of VIEWPORTS) {
 
         writeFileSync(`${OUT}/${w}x${h}-${n}.json`, JSON.stringify(reports, null, 1));
         expect(reports.length).toBeGreaterThan(0);
+        if (!REPORT_ONLY) {
+          const found = reports.flatMap((r) => violations(r, { width: w, height: h, players: n }));
+          expect(found, `${w}x${h}, ${n} players`).toEqual([]);
+        }
       });
     }
   });
