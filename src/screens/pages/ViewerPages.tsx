@@ -27,7 +27,7 @@ type LiveState =
   | { k: 'connecting' }
   | { k: 'revoked' }
   | { k: 'missing' }
-  | { k: 'on'; game: Game; updatedAt: number; scorerSeenAt: number };
+  | { k: 'on'; game: Game; updatedAt: number; scorerSeenAt: number | null };
 
 function OpenApp() {
   const { actions } = useApp();
@@ -135,14 +135,14 @@ export function LivePage({ token }: { token: string }) {
     );
   const g = st.game,
     r = curRound(g);
-  const quiet = Date.now() - st.scorerSeenAt > QUIET_MS && g.status === 'active';
+  // No scorer time yet: the last upload is the last sign of the scorer.
+  const seen = st.scorerSeenAt ?? st.updatedAt;
+  const quiet = Date.now() - seen > QUIET_MS && g.status === 'active';
   return (
     <Page
       title={lv.title}
       eyebrow={
-        quiet
-          ? lv.quiet(Math.round((Date.now() - st.scorerSeenAt) / 60e3))
-          : lv.updated(agoTxt(st.updatedAt))
+        quiet ? lv.quiet(Math.round((Date.now() - seen) / 60e3)) : lv.updated(agoTxt(st.updatedAt))
       }
     >
       {g.status === 'active' && (

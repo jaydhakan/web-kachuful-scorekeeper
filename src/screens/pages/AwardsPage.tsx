@@ -23,6 +23,7 @@ import { stagger } from '@/components/ui/stagger';
 import { BoardList } from './BoardsPage';
 import { achName } from '@/strings/achievements';
 import { ep } from '@/sync/endpoints';
+import type { AwardRow } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 
@@ -100,10 +101,18 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
   const rSeasons = useRemote(signedIn ? 'seasons' : null, () => ep.seasons());
   const unwrap = <T extends { player: { id: string } }>(xs: T[]) =>
     xs.map(({ player, ...x }) => ({ ...x, playerId: player.id }));
+  // The server sends null where the device engine leaves a field out.
+  const unaward = (xs: AwardRow[]): Award[] =>
+    xs.map(({ player, gameId, roundIndex, ...x }) => ({
+      ...x,
+      playerId: player.id,
+      ...(gameId != null && { gameId }),
+      ...(roundIndex != null && { roundIndex }),
+    }));
   const d = !signedIn
     ? src.daily(day)
     : rDay.data
-      ? { awards: unwrap(rDay.data.awards), final: rDay.data.final }
+      ? { awards: unaward(rDay.data.awards), final: rDay.data.final }
       : 'loading';
   const s =
     tab !== 'season'
@@ -114,7 +123,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
           ? {
               season: month,
               standings: unwrap(rSeason.data.standings),
-              awards: unwrap(rSeason.data.awards),
+              awards: unaward(rSeason.data.awards),
             }
           : 'loading';
   const months = signedIn && rSeasons.data ? rSeasons.data.map((x) => x.season) : src.months;
