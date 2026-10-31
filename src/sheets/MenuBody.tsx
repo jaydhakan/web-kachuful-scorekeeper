@@ -7,11 +7,16 @@ import { t } from '@/strings';
 export function MenuBody() {
   const { state, actions } = useApp();
   const inGame = state.screen === 'round' || state.screen === 'winner';
-  const go: [string, string, () => void, boolean?][] = DESTS.map((d) => [
-    d.emoji,
-    d.label,
-    () => actions.open(destRoute(d)),
-  ]);
+  const go: [string, string, () => void, boolean?][] = [
+    ...DESTS.map((d): [string, string, () => void] => [
+      d.emoji,
+      d.label,
+      () => actions.open(destRoute(d)),
+    ]),
+    state.session
+      ? ['👤', t.hub.nav.account, () => actions.open({ screen: 'account' })]
+      : ['🔑', t.hub.nav.signIn, () => actions.open({ screen: 'signin' })],
+  ];
   const game: [string, string, () => void, boolean?][] = [
     ['📖', t.sheets.menu.rules, () => actions.openSheet({ type: 'rules' })],
     ['📊', t.sheets.menu.board, () => actions.openSheet({ type: 'board' })],

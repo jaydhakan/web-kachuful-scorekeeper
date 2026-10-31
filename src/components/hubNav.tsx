@@ -18,4 +18,4 @@ export const DESTS: Dest[] = [
   { screen: 'awards', label: t.hub.nav.awards, emoji: '🎖️', icon: Icon.awards },
 ];
 
-export const destRoute = (d: Dest): Route => ({ screen: d.screen });
+export const destRoute = (d: Pick<Dest, 'screen'>): Route => ({ screen: d.screen });

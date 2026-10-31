@@ -6,6 +6,7 @@ import { Icon } from '@/components/ui/Icons';
 import { SPRING } from '@/components/ui/motion';
 import { GhostButton, Kbd } from './DeskParts';
 import { DESTS, destRoute, type Dest } from '@/components/hubNav';
+import { SyncDot } from '@/components/SyncDot';
 import type { RouteName } from '@/state/types';
 import { t } from '@/strings';
 
@@ -44,7 +45,7 @@ function useNav(onKeys: () => void) {
       if (screen === 'home') actions.resume();
       else if (top) actions.navReset();
     },
-    dest: (d: Dest) => {
+    dest: (d: Pick<Dest, 'screen'>) => {
       if (sheet) actions.openSheet(null);
       actions.navReset([destRoute(d)]);
     },
@@ -99,6 +100,7 @@ function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
 /** The side rail from tablet-on-its-side width up. */
 export function Rail({ onKeys }: { onKeys: () => void }) {
   const n = useNav(onKeys);
+  const { state } = useApp();
   return (
     <nav
       aria-label={t.desk.nav.label}
@@ -151,6 +153,17 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         />
       ))}
       <div className="flex-1" />
+      <RailItem
+        icon={
+          <span className="relative">
+            {Icon.account}
+            <SyncDot className="absolute -right-3 -top-2" />
+          </span>
+        }
+        label={state.session ? t.hub.nav.account : t.hub.nav.signIn}
+        on={n.where === 'dest:account' || n.where === 'dest:signin' || n.where === 'dest:admin'}
+        onClick={() => n.dest({ screen: state.session ? 'account' : 'signin' })}
+      />
       <RailItem icon={Icon.undo} label={t.desk.nav.undo} disabled={!n.canUndo} onClick={n.undo} />
       <RailItem icon={Icon.menu} label={t.desk.nav.menu} onClick={n.menu} />
       <div className="hidden kbd:block">

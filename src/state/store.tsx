@@ -13,6 +13,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
+import { readEntryLink } from '@/lib/entry';
 import {
   KEYS,
   loadInitial,
@@ -110,7 +111,11 @@ const trumpOf = (s: AppState): Trump =>
 export function AppProvider({ children, initial }: { children: ReactNode; initial?: Loaded }) {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
     const l = initial ?? loadInitial();
-    return initialState(l.game, l.screen, l.undo, l.corrupt, loadSession());
+    const entry = readEntryLink();
+    return {
+      ...initialState(l.game, l.screen, l.undo, l.corrupt, loadSession()),
+      nav: entry ? [entry] : [],
+    };
   });
   const vib = useHaptics();
   const ref = useRef(state);

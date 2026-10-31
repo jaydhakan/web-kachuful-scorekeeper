@@ -1,5 +1,8 @@
 import type { Route } from '@/state/types';
+import { AccountPage } from './AccountPage';
 import { AchievementsPage } from './AchievementsPage';
+import { AdminPage } from './AdminPage';
+import { InvitePage, ResetPage, SignInPage } from './AuthPages';
 import { AwardsPage } from './AwardsPage';
 import { BoardsPage } from './BoardsPage';
 import { GamePage } from './GamePage';
@@ -31,6 +34,16 @@ export default function Pages({ route }: { route: Route }) {
       return <WrappedPage year={Number(p.year) || new Date().getFullYear()} playerId={p.id} />;
     case 'players':
       return <PlayersPage />;
+    case 'signin':
+      return <SignInPage />;
+    case 'invite':
+      return <InvitePage token={p.token ?? ''} />;
+    case 'reset':
+      return <ResetPage token={p.token ?? ''} />;
+    case 'account':
+      return <AccountPage />;
+    case 'admin':
+      return <AdminPage />;
     default:
       return <HistoryPage />;
   }
