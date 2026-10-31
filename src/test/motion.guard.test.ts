@@ -45,7 +45,6 @@ function offenders(): string[] {
 // Inherited from the prototype; Phase 2 Tier C removes each one. Must end empty.
 const ALLOWED = new Set<string>([
   'components/ui/IconButton.tsx: whileHover backgroundColor',
-  'components/ui/PrimaryButton.tsx: transition-[background,color,box-shadow]',
   'screens/round/Results.tsx: transition-colors',
   'screens/setup/Step2.tsx: transition-shadow',
   'sheets/MenuBody.tsx: whileTap backgroundColor',

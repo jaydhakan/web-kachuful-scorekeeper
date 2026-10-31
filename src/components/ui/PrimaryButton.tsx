@@ -1,17 +1,23 @@
 import { motion, useReducedMotion, useSpring, type HTMLMotionProps } from 'framer-motion';
-import { useRef, type PointerEvent } from 'react';
+import { useRef, type PointerEvent, type ReactNode } from 'react';
 import { SPRING } from './motion';
 
 interface PrimaryButtonProps extends HTMLMotionProps<'button'> {
   tone?: 'accent' | 'danger' | 'glass';
 }
 
-const TONES = {
+const FILL = {
   accent:
-    'bg-accent-gradient text-ink-on-accent shadow-[0_14px_36px_-10px_var(--accent),inset_0_1px_0_rgba(255,255,255,.35)]',
-  danger: 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]',
-  glass: 'glass text-[var(--tx)]',
+    'bg-accent-gradient shadow-[0_14px_36px_-10px_var(--accent),inset_0_1px_0_rgba(255,255,255,.35)]',
+  danger: 'bg-[rgba(255,92,108,.16)]',
+  glass: 'glass',
 };
+const INK = {
+  accent: 'text-ink-on-accent',
+  danger: 'text-[var(--neg-tx)]',
+  glass: 'text-[var(--tx)]',
+};
+const layer = 'absolute inset-0 -z-10 rounded-[inherit] transition-opacity duration-300 ease-apple';
 
 /** Magnetic on mouse, instant press on touch. */
 export function PrimaryButton({
@@ -47,10 +53,13 @@ export function PrimaryButton({
       style={{ x, y }}
       whileTap={disabled ? undefined : { scale: 0.96 }}
       transition={SPRING}
-      className={`flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] transition-[background,color,box-shadow] duration-300 ease-apple disabled:cursor-default ${disabled ? 'bg-white/[.06] text-[var(--tx2)] shadow-none' : TONES[tone]} ${className}`}
+      className={`relative isolate flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] disabled:cursor-default ${disabled ? 'text-[var(--tx2)]' : INK[tone]} ${className}`}
       {...rest}
     >
-      {children}
+      {/* Enabling cross-fades two pre-painted fills; colours and shadows never animate. */}
+      <span aria-hidden className={`${layer} bg-white/[.06] ${disabled ? '' : 'opacity-0'}`} />
+      <span aria-hidden className={`${layer} ${FILL[tone]} ${disabled ? 'opacity-0' : ''}`} />
+      {children as ReactNode}
     </motion.button>
   );
 }
