@@ -27,18 +27,18 @@ export function BoardBody() {
                 return (
                   <th
                     key={p.id}
-                    className="sticky top-0 z-10 min-w-[76px] bg-sheet px-1 py-2 text-center align-top"
+                    className="sticky top-0 z-10 min-w-[76px] bg-sheet px-1 py-2 text-center align-top land:py-1"
                   >
                     {/* A container of its own, so the name switches on this column's width. */}
                     <div className="@container">
                       <div
-                        className="mx-auto mb-0.5 grid h-8 w-8 place-items-center rounded-full text-18"
+                        className="mx-auto mb-0.5 grid h-8 w-8 place-items-center rounded-full text-18 land:hidden"
                         style={{ background: p.color }}
                       >
                         {p.emoji}
                       </div>
                       {/* Two lines are reserved once full names show, so a wrapped name does not push its total out of line. */}
-                      <div className="font-medium text-[var(--tx2)] @[5.5rem]:min-h-10">
+                      <div className="font-medium text-[var(--tx2)] @[5.5rem]:min-h-10 land:min-h-0">
                         {short === p.name ? (
                           p.name
                         ) : (
@@ -52,7 +52,7 @@ export function BoardBody() {
                         )}
                       </div>
                       <div
-                        className={`disp text-20 font-extrabold ${tot[p.id] < 0 ? 'text-[var(--neg)]' : tot[p.id] > 0 ? 'text-[var(--pos)]' : ''}`}
+                        className={`disp text-20 font-extrabold land:text-16 ${tot[p.id] < 0 ? 'text-[var(--neg)]' : tot[p.id] > 0 ? 'text-[var(--pos)]' : ''}`}
                       >
                         {fmt(tot[p.id])}
                       </div>
