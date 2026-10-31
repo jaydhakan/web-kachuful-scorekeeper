@@ -236,6 +236,7 @@ export const t = {
     second: '2nd',
     third: '3rd',
     highlights: 'Game highlights',
+    rankingRegion: 'Ranking and highlights',
     sharp: 'Sharpshooter',
     big: 'Big round',
     streak: 'Hot streak',
