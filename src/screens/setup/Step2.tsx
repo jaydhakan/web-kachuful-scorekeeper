@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
-import { nameKey, suggestName } from '@/domain';
+import { nameKey } from '@/domain';
 import { useApp } from '@/state/store';
-import { EmailStep, knownSame, rememberSame, SameCard, serverMatch } from './SamePerson';
-import { people, type Person } from '@/state/registry';
+import { EmailStep, personFor } from './SamePerson';
+import { circle, people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
 import { findPerson, lookFor } from './seatLook';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -35,7 +35,12 @@ export function Step2() {
       ? t.setup.finally(pn, su.dir)
       : t.setup.sittingOn(pn, su.dir);
   })();
-  const known = useArchive(() => people());
+  const session = state.session;
+  const signedIn = !!session;
+  // Signed in, only this account's circle is suggested (and matched by name); anyone else needs an email.
+  const known = useArchive(() =>
+    session ? circle(session.user.id, session.player?.id ?? null) : people(),
+  );
   const recent = known
     .filter((x) => !seats.some((s) => s && nameKey(s.name) === x.nameKey))
     .slice(0, 10);
@@ -43,31 +48,20 @@ export function Step2() {
     const t = setTimeout(() => inp.current?.focus(), 350);
     return () => clearTimeout(t);
   }, [tgt]);
-  const [same, setSame] = useState<Person | null>(null);
-  // Signed in, a brand-new player needs an email before taking the seat.
-  const [needEmail, setNeedEmail] = useState<string | null>(null);
-  const signedIn = !!state.session;
+  // Signed in, someone new (to this account) needs an email before taking the seat.
+  const [needEmail, setNeedEmail] = useState<{ name: string; email: string } | null>(null);
   const add = (raw: string, who?: Person, email?: string) => {
     const nm = (raw || '').trim().replace(/\s+/g, ' ');
     if (!nm || tgt < 0) return;
-    // Signed in, a typed name the server already has asks whether it's the same person first.
-    if (signedIn && !who) {
-      const m = serverMatch(nm);
-      if (m) {
-        setSame(m);
-        return;
-      }
-      who = knownSame(nm);
-    }
-    setSame(null);
+    if (signedIn && !who) who = findPerson(known, nm);
     const ex = seats.find((s) => s && s.name.toLowerCase() === nm.toLowerCase());
     if (ex) {
       setErr(t.setup.alreadySeated(ex.name));
       actions.vib();
       return;
     }
-    if (signedIn && !who && !findPerson(known, nm) && email === undefined) {
-      setNeedEmail(nm);
+    if (signedIn && !who && email === undefined) {
+      setNeedEmail({ name: nm, email: '' });
       return;
     }
     setNeedEmail(null);
@@ -150,34 +144,16 @@ export function Step2() {
               </PrimaryButton>
             </div>
           )}
-          {needEmail && tgt >= 0 && !same && (
+          {needEmail && tgt >= 0 && (
             <EmailStep
-              key={needEmail}
+              key={needEmail.name}
               className="mt-2 land:order-3"
-              name={needEmail}
+              name={needEmail.name}
+              initialEmail={needEmail.email}
               taken={seats.flatMap((s) => (s?.email ? [s.email] : []))}
-              onDone={(email) => add(needEmail, undefined, email)}
-              onSame={(p) => {
-                const who = known.find((k) => k.id === p.id);
-                setNeedEmail(null);
-                if (who) add(who.displayName, who);
-              }}
-            />
-          )}
-          {same && tgt >= 0 && (
-            <SameCard
-              className="mt-2 land:order-3"
-              match={same}
-              suggestion={suggestName(same.displayName, new Set(known.map((p) => p.nameKey)))}
-              onYes={() => {
-                rememberSame(same.displayName, same.id);
-                add(same.displayName, same);
-              }}
-              onNo={() => {
-                const alt = suggestName(same.displayName, new Set(known.map((p) => p.nameKey)));
-                setSame(null);
-                add(alt, undefined);
-              }}
+              onDone={(email) => add(needEmail.name, undefined, email)}
+              onSame={(p) => add(p.displayName, personFor(p))}
+              onRename={(name, email) => setNeedEmail({ name, email })}
             />
           )}
           <div

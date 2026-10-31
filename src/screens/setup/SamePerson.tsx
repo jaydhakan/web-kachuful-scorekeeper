@@ -1,53 +1,33 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useState, type FormEvent } from 'react';
-import { emailKey, emailOk, nameKey } from '@/domain';
+import { emailKey, emailOk, nameKey, suggestName } from '@/domain';
 import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
 import type { PlayerSummary } from '@/sync/types';
-import { archive } from '@/state/archive';
-import { people, type Person } from '@/state/registry';
+import { livePlayers, people, rememberSame, type Person } from '@/state/registry';
+import { useApp } from '@/state/store';
+import { Avatar } from '@/components/ui/Avatar';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
 
 const x = t.hub.sync2;
 
-/**
- * Signed in, a typed name that is already a server player needs a yes or no: is it the same person? A yes is
- * remembered for this scorer and name, so it is asked once.
- */
-export function serverMatch(name: string): Person | undefined {
-  const k = nameKey(name);
-  if (!k || archive.get('cache', 'same:' + k)) return undefined;
-  return people().find((p) => !p.local && p.nameKey === k);
-}
-export const rememberSame = (name: string, id: string) =>
-  archive.put('cache', { key: 'same:' + nameKey(name), value: id, fetchedAt: Date.now() });
-/** A name confirmed earlier: the player it was matched to. */
-export const knownSame = (name: string): Person | undefined => {
-  const id = archive.get('cache', 'same:' + nameKey(name))?.value;
-  return typeof id === 'string' ? people().find((p) => p.id === id) : undefined;
-};
-
+/** "Is this Riya?": only ever shown when name and email both belong to that player. */
 export function SameCard({
   match,
-  suggestion,
   onYes,
   onNo,
   className = '',
-  byEmail,
 }: {
-  match: Pick<Person, 'displayName' | 'emoji' | 'color' | 'games'> & {
-    createdByName?: string | null;
-  };
-  /** The other choice: a free name to use instead, or (by email) "Recheck the email". */
-  suggestion: string;
+  match: Pick<
+    PlayerSummary,
+    'displayName' | 'emoji' | 'color' | 'photoUrl' | 'games' | 'createdByName'
+  >;
   onYes: () => void;
   onNo: () => void;
   className?: string;
-  /** The email (not the name) belongs to this player. */
-  byEmail?: boolean;
 }) {
-  const ask = byEmail ? x.sameEmail(match.displayName) : x.sameAsk(match.displayName);
+  const ask = x.isThis(match.displayName);
   const rm = useReducedMotion();
   return (
     <motion.div
@@ -58,20 +38,17 @@ export function SameCard({
       transition={{ duration: 0.35, ease: EASE }}
       className={`glass flex flex-wrap items-center gap-3 p-3 ${className}`}
     >
-      <span
-        aria-hidden
+      <Avatar
+        p={match}
         className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-24"
-        style={{ background: match.color }}
-      >
-        {match.emoji}
-      </span>
+      />
       <span className="min-w-0 flex-1 basis-40">
         <span className="block text-16 font-bold">{ask}</span>
         <span className="block text-13 text-[var(--tx2)]">
-          {t.hub.auth.games(match.games, match.createdByName ?? '—')}
+          {t.hub.auth.games(match.games, match.createdByName || '—')}
         </span>
       </span>
-      <span className="flex gap-2">
+      <span className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={onYes}
@@ -84,7 +61,7 @@ export function SameCard({
           onClick={onNo}
           className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
         >
-          {byEmail ? suggestion : x.useSuggestion(suggestion)}
+          {x.recheck}
         </button>
       </span>
     </motion.div>
@@ -92,54 +69,72 @@ export function SameCard({
 }
 
 /**
- * A new player's email, signed in: checked with the server as it is typed. An email that belongs to someone asks
- * whether it's the same person; yes uses that player, otherwise the email must be rechecked.
+ * Signed in, someone outside this account's circle is added by name and email, checked with the server
+ * (HANDOFF §5.7). Both matching one player asks "Is this Riya?"; a taken name or email reveals nobody and asks for
+ * another; offline, the player is created later and a clash lands in the inbox.
  */
 export function EmailStep({
   name,
   taken,
   onDone,
   onSame,
+  onRename,
+  initialEmail = '',
   className = '',
 }: {
   name: string;
   /** Emails already at this table. */
   taken: string[];
+  /** A new player with this email. */
   onDone: (email: string) => void;
+  /** The server's player with this name and email. */
   onSame: (p: PlayerSummary) => void;
+  /** The name is someone else's: ask again with this free one (and the email typed so far). */
+  onRename: (name: string, email: string) => void;
+  initialEmail?: string;
   className?: string;
 }) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [err, setErr] = useState('');
-  const [owner, setOwner] = useState<PlayerSummary | null>(null);
+  const [match, setMatch] = useState<PlayerSummary | null>(null);
+  const [nameTaken, setNameTaken] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { actions } = useApp();
+  const other = suggestName(name, new Set(livePlayers().map((p) => p.nameKey)));
   const submit = async (e?: FormEvent) => {
     e?.preventDefault();
     if (busy) return;
     if (!emailOk(email)) return setErr(x.emailInvalid);
     if (taken.includes(emailKey(email))) return setErr(x.emailAtTable);
     setBusy(true);
+    setNameTaken(false);
     try {
-      const r = await ep.checkPlayer({ email: emailKey(email) });
-      if (!r.available && r.field === 'email') setOwner(r.existing);
-      else onDone(emailKey(email));
+      const r = await ep.checkPlayer(name, emailKey(email));
+      if (r.status === 'match') setMatch(r.player);
+      else if (r.status === 'email_taken') setErr(x.emailTaken);
+      else if (r.status === 'name_taken') {
+        setNameTaken(true);
+        setErr(x.nameTaken(name));
+      } else onDone(emailKey(email));
     } catch (x2) {
-      // Offline: the server checks it when the player uploads; a clash then lands in the inbox.
       if (x2 instanceof ApiError && x2.offline) onDone(emailKey(email));
+      else if (x2 instanceof ApiError && x2.retryAfter) setErr(t.hub.auth.wait(x2.retryAfter));
       else setErr(t.hub.auth.errors.server);
     } finally {
       setBusy(false);
     }
   };
-  if (owner)
+  if (match)
     return (
       <SameCard
-        byEmail
         className={className}
-        match={owner}
-        suggestion={x.recheck}
-        onYes={() => onSame(owner)}
-        onNo={() => (setOwner(null), setErr(x.recheckHint))}
+        match={match}
+        onYes={() => {
+          rememberSame(match.id);
+          actions.vib();
+          onSame(match);
+        }}
+        onNo={() => (setMatch(null), setErr(x.recheckHint))}
       />
     );
   return (
@@ -157,7 +152,7 @@ export function EmailStep({
           spellCheck={false}
           enterKeyHint="done"
           value={email}
-          onChange={(e) => (setEmail(e.target.value), setErr(''))}
+          onChange={(e) => (setEmail(e.target.value), setErr(''), setNameTaken(false))}
           aria-invalid={!!err}
           aria-describedby={'em-' + name + '-h'}
           placeholder={x.emailPlaceholder}
@@ -178,6 +173,25 @@ export function EmailStep({
       >
         {err || x.emailHint}
       </p>
+      {nameTaken && (
+        <button
+          type="button"
+          onClick={() => onRename(other, email)}
+          className="glass min-h-11 self-start rounded-xl px-3 text-14 font-bold"
+        >
+          {x.useSuggestion(other)}
+        </button>
+      )}
     </form>
   );
 }
+
+/** The registry row for a player the server matched, so the seat takes their id and look. */
+export const personFor = (p: PlayerSummary): Person =>
+  people().find((k) => k.id === p.id) ?? {
+    ...p,
+    nameKey: nameKey(p.displayName),
+    local: false,
+    games: p.games,
+    lastPlayedAt: p.lastPlayedAt,
+  };

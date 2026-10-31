@@ -131,6 +131,34 @@ export function people(): Person[] {
     );
 }
 
+const cached = (k: string): string[] => (archive.get('cache', k)?.value as string[]) ?? [];
+
+/**
+ * Signed in, setup suggests only this account's circle (HANDOFF §5.7): players it created, people it has shared a
+ * game with, players confirmed at setup, its own player, and this device's own players. Anyone else is added by
+ * name and email.
+ */
+export function circle(userId: string, playerId: string | null): Person[] {
+  const met = new Set([...cached('met'), ...cached('same')]);
+  for (const r of archive.games()) {
+    if (r.conflictOf) continue;
+    const ids = r.game.players.map(idOf);
+    if (r.account === userId || r.owner?.id === userId || (playerId && ids.includes(playerId)))
+      ids.forEach((id) => met.add(id));
+  }
+  return people().filter(
+    (p) => p.local || p.id === playerId || p.createdBy === userId || met.has(p.id),
+  );
+}
+
+/** A player confirmed as "the same person" at setup joins the circle. */
+export const rememberSame = (id: string) =>
+  archive.put('cache', {
+    key: 'same',
+    value: [...new Set([...cached('same'), id])],
+    fetchedAt: Date.now(),
+  });
+
 /** Counts one player as another from now on (this device only). */
 export function mergeLocal(fromId: string, intoId: string) {
   const from = archive.get('players', fromId),
