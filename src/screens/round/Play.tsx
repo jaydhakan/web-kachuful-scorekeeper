@@ -17,6 +17,20 @@ export function Play() {
   return (
     <RoundFrame
       r={r}
+      fit
+      aside={
+        <div className="pane:flex pane:h-full pane:flex-col pane:justify-center">
+          <motion.p
+            {...stagger(0, 0.1)}
+            className="mt-4 text-center text-19 leading-[1.4] tracking-[-0.015em]"
+          >
+            {t.play.summary(sum, r.cards)}
+          </motion.p>
+          <p className="mt-2 text-center text-13 text-[var(--tx2)]">
+            {t.play.leadsTrick(g.players[r.firstPlayerIndex].name)}
+          </p>
+        </div>
+      }
       bar={
         <>
           <motion.button
@@ -34,7 +48,7 @@ export function Play() {
         </>
       }
     >
-      <div className="-mx-5 mt-2 h-[300px]">
+      <div className="-mx-5 mt-2 flex min-h-0 flex-1 flex-col pane:mx-0">
         <Table
           uid="play"
           fit
@@ -49,15 +63,6 @@ export function Play() {
           center={<SuitCenter trump={r.trump} cards={r.cards} big />}
         />
       </div>
-      <motion.p
-        {...stagger(0, 0.1)}
-        className="mt-6 text-center text-19 leading-[1.4] tracking-[-0.015em]"
-      >
-        {t.play.summary(sum, r.cards)}
-      </motion.p>
-      <p className="mt-2 text-center text-13 text-[var(--tx2)]">
-        {t.play.leadsTrick(g.players[r.firstPlayerIndex].name)}
-      </p>
     </RoundFrame>
   );
 }
