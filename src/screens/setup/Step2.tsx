@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
 import { nameKey, suggestName } from '@/domain';
 import { useApp } from '@/state/store';
-import { knownSame, rememberSame, SameCard, serverMatch } from './SamePerson';
+import { EmailStep, knownSame, rememberSame, SameCard, serverMatch } from './SamePerson';
 import { people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
 import { findPerson, lookFor } from './seatLook';
@@ -44,8 +44,10 @@ export function Step2() {
     return () => clearTimeout(t);
   }, [tgt]);
   const [same, setSame] = useState<Person | null>(null);
+  // Signed in, a brand-new player needs an email before taking the seat.
+  const [needEmail, setNeedEmail] = useState<string | null>(null);
   const signedIn = !!state.session;
-  const add = (raw: string, who?: Person) => {
+  const add = (raw: string, who?: Person, email?: string) => {
     const nm = (raw || '').trim().replace(/\s+/g, ' ');
     if (!nm || tgt < 0) return;
     // Signed in, a typed name the server already has asks whether it's the same person first.
@@ -64,8 +66,17 @@ export function Step2() {
       actions.vib();
       return;
     }
+    if (signedIn && !who && !findPerson(known, nm) && email === undefined) {
+      setNeedEmail(nm);
+      return;
+    }
+    setNeedEmail(null);
     const look = lookFor(who ?? findPerson(known, nm), seats, tgt);
-    actions.setupSeat(tgt, { name: nm.charAt(0).toUpperCase() + nm.slice(1), ...look });
+    actions.setupSeat(tgt, {
+      name: nm.charAt(0).toUpperCase() + nm.slice(1),
+      ...look,
+      ...(email && { email }),
+    });
     setDrop(tgt);
     setName('');
     setErr('');
@@ -138,6 +149,20 @@ export function Step2() {
                 {t.setup.add}
               </PrimaryButton>
             </div>
+          )}
+          {needEmail && tgt >= 0 && !same && (
+            <EmailStep
+              key={needEmail}
+              className="mt-2 land:order-3"
+              name={needEmail}
+              taken={seats.flatMap((s) => (s?.email ? [s.email] : []))}
+              onDone={(email) => add(needEmail, undefined, email)}
+              onSame={(p) => {
+                const who = known.find((k) => k.id === p.id);
+                setNeedEmail(null);
+                if (who) add(who.displayName, who);
+              }}
+            />
           )}
           {same && tgt >= 0 && (
             <SameCard

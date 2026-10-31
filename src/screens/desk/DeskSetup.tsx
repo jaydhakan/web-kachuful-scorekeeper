@@ -15,7 +15,7 @@ import {
 import { people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
 import { lookFor } from '@/screens/setup/seatLook';
-import { rememberSame, SameCard, serverMatch } from '@/screens/setup/SamePerson';
+import { EmailStep, rememberSame, SameCard, serverMatch } from '@/screens/setup/SamePerson';
 import { useApp } from '@/state/store';
 import type { Seat } from '@/state/types';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
@@ -91,7 +91,18 @@ export function DeskSetup() {
     ? seats.findIndex((x) => x && !x.playerId && x.name.trim() && serverMatch(x.name))
     : -1;
   const askMatch = ask >= 0 ? serverMatch(seats[ask]!.name) : undefined;
-  const ready = !!n && filled === n && !dupe && ask < 0;
+  // Then each brand-new player needs an email.
+  const noEmail = signedIn
+    ? seats.findIndex(
+        (x) =>
+          x &&
+          x.name.trim() &&
+          !x.playerId &&
+          !x.email &&
+          !known.some((p) => p.nameKey === nameKey(x.name)),
+      )
+    : -1;
+  const ready = !!n && filled === n && !dupe && ask < 0 && noEmail < 0;
   const deal = () => ready && actions.beginGame();
   useDeskKeys({ enter: deal });
   if (!su) return null;
@@ -534,8 +545,24 @@ export function DeskSetup() {
                 }
               />
             )}
+            {!askMatch && noEmail >= 0 && filled === n && (
+              <EmailStep
+                key={noEmail + seats[noEmail]!.name}
+                name={tidy(seats[noEmail]!.name)}
+                taken={seats.flatMap((x) => (x?.email ? [x.email] : []))}
+                onDone={(email) => actions.setupSeatPatch(noEmail, { email })}
+                onSame={(p) => {
+                  const who = known.find((k) => k.id === p.id);
+                  if (who)
+                    actions.setupSeatPatch(noEmail, {
+                      name: who.displayName,
+                      ...lookFor(who, seats, noEmail),
+                    });
+                }}
+              />
+            )}
             {signedIn && <p className="text-13 text-[var(--tx2)]">☁️ {t.hub.sync2.countOnline}</p>}
-            {n > 0 && !ready && !askMatch && (
+            {n > 0 && !ready && !askMatch && noEmail < 0 && (
               <p role="status" className="text-14 font-medium text-[var(--warn)]">
                 {dupe ? t.desk.setup.dupe(tidy(dupe)) : t.desk.setup.missing(n - filled)}
               </p>
