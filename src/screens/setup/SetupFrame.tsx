@@ -10,15 +10,21 @@ import { t } from '@/strings';
 const Dots = ({ step }: { step: number }) => (
   <div className="flex items-center gap-2" role="img" aria-label={t.setup.stepOf(step)}>
     {[1, 2, 3].map((i) => (
+      // Each step remounts the frame; layoutId morphs the dots across it as transforms (radius corrected).
       <motion.i
         key={i}
-        animate={{
-          width: i === step ? 24 : 8,
-          backgroundColor: i === step ? 'var(--accent)' : 'rgba(255,255,255,.22)',
-        }}
+        layoutId={`step-dot-${i}`}
         transition={SPRING}
-        className="block h-2 rounded-full"
-      />
+        style={{ width: i === step ? 24 : 8, borderRadius: 999 }}
+        className="relative block h-2 overflow-hidden bg-white/[.22]"
+      >
+        <motion.span
+          className="absolute inset-0 bg-[var(--accent)]"
+          initial={false}
+          animate={{ opacity: i === step ? 1 : 0 }}
+          transition={SPRING}
+        />
+      </motion.i>
     ))}
   </div>
 );

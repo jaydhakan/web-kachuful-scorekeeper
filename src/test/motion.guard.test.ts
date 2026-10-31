@@ -47,7 +47,6 @@ const ALLOWED = new Set<string>([
   'components/ui/IconButton.tsx: whileHover backgroundColor',
   'components/ui/PrimaryButton.tsx: transition-[background,color,box-shadow]',
   'screens/round/Results.tsx: transition-colors',
-  'screens/setup/SetupFrame.tsx: animate width',
   'screens/setup/Step2.tsx: transition-shadow',
   'sheets/MenuBody.tsx: whileTap backgroundColor',
   'styles/index.css: @keyframes ringp box-shadow',
