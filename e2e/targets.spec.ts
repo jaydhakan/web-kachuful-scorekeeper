@@ -36,8 +36,14 @@ for (const [w, h, names] of [
     await page.setViewportSize({ width: w, height: h });
     const found: Small[] = [];
     const check = async (screen: string) => {
-      // The outgoing screen fades for 420 ms; measure after it has gone.
-      await page.waitForTimeout(700);
+      // The outgoing screen fades for 420 ms; measure once it and every finite animation are done.
+      await page.waitForTimeout(500);
+      await page.waitForFunction(() =>
+        document
+          .getAnimations()
+          .every((a) => a.effect?.getTiming().iterations === Infinity || a.playState !== 'running'),
+      );
+      await page.waitForTimeout(200);
       found.push(...(await smallControls(page, screen)));
     };
 
