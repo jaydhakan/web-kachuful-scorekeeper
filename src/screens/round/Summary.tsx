@@ -102,8 +102,8 @@ export function Summary() {
                 </span>
               )}
             </div>
-            {/* A phone on its side below 45rem leaves the pane narrower than the smallest table. */}
-            <div className="-mx-3 land:max-[45rem]:hidden">
+            {/* On a phone on its side the card has no height for a table, so it keeps the text only. */}
+            <div className="-mx-3 @h-tiny:hidden">
               <div
                 className={`mx-auto flex w-full max-w-[20rem] flex-col md:max-w-[22rem] pane:max-w-none ${wide ? 'aspect-[34/30]' : 'aspect-[32/17]'}`}
               >
