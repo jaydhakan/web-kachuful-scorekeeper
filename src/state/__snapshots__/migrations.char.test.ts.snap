@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`older saves keep their games > a prototype save (v0) keeps its players, rounds, totals and places 1`] = `
+{
+  "p0": 10,
+  "p1": -20,
+  "p2": 60,
+  "p3": -30,
+  "p4": 30,
+}
+`;
