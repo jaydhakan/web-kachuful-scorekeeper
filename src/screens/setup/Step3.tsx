@@ -1,7 +1,18 @@
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { cycleLen, maxFor, type LengthMode } from '@/domain';
-import { DEALS_PILL, TD, dpx, posAt, toPct } from '@/lib/tableGeometry';
+import {
+  DEALS_PILL,
+  SMALL_CHIP,
+  TD,
+  chipOnRight,
+  dpx,
+  pillChip,
+  posAt,
+  seatPos,
+  smallChipOffset,
+  toPct,
+} from '@/lib/tableGeometry';
 import type { Seat } from '@/state/types';
 import { Glass } from '@/components/ui/Glass';
 import { Icon } from '@/components/ui/Icons';
@@ -14,7 +25,20 @@ import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
 
-function SpinToken({ a0, a1, onDone }: { a0: number; a1: number; onDone: () => void }) {
+function SpinToken({
+  a0,
+  a1,
+  pill,
+  right,
+  onDone,
+}: {
+  a0: number;
+  a1: number;
+  pill: boolean;
+  /** Whether the target seat puts its small chip on the right corner. */
+  right: boolean;
+  onDone: () => void;
+}) {
   const a = useMotionValue(a0);
   const x = useTransform(a, (v) => `${toPct('full', posAt('full', v)).x}%`),
     y = useTransform(a, (v) => `${toPct('full', posAt('full', v)).y}%`);
@@ -27,15 +51,23 @@ function SpinToken({ a0, a1, onDone }: { a0: number; a1: number; onDone: () => v
     <TablePin style={{ x, y }} className="z-[6]">
       <div
         className="absolute flex items-center justify-center gap-[3px] rounded-full bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_0_24px_rgba(247,231,166,.8)]"
-        // Where the seat's own chip sits: above the avatar, left edge 3 design pixels in from the seat.
-        style={{
-          ...DEALS_PILL,
-          left: dpx(3 - 36),
-          top: `calc(${dpx(-TD.full.R - 2)} - ${DEALS_PILL.height})`,
-        }}
+        // Where the seat's own chip sits, so the token settles exactly on it.
+        style={
+          pill
+            ? {
+                ...DEALS_PILL,
+                left: dpx(3 - 36),
+                top: `calc(${dpx(-TD.full.R - 2)} - ${DEALS_PILL.height})`,
+              }
+            : {
+                ...SMALL_CHIP,
+                left: dpx(smallChipOffset(TD.full.R, right).x),
+                top: dpx(smallChipOffset(TD.full.R, right).y),
+              }
+        }
       >
         {Icon.deck}
-        {t.table.deals}
+        {pill && t.table.deals}
       </div>
     </TablePin>
   );
@@ -213,6 +245,8 @@ export function Step3() {
             <SpinToken
               a0={spin.a0}
               a1={spin.a1}
+              pill={pillChip('full', n)}
+              right={chipOnRight(toPct('full', seatPos('full', n, spin.tgt, su.dir)).x)}
               onDone={() => {
                 actions.setupPatch({ dealer: spin.tgt });
                 setSpin(null);

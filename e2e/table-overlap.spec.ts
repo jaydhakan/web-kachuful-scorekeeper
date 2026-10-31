@@ -119,3 +119,26 @@ for (const n of [3, 5, 7]) {
     expect(found).toEqual([]);
   });
 }
+
+for (const [w, h, what] of [
+  [390, 1100, 'flat'],
+  [1280, 800, 'full'],
+] as const) {
+  for (const n of [3, 5, 7]) {
+    test(`the Next-up table has no overlaps at any size (${n} players, ${what})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      await openSeeded(page, seedGame(n, 'summary'), 'round');
+      await page.locator('[data-table="sum"]').waitFor({ state: 'visible' });
+      const found: string[] = [];
+      for (const width of WIDTHS) {
+        await scaleTable(page, 'sum', width);
+        await page.waitForTimeout(150);
+        found.push(...(await collisions(page, 'sum')).map((c) => `summary ${width}px: ${c}`));
+      }
+      expect(found).toEqual([]);
+    });
+  }
+}

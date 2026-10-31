@@ -38,3 +38,21 @@ export const DEALS_PILL = { width: `max(66px, ${dpx(66)})`, height: `max(20px, $
 
 /** How far a fitted table may shrink; seven seats need more room for their 13px labels than fewer do. */
 export const minScale = (players: number) => (players >= 7 ? 0.8 : 0.72);
+
+/** The wide "deals" pill needs room above the avatar; seven seats are too close for it, so they use the small chip. */
+export const pillChip = (size: TableSize, players: number) => size === 'full' && players < 7;
+
+/** The small round chip on an avatar's upper-left corner, the same on the flat table and on crowded ones. */
+export const SMALL_CHIP = {
+  width: `max(1.125rem, ${dpx(22)})`,
+  height: `max(1.125rem, ${dpx(22)})`,
+};
+
+/** Seats right of the middle put their small chip on the right corner, the rest on the left. */
+export const chipOnRight = (xPct: number) => xPct > 52;
+
+/** Where the small chip sits on an avatar's upper corner, as an offset from the avatar's centre (design pixels). */
+export const smallChipOffset = (radius: number, right: boolean) => ({
+  x: (right ? 1 : -1) * radius * 0.707 - 11,
+  y: -radius * 0.707 - 11,
+});

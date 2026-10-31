@@ -42,29 +42,34 @@ for (const width of [240, 340, 510]) {
       expect(new Set(nearest).size).toBe(NAMES.length);
     });
 
-    test('the spin token settles on the new dealer chip', async ({ page }) => {
-      await page.goto('/');
-      await toSetup3(page, NAMES);
-      await scaleTable(page, 'su3', width);
-      await page.evaluate(() => {
-        const w = window as unknown as { __tok?: DOMRect };
-        const loop = () => {
-          const el = document.querySelector('[data-table="su3"] .z-\\[6\\] > div');
-          if (el) w.__tok = el.getBoundingClientRect();
-          requestAnimationFrame(loop);
-        };
-        loop();
+    for (const players of [5, 7])
+      test(`the spin token settles on the new dealer chip (${players} players)`, async ({
+        page,
+      }) => {
+        await page.goto('/');
+        await toSetup3(page, NAMES7.slice(0, players));
+        await scaleTable(page, 'su3', width);
+        await page.evaluate(() => {
+          const w = window as unknown as { __tok?: DOMRect };
+          const loop = () => {
+            const el = document.querySelector('[data-table="su3"] .z-\\[6\\] > div');
+            if (el) w.__tok = el.getBoundingClientRect();
+            requestAnimationFrame(loop);
+          };
+          loop();
+        });
+        await btn(page, /Random/).click();
+        const chip = page.locator('[data-table="su3"] .z-\\[4\\]');
+        // The token unmounts when the spin ends; the chip takes over on the dealer's seat.
+        await expect(page.locator('[data-table="su3"] .z-\\[6\\]')).toHaveCount(0, {
+          timeout: 5000,
+        });
+        await expect(chip).toHaveCount(1);
+        const tok = (await page.evaluate(() => (window as unknown as { __tok: DOMRect }).__tok))!,
+          c = (await chip.boundingBox())!;
+        expect(Math.abs(tok.x - c.x)).toBeLessThan(2.5);
+        expect(Math.abs(tok.y - c.y)).toBeLessThan(2.5);
+        expect(Math.abs(tok.width - c.width)).toBeLessThan(1);
       });
-      await btn(page, /Random/).click();
-      const chip = page.locator('[data-table="su3"] .z-\\[4\\]');
-      // The token unmounts when the spin ends; the chip takes over on the dealer's seat.
-      await expect(page.locator('[data-table="su3"] .z-\\[6\\]')).toHaveCount(0, { timeout: 5000 });
-      await expect(chip).toHaveCount(1);
-      const tok = (await page.evaluate(() => (window as unknown as { __tok: DOMRect }).__tok))!,
-        c = (await chip.boundingBox())!;
-      expect(Math.abs(tok.x - c.x)).toBeLessThan(2.5);
-      expect(Math.abs(tok.y - c.y)).toBeLessThan(2.5);
-      expect(Math.abs(tok.width - c.width)).toBeLessThan(1);
-    });
   });
 }
