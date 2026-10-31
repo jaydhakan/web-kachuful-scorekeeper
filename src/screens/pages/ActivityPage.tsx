@@ -4,7 +4,7 @@ import { ACH } from '@/domain';
 import { agoTxt, sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { ep } from '@/sync/endpoints';
-import type { Activity } from '@/sync/types';
+import { newsworthy, type Activity } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
 import { RemoteGate } from '@/components/RemoteGate';
 import { EmptyState, Page } from '@/components/ui/Page';
@@ -42,7 +42,7 @@ export function ActivityPage() {
           ) : (
             <>
               <ul className="flex flex-col gap-2">
-                {[...p.items, ...more].map((a, i) => (
+                {[...p.items, ...more].filter(newsworthy).map((a, i) => (
                   <motion.li key={a.id} {...stagger(Math.min(i, 10))}>
                     <Row a={a} />
                   </motion.li>

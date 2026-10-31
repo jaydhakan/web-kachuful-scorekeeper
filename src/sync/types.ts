@@ -84,6 +84,17 @@ export interface Tombstone {
 export const isTombstone = (g: GameSummary | Tombstone): g is Tombstone =>
   'deleted' in g && g.deleted;
 
+/**
+ * The server feeds every achievement, round moments included (HANDOFF §10); the smallest hot streak and cold
+ * streaks would bury everything else, so the feed leaves them out.
+ */
+export const newsworthy = (a: Activity) =>
+  a.kind !== 'achievement' ||
+  !(
+    typeof a.data.code === 'string' &&
+    (a.data.code === 'hot_3' || a.data.code.startsWith('cold_'))
+  );
+
 export interface Achievement {
   id: string;
   code: string;
