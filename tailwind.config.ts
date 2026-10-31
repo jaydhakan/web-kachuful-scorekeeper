@@ -1,5 +1,7 @@
 import type { Config } from 'tailwindcss';
+import containerQueries from '@tailwindcss/container-queries';
 import plugin from 'tailwindcss/plugin';
+import { CQ_HEIGHT, MQ } from './src/theme/breakpoints';
 import tokens from './src/theme/tokens.json';
 import extended from './src/theme/extended.json';
 
@@ -13,7 +15,10 @@ const sizes = [
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  future: { hoverOnlyWhenSupported: true },
   theme: {
+    // Layouts are chosen by orientation and height as well as width, so every screen is a raw query.
+    screens: Object.fromEntries(Object.entries(MQ).map(([k, raw]) => [k, { raw }])),
     extend: {
       colors,
       fontSize: Object.fromEntries(sizes.map((s) => [s, `${s}px`])),
@@ -31,6 +36,12 @@ export default {
     },
   },
   plugins: [
+    containerQueries,
+    // The official plugin only queries width; a size container also answers to its height.
+    plugin(({ addUtilities, matchVariant }) => {
+      addUtilities({ '.cq-size': { 'container-type': 'size' } });
+      matchVariant('@h', (v: string) => `@container (max-height: ${v})`, { values: CQ_HEIGHT });
+    }),
     plugin(({ addBase }) =>
       addBase({
         ':root': {
