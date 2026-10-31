@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #7FB3FF; }
+@property --glow { syntax: '<color>'; inherits: true; initial-value: rgba(127,179,255,.25); }
+
+:root {
+  color-scheme: dark;
+  --bg: #06120D; --felt: #0A2A1F; --felt-hi: #0F3B2B; --tx: #F5F1E8; --tx2: #A9B8AF; --dis: #5E6E66;
+  --gold: #E2B653; --pos: #4ADE80; --neg: #FF5C6C; --warn: #FFB547;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--tx); overflow: hidden; }
+body { font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+#root { height: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 12px; }
+.disp { font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif; }
+.app-root { --accent: #7FB3FF; --glow: rgba(127,179,255,.25); --suit: #E8EEF8; transition: --accent .6s var(--ease), --glow .6s var(--ease); }
+.gold-text { background: linear-gradient(135deg, #F7E7A6, #D4A23A 55%, #A8761E); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.scr-bg { background: radial-gradient(120% 52% at 50% 0%, #0E2A1F 0%, #06120D 70%); }
+.grain::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 70; background: radial-gradient(120% 90% at 50% 45%, transparent 58%, rgba(0,0,0,.42)), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E"); }
+.glass { background: rgba(255,255,255,.055); box-shadow: inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.035), 0 18px 48px -12px rgba(0,0,0,.55); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border-radius: 22px; }
+.glass-glow { box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 0 56px -8px var(--glow), 0 18px 48px -12px rgba(0,0,0,.55); }
+.spot { position: relative; overflow: hidden; }
+.spot::before { content: ''; position: absolute; inset: 0; background: radial-gradient(240px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.11), transparent 62%); opacity: 0; transition: opacity .5s var(--ease); pointer-events: none; z-index: 0; }
+@media (hover: hover) { .spot:hover::before { opacity: 1; } }
+.spot > * { position: relative; z-index: 1; }
+.chrome-top { background: linear-gradient(rgba(6,18,13,.78), rgba(6,18,13,0)); -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent); }
+.chrome-bot { background: linear-gradient(rgba(6,18,13,0), rgba(6,18,13,.9) 38%); }
+.felt { background: radial-gradient(ellipse at 50% 38%, var(--felt-hi), var(--felt)); box-shadow: 0 0 0 3px #E2B653, 0 0 0 4px rgba(0,0,0,.4), 0 0 44px 4px var(--glow), inset 0 0 44px rgba(0,0,0,.4); }
+.ring-pulse { animation: ringp 1.25s ease-in-out infinite; }
+@keyframes ringp { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 16px var(--accent); } 50% { box-shadow: 0 0 0 4px var(--accent), 0 0 32px var(--accent); } }
+.warn-pulse { animation: warnp 1s ease-in-out infinite; }
+@keyframes warnp { 0%,100% { box-shadow: 0 0 0 3px var(--warn), 0 0 14px var(--warn); } 50% { box-shadow: 0 0 0 4px var(--warn), 0 0 30px var(--warn); } }
+.suit-glow { animation: sg 3.2s ease-in-out infinite; }
+@keyframes sg { 0%,100% { text-shadow: 0 0 20px var(--accent); } 50% { text-shadow: 0 0 52px var(--accent), 0 0 90px var(--glow); } }
+.no-scroll::-webkit-scrollbar { display: none; }
+.no-scroll { scrollbar-width: none; }
+.tick { font-feature-settings: 'tnum' 1; }
+@media (prefers-reduced-motion: reduce) { .ring-pulse, .warn-pulse, .suit-glow { animation: none; } }
+@media (prefers-reduced-transparency: reduce) { .glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: #12261d; } }
