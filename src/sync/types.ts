@@ -1,5 +1,5 @@
-/** The API contract's shapes (plan-backend §6). Times are epoch ms, ids UUID strings. */
-import type { Game, Trump } from '@/domain';
+/** The API's shapes as built (the backend's HANDOFF.md §6.2). Times are epoch ms, ids UUID strings. */
+import type { Game, Trump, Wrapped } from '@/domain';
 
 export type Role = 'admin' | 'member';
 
@@ -16,6 +16,8 @@ export interface Player {
   displayName: string;
   /** Identifies the person; null unless you are the admin, its creator or its linked user. */
   email: string | null;
+  /** `/api/players/{id}/photo?v=<rev>`: public, and a new photo always gets a new URL. */
+  photoUrl: string | null;
   firstName: string | null;
   lastName: string | null;
   emoji: string;
@@ -27,6 +29,7 @@ export interface Player {
   updatedAt: number;
 }
 
+/** A player as everyone may see it: `email` is always null. */
 export interface PlayerSummary extends Player {
   games: number;
   lastPlayedAt: number | null;
@@ -37,23 +40,32 @@ export interface NewPlayer {
   id: string;
   displayName: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  firstName?: string | null;
+  lastName?: string | null;
   emoji: string;
   color: string;
 }
 
+/** GET /api/players/check: only a full name + email match names a player. */
+export type PlayerCheck =
+  | { status: 'match'; player: PlayerSummary }
+  | { status: 'email_taken' | 'name_taken' | 'new'; player: null };
+
 export interface GameSummary {
   id: string;
-  owner: { id: string; name: string };
+  /** `id` is null in public responses. */
+  owner: { id: string | null; name: string };
   createdAt: number;
+  /** The server's change time: what `updatedSince` compares with. */
+  updatedAt: number;
   endedAt: number | null;
   status: Game['status'];
   players: {
-    playerId: string | null;
+    playerId: string;
     name: string;
     emoji: string;
     color: string;
+    photoUrl: string | null;
     points: number;
     place: number | null;
   }[];
@@ -61,6 +73,16 @@ export interface GameSummary {
   lengthMode: Game['lengthMode'];
   live: boolean;
 }
+
+/** A game deleted since `updatedSince`. */
+export interface Tombstone {
+  id: string;
+  deleted: true;
+  updatedAt: number;
+}
+
+export const isTombstone = (g: GameSummary | Tombstone): g is Tombstone =>
+  'deleted' in g && g.deleted;
 
 export interface Achievement {
   id: string;
@@ -112,7 +134,7 @@ export interface HeadToHead {
   aPoints: number;
   bPoints: number;
   lastGames: GameSummary[];
-  biggestWin: { by: number; game: GameSummary } | null;
+  biggestWin: { by: number; game: GameSummary; winner: string } | null;
 }
 
 export interface LeaderboardRow {
@@ -139,8 +161,9 @@ export interface AwardRow {
   code: string;
   player: PlayerSummary;
   value: number;
-  gameId?: string;
-  roundIndex?: number;
+  /** Only for `day_bang` and `day_ouch`. */
+  gameId: string | null;
+  roundIndex: number | null;
 }
 
 export interface Daily {
@@ -157,10 +180,10 @@ export interface SeasonResp {
 }
 
 export interface Activity {
-  id: string;
+  id: number;
   kind: 'achievement' | 'game_finished' | 'season_closed' | 'player_joined';
-  player?: PlayerSummary;
-  game?: GameSummary;
+  player: PlayerSummary | null;
+  game: GameSummary | null;
   data: Record<string, unknown>;
   createdAt: number;
 }
@@ -179,16 +202,17 @@ export interface Bootstrap {
   dataVersion: number;
 }
 
+/** An account, or (with `user` null) an invite nobody has accepted yet. Invite links aren't kept: invite again. */
 export interface AdminUserRow {
-  user: User;
+  user: User | null;
   player: Player | null;
   active: boolean;
   lastSeenAt: number | null;
-  invite: { expiresAt: number; url: string } | null;
+  invite: { email: string; expiresAt: number } | null;
 }
 
-/** The game as uploaded: the app's Game (schema 3) with the sync id as `id`. */
-export type WireGame = Omit<Game, 'id' | 'syncId'> & { id: string; localId?: string };
+/** The game on the wire: the app's Game as it is. The server keys it by `syncId`, else `id`. */
+export type WireGame = Omit<Game, 'syncId'> & { syncId?: string };
 
 export interface PutGameResp {
   rev: number;
@@ -200,11 +224,27 @@ export interface LiveResp {
   game: WireGame;
   summary: GameSummary;
   updatedAt: number;
-  scorerSeenAt: number;
+  scorerSeenAt: number | null;
 }
 
 export interface RecapResp {
   game: WireGame;
   summary: GameSummary;
   achievements: Achievement[];
+}
+
+/** GET /api/wrapped/{year}/{playerId}: the app's own Wrapped, with summaries of the people in it. */
+export type WrappedResp = Omit<Wrapped, 'totals' | 'nemesis' | 'partner'> & {
+  player: PlayerSummary;
+  totals: PlayerStats;
+  nemesis: (NonNullable<Wrapped['nemesis']> & { player: PlayerSummary }) | null;
+  partner: (NonNullable<Wrapped['partner']> & { player: PlayerSummary }) | null;
+};
+
+export interface AdminOverview {
+  users: number;
+  players: number;
+  games: number;
+  rounds: number;
+  lastBackupAt: number | null;
 }

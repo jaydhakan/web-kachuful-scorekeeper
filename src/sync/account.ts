@@ -1,4 +1,3 @@
-import { ApiError } from './api';
 import { ep } from './endpoints';
 import type { Player, User } from './types';
 import type { Session } from '@/state/persistence';
@@ -14,12 +13,8 @@ export const sessionOf = (user: User, player: Player | null): Session => ({
   },
 });
 
-/** Email and password in, a session out (with the linked player). */
+/** Email and password in, a session out (with the linked player, which login returns). */
 export async function signIn(email: string, password: string): Promise<Session> {
-  const { user } = await ep.login(email.trim(), password);
-  const me = await ep.me().catch((e: unknown) => {
-    if (e instanceof ApiError && e.offline) return { user, player: null };
-    throw e;
-  });
-  return sessionOf(me.user, me.player);
+  const { user, player } = await ep.login(email.trim(), password);
+  return sessionOf(user, player);
 }

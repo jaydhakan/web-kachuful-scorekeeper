@@ -1,4 +1,4 @@
-import { ApiError, call, errorText, get, onUnauthenticated, post } from './api';
+import { ApiError, Bytes, call, errorText, get, onUnauthenticated, post, put } from './api';
 
 const reply = (status: number, body?: unknown, headers: Record<string, string> = {}) =>
   vi.fn(
@@ -8,7 +8,7 @@ const reply = (status: number, body?: unknown, headers: Record<string, string> =
 afterEach(() => vi.unstubAllGlobals());
 
 describe('api client', () => {
-  it('sends the CSRF header and JSON on writes, same-origin cookies always', async () => {
+  it('sends the CSRF header and JSON on writes, and the session cookie always', async () => {
     const f = reply(200, { ok: 1 });
     vi.stubGlobal('fetch', f);
     await post('/auth/login', { email: 'a' });
@@ -16,7 +16,7 @@ describe('api client', () => {
     const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('/api/auth/login');
     expect(init.headers).toMatchObject({ 'X-Kachuful': '1', 'Content-Type': 'application/json' });
-    expect(init.credentials).toBe('same-origin');
+    expect(init.credentials).toBe('include');
     const [url2, init2] = f.mock.calls[1] as unknown as [string, RequestInit];
     expect(url2).toBe('/api/players?updatedSince=5');
     expect(init2.headers).not.toHaveProperty('X-Kachuful');
@@ -51,6 +51,22 @@ describe('api client', () => {
     expect((f.mock.calls[0] as unknown as [string, RequestInit])[1].headers).toMatchObject({
       'If-None-Match': '"9-x"',
     });
+  });
+
+  it('sends raw bytes with their own type (photo uploads)', async () => {
+    const f = reply(200, { photoUrl: '/api/players/p/photo?v=1' });
+    vi.stubGlobal('fetch', f);
+    const img = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/jpeg' });
+    await put('/players/p/photo', new Bytes(img, 'image/jpeg'));
+    const init = (f.mock.calls[0] as unknown as [string, RequestInit])[1];
+    expect(init.headers).toMatchObject({ 'X-Kachuful': '1', 'Content-Type': 'image/jpeg' });
+    expect(init.body).toBe(img);
+  });
+
+  it('reads retryAfter from a 429', async () => {
+    vi.stubGlobal('fetch', reply(429, { code: 'rate_limited', retryAfter: 42 }));
+    const e = (await get('/players/check').catch((x: unknown) => x)) as ApiError;
+    expect([e.code, e.retryAfter]).toEqual(['rate_limited', 42]);
   });
 
   it('tells listeners about a 401', async () => {

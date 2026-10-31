@@ -1,6 +1,6 @@
 /**
- * The app's only network code (with the rest of src/sync): same-origin fetch, the CSRF header on writes, and errors
- * mapped to the contract's codes. A signed-out app never calls any of this.
+ * The app's only network code (with the rest of src/sync): fetch with the session cookie, the CSRF header on writes,
+ * and errors mapped to the codes in the backend's HANDOFF.md §6.1. A signed-out app never calls any of this.
  */
 
 export const API = '/api';
@@ -18,6 +18,10 @@ export class ApiError extends Error {
   get offline() {
     return this.status === 0;
   }
+  /** Seconds to wait after `429 rate_limited`. */
+  get retryAfter(): number | null {
+    return typeof this.body.retryAfter === 'number' ? this.body.retryAfter : null;
+  }
 }
 
 export interface Res<T> {
@@ -30,6 +34,14 @@ export interface CallOpts {
   signal?: AbortSignal;
   /** Sent as If-None-Match; a 304 then resolves with `data: null` and status 304. */
   etag?: string | null;
+}
+
+/** Raw bytes sent as they are (photo uploads), with their own Content-Type. */
+export class Bytes {
+  constructor(
+    readonly blob: Blob,
+    readonly type: string,
+  ) {}
 }
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -49,15 +61,17 @@ export async function call<T>(
 ): Promise<Res<T>> {
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (method !== 'GET') headers['X-Kachuful'] = '1';
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (body instanceof Bytes) headers['Content-Type'] = body.type;
+  else if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (o.etag) headers['If-None-Match'] = o.etag;
   let res: Response;
   try {
     res = await fetch(API + path, {
       method,
       headers,
-      credentials: 'same-origin',
-      body: body === undefined ? undefined : JSON.stringify(body),
+      credentials: 'include',
+      body:
+        body instanceof Bytes ? body.blob : body === undefined ? undefined : JSON.stringify(body),
       signal: o.signal,
     });
   } catch (e) {
@@ -94,7 +108,7 @@ export const get = <T>(path: string, params = {}, o?: CallOpts) =>
   call<T>('GET', path + q(params), undefined, o).then((r) => r.data);
 export const post = <T>(path: string, body?: unknown) =>
   call<T>('POST', path, body ?? {}).then((r) => r.data);
-export const put = <T>(path: string, body: unknown) =>
+export const put = <T>(path: string, body: unknown | Bytes) =>
   call<T>('PUT', path, body).then((r) => r.data);
 export const patch = <T>(path: string, body: unknown) =>
   call<T>('PATCH', path, body).then((r) => r.data);
