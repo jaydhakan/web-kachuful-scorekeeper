@@ -43,7 +43,7 @@ test('a ten-player two-deck game starts and its Rules explain the decks', async 
   await page.reload();
   await startGame(page, LONG_NAMES_10);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('kachuful.v1')!));
-  expect(saved).toMatchObject({ decks: 2, maxCards: 10, schemaVersion: 2 });
+  expect(saved).toMatchObject({ decks: 2, maxCards: 10, schemaVersion: 3 });
   expect(saved.players).toHaveLength(10);
   await btn(page, 'Menu').click();
   await btn(page, 'Rules').click();

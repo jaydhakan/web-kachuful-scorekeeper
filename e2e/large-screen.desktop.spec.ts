@@ -110,6 +110,8 @@ test.describe('the round workspace', () => {
     expect(await same()).toBe(true);
     await page.keyboard.press('Enter');
     await expect(page.getByRole('button', { name: /Enter results/ })).toBeVisible();
+    // Keys are off while the outgoing pane animates out; under load that can outlast the button appearing.
+    await page.waitForTimeout(500);
     await page.keyboard.press('Enter');
     await expect(page.getByText('Who made their bid?')).toBeVisible();
     expect(await same()).toBe(true);

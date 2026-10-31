@@ -158,33 +158,40 @@ export function Home() {
                 )}
               </Glass>
             </motion.div>
+            {/* One row of small tiles: where to go, and the rules, without pushing New Game off a small phone. */}
             <motion.nav
               {...stagger(2, 0.28)}
               aria-label={t.hub.nav.label}
-              className="flex w-full flex-wrap justify-center gap-2 md:max-w-[26rem] land:mt-2"
+              className="grid w-full auto-cols-fr grid-flow-col gap-2 md:max-w-[26rem] land:mt-2"
             >
-              {DESTS.map((d) => (
+              {[
+                ...DESTS.map((d) => ({
+                  key: d.screen,
+                  emoji: d.emoji,
+                  label: d.label,
+                  go: () => actions.open(destRoute(d)),
+                })),
+                {
+                  key: 'rules',
+                  emoji: '📖',
+                  label: t.home.howToPlay,
+                  go: () => actions.openSheet({ type: 'rules' }),
+                },
+              ].map((d) => (
                 <motion.button
-                  key={d.screen}
+                  key={d.key}
                   type="button"
                   whileTap={{ scale: 0.94 }}
-                  onClick={() => actions.open(destRoute(d))}
-                  className="glass inline-flex min-h-12 flex-1 basis-[7rem] items-center justify-center gap-2 !rounded-2xl px-3 text-16 font-bold"
+                  onClick={d.go}
+                  className="glass flex min-h-[3.75rem] flex-col items-center justify-center gap-0.5 !rounded-2xl px-1 text-13 font-bold leading-tight"
                 >
-                  <span aria-hidden>{d.emoji}</span>
+                  <span aria-hidden className="text-20 leading-none">
+                    {d.emoji}
+                  </span>
                   {d.label}
                 </motion.button>
               ))}
             </motion.nav>
-            <motion.button
-              type="button"
-              {...stagger(3, 0.3)}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => actions.openSheet({ type: 'rules' })}
-              className="min-h-12 px-3 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"
-            >
-              {t.home.howToPlay}
-            </motion.button>
           </div>
         </div>
       </div>
