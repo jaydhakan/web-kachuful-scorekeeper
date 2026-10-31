@@ -104,11 +104,14 @@ test.describe('the round workspace', () => {
     await page.keyboard.press('Enter');
     await expect(page.getByRole('button', { name: /Enter results/ })).toBeVisible();
     expect(await same()).toBe(true);
-    await page.keyboard.press('Enter');
-    await expect(page.getByText('Who made their bid?')).toBeVisible();
-    expect(await same()).toBe(true);
+    // E edits the bids, and only while playing.
     await page.keyboard.press('e');
     await expect(page.getByRole('button', { name: /Start playing/ })).toBeVisible();
+    expect(await same()).toBe(true);
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('button', { name: /Enter results/ })).toBeVisible();
+    await page.keyboard.press('Enter');
+    await expect(page.getByText('Who made their bid?')).toBeVisible();
     expect(await same()).toBe(true);
   });
 
