@@ -40,7 +40,7 @@ export function Scaffold({
         tabIndex={0}
         role="region"
         aria-label={t.common.content}
-        className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[120px] pt-[64px]"
+        className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[120px] pt-[calc(64px+var(--sat))]"
       >
         {title && (
           <motion.h1
@@ -54,9 +54,9 @@ export function Scaffold({
       </div>
       <motion.div
         style={{ opacity: topBg }}
-        className="chrome-top pointer-events-none absolute inset-x-0 top-0 z-10 h-[88px]"
+        className="chrome-top pointer-events-none absolute inset-x-0 top-0 z-10 h-[calc(88px+var(--sat))]"
       />
-      <div className="absolute inset-x-0 top-0 z-20 flex h-14 items-center justify-between px-2">
+      <div className="absolute inset-x-0 top-[var(--sat)] z-20 flex h-14 items-center justify-between px-2">
         <div className="w-12">{left}</div>
         <motion.span
           style={{ opacity: title ? navO : 1 }}
@@ -67,7 +67,7 @@ export function Scaffold({
         <div className="flex w-12 justify-end">{right}</div>
       </div>
       {bar && (
-        <div className="chrome-bot absolute inset-x-0 bottom-0 z-20 flex min-h-[96px] items-center gap-3 px-5 pb-[max(18px,env(safe-area-inset-bottom))] pt-[18px]">
+        <div className="chrome-bot absolute inset-x-0 bottom-0 z-20 flex min-h-[96px] items-center gap-3 px-5 pb-[max(18px,var(--sab))] pt-[18px]">
           {bar}
         </div>
       )}

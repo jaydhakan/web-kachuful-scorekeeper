@@ -45,7 +45,7 @@ export function RoundStart() {
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') setStage(4);
       }}
-      className="scr-bg absolute inset-0 z-[45] flex cursor-pointer flex-col items-center pt-12"
+      className="scr-bg absolute inset-0 z-[45] flex cursor-pointer flex-col items-center pt-[calc(48px+var(--sat))]"
     >
       <div className="disp text-30 font-extrabold tracking-[-0.035em]">
         {t.round.title(r.index + 1)}
@@ -118,7 +118,9 @@ export function RoundStart() {
           )}
         </AnimatePresence>
       </div>
-      <div className="absolute bottom-7 text-13 text-[var(--tx2)]">{t.start.tapToSkip}</div>
+      <div className="absolute bottom-[calc(28px+var(--sab))] text-13 text-[var(--tx2)]">
+        {t.start.tapToSkip}
+      </div>
     </motion.div>
   );
 }
