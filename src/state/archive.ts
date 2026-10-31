@@ -16,7 +16,7 @@ export interface GameRec {
   /** Scored on this device, or pulled from the server. */
   origin: 'local' | 'remote';
   /** Server facts about a remote game. */
-  owner?: { id: string; name: string } | null;
+  owner?: { id: string | null; name: string } | null;
   /** A conflict copy keeps the sync id of the game it lost to. */
   conflictOf?: string;
   /** Server achievement rows this game earned (for badges on other devices). */
@@ -34,6 +34,8 @@ export interface PlayerRec {
   nameKey: string;
   /** Who the person is (unique); only known for players this account may see it for. */
   email?: string | null;
+  /** The server's photo for this player (versioned, cached forever); none means the emoji. */
+  photoUrl?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   emoji: string;

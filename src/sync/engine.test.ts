@@ -21,10 +21,12 @@ const session: Session = {
   player: null,
 };
 
-/** A tiny server: routes by method and path, records every call. */
+/** A tiny server: routes by method and path, records every call (and every URL, queries included). */
+const urls: string[] = [];
 function server(routes: Record<string, (body: unknown, path: string) => [number, unknown?]>) {
   const calls: string[] = [];
   const f = vi.fn(async (url: string, init: RequestInit) => {
+    urls.push(url);
     const path = url.replace('/api', '').split('?')[0];
     const key = `${init.method} ${path}`;
     calls.push(key);
@@ -224,7 +226,7 @@ describe('sync engine', () => {
     expect(current.players[2].playerId).toBe('z');
   });
 
-  it('a name the server already has asks; "same person" moves the games to that player', async () => {
+  it('a name someone else has (no details given) asks for another name', async () => {
     archive.put('players', serverPlayer('a', 'Ann'), serverPlayer('b', 'Ben'), {
       ...serverPlayer('c', 'Cat'),
       email: 'cat@example.com',
@@ -236,15 +238,120 @@ describe('sync engine', () => {
       ...base,
       'POST /players': () => [
         409,
-        { code: 'name_taken', existing: { id: 'cat2', displayName: 'Cat' } },
+        { code: 'name_taken', message: 'That name belongs to another player.' },
       ],
     });
     await syncNow({ full: true });
-    expect(archive.get('inbox', 'nameMatch:c')!.data).toMatchObject({ field: 'name' });
-    archive.put('players', serverPlayer('cat2', 'Cat'));
-    resolveNameMatch('c', { existingId: 'cat2' });
-    expect(archive.get('games', 'g1')!.game.players[2].playerId).toBe('cat2');
+    expect(archive.get('inbox', 'nameMatch:c')!.data).toEqual({
+      name: 'Cat',
+      playerId: 'c',
+      field: 'name',
+    });
+    resolveNameMatch('c', { rename: 'Cat S' });
+    expect(archive.get('players', 'c')).toMatchObject({
+      displayName: 'Cat S',
+      pendingCreate: true,
+    });
     expect(archive.get('inbox', 'nameMatch:c')).toBeUndefined();
+  });
+
+  it('409 same_player: name and email are an existing player, whose id the games then use', async () => {
+    archive.put('players', serverPlayer('a', 'Ann'), serverPlayer('b', 'Ben'), {
+      ...serverPlayer('c', 'Cat'),
+      email: 'cat@example.com',
+      local: true,
+      pendingCreate: true,
+    });
+    const g = myGame();
+    bind(g);
+    const calls = server({
+      ...base,
+      'POST /players': () => [
+        409,
+        {
+          code: 'same_player',
+          player: { ...serverPlayer('cat9', 'Cat'), email: null, photoUrl: null, games: 4 },
+        },
+      ],
+      'PUT /games/g1': (b) => [200, { rev: (b as WireGame).rev, earned: [] }],
+    });
+    await syncNow({ full: true });
+    expect(archive.get('players', 'c')!.mergedInto).toBe('cat9');
+    expect(archive.get('players', 'cat9')!.local).toBe(false);
+    expect(current.players[2].playerId).toBe('cat9');
+    expect(calls).toContain('PUT /games/g1');
+    expect(archive.get('inbox', 'nameMatch:c')).toBeUndefined();
+  });
+
+  it('410 gone: a game deleted on the server leaves this device', async () => {
+    archive.put(
+      'players',
+      serverPlayer('a', 'Ann'),
+      serverPlayer('b', 'Ben'),
+      serverPlayer('c', 'Cat'),
+    );
+    myGame();
+    server({ ...base, 'PUT /games/g1': () => [410, { code: 'gone', message: 'deleted' }] });
+    await syncNow({ full: true });
+    expect(archive.get('games', 'g1')).toBeUndefined();
+  });
+
+  it('410 on the game being played: it stays on this phone, no longer synced, and the inbox says so', async () => {
+    archive.put(
+      'players',
+      serverPlayer('a', 'Ann'),
+      serverPlayer('b', 'Ben'),
+      serverPlayer('c', 'Cat'),
+    );
+    const g = myGame();
+    bind(g);
+    server({ ...base, 'PUT /games/g1': () => [410, { code: 'gone', message: 'deleted' }] });
+    await syncNow({ full: true });
+    expect(archive.get('games', 'g1')).toMatchObject({ account: undefined });
+    expect(archive.get('inbox', 'rejected:g1')!.data).toEqual({ reason: 'deleted' });
+  });
+
+  it('pulls from the newest server change minus 5 s, and tombstones remove games', async () => {
+    archive.put('cache', { key: 'games:since', value: 1_000_000, fetchedAt: 0 });
+    archive.put('games', {
+      syncId: 'old',
+      game: myGame('old'),
+      updatedAt: 0,
+      endedAt: 0,
+      origin: 'remote',
+      account: ME,
+      syncedRev: 1,
+    });
+    urls.length = 0;
+    server({
+      ...base,
+      'GET /games': () => [
+        200,
+        { items: [{ id: 'old', deleted: true, updatedAt: 1_200_000 }], nextCursor: null },
+      ],
+    });
+    await syncNow({ full: true });
+    expect(urls.find((u) => u.startsWith('/api/games?'))).toContain('updatedSince=995000');
+    expect(archive.get('games', 'old')).toBeUndefined();
+    expect(archive.get('cache', 'games:since')!.value).toBe(1_200_000);
+  });
+
+  it('a 429 waits retryAfter seconds before asking again', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] });
+    myGame();
+    let n = 0;
+    const calls = server({
+      ...base,
+      'GET /bootstrap': () =>
+        n++ ? base['GET /bootstrap']() : [429, { code: 'rate_limited', retryAfter: 30 }],
+    });
+    await syncNow({ full: true });
+    await syncNow({ full: true });
+    expect(calls.filter((c) => c === 'GET /bootstrap')).toHaveLength(1);
+    vi.setSystemTime(Date.now() + 31e3);
+    await syncNow({ full: true });
+    expect(calls.filter((c) => c === 'GET /bootstrap')).toHaveLength(2);
+    vi.useRealTimers();
   });
 
   it('a new player without an email waits, and the inbox asks for it', async () => {
@@ -293,11 +400,12 @@ describe('sync engine', () => {
     expect(importable().map((x) => x.syncId)).not.toContain('old');
   });
 
-  it('the wire game uses the sync id and keeps the local id', () => {
+  it('the wire game is the game as it is, with registry ids; a stored one keeps its key', () => {
     const g = myGame('w1');
     const w = toWire(g);
-    expect(w.id).toBe('w1');
-    expect(w).not.toHaveProperty('syncId');
-    expect(fromWire(w)).toMatchObject({ syncId: 'w1', id: g.id });
+    expect(w).toMatchObject({ id: g.id, syncId: g.syncId, rev: g.rev });
+    expect(w.players.every((p) => p.playerId)).toBe(true);
+    expect(fromWire(w)).toEqual(w);
+    expect(fromWire({ ...w, syncId: undefined }, 'server-key').syncId).toBe('server-key');
   });
 });

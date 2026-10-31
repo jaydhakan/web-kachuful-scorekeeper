@@ -13,7 +13,7 @@ import { ApiError } from './api';
 import { sessionOf } from './account';
 import { ep } from './endpoints';
 import { setSyncStatus } from './status';
-import type { Achievement, Player, WireGame } from './types';
+import { isTombstone, type Achievement, type Player, type WireGame } from './types';
 
 /** What the engine needs from the app; bound by the provider. */
 export interface EngineCtx {
@@ -35,20 +35,21 @@ let again = false;
 let timer: ReturnType<typeof setTimeout> | null = null;
 let failures = 0;
 let lastPull = 0;
+/** No requests before this time (after a 429). */
+let waitUntil = 0;
+/** A write can commit with a time a little before our last read: ask again from a bit earlier (HANDOFF §5.1). */
+const OVERLAP = 5000;
 
-export const toWire = (g: Game): WireGame => {
-  const { syncId, id, ...rest } = g;
-  return {
-    ...rest,
-    id: syncId,
-    localId: id,
-    players: g.players.map((p) => ({ ...p, playerId: idOf(p) })),
-  };
-};
-export const fromWire = (w: WireGame): Game => {
-  const { localId, ...rest } = w;
-  return { ...(rest as unknown as Game), id: localId ?? 'r-' + w.id, syncId: w.id };
-};
+/** The game as it is, every seat with its registry id; the server keys it by `syncId`. */
+export const toWire = (g: Game): WireGame => ({
+  ...g,
+  players: g.players.map((p) => ({ ...p, playerId: idOf(p) })),
+});
+/** A stored game; `key` is the id the server keeps it under (for games uploaded without a `syncId`). */
+export const fromWire = (w: WireGame, key?: string): Game => ({
+  ...w,
+  syncId: w.syncId ?? key ?? w.id,
+});
 
 const cacheGet = <T>(k: string): T | undefined => archive.get('cache', k)?.value as T | undefined;
 const cacheSet = (k: string, value: unknown, etag?: string | null) =>
@@ -109,6 +110,11 @@ async function run(full: boolean) {
   if (!ctx || !s || s.stale) return report();
   await archive.ready;
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return report('offline');
+  if (Date.now() < waitUntil) {
+    scheduleSync(waitUntil - Date.now());
+    return report();
+  }
+  waitUntil = 0;
   setSyncStatus({ phase: 'syncing' });
   try {
     if (full || Date.now() - lastPull > PULL_EVERY) await pullAll();
@@ -121,6 +127,11 @@ async function run(full: boolean) {
     if (pendingGames(s.user.id).some((r) => !waitsForPlayers(r))) scheduleSync(60e3);
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) return report('attention');
+    if (e instanceof ApiError && e.retryAfter) {
+      waitUntil = Date.now() + e.retryAfter * 1000;
+      report();
+      return scheduleSync(e.retryAfter * 1000);
+    }
     failures++;
     report(e instanceof ApiError && e.offline ? 'offline' : undefined);
     scheduleSync(Math.min(MAX_BACKOFF, 2000 * 2 ** failures));
@@ -136,6 +147,7 @@ const toRec = (p: Player, prev?: PlayerRec): PlayerRec => ({
   nameKey: nameKey(p.displayName),
   // The server hides other people's emails; keep one this device already had.
   email: p.email ?? prev?.email ?? null,
+  photoUrl: p.photoUrl,
   firstName: p.firstName,
   lastName: p.lastName,
   emoji: p.emoji,
@@ -165,12 +177,13 @@ async function pullAll() {
     cacheSet('myAchievements', b.myAchievements);
     cacheSet('myGames', b.myGames);
     cacheSet('players:since', Math.max(0, ...b.players.map((p) => p.updatedAt)));
+    if (!cacheGet<number>('games:since')) cacheSet('games:since', newest(b.myGames));
   } else {
     const since = cacheGet<number>('players:since') ?? 0;
     let cursor: string | null = null;
     let max = since;
     do {
-      const page = await ep.players(since, cursor);
+      const page = await ep.players(Math.max(0, since - OVERLAP), cursor);
       upsertPlayers(page.items);
       max = Math.max(max, ...page.items.map((p) => p.updatedAt));
       cursor = page.nextCursor;
@@ -181,22 +194,36 @@ async function pullAll() {
   lastPull = Date.now();
 }
 
-/** This account's games from other devices: new ones are added, ones not changed here take the server's copy. */
+const newest = (xs: { updatedAt: number }[]) => Math.max(0, ...xs.map((x) => x.updatedAt));
+
+/**
+ * This account's games from other devices: new ones are added, ones not changed here take the server's copy, and
+ * games deleted on the server leave this device too.
+ */
 async function pullMyGames() {
   const me = ctx!.session()!.user.id;
   const since = cacheGet<number>('games:since') ?? 0;
-  const started = Date.now();
+  let max = since;
   let cursor: string | null = null;
   do {
-    const page = await ep.games({ mine: true, updatedSince: since, cursor });
+    const page = await ep.games({
+      mine: true,
+      updatedSince: since ? Math.max(0, since - OVERLAP) : undefined,
+      cursor,
+    });
+    max = Math.max(max, newest(page.items));
     for (const sum of page.items) {
+      if (isTombstone(sum)) {
+        dropDeleted(sum.id);
+        continue;
+      }
       const rec = archive.get('games', sum.id);
       const dirty = rec && rec.syncedRev !== rec.game.rev;
       if (dirty) continue;
       if (rec && doneRounds(rec.game).length === sum.rounds && rec.game.status === sum.status)
         continue;
       const full = await ep.game(sum.id);
-      const g = fromWire(full.game);
+      const g = fromWire(full.game, sum.id);
       archive.put('games', {
         ...rec,
         syncId: sum.id,
@@ -212,7 +239,17 @@ async function pullMyGames() {
     }
     cursor = page.nextCursor;
   } while (cursor);
-  cacheSet('games:since', started - 60e3);
+  cacheSet('games:since', max);
+}
+
+/** A game deleted on the server: gone here too, except the one on the table, which stays on this phone only. */
+function dropDeleted(syncId: string) {
+  archive.del('outbox', 'put:' + syncId);
+  const rec = archive.get('games', syncId);
+  if (!rec) return;
+  if (ctx!.game().syncId !== syncId) return archive.del('games', syncId);
+  archive.put('games', { ...rec, account: undefined, syncedRev: undefined });
+  inbox('rejected', syncId, { reason: 'deleted' });
 }
 
 // ——— push ———
@@ -243,13 +280,23 @@ async function pushPlayers() {
       archive.put('players', toRec(out, p));
     } catch (e) {
       if (!(e instanceof ApiError) || e.status !== 409) throw e;
-      // Someone else has this name: the person decides whether it's the same player (the games wait).
+      if (e.code === 'same_player') {
+        // Name and email are someone the server already has: that player it is.
+        const same = e.body.player as Player;
+        archive.put('players', toRec(same, archive.get('players', same.id)), {
+          ...p,
+          mergedInto: same.id,
+          pendingCreate: false,
+        });
+        remap({ [p.id]: same.id });
+        continue;
+      }
+      // The name or the email belongs to someone else, who isn't named: the person picks another (the games wait).
       archive.put('players', { ...p, pendingCreate: false });
       inbox('nameMatch', p.id, {
         name: p.displayName,
         playerId: p.id,
         field: e.code === 'email_taken' ? 'email' : 'name',
-        existing: e.body.existing,
       });
     }
   }
@@ -290,7 +337,8 @@ async function pushGames(userId: string) {
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;
       if (e.status === 409 && e.code === 'stale')
-        settleStale(r, fromWire(e.body.server as WireGame));
+        settleStale(r, fromWire(e.body.server as WireGame, r.syncId));
+      else if (e.status === 410) dropDeleted(r.syncId);
       else if (e.status === 422 && e.code === 'invalid_game') {
         block(r, String(e.body.reason ?? 'invalid_game'));
         inbox('rejected', r.syncId, { reason: e.body.reason, roundIndex: e.body.roundIndex });
@@ -493,7 +541,7 @@ export async function fetchGame(id: string): Promise<GameRec | null> {
   const have = archive.get('games', id);
   if (have) return have;
   const r = await ep.game(id);
-  const g = fromWire(r.game);
+  const g = fromWire(r.game, id);
   const rec: GameRec = {
     syncId: id,
     game: g,
