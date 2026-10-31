@@ -1,11 +1,9 @@
 import { useApp } from '@/state/store';
 import type { ModalKind } from '@/state/types';
 import { Modal } from './ui/Modal';
+import { t } from '@/strings';
 
-const COPY: Record<ModalKind, { text: string; ok: string }> = {
-  newGame: { text: 'Start a new game? Your current game will be lost.', ok: 'Start new' },
-  endGame: { text: 'End the game and crown the winner?', ok: 'End game' },
-};
+const COPY: Record<ModalKind, { text: string; ok: string }> = t.modals;
 
 export function ConfirmModal({ kind }: { kind: ModalKind }) {
   const { actions } = useApp();

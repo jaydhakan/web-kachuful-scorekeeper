@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Toast as ToastData } from '@/state/types';
 import { SPRING } from './motion';
+import { t } from '@/strings';
 
 export function Toast({ toast, onUndo }: { toast: ToastData | null; onUndo: () => void }) {
   return (
@@ -26,7 +27,7 @@ export function Toast({ toast, onUndo }: { toast: ToastData | null; onUndo: () =
                 onClick={onUndo}
                 className="min-h-11 rounded-full px-3.5 font-extrabold text-[var(--accent)]"
               >
-                Undo
+                {t.common.undo}
               </button>
             )}
           </motion.div>

@@ -10,6 +10,7 @@ import { Seg } from '@/components/ui/Seg';
 import { SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
+import { t } from '@/strings';
 
 export function Results() {
   const { state, actions } = useApp();
@@ -21,25 +22,25 @@ export function Results() {
   return (
     <RoundFrame
       r={r}
-      title="Who made their bid?"
+      title={t.results.title}
       navLeft={
-        <IconButton label="Back" onClick={() => actions.phase('playing', -1)}>
+        <IconButton label={t.common.back} onClick={() => actions.phase('playing', -1)}>
           {Icon.back}
         </IconButton>
       }
       bar={
         <PrimaryButton className="w-full" disabled={!st.ok} onClick={actions.confirmRound}>
-          Confirm round
+          {t.results.confirm}
         </PrimaryButton>
       }
     >
       <div className="mb-3 flex min-h-12 items-center justify-between px-1">
-        <span className="text-16 font-medium">Enter exact tricks</span>
+        <span className="text-16 font-medium">{t.results.exactSwitch}</span>
         <motion.button
           type="button"
           role="switch"
           aria-checked={st.exact}
-          aria-label="Enter exact tricks"
+          aria-label={t.results.exactSwitch}
           onClick={actions.toggleExact}
           whileTap={{ scale: 0.94 }}
           className={`relative h-[30px] w-[52px] rounded-full transition-colors duration-300 ease-apple ${st.exact ? 'bg-[var(--accent)]' : 'bg-white/[.14]'}`}
@@ -68,7 +69,7 @@ export function Results() {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-18 font-bold tracking-[-0.015em]">{p.name}</div>
                 <div className="whitespace-nowrap text-13 font-medium text-[var(--tx2)]">
-                  Bid {b}
+                  {t.results.bid(b)}
                   {pv != null && (
                     <>
                       {' '}
@@ -85,7 +86,7 @@ export function Results() {
                   <motion.button
                     type="button"
                     whileTap={{ scale: 0.88 }}
-                    aria-label={`Fewer tricks for ${p.name}`}
+                    aria-label={t.results.fewer(p.name)}
                     onClick={() => actions.setTricks(p.id, -1)}
                     className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
                   >
@@ -97,7 +98,7 @@ export function Results() {
                   <motion.button
                     type="button"
                     whileTap={{ scale: 0.88 }}
-                    aria-label={`More tricks for ${p.name}`}
+                    aria-label={t.results.more(p.name)}
                     onClick={() => actions.setTricks(p.id, 1)}
                     className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
                   >
@@ -111,8 +112,8 @@ export function Results() {
                   value={res}
                   onChange={(v) => actions.setResult(p.id, v)}
                   options={[
-                    { v: 'made', label: '✓ Made', tone: 'pos' },
-                    { v: 'missed', label: '✗ Missed', tone: 'neg' },
+                    { v: 'made', label: t.results.made, tone: 'pos' },
+                    { v: 'missed', label: t.results.missed, tone: 'neg' },
                   ]}
                 />
               )}
@@ -128,7 +129,10 @@ export function Results() {
       </div>
       {tricks && (
         <div className="px-1 text-13 text-[var(--tx2)]">
-          Total tricks: {Object.values(tricks).reduce((a, b) => a + b, 0)} of {r.cards}
+          {t.results.totalTricks(
+            Object.values(tricks).reduce((a, b) => a + b, 0),
+            r.cards,
+          )}
         </div>
       )}
     </RoundFrame>

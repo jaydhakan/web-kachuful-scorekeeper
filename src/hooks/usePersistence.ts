@@ -1,4 +1,5 @@
 import { useEffect, useRef, type Dispatch } from 'react';
+import { messages } from '@/strings/messages';
 import { KEYS, saveGame, storage } from '@/state/persistence';
 import type { Action, AppState } from '@/state/types';
 
@@ -14,10 +15,7 @@ export function usePersistence(state: AppState, dispatch: Dispatch<Action>): voi
       warned.current = true;
       dispatch({
         type: 'say',
-        msg:
-          res === 'quota'
-            ? 'Storage is full — this game may not be saved'
-            : 'Saving is unavailable in this browser',
+        msg: res === 'quota' ? messages.toasts.storageFull : messages.toasts.storageOff,
       });
     }
   }, [state.game, state.undo, state.corrupt, dispatch]);

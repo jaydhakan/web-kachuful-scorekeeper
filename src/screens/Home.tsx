@@ -6,10 +6,9 @@ import { useApp } from '@/state/store';
 import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
-import { TR } from '@/theme/trumps';
+import { t } from '@/strings';
 
 const SUITS = ['♠', '♦', '♣', '♥'] as const;
 
@@ -54,43 +53,42 @@ export function Home() {
           ))}
           <div className="absolute inset-0 grid place-content-center text-center">
             <h1 className="disp gold-text text-72 font-extrabold leading-none tracking-[-0.055em]">
-              Kachuful
+              {t.appName}
             </h1>
-            <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)]">
-              Judgement scorekeeper
-            </p>
+            <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)]">{t.tagline}</p>
           </div>
         </motion.div>
         <motion.div {...stagger(1, 0.25)} className="w-full">
           <Glass glow onClick={actions.resume} className="w-full cursor-pointer p-5 text-left">
             <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
-              {fin ? 'Game finished' : 'Resume game'}
+              {fin ? t.home.finished : t.home.resume}
             </div>
             {fin ? (
               <>
                 <div className="disp mt-1 text-24 font-bold tracking-[-0.025em]">
-                  {ld.p.name} won with {sgnN(ld.t)}
+                  {t.home.wonWith(ld.p.name, sgnN(ld.t))}
                 </div>
                 <div className="mt-1 text-16 text-[var(--tx2)]">
-                  {doneRounds(g).length} rounds played
+                  {t.home.roundsPlayed(doneRounds(g).length)}
                 </div>
               </>
             ) : (
               <>
                 <div className="disp mt-1 text-24 font-bold tracking-[-0.025em]">
-                  Round {r.index + 1} · {r.cards} cards · <SuitGlyph trump={r.trump} />{' '}
-                  {TR[r.trump].name}
+                  {t.home.roundLine(r.index + 1, r.cards, r.trump)}
                 </div>
-                <div className="mt-1.5 text-16">{g.players[r.dealerIndex].name} is dealing</div>
+                <div className="mt-1.5 text-16">
+                  {t.home.dealing(g.players[r.dealerIndex].name)}
+                </div>
                 <div className="mt-1.5 flex items-center gap-2 text-16">
                   <Dot p={ld.p} />
-                  <span>
-                    {ld.p.name} leads · {sgnN(ld.t)}
-                  </span>
+                  <span>{t.home.leads(ld.p.name, sgnN(ld.t))}</span>
                 </div>
               </>
             )}
-            <div className="mt-2 text-13 text-[var(--tx2)]">Saved {agoTxt(g.updatedAt)}</div>
+            <div className="mt-2 text-13 text-[var(--tx2)]">
+              {t.home.saved(agoTxt(g.updatedAt))}
+            </div>
           </Glass>
         </motion.div>
         <motion.button
@@ -100,7 +98,7 @@ export function Home() {
           onClick={() => actions.openSheet({ type: 'rules' })}
           className="min-h-12 px-3 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"
         >
-          How to play
+          {t.home.howToPlay}
         </motion.button>
       </div>
       <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,env(safe-area-inset-bottom))] pt-[18px]">
@@ -108,7 +106,7 @@ export function Home() {
           className="w-full"
           onClick={() => (g.status === 'active' ? actions.ask('newGame') : actions.startSetup())}
         >
-          New Game
+          {t.home.newGame}
         </PrimaryButton>
       </div>
     </div>

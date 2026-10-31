@@ -8,6 +8,7 @@ import { EditBody } from './EditBody';
 import { MenuBody } from './MenuBody';
 import { RulesBody } from './RulesBody';
 import { UpcomingBody } from './UpcomingBody';
+import { t } from '@/strings';
 
 const ShareBody = lazy(() => import('./ShareBody'));
 
@@ -24,24 +25,24 @@ function specFor(
 ): Spec {
   switch (s.type) {
     case 'menu':
-      return { title: 'Menu', body: <MenuBody /> };
+      return { title: t.sheets.menu.title, body: <MenuBody /> };
     case 'rules':
-      return { title: 'How to play', body: <RulesBody game={game} /> };
+      return { title: t.sheets.rulesTitle, body: <RulesBody game={game} /> };
     case 'board':
-      return { title: 'Scoreboard', body: <BoardBody />, full: true };
+      return { title: t.sheets.boardTitle, body: <BoardBody />, full: true };
     case 'edit':
-      return { title: `Edit round ${s.i + 1}`, body: <EditBody i={s.i} />, full: true };
+      return { title: t.sheets.editTitle(s.i + 1), body: <EditBody i={s.i} />, full: true };
     case 'upcoming':
-      return { title: 'Upcoming rounds', body: <UpcomingBody />, full: true };
+      return { title: t.sheets.upcomingTitle, body: <UpcomingBody />, full: true };
     case 'seat':
-      return { title: seatName ?? 'Seat', body: <SeatBody k={s.k} /> };
+      return { title: seatName ?? t.sheets.seatTitle, body: <SeatBody k={s.k} /> };
     case 'rename':
-      return { title: 'Rename', body: <RenameBody k={s.k} /> };
+      return { title: t.sheets.rename, body: <RenameBody k={s.k} /> };
     case 'avatar':
-      return { title: 'Choose avatar', body: <AvatarBody k={s.k} /> };
+      return { title: t.sheets.avatarTitle, body: <AvatarBody k={s.k} /> };
     case 'share':
       return {
-        title: 'Share',
+        title: t.sheets.shareTitle,
         body: (
           <Suspense fallback={null}>
             <ShareBody />

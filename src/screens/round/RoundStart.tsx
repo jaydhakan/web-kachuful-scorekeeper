@@ -6,6 +6,7 @@ import { TR } from '@/theme/trumps';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
+import { t } from '@/strings';
 
 /** The deal animation at the start of a round; one tap skips it. */
 export function RoundStart() {
@@ -35,7 +36,7 @@ export function RoundStart() {
     <motion.div
       role="button"
       tabIndex={0}
-      aria-label="Skip the deal animation"
+      aria-label={t.start.skip}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -46,7 +47,9 @@ export function RoundStart() {
       }}
       className="scr-bg absolute inset-0 z-[45] flex cursor-pointer flex-col items-center pt-12"
     >
-      <div className="disp text-30 font-extrabold tracking-[-0.035em]">Round {r.index + 1}</div>
+      <div className="disp text-30 font-extrabold tracking-[-0.035em]">
+        {t.round.title(r.index + 1)}
+      </div>
       <div className="my-3 h-[132px] w-24" style={{ perspective: 800 }}>
         <motion.div
           initial={{ rotateY: 0, scale: 0.9 }}
@@ -70,7 +73,7 @@ export function RoundStart() {
         transition={{ delay: 0.6 }}
         className="mb-2 text-17 font-bold text-[var(--accent)]"
       >
-        {th.name} are trump
+        {t.start.trumpIs(th.name)}
       </motion.div>
       <Table
         uid="rs"
@@ -108,14 +111,14 @@ export function RoundStart() {
         <AnimatePresence>
           {stage >= 3 && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              👑 <b>{g.players[r.dealerIndex].name}</b> deals {r.cards} cards each
+              {t.start.dealsCards(g.players[r.dealerIndex].name, r.cards)}
               <br />
-              First card to <b>{g.players[r.firstPlayerIndex].name}</b>
+              {t.start.firstCard(g.players[r.firstPlayerIndex].name)}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-      <div className="absolute bottom-7 text-13 text-[var(--tx2)]">Tap to skip</div>
+      <div className="absolute bottom-7 text-13 text-[var(--tx2)]">{t.start.tapToSkip}</div>
     </motion.div>
   );
 }

@@ -4,16 +4,15 @@ import { curRound, doneRounds, pts, roundAt, standings, streaks, totals } from '
 import { sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { palette } from '@/theme/palette';
-import { TR } from '@/theme/trumps';
 import { Counter } from '@/components/ui/Counter';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { Table } from '@/components/ui/Table';
 import { EASE, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
+import { t } from '@/strings';
 
 function Spark({ color }: { color: string }) {
   return (
@@ -77,18 +76,18 @@ export function Summary() {
   const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
   const nr = roundAt(g, r.index + 1),
     nD = g.players[nr.dealerIndex];
-  const tag = nr.cards === g.maxCards ? 'Peak round!' : nr.cards === 3 ? 'Back to 3' : null;
+  const tag = nr.cards === g.maxCards ? t.summary.peak : nr.cards === 3 ? t.summary.backTo3 : null;
   return (
     <RoundFrame
       r={r}
-      title={`After Round ${r.index + 1}`}
+      title={t.summary.title(r.index + 1)}
       bar={
         <>
           <PrimaryButton tone="glass" className="px-5" onClick={() => actions.ask('endGame')}>
-            End game
+            {t.summary.endGame}
           </PrimaryButton>
           <PrimaryButton className="flex-1" onClick={actions.nextRound}>
-            Next round
+            {t.summary.nextRound}
           </PrimaryButton>
         </>
       }
@@ -171,7 +170,7 @@ export function Summary() {
       </div>
       <Glass glow spot={false} className="mt-3.5 p-3">
         <div className="flex items-center justify-between text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
-          <span>Next up</span>
+          <span>{t.summary.nextUp}</span>
           {tag && (
             <span className="rounded-[10px] bg-[var(--gold)] px-2.5 py-0.5 text-13 normal-case tracking-normal text-ink-gold">
               {tag}
@@ -189,10 +188,9 @@ export function Summary() {
           center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
         />
         <p className="pt-1.5 text-center text-16 leading-[1.45] tracking-[-0.01em]">
-          Round {nr.index + 1} · <b>{nr.cards} cards</b> · <SuitGlyph trump={nr.trump} />{' '}
-          {TR[nr.trump].name}
+          {t.summary.nextLine(nr.index + 1, nr.cards, nr.trump)}
           <br />
-          👑 <b>{nD.name}</b> deals · first card to <b>{g.players[nr.firstPlayerIndex].name}</b>
+          {t.summary.dealsFirst(nD.name, g.players[nr.firstPlayerIndex].name)}
         </p>
       </Glass>
     </RoundFrame>

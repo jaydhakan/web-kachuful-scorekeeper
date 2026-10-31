@@ -2,27 +2,23 @@ import { doneRounds, pts, totals } from '@/domain';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
+import { t } from '@/strings';
 
 export function BoardBody() {
   const { state, actions } = useApp();
   const g = state.game,
     done = doneRounds(g),
-    t = totals(g);
-  if (!done.length)
-    return (
-      <p className="py-5 text-16 text-[var(--tx2)]">
-        No finished rounds yet. Scores appear here after each round.
-      </p>
-    );
+    tot = totals(g);
+  if (!done.length) return <p className="py-5 text-16 text-[var(--tx2)]">{t.sheets.boardEmpty}</p>;
   return (
     <>
-      <div className="mb-2 text-13 text-[var(--tx2)]">Tap a round to edit it.</div>
+      <div className="mb-2 text-13 text-[var(--tx2)]">{t.sheets.boardHint}</div>
       <div className="no-scroll max-h-[calc(100%-28px)] overflow-auto rounded-2xl">
         <table className="min-w-full border-separate border-spacing-0 text-13">
           <thead>
             <tr>
               <th className="sticky left-0 top-0 z-20 min-w-[112px] bg-sheet px-2.5 py-2 text-left">
-                Round
+                {t.sheets.boardRound}
               </th>
               {g.players.map((p) => (
                 <th
@@ -37,9 +33,9 @@ export function BoardBody() {
                   </div>
                   <div className="font-medium text-[var(--tx2)]">{trunc(p.name)}</div>
                   <div
-                    className={`disp text-20 font-extrabold ${t[p.id] < 0 ? 'text-[var(--neg)]' : t[p.id] > 0 ? 'text-[var(--pos)]' : ''}`}
+                    className={`disp text-20 font-extrabold ${tot[p.id] < 0 ? 'text-[var(--neg)]' : tot[p.id] > 0 ? 'text-[var(--pos)]' : ''}`}
                   >
-                    {fmt(t[p.id])}
+                    {fmt(tot[p.id])}
                   </div>
                 </th>
               ))}
@@ -50,7 +46,7 @@ export function BoardBody() {
               <tr
                 key={r.index}
                 tabIndex={0}
-                aria-label={`Edit round ${r.index + 1}`}
+                aria-label={t.sheets.editRow(r.index + 1)}
                 onClick={() => actions.openSheet({ type: 'edit', i: r.index })}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -75,7 +71,7 @@ export function BoardBody() {
                       <div>
                         {r.bids[p.id]}{' '}
                         <span className={ok ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}>
-                          {ok ? '✓' : '✗'}
+                          {ok ? t.table.made : t.table.missed}
                         </span>
                       </div>
                       <div

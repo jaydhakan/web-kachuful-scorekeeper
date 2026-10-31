@@ -12,6 +12,7 @@ import { Table } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { SetupFrame } from './SetupFrame';
 import { useSetup } from './useSetup';
+import { t } from '@/strings';
 
 function SpinToken({ a0, a1, onDone }: { a0: number; a1: number; onDone: () => void }) {
   const a = useMotionValue(a0);
@@ -28,7 +29,8 @@ function SpinToken({ a0, a1, onDone }: { a0: number; a1: number; onDone: () => v
       style={{ x, y }}
       className="absolute left-0 top-0 z-[6] flex h-5 w-[66px] items-center justify-center gap-[3px] rounded-[10px] bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_0_24px_rgba(247,231,166,.8)]"
     >
-      {Icon.deck}DEALS
+      {Icon.deck}
+      {t.table.deals}
     </motion.div>
   );
 }
@@ -55,12 +57,7 @@ export function Step3() {
     suppress = useRef(0);
   const dl = seats[su.dealer],
     fp = seats[(su.dealer + 1) % n];
-  const lenLabel =
-    su.length === 'endless'
-      ? 'Endless'
-      : su.length === '1cycle'
-        ? `1 cycle · ${L} rounds`
-        : `2 cycles · ${2 * L} rounds`;
+  const lenLabel = t.setup.lengthLabel(su.length, L);
   const sg = su.dir === 'cw' ? 1 : -1;
   const doSpin = () => {
     const tgt = Math.floor(Math.random() * n),
@@ -120,10 +117,10 @@ export function Step3() {
   return (
     <SetupFrame
       step={3}
-      title="Ready to deal"
+      title={t.setup.step3Title}
       bar={
         <PrimaryButton className="w-full" onClick={actions.beginGame}>
-          Deal!
+          {t.setup.deal}
         </PrimaryButton>
       }
     >
@@ -183,12 +180,9 @@ export function Step3() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3, ease: EASE }}
           >
-            👑 <b>{dl.name}</b> deals first
+            {t.setup.dealsFirst(dl.name)}
             <br />
-            🃏 3 cards each
-            <br />
-            👉 First card to <b>{fp.name}</b>
-            <br />♠ Spades are trump
+            {t.setup.firstCardTo(fp.name)}
           </motion.div>
         </AnimatePresence>
       </Glass>
@@ -199,11 +193,9 @@ export function Step3() {
           onClick={doSpin}
           className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 !rounded-full px-4 text-16 font-medium"
         >
-          🎲 Random
+          {t.setup.random}
         </motion.button>
-        <span className="text-13 leading-[1.35] text-[var(--tx2)]">
-          Tap a seat to move the dealer. Press and hold, then drag, to swap seats.
-        </span>
+        <span className="text-13 leading-[1.35] text-[var(--tx2)]">{t.setup.dragHint}</span>
       </div>
       <Glass spot={false} className="mt-3 px-4">
         <button
@@ -212,7 +204,7 @@ export function Step3() {
           onClick={() => setOpenLen(!openLen)}
           className="flex min-h-14 w-full items-center justify-between text-18 font-bold tracking-[-0.015em]"
         >
-          Game length
+          {t.setup.gameLength}
           <span className="text-13 font-medium text-[var(--tx2)]">
             {lenLabel} {openLen ? '▴' : '▾'}
           </span>
@@ -232,11 +224,7 @@ export function Step3() {
                 className="w-full [&>button]:flex-1"
                 value={su.length}
                 onChange={(v) => actions.setupPatch({ length: v })}
-                options={[
-                  { v: 'endless', label: 'Endless' },
-                  { v: '1cycle', label: `1 cycle · ${L}` },
-                  { v: '2cycles', label: `2 cycles · ${2 * L}` },
-                ]}
+                options={t.setup.lengthOptions(L)}
               />
             </motion.div>
           )}

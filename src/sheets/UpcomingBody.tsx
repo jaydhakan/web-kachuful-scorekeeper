@@ -4,6 +4,7 @@ import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
 import { Glass } from '@/components/ui/Glass';
 import { stagger } from '@/components/ui/stagger';
+import { t } from '@/strings';
 
 export function UpcomingBody() {
   const { state } = useApp();
@@ -15,7 +16,12 @@ export function UpcomingBody() {
       {Array.from({ length: 7 }, (_, k) => {
         const i = base + k,
           r = roundAt(g, i),
-          tag = r.cards === g.maxCards ? 'Peak round' : r.cards === 3 && i > 0 ? 'Back to 3' : '';
+          tag =
+            r.cards === g.maxCards
+              ? t.sheets.upcomingPeak
+              : r.cards === 3 && i > 0
+                ? t.sheets.upcomingBack
+                : '';
         return (
           <motion.div key={i} {...stagger(k)} className="mb-2">
             <Glass
@@ -29,15 +35,22 @@ export function UpcomingBody() {
               </div>
               <div className="min-w-0 flex-1 text-16 leading-[1.3]">
                 <div className="text-13 font-bold text-[var(--tx2)]">
-                  {k === 0 ? (cr.phase === 'done' ? 'NEXT · ' : 'NOW · ') : ''}ROUND {i + 1}{' '}
+                  {k === 0
+                    ? cr.phase === 'done'
+                      ? t.sheets.upcomingNext
+                      : t.sheets.upcomingNow
+                    : ''}
+                  {t.sheets.upcomingRound(i + 1)}{' '}
                   {tag && (
                     <span className="ml-1 rounded-[10px] bg-[var(--gold)] px-2 py-0.5 text-13 text-ink-gold">
                       {tag}
                     </span>
                   )}
                 </div>
-                👑 {g.players[r.dealerIndex].name} deals → {g.players[r.firstPlayerIndex].name}{' '}
-                first
+                {t.sheets.upcomingDeals(
+                  g.players[r.dealerIndex].name,
+                  g.players[r.firstPlayerIndex].name,
+                )}
               </div>
               <div className="flex w-10 flex-wrap justify-center gap-[3px]">
                 {g.players.map((_, j) => (
@@ -51,9 +64,7 @@ export function UpcomingBody() {
           </motion.div>
         );
       })}
-      <p className="p-1.5 text-center text-13 text-[var(--tx2)]">
-        Cards, trump and dealer come straight from the seating order.
-      </p>
+      <p className="p-1.5 text-center text-13 text-[var(--tx2)]">{t.sheets.upcomingFoot}</p>
     </>
   );
 }

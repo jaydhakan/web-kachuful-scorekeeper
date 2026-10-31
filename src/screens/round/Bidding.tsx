@@ -11,26 +11,25 @@ import {
 } from '@/domain';
 import { useApp } from '@/state/store';
 import { palette } from '@/theme/palette';
-import { TR } from '@/theme/trumps';
 import { Glass } from '@/components/ui/Glass';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { Table } from '@/components/ui/Table';
 import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
+import { t } from '@/strings';
 
 export const dealLine = (g: Game, r: Round) => {
   const prev = r.index > 0 ? roundAt(g, r.index - 1).cards : 0,
     ar = r.cards > prev ? '↑' : r.cards < prev ? '↓' : '→';
-  return (
-    <>
-      👑 <b>{g.players[r.dealerIndex].name}</b> deals <b>{r.cards}</b> cards each · first card to{' '}
-      <b>{g.players[r.firstPlayerIndex].name}</b> · <SuitGlyph trump={r.trump} /> {TR[r.trump].name}{' '}
-      trump <b className="text-[var(--accent)]">{ar}</b>
-    </>
+  return t.round.deal(
+    g.players[r.dealerIndex].name,
+    r.cards,
+    g.players[r.firstPlayerIndex].name,
+    r.trump,
+    ar,
   );
 };
 
@@ -54,15 +53,13 @@ export function Bidding() {
   const dealer = g.players[r.dealerIndex];
   const cap =
     hookWarn && isD ? (
-      <span className="text-[var(--warn)]">
-        Your earlier bid isn’t allowed any more. Pick again.
-      </span>
+      <span className="text-[var(--warn)]">{t.bidding.earlierBidInvalid}</span>
     ) : isD ? (
-      'Dealer — bids last'
+      t.bidding.dealerLast
     ) : bi === 0 ? (
-      'Bids 1st · gets the first card'
+      t.bidding.first
     ) : (
-      `Bids ${bi + 1} of ${n}`
+      t.bidding.nth(bi + 1, n)
     );
   const pick = (v: number) => {
     const locked = isD && v === forb;
@@ -78,11 +75,11 @@ export function Bidding() {
       bar={
         allBid && !hookWarn ? (
           <PrimaryButton className="w-full" onClick={() => actions.phase('playing')}>
-            Start playing
+            {t.bidding.startPlaying}
           </PrimaryButton>
         ) : (
           <PrimaryButton className="w-full" disabled>
-            {cnt} of {n} bids in
+            {t.bidding.bidsIn(cnt, n)}
           </PrimaryButton>
         )
       }
@@ -130,7 +127,7 @@ export function Bidding() {
                 <div className="mt-1 text-16 text-[var(--tx2)]">{cap}</div>
                 {isD && forb != null && !hookWarn && (
                   <div className="text-14 text-[var(--warn)]">
-                    Can’t bid {forb} — total would equal {r.cards} cards
+                    {t.bidding.cantBid(forb, r.cards)}
                   </div>
                 )}
               </div>
@@ -146,7 +143,7 @@ export function Bidding() {
             <motion.button
               key={v}
               type="button"
-              aria-label={lock ? `Locked ${v}` : `Bid ${v}`}
+              aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
               aria-pressed={sel}
               aria-disabled={lock || undefined}
               animate={shake === v ? shakeKF : { x: 0 }}
@@ -171,11 +168,9 @@ export function Bidding() {
       </div>
       <Glass spot={false} className="mt-4 px-3.5 py-3">
         <div className="flex justify-between text-16 font-bold tracking-[-0.01em]">
-          <span>
-            Bids {sum} / {r.cards} cards
-          </span>
+          <span>{t.bidding.total(sum, r.cards)}</span>
           <span className={diff === 0 ? 'text-[var(--pos)]' : 'text-[var(--warn)]'}>
-            {diff < 0 ? `Under by ${-diff}` : diff > 0 ? `Over by ${diff}` : 'Exactly level'}
+            {diff < 0 ? t.bidding.under(-diff) : diff > 0 ? t.bidding.over(diff) : t.bidding.level}
           </span>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08]">

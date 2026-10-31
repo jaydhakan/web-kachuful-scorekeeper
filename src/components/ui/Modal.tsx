@@ -3,6 +3,7 @@ import { useId, useRef } from 'react';
 import { useDialog } from '@/hooks/useDialog';
 import { PrimaryButton } from './PrimaryButton';
 import { SPRING_POP } from './motion';
+import { t } from '@/strings';
 
 interface ModalProps {
   text: string;
@@ -16,7 +17,15 @@ interface ModalProps {
   onCancel: () => void;
 }
 
-export function Modal({ text, ok, danger, cancel = 'Cancel', locked, onOk, onCancel }: ModalProps) {
+export function Modal({
+  text,
+  ok,
+  danger,
+  cancel = t.common.cancel,
+  locked,
+  onOk,
+  onCancel,
+}: ModalProps) {
   const ref = useRef<HTMLDivElement>(null);
   const textId = useId();
   useDialog(ref, locked ? undefined : onCancel);

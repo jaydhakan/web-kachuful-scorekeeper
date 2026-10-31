@@ -7,11 +7,7 @@ import { EASE, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { SetupFrame } from './SetupFrame';
 import { useSetup } from './useSetup';
-
-const infoLine = (n: number | null) =>
-  n
-    ? `Max ${maxFor(n)} cards · 3 → ${maxFor(n)} → 3, repeating`
-    : 'Pick the number of players to see the table';
+import { t } from '@/strings';
 
 export function Step1() {
   const { su, actions } = useSetup();
@@ -19,14 +15,14 @@ export function Step1() {
   return (
     <SetupFrame
       step={1}
-      title="How many players?"
+      title={t.setup.step1Title}
       bar={
         <PrimaryButton
           className="w-full"
           disabled={!su.n}
           onClick={() => actions.setupPatch({ step: 2, seats: Array<null>(su.n ?? 0).fill(null) })}
         >
-          Next
+          {t.common.next}
         </PrimaryButton>
       }
     >
@@ -50,8 +46,7 @@ export function Step1() {
           }
           className="glass mb-3 inline-flex min-h-12 items-center gap-2 !rounded-full px-4 text-16 font-medium shadow-[0_0_24px_-6px_var(--accent)]"
         >
-          ↺ Use last group: {lg.names.slice(0, 3).join(', ')}
-          {lg.names.length > 3 ? ` +${lg.names.length - 3}` : ''}
+          {t.setup.useLastGroup(lg.names)}
         </motion.button>
       )}
       <div className="my-2 flex justify-center gap-2.5">
@@ -60,7 +55,7 @@ export function Step1() {
             key={n}
             type="button"
             aria-pressed={su.n === n}
-            aria-label={`${n} players`}
+            aria-label={t.setup.players(n)}
             {...stagger(i, 0.05)}
             whileTap={{ scale: 0.92 }}
             onClick={() => {
@@ -94,7 +89,7 @@ export function Step1() {
                 uid="su1"
                 n={su.n}
                 dir={su.dir}
-                center={<div className="text-13 text-[var(--tx2)]">{su.n} seats</div>}
+                center={<div className="text-13 text-[var(--tx2)]">{t.setup.seats(su.n)}</div>}
               />
             </motion.div>
           ) : (
@@ -104,7 +99,7 @@ export function Step1() {
               animate={{ opacity: 1 }}
               className="pt-[130px] text-center text-13 text-[var(--tx2)]"
             >
-              Tap a number above
+              {t.setup.tapNumber}
             </motion.div>
           )}
         </AnimatePresence>
@@ -116,13 +111,13 @@ export function Step1() {
           value={su.dir}
           onChange={(v) => actions.setupPatch({ dir: v })}
           options={[
-            { v: 'cw', label: '⟳ Clockwise' },
-            { v: 'ccw', label: '⟲ Anticlockwise' },
+            { v: 'cw', label: t.setup.cw },
+            { v: 'ccw', label: t.setup.ccw },
           ]}
         />
       </div>
       <p className="mt-3 text-center text-14 tracking-[0.005em] text-[var(--tx2)]">
-        {infoLine(su.n)}
+        {t.setup.info(su.n, maxFor(su.n ?? 0))}
       </p>
     </SetupFrame>
   );

@@ -7,6 +7,7 @@ import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
+import { t } from '@/strings';
 
 export function Play() {
   const { state, actions } = useApp();
@@ -22,13 +23,13 @@ export function Play() {
             type="button"
             whileTap={{ scale: 0.92 }}
             onClick={() => actions.phase('bidding', -1)}
-            aria-label="Edit bids"
+            aria-label={t.play.editBids}
             className="glass grid h-[60px] w-[60px] shrink-0 place-items-center !rounded-[20px]"
           >
             {Icon.edit}
           </motion.button>
           <PrimaryButton className="flex-1" onClick={() => actions.phase('results')}>
-            Enter results
+            {t.play.enterResults}
           </PrimaryButton>
         </>
       }
@@ -40,7 +41,7 @@ export function Play() {
           dir={g.direction}
           dealer={r.dealerIndex}
           first={r.firstPlayerIndex}
-          firstLabel="Leads first"
+          firstLabel={t.play.leadsFirst}
           bids={r.bids}
           big
           noSeatAnim
@@ -51,11 +52,10 @@ export function Play() {
         {...stagger(0, 0.1)}
         className="mt-6 text-center text-19 leading-[1.4] tracking-[-0.015em]"
       >
-        <b>Bids {sum}</b> · Cards {r.cards} —{' '}
-        <span className="text-[var(--warn)]">someone will miss!</span>
+        {t.play.summary(sum, r.cards)}
       </motion.p>
       <p className="mt-2 text-center text-13 text-[var(--tx2)]">
-        {g.players[r.firstPlayerIndex].name} leads the first trick
+        {t.play.leadsTrick(g.players[r.firstPlayerIndex].name)}
       </p>
     </RoundFrame>
   );

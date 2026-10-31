@@ -1,17 +1,18 @@
 import { motion } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
+import { t } from '@/strings';
 
 export function MenuBody() {
   const { actions } = useApp();
   const items: [string, string, () => void, boolean?][] = [
-    ['📖', 'Rules', () => actions.openSheet({ type: 'rules' })],
-    ['📊', 'Scoreboard', () => actions.openSheet({ type: 'board' })],
-    ['🗓️', 'Upcoming rounds', () => actions.openSheet({ type: 'upcoming' })],
-    ['↩️', 'Undo last action', () => actions.undo()],
+    ['📖', t.sheets.menu.rules, () => actions.openSheet({ type: 'rules' })],
+    ['📊', t.sheets.menu.board, () => actions.openSheet({ type: 'board' })],
+    ['🗓️', t.sheets.menu.upcoming, () => actions.openSheet({ type: 'upcoming' })],
+    ['↩️', t.sheets.menu.undo, () => actions.undo()],
     [
       '🏁',
-      'End game',
+      t.sheets.menu.end,
       () => {
         actions.openSheet(null);
         actions.ask('endGame');
@@ -20,7 +21,7 @@ export function MenuBody() {
     ],
     [
       '🏠',
-      'Quit to home',
+      t.sheets.menu.quit,
       () => {
         actions.openSheet(null);
         actions.go('home', -1);

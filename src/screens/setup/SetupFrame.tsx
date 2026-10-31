@@ -5,9 +5,10 @@ import { Icon } from '@/components/ui/Icons';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING } from '@/components/ui/motion';
 import { useSetup } from './useSetup';
+import { t } from '@/strings';
 
 const Dots = ({ step }: { step: number }) => (
-  <div className="flex items-center gap-2" role="img" aria-label={`Step ${step} of 3`}>
+  <div className="flex items-center gap-2" role="img" aria-label={t.setup.stepOf(step)}>
     {[1, 2, 3].map((i) => (
       <motion.i
         key={i}
@@ -38,7 +39,7 @@ export function SetupFrame({ step, title, bar, children, scrollRef }: SetupFrame
     <Scaffold
       scrollRef={scrollRef}
       left={
-        <IconButton label="Back" onClick={back}>
+        <IconButton label={t.common.back} onClick={back}>
           {Icon.back}
         </IconButton>
       }

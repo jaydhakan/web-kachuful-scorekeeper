@@ -8,6 +8,7 @@ import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { SetupFrame } from './SetupFrame';
 import { useSetup } from './useSetup';
+import { t } from '@/strings';
 
 export function Step2() {
   const { su, actions } = useSetup();
@@ -19,15 +20,14 @@ export function Step2() {
     seats = su.seats;
   const tgt = seats.findIndex((s) => !s),
     filled = seats.filter(Boolean).length;
-  const w = su.dir === 'cw' ? 'left' : 'right';
   const prompt = (() => {
-    if (tgt < 0) return 'Everyone is seated';
-    if (tgt === 0) return "Who's dealing first?";
+    if (tgt < 0) return t.setup.everyoneSeated;
+    if (tgt === 0) return t.setup.dealingFirst;
     const pv = seats[(tgt - 1 + n) % n],
-      pn = pv ? pv.name : 'the player before';
+      pn = pv ? pv.name : t.setup.thePlayerBefore;
     return seats.filter((x) => !x).length === 1 && tgt === n - 1
-      ? `And finally, on ${pn}'s ${w}?`
-      : `Who's sitting on ${pn}'s ${w}?`;
+      ? t.setup.finally(pn, su.dir)
+      : t.setup.sittingOn(pn, su.dir);
   })();
   const recent = storage
     .get<string[]>(KEYS.recentNames, [])
@@ -42,7 +42,7 @@ export function Step2() {
     if (!nm || tgt < 0) return;
     const ex = seats.find((s) => s && s.name.toLowerCase() === nm.toLowerCase());
     if (ex) {
-      setErr(`${ex.name} is already at the table.`);
+      setErr(t.setup.alreadySeated(ex.name));
       actions.vib();
       return;
     }
@@ -59,14 +59,14 @@ export function Step2() {
   return (
     <SetupFrame
       step={2}
-      title="Seat the table"
+      title={t.setup.step2Title}
       bar={
         <PrimaryButton
           className="w-full"
           disabled={tgt >= 0}
           onClick={() => actions.setupPatch({ step: 3, dealer: 0 })}
         >
-          Next
+          {t.common.next}
         </PrimaryButton>
       }
     >
@@ -84,11 +84,7 @@ export function Step2() {
           arrowFrom={tgt > 0 && seats[tgt - 1] ? tgt - 1 : undefined}
           arrowTo={tgt > 0 && seats[tgt - 1] ? tgt : undefined}
           onSeat={(k) => seats[k] && actions.openSheet({ type: 'seat', k })}
-          center={
-            <div className="text-13 text-[var(--tx2)]">
-              {filled} of {n} seated
-            </div>
-          }
+          center={<div className="text-13 text-[var(--tx2)]">{t.setup.seated(filled, n)}</div>}
         />
       </div>
       <AnimatePresence mode="wait">
@@ -108,11 +104,11 @@ export function Step2() {
           <input
             ref={inp}
             id="nm"
-            aria-label="Player name"
+            aria-label={t.setup.playerName}
             value={name}
             maxLength={14}
             autoComplete="off"
-            placeholder="Type a name"
+            placeholder={t.setup.typeName}
             onChange={(e) => {
               setName(e.target.value);
               setErr('');
@@ -126,7 +122,7 @@ export function Step2() {
             className={`h-14 min-w-0 flex-1 rounded-2xl bg-white/[.07] px-4 text-18 tracking-[-0.01em] outline-none transition-shadow duration-300 placeholder:text-[var(--dis)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
           />
           <PrimaryButton onClick={() => add(name)} className="!h-14 w-24 !text-16">
-            Add
+            {t.setup.add}
           </PrimaryButton>
         </div>
       )}

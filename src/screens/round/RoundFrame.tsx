@@ -4,6 +4,7 @@ import { useApp } from '@/state/store';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { Scaffold } from '@/components/ui/Scaffold';
+import { t } from '@/strings';
 
 interface RoundFrameProps {
   r: Round;
@@ -20,17 +21,17 @@ export function RoundFrame({ r, title, bar, children, navLeft, scrollRef }: Roun
     <Scaffold
       scrollRef={scrollRef}
       title={title}
-      navTitle={`Round ${r.index + 1}`}
+      navTitle={t.round.title(r.index + 1)}
       bar={bar}
       left={
         navLeft || (
-          <IconButton label="Menu" onClick={() => actions.openSheet({ type: 'menu' })}>
+          <IconButton label={t.round.menu} onClick={() => actions.openSheet({ type: 'menu' })}>
             {Icon.menu}
           </IconButton>
         )
       }
       right={
-        <IconButton label="Scoreboard" onClick={() => actions.openSheet({ type: 'board' })}>
+        <IconButton label={t.round.scoreboard} onClick={() => actions.openSheet({ type: 'board' })}>
           {Icon.board}
         </IconButton>
       }
