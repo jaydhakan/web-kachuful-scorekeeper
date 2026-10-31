@@ -112,6 +112,9 @@ input {
   font-family: theme('fontFamily.display');
 }
 .app-root {
+  /* clip, not hidden: focus can still scroll a hidden box sideways past the 520px ambient glow. */
+  overflow: hidden;
+  overflow: clip;
   --accent: theme('colors.accent-spades');
   --glow: rgba(127, 179, 255, 0.25);
   --suit: theme('colors.suit-black');

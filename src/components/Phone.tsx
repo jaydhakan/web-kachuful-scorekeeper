@@ -49,7 +49,7 @@ export function Phone() {
     content = r.phase === 'bidding' ? <Bidding /> : r.phase === 'playing' ? <Play /> : <Results />;
   return (
     <div
-      className="app-root scr-bg grain relative h-full w-full overflow-hidden"
+      className="app-root scr-bg grain relative h-full w-full"
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
       <div className="absolute inset-0" {...(blocked ? { inert: '' as const } : {})}>

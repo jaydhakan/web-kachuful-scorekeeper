@@ -177,16 +177,18 @@ export function Summary() {
             </span>
           )}
         </div>
-        <Table
-          uid="sum"
-          size="mini"
-          players={g.players}
-          dir={g.direction}
-          dealer={stage >= 5 ? nr.dealerIndex : r.dealerIndex}
-          first={nr.firstPlayerIndex}
-          noSeatAnim
-          center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
-        />
+        <div className="-mx-3">
+          <Table
+            uid="sum"
+            size="mini"
+            players={g.players}
+            dir={g.direction}
+            dealer={stage >= 5 ? nr.dealerIndex : r.dealerIndex}
+            first={nr.firstPlayerIndex}
+            noSeatAnim
+            center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
+          />
+        </div>
         <p className="pt-1.5 text-center text-16 leading-[1.45] tracking-[-0.01em]">
           {t.summary.nextLine(nr.index + 1, nr.cards, nr.trump)}
           <br />
