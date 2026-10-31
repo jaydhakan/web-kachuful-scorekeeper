@@ -44,7 +44,8 @@ export function InboxList() {
 
 const describe = (i: InboxItem) => {
   const x = t.hub.inbox;
-  if (i.kind === 'rejected') return x.rejected(String(i.data.reason ?? ''));
+  if (i.kind === 'rejected')
+    return i.data.reason === 'deleted' ? x.deleted : x.rejected(String(i.data.reason ?? ''));
   if (i.kind === 'conflict') return x.conflict;
   if (i.data.missing) return x.needEmail(String(i.data.name ?? ''));
   if (i.data.field === 'email') return x.emailMatch(String(i.data.name ?? ''));
@@ -52,11 +53,10 @@ const describe = (i: InboxItem) => {
 };
 
 /**
- * "Is it the same person?" for a name or email the server already has (yes moves the games to them), or a missing
- * email to fill in. A name clash can take a free name instead; an email clash needs the right email.
+ * A new player the server refused: their name or email belongs to someone else (who isn't named), or the email is
+ * missing. A name clash takes a free name; an email clash or a missing email needs the right email.
  */
 function NameMatch({ i }: { i: InboxItem }) {
-  const existing = i.data.existing as { id: string; displayName: string } | undefined;
   const name = String(i.data.name ?? '');
   const byEmail = i.data.field === 'email';
   const [email, setEmail] = useState('');
@@ -64,15 +64,6 @@ function NameMatch({ i }: { i: InboxItem }) {
   const other = suggestName(name, taken);
   return (
     <span className="flex w-full flex-wrap items-center gap-2">
-      {existing && (
-        <button
-          type="button"
-          onClick={() => resolveNameMatch(i.key, { existingId: existing.id })}
-          className="min-h-11 rounded-xl bg-[var(--accent)] px-3 text-14 font-bold text-ink-on-accent"
-        >
-          {t.hub.sync2.yes}
-        </button>
-      )}
       {byEmail ? (
         <form
           className="flex min-w-0 flex-1 basis-60 gap-2"
