@@ -46,7 +46,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
               layout="position"
               key={id}
               transition={SPRING}
-              className={`grid shrink-0 items-center gap-x-2 rounded-2xl px-1 py-1 [grid-template-areas:'av_tot'_'av_name'] grid-cols-[auto_minmax(0,1fr)] rail:min-h-12 rail:gap-x-3 dt:min-h-14 rail:pl-1.5 rail:pr-3 rail:[grid-template-areas:'rank_av_name_tot'] rail:grid-cols-[2rem_auto_minmax(0,1fr)_auto] dt:min-h-[72px] ${lead ? 'rail:bg-[rgba(226,182,83,.10)] rail:shadow-[inset_0_0_0_1px_rgba(226,182,83,.45)]' : ''}`}
+              className={`grid shrink-0 items-center gap-x-2 rounded-2xl px-1 py-1 [grid-template-areas:'av_tot'_'av_name'] grid-cols-[auto_minmax(0,1fr)] rail:min-h-12 rail:gap-x-3 dt:min-h-14 rail:pl-1.5 rail:pr-3 rail:[grid-template-areas:'rank_av_name_tot'] rail:grid-cols-[2rem_auto_minmax(0,1fr)_auto] dt:min-h-[72px] dt:gap-x-2 dt:pr-2 dt:grid-cols-[1.75rem_auto_minmax(0,1fr)_auto] ${lead ? 'rail:bg-[rgba(226,182,83,.10)] rail:shadow-[inset_0_0_0_1px_rgba(226,182,83,.45)]' : ''}`}
             >
               <span
                 className={`disp hidden text-center text-22 font-extrabold [grid-area:rank] rail:block ${done.length ? rankTone(x.rank) : 'text-[var(--tx2)]'}`}
@@ -55,7 +55,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
               </span>
               <span
                 aria-hidden
-                className="grid h-[34px] w-[34px] place-items-center rounded-full border-2 border-white/20 text-19 shadow-[0_8px_22px_rgba(0,0,0,.45)] [grid-area:av] tl:h-9 tl:w-9 tl:text-20 dt:h-[46px] dt:w-[46px] dt:text-26"
+                className="grid h-[34px] w-[34px] place-items-center rounded-full border-2 border-white/20 text-19 shadow-[0_8px_22px_rgba(0,0,0,.45)] [grid-area:av] tl:h-9 tl:w-9 tl:text-20 dt:h-10 dt:w-10 dt:text-22"
                 style={{ background: x.p.color }}
               >
                 {x.p.emoji}
@@ -87,7 +87,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
               </div>
               <Ticker
                 v={x.t}
-                className={`disp text-24 font-extrabold leading-none tracking-[-0.02em] [grid-area:tot] tick rail:min-w-12 rail:text-right dt:min-w-16 dt:text-32 ${x.t < 0 ? 'text-[var(--neg-tx)]' : ''}`}
+                className={`disp text-24 font-extrabold leading-none tracking-[-0.02em] [grid-area:tot] tick rail:min-w-12 rail:text-right dt:min-w-10 dt:text-28 ${x.t < 0 ? 'text-[var(--neg-tx)]' : ''}`}
               />
             </motion.li>
           );

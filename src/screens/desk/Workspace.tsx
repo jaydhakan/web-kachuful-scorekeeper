@@ -19,7 +19,7 @@ import { t } from '@/strings';
 // One DOM tree for every layout: grid areas move, nothing remounts. Upright: table, score strip, action pane.
 // On its side: table and scores left, action pane right. Desktop: table, action pane, scores.
 const GRID =
-  "grid flex-1 gap-3 [grid-template-areas:'table'_'scores'_'action'] min-h-0 grid-rows-[minmax(15rem,1fr)_auto_minmax(0,auto)] rail:gap-4 tl:gap-5 tl:[grid-template-areas:'table_action'_'scores_action'] tl:grid-cols-[minmax(0,1fr)_clamp(22rem,37vw,27.5rem)] tl:grid-rows-[minmax(0,1fr)_auto] dt:gap-6 dt:[grid-template-areas:'table_action_scores'] dt:grid-cols-[minmax(0,1fr)_clamp(23rem,29vw,30rem)_clamp(16.5rem,21vw,20rem)] dt:grid-rows-[minmax(0,1fr)]";
+  "grid flex-1 gap-3 [grid-template-areas:'table'_'scores'_'action'] min-h-0 grid-rows-[minmax(15rem,1fr)_auto_minmax(0,auto)] rail:gap-4 tl:gap-5 tl:[grid-template-areas:'table_action'_'scores_action'] tl:grid-cols-[minmax(0,1fr)_clamp(22rem,37vw,27.5rem)] tl:grid-rows-[minmax(0,1fr)_auto] dt:gap-6 dt:[grid-template-areas:'table_action_scores'] dt:grid-cols-[minmax(0,1fr)_clamp(23rem,27vw,30rem)_clamp(16.5rem,23vw,21rem)] dt:grid-rows-[minmax(0,1fr)]";
 
 /** A pane on its way out can no longer be clicked or focused. */
 function Leaving({ children }: { children: ReactNode }) {
