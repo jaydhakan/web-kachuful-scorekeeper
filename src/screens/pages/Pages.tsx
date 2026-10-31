@@ -12,6 +12,7 @@ import { HistoryPage } from './HistoryPage';
 import { ImportPage } from './ImportPage';
 import { PlayerPage } from './PlayerPage';
 import { PlayersPage } from './PlayersPage';
+import { LivePage, RecapPage } from './ViewerPages';
 import { WrappedPage } from './WrappedPage';
 
 /** The screen for a route on the nav stack. Its own chunk: the game screens never wait for it. */
@@ -48,6 +49,10 @@ export default function Pages({ route }: { route: Route }) {
       return <AdminPage />;
     case 'activity':
       return <ActivityPage />;
+    case 'live':
+      return <LivePage token={p.token ?? ''} />;
+    case 'recap':
+      return <RecapPage token={p.token ?? ''} />;
     case 'import':
       return <ImportPage />;
     default:
