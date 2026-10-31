@@ -98,3 +98,13 @@ describe('streak milestones', () => {
     expect([2, 3, 4, 5, 7, 8, 12].map(streakTier)).toEqual([-1, 0, 0, 1, 1, 2, 2]);
   });
 });
+
+describe('the fourth step: twelve in a row', () => {
+  it('a run of 12 reaches the top tier and is celebrated', () => {
+    expect(streakTier(11)).toBe(2);
+    expect(streakTier(12)).toBe(3);
+    const g = play(3, Array.from({ length: 12 }, () => [Y, N, N]));
+    expect(streakMilestones(g).find((e) => e.kind === 'hot')).toMatchObject({ n: 12, tier: 3 });
+    expect(streakMilestones(g).find((e) => e.kind === 'cold')).toMatchObject({ n: 12, tier: 3 });
+  });
+});
