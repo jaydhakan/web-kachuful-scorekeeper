@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { t } from '@/strings';
-import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 
 interface ScaffoldProps {
   left?: ReactNode;
@@ -31,6 +31,7 @@ export function Scaffold({
   const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const hasBar = !!bar;
+  const owner = useId();
   // The scroll body and the toast clear the bar by its real height, which grows with the note and the home indicator.
   useEffect(() => {
     const el = barRef.current,
@@ -40,11 +41,20 @@ export function Scaffold({
     const ro = new ResizeObserver(([e]) => {
       const h = `${Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight)}px`;
       root.style.setProperty('--bar-h', h);
-      app?.style.setProperty('--bar-h', h);
+      if (!app) return;
+      app.style.setProperty('--bar-h', h);
+      app.dataset.barOwner = owner;
     });
     ro.observe(el);
-    return () => ro.disconnect();
-  }, [hasBar]);
+    return () => {
+      ro.disconnect();
+      // Screens overlap while they cross-fade; only the screen that set the value may clear it.
+      if (app?.dataset.barOwner === owner) {
+        app.style.removeProperty('--bar-h');
+        delete app.dataset.barOwner;
+      }
+    };
+  }, [hasBar, owner]);
   const ref = scrollRef || inner;
   const { scrollY } = useScroll({ container: ref });
   const navO = useTransform(scrollY, [24, 64], [0, 1]);
