@@ -29,6 +29,8 @@ export default tseslint.config(
       ...jsxA11y.flatConfigs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
+      // A scrollable region must be focusable so keyboard users can scroll it; it is named with role=region.
+      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'], tags: [] }],
       'react-hooks/refs': 'off',
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/purity': 'off',

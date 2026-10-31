@@ -20,6 +20,7 @@ export const t = {
     close: 'Close',
     next: 'Next',
     done: 'Done',
+    content: 'Content',
     save: 'Save',
     home: 'Home',
     undo: 'Undo',

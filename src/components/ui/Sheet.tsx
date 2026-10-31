@@ -65,6 +65,8 @@ export function Sheet({ title, onClose, full, children }: SheetProps) {
         </div>
         <div
           tabIndex={0}
+          role="region"
+          aria-labelledby={titleId}
           className="no-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(24px,env(safe-area-inset-bottom))] pt-2"
         >
           {children}
