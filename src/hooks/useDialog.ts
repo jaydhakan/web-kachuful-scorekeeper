@@ -27,8 +27,8 @@ const focusables = (root: HTMLElement) =>
  * Modal behaviour for a sheet or dialog: moves focus in, traps Tab, closes on Escape and returns focus
  * to whatever opened it. The page behind is made inert by the caller.
  *
- * Native <dialog> was evaluated and rejected: its top layer escapes the phone-width column, its ::backdrop
- * can't take part in the spring enter/exit, and it would need the drag-to-dismiss rebuilt around it.
+ * Native <dialog> was evaluated and rejected: its ::backdrop can't take part in the spring enter/exit, and it
+ * would need the drag-to-dismiss rebuilt around it.
  */
 export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | undefined) {
   // Read at key time so the effect below runs once per dialog: re-running it on every new closure would

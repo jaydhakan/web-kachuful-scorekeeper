@@ -48,7 +48,7 @@ export function Modal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={SPRING_POP}
-        className="glass relative w-full max-w-[340px] !rounded-[28px] !bg-sheet/95 p-6"
+        className="glass relative w-full max-w-[22rem] !rounded-[28px] !bg-sheet/95 p-6"
       >
         <p id={textId} className="mb-5 text-19 font-medium leading-snug tracking-[-0.012em]">
           {text}
