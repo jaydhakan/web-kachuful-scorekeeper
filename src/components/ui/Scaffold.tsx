@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { t } from '@/strings';
-import { useRef, type ReactNode, type RefObject } from 'react';
+import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
 
 interface ScaffoldProps {
   left?: ReactNode;
@@ -9,6 +9,8 @@ interface ScaffoldProps {
   title?: ReactNode;
   children: ReactNode;
   bar?: ReactNode;
+  /** Status line above the bar's buttons, announced politely (why a button is disabled). */
+  barNote?: ReactNode;
   className?: string;
   scrollRef?: RefObject<HTMLDivElement>;
 }
@@ -21,10 +23,28 @@ export function Scaffold({
   title,
   children,
   bar,
+  barNote,
   className = '',
   scrollRef,
 }: ScaffoldProps) {
   const inner = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const hasBar = !!bar;
+  // The scroll body and the toast clear the bar by its real height, which grows with the note and the home indicator.
+  useEffect(() => {
+    const el = barRef.current,
+      root = rootRef.current;
+    if (!el || !root || typeof ResizeObserver === 'undefined') return;
+    const app = root.closest<HTMLElement>('.app-root');
+    const ro = new ResizeObserver(([e]) => {
+      const h = `${Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight)}px`;
+      root.style.setProperty('--bar-h', h);
+      app?.style.setProperty('--bar-h', h);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [hasBar]);
   const ref = scrollRef || inner;
   const { scrollY } = useScroll({ container: ref });
   const navO = useTransform(scrollY, [24, 64], [0, 1]);
@@ -34,13 +54,13 @@ export function Scaffold({
   const lgS = useTransform(scrollY, [0, 80], [1, 0.94]);
   const rm = useReducedMotion();
   return (
-    <div className={`absolute inset-0 overflow-hidden ${className}`}>
+    <div ref={rootRef} className={`absolute inset-0 overflow-hidden ${className}`}>
       <div
         ref={ref}
         tabIndex={0}
         role="region"
         aria-label={t.common.content}
-        className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[120px] pt-[calc(64px+var(--sat))]"
+        className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[calc(var(--bar-h,96px)+24px)] pt-[calc(64px+var(--sat))]"
       >
         {title && (
           <motion.h1
@@ -67,8 +87,20 @@ export function Scaffold({
         <div className="flex w-12 justify-end">{right}</div>
       </div>
       {bar && (
-        <div className="chrome-bot absolute inset-x-0 bottom-0 z-20 flex min-h-[96px] items-center gap-3 px-5 pb-[max(18px,var(--sab))] pt-[18px]">
-          {bar}
+        <div
+          ref={barRef}
+          className="chrome-bot absolute inset-x-0 bottom-0 z-20 px-5 pb-[max(18px,var(--sab))] pt-[18px]"
+        >
+          {barNote !== undefined && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-xl text-14 font-medium leading-[1.35] text-[var(--warn)] [&:not(:empty)]:mb-2.5 [&:not(:empty)]:bg-felt-950/85 [&:not(:empty)]:px-3 [&:not(:empty)]:py-2"
+            >
+              {barNote}
+            </div>
+          )}
+          <div className="flex min-h-[60px] items-center gap-3">{bar}</div>
         </div>
       )}
     </div>

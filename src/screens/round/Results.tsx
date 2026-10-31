@@ -28,6 +28,7 @@ export function Results() {
           {Icon.back}
         </IconButton>
       }
+      barNote={st.msg}
       bar={
         <PrimaryButton className="w-full" disabled={!st.ok} onClick={actions.confirmRound}>
           {t.results.confirm}
@@ -121,14 +122,8 @@ export function Results() {
           </motion.div>
         );
       })}
-      <div
-        className="min-h-6 px-1 pt-1 text-14 font-medium leading-[1.35] text-[var(--warn)]"
-        aria-live="polite"
-      >
-        {st.msg}
-      </div>
       {tricks && (
-        <div className="px-1 text-13 text-[var(--tx2)]">
+        <div className="px-1 pt-1 text-13 text-[var(--tx2)]">
           {t.results.totalTricks(
             Object.values(tricks).reduce((a, b) => a + b, 0),
             r.cards,
