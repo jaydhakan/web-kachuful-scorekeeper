@@ -1,6 +1,6 @@
 # Responsive plan: every device, every orientation, no clipped text
 
-Written 2026-10-30, on `feat/port` at `fb2401d`. **Status: approved 2026-10-30.** The user allowed new dependencies where they improve the app (see D5).
+Written 2026-10-30, on `feat/port` at `fb2401d`. **Status: approved 2026-10-30; built on `feat/responsive` (all 32 steps).** The user allowed new dependencies where they improve the app (see D5).
 
 This file is both the spec and the build plan. Read §1–§3 once. §4 and §5 are the design. §6 is the build order, with a check for each step. §7 is how the work is proven.
 
@@ -324,3 +324,15 @@ These will be reported as **unverified** and need a check on a real device:
 ## 9. Out of scope
 
 A marketing page, game rules, scoring, saved data, token values, CI workflow edits, and a native app shell.
+
+---
+
+## 10. As built: where it differs from the plan
+
+- **Seven players shrink the table less** (0.8x, not 0.72x): the overlap test with 14-character names needs the room (§4.3).
+- **Seat labels** are capped by width and ellipsize, with the full name in the text and a tooltip, instead of being cut to 8 characters, so they shrink with the seats. The podium and the Scoreboard headers still use `trunc`.
+- **Chips and bubbles** go to the outer side of a seat, the "deals" pill gives way to a small round chip with seven players and on the flat table, and the long first tag ("Leads first") waits for a table of at least 34rem; below that it reads "1st".
+- **JavaScript media queries** are used for the table geometry on Bidding and Summary in `wide` (CSS cannot switch it), as well as for sheet motion (D6).
+- **Rules** is still a bottom sheet (not full height) on a phone, as it was before; the table in §4.4 lists it as full height.
+- **Summary** shows its one-line Next up up to 56rem of height, and only text on a tiny height, rather than at `@short` (40rem), so five players fit on a phone.
+- **Not built:** the check that main content covers at least 55% of the viewport at `wide` (§7.4), and an axe scan of every screen at every viewport (the existing axe test covers Home, Setup, a full round and the sheets on the phone profile). The items in §7.5 remain unverified on real devices.

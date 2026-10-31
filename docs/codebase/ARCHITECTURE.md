@@ -7,7 +7,7 @@ Kachuful is a client-only PWA: Vite + React 18 + strict TypeScript + Tailwind 3 
 ```
 src/domain      pure TypeScript: types, card sequence, rotation, bidding rule, scoring, standings, stats, demo game
 src/state       reducer + actions (types.ts), persistence + migrations, undo ring, provider (store.tsx)
-src/hooks       useWakeLock, useHaptics, usePersistence, useDialog, useShare
+src/hooks       useWakeLock, useHaptics, usePersistence, useDialog, useShare, useMediaQuery, useRovingFocus, useVisualViewport
 src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and app shell (AppShell, UpdatePrompt)
 src/screens     one file per screen (setup/ and round/ hold the multi-step flows); Winner is lazy
 src/sheets      one file per sheet body; SheetHost chooses the body and captures it at mount
@@ -40,9 +40,29 @@ Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.
 - A round's dealer, trump and first player derive from the index and `firstDealerIndex`. Direction only changes seat layout, never the rotation order.
 - Avatar colours are stored as hex strings inside each saved player.
 
+## Layout
+
+The app fills the viewport and rearranges itself by page layout, not by device. `src/theme/breakpoints.ts` is the one list (`land`, `md`, `wide`, `pane` = land or wide, `roomy` = md or wide, `fine`); Tailwind's `screens` and `useMediaQuery` both read it, so CSS and the few JavaScript checks cannot disagree. `land` is a phone on its side or any short window, `md` a tablet held upright, `wide` a tablet on its side, laptop or desktop.
+
+**Scaffold** (`components/ui/Scaffold.tsx`) is a grid with one DOM tree for every orientation, so rotating never remounts a screen or loses state. A screen passes its main area, an optional `aside` (the controls), a `bar` and a `title`:
+
+- One column on a phone or a tablet held upright (centred at 40rem); two panes in `pane` layouts when there is an `aside` (the body becomes a subgrid, the bar sits under the aside, centred at 72rem). The large title hides in two panes and a twin heading shows in the aside.
+- `fit` makes the main area take the height left over without scrolling, so a fitted table can fill it. `collapseBar` tucks the bar away on a very short one-column screen (the keyboard being up).
+- The scroll body is a plain block, not a flex column, because flex items stop vertical margins collapsing and move content.
+- The root is a size container, so children can use `@h-short` / `@h-tiny` (the height of the Scaffold, not the window).
+- The Scaffold publishes layout offsets (not bounding boxes: screens animate with transforms) as CSS variables to the two overlays that use them: the toast sits over the bar (`--bar-h/x/w`), the banner over the main pane (`--main-x/w`). Only the screen that set them may clear them.
+
+**Table** (`components/ui/Table.tsx`, `lib/tableGeometry.ts`) is drawn on a fixed design grid (`TD`, `posAt`, `seatPos`, unchanged). Positions are percentages of the box (`toPct`) and sizes are `calc(N * var(--s))` (`dpx`), where `--s` is one grid pixel at the current size, capped at 1.5x. With `fit` the table fills its slot both ways and stops shrinking at `minScale` (0.72, or 0.8 with seven players); without it the size is the design size. Things that move between seats (deal cards, the spin token) sit in a `TablePin`, a full-size layer translated in percent, so they need no measuring. Seat labels cap their width at 64 grid pixels and ellipsize (the full name stays in the text and the tooltip); bid bubbles and chips move to the outer side of a seat so they stay clear of a neighbour's name, and crowded tables (seven players, the flat table) use the small round dealer chip instead of the "deals" pill.
+
+**Keyboard.** The viewport meta sets `interactive-widget=resizes-content`, so Chrome on Android shrinks the layout when the keyboard opens. iOS Safari ignores it, so `useVisualViewport` sizes the app root to the visual viewport while a field has focus. Setup 2 steps its table aside on a very short portrait screen so the field and Add stay in view.
+
+**JavaScript media queries** are used in three places and nowhere else: the enter and exit motion of sheets, and the table geometry (`full` or `mini`) of Bidding and Summary on wide screens, which CSS cannot switch. None of them is part of a `key`, so a change re-renders but never remounts.
+
+**Audit.** `e2e/responsive.spec.ts` plays a game through every screen and sheet and `e2e/audit-rules.ts` decides what is a violation (a missing or covered primary action, anything past the screen edge, clipped text, overlaps, targets under 44px, a page that scrolls sideways, and a screen that should fit but scrolls on a portrait phone of 360x640 and up). It runs a four-viewport subset by default, the whole matrix with `RESPONSIVE_FULL=1`, and writes reports without failing with `RESPONSIVE=1` (`tools/responsive/report.mjs`).
+
 ## Motion
 
-`SPRING`, `SPRING_POP`, `SPRING_SOFT` and `EASE = [0.32, 0.72, 0, 1]` live in `components/ui/motion.ts`. Animate transform and opacity. Known exceptions inherited from the prototype are listed in the Phase 2 proposal.
+`SPRING`, `SPRING_POP`, `SPRING_SOFT`, `SPRING_SHEET` and `EASE = [0.32, 0.72, 0, 1]` live in `components/ui/motion.ts`. Animate transform and opacity. Known exceptions inherited from the prototype are listed in the Phase 2 proposal.
 
 ## Sheets and dialogs
 
