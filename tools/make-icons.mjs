@@ -15,7 +15,9 @@ const browser = await chromium.launch({ channel: 'chrome' });
 for (const [src, out, size] of jobs) {
   const page = await browser.newPage({ viewport: { width: size, height: size } });
   const svg = readFileSync(path.join(pub, src), 'utf8');
-  await page.setContent(`<style>html,body{margin:0}svg{display:block;width:${size}px;height:${size}px}</style>${svg}`);
+  await page.setContent(
+    `<style>html,body{margin:0}svg{display:block;width:${size}px;height:${size}px}</style>${svg}`,
+  );
   await page.screenshot({ path: path.join(pub, out), omitBackground: false });
   await page.close();
 }
