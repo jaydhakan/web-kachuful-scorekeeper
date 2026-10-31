@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach } from 'vitest';
 import { storage } from '@/state/persistence';
+import { resetArchive } from '@/state/archive';
 
 class Observer {
   observe() {}
@@ -27,6 +28,7 @@ beforeEach(() => {
     }) as MediaQueryList;
   localStorage.clear();
   storage.clearMemory();
+  resetArchive();
 });
 
 afterEach(() => cleanup());
