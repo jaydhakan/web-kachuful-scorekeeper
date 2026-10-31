@@ -21,7 +21,8 @@ export default {
     screens: Object.fromEntries(Object.entries(MQ).map(([k, raw]) => [k, { raw }])),
     extend: {
       colors,
-      fontSize: Object.fromEntries(sizes.map((s) => [s, `${s}px`])),
+      // rem, so browser and OS text-size settings scale type; 16px is 1rem, so nothing moves by default.
+      fontSize: Object.fromEntries(sizes.map((s) => [s, `${s / 16}rem`])),
       fontFamily: {
         display: [
           '"Bricolage Grotesque Variable"',
