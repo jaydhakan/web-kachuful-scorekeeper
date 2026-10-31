@@ -16,7 +16,7 @@ import {
 } from '@/domain';
 import { now } from '@/lib/clock';
 import { messages as m } from '@/strings/messages';
-import { parseSnapshot, type SavedScreen } from './persistence';
+import { parseSnapshot, type SavedScreen, type Session } from './persistence';
 import { pushSnapshot } from './undo';
 import type { Action, AppState, SetupState, Toast } from './types';
 
@@ -25,10 +25,12 @@ export function initialState(
   screen: SavedScreen,
   undo: string[],
   corrupt = false,
+  session: Session | null = null,
 ): AppState {
   return {
     game,
     screen,
+    session,
     nav: [],
     dir: 1,
     setup: null,
@@ -454,6 +456,8 @@ function step(s: AppState, a: Action): AppState {
       return say(s, a.msg, a.undo, a.link);
     case 'navPush':
       return { ...s, nav: [...s.nav, a.route], dir: 1, sheet: null };
+    case 'session':
+      return { ...s, session: a.session };
     case 'navPop':
       return s.nav.length ? { ...s, nav: s.nav.slice(0, -1), dir: -1 } : s;
     case 'navReset':

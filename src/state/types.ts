@@ -8,7 +8,7 @@ import type {
   Round,
   StreakEvent,
 } from '@/domain';
-import type { LastGroup } from './persistence';
+import type { LastGroup, Session } from './persistence';
 
 export type Screen = 'home' | 'setup' | 'round' | 'winner';
 
@@ -88,6 +88,8 @@ export interface RoundStartSeq {
 export interface AppState {
   game: Game;
   screen: Screen;
+  /** The signed-in account, or null (signed out: nothing touches the network). */
+  session: Session | null;
   /** Screens opened on top of `screen`, last one showing. Never saved: a reload starts at the game screens. */
   nav: Route[];
   dir: Dir;
@@ -140,6 +142,7 @@ export type Action =
   | { type: 'say'; msg: string; undo?: boolean; link?: Toast['link'] }
   | { type: 'navPush'; route: Route }
   | { type: 'navPop' }
+  | { type: 'session'; session: Session | null }
   | { type: 'navReset'; routes?: Route[] }
   | { type: 'toastDone' }
   | { type: 'bannerDone' }

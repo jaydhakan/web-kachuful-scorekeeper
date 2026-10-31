@@ -117,6 +117,21 @@ export function seedFirstRun(): Game {
   return g;
 }
 
+/** Who is signed in, as last seen: the cookie is the secret, this is only for showing the account offline. */
+export interface Session {
+  user: { id: string; email: string; role: 'admin' | 'member'; playerId: string | null };
+  player: { id: string; displayName: string; emoji: string; color: string } | null;
+  /** The server said 401: syncing waits until the person signs in again. */
+  stale?: boolean;
+}
+
+export const loadSession = (): Session | null => {
+  const s = storage.get<Session | null>(KEYS.session, null);
+  return s && typeof s === 'object' && s.user && typeof s.user.id === 'string' ? s : null;
+};
+export const saveSession = (s: Session | null) =>
+  s ? storage.set(KEYS.session, s) : storage.remove(KEYS.session);
+
 export interface Loaded {
   game: Game;
   screen: SavedScreen;

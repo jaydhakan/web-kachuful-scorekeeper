@@ -16,6 +16,9 @@ import { uuid } from '@/lib/ids';
 import {
   KEYS,
   loadInitial,
+  loadSession,
+  saveSession,
+  type Session,
   pushRecentNames,
   resolveCorrupt,
   storage,
@@ -36,6 +39,7 @@ import type {
   SheetState,
 } from './types';
 import { useHistorySync } from '@/hooks/useHistorySync';
+import { onUnauthenticated } from '@/sync/api';
 import { messages } from '@/strings/messages';
 import type { Game, Trump } from '@/domain';
 
@@ -76,6 +80,7 @@ export interface Actions {
   navReset(routes?: Route[]): void;
   /** Makes a saved game the current one. */
   openGame(game: Game): void;
+  setSession(session: Session | null): void;
   repairSave(choice: 'reset' | 'keep'): void;
 }
 
@@ -105,7 +110,7 @@ const trumpOf = (s: AppState): Trump =>
 export function AppProvider({ children, initial }: { children: ReactNode; initial?: Loaded }) {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
     const l = initial ?? loadInitial();
-    return initialState(l.game, l.screen, l.undo, l.corrupt);
+    return initialState(l.game, l.screen, l.undo, l.corrupt, loadSession());
   });
   const vib = useHaptics();
   const ref = useRef(state);
@@ -132,6 +137,17 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
               : undefined,
         }),
       ),
+    [],
+  );
+
+  useEffect(() => void saveSession(state.session), [state.session]);
+  // A 401 anywhere: keep the account on screen, but syncing waits for a fresh sign-in.
+  useEffect(
+    () =>
+      onUnauthenticated(() => {
+        const cur = ref.current.session;
+        if (cur && !cur.stale) dispatch({ type: 'session', session: { ...cur, stale: true } });
+      }),
     [],
   );
 
@@ -238,6 +254,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       back: () => nav({ type: 'navPop' }),
       navReset: (routes) => nav({ type: 'navReset', routes }),
       openGame: (game) => nav({ type: 'openGame', game }),
+      setSession: (session) => dispatch({ type: 'session', session }),
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
     };
   }, [vib]);

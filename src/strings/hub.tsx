@@ -210,6 +210,12 @@ export const hub = {
     meta: (games: number, last: string) => `${plural(games, 'game')} · last ${last}`,
     never: 'never played',
   },
+  sync: {
+    synced: 'Synced',
+    syncing: 'Syncing',
+    waiting: (n: number) => `${n} waiting to sync`,
+    attention: (n: number) => (n === 1 ? '1 thing needs you' : `${n} things need you`),
+  },
   pops: {
     more: (n: number) => `+${n} more ${n === 1 ? 'streak' : 'streaks'}`,
   },
