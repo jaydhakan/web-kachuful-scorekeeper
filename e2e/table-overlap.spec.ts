@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { bidEveryone, btn, NAMES7, startGame, toSetup3 } from './helpers';
+import { LONG_NAMES, openSeeded, seedGame } from './fixtures';
+import { bidEveryone, btn, startGame, toSetup3 } from './helpers';
 
 /** Requested box widths; a table never goes below its own minimum, so 245 means "as small as it gets". */
 const WIDTHS = process.env.WIDTHS
@@ -23,19 +24,13 @@ const collisions = (page: Page, uid: string) =>
     type Part = { kind: string; seat: number; txt: string; r: DOMRect };
     const root = document.querySelector(`[data-table="${uid}"]`)!;
     const parts: Part[] = [];
-    const add = (kind: string, sel: string, text = false) =>
+    const add = (kind: string, sel: string) =>
       root.querySelectorAll(sel).forEach((el) => {
-        let r = el.getBoundingClientRect();
-        if (text) {
-          // The label box spans the whole seat; what must stay readable is the text itself.
-          const rg = document.createRange();
-          rg.selectNodeContents(el);
-          r = rg.getBoundingClientRect();
-        }
+        const r = el.getBoundingClientRect();
         const seat = +(el.closest('[data-seat]') as HTMLElement).dataset.seat!;
         parts.push({ kind, seat, txt: (el.textContent || '').trim() || kind, r });
       });
-    add('name', '[data-seat-name]', true);
+    add('name', '[data-seat-name]');
     add('bid', '[data-seat-bid]');
     add('chip', '[data-seat-chip]');
     add('avatar', '[data-seat-avatar]');
@@ -70,7 +65,7 @@ for (const n of [3, 5, 7]) {
   test(`nothing on a table overlaps at any size (${n} players)`, async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 900 });
     await page.goto('/');
-    await startGame(page, NAMES7.slice(0, n));
+    await startGame(page, LONG_NAMES.slice(0, n));
     await bidEveryone(page);
     const found: string[] = [];
     for (const w of WIDTHS) {
@@ -93,7 +88,7 @@ for (const n of [3, 5, 7]) {
   test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 900 });
     await page.goto('/');
-    await toSetup3(page, NAMES7.slice(0, n));
+    await toSetup3(page, LONG_NAMES.slice(0, n));
     await btn(page, 'Deal!').click();
     await page.locator('[data-table="rs"]').waitFor();
     const found: string[] = [];
@@ -101,6 +96,25 @@ for (const n of [3, 5, 7]) {
       await scaleTable(page, 'rs', w);
       await page.waitForTimeout(150);
       found.push(...(await collisions(page, 'rs')).map((c) => `deal ${w}px: ${c}`));
+    }
+    expect(found).toEqual([]);
+  });
+}
+
+for (const n of [3, 5, 7]) {
+  test(`the made and missed marks stay clear of the names (${n} players)`, async ({ page }) => {
+    // The Results table with its marks only shows beside the list on wide screens.
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await openSeeded(page, seedGame(n, 'results'), 'round');
+    const made = page.getByRole('button', { name: /Made/ });
+    for (let k = 2; k < n; k++) await made.nth(k).click();
+    await page.locator('[data-table="results"]').waitFor();
+    const found: string[] = [];
+    for (const w of WIDTHS) {
+      await scaleTable(page, 'results', w);
+      await page.waitForTimeout(150);
+      found.push(...(await collisions(page, 'results')).map((c) => `results ${w}px: ${c}`));
     }
     expect(found).toEqual([]);
   });

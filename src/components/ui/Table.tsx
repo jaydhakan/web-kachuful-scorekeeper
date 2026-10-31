@@ -1,7 +1,6 @@
 import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion';
 import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
-import { trunc } from '@/lib/format';
 import { DEALS_PILL, TD, dpx, minScale, seatPos, toPct, type TableSize } from '@/lib/tableGeometry';
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
@@ -210,6 +209,7 @@ export function Table({
           cur === k ? 'ring-pulse' : warn === k ? 'warn-pulse' : hl === k ? 'ring-pulse' : '';
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
         const out = p?.id !== undefined ? res?.[p.id] : undefined;
+        const flip = size === 'mini' && at.x < 38;
         return (
           <div
             key={k}
@@ -272,10 +272,13 @@ export function Table({
               {p && (
                 <div
                   data-seat-name
-                  className="absolute inset-x-0 text-center text-13 font-bold leading-4 tracking-[0.005em] [text-shadow:0_1px_3px_black]"
-                  style={{ top: 'calc(100% + 1px)' }}
+                  // The label may be shortened, but only by width: it can never be wider than its share of the
+                  // table, so it shrinks with the seats. The full name stays in the text and the tooltip.
+                  title={p.name}
+                  className="absolute left-1/2 w-max -translate-x-1/2 overflow-hidden text-ellipsis whitespace-nowrap text-center text-13 font-bold leading-4 tracking-[0.005em] [text-shadow:0_1px_3px_black]"
+                  style={{ top: 'calc(100% + 1px)', maxWidth: dpx(64) }}
                 >
-                  {trunc(p.name)}
+                  {p.name}
                 </div>
               )}
               {p && dealer === k && (
@@ -322,8 +325,8 @@ export function Table({
                   {firstLabel && size === 'full' ? (
                     // The long label would reach the centre text on a small table, so it falls back to the short one.
                     <>
-                      <span className="hidden @[18rem]:inline">{firstLabel}</span>
-                      <span className="@[18rem]:hidden">{t.table.first}</span>
+                      <span className="hidden @[26rem]:inline">{firstLabel}</span>
+                      <span className="@[26rem]:hidden">{t.table.first}</span>
                     </>
                   ) : (
                     firstLabel || t.table.first
@@ -332,7 +335,8 @@ export function Table({
               )}
               <AnimatePresence>
                 {p && bid !== undefined && (
-                  // Centred on the avatar's right edge: clear of the name below and the dealer pill above.
+                  // Centred on the avatar's right edge: clear of the name below and the dealer pill above. On a flat
+                  // table the left-hand seats put it on their left edge, away from their neighbours' names.
                   <motion.div
                     key={'b' + bid}
                     data-seat-bid
@@ -358,7 +362,7 @@ export function Table({
                             borderRadius: dpx(11),
                             fontSize: `max(0.8125rem, ${dpx(14)})`,
                             lineHeight: dpx(19),
-                            left: `calc(50% + ${dpx(d.R - 11)})`,
+                            left: `calc(50% + ${dpx(flip ? -d.R - 11 : d.R - 11)})`,
                             top: dpx(d.R - 11),
                           }
                     }
@@ -374,7 +378,11 @@ export function Table({
                   animate={{ scale: 1 }}
                   transition={SPRING_POP}
                   className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
-                  style={{ left: `calc(50% - ${dpx(d.R + 6)})`, bottom: dpx(-4) }}
+                  style={{
+                    // On the avatar's upper-left corner: the name sits below it, the bubble on its other side.
+                    left: `calc(50% - ${dpx(d.R * 0.707)} - 10px)`,
+                    top: `calc(${dpx(d.R * 0.293)} - 6px)`,
+                  }}
                 >
                   {out === 'made' ? t.table.made : t.table.missed}
                 </motion.div>
