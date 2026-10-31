@@ -36,6 +36,7 @@ export function Scaffold({
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
       <div
         ref={ref}
+        tabIndex={0}
         className="no-scroll absolute inset-0 overflow-y-auto overscroll-contain px-5 pb-[120px] pt-[64px]"
       >
         {title && (
