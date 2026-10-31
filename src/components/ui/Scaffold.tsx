@@ -139,7 +139,10 @@ export function Scaffold({
   const rm = useReducedMotion();
   const main =
     aside || fit ? (
-      <div className={`${aside ? MAIN_PANE : ''} ${fit ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
+      <div
+        ref={mainRef}
+        className={`${aside ? MAIN_PANE : ''} ${fit ? 'flex min-h-0 flex-1 flex-col' : ''}`}
+      >
         {children}
       </div>
     ) : (
