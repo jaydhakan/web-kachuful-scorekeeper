@@ -155,6 +155,7 @@ export const t = {
     startPlaying: 'Start playing',
     bidsIn: (cnt: number, n: number) => `${cnt} of ${n} bids in`,
     bid: (v: number) => `Bid ${v}`,
+    bidFor: (name: string) => `Bid for ${name}`,
     locked: (v: number) => `Locked ${v}`,
     total: (sum: number, cards: number) => `Bids ${sum} / ${cards} cards`,
     under: (d: number) => `Under by ${d}`,
