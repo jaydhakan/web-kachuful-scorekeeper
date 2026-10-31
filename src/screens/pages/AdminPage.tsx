@@ -7,6 +7,8 @@ import { useApp } from '@/state/store';
 import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
 import type { AdminUserRow, Player } from '@/sync/types';
+import { PhotoPicker } from '@/components/PhotoPicker';
+import { Avatar } from '@/components/ui/Avatar';
 import { Chip, ChipRow, EmptyState, ErrorState, Page, Skeleton } from '@/components/ui/Page';
 import { Field } from '@/components/ui/Field';
 import { Modal } from '@/components/ui/Modal';
@@ -279,11 +281,21 @@ function Users() {
   );
 }
 
+/** The whole registry, page by page. */
+async function allPlayers(): Promise<Player[]> {
+  const out: Player[] = [];
+  let cursor: string | null = null;
+  do {
+    const page = await ep.players(undefined, cursor);
+    out.push(...page.items);
+    cursor = page.nextCursor;
+  } while (cursor);
+  return out.filter((x) => !x.mergedInto);
+}
+
 function Players() {
   const { actions } = useApp();
-  const [list, reload] = useLoad(() =>
-    ep.players().then((p) => p.items.filter((x) => !x.mergedInto)),
-  );
+  const [list, reload] = useLoad(allPlayers);
   const [q, setQ] = useState('');
   const [from, setFrom] = useState<Player | null>(null);
   const [into, setInto] = useState<{ p: Player; games: number } | null>(null);
@@ -305,9 +317,7 @@ function Players() {
       <ul className="flex flex-col gap-2">
         {shown.map((p) => (
           <li key={p.id} className="glass flex min-h-14 items-center gap-3 px-4 py-2">
-            <span aria-hidden className="text-22">
-              {p.emoji}
-            </span>
+            <Avatar p={p} />
             <span className="min-w-0 flex-1 text-16 font-bold [overflow-wrap:anywhere]">
               {p.displayName}
               <span className="block text-13 font-medium text-[var(--tx2)]">
@@ -322,7 +332,7 @@ function Players() {
               onClick={() => setMail({ p, v: p.email ?? '', err: '' })}
               className="min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
             >
-              {ad.email}
+              {ad.editPlayer}
             </button>
             <button
               type="button"
@@ -335,7 +345,8 @@ function Players() {
         ))}
       </ul>
       {mail && (
-        <Sheet title={`${ad.email} · ${mail.p.displayName}`} onClose={() => setMail(null)}>
+        <Sheet title={mail.p.displayName} onClose={() => (setMail(null), reload())}>
+          <PhotoPicker p={mail.p} className="mb-5" />
           <form
             noValidate
             onSubmit={async (e) => {
@@ -379,7 +390,7 @@ function Players() {
                     onClick={() => void pickInto(p)}
                     className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 text-left text-17 font-bold"
                   >
-                    <span aria-hidden>{p.emoji}</span>
+                    <Avatar p={p} />
                     {p.displayName}
                   </button>
                 </li>
@@ -405,7 +416,10 @@ function Players() {
                 actions.say(ad.merged);
                 reload();
               } catch (x) {
-                actions.say(adminError(x));
+                // Two players who sat at one table are two people.
+                actions.say(
+                  x instanceof ApiError && x.code === 'invalid' ? ad.mergeTogether : adminError(x),
+                );
               }
             }}
           />

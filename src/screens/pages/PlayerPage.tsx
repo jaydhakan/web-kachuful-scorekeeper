@@ -16,9 +16,12 @@ import {
 import { dayLabel } from '@/lib/dates';
 import { fmt, sgnN } from '@/lib/format';
 import { archive } from '@/state/archive';
-import { mergeLocal, people } from '@/state/registry';
+import { mayEdit, mergeLocal, people, resolveId } from '@/state/registry';
+import { useArchive } from '@/state/useArchive';
 import { useApp } from '@/state/store';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
+import { PhotoPicker } from '@/components/PhotoPicker';
+import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState, Page, Section } from '@/components/ui/Page';
 import {
   Bars,
@@ -99,6 +102,8 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const [merge, setMerge] = useState(false);
   const [into, setInto] = useState<string | null>(null);
   const local = archive.get('players', id)?.local && !signedIn;
+  // Signed in, the admin, the player's creator and the player may change the photo.
+  const reg = useArchive((a) => (signedIn ? a.get('players', resolveId(id)) : undefined));
   const played = s.rounds > 0 || f.rounds.some((r) => r.playerId === id);
   const accBars = (
     o: Record<string, { made: number; total: number }>,
@@ -126,18 +131,18 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
       }
       title={
         <span className="inline-flex items-center gap-3">
-          <span
-            aria-hidden
+          <Avatar
+            p={{ ...w, photoUrl: rProfile.data?.player.photoUrl }}
             className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-28"
-            style={{ background: w.color }}
-          >
-            {w.emoji}
-          </span>
+          />
           {w.name}
         </span>
       }
       sub={<RangeChips value={range} onChange={setRange} />}
     >
+      {reg && mayEdit(reg, state.session?.user) && (
+        <PhotoPicker p={{ ...w, displayName: w.name }} className="mb-5" />
+      )}
       {!played ? (
         <EmptyState icon="🃏" title={p.notFound} />
       ) : (
@@ -287,13 +292,10 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                         aria-label={`${p.vs}: ${w.name} vs ${ow.name}`}
                         className="glass flex min-h-14 w-full items-center gap-3 px-4 text-left"
                       >
-                        <span
-                          aria-hidden
+                        <Avatar
+                          p={ow}
                           className="grid h-8 w-8 place-items-center rounded-full text-18"
-                          style={{ background: ow.color }}
-                        >
-                          {ow.emoji}
-                        </span>
+                        />
                         <span className="flex-1 text-16 font-bold [overflow-wrap:anywhere]">
                           {ow.name}
                         </span>
@@ -328,9 +330,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                     onClick={() => setInto(x.id)}
                     className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 text-left text-17 font-bold"
                   >
-                    <span aria-hidden className="text-22">
-                      {x.emoji}
-                    </span>
+                    <Avatar p={x} />
                     {x.displayName}
                   </button>
                 </li>

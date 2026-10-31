@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 import { useState, type FormEvent } from 'react';
-import { NAME_MAX, tidyName } from '@/domain';
+import { emailKey, emailOk, NAME_MAX, tidyName } from '@/domain';
 import { agoTxt } from '@/lib/format';
 import { passwordOk } from '@/lib/password';
 import { archive } from '@/state/archive';
@@ -10,7 +10,9 @@ import { ep } from '@/sync/endpoints';
 import { pendingUploads, signOutDevice } from '@/sync/signout';
 import { syncNow } from '@/sync/engine';
 import { useSyncStatus } from '@/sync/status';
+import { PhotoPicker } from '@/components/PhotoPicker';
 import { SyncDot } from '@/components/SyncDot';
+import { Avatar } from '@/components/ui/Avatar';
 import { Field, LookPicker, PasswordField } from '@/components/ui/Field';
 import { Modal } from '@/components/ui/Modal';
 import { Page, Section } from '@/components/ui/Page';
@@ -27,7 +29,14 @@ export function AccountPage() {
   const status = useSyncStatus();
   const me = useArchive((a) => (s?.player ? a.get('players', s.player.id) : undefined));
   const [edit, setEdit] = useState(false);
-  const [form, setForm] = useState({ name: '', first: '', last: '', emoji: '', color: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    first: '',
+    last: '',
+    emoji: '',
+    color: '',
+  });
   const [err, setErr] = useState('');
   const [pw, setPw] = useState({ cur: '', next: '' });
   const [pwErr, setPwErr] = useState('');
@@ -45,6 +54,7 @@ export function AccountPage() {
     if (!p) return;
     setForm({
       name: p.displayName,
+      email: ('email' in p && p.email) || '',
       first: p.firstName ?? '',
       last: p.lastName ?? '',
       emoji: p.emoji,
@@ -56,16 +66,27 @@ export function AccountPage() {
   const save = async (e: FormEvent) => {
     e.preventDefault();
     if (!p) return;
+    // An email can be added or changed, never cleared.
+    if (form.email.trim() && !emailOk(form.email)) return setErr(t.hub.sync2.emailInvalid);
+    const email = form.email.trim() ? emailKey(form.email) : undefined;
     try {
       const out = await ep.patchPlayer(p.id, {
         ...(tidyName(form.name) !== p.displayName && { displayName: tidyName(form.name) }),
+        ...(email && email !== ('email' in p ? p.email : null) && { email }),
         firstName: form.first.trim() || null,
         lastName: form.last.trim() || null,
         emoji: form.emoji,
         color: form.color,
       });
       const prev = archive.get('players', out.id);
-      if (prev) archive.put('players', { ...prev, ...out, nameKey: prev.nameKey, local: false });
+      if (prev)
+        archive.put('players', {
+          ...prev,
+          ...out,
+          email: out.email ?? prev.email,
+          nameKey: prev.nameKey,
+          local: false,
+        });
       actions.setSession({
         ...s,
         player: { id: out.id, displayName: out.displayName, emoji: out.emoji, color: out.color },
@@ -118,6 +139,15 @@ export function AccountPage() {
               onChange={(v) => setForm({ ...form, name: v })}
               error={err}
             />
+            <Field
+              label={t.hub.auth.yourEmail}
+              type="email"
+              inputMode="email"
+              autoCapitalize="off"
+              value={form.email}
+              onChange={(v) => setForm({ ...form, email: v })}
+              hint={t.hub.sync2.emailHint}
+            />
             <div className="grid grid-cols-2 gap-3">
               <Field
                 label={t.hub.auth.firstName}
@@ -150,14 +180,8 @@ export function AccountPage() {
             </div>
           </form>
         ) : (
-          <div className="glass flex items-center gap-3 p-4">
-            <span
-              aria-hidden
-              className="grid h-14 w-14 place-items-center rounded-full text-30"
-              style={{ background: p.color }}
-            >
-              {p.emoji}
-            </span>
+          <div className="glass flex flex-wrap items-center gap-3 p-4">
+            <Avatar p={p} className="grid h-14 w-14 place-items-center rounded-full text-30" />
             <span className="min-w-0 flex-1">
               <span className="disp block text-22 font-extrabold [overflow-wrap:anywhere]">
                 {p.displayName}
@@ -176,6 +200,7 @@ export function AccountPage() {
             >
               {ac.edit}
             </button>
+            <PhotoPicker p={p} className="w-full" />
           </div>
         )}
       </Section>

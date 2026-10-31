@@ -337,8 +337,10 @@ export const hub = {
     mergeAsk: (a: string, b: string, n: number) =>
       `Merge ${a} into ${b}? ${plural(n, 'game')} will count for ${b}.`,
     merged: 'Players merged',
+    mergeTogether: 'They played at the same table, so they are two people. Not merged.',
     rename: 'Rename',
     email: 'Email',
+    editPlayer: 'Edit',
     noEmail: 'No email yet',
     counts: {
       users: 'Users',
@@ -386,6 +388,23 @@ export const hub = {
     emailAtTable: 'Someone at this table already has that email.',
     useSuggestion: (s: string) => `Use “${s}”`,
     view: 'View',
+  },
+  photo: {
+    add: 'Add photo',
+    change: 'Change photo',
+    remove: 'Remove photo',
+    busy: 'Saving…',
+    choose: (name: string) => `Choose a photo for ${name}`,
+    saved: 'Photo saved',
+    removed: 'Photo removed',
+    offline: 'Photos need a connection. Try again when you’re online.',
+    unreadable: 'That photo couldn’t be read. Try a JPEG or PNG.',
+    errors: {
+      forbidden: 'Only the player, whoever added them, or the admin can change this photo.',
+      too_large: 'That photo is too big.',
+      unsupported_media_type: 'Send a JPEG, PNG or WebP photo.',
+      not_found: 'That player is no longer in the registry.',
+    } as Record<string, string>,
   },
   inbox: {
     rejected: (reason: string) =>

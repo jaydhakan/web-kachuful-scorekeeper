@@ -159,6 +159,18 @@ export const rememberSame = (id: string) =>
     fetchedAt: Date.now(),
   });
 
+/** Who may change a player's email or photo (HANDOFF §5.7): the admin, its creator and its linked user. */
+export const mayEdit = (
+  p: Pick<PlayerRec, 'createdBy' | 'linkedUserId'>,
+  user: { id: string; role: string } | null | undefined,
+) => !!user && (user.role === 'admin' || p.createdBy === user.id || p.linkedUserId === user.id);
+
+/** Keeps a server answer about a player (a new photo, a new email) in the registry copy. */
+export function keepPlayer(id: string, patch: Partial<PlayerRec>) {
+  const p = archive.get('players', id);
+  if (p) archive.put('players', { ...p, ...patch });
+}
+
 /** Counts one player as another from now on (this device only). */
 export function mergeLocal(fromId: string, intoId: string) {
   const from = archive.get('players', fromId),
