@@ -204,36 +204,39 @@ input {
     0 0 44px 4px var(--glow),
     inset 0 0 44px rgba(0, 0, 0, 0.4);
 }
-.ring-pulse {
-  animation: ringp 1.25s ease-in-out infinite;
+.ring-pulse,
+.warn-pulse {
+  position: relative;
+  box-shadow:
+    0 0 0 3px var(--pulse),
+    0 0 16px var(--pulse);
 }
-@keyframes ringp {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 3px var(--accent),
-      0 0 16px var(--accent);
-  }
-  50% {
-    box-shadow:
-      0 0 0 4px var(--accent),
-      0 0 32px var(--accent);
-  }
+.ring-pulse {
+  --pulse: var(--accent);
 }
 .warn-pulse {
-  animation: warnp 1s ease-in-out infinite;
+  --pulse: var(--warn);
 }
-@keyframes warnp {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 3px var(--warn),
-      0 0 14px var(--warn);
-  }
+/* The brighter ring is drawn once and faded, so the pulse never repaints a shadow. */
+.ring-pulse::after,
+.warn-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 4px var(--pulse),
+    0 0 32px var(--pulse);
+  opacity: 0;
+  pointer-events: none;
+  animation: pulse 1.25s ease-in-out infinite;
+}
+.warn-pulse::after {
+  animation-duration: 1s;
+}
+@keyframes pulse {
   50% {
-    box-shadow:
-      0 0 0 4px var(--warn),
-      0 0 30px var(--warn);
+    opacity: 1;
   }
 }
 .suit-glow {
@@ -260,8 +263,8 @@ input {
   font-feature-settings: 'tnum' 1;
 }
 @media (prefers-reduced-motion: reduce) {
-  .ring-pulse,
-  .warn-pulse,
+  .ring-pulse::after,
+  .warn-pulse::after,
   .suit-glow {
     animation: none;
   }
