@@ -65,11 +65,7 @@ export function Avatar({
   // The photo fills a positioned parent and takes its rounding; callers that place the avatar themselves already are.
   const pos = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className) ? '' : 'relative ';
   return (
-    <span
-      aria-hidden
-      className={`${pos}${className}`}
-      style={{ background: p.color, ...style }}
-    >
+    <span aria-hidden className={`${pos}${className}`} style={{ background: p.color, ...style }}>
       <AvatarFill p={p} />
     </span>
   );
