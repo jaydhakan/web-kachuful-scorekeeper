@@ -1,6 +1,6 @@
 # Responsive plan: every device, every orientation, no clipped text
 
-Written 2026-10-30, on `feat/port` at `fb2401d`. **Status: waiting for approval. No code changes until it is approved.**
+Written 2026-10-30, on `feat/port` at `fb2401d`. **Status: approved 2026-10-30.** The user allowed new dependencies where they improve the app (see D5).
 
 This file is both the spec and the build plan. Read §1–§3 once. §4 and §5 are the design. §6 is the build order, with a check for each step. §7 is how the work is proven.
 
@@ -14,7 +14,7 @@ This file is both the spec and the build plan. Read §1–§3 once. §4 and §5 
 | D2  | Tablet portrait (768×1024): side by side or one column?    | **One centred column, max width 40rem, with a bigger table.** Two panes at 768px wide leave about 500px of empty height. Two panes start at tablet **landscape**.                                                                                                |
 | D3  | Fluid type (`clamp()`) vs. "no off-scale font sizes"       | **Type moves between existing scale steps at breakpoints and container sizes; it never uses in-between sizes.** `clamp()` is used only for spacing, the table, avatars and chips.                                                                                |
 | D4  | Type scale in px or rem                                    | **rem.** Same values at 16px (`text-16` = 1rem), so nothing changes visually by default. Browser and OS text-size settings start to work. Touch targets use `max(44px, 2.75rem)`, so they never go under 44px.                                                   |
-| D5  | Container queries in Tailwind 3                            | **A small local plugin in `tailwind.config.ts`.** The official plugin would be a new dependency. It provides named width variants (`@sm`, `@md`, `@lg`), height variants (`@short`, `@tall`) and arbitrary `@[…]` values.                                        |
+| D5  | Container queries in Tailwind 3                            | **`@tailwindcss/container-queries` (official, dev-only, build time) for width variants (`@sm`, `@md`, `@lg`, `@[…]`).** A few lines in `tailwind.config.ts` add the height variants (`@short`, `@tall`) that the plugin lacks.                                   |
 | D6  | Sheet animation needs to know phone sheet vs. tablet modal | **One `useMediaQuery` hook, used only to pick the enter and exit motion.** It reads the same query strings as Tailwind, exported from one module. All layout stays pure CSS. This is the only JS check in the work.                                              |
 | D7  | Results on wide screens                                    | **The table with made and missed marks sits in the side pane.** This shows data that already exists (`Table` already takes `res`). Hidden on phones.                                                                                                             |
 | D8  | Screenshots                                                | **JPEG contact sheets committed to `reports/responsive/`**, before and after, like `reports/phase2-audit/`. Raw PNGs stay ignored (`.gitignore` already has `reports/**/*.png`).                                                                                 |
@@ -24,7 +24,7 @@ This file is both the spec and the build plan. Read §1–§3 once. §4 and §5 
 | D12 | `Phone.tsx` is a misleading name now                       | **Renamed to `AppShell.tsx` in its own `refactor` commit**, with no other change.                                                                                                                                                                                |
 | D13 | Branch                                                     | **`feat/responsive`, from `feat/port`.** Never pushed unless asked.                                                                                                                                                                                              |
 
-Unchanged: game rules, scoring, saved keys and shapes, token values, springs and easing, CI workflows. No new dependencies. Anything that would touch one of these means **stop and ask**.
+Unchanged: game rules, scoring, saved keys and shapes, token values, springs and easing, CI workflows. New dependencies only where they clearly improve the app (user approval, 2026-10-30). Anything that would touch one of these means **stop and ask**.
 
 ---
 
@@ -323,4 +323,4 @@ These will be reported as **unverified** and need a check on a real device:
 
 ## 9. Out of scope
 
-A marketing page, game rules, scoring, saved data, token values, new dependencies, CI workflow edits, and a native app shell.
+A marketing page, game rules, scoring, saved data, token values, CI workflow edits, and a native app shell.
