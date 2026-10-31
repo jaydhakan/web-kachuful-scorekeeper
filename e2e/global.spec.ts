@@ -1,13 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
+import { freshBackend, signIn as signInAs } from './backend';
 import { btn } from './helpers';
 
-// Signed in, boards and player pages read the mock API's seeded week of games.
+// Signed in, boards and player pages read the seeded games (mock API, or a real backend with E2E_API=local).
+freshBackend();
 async function signIn(page: Page) {
-  await page.goto('/');
-  await btn(page, 'Sign in').click();
-  await page.getByLabel('Email').fill('jaydhakan11@gmail.com');
-  await page.getByLabel('Password', { exact: true }).fill('kachuful');
-  await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
+  await signInAs(page, 'admin');
   await expect(page.getByText(/Signed in as/)).toBeVisible();
 }
 

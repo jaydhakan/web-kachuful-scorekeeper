@@ -1,15 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
+import { freshBackend, signIn } from './backend';
 import { btn, giveEmail } from './helpers';
 
-// Live and recap links against the in-memory mock API (tools/mock-api).
+// Live and recap links (mock API, or a real backend with E2E_API=local).
+freshBackend();
 const uniq = () => Math.random().toString(36).slice(2, 7);
 
 async function signedInGame(page: Page) {
-  await page.goto('/');
-  await btn(page, 'Sign in').click();
-  await page.getByLabel('Email').fill('riya@example.com');
-  await page.getByLabel('Password', { exact: true }).fill('riya');
-  await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
+  await signIn(page, 'riya');
   await expect(page.getByText(/Signed in as/)).toBeVisible();
   await btn(page, 'New Game').click();
   await btn(page, '3 players').click();

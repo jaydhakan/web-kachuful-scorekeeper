@@ -1,29 +1,20 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { ACCOUNTS, freshBackend, makeInvite, makeResetLink, signIn } from './backend';
 import { btn } from './helpers';
 
-// Runs against the in-memory mock API that the e2e server serves (tools/mock-api).
-const ADMIN = { email: 'jaydhakan11@gmail.com', password: 'kachuful' };
+// Accounts against the mock API, or a real backend with E2E_API=local (e2e/backend.ts).
+freshBackend();
 const uniq = () => `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-
-async function signIn(page: Page, email: string, password: string) {
-  await page.goto('/');
-  await btn(page, 'Sign in').click();
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
-}
-
-const mock = (page: Page, path: string, data: unknown) =>
-  page.request.post(`/api/__mock/${path}`, { data }).then((r) => r.json());
+const path = (url: string) => url.replace(/^https?:\/\/[^/]+/, '');
 
 test('a wrong password says so; the right one signs in and shows the account', async ({ page }) => {
-  await signIn(page, ADMIN.email, 'nope');
+  await signIn(page, { email: ACCOUNTS.admin.email, password: 'nope' });
   await expect(page.getByText("That email and password don't match.")).toBeVisible();
-  await page.getByLabel('Password', { exact: true }).fill(ADMIN.password);
+  await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Signed in as Jay')).toBeVisible();
   await btn(page, 'Account').click();
-  await expect(page.getByText(/Signed in as jaydhakan11@gmail.com/i)).toBeVisible();
+  await expect(page.getByText(/Signed in as admin@kachuful.test/i)).toBeVisible();
   await expect(btn(page, '🛡️ Admin')).toBeVisible();
 });
 
@@ -33,13 +24,13 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
 }) => {
   const email = `${uniq()}@example.com`;
   const name = uniq().slice(0, 10);
-  await signIn(page, ADMIN.email, ADMIN.password);
+  await signIn(page, 'admin');
   await btn(page, 'Account').click();
   await btn(page, '🛡️ Admin').click();
   await btn(page, '✉️ Invite someone').click();
   await page.getByLabel('Their email').fill(email);
   await btn(page, 'Create invite link').click();
-  const url = (await page.locator('code').innerText()).replace('https://play.vectanix.com', '');
+  const url = path(await page.locator('code').innerText());
 
   const other = await browser.newPage();
   await other.goto(url);
@@ -49,11 +40,11 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
   await expect(other.getByText('Use at least 3 characters and no spaces.')).toBeVisible();
   await other.getByLabel('Password', { exact: true }).fill('abc');
   await other.getByLabel('Password again').fill('abc');
-  // A taken name comes back from the server as the same-person question.
+  // A taken name is refused without saying whose it is.
   await other.getByLabel('Name at the table').fill('Kabir');
   await btn(other, 'Set password and start').click();
-  await expect(other.getByText('Is this you?')).toBeVisible();
-  await btn(other, "No, I'm someone else").click();
+  await expect(other.getByText(/That name is taken/)).toBeVisible();
+  await expect(other.getByText('Is this you?')).toBeHidden();
   await other.getByLabel('Name at the table').fill(name);
   await btn(other, 'Set password and start').click();
   await expect(other.getByText(`Signed in as ${name}`)).toBeVisible();
@@ -65,16 +56,14 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
 
 test('a reset link sets a new password', async ({ page }) => {
   const email = `${uniq()}@example.com`;
-  const { token } = await mock(page, 'invite', { email });
-  await page.goto(`/?invite=${token}`);
+  await page.goto(`/?invite=${await makeInvite(page, email)}`);
   await page.getByLabel('Name at the table').fill(uniq().slice(0, 10));
   await page.getByLabel('Password', { exact: true }).fill('first');
   await page.getByLabel('Password again').fill('first');
   await btn(page, 'Set password and start').click();
   // The account chip stays on screen; the toast saying so may be gone under load.
   await expect(page.getByLabel('Account', { exact: true })).toBeVisible();
-  const r = await mock(page, 'reset-link', { email });
-  await page.goto(`/?reset=${r.token}`);
+  await page.goto(`/?reset=${await makeResetLink(page, email)}`);
   await page.getByLabel('Password', { exact: true }).fill('second');
   await page.getByLabel('Password again').fill('second');
   await btn(page, 'Choose a new password').click();
@@ -82,7 +71,8 @@ test('a reset link sets a new password', async ({ page }) => {
 });
 
 test('signing out asks what to keep, then shows Sign in again', async ({ page }) => {
-  await signIn(page, 'riya@example.com', 'riya');
+  await signIn(page, 'riya');
+  await expect(page.getByText(/Signed in as/)).toBeVisible();
   await btn(page, 'Account').click();
   await btn(page, 'Sign out').click();
   await btn(page, 'Keep games on this phone').click();
@@ -90,10 +80,27 @@ test('signing out asks what to keep, then shows Sign in again', async ({ page })
   await expect(page.getByLabel('Sign in', { exact: true })).toBeVisible();
 });
 
-test("an invite to a player's email offers that player straight away", async ({ page }) => {
-  // The mock seeds Meera with meera@example.com and no account.
-  const { token } = await mock(page, 'invite', { email: 'meera@example.com' });
-  await page.goto(`/?invite=${token}`);
+test("an invite to a player's email offers that player, who claims their history", async ({
+  page,
+}) => {
+  // Asha (asha@kachuful.test) is seeded with games and no account.
+  await page.goto(`/?invite=${await makeInvite(page, 'asha@kachuful.test')}`);
   await expect(page.getByText('Is this you?')).toBeVisible();
-  await expect(page.getByText('Meera', { exact: true })).toBeVisible();
+  await expect(page.getByText('Asha', { exact: true })).toBeVisible();
+  await btn(page, "Yes, that's me").click();
+  await page.getByLabel('Password', { exact: true }).fill('asha1');
+  await page.getByLabel('Password again').fill('asha1');
+  await btn(page, 'Set password and start').click();
+  await expect(page.getByText('Signed in as Asha')).toBeVisible();
+});
+
+test('the admin list shows a pending invite, and a new link replaces it', async ({ page }) => {
+  await signIn(page, 'admin');
+  await btn(page, 'Account').click();
+  await btn(page, '🛡️ Admin').click();
+  // seed-demo leaves an invite for new.player@kachuful.test pending.
+  const row = page.locator('li').filter({ hasText: 'new.player@kachuful.test' });
+  await expect(row).toBeVisible();
+  await row.getByRole('button', { name: 'New link' }).click();
+  await expect(page.locator('code')).toContainText('?invite=');
 });
