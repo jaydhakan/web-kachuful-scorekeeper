@@ -276,7 +276,7 @@ export function Table({
                   initial={false}
                   whileTap={onSeat ? { scale: 0.9 } : undefined}
                   transition={SPRING}
-                  className={`relative mx-auto grid place-items-center overflow-hidden rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
+                  className={`relative mx-auto grid place-items-center rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
                   style={{
                     width: av,
                     height: av,

@@ -250,7 +250,7 @@ export function AvatarStack({
       {shown.map((p, i) => (
         <span
           key={i}
-          className="relative grid shrink-0 place-items-center overflow-hidden rounded-full border-2 border-felt-950"
+          className="relative grid shrink-0 place-items-center rounded-full border-2 border-felt-950"
           style={{
             width: s,
             height: s,

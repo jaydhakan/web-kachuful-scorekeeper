@@ -99,7 +99,7 @@ export default function Winner() {
             >
               <span
                 aria-hidden
-                className={`relative grid place-items-center overflow-hidden rounded-full border-2 ${k === 1 ? 'border-gold text-36 shadow-[0_0_28px_rgba(226,182,83,.6)] land:text-22' : 'border-white/25 text-28 land:text-19'}`}
+                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold text-36 shadow-[0_0_28px_rgba(226,182,83,.6)] land:text-22' : 'border-white/25 text-28 land:text-19'}`}
                 style={{
                   background: x.p.color,
                   width: AVATAR[k].w,

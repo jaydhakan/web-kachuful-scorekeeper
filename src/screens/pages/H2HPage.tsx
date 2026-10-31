@@ -86,7 +86,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
         aria-hidden
         animate={rm ? undefined : { scale: [1, 1.12, 1] }}
         transition={{ delay: 0.45, duration: 0.35 }}
-        className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-full border-2 border-white/20 text-44"
+        className="relative grid h-20 w-20 place-items-center rounded-full border-2 border-white/20 text-44"
         style={{ background: w.color }}
       >
         <AvatarFill p={w} />

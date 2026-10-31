@@ -98,7 +98,7 @@ export function DeskWinner() {
             >
               <span
                 aria-hidden
-                className={`relative grid place-items-center overflow-hidden rounded-full border-[3px] ${s.ring}`}
+                className={`relative grid place-items-center rounded-full border-[3px] ${s.ring}`}
                 style={{
                   width: m.length > 1 ? s.av * 0.7 : s.av,
                   height: m.length > 1 ? s.av * 0.7 : s.av,

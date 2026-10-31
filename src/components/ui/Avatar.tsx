@@ -25,7 +25,7 @@ export function usePhoto(p: Face): string | null {
 
 /**
  * What goes inside an avatar: the emoji, with the photo over it once loaded (it fades in; reduced motion shows it at
- * once). Its container must be positioned and clip its overflow; `Avatar` is that container.
+ * once). Its container must be positioned; the photo takes its rounding. `Avatar` is that container.
  */
 export function AvatarFill({ p }: { p: Face }) {
   const url = usePhoto(p);
@@ -62,12 +62,12 @@ export function Avatar({
   className?: string;
   style?: CSSProperties;
 }) {
-  // A positioned parent holds the photo; callers that place the avatar themselves already are.
+  // The photo fills a positioned parent and takes its rounding; callers that place the avatar themselves already are.
   const pos = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className) ? '' : 'relative ';
   return (
     <span
       aria-hidden
-      className={`${pos}overflow-hidden ${className}`}
+      className={`${pos}${className}`}
       style={{ background: p.color, ...style }}
     >
       <AvatarFill p={p} />
