@@ -28,34 +28,37 @@ export function Scaffold({
   scrollRef,
 }: ScaffoldProps) {
   const inner = useRef<HTMLDivElement>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const hasBar = !!bar;
   const owner = useId();
+  const ref = scrollRef || inner;
   // The scroll body and the toast clear the bar by its real height, which grows with the note and the home indicator.
   useEffect(() => {
     const el = barRef.current,
-      root = rootRef.current;
-    if (!el || !root || typeof ResizeObserver === 'undefined') return;
-    const app = root.closest<HTMLElement>('.app-root');
+      body = ref.current;
+    if (!el || !body || typeof ResizeObserver === 'undefined') return;
+    const anchor = body.closest('.app-root')?.querySelector<HTMLElement>('[data-bar-anchor]');
+    let last = 0;
     const ro = new ResizeObserver(([e]) => {
-      const h = `${Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight)}px`;
-      root.style.setProperty('--bar-h', h);
-      if (!app) return;
-      app.style.setProperty('--bar-h', h);
-      app.dataset.barOwner = owner;
+      const h = Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight);
+      if (h === last) return;
+      last = h;
+      // Written to the two elements that use it: a variable on the root would restyle the whole app.
+      body.style.paddingBottom = `${h + 24}px`;
+      if (!anchor) return;
+      anchor.style.setProperty('--bar-h', `${h}px`);
+      anchor.dataset.barOwner = owner;
     });
     ro.observe(el);
     return () => {
       ro.disconnect();
       // Screens overlap while they cross-fade; only the screen that set the value may clear it.
-      if (app?.dataset.barOwner === owner) {
-        app.style.removeProperty('--bar-h');
-        delete app.dataset.barOwner;
+      if (anchor?.dataset.barOwner === owner) {
+        anchor.style.removeProperty('--bar-h');
+        delete anchor.dataset.barOwner;
       }
     };
-  }, [hasBar, owner]);
-  const ref = scrollRef || inner;
+  }, [hasBar, owner, ref]);
   const { scrollY } = useScroll({ container: ref });
   const navO = useTransform(scrollY, [24, 64], [0, 1]);
   const topBg = useTransform(scrollY, [0, 40], [0, 1]);
@@ -64,13 +67,13 @@ export function Scaffold({
   const lgS = useTransform(scrollY, [0, 80], [1, 0.94]);
   const rm = useReducedMotion();
   return (
-    <div ref={rootRef} className={`absolute inset-0 overflow-hidden ${className}`}>
+    <div className={`absolute inset-0 overflow-hidden ${className}`}>
       <div
         ref={ref}
         tabIndex={0}
         role="region"
         aria-label={t.common.content}
-        className="no-scroll absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-[calc(var(--bar-h,96px)+24px)] pt-[calc(64px+var(--sat))]"
+        className="no-scroll absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-[120px] pt-[calc(64px+var(--sat))]"
       >
         {title && (
           <motion.h1
