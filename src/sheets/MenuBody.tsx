@@ -22,6 +22,15 @@ export function MenuBody() {
     ['📊', t.sheets.menu.board, () => actions.openSheet({ type: 'board' })],
     ['🗓️', t.sheets.menu.upcoming, () => actions.openSheet({ type: 'upcoming' })],
     ['↩️', t.sheets.menu.undo, () => actions.undo()],
+    ...(state.session
+      ? [
+          ['🔗', t.hub.share.links, () => actions.openSheet({ type: 'share' })] as [
+            string,
+            string,
+            () => void,
+          ],
+        ]
+      : []),
     [
       '🏁',
       t.sheets.menu.end,

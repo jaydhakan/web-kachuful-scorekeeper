@@ -5,6 +5,7 @@ import { drawShareCanvas } from '@/lib/shareImage';
 import { shareText } from '@/lib/shareText';
 import { useApp } from '@/state/store';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { ShareLinks } from '@/components/ShareLinks';
 import { t } from '@/strings';
 
 export default function ShareBody() {
@@ -56,6 +57,7 @@ export default function ShareBody() {
           {direct ? t.sheets.shareDirect : t.sheets.shareSave}
         </PrimaryButton>
       </div>
+      <ShareLinks />
     </div>
   );
 }
