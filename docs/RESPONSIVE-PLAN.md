@@ -117,7 +117,7 @@ phone portrait          land / wide
 - Seat labels: at least `text-13`, stepping up on large tables. They keep `trunc` and gain the full name as the accessible name and a tooltip.
 - **Moving elements** (deal cards, spin token, the arrow) are positioned by translating a full-size wrapper by `x/W·100%` and `y/H·100%`. That is transform-only and needs no measuring.
 - **7 players:** label placement (not seat positions) is adjusted where needed, for example labels on the top seats sit above the avatar. The existing overlap test is extended to cover label vs. label and label vs. bubble at every viewport.
-- The minimum scale is 0.72 of the design size. Below that, the area scrolls instead of shrinking further.
+- The minimum scale is 0.72 of the design size, or 0.8 with seven players, whose 13px labels need the room (found by the overlap test, step 12). Below that, the area scrolls instead of shrinking further.
 - In `wide`, the Bidding, Play and Summary tables use the `full` geometry (the mini table looks flat at large sizes). Phones keep today's choice.
 
 ### 4.4 Sheets and modals

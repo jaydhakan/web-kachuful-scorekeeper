@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
 
-// Design grid of the full table (src/lib/tableGeometry.ts) and its minimum scale (.table-fit in index.css).
+// Design grid of the full table (src/lib/tableGeometry.ts); seven players shrink it no further than 0.8×.
 const W = 340,
   H = 300,
-  MIN = 0.72;
+  MIN = 0.8;
 
-test('a fitted table fills its slot both ways, keeps its shape and stops shrinking at 0.72', async ({
+test('a fitted table fills its slot both ways, keeps its shape and stops shrinking at its minimum', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1000, height: 900 });

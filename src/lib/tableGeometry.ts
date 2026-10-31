@@ -35,3 +35,6 @@ export const dpx = (v: number) => `calc(${v} * var(--s))`;
 
 /** The "deals" pill. The seat's chip and the spin token share it, so the token settles exactly on the chip. */
 export const DEALS_PILL = { width: `max(66px, ${dpx(66)})`, height: `max(20px, ${dpx(20)})` };
+
+/** How far a fitted table may shrink; seven seats need more room for their 13px labels than fewer do. */
+export const minScale = (players: number) => (players >= 7 ? 0.8 : 0.72);
