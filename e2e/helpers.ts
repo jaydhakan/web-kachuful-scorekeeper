@@ -50,3 +50,14 @@ export async function bidEveryone(page: Page) {
     await page.waitForTimeout(350);
   }
 }
+
+/** A new player, signed in, needs an email before taking the seat. */
+export async function giveEmail(
+  page: Page,
+  name: string,
+  email = `${name.toLowerCase()}@test.dev`,
+) {
+  const field = page.getByLabel(`${name}'s email`);
+  await field.fill(email);
+  await field.press('Enter');
+}

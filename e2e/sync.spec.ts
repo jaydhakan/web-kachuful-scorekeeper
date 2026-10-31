@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
-import { bidEveryone, btn } from './helpers';
+import { bidEveryone, btn, giveEmail } from './helpers';
 
 // Signed-in play against the in-memory mock API (tools/mock-api).
 const uniq = () => Math.random().toString(36).slice(2, 7);
@@ -29,7 +29,7 @@ async function seat(page: Page, names: string[]) {
       // Kabir is already on the server: same person?
       await expect(page.getByText('Is this the same Kabir?')).toBeVisible();
       await btn(page, 'Yes, same person').click();
-    }
+    } else await giveEmail(page, n);
     await page.waitForTimeout(150);
   }
   await btn(page, 'Next').click();
@@ -67,4 +67,28 @@ test('first sign-in offers to add the games already on this phone', async ({ pag
   await expect(page.getByText(/on this phone\. Add them to your account\?/)).toBeVisible();
   await btn(page, 'Not now').click();
   await expect(page.getByText(/Add them to your account/)).toBeHidden();
+});
+
+test("an email that already belongs to a player asks whether it's the same person", async ({
+  page,
+}) => {
+  await signIn(page);
+  await btn(page, 'New Game').click();
+  await btn(page, '3 players').click();
+  await btn(page, 'Next').click();
+  const input = page.getByLabel('Player name');
+  const nick = 'Kb' + uniq();
+  await input.fill(nick);
+  await input.press('Enter');
+  await giveEmail(page, nick, 'kabir@example.com');
+  await expect(page.getByText("That email is Kabir's. Same person?")).toBeVisible();
+  await btn(page, 'Yes, same person').click();
+  await expect(page.getByText('1 of 3 seated')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Kabir/ }).first()).toBeVisible();
+  // A bad email is caught before asking the server.
+  const other = 'Zz' + uniq();
+  await input.fill(other);
+  await input.press('Enter');
+  await giveEmail(page, other, 'not-an-email');
+  await expect(page.getByText('That doesn’t look like an email.')).toBeVisible();
 });

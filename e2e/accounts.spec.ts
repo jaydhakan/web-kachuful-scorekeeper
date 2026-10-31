@@ -71,7 +71,8 @@ test('a reset link sets a new password', async ({ page }) => {
   await page.getByLabel('Password', { exact: true }).fill('first');
   await page.getByLabel('Password again').fill('first');
   await btn(page, 'Set password and start').click();
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  // The account chip stays on screen; the toast saying so may be gone under load.
+  await expect(page.getByLabel('Account', { exact: true })).toBeVisible();
   const r = await mock(page, 'reset-link', { email });
   await page.goto(`/?reset=${r.token}`);
   await page.getByLabel('Password', { exact: true }).fill('second');
@@ -87,4 +88,12 @@ test('signing out asks what to keep, then shows Sign in again', async ({ page })
   await btn(page, 'Keep games on this phone').click();
   await expect(page.getByText('Signed out')).toBeVisible();
   await expect(page.getByLabel('Sign in', { exact: true })).toBeVisible();
+});
+
+test("an invite to a player's email offers that player straight away", async ({ page }) => {
+  // The mock seeds Meera with meera@example.com and no account.
+  const { token } = await mock(page, 'invite', { email: 'meera@example.com' });
+  await page.goto(`/?invite=${token}`);
+  await expect(page.getByText('Is this you?')).toBeVisible();
+  await expect(page.getByText('Meera', { exact: true })).toBeVisible();
 });

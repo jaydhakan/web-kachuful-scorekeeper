@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { btn } from './helpers';
+import { btn, giveEmail } from './helpers';
 
 // Live and recap links against the in-memory mock API (tools/mock-api).
 const uniq = () => Math.random().toString(36).slice(2, 7);
@@ -17,6 +17,7 @@ async function signedInGame(page: Page) {
   for (const n of ['Lu' + uniq(), 'Mo' + uniq(), 'Ny' + uniq()]) {
     await page.getByLabel('Player name').fill(n);
     await page.getByLabel('Player name').press('Enter');
+    await giveEmail(page, n);
     await page.waitForTimeout(150);
   }
   await btn(page, 'Next').click();
