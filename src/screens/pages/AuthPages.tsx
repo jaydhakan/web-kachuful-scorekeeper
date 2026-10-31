@@ -127,7 +127,6 @@ export function InvitePage({ token }: { token: string }) {
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
   const [look, setLook] = useState({ emoji: EMOJIS[0], color: COLORS[0] });
-  const [check, setCheck] = useState<'free' | PlayerSummary | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const pw = usePasswordPair();
@@ -147,23 +146,7 @@ export function InvitePage({ token }: { token: string }) {
     };
   }, [token]);
 
-  // Signed in (an admin trying a link), the name is checked as it is typed; otherwise a clash comes back on submit.
-  const { state, actions } = useApp();
-  const canCheck = !!state.session;
-  useEffect(() => {
-    const k = nameKey(name);
-    if (!k || !canCheck) return setCheck(null);
-    const ctl = new AbortController();
-    const tm = setTimeout(() => {
-      ep.checkPlayer({ name }, { signal: ctl.signal })
-        .then((r) => setCheck(r.available ? 'free' : r.existing))
-        .catch(() => setCheck(null));
-    }, 250);
-    return () => {
-      clearTimeout(tm);
-      ctl.abort();
-    };
-  }, [name, canCheck]);
+  const { actions } = useApp();
 
   if (st.k === 'loading')
     return (
@@ -179,13 +162,8 @@ export function InvitePage({ token }: { token: string }) {
       </Page>
     );
 
-  const clash = check && check !== 'free' ? check : null;
-  const offer =
-    claim && !declined.includes(claim.id)
-      ? claim
-      : clash && !declined.includes(clash.id)
-        ? clash
-        : null;
+  // The server offers the invite's player, or the player with the invite's email; a name clash reveals nobody.
+  const offer = claim && !declined.includes(claim.id) ? claim : null;
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!pw.value || busy) return;
@@ -195,7 +173,6 @@ export function InvitePage({ token }: { token: string }) {
         : {
             id,
             displayName: tidyName(name),
-            email: st.email,
             ...(first.trim() && { firstName: first.trim() }),
             ...(last.trim() && { lastName: last.trim() }),
             ...look,
@@ -209,14 +186,12 @@ export function InvitePage({ token }: { token: string }) {
       actions.navReset();
       actions.say(a.signedIn(r.player.displayName));
     } catch (x) {
-      if (x instanceof ApiError && x.code === 'name_taken' && x.body.existing)
-        setCheck(x.body.existing as PlayerSummary);
       setErr(authError(x));
     } finally {
       setBusy(false);
     }
   };
-  const ready = !!pw.value && (!!(offer && claim?.id === offer.id) || (!!nameKey(name) && !clash));
+  const ready = !!pw.value && (!!(offer && claim?.id === offer.id) || !!nameKey(name));
   return (
     <Page title={a.inviteTitle}>
       <p className="mb-6 text-16 text-[var(--tx2)]">{a.inviteBody(st.email)}</p>
@@ -281,8 +256,7 @@ export function InvitePage({ token }: { token: string }) {
                 autoCapitalize="words"
                 autoComplete="off"
                 onChange={setName}
-                hint={check === 'free' ? `✓ ${a.nameFree}` : a.displayHint}
-                error={clash ? a.nameTaken(clash.displayName) : ''}
+                hint={a.displayHint}
               />
               <Field
                 label={a.yourEmail}
