@@ -46,7 +46,6 @@ function offenders(): string[] {
 const ALLOWED = new Set<string>([
   'components/ui/IconButton.tsx: whileHover backgroundColor',
   'components/ui/PrimaryButton.tsx: transition-[background,color,box-shadow]',
-  'screens/round/Bidding.tsx: animate backgroundColor',
   'screens/round/Results.tsx: transition-colors',
   'screens/setup/SetupFrame.tsx: animate width',
   'screens/setup/Step2.tsx: transition-shadow',

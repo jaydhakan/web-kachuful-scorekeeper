@@ -10,7 +10,6 @@ import {
   type Round,
 } from '@/domain';
 import { useApp } from '@/state/store';
-import { palette } from '@/theme/palette';
 import { Glass } from '@/components/ui/Glass';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -86,14 +85,21 @@ export function Bidding() {
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[.08]">
               <motion.div
-                className="h-full origin-left rounded-full"
-                animate={{
-                  scaleX: Math.min(1, sum / r.cards),
-                  backgroundColor: diff > 0 ? palette.warning : palette['accent-spades'],
-                }}
-                style={{ background: diff > 0 ? 'var(--warn)' : 'var(--accent)' }}
+                className="relative h-full origin-left"
+                animate={{ scaleX: Math.min(1, sum / r.cards) }}
                 transition={SPRING}
-              />
+              >
+                <motion.i
+                  className="absolute inset-0 bg-[var(--accent)]"
+                  animate={{ opacity: diff > 0 ? 0 : 1 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                />
+                <motion.i
+                  className="absolute inset-0 bg-[var(--warn)]"
+                  animate={{ opacity: diff > 0 ? 1 : 0 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                />
+              </motion.div>
             </div>
           </div>
           <div
