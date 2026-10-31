@@ -53,7 +53,7 @@ The app stays **offline-first**: the phone is the source of truth while playing 
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Runtime        | Python 3.12, managed with `uv`                                                                                                           |
 | Web            | FastAPI, Pydantic v2, Uvicorn (2–4 workers behind gunicorn, or plain uvicorn under systemd)                                              |
-| DB             | PostgreSQL 16, SQLAlchemy 2.0 (async) + asyncpg, Alembic migrations, the `citext` and `pg_trgm` extensions                                              |
+| DB             | PostgreSQL 16, SQLAlchemy 2.0 (async) + asyncpg, Alembic migrations, the `citext` and `pg_trgm` extensions                               |
 | Passwords      | `argon2-cffi` (argon2id)                                                                                                                 |
 | Live updates   | Server-Sent Events (`StreamingResponse`), fanned out with Postgres `LISTEN/NOTIFY` so any worker can serve a viewer                      |
 | Scheduled jobs | systemd timers calling CLI commands (auto-end games, daily awards, season close). No in-process scheduler.                               |

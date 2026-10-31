@@ -6,6 +6,7 @@ STEP 1: Create CLAUDE.md for this new project, following how I already work.
 
 My existing Python repo is at: <PATH TO YOUR EXISTING PYTHON REPO>
 Read it, but don't change anything there:
+
 - its CLAUDE.md (and README, CONTRIBUTING, docs) first
 - then pyproject/requirements, lint, format and type-check configs, pre-commit, Makefile or
   scripts, CI workflows, Docker/compose, and migrations setup
@@ -20,9 +21,10 @@ git and CI habits. Where its docs and its code disagree, follow the code.
 Then write this repo's CLAUDE.md in the same style as that repo's CLAUDE.md, combining:
 (A) the standards you found there, which are the primary source for general style; and
 (B) the Kachuful project rules between the two ===== lines below, which always apply.
-    For general style, (B) only fills gaps that (A) doesn't cover.
+For general style, (B) only fills gaps that (A) doesn't cover.
 
 How to merge:
+
 - Where (A) and (B) disagree on general style (naming, layout, tooling, test style), follow (A).
 - Where (A) conflicts with a product or stack decision in plan-backend.md (FastAPI + PostgreSQL,
   same-origin /api, cookie sessions, frozen contract, camelCase JSON on the wire), the plan wins.
@@ -32,6 +34,7 @@ How to merge:
   writing any code.
 
 =====
+
 # Kachuful API: working notes
 
 Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com). Invite-only accounts, sync of
@@ -83,13 +86,13 @@ nothing from `app`. `repositories` never import `services`.
 
 ## Reuse before you write
 
-| Need                         | Use                                                    |
-| ---------------------------- | ------------------------------------------------------ |
-| Game rules, scores, stats    | `app/domain` (pure; parity proven by golden fixtures)  |
-| Errors to clients            | `ApiError(status, code, message, **extra)`             |
-| Time conversion              | `app/domain/time.py` (epoch ms ⇄ aware UTC; APP_TZ days) |
-| Name uniqueness              | `domain.names.name_key()`                              |
-| Settings                     | `app.settings.settings`                                |
+| Need                      | Use                                                      |
+| ------------------------- | -------------------------------------------------------- |
+| Game rules, scores, stats | `app/domain` (pure; parity proven by golden fixtures)    |
+| Errors to clients         | `ApiError(status, code, message, **extra)`               |
+| Time conversion           | `app/domain/time.py` (epoch ms ⇄ aware UTC; APP_TZ days) |
+| Name uniqueness           | `domain.names.name_key()`                                |
+| Settings                  | `app.settings.settings`                                  |
 
 ## Naming
 
@@ -120,7 +123,7 @@ nothing from `app`. `repositories` never import `services`.
   never computed on read.
 - One `ApiError` handler: no stack traces or SQL in responses.
 - Logs are structured JSON, never passwords, tokens or cookies; no `print`.
-- **Comments: 1–3 lines**, non-obvious *why* only. One-line docstrings on public functions. No
+- **Comments: 1–3 lines**, non-obvious _why_ only. One-line docstrings on public functions. No
   section banners and no commented-out code.
 - **No temporary fixes.** Fix the root cause or say where the fix belongs.
 
@@ -148,9 +151,10 @@ nothing from `app`. `repositories` never import `services`.
 - If a change touches more than about 3 files, outline the plan first.
 - **Definition of done:** `make verify` is green, the migration is applied on staging, `HANDOFF.md`
   is updated, and anything stubbed, mocked or unverified is said plainly.
-=====
+  \=====
 
 STEP 2: Read plan-backend.md completely. It is the agreed plan:
+
 - §2 decisions are final; don't reopen them without asking me.
 - §6 is the API contract. It is frozen: if something looks wrong or missing, stop and tell me,
   because the app is being built against it right now.
