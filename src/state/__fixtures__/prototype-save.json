@@ -1,0 +1,221 @@
+{
+  "kachuful.v1": {
+    "id": "demo",
+    "createdAt": 1767265200000,
+    "updatedAt": 1767268800000,
+    "players": [
+      {
+        "id": "p0",
+        "name": "Aarav",
+        "emoji": "🦁",
+        "color": "#FF8A65"
+      },
+      {
+        "id": "p1",
+        "name": "Riya",
+        "emoji": "🐯",
+        "color": "#4FC3F7"
+      },
+      {
+        "id": "p2",
+        "name": "Kabir",
+        "emoji": "🦊",
+        "color": "#FFD54F"
+      },
+      {
+        "id": "p3",
+        "name": "Meera",
+        "emoji": "🐼",
+        "color": "#81C784"
+      },
+      {
+        "id": "p4",
+        "name": "Dev",
+        "emoji": "🐸",
+        "color": "#BA68C8"
+      }
+    ],
+    "direction": "cw",
+    "firstDealerIndex": 0,
+    "maxCards": 10,
+    "lengthMode": "endless",
+    "rounds": [
+      {
+        "index": 0,
+        "cards": 3,
+        "trump": "spades",
+        "dealerIndex": 0,
+        "firstPlayerIndex": 1,
+        "bids": {
+          "p0": 1,
+          "p1": 1,
+          "p2": 0,
+          "p3": 0,
+          "p4": 0
+        },
+        "results": {
+          "p0": "made",
+          "p1": "made",
+          "p2": "made",
+          "p3": "missed",
+          "p4": "made"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done"
+      },
+      {
+        "index": 1,
+        "cards": 4,
+        "trump": "diamonds",
+        "dealerIndex": 1,
+        "firstPlayerIndex": 2,
+        "bids": {
+          "p0": 1,
+          "p1": 1,
+          "p2": 2,
+          "p3": 1,
+          "p4": 0
+        },
+        "results": {
+          "p0": "missed",
+          "p1": "missed",
+          "p2": "made",
+          "p3": "missed",
+          "p4": "made"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done"
+      },
+      {
+        "index": 2,
+        "cards": 5,
+        "trump": "clubs",
+        "dealerIndex": 2,
+        "firstPlayerIndex": 3,
+        "bids": {
+          "p0": 1,
+          "p1": 1,
+          "p2": 1,
+          "p3": 2,
+          "p4": 1
+        },
+        "results": {
+          "p0": "made",
+          "p1": "made",
+          "p2": "missed",
+          "p3": "made",
+          "p4": "made"
+        },
+        "tricks": null,
+        "hookHits": 1,
+        "phase": "done"
+      },
+      {
+        "index": 3,
+        "cards": 6,
+        "trump": "hearts",
+        "dealerIndex": 3,
+        "firstPlayerIndex": 4,
+        "bids": {
+          "p0": 1,
+          "p1": 2,
+          "p2": 0,
+          "p3": 1,
+          "p4": 3
+        },
+        "results": {
+          "p0": "made",
+          "p1": "made",
+          "p2": "made",
+          "p3": "missed",
+          "p4": "missed"
+        },
+        "tricks": null,
+        "hookHits": 2,
+        "phase": "done"
+      },
+      {
+        "index": 4,
+        "cards": 7,
+        "trump": "spades",
+        "dealerIndex": 4,
+        "firstPlayerIndex": 0,
+        "bids": {
+          "p0": 2,
+          "p1": 2,
+          "p2": 1,
+          "p3": 1,
+          "p4": 2
+        },
+        "results": {
+          "p0": "made",
+          "p1": "missed",
+          "p2": "made",
+          "p3": "missed",
+          "p4": "made"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done"
+      },
+      {
+        "index": 5,
+        "cards": 8,
+        "trump": "diamonds",
+        "dealerIndex": 0,
+        "firstPlayerIndex": 1,
+        "bids": {
+          "p0": 3,
+          "p1": 3,
+          "p2": 2,
+          "p3": 1,
+          "p4": 1
+        },
+        "results": {
+          "p0": "missed",
+          "p1": "missed",
+          "p2": "made",
+          "p3": "missed",
+          "p4": "made"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done"
+      },
+      {
+        "index": 6,
+        "cards": 9,
+        "trump": "clubs",
+        "dealerIndex": 1,
+        "firstPlayerIndex": 2,
+        "bids": {
+          "p2": 2,
+          "p3": 3,
+          "p4": 1
+        },
+        "results": {},
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "bidding"
+      }
+    ],
+    "status": "active",
+    "ui": {
+      "view": "round",
+      "bidIdx": 3
+    }
+  },
+  "kachuful.undo": [
+    "{\"id\":\"demo\",\"createdAt\":1767265200000,\"updatedAt\":1767268080000,\"players\":[{\"id\":\"p0\",\"name\":\"Aarav\",\"emoji\":\"🦁\",\"color\":\"#FF8A65\"},{\"id\":\"p1\",\"name\":\"Riya\",\"emoji\":\"🐯\",\"color\":\"#4FC3F7\"},{\"id\":\"p2\",\"name\":\"Kabir\",\"emoji\":\"🦊\",\"color\":\"#FFD54F\"},{\"id\":\"p3\",\"name\":\"Meera\",\"emoji\":\"🐼\",\"color\":\"#81C784\"},{\"id\":\"p4\",\"name\":\"Dev\",\"emoji\":\"🐸\",\"color\":\"#BA68C8\"}],\"direction\":\"cw\",\"firstDealerIndex\":0,\"maxCards\":10,\"lengthMode\":\"endless\",\"rounds\":[{\"index\":0,\"cards\":3,\"trump\":\"spades\",\"dealerIndex\":0,\"firstPlayerIndex\":1,\"bids\":{\"p0\":1,\"p1\":1,\"p2\":0,\"p3\":0,\"p4\":0},\"results\":{\"p0\":\"made\",\"p1\":\"made\",\"p2\":\"made\",\"p3\":\"missed\",\"p4\":\"made\"},\"tricks\":null,\"hookHits\":0,\"phase\":\"done\"},{\"index\":1,\"cards\":4,\"trump\":\"diamonds\",\"dealerIndex\":1,\"firstPlayerIndex\":2,\"bids\":{\"p0\":1,\"p1\":1,\"p2\":2,\"p3\":1,\"p4\":0},\"results\":{\"p0\":\"missed\",\"p1\":\"missed\",\"p2\":\"made\",\"p3\":\"missed\",\"p4\":\"made\"},\"tricks\":null,\"hookHits\":0,\"phase\":\"done\"},{\"index\":2,\"cards\":5,\"trump\":\"clubs\",\"dealerIndex\":2,\"firstPlayerIndex\":3,\"bids\":{\"p0\":1,\"p1\":1,\"p2\":1,\"p3\":2,\"p4\":1},\"results\":{\"p0\":\"made\",\"p1\":\"made\",\"p2\":\"missed\",\"p3\":\"made\",\"p4\":\"made\"},\"tricks\":null,\"hookHits\":1,\"phase\":\"done\"},{\"index\":3,\"cards\":6,\"trump\":\"hearts\",\"dealerIndex\":3,\"firstPlayerIndex\":4,\"bids\":{\"p0\":1,\"p1\":2,\"p2\":0,\"p3\":1,\"p4\":3},\"results\":{\"p0\":\"made\",\"p1\":\"made\",\"p2\":\"made\",\"p3\":\"missed\",\"p4\":\"missed\"},\"tricks\":null,\"hookHits\":2,\"phase\":\"done\"},{\"index\":4,\"cards\":7,\"trump\":\"spades\",\"dealerIndex\":4,\"firstPlayerIndex\":0,\"bids\":{\"p0\":2,\"p1\":2,\"p2\":1,\"p3\":1,\"p4\":2},\"results\":{\"p0\":\"made\",\"p1\":\"missed\",\"p2\":\"made\",\"p3\":\"missed\",\"p4\":\"made\"},\"tricks\":null,\"hookHits\":0,\"phase\":\"done\"},{\"index\":5,\"cards\":8,\"trump\":\"diamonds\",\"dealerIndex\":0,\"firstPlayerIndex\":1,\"bids\":{\"p0\":3,\"p1\":3,\"p2\":2,\"p3\":1,\"p4\":1},\"results\":{\"p0\":\"missed\",\"p1\":\"missed\",\"p2\":\"made\",\"p3\":\"missed\",\"p4\":\"made\"},\"tricks\":null,\"hookHits\":0,\"phase\":\"done\"},{\"index\":6,\"cards\":9,\"trump\":\"clubs\",\"dealerIndex\":1,\"firstPlayerIndex\":2,\"bids\":{\"p2\":2,\"p3\":3},\"results\":{},\"tricks\":null,\"hookHits\":0,\"phase\":\"bidding\"}],\"status\":\"active\",\"ui\":{\"view\":\"round\",\"bidIdx\":2}}"
+  ],
+  "kachuful.screen": "round",
+  "kachuful.lastGroup": {
+    "names": ["Aarav", "Riya", "Kabir", "Meera", "Dev"],
+    "emojis": ["🦁", "🐯", "🦊", "🐼", "🐸"],
+    "colors": ["#FF8A65", "#4FC3F7", "#FFD54F", "#81C784", "#BA68C8"],
+    "direction": "cw"
+  },
+  "kachuful.recentNames": ["Aarav", "Riya", "Kabir", "Meera", "Dev"]
+}

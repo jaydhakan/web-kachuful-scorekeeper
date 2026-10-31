@@ -1,0 +1,197 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
+import { MQ } from '@/theme/breakpoints';
+import { Modal } from './Modal';
+import { Seg } from './Seg';
+import { Sheet } from './Sheet';
+
+function Harness({ kind }: { kind: 'sheet' | 'modal' }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Open</button>
+      {open && kind === 'sheet' && (
+        <Sheet title="Menu" onClose={() => setOpen(false)}>
+          <button>First</button>
+          <button>Last</button>
+        </Sheet>
+      )}
+      {open && kind === 'modal' && (
+        <Modal text="Sure?" ok="Yes" onOk={() => setOpen(false)} onCancel={() => setOpen(false)} />
+      )}
+    </>
+  );
+}
+
+const u = () => userEvent.setup({ pointerEventsCheck: 0 });
+
+describe.each(['sheet', 'modal'] as const)('%s dialog behaviour', (kind) => {
+  it('is a labelled modal dialog and moves focus inside', async () => {
+    const user = u();
+    render(<Harness kind={kind} />);
+    await user.click(screen.getByText('Open'));
+    const d = screen.getByRole(kind === 'sheet' ? 'dialog' : 'alertdialog');
+    expect(d).toHaveAttribute('aria-modal', 'true');
+    expect(d).toHaveAccessibleName();
+    expect(d).toContainElement(document.activeElement as HTMLElement);
+  });
+
+  it('traps Tab inside, in both directions', async () => {
+    const user = u();
+    render(<Harness kind={kind} />);
+    await user.click(screen.getByText('Open'));
+    const d = screen.getByRole(kind === 'sheet' ? 'dialog' : 'alertdialog');
+    for (let i = 0; i < 8; i++) {
+      await user.tab();
+      expect(d).toContainElement(document.activeElement as HTMLElement);
+    }
+    for (let i = 0; i < 8; i++) {
+      await user.tab({ shift: true });
+      expect(d).toContainElement(document.activeElement as HTMLElement);
+    }
+  });
+
+  it('closes on Escape and returns focus to the opener', async () => {
+    const user = u();
+    render(<Harness kind={kind} />);
+    const opener = screen.getByText('Open');
+    await user.click(opener);
+    opener.focus();
+    await user.click(opener);
+    await user.keyboard('{Escape}');
+    await vi.waitFor(() =>
+      expect(
+        screen.queryByRole(kind === 'sheet' ? 'dialog' : 'alertdialog'),
+      ).not.toBeInTheDocument(),
+    );
+    expect(opener).toHaveFocus();
+  });
+});
+
+describe('locked modal', () => {
+  it('ignores Escape so a choice has to be made', async () => {
+    const user = u();
+    const onCancel = vi.fn();
+    render(
+      <Modal
+        locked
+        text="Pick"
+        ok="Reset"
+        cancel="Keep"
+        onOk={() => undefined}
+        onCancel={onCancel}
+      />,
+    );
+    await user.keyboard('{Escape}');
+    expect(onCancel).not.toHaveBeenCalled();
+    await user.click(screen.getByText('Keep'));
+    expect(onCancel).toHaveBeenCalled();
+  });
+});
+
+describe('initial focus', () => {
+  it('lands on the first control inside the sheet, not on its scroll region or close button', () => {
+    render(
+      <Sheet title="Rename" onClose={() => undefined}>
+        <input aria-label="Name" />
+      </Sheet>,
+    );
+    expect(screen.getByLabelText('Name')).toHaveFocus();
+  });
+});
+
+describe('focus return when a click moved focus out of the dialog', () => {
+  it('still goes back to the opener, and a re-render does not steal focus again', () => {
+    const opener = document.createElement('button');
+    document.body.append(opener);
+    opener.focus();
+    const sheet = () => (
+      <Sheet title="Menu" onClose={() => {}}>
+        <button>First</button>
+      </Sheet>
+    );
+    const { rerender } = render(sheet());
+    // A click on the backdrop leaves focus on <body>; the parent then re-renders with a new onClose.
+    (document.activeElement as HTMLElement).blur();
+    rerender(sheet());
+    expect(document.activeElement).toBe(document.body);
+    rerender(<></>);
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+});
+
+describe('opener that lost focus before the dialog mounted', () => {
+  it('is remembered from the pointer or focus, so focus can return to it', () => {
+    // The page behind a dialog goes inert as it mounts, which blurs the trigger before any effect can read it.
+    const opener = document.createElement('button');
+    document.body.append(opener);
+    opener.focus();
+    opener.blur();
+    opener.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    const { rerender } = render(
+      <Sheet title="Menu" onClose={() => {}}>
+        <button>First</button>
+      </Sheet>,
+    );
+    rerender(<></>);
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+});
+
+describe('a dialog where there is room for a modal or panel', () => {
+  const roomy = (q: string) => q === MQ.roomy || q.includes('prefers-reduced-motion');
+  beforeEach(() => {
+    const base = window.matchMedia;
+    window.matchMedia = (q: string) => ({ ...base(q), matches: roomy(q) }) as MediaQueryList;
+  });
+
+  it.each(['modal', 'board', 'panel'] as const)('%s keeps its dialog behaviour', async (roomy) => {
+    const user = u();
+    const onClose = vi.fn();
+    render(
+      <Sheet title="Menu" onClose={onClose} roomy={roomy}>
+        <button>First</button>
+      </Sheet>,
+    );
+    const d = screen.getByRole('dialog');
+    expect(d).toHaveAccessibleName('Menu');
+    expect(d).toContainElement(document.activeElement as HTMLElement);
+    await user.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe('roving option groups inside a sheet', () => {
+  it('Tab wraps from a non-stop option at the end instead of leaving the sheet', async () => {
+    const user = u();
+    render(
+      <>
+        <button>Behind</button>
+        <Sheet title="Pick" onClose={() => undefined}>
+          <Seg
+            uid="t"
+            label="Pick one"
+            value="a"
+            onChange={() => undefined}
+            options={[
+              { v: 'a', label: 'A' },
+              { v: 'b', label: 'B' },
+              { v: 'c', label: 'C' },
+            ]}
+          />
+        </Sheet>
+      </>,
+    );
+    const d = screen.getByRole('dialog');
+    // The group's only Tab stop is A, so it is the last thing Tab can reach; B and C are skipped.
+    for (const name of ['A', 'C']) {
+      screen.getByRole('button', { name }).focus();
+      await user.tab();
+      expect(d).toContainElement(document.activeElement as HTMLElement);
+    }
+    expect(screen.getByRole('button', { name: 'Behind' })).not.toHaveFocus();
+  });
+});

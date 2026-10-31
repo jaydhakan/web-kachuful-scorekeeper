@@ -1,0 +1,15 @@
+/* The prototype names its fonts but ships no @font-face; give it the same files the port self-hosts. */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-weight: 200 800;
+  font-display: block;
+  src: url('../../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2')
+    format('woff2-variations');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-weight: 100 1000;
+  font-display: block;
+  src: url('../../../node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2')
+    format('woff2-variations');
+}

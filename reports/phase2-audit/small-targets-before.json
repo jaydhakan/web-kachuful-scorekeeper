@@ -1,0 +1,1248 @@
+[
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🦁Aarav",
+  "w": 72,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🦁",
+  "w": 32,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🐯Riya",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🐯",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🦊Kabir1st2",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🦊",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🐼Meera3",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🐼",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🐸Dev",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:02-demo-bidding",
+  "label": "🐸",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Lower bid for Riya",
+  "w": 40,
+  "h": 40,
+  "y": 194
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Raise bid for Riya",
+  "w": 40,
+  "h": 40,
+  "y": 194
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 177
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 177
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Lower bid for Kabir",
+  "w": 40,
+  "h": 40,
+  "y": 293
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Raise bid for Kabir",
+  "w": 40,
+  "h": 40,
+  "y": 293
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 276
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 276
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Lower bid for Meera",
+  "w": 40,
+  "h": 40,
+  "y": 392
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Raise bid for Meera",
+  "w": 40,
+  "h": 40,
+  "y": 392
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 375
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 375
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Lower bid for Dev",
+  "w": 40,
+  "h": 40,
+  "y": 491
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Raise bid for Dev",
+  "w": 40,
+  "h": 40,
+  "y": 491
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 474
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 474
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Lower bid for Aarav",
+  "w": 40,
+  "h": 40,
+  "y": 590
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "Raise bid for Aarav",
+  "w": 40,
+  "h": 40,
+  "y": 590
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 573
+ },
+ {
+  "tag": "390:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 573
+ },
+ {
+  "tag": "390:07-setup1-empty",
+  "label": "⟳ Clockwise",
+  "w": 119,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "390:07-setup1-empty",
+  "label": "⟲ Anticlockwise",
+  "w": 147,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "390:08-setup1",
+  "label": "⟳ Clockwise",
+  "w": 119,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "390:08-setup1",
+  "label": "⟲ Anticlockwise",
+  "w": 147,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "390:13-setup3-length",
+  "label": "Endless",
+  "w": 104,
+  "h": 42,
+  "y": 706
+ },
+ {
+  "tag": "390:13-setup3-length",
+  "label": "1 cycle · 16",
+  "w": 104,
+  "h": 42,
+  "y": 706
+ },
+ {
+  "tag": "390:13-setup3-length",
+  "label": "2 cycles · 32",
+  "w": 104,
+  "h": 42,
+  "y": 706
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🦁Aarav",
+  "w": 72,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🦁",
+  "w": 32,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🐯Riya1st",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🐯",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🦊Kabir",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🦊",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🐼Meera",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🐼",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🐸Dev",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:15-bidding-first",
+  "label": "🐸",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🦁Aarav1",
+  "w": 72,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🦁",
+  "w": 32,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🐯Riya1st1",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🐯",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🦊Kabir1",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🦊",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🐼Meera1",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🐼",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🐸Dev1",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:18-bidding-all",
+  "label": "🐸",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "Enter exact tricks",
+  "w": 52,
+  "h": 30,
+  "y": 121
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "390:20-results-empty",
+  "label": "Undo",
+  "w": 66,
+  "h": 42,
+  "y": 695
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "Enter exact tricks",
+  "w": 52,
+  "h": 30,
+  "y": 121
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "390:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "390:22-results-exact",
+  "label": "Enter exact tricks",
+  "w": 52,
+  "h": 30,
+  "y": 121
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🦁Aarav",
+  "w": 72,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🦁",
+  "w": 32,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🐯Riya",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🐯",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🦊Kabir1st2",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🦊",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🐼Meera3",
+  "w": 72,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🐼",
+  "w": 32,
+  "h": 32,
+  "y": 89
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🐸Dev",
+  "w": 72,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "360:02-demo-bidding",
+  "label": "🐸",
+  "w": 32,
+  "h": 32,
+  "y": 164
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Lower bid for Riya",
+  "w": 40,
+  "h": 40,
+  "y": 194
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Raise bid for Riya",
+  "w": 40,
+  "h": 40,
+  "y": 194
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 177
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 177
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Lower bid for Kabir",
+  "w": 40,
+  "h": 40,
+  "y": 293
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Raise bid for Kabir",
+  "w": 40,
+  "h": 40,
+  "y": 293
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 276
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 276
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Lower bid for Meera",
+  "w": 40,
+  "h": 40,
+  "y": 392
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Raise bid for Meera",
+  "w": 40,
+  "h": 40,
+  "y": 392
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 375
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 375
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Lower bid for Dev",
+  "w": 40,
+  "h": 40,
+  "y": 491
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Raise bid for Dev",
+  "w": 40,
+  "h": 40,
+  "y": 491
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 474
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 474
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Lower bid for Aarav",
+  "w": 40,
+  "h": 40,
+  "y": 590
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "Raise bid for Aarav",
+  "w": 40,
+  "h": 40,
+  "y": 590
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✓",
+  "w": 48,
+  "h": 42,
+  "y": 573
+ },
+ {
+  "tag": "360:04-sheet-edit",
+  "label": "✗",
+  "w": 48,
+  "h": 42,
+  "y": 573
+ },
+ {
+  "tag": "360:07-setup1-empty",
+  "label": "⟳ Clockwise",
+  "w": 119,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "360:07-setup1-empty",
+  "label": "⟲ Anticlockwise",
+  "w": 147,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "360:08-setup1",
+  "label": "⟳ Clockwise",
+  "w": 119,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "360:08-setup1",
+  "label": "⟲ Anticlockwise",
+  "w": 147,
+  "h": 42,
+  "y": 567
+ },
+ {
+  "tag": "360:13-setup3-length",
+  "label": "Endless",
+  "w": 94,
+  "h": 42,
+  "y": 623
+ },
+ {
+  "tag": "360:13-setup3-length",
+  "label": "1 cycle · 10",
+  "w": 94,
+  "h": 42,
+  "y": 623
+ },
+ {
+  "tag": "360:13-setup3-length",
+  "label": "2 cycles · 20",
+  "w": 94,
+  "h": 42,
+  "y": 623
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🦁Aarav",
+  "w": 72,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🦁",
+  "w": 32,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐯Riya1st",
+  "w": 72,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐯",
+  "w": 32,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🦊Kabir",
+  "w": 72,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🦊",
+  "w": 32,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐼Meera",
+  "w": 72,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐼",
+  "w": 32,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐸Dev",
+  "w": 72,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐸",
+  "w": 32,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🦄Isha",
+  "w": 72,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🦄",
+  "w": 32,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐙Zoravar…",
+  "w": 72,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:15-bidding-first",
+  "label": "🐙",
+  "w": 32,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🦁Aarav1",
+  "w": 72,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🦁",
+  "w": 32,
+  "h": 32,
+  "y": 194
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐯Riya1st1",
+  "w": 72,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐯",
+  "w": 32,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🦊Kabir1",
+  "w": 72,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🦊",
+  "w": 32,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐼Meera1",
+  "w": 72,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐼",
+  "w": 32,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐸Dev1",
+  "w": 72,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐸",
+  "w": 32,
+  "h": 32,
+  "y": 86
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🦄Isha1",
+  "w": 72,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🦄",
+  "w": 32,
+  "h": 32,
+  "y": 117
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐙Zoravar…1",
+  "w": 72,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:18-bidding-all",
+  "label": "🐙",
+  "w": 32,
+  "h": 32,
+  "y": 179
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "Enter exact tricks",
+  "w": 52,
+  "h": 30,
+  "y": 121
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 543
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 543
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 615
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 615
+ },
+ {
+  "tag": "360:20-results-empty",
+  "label": "Undo",
+  "w": 66,
+  "h": 42,
+  "y": 591
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "Enter exact tricks",
+  "w": 52,
+  "h": 30,
+  "y": 121
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 183
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 255
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 327
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 399
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 471
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 543
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 543
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✓ Made",
+  "w": 85,
+  "h": 42,
+  "y": 615
+ },
+ {
+  "tag": "360:21-results-filled",
+  "label": "✗ Missed",
+  "w": 96,
+  "h": 42,
+  "y": 615
+ },
+ {
+  "tag": "360:22-results-exact",
+  "label": "Enter exact tricks",
+  "w": 52,
+  "h": 30,
+  "y": 121
+ }
+]

@@ -1,0 +1,31 @@
+{
+  "note": "Colours the prototype uses that tokens.json does not define. Needed for pixel parity; propose them upstream into the design system.",
+  "colors": {
+    "sheet": "#0b1f17",
+    "toast": "#1b3a2d",
+    "surface-solid": "#12261d",
+    "ink-gold": "#3a2808",
+    "ink-podium": "#2b2110",
+    "ink-negative": "#2a0509",
+    "tx-rules": "#dfe6e0",
+    "card-face": "#f5f1e8",
+    "card-ink": "#14201a",
+    "card-red": "#d8283a",
+    "podium-silver-light": "#dde5ec",
+    "podium-silver-dark": "#8793a0",
+    "podium-bronze-light": "#e3a57e",
+    "podium-bronze-dark": "#8f5a38",
+    "share-ink": "#1a1a1a",
+    "text-placeholder": "#8a9a92",
+    "negative-text": "#ff8a96"
+  },
+  "backgroundImage": {
+    "gold-gradient": "linear-gradient(135deg, #f7e7a6, #d4a23a 55%, #a8761e)",
+    "gold-gradient-v": "linear-gradient(#f7e7a6, #a8761e)",
+    "silver-gradient-v": "linear-gradient(#dde5ec, #8793a0)",
+    "bronze-gradient-v": "linear-gradient(#e3a57e, #8f5a38)",
+    "card-back": "repeating-linear-gradient(45deg, #8e2b20, #8e2b20 6px, #b5392b 6px, #b5392b 12px)",
+    "card-deal": "repeating-linear-gradient(45deg, #c0392b, #c0392b 3px, #e2b653 3px, #e2b653 4px)",
+    "accent-gradient": "linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 72%, black))"
+  }
+}

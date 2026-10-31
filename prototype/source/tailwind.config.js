@@ -1,0 +1,1 @@
+module.exports = { content: ['./src/**/*.{jsx,js}'], theme: { extend: { transitionTimingFunction: { apple: 'cubic-bezier(0.32,0.72,0,1)' }, colors: { acc: 'var(--accent)' } } }, corePlugins: { preflight: true } };

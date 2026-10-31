@@ -1,0 +1,104 @@
+name: CD Pipeline
+
+# Push-based: every commit on main deploys to production (play.vectanix.com).
+# workflow_dispatch allows a manual re-deploy from the Actions tab.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Let a running deploy finish rather than cancelling it mid-sync.
+concurrency:
+  group: play-deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & Deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://play.vectanix.com
+    env:
+      SITE_URL: https://play.vectanix.com
+      REMOTE_DIR: /var/www/play
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Quality gate: blocks the deploy on any lint, type or test failure.
+      - name: Lint, typecheck & test
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+
+      - name: Build
+        run: npm run build
+
+      # Secrets go through env, never inline in the script.
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          : "${DEPLOY_HOST:?Set the DEPLOY_HOST variable (Variables tab, not Secrets)}"
+          : "${SSH_KEY:?Set the DEPLOY_SSH_KEY secret}"
+          : "${KNOWN_HOSTS:?Set the DEPLOY_KNOWN_HOSTS secret}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host prod
+            HostName $DEPLOY_HOST
+            User deploy
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+          EOF
+
+      # Two passes, like the S3 sync: new hashed assets land first, then the
+      # entry files that reference them (index.html, sw.js), then stale files
+      # are removed. Users never get an index.html pointing at missing assets.
+      - name: Sync to server
+        run: |
+          rsync -rlz --chmod=D755,F644 \
+            --exclude 'index.html' --exclude 'sw.js' \
+            dist/ "prod:$REMOTE_DIR/"
+          rsync -rlz --chmod=D755,F644 --delete-after \
+            dist/ "prod:$REMOTE_DIR/"
+
+      # Confirms the new build is live: the freshly hashed main bundle must load.
+      - name: Smoke test
+        run: |
+          ASSET=$(grep -o 'assets/index-[^"]*\.js' dist/index.html | head -1)
+          curl -fsS --retry 3 --retry-delay 3 -o /dev/null "$SITE_URL/"
+          curl -fsS -o /dev/null "$SITE_URL/sw.js"
+          curl -fsS -o /dev/null "$SITE_URL/$ASSET"
+          echo "Deployed ${GITHUB_SHA::7} to $SITE_URL"
+
+      # Optional: skipped silently if the secret isn't set.
+      - name: Alert on failure
+        if: failure()
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$WEBHOOK" ] && exit 0
+          curl -fsS -H "Content-Type: application/json" \
+            -d "{\"content\":\"🚨 play.vectanix.com deploy failed: $RUN_URL\"}" \
+            "$WEBHOOK"

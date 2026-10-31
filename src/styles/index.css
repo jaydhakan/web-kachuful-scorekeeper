@@ -1,0 +1,292 @@
+/* Self-hosted variable fonts. font-display: block (not swap) so late fonts never reflow the first screen. */
+@font-face {
+  font-family: 'Bricolage Grotesque Variable';
+  font-weight: 200 800;
+  font-display: block;
+  src: url('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque Variable';
+  font-weight: 200 800;
+  font-display: block;
+  src: url('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans Variable';
+  font-weight: 100 1000;
+  font-display: block;
+  src: url('@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans Variable';
+  font-weight: 100 1000;
+  font-display: block;
+  src: url('@fontsource-variable/dm-sans/files/dm-sans-latin-ext-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Every inset reads these, so tests can stand in for a notched phone. */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  /* A phone on its side puts the notch on the left or right. */
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+html,
+body {
+  height: 100%;
+  /* dvh tracks the mobile address bar; plain vh would leave the bar covering the action buttons. */
+  height: 100dvh;
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+body {
+  font-family: theme('fontFamily.sans');
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#root {
+  height: 100%;
+}
+button,
+[role='button'],
+[role='switch'] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+input {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+.disp {
+  font-family: theme('fontFamily.display');
+}
+.app-root {
+  /* clip, not hidden: focus can still scroll a hidden box sideways past the 520px ambient glow. */
+  overflow: hidden;
+  overflow: clip;
+  --accent: theme('colors.accent-spades');
+  --glow: rgba(127, 179, 255, 0.25);
+  --suit: theme('colors.suit-black');
+}
+.gold-text {
+  background: theme('backgroundImage.gold-gradient');
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.scr-bg {
+  background: radial-gradient(
+    120% 52% at 50% 0%,
+    theme('colors.felt-800') 0%,
+    theme('colors.felt-950') 70%
+  );
+}
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 70;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 58%, rgba(0, 0, 0, 0.42)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+}
+.glass {
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    0 18px 48px -12px rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border-radius: 22px;
+}
+.glass-glow {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 56px -8px var(--glow),
+    0 18px 48px -12px rgba(0, 0, 0, 0.55);
+}
+.spot {
+  position: relative;
+  overflow: hidden;
+}
+.spot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.11),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+  pointer-events: none;
+  z-index: 0;
+}
+@media (hover: hover) {
+  .spot:hover::before {
+    opacity: 1;
+  }
+}
+.spot > * {
+  position: relative;
+  z-index: 1;
+}
+.chrome-top {
+  background: linear-gradient(rgba(6, 18, 13, 0.78), rgba(6, 18, 13, 0));
+  -webkit-mask-image: linear-gradient(#000 60%, transparent);
+  mask-image: linear-gradient(#000 60%, transparent);
+}
+.chrome-bot {
+  background: linear-gradient(rgba(6, 18, 13, 0), rgba(6, 18, 13, 0.9) 38%);
+}
+/* A table is drawn on a W×H grid. --u is one grid pixel at the current size; --s is --u capped at 1.5×. */
+.table-box {
+  width: calc(var(--tw) * 1px);
+  aspect-ratio: var(--tw) / var(--th);
+  --u: 1px;
+  --s: 1px;
+}
+/* Fits its slot both ways but never below --min × the grid; browsers without container units keep the fixed size. */
+@supports (width: 1cqw) {
+  .table-fit {
+    width: max(
+      calc(var(--tw) * var(--min) * 1px),
+      min(100cqw, calc(100cqh * var(--tw) / var(--th)))
+    );
+    --u: calc(100cqw / var(--tw));
+    --s: min(var(--u), 1.5px);
+  }
+}
+.felt {
+  background: radial-gradient(ellipse at 50% 38%, var(--felt-hi), var(--felt));
+  box-shadow:
+    0 0 0 3px theme('colors.gold'),
+    0 0 0 4px rgba(0, 0, 0, 0.4),
+    0 0 44px 4px var(--glow),
+    inset 0 0 44px rgba(0, 0, 0, 0.4);
+}
+/* A CSS animation on transform runs on the compositor, so it never competes with a busy main thread. */
+.ambient {
+  transform: translateX(-50%);
+  animation: ambient 8s ease-in-out infinite;
+}
+@keyframes ambient {
+  50% {
+    transform: translateX(-50%) scale(1.08);
+  }
+}
+.ring-pulse,
+.warn-pulse {
+  position: relative;
+  box-shadow:
+    0 0 0 3px var(--pulse),
+    0 0 16px var(--pulse);
+}
+.ring-pulse {
+  --pulse: var(--accent);
+}
+.warn-pulse {
+  --pulse: var(--warn);
+}
+/* The brighter ring is drawn once and faded, so the pulse never repaints a shadow. */
+.ring-pulse::after,
+.warn-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 4px var(--pulse),
+    0 0 32px var(--pulse);
+  opacity: 0;
+  pointer-events: none;
+  animation: pulse 1.25s ease-in-out infinite;
+}
+.warn-pulse::after {
+  animation-duration: 1s;
+}
+@keyframes pulse {
+  50% {
+    opacity: 1;
+  }
+}
+.suit-glow {
+  opacity: 0;
+  animation: pulse 3.2s ease-in-out infinite;
+}
+/* Touch hides the scrollbar; mouse and trackpad get a thin one so scrollable content is discoverable. */
+.scroll-thin {
+  scrollbar-width: none;
+}
+/* Standard properties only: Chrome 121+ ignores ::-webkit-scrollbar once these are set. */
+@media (pointer: fine) {
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, theme('colors.text-secondary') 45%, transparent) transparent;
+  }
+}
+.tick {
+  font-feature-settings: 'tnum' 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ambient,
+  .ring-pulse::after,
+  .warn-pulse::after,
+  .suit-glow {
+    animation: none;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: theme('colors.surface-solid');
+  }
+}
