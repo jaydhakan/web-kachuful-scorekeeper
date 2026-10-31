@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { MQ } from '@/theme/breakpoints';
 import { Modal } from './Modal';
+import { Seg } from './Seg';
 import { Sheet } from './Sheet';
 
 function Harness({ kind }: { kind: 'sheet' | 'modal' }) {
@@ -160,5 +161,37 @@ describe('a dialog where there is room for a modal or panel', () => {
     expect(d).toContainElement(document.activeElement as HTMLElement);
     await user.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe('roving option groups inside a sheet', () => {
+  it('Tab wraps from a non-stop option at the end instead of leaving the sheet', async () => {
+    const user = u();
+    render(
+      <>
+        <button>Behind</button>
+        <Sheet title="Pick" onClose={() => undefined}>
+          <Seg
+            uid="t"
+            label="Pick one"
+            value="a"
+            onChange={() => undefined}
+            options={[
+              { v: 'a', label: 'A' },
+              { v: 'b', label: 'B' },
+              { v: 'c', label: 'C' },
+            ]}
+          />
+        </Sheet>
+      </>,
+    );
+    const d = screen.getByRole('dialog');
+    // The group's only Tab stop is A, so it is the last thing Tab can reach; B and C are skipped.
+    for (const name of ['A', 'C']) {
+      screen.getByRole('button', { name }).focus();
+      await user.tab();
+      expect(d).toContainElement(document.activeElement as HTMLElement);
+    }
+    expect(screen.getByRole('button', { name: 'Behind' })).not.toHaveFocus();
   });
 });

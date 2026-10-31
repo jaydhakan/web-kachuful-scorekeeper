@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { COLORS, EMOJIS, maxFor } from '@/domain';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
 import { EASE, SPRING_POP } from '@/components/ui/motion';
@@ -12,6 +13,7 @@ import { t } from '@/strings';
 export function Step1() {
   const { su, actions } = useSetup();
   const lg = su.lg;
+  const roving = useRovingFocus({ selected: [3, 4, 5, 6, 7].indexOf(su.n ?? 0) });
   return (
     <SetupFrame
       step={1}
@@ -49,13 +51,19 @@ export function Step1() {
           {t.setup.useLastGroup(lg.names)}
         </motion.button>
       )}
-      <div className="my-2 flex justify-center gap-2.5">
+      <div
+        className="my-2 flex justify-center gap-2.5"
+        role="group"
+        aria-label={t.setup.playerCount}
+        {...roving.group}
+      >
         {[3, 4, 5, 6, 7].map((n, i) => (
           <motion.button
             key={n}
             type="button"
             aria-pressed={su.n === n}
             aria-label={t.setup.players(n)}
+            {...roving.item(i)}
             {...stagger(i, 0.05)}
             whileTap={{ scale: 0.92 }}
             onClick={() => {
@@ -107,6 +115,7 @@ export function Step1() {
       <div className="mt-3 flex justify-center">
         <Seg
           uid="dirseg"
+          label={t.setup.directionLabel}
           size="sm"
           value={su.dir}
           onChange={(v) => actions.setupPatch({ dir: v })}

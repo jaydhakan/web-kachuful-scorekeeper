@@ -115,6 +115,7 @@ export function Results() {
               ) : (
                 <Seg<Outcome>
                   uid={'seg' + p.id}
+                  label={t.results.resultFor(p.name)}
                   size="sm"
                   value={res}
                   onChange={(v) => actions.setResult(p.id, v)}

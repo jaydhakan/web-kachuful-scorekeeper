@@ -226,6 +226,7 @@ export function Step3() {
             >
               <Seg<LengthMode>
                 uid="lenseg"
+                label={t.setup.gameLength}
                 size="sm"
                 className="w-full [&>button]:flex-1"
                 value={su.length}

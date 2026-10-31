@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { COLORS, EMOJIS, MOREMOJI } from '@/domain';
 import { useApp } from '@/state/store';
+import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { t } from '@/strings';
 
@@ -88,16 +89,24 @@ export function RenameBody({ k }: { k: number }) {
 export function AvatarBody({ k }: { k: number }) {
   const { state, actions } = useApp();
   const s = state.setup?.seats[k];
+  const emojis = EMOJIS.concat(MOREMOJI);
+  const emojiNav = useRovingFocus({
+    selected: emojis.indexOf(s?.emoji ?? ''),
+    columns: 7,
+    orientation: 'grid',
+  });
+  const colourNav = useRovingFocus({ selected: COLORS.indexOf(s?.color ?? '') });
   if (!s) return null;
   return (
     <>
-      <div className="mb-4 grid grid-cols-7 gap-2">
-        {EMOJIS.concat(MOREMOJI).map((e) => (
+      <div className="mb-4 grid grid-cols-7 gap-2" {...emojiNav.group}>
+        {emojis.map((e, i) => (
           <motion.button
             key={e}
             type="button"
             aria-label={t.sheets.avatar(e)}
             aria-pressed={s.emoji === e}
+            {...emojiNav.item(i)}
             whileTap={{ scale: 0.88 }}
             onClick={() => actions.setupSeatPatch(k, { emoji: e })}
             className={`glass grid aspect-square min-h-11 place-items-center !rounded-2xl text-26 ${s.emoji === e ? 'ring-2 ring-[var(--accent)]' : ''}`}
@@ -106,13 +115,14 @@ export function AvatarBody({ k }: { k: number }) {
           </motion.button>
         ))}
       </div>
-      <div className="mb-4 flex gap-2.5">
-        {COLORS.map((c) => (
+      <div className="mb-4 flex gap-2.5" {...colourNav.group}>
+        {COLORS.map((c, i) => (
           <motion.button
             key={c}
             type="button"
             aria-label={t.sheets.colour}
             aria-pressed={s.color === c}
+            {...colourNav.item(i)}
             whileTap={{ scale: 0.85 }}
             onClick={() => actions.setupSeatPatch(k, { color: c })}
             className={`h-11 w-11 rounded-full border-[3px] ${s.color === c ? 'border-text-primary' : 'border-transparent'}`}

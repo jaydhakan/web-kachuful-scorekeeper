@@ -77,6 +77,8 @@ export const t = {
     useLastGroup: (names: string[]) =>
       `↺ Use last group: ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` +${names.length - 3}` : ''}`,
     players: (n: number) => `${n} players`,
+    playerCount: 'Number of players',
+    directionLabel: 'Seating direction',
     seats: (n: number) => `${n} seats`,
     tapNumber: 'Tap a number above',
     cw: '⟳ Clockwise',
@@ -184,6 +186,7 @@ export const t = {
     confirm: 'Confirm round',
     exactSwitch: 'Enter exact tricks',
     bid: (n: number) => `Bid ${n}`,
+    resultFor: (name: string) => `Result for ${name}`,
     made: '✓ Made',
     missed: '✗ Missed',
     fewer: (name: string) => `Fewer tricks for ${name}`,

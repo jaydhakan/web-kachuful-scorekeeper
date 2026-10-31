@@ -10,6 +10,7 @@ import {
   type Round,
 } from '@/domain';
 import { useApp } from '@/state/store';
+import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Glass } from '@/components/ui/Glass';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -58,6 +59,7 @@ export function Bidding() {
         ? t.bidding.cantBid(forb, r.cards)
         : '';
   const reasonId = useId();
+  const roving = useRovingFocus({ selected: r.bids[p.id] ?? -1, columns: 6, orientation: 'grid' });
   const pick = (v: number) => {
     const locked = isD && v === forb;
     actions.bid(v);
@@ -112,6 +114,7 @@ export function Bidding() {
           <div
             role="group"
             aria-label={t.bidding.bidFor(p.name)}
+            {...roving.group}
             className="grid grid-cols-6 justify-items-center gap-2"
           >
             {Array.from({ length: r.cards + 1 }, (_, v) => {
@@ -125,6 +128,7 @@ export function Bidding() {
                   aria-pressed={sel}
                   aria-disabled={lock || undefined}
                   aria-describedby={lock ? reasonId : undefined}
+                  {...roving.item(v)}
                   animate={shake === v ? shakeKF : { x: 0 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => pick(v)}
