@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { COLORS, EMOJIS } from '@/domain';
 import { KEYS, storage } from '@/state/persistence';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Table } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
-import { SetupFrame } from './SetupFrame';
+import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
 
@@ -15,7 +15,8 @@ export function Step2() {
   const [name, setName] = useState(''),
     [err, setErr] = useState(''),
     [drop, setDrop] = useState<number | null>(null);
-  const inp = useRef<HTMLInputElement>(null);
+  const inp = useRef<HTMLInputElement>(null),
+    promptId = useId();
   const n = su.n ?? 0,
     seats = su.seats;
   const tgt = seats.findIndex((s) => !s),
@@ -60,6 +61,7 @@ export function Step2() {
     <SetupFrame
       step={2}
       title={t.setup.step2Title}
+      fit
       bar={
         <PrimaryButton
           className="w-full"
@@ -69,10 +71,90 @@ export function Step2() {
           {t.common.next}
         </PrimaryButton>
       }
+      aside={
+        // In land the keyboard covers the lower pane, so the input is ordered first there (land:order-*).
+        <div className="flex flex-col">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={prompt}
+              id={promptId}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: EASE }}
+              className="mt-4 min-h-8 text-21 font-bold leading-[1.25] tracking-[-0.02em] [text-wrap:balance] @h-[45rem]:mt-0 @h-short:text-19 land:order-2 land:!mt-2 wide:!mt-0 wide:mb-1"
+            >
+              {prompt}
+            </motion.div>
+          </AnimatePresence>
+          {tgt >= 0 && (
+            <div className="mt-2.5 flex gap-2 @h-[45rem]:mt-1.5 land:order-1 land:!mt-0">
+              <input
+                ref={inp}
+                id="nm"
+                aria-label={t.setup.playerName}
+                aria-describedby={promptId}
+                value={name}
+                maxLength={14}
+                autoComplete="off"
+                placeholder={t.setup.typeName}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setErr('');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    add(name);
+                  }
+                }}
+                className={`h-14 min-w-0 flex-1 rounded-2xl bg-white/[.07] px-4 text-18 tracking-[-0.01em] outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] @h-[45rem]:h-11 ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
+              />
+              <PrimaryButton
+                onClick={() => add(name)}
+                className="!h-14 w-24 !text-16 @h-[45rem]:!h-11 land:w-20"
+              >
+                {t.setup.add}
+              </PrimaryButton>
+            </div>
+          )}
+          <div
+            className="min-h-[22px] pt-2 text-14 font-medium leading-[1.3] text-[var(--warn)] [text-wrap:balance] @h-[45rem]:min-h-[18px] @h-[45rem]:pt-0 land:order-3"
+            role="alert"
+          >
+            {err}
+          </div>
+          {tgt >= 0 && !recent.length && (
+            <p className="text-13 text-[var(--tx2)] land:order-4">{t.setup.recentHint}</p>
+          )}
+          {tgt >= 0 && recent.length > 0 && (
+            // One row that scrolls sideways, so a long list never pushes the input off screen.
+            <div
+              role="group"
+              aria-label={t.setup.recentNames}
+              className="scroll-thin -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 @h-[45rem]:pb-0 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%-2rem),transparent)] land:order-4 wide:flex-wrap wide:overflow-visible wide:[mask-image:none]"
+            >
+              {recent.map((r, i) => (
+                <motion.button
+                  key={r}
+                  type="button"
+                  {...stagger(i)}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => add(r)}
+                  className="glass min-h-12 shrink-0 whitespace-nowrap !rounded-full px-4 text-16 font-medium @h-[45rem]:min-h-11"
+                >
+                  {r}
+                </motion.button>
+              ))}
+            </div>
+          )}
+        </div>
+      }
     >
-      <div className="h-[300px]">
+      <TableSlot players={n}>
         <Table
           uid="su2"
+          fit
           n={n}
           dir={su.dir}
           players={seats}
@@ -86,67 +168,7 @@ export function Step2() {
           onSeat={(k) => seats[k] && actions.openSheet({ type: 'seat', k })}
           center={<div className="text-13 text-[var(--tx2)]">{t.setup.seated(filled, n)}</div>}
         />
-      </div>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={prompt}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25, ease: EASE }}
-          className="mt-4 min-h-8 text-21 font-bold tracking-[-0.02em]"
-        >
-          {prompt}
-        </motion.div>
-      </AnimatePresence>
-      {tgt >= 0 && (
-        <div className="mt-2.5 flex gap-2">
-          <input
-            ref={inp}
-            id="nm"
-            aria-label={t.setup.playerName}
-            value={name}
-            maxLength={14}
-            autoComplete="off"
-            placeholder={t.setup.typeName}
-            onChange={(e) => {
-              setName(e.target.value);
-              setErr('');
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                add(name);
-              }
-            }}
-            className={`h-14 min-w-0 flex-1 rounded-2xl bg-white/[.07] px-4 text-18 tracking-[-0.01em] outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
-          />
-          <PrimaryButton onClick={() => add(name)} className="!h-14 w-24 !text-16">
-            {t.setup.add}
-          </PrimaryButton>
-        </div>
-      )}
-      <div className="min-h-[22px] pt-2 text-14 font-medium text-[var(--warn)]" role="alert">
-        {err}
-      </div>
-      {tgt >= 0 && !recent.length && (
-        <p className="text-13 text-[var(--tx2)]">{t.setup.recentHint}</p>
-      )}
-      <div className="flex flex-wrap gap-2">
-        {tgt >= 0 &&
-          recent.map((r, i) => (
-            <motion.button
-              key={r}
-              type="button"
-              {...stagger(i)}
-              whileTap={{ scale: 0.94 }}
-              onClick={() => add(r)}
-              className="glass min-h-12 !rounded-full px-4 text-16 font-medium"
-            >
-              {r}
-            </motion.button>
-          ))}
-      </div>
+      </TableSlot>
     </SetupFrame>
   );
 }

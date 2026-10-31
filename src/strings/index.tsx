@@ -94,6 +94,7 @@ export const t = {
     sittingOn: (prev: string, dir: Direction) => `Who's sitting on ${prev}'s ${side(dir)}?`,
     thePlayerBefore: 'the player before',
     typeName: 'Type a name',
+    recentNames: 'Recent names',
     recentHint: 'Names you add are remembered for next time.',
     playerName: 'Player name',
     add: 'Add',
