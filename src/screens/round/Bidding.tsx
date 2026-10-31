@@ -148,6 +148,7 @@ export function Bidding() {
               type="button"
               aria-label={lock ? `Locked ${v}` : `Bid ${v}`}
               aria-pressed={sel}
+              aria-disabled={lock || undefined}
               animate={shake === v ? shakeKF : { x: 0 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => pick(v)}

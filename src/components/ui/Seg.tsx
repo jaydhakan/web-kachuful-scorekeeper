@@ -39,7 +39,12 @@ export function Seg<T extends string>({
           <motion.button
             key={o.v}
             type="button"
+            aria-pressed={on}
             onPointerDown={() => onChange(o.v)}
+            onClick={(e) => {
+              // Pointer taps already fired on pointer-down; a click with no pointer is the keyboard.
+              if (e.detail === 0) onChange(o.v);
+            }}
             whileTap={{ scale: 0.95 }}
             transition={SPRING}
             className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-[42px] min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'}`}
