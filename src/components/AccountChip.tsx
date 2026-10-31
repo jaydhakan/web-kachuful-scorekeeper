@@ -3,7 +3,7 @@ import { useApp } from '@/state/store';
 import { SyncDot } from './SyncDot';
 import { t } from '@/strings';
 
-/** Top corner of Home: the account (with its sync state) or Sign in. */
+/** Top corner of Home: the account (with its sync state) or Sign in. Placed by `className` (absolute). */
 export function AccountChip({ className = '' }: { className?: string }) {
   const { state, actions } = useApp();
   const s = state.session;
@@ -13,7 +13,7 @@ export function AccountChip({ className = '' }: { className?: string }) {
       whileTap={{ scale: 0.94 }}
       onClick={() => actions.open({ screen: s ? 'account' : 'signin' })}
       aria-label={s ? t.hub.nav.account : t.hub.nav.signIn}
-      className={`glass relative inline-flex min-h-11 items-center gap-2 !rounded-full pl-1.5 pr-3.5 text-15 font-bold ${className}`}
+      className={`glass inline-flex min-h-11 items-center gap-2 !rounded-full pl-1.5 pr-3.5 text-15 font-bold ${className}`}
     >
       {s ? (
         <>

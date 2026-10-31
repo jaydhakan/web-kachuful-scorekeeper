@@ -67,7 +67,7 @@ export function Home() {
   const demo = g.id === 'demo';
   return (
     <div className={ROOT}>
-      <AccountChip className="absolute right-[max(1rem,var(--sar))] top-[calc(var(--sat)+0.75rem)] z-10" />
+      <AccountChip className="absolute right-[max(1rem,var(--sar))] top-[calc(var(--sat)+0.75rem)] z-10 pane:left-[max(1rem,var(--sal))] pane:right-auto" />
       {/* The scroll fallback only matters on the smallest phones; in two panes the grid takes over (contents). */}
       <div
         tabIndex={0}
