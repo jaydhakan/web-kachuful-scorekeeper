@@ -24,8 +24,34 @@ export function usePhoto(p: Face): string | null {
 }
 
 /**
- * A player's round face: their photo when they have one (it fades in over the emoji), else the emoji on their
- * colour. `className` sets the size and shape, as each place drew the emoji before. Decorative: names sit beside it.
+ * What goes inside an avatar: the emoji, with the photo over it once loaded (it fades in; reduced motion shows it at
+ * once). Its container must be positioned and clip its overflow; `Avatar` is that container.
+ */
+export function AvatarFill({ p }: { p: Face }) {
+  const url = usePhoto(p);
+  const [failed, setFailed] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<string | null>(null);
+  return (
+    <>
+      {p.emoji}
+      {url && failed !== url && (
+        <img
+          src={url}
+          alt=""
+          decoding="async"
+          draggable={false}
+          onLoad={() => setLoaded(url)}
+          onError={() => setFailed(url)}
+          className={`absolute inset-0 h-full w-full rounded-[inherit] object-cover transition-opacity duration-300 motion-reduce:transition-none ${loaded === url ? 'opacity-100' : 'opacity-0'}`}
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * A player's round face: their photo when they have one, else the emoji on their colour. `className` sets the size
+ * and shape, as each place drew the emoji before. Decorative: names sit beside it.
  */
 export function Avatar({
   p,
@@ -36,9 +62,6 @@ export function Avatar({
   className?: string;
   style?: CSSProperties;
 }) {
-  const url = usePhoto(p);
-  const [failed, setFailed] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState<string | null>(null);
   // A positioned parent holds the photo; callers that place the avatar themselves already are.
   const pos = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className) ? '' : 'relative ';
   return (
@@ -47,18 +70,7 @@ export function Avatar({
       className={`${pos}overflow-hidden ${className}`}
       style={{ background: p.color, ...style }}
     >
-      {p.emoji}
-      {url && failed !== url && (
-        <img
-          src={url}
-          alt=""
-          decoding="async"
-          draggable={false}
-          onLoad={() => setLoaded(url)}
-          onError={() => setFailed(url)}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 motion-reduce:transition-none ${loaded === url ? 'opacity-100' : 'opacity-0'}`}
-        />
-      )}
+      <AvatarFill p={p} />
     </span>
   );
 }

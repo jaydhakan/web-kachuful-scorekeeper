@@ -15,6 +15,7 @@ import { ComingUp } from './ComingUp';
 import { DeskPage, Delta, Eyebrow, GhostButton, Kbd, PageHead, rankTone } from './DeskParts';
 import { ChartLegend, ScoreChart } from './ScoreChart';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 /** After a round: the standings move into place, the totals count up, and the next round is laid out on the right. */
 export function DeskSummary() {
@@ -115,13 +116,10 @@ export function DeskSummary() {
                       )}
                     </AnimatePresence>
                   </span>
-                  <span
-                    aria-hidden
+                  <Avatar
+                    p={x.p}
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22 shadow-[0_8px_22px_rgba(0,0,0,.45)] dt:h-12 dt:w-12 dt:text-26"
-                    style={{ background: x.p.color }}
-                  >
-                    {x.p.emoji}
-                  </span>
+                  />
                   <span className="min-w-0 flex-1 text-20 font-bold leading-tight tracking-[-0.015em] [overflow-wrap:anywhere] dt:text-24">
                     {x.p.name}
                     <StreakBadge s={sk[id]} />

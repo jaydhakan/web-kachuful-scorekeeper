@@ -1,9 +1,10 @@
 import { animate, motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
-import type { Player, Trump } from '@/domain';
+import type { Trump } from '@/domain';
 import { TR } from '@/theme/trumps';
 import { dpx } from '@/lib/tableGeometry';
 import { fmt, sgnN } from '@/lib/format';
+import { Avatar as UiAvatar, type Face } from '@/components/ui/Avatar';
 import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { t } from '@/strings';
 
@@ -89,7 +90,7 @@ export function DeskPage({
 }
 
 interface AvatarProps {
-  p: Pick<Player, 'color' | 'emoji'>;
+  p: Face;
   /** Diameter in px. */
   s: number;
   className?: string;
@@ -97,13 +98,11 @@ interface AvatarProps {
 }
 
 export const Avatar = ({ p, s, className = '', style }: AvatarProps) => (
-  <span
-    aria-hidden
+  <UiAvatar
+    p={p}
     className={`grid shrink-0 place-items-center rounded-full border-2 border-white/20 shadow-[0_8px_22px_rgba(0,0,0,.45)] ${className}`}
-    style={{ width: s, height: s, fontSize: Math.round(s * 0.55), background: p.color, ...style }}
-  >
-    {p.emoji}
-  </span>
+    style={{ width: s, height: s, fontSize: Math.round(s * 0.55), ...style }}
+  />
 );
 
 /** The secondary, glass button of the large-screen boards. */

@@ -10,6 +10,7 @@ import { shakeKF } from '@/components/ui/stagger';
 import type { bidView } from '@/screens/round/roundView';
 import { KeyHints, Kbd } from './DeskParts';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 export type BidPrimary = 'lock' | 'start' | 'wait';
 
@@ -57,13 +58,10 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
             transition={{ duration: 0.3, ease: EASE }}
             className="flex items-center gap-4 [grid-area:1/1]"
           >
-            <span
-              aria-hidden
+            <Avatar
+              p={p}
               className="ring-pulse grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-white/20 text-36 rail:h-[72px] rail:w-[72px] rail:text-40"
-              style={{ background: p.color }}
-            >
-              {p.emoji}
-            </span>
+            />
             <div className="min-w-0">
               <h2 className="disp text-32 font-extrabold leading-[1.05] tracking-[-0.03em] [overflow-wrap:anywhere] rail:text-34">
                 {p.name}
@@ -177,13 +175,10 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
                     onClick={() => actions.pickSeat(k)}
                     className={`inline-flex min-h-12 items-center gap-2 rounded-full border px-3.5 text-14 font-bold ${k === pI ? 'border-[color-mix(in_srgb,var(--accent)_55%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)]' : 'border-white/10 bg-white/[.06]'}`}
                   >
-                    <span
-                      aria-hidden
+                    <Avatar
+                      p={q}
                       className="grid h-[22px] w-[22px] place-items-center rounded-full text-13"
-                      style={{ background: q.color }}
-                    >
-                      {q.emoji}
-                    </span>
+                    />
                     {q.name} {b}
                   </button>
                 </motion.li>

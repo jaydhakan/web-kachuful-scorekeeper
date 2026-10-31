@@ -8,6 +8,7 @@ import { useArchive } from '@/state/useArchive';
 import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const pp = t.hub.people;
 
@@ -56,13 +57,10 @@ export function PlayersPage({ list }: { list?: Person[] }) {
                 onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
                 className="glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
               >
-                <span
-                  aria-hidden
+                <Avatar
+                  p={p}
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
-                  style={{ background: p.color }}
-                >
-                  {p.emoji}
-                </span>
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block text-17 font-bold [overflow-wrap:anywhere]">
                     {p.displayName}

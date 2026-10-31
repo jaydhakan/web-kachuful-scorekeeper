@@ -13,6 +13,7 @@ import { TodayStrip } from '@/components/TodayStrip';
 import { HomeOnline } from '@/components/HomeOnline';
 import { ContinueCard } from '@/components/ContinueCard';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const SUITS = [
   { s: '♠', red: false, at: 'left-[2%] top-[2%]', d: 0 },
@@ -146,13 +147,10 @@ export function DeskHome() {
                     )}
                   </div>
                   <div className="mt-2 flex items-center gap-2.5 text-[var(--tx2)]">
-                    <span
-                      aria-hidden
+                    <Avatar
+                      p={ld.p}
                       className="grid h-7 w-7 place-items-center rounded-full text-16"
-                      style={{ background: ld.p.color }}
-                    >
-                      {ld.p.emoji}
-                    </span>
+                    />
                     <span>{t.desk.home.leadsWith(ld.p.name, sgnN(ld.t))}</span>
                   </div>
                 </>

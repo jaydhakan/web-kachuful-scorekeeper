@@ -13,6 +13,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { AvatarFill } from '@/components/ui/Avatar';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -98,14 +99,14 @@ export default function Winner() {
             >
               <span
                 aria-hidden
-                className={`grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold text-36 shadow-[0_0_28px_rgba(226,182,83,.6)] land:text-22' : 'border-white/25 text-28 land:text-19'}`}
+                className={`relative grid place-items-center overflow-hidden rounded-full border-2 ${k === 1 ? 'border-gold text-36 shadow-[0_0_28px_rgba(226,182,83,.6)] land:text-22' : 'border-white/25 text-28 land:text-19'}`}
                 style={{
                   background: x.p.color,
                   width: AVATAR[k].w,
                   height: AVATAR[k].w,
                 }}
               >
-                {x.p.emoji}
+                <AvatarFill p={x.p} />
               </span>
               <span aria-hidden>{trunc(x.p.name)}</span>
             </motion.div>

@@ -15,6 +15,7 @@ import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 /** Who deals and how many cards, big enough to read across the table; first card and trump under it. */
 function DealLine({ g, r }: { g: Game; r: Round }) {
@@ -92,12 +93,10 @@ export function Bidding() {
                     spot={false}
                     className="flex items-center gap-4 px-4 py-3 @h-short:gap-3 @h-short:py-1"
                   >
-                    <div
+                    <Avatar
+                      p={p}
                       className="grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-white/20 text-36 shadow-[0_8px_22px_rgba(0,0,0,.5)] @h-short:h-12 @h-short:w-12 @h-short:text-26"
-                      style={{ background: p.color }}
-                    >
-                      {p.emoji}
-                    </div>
+                    />
                     <div className="min-w-0">
                       <div className="disp text-26 font-extrabold leading-[1.1] tracking-[-0.035em] [overflow-wrap:anywhere] [text-wrap:balance] @h-short:text-22 wide:text-32 wide:@h-short:text-22">
                         {p.name}

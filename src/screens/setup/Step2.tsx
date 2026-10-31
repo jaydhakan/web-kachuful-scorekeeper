@@ -13,6 +13,7 @@ import { stagger } from '@/components/ui/stagger';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 export function Step2() {
   const { su, actions } = useSetup();
@@ -181,9 +182,10 @@ export function Step2() {
                   onClick={() => add(r.displayName, r)}
                   className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 whitespace-nowrap !rounded-full pl-2 pr-4 text-16 font-medium @h-[45rem]:min-h-11"
                 >
-                  <span aria-hidden className="text-18">
-                    {r.emoji}
-                  </span>
+                  <Avatar
+                    p={r}
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-18"
+                  />
                   {r.displayName}
                 </motion.button>
               ))}

@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { useApp } from '@/state/store';
+import { AvatarFill, type Face } from './Avatar';
 import { Icon } from './Icons';
 import { IconButton } from './IconButton';
 import { EASE, SPRING } from './motion';
@@ -238,7 +239,7 @@ export function AvatarStack({
   s = 26,
   max = 6,
 }: {
-  players: { emoji: string; color: string; name?: string }[];
+  players: (Face & { name?: string })[];
   s?: number;
   max?: number;
 }) {
@@ -249,7 +250,7 @@ export function AvatarStack({
       {shown.map((p, i) => (
         <span
           key={i}
-          className="grid shrink-0 place-items-center rounded-full border-2 border-felt-950"
+          className="relative grid shrink-0 place-items-center overflow-hidden rounded-full border-2 border-felt-950"
           style={{
             width: s,
             height: s,
@@ -258,7 +259,7 @@ export function AvatarStack({
             marginLeft: i ? -s * 0.3 : 0,
           }}
         >
-          {p.emoji}
+          <AvatarFill p={p} />
         </span>
       ))}
       {more > 0 && <span className="ml-1 text-13 font-bold text-[var(--tx2)]">+{more}</span>}

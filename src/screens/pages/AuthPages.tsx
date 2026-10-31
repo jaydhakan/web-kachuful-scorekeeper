@@ -13,6 +13,7 @@ import { Field, LookPicker, PasswordField } from '@/components/ui/Field';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const a = t.hub.auth;
 
@@ -207,13 +208,10 @@ export function InvitePage({ token }: { token: string }) {
               className="glass mb-6 flex flex-col items-center gap-2 p-5 text-center"
             >
               <div className="text-15 font-bold text-[var(--accent)]">{a.isThisYou}</div>
-              <span
-                aria-hidden
+              <Avatar
+                p={offer}
                 className="grid h-16 w-16 place-items-center rounded-full text-36"
-                style={{ background: offer.color }}
-              >
-                {offer.emoji}
-              </span>
+              />
               <div className="disp text-24 font-extrabold">{offer.displayName}</div>
               <div className="text-14 text-[var(--tx2)]">
                 {a.games(offer.games, offer.createdByName)}

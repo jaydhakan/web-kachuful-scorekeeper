@@ -12,6 +12,7 @@ import { Seg } from '@/components/ui/Seg';
 import { EASE, SPRING, SPRING_SHEET } from '@/components/ui/motion';
 import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 /** The Edit-round side panel: same draft rules as the phone's Edit sheet (useRoundEdit). */
 function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
@@ -55,13 +56,10 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
               key={p.id}
               className="flex flex-wrap items-center gap-2.5 rounded-2xl bg-white/5 p-2.5"
             >
-              <span
-                aria-hidden
+              <Avatar
+                p={p}
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
-                style={{ background: p.color }}
-              >
-                {p.emoji}
-              </span>
+              />
               <span className="min-w-[5rem] flex-1 text-17 font-bold [overflow-wrap:anywhere]">
                 {p.name}
               </span>
@@ -195,13 +193,10 @@ export function DeskScoreboard() {
                       key={p.id}
                       className="flex min-w-0 flex-col items-center gap-0.5 text-center"
                     >
-                      <span
-                        aria-hidden
+                      <Avatar
+                        p={p}
                         className="grid h-9 w-9 place-items-center rounded-full border-2 border-white/20 text-20"
-                        style={{ background: p.color }}
-                      >
-                        {p.emoji}
-                      </span>
+                      />
                       <span className="max-w-full text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
                         {p.name}
                       </span>

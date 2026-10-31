@@ -26,6 +26,7 @@ import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { useApp } from '@/state/store';
 import { t } from '@/strings';
+import { AvatarFill } from '@/components/ui/Avatar';
 
 function SpinToken({
   a0,
@@ -267,10 +268,10 @@ export function Step3() {
         {ghost && (
           <div
             aria-hidden
-            className="pointer-events-none absolute z-[9] grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 scale-110 place-items-center rounded-full border-2 border-white/40 text-30 shadow-[0_18px_40px_rgba(0,0,0,.6)]"
+            className="pointer-events-none absolute z-[9] grid h-14 w-14 overflow-hidden -translate-x-1/2 -translate-y-1/2 scale-110 place-items-center rounded-full border-2 border-white/40 text-30 shadow-[0_18px_40px_rgba(0,0,0,.6)]"
             style={{ left: ghost.x, top: ghost.y, background: ghost.p.color }}
           >
-            {ghost.p.emoji}
+            <AvatarFill p={ghost.p} />
           </div>
         )}
       </TableSlot>

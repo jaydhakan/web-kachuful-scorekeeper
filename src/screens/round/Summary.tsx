@@ -16,6 +16,7 @@ import { EASE, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 function Spark({ color }: { color: string }) {
   return (
@@ -171,12 +172,10 @@ export function Summary() {
                 >
                   {rank}
                 </div>
-                <div
+                <Avatar
+                  p={x.p}
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
-                  style={{ background: x.p.color }}
-                >
-                  {x.p.emoji}
-                </div>
+                />
                 <div className="min-w-0 flex-1 break-words text-16 font-bold leading-[1.2] tracking-[-0.015em] [text-wrap:balance] @[26rem]:text-18">
                   {x.p.name}
                   <StreakBadge s={sk[id]} />

@@ -6,6 +6,7 @@ import { vibrate } from '@/hooks/useHaptics';
 import { palette } from '@/theme/palette';
 import { EASE } from './ui/motion';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const LOOK: Record<StreakKind, { color: string; bits: string[] }> = {
   hot: { color: palette['accent-diamonds'], bits: ['🔥', '✨', '🔥', '⭐'] },
@@ -202,13 +203,10 @@ export function StreakCelebration() {
               transition={{ delay: 0.35, duration: 0.4, ease: EASE }}
               className="disp mt-2 flex items-center justify-center gap-3 text-36 font-extrabold leading-[1.05] tracking-[-0.035em] [overflow-wrap:anywhere] @h-tiny:text-28 big:text-56"
             >
-              <span
-                aria-hidden
+              <Avatar
+                p={e.p}
                 className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-white/20 text-26 big:h-16 big:w-16 big:text-36"
-                style={{ background: e.p.color }}
-              >
-                {e.p.emoji}
-              </span>
+              />
               <span className="min-w-0">{e.p.name}</span>
             </motion.p>
             <motion.p

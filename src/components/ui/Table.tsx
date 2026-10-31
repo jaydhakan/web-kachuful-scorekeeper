@@ -18,6 +18,7 @@ import {
 import { Icon } from './Icons';
 import { EASE, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
+import { AvatarFill } from './Avatar';
 
 export interface TablePlayer {
   id?: string;
@@ -275,7 +276,7 @@ export function Table({
                   initial={false}
                   whileTap={onSeat ? { scale: 0.9 } : undefined}
                   transition={SPRING}
-                  className={`mx-auto grid place-items-center rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
+                  className={`relative mx-auto grid place-items-center overflow-hidden rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
                   style={{
                     width: av,
                     height: av,
@@ -283,7 +284,7 @@ export function Table({
                     fontSize: `max(0.8125rem, ${dpx(wide ? 36 : size === 'full' ? 24 : 18)})`,
                   }}
                 >
-                  {p.emoji}
+                  <AvatarFill p={p} />
                 </motion.div>
               ) : (
                 <div

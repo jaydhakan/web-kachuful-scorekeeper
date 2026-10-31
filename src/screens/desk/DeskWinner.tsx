@@ -12,6 +12,7 @@ import { ChartLegend, ScoreChart } from './ScoreChart';
 import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
 import { Sheet } from '@/components/ui/Sheet';
 import { t } from '@/strings';
+import { Avatar, AvatarFill } from '@/components/ui/Avatar';
 
 const STEP = {
   1: {
@@ -97,7 +98,7 @@ export function DeskWinner() {
             >
               <span
                 aria-hidden
-                className={`grid place-items-center rounded-full border-[3px] ${s.ring}`}
+                className={`relative grid place-items-center overflow-hidden rounded-full border-[3px] ${s.ring}`}
                 style={{
                   width: m.length > 1 ? s.av * 0.7 : s.av,
                   height: m.length > 1 ? s.av * 0.7 : s.av,
@@ -105,7 +106,7 @@ export function DeskWinner() {
                   background: x.p.color,
                 }}
               >
-                {x.p.emoji}
+                <AvatarFill p={x.p} />
               </span>
               <span className="mt-2 max-w-[9rem] text-center text-20 font-bold leading-tight [overflow-wrap:anywhere]">
                 {x.p.name}
@@ -191,13 +192,10 @@ export function DeskWinner() {
                 <span className={`disp w-8 text-center text-22 font-extrabold ${rankTone(x.rank)}`}>
                   {x.rank}
                 </span>
-                <span
-                  aria-hidden
+                <Avatar
+                  p={x.p}
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
-                  style={{ background: x.p.color }}
-                >
-                  {x.p.emoji}
-                </span>
+                />
                 <span className="min-w-0 flex-1 text-18 font-bold [overflow-wrap:anywhere]">
                   {x.p.name}
                 </span>

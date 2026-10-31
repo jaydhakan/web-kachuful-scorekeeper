@@ -3,6 +3,7 @@ import { fmt, sgnN, trunc } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 export function BoardBody() {
   const { state, actions } = useApp();
@@ -41,12 +42,10 @@ export function BoardTable({ g, onRow }: { g: Game; onRow?: (i: number) => void 
                   >
                     {/* A container of its own, so the name switches on this column's width. */}
                     <div className="@container">
-                      <div
+                      <Avatar
+                        p={p}
                         className="mx-auto mb-0.5 grid h-8 w-8 place-items-center rounded-full text-18 land:hidden"
-                        style={{ background: p.color }}
-                      >
-                        {p.emoji}
-                      </div>
+                      />
                       {/* Two lines are reserved once full names show, so a wrapped name does not push its total out of line. */}
                       <div className="font-medium text-[var(--tx2)] @[5.5rem]:min-h-10 land:min-h-0">
                         {short === p.name ? (

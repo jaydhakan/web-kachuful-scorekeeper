@@ -28,6 +28,7 @@ import { stagger } from '@/components/ui/stagger';
 import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { useDeskKeys } from './useDeskKeys';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 /** SPRING, typed for the imperative animate(). */
 const SWAP = { type: 'spring', stiffness: 420, damping: 38, mass: 0.9 } as const;
@@ -411,9 +412,10 @@ export function DeskSetup() {
                         onClick={() => fill(r)}
                         className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-white/10 bg-white/[.06] pl-2 pr-3.5 text-14 font-bold"
                       >
-                        <span aria-hidden className="text-16">
-                          {r.emoji}
-                        </span>
+                        <Avatar
+                          p={r}
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-16"
+                        />
                         {r.displayName}
                       </motion.button>
                     ))}

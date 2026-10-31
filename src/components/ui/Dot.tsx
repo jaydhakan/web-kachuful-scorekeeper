@@ -1,10 +1,10 @@
-import type { Player } from '@/domain';
+import { AvatarFill, type Face } from './Avatar';
 
-export const Dot = ({ p, s = 28 }: { p: Pick<Player, 'color' | 'emoji'>; s?: number }) => (
+export const Dot = ({ p, s = 28 }: { p: Face; s?: number }) => (
   <span
-    className="inline-grid shrink-0 place-items-center rounded-full"
+    className="relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full"
     style={{ width: s, height: s, background: p.color, fontSize: s * 0.57 }}
   >
-    {p.emoji}
+    <AvatarFill p={p} />
   </span>
 );

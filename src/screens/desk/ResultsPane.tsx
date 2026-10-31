@@ -9,6 +9,7 @@ import { stagger } from '@/components/ui/stagger';
 import { resultsView } from '@/screens/round/roundView';
 import { Delta, Kbd } from './DeskParts';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 /** A tick or cross, with its word once the row has room; the word always names the button for assistive tech. */
 const mark = (icon: string, word: string) => (
@@ -99,13 +100,10 @@ export function ResultsPane({ g }: { g: Game }) {
               className="@container shrink-0 rounded-2xl bg-white/5"
             >
               <div className="flex min-h-14 flex-wrap items-center gap-x-2.5 gap-y-1.5 px-3 py-1 @[24rem]:gap-x-3 rail:min-h-16 rail:py-2">
-                <span
-                  aria-hidden
+                <Avatar
+                  p={p}
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-white/20 text-20 @[24rem]:h-11 @[24rem]:w-11 @[24rem]:text-24"
-                  style={{ background: p.color }}
-                >
-                  {p.emoji}
-                </span>
+                />
                 <div className="min-w-[4.5rem] flex-1">
                   <div className="text-18 font-bold leading-tight [overflow-wrap:anywhere]">
                     {p.name}

@@ -6,6 +6,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { stagger } from '@/components/ui/stagger';
 import { GhostButton, Kbd } from './DeskParts';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 export function PlayPane({ g }: { g: Game }) {
   const { actions } = useApp();
@@ -36,13 +37,10 @@ export function PlayPane({ g }: { g: Game }) {
               {...stagger(i)}
               className="flex min-h-14 shrink-0 items-center gap-3.5 rounded-2xl bg-white/5 px-3 py-1.5"
             >
-              <span
-                aria-hidden
+              <Avatar
+                p={q}
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
-                style={{ background: q.color }}
-              >
-                {q.emoji}
-              </span>
+              />
               <span className="min-w-0 flex-1 text-18 font-bold leading-tight [overflow-wrap:anywhere]">
                 {q.name}
                 {k === r.dealerIndex && (

@@ -13,6 +13,7 @@ import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { resultsView } from './roundView';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 export function Results() {
   const { state, actions } = useApp();
@@ -105,12 +106,10 @@ export function Results() {
                 className="flex min-h-14 flex-wrap items-center gap-x-2 gap-y-1 px-2 py-[3px]"
               >
                 <div className="flex min-w-[7.5rem] flex-1 items-center gap-2">
-                  <div
+                  <Avatar
+                    p={p}
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
-                    style={{ background: p.color }}
-                  >
-                    {p.emoji}
-                  </div>
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="break-words text-16 font-bold @[26rem]:text-18 leading-[1.2] tracking-[-0.015em] [text-wrap:balance]">
                       {p.name}

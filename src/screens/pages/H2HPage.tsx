@@ -11,6 +11,7 @@ import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import type { GameSummary } from '@/sync/types';
 import { t } from '@/strings';
+import { AvatarFill } from '@/components/ui/Avatar';
 
 const h = t.hub.h2h;
 
@@ -83,10 +84,10 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
         aria-hidden
         animate={rm ? undefined : { scale: [1, 1.12, 1] }}
         transition={{ delay: 0.45, duration: 0.35 }}
-        className="grid h-20 w-20 place-items-center rounded-full border-2 border-white/20 text-44"
+        className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-full border-2 border-white/20 text-44"
         style={{ background: w.color }}
       >
-        {w.emoji}
+        <AvatarFill p={w} />
       </motion.span>
       <span className="text-18 font-bold [overflow-wrap:anywhere]">{w.name}</span>
     </motion.div>

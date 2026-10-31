@@ -16,6 +16,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SPRING_POP } from '@/components/ui/motion';
 import { gameLine } from './HistoryPage';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const gt = t.hub.game;
 
@@ -178,12 +179,10 @@ function Podium({ g }: { g: Game }) {
             transition={{ ...SPRING_POP, delay: 0.1 + (2 - k) * 0.08 }}
             className="flex w-28 flex-col items-center gap-1.5 text-center"
           >
-            <span
+            <Avatar
+              p={s.p}
               className="grid h-14 w-14 place-items-center rounded-full border-2 border-white/20 text-30"
-              style={{ background: s.p.color }}
-            >
-              {s.p.emoji}
-            </span>
+            />
             <span className="text-15 font-bold leading-tight [overflow-wrap:anywhere]">
               {s.p.name}
             </span>
@@ -213,13 +212,10 @@ function Standings({ g }: { g: Game }) {
           <span className={`disp w-6 text-center text-20 font-extrabold ${rankTone(s.rank)}`}>
             {s.rank}
           </span>
-          <span
-            aria-hidden
+          <Avatar
+            p={s.p}
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-20"
-            style={{ background: s.p.color }}
-          >
-            {s.p.emoji}
-          </span>
+          />
           <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
             {s.p.name}
             {g.status === 'active' && r.dealerIndex === s.i && (

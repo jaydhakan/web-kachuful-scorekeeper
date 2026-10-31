@@ -26,6 +26,7 @@ import { ep } from '@/sync/endpoints';
 import type { AwardRow } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const aw = t.hub.awards;
 
@@ -234,12 +235,7 @@ function Podium({ s, f }: { s: ReturnType<typeof season>; f: Facts | null }) {
         return (
           <div key={r.playerId} className="flex w-24 flex-col items-center gap-1 text-center">
             {k === 0 && <span className="text-28">👑</span>}
-            <span
-              className="grid h-12 w-12 place-items-center rounded-full text-26"
-              style={{ background: w.color }}
-            >
-              {w.emoji}
-            </span>
+            <Avatar p={w} className="grid h-12 w-12 place-items-center rounded-full text-26" />
             <span className="text-14 font-bold [overflow-wrap:anywhere]">{w.name}</span>
             <motion.span
               initial={rm ? false : { scaleY: 0 }}

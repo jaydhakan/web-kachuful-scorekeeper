@@ -22,6 +22,7 @@ import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import { RemoteGate } from '@/components/RemoteGate';
 import { t } from '@/strings';
+import { Avatar } from '@/components/ui/Avatar';
 
 const b = t.hub.boards;
 
@@ -224,13 +225,10 @@ function Row({
           {r.rank ?? '–'}
         </span>
         <RankDelta d={r.rankDelta} />
-        <span
-          aria-hidden
+        <Avatar
+          p={w}
           className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-22 ${need ? 'opacity-60' : ''}`}
-          style={{ background: w.color }}
-        >
-          {w.emoji}
-        </span>
+        />
         <span className="min-w-0 flex-1">
           <span className="block text-17 font-bold leading-tight [overflow-wrap:anywhere]">
             {w.name}
