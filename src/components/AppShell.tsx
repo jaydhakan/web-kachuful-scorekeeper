@@ -19,6 +19,7 @@ import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
 import { RepairSaveModal } from './RepairSaveModal';
 import { StreakCelebration } from './StreakCelebration';
+import { BadgePop } from './BadgePop';
 import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
 import { Toast } from './ui/Toast';
@@ -125,6 +126,7 @@ function PhoneShell() {
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
       <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
+      <BadgePop />
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>

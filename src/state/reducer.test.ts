@@ -12,6 +12,7 @@ import {
 import { initialState, reducer, roundBanner } from './reducer';
 import type { Action, AppState } from './types';
 import { UNDO_LIMIT, pushSnapshot } from './undo';
+import { kitGame } from '@/domain/__fixtures__/kit';
 
 const run = (s: AppState, ...as: Action[]) => as.reduce(reducer, s);
 const demo = () => initialState(demoGame(), 'round', []);
@@ -565,5 +566,25 @@ describe('screens opened over the game (nav stack)', () => {
     expect(run(st, { type: 'navReset', routes: [{ screen: 'account' }] }).nav).toEqual([
       { screen: 'account' },
     ]);
+  });
+});
+
+describe('achievement pop-ups after a round', () => {
+  it('a lone wolf at a table of four drops in as a card; undo clears it', () => {
+    const g = kitGame({
+      id: 'lw',
+      players: ['a', 'b', 'c', 'd'],
+      start: 0,
+      rounds: [{ made: [true, false, false, false] }],
+    });
+    g.rounds = g.rounds.slice(0, 1);
+    g.rounds[0].phase = 'results';
+    delete g.rounds[0].doneAt;
+    let st = run(initialState(g, 'round', []), { type: 'confirmRound' });
+    expect(st.pops?.items.map((x) => x.code)).toContain('lone_wolf');
+    expect(st.pops?.items.find((x) => x.code === 'lone_wolf')?.name).toBe('a');
+    expect(run(st, { type: 'popsDone' }).pops).toBeNull();
+    st = run(st, { type: 'undo' });
+    expect(st.pops).toBeNull();
   });
 });

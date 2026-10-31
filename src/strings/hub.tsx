@@ -210,6 +210,9 @@ export const hub = {
     meta: (games: number, last: string) => `${plural(games, 'game')} · last ${last}`,
     never: 'never played',
   },
+  pops: {
+    more: (n: number) => `+${n} more ${n === 1 ? 'streak' : 'streaks'}`,
+  },
   home: {
     awardsToday: "Today's awards",
     seeAwards: 'All awards',
@@ -224,6 +227,7 @@ export const hub = {
     chart: 'Points over the game',
     rounds: 'Round by round',
     achievements: 'Achievements',
+    achievementsN: (n: number) => `${n} achievements`,
     continue: 'Continue this game',
     resume: 'Back to the game',
     delete: 'Delete game',

@@ -102,6 +102,8 @@ export interface AppState {
   sumAnim: boolean;
   /** Streaks that reached a step in the round just confirmed, celebrated before the summary counts up. */
   streakFx: StreakEvent[] | null;
+  /** Small achievement cards that drop in under the top bar after a round; `more` counts streaks not shown. */
+  pops: { id: number; items: { code: string; name: string }[]; more: number } | null;
   /** A pending move of the "who bids now" pointer, applied shortly after a bid. */
   advance: { idx: number } | null;
   noteSeq: number;
@@ -144,6 +146,7 @@ export type Action =
   | { type: 'setFresh'; v: boolean }
   | { type: 'setSumAnim'; v: boolean }
   | { type: 'streakDone' }
+  | { type: 'popsDone' }
   | { type: 'replaceGame'; game: Game }
   /** Makes a saved game the current one (the current one is already in History). */
   | { type: 'openGame'; game: Game };

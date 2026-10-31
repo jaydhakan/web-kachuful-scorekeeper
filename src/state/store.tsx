@@ -65,6 +65,7 @@ export interface Actions {
   seqDone(): void;
   setSumAnim(v: boolean): void;
   streakDone(): void;
+  popsDone(): void;
   setFresh(v: boolean): void;
   say(msg: string): void;
   vib(): void;
@@ -229,6 +230,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       seqDone: () => dispatch({ type: 'seqDone' }),
       setSumAnim: (v) => dispatch({ type: 'setSumAnim', v }),
       streakDone: () => dispatch({ type: 'streakDone' }),
+      popsDone: () => dispatch({ type: 'popsDone' }),
       setFresh: (v) => dispatch({ type: 'setFresh', v }),
       say: (msg) => dispatch({ type: 'say', msg }),
       vib,

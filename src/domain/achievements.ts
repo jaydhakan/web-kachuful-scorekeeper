@@ -1,5 +1,7 @@
 import { partsIn } from './ranges';
-import type { Facts, GameFact, RoundFact } from './timeline';
+import { doneRounds } from './rounds';
+import { pidOf, roundFacts, type Facts, type GameFact, type RoundFact } from './timeline';
+import type { Game, Player } from './types';
 
 export type AchievementGroup = 'round' | 'game' | 'career' | 'daily' | 'season';
 
@@ -305,4 +307,15 @@ export function allAchievements(f: Facts, tz?: string): Earned[] {
   return [...roundMoments(f.rounds), ...gameFinishes(f, tz), ...careerAchievements(f)].sort(
     (a, b) => a.earnedAt - b.earnedAt || (earnedKey(a) < earnedKey(b) ? -1 : 1),
   );
+}
+
+/** The round moments earned in a game's last done round, with the seat that earned each (for live pop-ups). */
+export function lastRoundMoments(g: Game): { e: Earned; p: Player }[] {
+  const last = doneRounds(g).at(-1);
+  if (!last) return [];
+  const rf = roundFacts(g).filter((r) => r.roundIndex === last.index);
+  return roundMoments(rf).flatMap((e) => {
+    const p = g.players.find((x) => pidOf(x) === e.playerId);
+    return p ? [{ e, p }] : [];
+  });
 }

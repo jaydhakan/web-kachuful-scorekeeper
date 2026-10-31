@@ -10,6 +10,7 @@ import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { RepairSaveModal } from '@/components/RepairSaveModal';
 import { StreakCelebration } from '@/components/StreakCelebration';
+import { BadgePop } from '@/components/BadgePop';
 import { UpdatePrompt } from '@/components/UpdatePrompt';
 import { Banner } from '@/components/ui/Banner';
 import { Toast } from '@/components/ui/Toast';
@@ -146,6 +147,7 @@ export default function DeskShell() {
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
       <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
+      <BadgePop />
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>

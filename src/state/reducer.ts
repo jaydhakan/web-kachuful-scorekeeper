@@ -8,6 +8,7 @@ import {
   maxFor,
   newRound,
   resultsState,
+  lastRoundMoments,
   streakMilestones,
   totalRounds,
   type Game,
@@ -40,6 +41,7 @@ export function initialState(
     fresh: false,
     sumAnim: false,
     streakFx: null,
+    pops: null,
     advance: null,
     noteSeq: 0,
     autoResult: null,
@@ -47,9 +49,18 @@ export function initialState(
   };
 }
 
-const celebrate = (g: Game) => {
+/** At most two full-screen bursts a round; the rest of the round's moments drop in as small cards. */
+const MAX_BURSTS = 2;
+const celebrate = (s: AppState, g: Game): Pick<AppState, 'streakFx' | 'pops'> => {
   const fx = streakMilestones(g);
-  return fx.length ? fx : null;
+  const items = lastRoundMoments(g)
+    .filter(({ e }) => !e.code.startsWith('hot_') && !e.code.startsWith('cold_'))
+    .map(({ e, p }) => ({ code: e.code, name: p.name }));
+  const more = Math.max(0, fx.length - MAX_BURSTS);
+  return {
+    streakFx: fx.length ? fx.slice(0, MAX_BURSTS) : null,
+    pops: items.length || more ? { id: s.noteSeq + 1, items, more } : null,
+  };
 };
 
 const say = (s: AppState, msg: string, undo = false, link?: Toast['link']): AppState => ({
@@ -171,6 +182,7 @@ function undoLast(s: AppState): AppState {
     advance: null,
     sumAnim: false,
     streakFx: null,
+    pops: null,
     sheet: null,
     seq: null,
     dir: -1 as const,
@@ -366,7 +378,7 @@ function step(s: AppState, a: Action): AppState {
       return c.game.status === 'finished'
         ? { ...c, fresh: true, screen: 'winner' }
         : say(
-            { ...c, sumAnim: true, streakFx: celebrate(c.game), screen: 'round' },
+            { ...c, sumAnim: true, ...celebrate(c, c.game), screen: 'round' },
             m.toasts.roundSaved,
             true,
           );
@@ -456,6 +468,8 @@ function step(s: AppState, a: Action): AppState {
       return { ...s, sumAnim: a.v };
     case 'streakDone':
       return { ...s, streakFx: null };
+    case 'popsDone':
+      return { ...s, pops: null };
     case 'openGame':
       return {
         ...s,
