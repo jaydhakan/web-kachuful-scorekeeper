@@ -1,57 +1,58 @@
 import { motion, useIsPresent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { t } from '@/strings';
-import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 
 interface ScaffoldProps {
   left?: ReactNode;
   right?: ReactNode;
   navTitle?: ReactNode;
   title?: ReactNode;
+  /** The main area. It fills the height left over, so a table inside it can grow to fit. */
   children: ReactNode;
+  /** Controls that sit beside the main area when the screen is wide or short, and below it otherwise. */
+  aside?: ReactNode;
+  /** Put the aside above the main area in the one-column layout. */
+  asideFirst?: boolean;
   bar?: ReactNode;
   /** Status line above the bar's buttons, announced politely (why a button is disabled). */
   barNote?: ReactNode;
   className?: string;
-  scrollRef?: RefObject<HTMLDivElement>;
 }
 
-/** Translucent chrome over a scrolling body, with a collapsing large title. */
+/** Nav bar, a content area that scrolls only when it must, and an action bar that never moves. */
 export function Scaffold({
   left,
   right,
   navTitle,
   title,
   children,
+  aside,
+  asideFirst,
   bar,
   barNote,
   className = '',
-  scrollRef,
 }: ScaffoldProps) {
-  const inner = useRef<HTMLDivElement>(null);
+  const body = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const hasBar = !!bar;
   const owner = useId();
-  const ref = scrollRef || inner;
   const isPresent = useIsPresent();
   const present = useRef(isPresent);
   useEffect(() => {
     present.current = isPresent;
   }, [isPresent]);
-  // The scroll body and the toast clear the bar by its real height, which grows with the note and the home indicator.
+  // The toast clears the bar by its real height, which grows with the note and the home indicator.
   useEffect(() => {
-    const el = barRef.current,
-      body = ref.current;
-    if (!el || !body || typeof ResizeObserver === 'undefined') return;
-    const anchor = body.closest('.app-root')?.querySelector<HTMLElement>('[data-bar-anchor]');
+    const el = barRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const anchor = el.closest('.app-root')?.querySelector<HTMLElement>('[data-bar-anchor]');
     let last = 0;
     const ro = new ResizeObserver(([e]) => {
       const h = Math.round(e.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight);
       // A screen animating out still resizes (popLayout); it must not take the anchor back from the new one.
-      if (h === last || !present.current) return;
+      if (h === last || !present.current || !anchor) return;
       last = h;
-      // Written to the two elements that use it: a variable on the root would restyle the whole app.
-      body.style.paddingBottom = `${h + 24}px`;
-      if (!anchor) return;
+      // Written to the one element that uses it: a variable on the root would restyle the whole app.
       anchor.style.setProperty('--bar-h', `${h}px`);
       anchor.dataset.barOwner = owner;
     });
@@ -64,8 +65,8 @@ export function Scaffold({
         delete anchor.dataset.barOwner;
       }
     };
-  }, [hasBar, owner, ref]);
-  const { scrollY } = useScroll({ container: ref });
+  }, [hasBar, owner]);
+  const { scrollY } = useScroll({ container: body });
   const navO = useTransform(scrollY, [24, 64], [0, 1]);
   const topBg = useTransform(scrollY, [0, 40], [0, 1]);
   const lgO = useTransform(scrollY, [0, 56], [1, 0]);
@@ -73,29 +74,14 @@ export function Scaffold({
   const lgS = useTransform(scrollY, [0, 80], [1, 0.94]);
   const rm = useReducedMotion();
   return (
-    <div className={`absolute inset-0 overflow-hidden ${className}`}>
-      <div
-        ref={ref}
-        tabIndex={0}
-        role="region"
-        aria-label={t.common.content}
-        className="no-scroll absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-[120px] pt-[calc(64px+var(--sat))]"
-      >
-        {title && (
-          <motion.h1
-            style={rm ? undefined : { opacity: lgO, y: lgY, scale: lgS, transformOrigin: '0 50%' }}
-            className="disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance]"
-          >
-            {title}
-          </motion.h1>
-        )}
-        {children}
-      </div>
+    <div
+      className={`absolute inset-0 grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden pl-[var(--sal)] pr-[var(--sar)] ${className}`}
+    >
       <motion.div
         style={{ opacity: topBg }}
         className="chrome-top pointer-events-none absolute inset-x-0 top-0 z-10 h-[calc(88px+var(--sat))]"
       />
-      <div className="absolute inset-x-0 top-[var(--sat)] z-20 flex h-14 items-center justify-between px-2">
+      <div className="relative z-20 mt-[var(--sat)] flex h-14 items-center justify-between px-2">
         <div className="w-12">{left}</div>
         <motion.span
           style={{ opacity: title ? navO : 1 }}
@@ -105,10 +91,28 @@ export function Scaffold({
         </motion.span>
         <div className="flex w-12 justify-end">{right}</div>
       </div>
+      <div
+        ref={body}
+        tabIndex={0}
+        role="region"
+        aria-label={t.common.content}
+        className={`no-scroll flex min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(24px,var(--sab))]'}`}
+      >
+        {title && (
+          <motion.h1
+            style={rm ? undefined : { opacity: lgO, y: lgY, scale: lgS, transformOrigin: '0 50%' }}
+            className="disp order-[-2] mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance]"
+          >
+            {title}
+          </motion.h1>
+        )}
+        <div className="flex flex-1 flex-col">{children}</div>
+        {aside && <div className={`shrink-0 ${asideFirst ? 'order-[-1]' : ''}`}>{aside}</div>}
+      </div>
       {bar && (
         <div
           ref={barRef}
-          className="chrome-bot absolute inset-x-0 bottom-0 z-20 px-5 pb-[max(18px,var(--sab))] pt-[18px]"
+          className="chrome-bot relative z-20 px-5 pb-[max(18px,var(--sab))] pt-[18px] before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-b before:from-transparent before:to-felt-950/60"
         >
           {barNote !== undefined && (
             <div
