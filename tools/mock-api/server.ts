@@ -17,6 +17,8 @@ import {
   minRoundsFor,
   monthOf,
   nameKey,
+  emailKey,
+  emailOk,
   profileStats,
   calendar,
   season,
@@ -91,6 +93,7 @@ function newPlayer(
   return {
     id: p.id ?? randomUUID(),
     displayName: p.displayName,
+    email: p.email ? emailKey(p.email) : null,
     firstName: p.firstName ?? null,
     lastName: p.lastName ?? null,
     emoji: p.emoji,
@@ -150,7 +153,13 @@ export function seed(now = Date.now()) {
   ];
   const ps = look.map(([n, e, c, u]) => {
     const p = newPlayer(
-      { displayName: n, emoji: e, color: c, linkedUserId: u ?? null },
+      {
+        displayName: n,
+        emoji: e,
+        color: c,
+        linkedUserId: u ?? null,
+        email: u ? db.users.get(u)!.email : `${n.toLowerCase()}@example.com`,
+      },
       admin.id,
       now - 25 * DAY,
     );
@@ -264,8 +273,10 @@ function summaryOf(id: string, f?: Facts): PlayerSummary {
     newPlayer({ id, displayName: '?', emoji: '🙂', color: '#888' }, null, 0);
   const mine = (f ?? facts()).players.filter((x) => x.playerId === p.id);
   const last = Math.max(0, ...mine.map((x) => x.endedAt ?? 0));
+  // Summaries reach everyone, so they never carry the email.
   return {
     ...p,
+    email: null,
     games: mine.length,
     lastPlayedAt: last || null,
     createdByName: userName(p.createdBy),
@@ -359,14 +370,33 @@ function page<T>(items: T[], cursor: unknown, limit = 50) {
   };
 }
 
-function checkPlayer(body: Record<string, unknown>, exceptId?: string) {
-  const name = String(body.displayName ?? '').trim();
-  if (!name || name.length > 14) throw err(422, 'invalid', { fields: { displayName: 'required' } });
-  const clash = [...db.players.values()].find(
-    (p) => !p.mergedInto && p.id !== exceptId && nameKey(p.displayName) === nameKey(name),
-  );
-  if (clash) throw err(409, 'name_taken', { existing: summaryOf(clash.id) });
+/** Name and email rules for a new or renamed player; `exceptId` is the player being edited. */
+function checkPlayer(
+  body: Record<string, unknown>,
+  exceptId?: string,
+  need = { name: true, email: true },
+) {
+  const live = [...db.players.values()].filter((p) => !p.mergedInto && p.id !== exceptId);
+  if (need.email) {
+    const email = String(body.email ?? '');
+    if (!emailOk(email)) throw err(422, 'invalid', { fields: { email: 'required' } });
+    const c = live.find((p) => p.email === emailKey(email));
+    if (c) throw err(409, 'email_taken', { existing: summaryOf(c.id) });
+  }
+  if (need.name) {
+    const name = String(body.displayName ?? '').trim();
+    if (!name || name.length > 14)
+      throw err(422, 'invalid', { fields: { displayName: 'required' } });
+    const c = live.find((p) => nameKey(p.displayName) === nameKey(name));
+    if (c) throw err(409, 'name_taken', { existing: summaryOf(c.id) });
+  }
 }
+
+/** A player as `me` may see it: the email only for the admin, its creator and its linked user. */
+const view = (p: Player, me: User | null): Player =>
+  me && (me.role === 'admin' || p.createdBy === me.id || p.linkedUserId === me.id)
+    ? p
+    : { ...p, email: null };
 
 function notify(gameId: string, event: string, data: unknown, id?: number) {
   for (const res of sse.get(gameId) ?? [])
@@ -427,13 +457,13 @@ on(
 );
 on('GET', '/api/auth/me', ({ me }) => ({
   user: userOut(me!),
-  player: me!.playerId ? (db.players.get(me!.playerId) ?? null) : null,
+  player: me!.playerId ? view(db.players.get(me!.playerId)!, me) : null,
 }));
 on('GET', '/api/bootstrap', ({ me }) => {
   return {
     user: userOut(me!),
-    player: me!.playerId ? (db.players.get(me!.playerId) ?? null) : null,
-    players: [...db.players.values()],
+    player: me!.playerId ? view(db.players.get(me!.playerId)!, me) : null,
+    players: [...db.players.values()].map((p) => view(p, me)),
     myGames: liveGames()
       .filter((g) => g.ownerId === me!.id)
       .sort((a, b) => b.updatedAt - a.updatedAt)
@@ -450,7 +480,11 @@ on(
   ({ m }) => {
     const inv = db.invites.get(m[0]);
     if (!inv || inv.done || inv.expiresAt < Date.now()) throw err(410, 'gone');
-    return { email: inv.email, player: inv.playerId ? summaryOf(inv.playerId) : null };
+    const byEmail = [...db.players.values()].find(
+      (p) => !p.mergedInto && !p.linkedUserId && p.email === inv.email,
+    );
+    const pid = inv.playerId ?? byEmail?.id;
+    return { email: inv.email, player: pid ? summaryOf(pid) : null };
   },
   'public',
 );
@@ -467,10 +501,14 @@ on(
       const p = db.players.get(resolve(pl.id));
       if (!p) throw err(422, 'unknown_player', { playerIds: [pl.id] });
       if (p.linkedUserId) throw err(409, 'player_linked');
+      if (p.email && p.email !== inv.email)
+        throw err(409, 'email_taken', { existing: summaryOf(p.id) });
+      p.email = inv.email;
       player = p;
     } else {
-      checkPlayer(pl ?? {});
-      player = newPlayer(pl as unknown as Player, null, Date.now());
+      // A new player takes the invite's email, whatever was sent.
+      checkPlayer({ ...(pl ?? {}), email: inv.email });
+      player = newPlayer({ ...(pl as unknown as Player), email: inv.email }, null, Date.now());
       db.players.set(player.id, player);
     }
     const u: UserRec = {
@@ -496,7 +534,7 @@ on(
       createdAt: Date.now(),
     });
     signIn(res, u);
-    return { user: userOut(u), player };
+    return { user: userOut(u), player: view(player, u) };
   },
   'public',
 );
@@ -642,6 +680,7 @@ on(
     if (!a || !b || a.id === b.id) throw err(404, 'not_found');
     if (a.linkedUserId && b.linkedUserId) throw err(409, 'both_linked');
     a.mergedInto = b.id;
+    b.email ??= a.email;
     a.updatedAt = b.updatedAt = Date.now();
     if (a.linkedUserId) {
       b.linkedUserId = a.linkedUserId;
@@ -671,25 +710,32 @@ on(
 
 // ——— §6.3 players ———
 
-on('GET', '/api/players', ({ url }) => {
+on('GET', '/api/players', ({ url, me }) => {
   const since = Number(url.searchParams.get('updatedSince')) || 0;
   return page(
     [...db.players.values()]
       .filter((p) => p.updatedAt > since)
-      .sort((a, b) => a.updatedAt - b.updatedAt),
+      .sort((a, b) => a.updatedAt - b.updatedAt)
+      .map((p) => view(p, me)),
     url.searchParams.get('cursor'),
     200,
   );
 });
 on('GET', '/api/players/check', ({ url }) => {
+  const live = [...db.players.values()].filter((x) => !x.mergedInto);
+  const email = emailKey(url.searchParams.get('email') ?? '');
+  const byEmail = email && live.find((x) => x.email === email);
+  if (byEmail) return { available: false, field: 'email', existing: summaryOf(byEmail.id) };
   const k = nameKey(url.searchParams.get('name') ?? '');
-  const p = [...db.players.values()].find((x) => !x.mergedInto && nameKey(x.displayName) === k);
-  return p ? { available: false, existing: summaryOf(p.id) } : { available: true };
+  const byName = k && live.find((x) => nameKey(x.displayName) === k);
+  return byName
+    ? { available: false, field: 'name', existing: summaryOf(byName.id) }
+    : { available: true };
 });
 on('POST', '/api/players', ({ body, me }) => {
   const prev = db.players.get(String(body.id));
   if (prev) {
-    if (prev.displayName === body.displayName) return prev;
+    if (prev.displayName === body.displayName) return view(prev, me);
     throw err(409, 'name_taken', { existing: summaryOf(prev.id) });
   }
   checkPlayer(body);
@@ -702,7 +748,7 @@ on('POST', '/api/players', ({ body, me }) => {
     data: {},
     createdAt: Date.now(),
   });
-  return [201, p];
+  return [201, view(p, me)];
 });
 on('PATCH', '/api/players/:id', ({ m, body, me }) => {
   const p = db.players.get(m[0]);
@@ -712,12 +758,17 @@ on('PATCH', '/api/players/:id', ({ m, body, me }) => {
     creator = p.createdBy === me!.id;
   if (body.displayName !== undefined && !admin && !linked) throw err(403, 'forbidden');
   if (!admin && !linked && !creator) throw err(403, 'forbidden');
-  if (body.displayName !== undefined) checkPlayer(body, p.id);
-  for (const k of ['displayName', 'firstName', 'lastName', 'emoji', 'color'] as const)
-    if (body[k] !== undefined) (p as unknown as Record<string, unknown>)[k] = body[k];
+  checkPlayer(body, p.id, {
+    name: body.displayName !== undefined,
+    email: body.email !== undefined,
+  });
+  for (const k of ['displayName', 'email', 'firstName', 'lastName', 'emoji', 'color'] as const)
+    if (body[k] !== undefined)
+      (p as unknown as Record<string, unknown>)[k] =
+        k === 'email' ? emailKey(String(body[k])) : body[k];
   p.updatedAt = Date.now();
   db.version++;
-  return p;
+  return view(p, me);
 });
 on('GET', '/api/players/:id', ({ m }) => {
   const id = resolve(m[0]);
