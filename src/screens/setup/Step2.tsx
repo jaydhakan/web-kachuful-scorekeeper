@@ -62,6 +62,7 @@ export function Step2() {
       step={2}
       title={t.setup.step2Title}
       fit
+      collapseBar
       bar={
         <PrimaryButton
           className="w-full"
@@ -151,7 +152,8 @@ export function Step2() {
         </div>
       }
     >
-      <TableSlot players={n}>
+      {/* With the keyboard up there is no room for the table above the field, so it steps aside. */}
+      <TableSlot players={n} className="@h-tiny:hidden pane:!flex">
         <Table
           uid="su2"
           fit

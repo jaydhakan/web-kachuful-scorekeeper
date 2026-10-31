@@ -57,6 +57,7 @@ interface SetupFrameProps {
   aside?: ReactNode;
   asideFirst?: boolean;
   fit?: boolean;
+  collapseBar?: boolean;
 }
 
 export function SetupFrame({
@@ -67,6 +68,7 @@ export function SetupFrame({
   aside,
   asideFirst,
   fit,
+  collapseBar,
 }: SetupFrameProps) {
   const { actions } = useSetup();
   const back = () =>
@@ -83,6 +85,7 @@ export function SetupFrame({
       aside={aside}
       asideFirst={asideFirst}
       fit={fit}
+      collapseBar={collapseBar}
       className={fit ? FIT_MIN : ''}
       bar={bar}
     >

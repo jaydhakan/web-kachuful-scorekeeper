@@ -1,7 +1,8 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useEffect, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
+import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { palette } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
 import { Home } from '@/screens/Home';
@@ -29,6 +30,8 @@ export function AppShell() {
   const r = curRound(game);
   const screenKey = screen === 'round' ? `round-${game.ui.view}-${r.phase}` : screen;
   const rm = useReducedMotion();
+  const root = useRef<HTMLDivElement>(null);
+  useVisualViewport(root);
   const variants = {
     enter: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * 36, scale: 0.985 }),
     center: { opacity: 1, x: 0, scale: 1 },
@@ -53,6 +56,7 @@ export function AppShell() {
     content = r.phase === 'bidding' ? <Bidding /> : r.phase === 'playing' ? <Play /> : <Results />;
   return (
     <div
+      ref={root}
       className="app-root scr-bg grain relative h-full w-full"
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
