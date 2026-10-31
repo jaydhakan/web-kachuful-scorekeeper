@@ -28,7 +28,14 @@ type LiveState =
   | { k: 'connecting' }
   | { k: 'revoked' }
   | { k: 'missing' }
+  | { k: 'offline' }
   | { k: 'on'; game: Game; updatedAt: number; scorerSeenAt: number | null };
+
+/** HANDOFF §6.7: 404 is an unknown link, 410 one turned off (or its game deleted). */
+const goneOrMissing = (e: unknown): { k: 'revoked' | 'missing' | 'offline' } =>
+  e instanceof ApiError && e.offline
+    ? { k: 'offline' }
+    : { k: e instanceof ApiError && e.status === 410 ? 'revoked' : 'missing' };
 
 function OpenApp() {
   const { actions } = useApp();
@@ -98,10 +105,7 @@ export function LivePage({ token }: { token: string }) {
             scorerSeenAt: r.scorerSeenAt,
           }),
       )
-      .catch(
-        (e: unknown) =>
-          live && setSt({ k: e instanceof ApiError && e.status === 410 ? 'revoked' : 'missing' }),
-      );
+      .catch((e: unknown) => live && setSt(goneOrMissing(e)));
     const stop = followLive(token, (e) => {
       if (!live) return;
       if (e.type === 'game')
@@ -112,6 +116,12 @@ export function LivePage({ token }: { token: string }) {
           scorerSeenAt: e.data.scorerSeenAt,
         });
       else if (e.type === 'revoked') setSt({ k: 'revoked' });
+      // The stream was refused for good: the plain read says why.
+      else if (e.type === 'closed')
+        ep.live(token).then(
+          () => live && setSt({ k: 'missing' }),
+          (x: unknown) => live && setSt(goneOrMissing(x)),
+        );
     });
     const clock = setInterval(() => tick((n) => n + 1), 30e3);
     return () => {
@@ -130,8 +140,8 @@ export function LivePage({ token }: { token: string }) {
           </>
         ) : (
           <EmptyState
-            icon={st.k === 'revoked' ? '🔒' : '🕳️'}
-            title={st.k === 'revoked' ? lv.revoked : lv.notFound}
+            icon={st.k === 'revoked' ? '🔒' : st.k === 'offline' ? '📡' : '🕳️'}
+            title={st.k === 'revoked' ? lv.revoked : st.k === 'offline' ? lv.offline : lv.notFound}
             action={<OpenApp />}
           />
         )}
@@ -193,13 +203,13 @@ export function LivePage({ token }: { token: string }) {
 
 export function RecapPage({ token }: { token: string }) {
   const [st, setSt] = useState<
-    { k: 'loading' | 'revoked' | 'missing' } | { k: 'on'; game: Game; ach: Achievement[] }
+    | { k: 'loading' | 'revoked' | 'missing' | 'offline' }
+    | { k: 'on'; game: Game; ach: Achievement[] }
   >({ k: 'loading' });
   useEffect(() => {
     ep.recap(token).then(
       (r) => setSt({ k: 'on', game: withPhotos(fromWire(r.game), r.summary), ach: r.achievements }),
-      (e: unknown) =>
-        setSt({ k: e instanceof ApiError && e.status === 410 ? 'revoked' : 'missing' }),
+      (e: unknown) => setSt(goneOrMissing(e)),
     );
   }, [token]);
   const g = st.k === 'on' ? st.game : null;
@@ -211,8 +221,14 @@ export function RecapPage({ token }: { token: string }) {
           <Skeleton rows={5} />
         ) : (
           <EmptyState
-            icon={st.k === 'revoked' ? '🔒' : '🕳️'}
-            title={st.k === 'revoked' ? t.hub.recap.revoked : t.hub.recap.notFound}
+            icon={st.k === 'revoked' ? '🔒' : st.k === 'offline' ? '📡' : '🕳️'}
+            title={
+              st.k === 'revoked'
+                ? t.hub.recap.revoked
+                : st.k === 'offline'
+                  ? t.hub.recap.offline
+                  : t.hub.recap.notFound
+            }
             action={<OpenApp />}
           />
         )}

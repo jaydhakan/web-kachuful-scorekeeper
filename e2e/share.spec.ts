@@ -55,6 +55,11 @@ test('a live link follows the table on another phone until it is turned off', as
   await btn(page, 'Links').click();
   await live.getByRole('button', { name: 'Turn off' }).click();
   await expect(viewer.getByText('This live link was turned off')).toBeVisible();
+  // Opened again later, the server says the same (410), and an unknown link is not found (404).
+  await viewer.goto(url.replace(/^https?:\/\/[^/]+/, ''));
+  await expect(viewer.getByText('This live link was turned off')).toBeVisible();
+  await viewer.goto('/?live=nope0000000000000000000');
+  await expect(viewer.getByText('No live game at this link')).toBeVisible();
   await viewer.close();
 });
 

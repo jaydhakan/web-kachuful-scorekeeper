@@ -1,7 +1,13 @@
 import { API } from './api';
 import type { LiveResp } from './types';
 
-export type LiveEvent = { type: 'game'; data: LiveResp } | { type: 'revoked' } | { type: 'error' };
+export type LiveEvent =
+  | { type: 'game'; data: LiveResp }
+  | { type: 'revoked' }
+  /** A dropped connection the browser is retrying. */
+  | { type: 'error' }
+  /** The server refused the stream (404 or 410): it won't come back by itself. */
+  | { type: 'closed' };
 
 /**
  * Follows a live table: an EventSource on the public events stream. The browser reconnects by itself and sends
@@ -24,6 +30,6 @@ export function followLive(token: string, on: (e: LiveEvent) => void): () => voi
     on({ type: 'revoked' });
     es.close();
   });
-  es.onerror = () => on({ type: 'error' });
+  es.onerror = () => on({ type: es.readyState === EventSource.CLOSED ? 'closed' : 'error' });
   return () => es.close();
 }

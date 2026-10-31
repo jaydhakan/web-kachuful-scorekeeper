@@ -448,6 +448,7 @@ export const hub = {
     connecting: 'Connecting…',
     revoked: 'This live link was turned off',
     notFound: 'No live game at this link',
+    offline: "You're offline. The table shows up when you're back online.",
     quiet: (min: number) => `Scorer offline · ${min} min`,
     updated: (ago: string) => `Updated ${ago}`,
     round: (n: number, cards: number) => `Round ${n} · ${cards} cards`,
@@ -458,6 +459,7 @@ export const hub = {
     title: 'Game recap',
     revoked: 'This recap link was turned off',
     notFound: 'No game at this link',
+    offline: "You're offline. Open the link again when you're back online.",
     highlights: 'Highlights',
   },
   pops: {
