@@ -3,12 +3,18 @@ import type { Page } from '@playwright/test';
 export const btn = (page: Page, name: string | RegExp) =>
   page.getByRole('button', { name, exact: typeof name === 'string' });
 
-/** New Game → seat `names` → Deal → skip the deal animation. */
-export async function startGame(page: Page, names: string[]) {
+/** New Game → seat `names` → Deal → skip the deal animation. `onStep` runs on each setup step. */
+export async function startGame(
+  page: Page,
+  names: string[],
+  onStep: (step: string) => Promise<void> = async () => {},
+) {
   await btn(page, 'New Game').click();
   await btn(page, 'Start new').click();
   await btn(page, `${names.length} players`).click();
+  await onStep('setup 1');
   await btn(page, 'Next').click();
+  await onStep('setup 2');
   const input = page.getByLabel('Player name');
   for (const [i, n] of names.entries()) {
     await input.fill(n);
@@ -16,6 +22,8 @@ export async function startGame(page: Page, names: string[]) {
     await page.getByText(`${i + 1} of ${names.length} seated`).waitFor();
   }
   await btn(page, 'Next').click();
+  await page.getByRole('button', { name: /Game length/ }).click();
+  await onStep('setup 3');
   await btn(page, 'Deal!').click();
   await btn(page, 'Skip the deal animation').click();
 }
