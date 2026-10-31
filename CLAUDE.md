@@ -1,6 +1,6 @@
 # Kachuful — working notes
 
-Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. There is no backend: all data lives in `localStorage`.
+Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to a FastAPI backend built separately from `plan-backend.md`; `plan-frontend.md` is this app's plan, and §6 of the backend plan is the API contract.
 
 Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
 
@@ -14,14 +14,17 @@ Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `sr
 
 ## Reuse before you write
 
-| Need                     | Use                                                              |
-| ------------------------ | ---------------------------------------------------------------- |
-| Rules, scoring, ranking  | `src/domain` (pure; never import UI into it)                     |
-| Numbers and text formats | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)           |
-| User-visible strings     | `src/strings`                                                    |
-| Storage                  | `src/state/persistence.ts` — never call `localStorage` elsewhere |
-| UI primitives            | `src/components/ui/`                                             |
-| Colours                  | Tailwind theme / CSS variables from `src/theme/tokens.json`      |
+| Need                        | Use                                                              |
+| --------------------------- | ---------------------------------------------------------------- |
+| Rules, scoring, ranking     | `src/domain` (pure; never import UI into it)                     |
+| Numbers and text formats    | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)           |
+| User-visible strings        | `src/strings`                                                    |
+| Storage                     | `src/state/persistence.ts` — never call `localStorage` elsewhere |
+| Archive (IndexedDB)         | `src/state/archive.ts` — the only IndexedDB access               |
+| Network                     | `src/sync/` — the only `fetch`/`EventSource`, signed in only     |
+| Stats, boards, achievements | `src/domain` (timeline, leaderboard, achievements, awards)       |
+| UI primitives               | `src/components/ui/`                                             |
+| Colours                     | Tailwind theme / CSS variables from `src/theme/tokens.json`      |
 
 Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the prototype's shape; `direction` changes seat layout only, not rotation.
 

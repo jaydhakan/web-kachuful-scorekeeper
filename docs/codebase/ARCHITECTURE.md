@@ -1,15 +1,20 @@
 # Architecture
 
-Kachuful is a client-only PWA: Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. There is no backend; everything lives in `localStorage`.
+Kachuful is an offline-first PWA: Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`plan-backend.md`; §6 is the API contract).
 
 ## Layers
 
 ```
-src/domain      pure TypeScript: types, card sequence, rotation, bidding rule, scoring, standings, stats, demo game
-src/state       reducer + actions (types.ts), persistence + migrations, undo ring, provider (store.tsx)
+src/domain      pure TypeScript: types, card sequence, rotation, bidding rule, scoring, standings, stats, demo game;
+                timeline (round/game facts), leaderboard, ranges, profile and head-to-head, achievements, awards,
+                seasons, Wrapped, upload validation (the backend's golden fixtures come from these)
+src/state       reducer + actions (types.ts), persistence + migrations, undo ring, provider (store.tsx),
+                archive.ts (IndexedDB), registry.ts (players), useFacts (this device's stats)
+src/sync        api.ts, endpoints.ts, engine.ts (push/pull), live.ts (SSE), useRemote (cache-first reads)
 src/hooks       useWakeLock, useHaptics, usePersistence, useDialog, useShare, useMediaQuery, useRovingFocus, useVisualViewport
 src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and app shell (AppShell, UpdatePrompt)
-src/screens     one file per screen (setup/ and round/ hold the multi-step flows); Winner is lazy
+src/screens     one file per screen (setup/ and round/ hold the multi-step flows); Winner is lazy;
+                pages/ holds the screens opened over the game (one lazy chunk for phone and desk)
 src/sheets      one file per sheet body; SheetHost chooses the body and captures it at mount
 src/strings     every user-visible string (messages.ts is plain text used by domain/reducer)
 src/theme       tokens.json (design system), extended.json (parity extras), palette, trump themes
@@ -87,3 +92,15 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 - **Wake lock:** supported on current Chrome and Safari 16.4+. It is re-acquired when the tab becomes visible and released when the game ends.
 - **Share:** Web Share with a PNG file where `navigator.canShare({ files })` is true; otherwise the PNG is downloaded and the text summary copied. Both need a tap, so they live behind buttons.
 - **Install and offline:** the service worker precaches the shell and fonts. Updates wait until the player taps "Reload".
+
+## Online (plan-frontend.md)
+
+**Archive.** `state/archive.ts` is the only IndexedDB access: games (every game this device knows, never replaced), players (the registry), outbox, cache and inbox. It loads once and is read synchronously from memory; writes land in memory at once and on disk in the background, falling back to memory when IndexedDB is missing. The current game is copied in after every change, so starting a new game saves the old one to History. Schema 3 added `syncId` (old games: a hash of a per-device id, the game id and its creation time, so a game, its undo snapshots and its backup are one remote game), `rev`, `finishedAt` and `Round.doneAt`.
+
+**Navigation.** `state.nav` is a stack of routes opened over the game screens (`screens/pages/Pages.tsx`, one lazy chunk). `useHistorySync` keeps one browser history entry per open screen and sheet, so system Back closes the top one. `?invite=`, `?reset=`, `?live=` and `?recap=` open their screen once at start and are removed from the address bar.
+
+**Players.** `state/registry.ts`: one row per player, unique by name key. Signed out these are local; signed in they mirror the server's registry, and a new name is created on the server on the next sync. Games point at players by `Player.playerId`; older games are matched by name when read.
+
+**Sync.** `sync/engine.ts` runs only while signed in: on start, coming online, becoming visible, 1.5 s after a change and every minute while work waits (backing off to 5 min). It pulls with one `bootstrap` call, pushes new players, then games whose players the server knows. A stale upload keeps the copy with more finished rounds and saves the other as a conflict copy; a rejected game stays local with the reason in the inbox. Server reads use `useRemote`: the cached answer renders first, then refreshes with `If-None-Match`.
+
+**Mock API.** `tools/mock-api` serves the whole contract from memory for `npm run dev:mock` and the e2e server, reusing the domain for every number. It is a stand-in: the real server must match `contract/fixtures` instead.
