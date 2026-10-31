@@ -54,6 +54,14 @@ describe('large-screen keyboard shortcuts', () => {
     await bidGroup('Dev');
   });
 
+  it('a click on a bid key saves it and moves to the next bidder, as a tap does on a phone', async () => {
+    const u = setup();
+    const keys = await openDemo(u);
+    await u.click(within(keys).getByRole('button', { name: 'Bid 3' }));
+    expect(await screen.findByRole('button', { name: 'Dev bid 3. Change it' })).toBeInTheDocument();
+    await bidGroup('Aarav');
+  });
+
   it('a digit above the cards dealt does nothing; a second press of the picked digit locks it in', async () => {
     const u = setup();
     await openDemo(u);

@@ -137,9 +137,10 @@ export function RoundStart() {
         <AnimatePresence>
           {stage >= 3 && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              {t.start.dealsCards(g.players[r.dealerIndex].name, r.cards)}
-              <br />
-              {t.start.firstCard(g.players[r.firstPlayerIndex].name)}
+              <div className="disp text-24 font-bold leading-[1.2] tracking-[-0.02em] @h-short:text-20 land:text-20 [&_[data-n]]:text-32 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] @h-short:[&_[data-n]]:text-26 land:[&_[data-n]]:text-26">
+                {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
+              </div>
+              <div className="mt-1">{t.start.firstCard(g.players[r.firstPlayerIndex].name)}</div>
             </motion.div>
           )}
         </AnimatePresence>

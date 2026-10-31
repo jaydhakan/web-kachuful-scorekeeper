@@ -1,12 +1,13 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import { curRound, doneRounds, pts, roundAt, standings, streaks, totals } from '@/domain';
+import { currentStreaks, curRound, doneRounds, pts, roundAt, standings, totals } from '@/domain';
 import { sgnN } from '@/lib/format';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useApp } from '@/state/store';
 import { palette } from '@/theme/palette';
 import { MQ } from '@/theme/breakpoints';
 import { Counter } from '@/components/ui/Counter';
+import { StreakBadge } from '@/components/ui/StreakBadge';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
@@ -62,11 +63,13 @@ export function Summary() {
   /* eslint-enable react-hooks/exhaustive-deps */
   const cur = standings(g),
     ct = totals(g),
-    sk = streaks(g);
+    sk = currentStreaks(g);
   const [stage, setStage] = useState(anim ? 0 : 5);
   const rm = useReducedMotion();
+  // A streak celebration plays first; the count-up waits for it.
+  const celebrating = !!state.streakFx;
   useEffect(() => {
-    if (!anim) return;
+    if (!anim || celebrating) return;
     const T = rm ? [60, 120, 180, 240, 300] : [350, 1000, 1850, 2450, 3300];
     const ts = T.map((t, i) => setTimeout(() => setStage(i + 1), t));
     const done = setTimeout(() => actions.setSumAnim(false), T[4] + 100);
@@ -74,8 +77,8 @@ export function Summary() {
       ts.forEach(clearTimeout);
       clearTimeout(done);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run per mount
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run, once nothing plays over the screen
+  }, [celebrating]);
   const list = stage >= 3 ? cur : prev;
   const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
   const nr = roundAt(g, r.index + 1),
@@ -176,7 +179,7 @@ export function Summary() {
                 </div>
                 <div className="min-w-0 flex-1 break-words text-16 font-bold leading-[1.2] tracking-[-0.015em] [text-wrap:balance] @[26rem]:text-18">
                   {x.p.name}
-                  {sk[id] >= 3 && <span className="ml-1.5 text-16">🔥{sk[id]}</span>}
+                  <StreakBadge s={sk[id]} />
                 </div>
                 <AnimatePresence>
                   {stage >= 1 && (

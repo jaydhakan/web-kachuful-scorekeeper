@@ -8,6 +8,7 @@ import {
   maxFor,
   newRound,
   resultsState,
+  streakMilestones,
   totalRounds,
   type Game,
   type Player,
@@ -37,12 +38,18 @@ export function initialState(
     seq: null,
     fresh: false,
     sumAnim: false,
+    streakFx: null,
     advance: null,
     noteSeq: 0,
     autoResult: null,
     corrupt,
   };
 }
+
+const celebrate = (g: Game) => {
+  const fx = streakMilestones(g);
+  return fx.length ? fx : null;
+};
 
 const say = (s: AppState, msg: string, undo = false): AppState => ({
   ...s,
@@ -157,6 +164,7 @@ function undoLast(s: AppState): AppState {
     undo,
     advance: null,
     sumAnim: false,
+    streakFx: null,
     sheet: null,
     seq: null,
     dir: -1 as const,
@@ -334,7 +342,11 @@ function step(s: AppState, a: Action): AppState {
       };
       return c.game.status === 'finished'
         ? { ...c, fresh: true, screen: 'winner' }
-        : say({ ...c, sumAnim: true, screen: 'round' }, m.toasts.roundSaved, true);
+        : say(
+            { ...c, sumAnim: true, streakFx: celebrate(c.game), screen: 'round' },
+            m.toasts.roundSaved,
+            true,
+          );
     }
     case 'nextRound': {
       const pr = curRound(s.game);
@@ -411,6 +423,8 @@ function step(s: AppState, a: Action): AppState {
       return { ...s, fresh: a.v };
     case 'setSumAnim':
       return { ...s, sumAnim: a.v };
+    case 'streakDone':
+      return { ...s, streakFx: null };
     case 'replaceGame':
       return { ...s, game: a.game, undo: [], corrupt: false, screen: 'home' };
   }

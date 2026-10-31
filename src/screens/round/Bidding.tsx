@@ -16,17 +16,21 @@ import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
 import { t } from '@/strings';
 
-export const dealLine = (g: Game, r: Round) => {
+/** Who deals and how many cards, big enough to read across the table; first card and trump under it. */
+function DealLine({ g, r }: { g: Game; r: Round }) {
   const prev = r.index > 0 ? roundAt(g, r.index - 1).cards : 0,
     ar = r.cards > prev ? '↑' : r.cards < prev ? '↓' : '→';
-  return t.round.deal(
-    g.players[r.dealerIndex].name,
-    r.cards,
-    g.players[r.firstPlayerIndex].name,
-    r.trump,
-    ar,
+  return (
+    <>
+      <span className="disp block text-20 font-bold leading-[1.2] tracking-[-0.02em] [&_[data-n]]:text-28 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] wide:text-22 wide:[&_[data-n]]:text-32">
+        {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
+      </span>
+      <span className="mt-1 block text-15 leading-[1.35] text-[var(--tx2)] [&_b]:text-[var(--tx)]">
+        {t.round.dealSub(g.players[r.firstPlayerIndex].name, r.trump, ar)}
+      </span>
+    </>
   );
-};
+}
 
 /** One row up to six pills, else two rows, so the dock stays short; never more than six across. */
 const pillColumns = (pills: number) => Math.min(6, pills <= 6 ? pills : Math.ceil(pills / 2));
@@ -230,8 +234,8 @@ export function Bidding() {
             center={<SuitCenter trump={r.trump} cards={r.cards} big={wide} />}
           />
         </div>
-        <p className="px-2 pb-0.5 pt-2.5 text-center text-16 leading-[1.38] tracking-[-0.01em] [text-wrap:balance] @h-short:sr-only">
-          {dealLine(g, r)}
+        <p className="px-2 pb-0.5 pt-2.5 text-center tracking-[-0.01em] [text-wrap:balance] @h-short:sr-only">
+          <DealLine g={g} r={r} />
         </p>
       </Glass>
     </RoundFrame>

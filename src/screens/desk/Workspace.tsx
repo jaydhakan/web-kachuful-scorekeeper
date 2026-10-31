@@ -72,15 +72,20 @@ export function Workspace() {
     if (primary === 'lock' && pending != null) actions.bid(pending);
     else if (primary === 'start') actions.phase('playing');
   };
+  const hooked = (k: number) => {
+    if (!isD || k !== forb) return false;
+    // The reducer counts the attempt (the "hook victim" stat) and keeps the bid; the key shakes.
+    actions.bid(k);
+    setShake(k);
+    setTimeout(() => setShake(null), 320);
+    return true;
+  };
+  // A tap or click saves the bid and moves on, as on a phone. Typed digits only pick, so 1 then 0 can make 10.
+  const tap = (k: number) => {
+    if (!hooked(k)) actions.bid(k);
+  };
   const choose = (k: number) => {
-    if (k < 0 || k > r.cards) return;
-    if (isD && k === forb) {
-      // The reducer counts the attempt (the "hook victim" stat) and keeps the bid; the key shakes.
-      actions.bid(k);
-      setShake(k);
-      setTimeout(() => setShake(null), 320);
-      return;
-    }
+    if (k < 0 || k > r.cards || hooked(k)) return;
     // The picked key again (a second click, or Enter while it has focus) confirms: lock it in, or start playing.
     if (k === pending && primary !== 'wait') {
       confirm();
@@ -169,13 +174,18 @@ export function Workspace() {
                 className="glass px-5 py-4 text-18 leading-[1.45] tracking-[-0.01em] [text-wrap:pretty]"
               >
                 {phase === 'bidding' ? (
-                  t.desk.dealLine(
-                    v.dealer.name,
-                    r.cards,
-                    first.name,
-                    r.trump,
-                    r.index > 0 ? r.cards - prevCards : null,
-                  )
+                  <>
+                    <div className="disp text-26 font-bold leading-[1.15] tracking-[-0.02em] [&_[data-n]]:text-36 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)]">
+                      {t.deal.head(v.dealer.name, r.cards)}
+                    </div>
+                    <div className="mt-1.5 text-17 text-[var(--tx2)] [&_b]:text-[var(--tx)]">
+                      {t.desk.dealSub(
+                        first.name,
+                        r.trump,
+                        r.index > 0 ? r.cards - prevCards : null,
+                      )}
+                    </div>
+                  </>
                 ) : phase === 'playing' ? (
                   t.desk.play.hint(first.name)
                 ) : (
@@ -224,7 +234,7 @@ export function Workspace() {
                       pending={pending}
                       primary={primary}
                       shake={shake}
-                      onKey={choose}
+                      onKey={tap}
                       onPrimary={confirm}
                     />
                   ) : phase === 'playing' ? (

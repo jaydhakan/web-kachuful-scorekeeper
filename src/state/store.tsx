@@ -50,6 +50,7 @@ export interface Actions {
   ask(modal: ModalKind | null): void;
   seqDone(): void;
   setSumAnim(v: boolean): void;
+  streakDone(): void;
   setFresh(v: boolean): void;
   say(msg: string): void;
   vib(): void;
@@ -172,6 +173,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       ask: (modal) => dispatch({ type: 'modal', modal }),
       seqDone: () => dispatch({ type: 'seqDone' }),
       setSumAnim: (v) => dispatch({ type: 'setSumAnim', v }),
+      streakDone: () => dispatch({ type: 'streakDone' }),
       setFresh: (v) => dispatch({ type: 'setFresh', v }),
       say: (msg) => dispatch({ type: 'say', msg }),
       vib,

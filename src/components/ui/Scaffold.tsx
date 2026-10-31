@@ -74,7 +74,6 @@ export function Scaffold({
   className = '',
 }: ScaffoldProps) {
   const body = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const hasBar = !!bar;
   const owner = useId();
@@ -83,15 +82,13 @@ export function Scaffold({
   useEffect(() => {
     present.current = isPresent;
   }, [isPresent]);
-  // Overlays follow the layout: the toast sits over the bar (so over the controls pane in two panes) and the
-  // banner over the main pane. Layout offsets, not bounding boxes, so a screen mid-transition measures true.
+  // The banner follows the layout: over the main pane, never the controls pane. Layout offsets, not bounding
+  // boxes, so a screen mid-transition measures true.
   useEffect(() => {
-    const bar = barRef.current,
-      pane = mainRef.current ?? body.current;
+    const pane = mainRef.current ?? body.current;
     const root = pane?.closest<HTMLElement>('.app-root');
     if (!pane || !root || typeof ResizeObserver === 'undefined') return;
-    const toast = bar ? root.querySelector<HTMLElement>('[data-bar-anchor]') : null,
-      banner = root.querySelector<HTMLElement>('[data-main-anchor]');
+    const banner = root.querySelector<HTMLElement>('[data-main-anchor]');
     let last = '';
     const publish = () => {
       // A screen animating out still resizes (popLayout); it must not take the anchors back from the new one.
@@ -100,39 +97,28 @@ export function Scaffold({
         pl = parseFloat(cs.paddingLeft) || 0,
         pr = parseFloat(cs.paddingRight) || 0;
       const v = {
-        '--bar-h': `${bar?.offsetHeight ?? 0}px`,
-        '--bar-x': `${bar?.offsetLeft ?? 0}px`,
-        '--bar-w': `${bar?.offsetWidth ?? 0}px`,
         '--main-x': `${Math.round(pane.offsetLeft + pl)}px`,
         '--main-w': `${Math.round(pane.clientWidth - pl - pr)}px`,
       };
       const key = JSON.stringify(v);
       if (key === last) return;
       last = key;
-      // Written to the elements that use them: a variable on the root would restyle the whole app.
-      if (toast)
-        for (const k of ['--bar-h', '--bar-x', '--bar-w'] as const)
-          toast.style.setProperty(k, v[k]);
-      if (toast) toast.dataset.barOwner = owner;
+      // Written to the element that uses them: a variable on the root would restyle the whole app.
       if (banner)
         for (const k of ['--main-x', '--main-w'] as const) banner.style.setProperty(k, v[k]);
       if (banner) banner.dataset.mainOwner = owner;
     };
     const ro = new ResizeObserver(publish);
-    for (const el of [bar, pane, root]) if (el) ro.observe(el);
+    for (const el of [pane, root]) ro.observe(el);
     return () => {
       ro.disconnect();
       // Screens overlap while they cross-fade; only the screen that set the values may clear them.
-      if (toast?.dataset.barOwner === owner) {
-        for (const k of ['--bar-h', '--bar-x', '--bar-w']) toast.style.removeProperty(k);
-        delete toast.dataset.barOwner;
-      }
       if (banner?.dataset.mainOwner === owner) {
         for (const k of ['--main-x', '--main-w']) banner.style.removeProperty(k);
         delete banner.dataset.mainOwner;
       }
     };
-  }, [hasBar, owner]);
+  }, [owner]);
   const { scrollY } = useScroll({ container: body });
   const navO = useTransform(scrollY, [24, 64], [0, 1]);
   const topBg = useTransform(scrollY, [0, 40], [0, 1]);
@@ -205,7 +191,6 @@ export function Scaffold({
       </div>
       {bar && (
         <div
-          ref={barRef}
           className={`chrome-bot relative z-20 px-5 pb-[max(1.125rem,var(--sab))] pt-[1.125rem] before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-b before:from-transparent before:to-felt-950/60 ${aside ? 'pane:[grid-area:3/2]' : ''} ${collapseBar ? '@h-tiny:hidden pane:!block' : ''}`}
         >
           {barNote !== undefined && (

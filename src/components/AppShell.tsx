@@ -17,6 +17,7 @@ import { Setup } from '@/screens/setup/Setup';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
 import { RepairSaveModal } from './RepairSaveModal';
+import { StreakCelebration } from './StreakCelebration';
 import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
 import { Toast } from './ui/Toast';
@@ -53,7 +54,7 @@ function PhoneShell() {
     center: { opacity: 1, x: 0, scale: 1 },
     exit: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * -36, scale: 0.985 }),
   };
-  const blocked = !!(sheet || modal || seq || state.corrupt);
+  const blocked = !!(sheet || modal || seq || state.corrupt || state.streakFx);
   // Confetti is skipped under reduced motion; the podium still marks the moment.
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
@@ -110,6 +111,7 @@ function PhoneShell() {
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
+      <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>
