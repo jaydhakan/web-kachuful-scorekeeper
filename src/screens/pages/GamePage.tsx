@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { curRound, doneRounds, standings, type Game } from '@/domain';
 import { dayLabel, timeLabel } from '@/lib/dates';
 import { fmt } from '@/lib/format';
@@ -9,7 +9,8 @@ import { useApp } from '@/state/store';
 import { BoardTable } from '@/sheets/BoardBody';
 import { ChartLegend, ScoreChart } from '@/screens/desk/ScoreChart';
 import { rankTone } from '@/screens/desk/DeskParts';
-import { EmptyState, Page, Section } from '@/components/ui/Page';
+import { EmptyState, Page, Section, Skeleton } from '@/components/ui/Page';
+import { fetchGame, queueDelete, resolveConflict } from '@/sync/engine';
 import { Modal } from '@/components/ui/Modal';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SPRING_POP } from '@/components/ui/motion';
@@ -22,19 +23,37 @@ export function GamePage({ id }: { id: string }) {
   const { state, actions } = useApp();
   const rec = useArchive((a) => a.get('games', id));
   const [ask, setAsk] = useState(false);
+  const [load, setLoad] = useState<'idle' | 'loading' | 'failed'>('idle');
   const current = state.game.syncId === id;
+  const signedIn = !!state.session;
+  // Someone else's game (from a player page or the feed) is fetched once and kept.
+  useEffect(() => {
+    if (rec || current || !signedIn) return;
+    setLoad('loading');
+    fetchGame(id).then(
+      () => setLoad('idle'),
+      () => setLoad('failed'),
+    );
+  }, [id, rec, current, signedIn]);
   // The current game is shown live, not from its archived copy.
   const g: Game | undefined = current ? state.game : rec?.deleted ? undefined : rec?.game;
   if (!g)
     return (
       <Page title={gt.title}>
-        <EmptyState icon="🕳️" title={gt.notFound} body={gt.notFoundBody} />
+        {load === 'loading' ? (
+          <Skeleton rows={4} />
+        ) : (
+          <EmptyState icon="🕳️" title={gt.notFound} body={gt.notFoundBody} />
+        )}
       </Page>
     );
   const done = doneRounds(g),
     at = g.status === 'finished' ? (g.finishedAt ?? g.updatedAt) : g.createdAt;
   const remove = () => {
-    if (rec) archive.put('games', { ...rec, deleted: true, updatedAt: Date.now() });
+    if (rec) {
+      archive.put('games', { ...rec, deleted: true, updatedAt: Date.now() });
+      queueDelete(rec.syncId);
+    }
     setAsk(false);
     actions.back();
     actions.say(gt.deleted);
@@ -46,10 +65,43 @@ export function GamePage({ id }: { id: string }) {
         {gt.resume}
       </PrimaryButton>,
     );
-  else if (!current && g.status === 'active' && rec?.origin === 'local')
+  else if (
+    !current &&
+    g.status === 'active' &&
+    !rec?.conflictOf &&
+    (rec?.origin === 'local' || rec?.account === state.session?.user.id)
+  )
     actionsRow.push(
-      <PrimaryButton key="continue" className="px-7" onClick={() => actions.openGame(g)}>
+      <PrimaryButton
+        key="continue"
+        className="px-7"
+        onClick={() => {
+          if (rec?.origin === 'remote') archive.put('games', { ...rec, origin: 'local' });
+          actions.openGame(g);
+        }}
+      >
         {gt.continue}
+      </PrimaryButton>,
+    );
+  if (rec?.conflictOf)
+    actionsRow.push(
+      <p key="note" className="w-full text-15 text-[var(--tx2)]">
+        {t.hub.sync2.conflictNote}
+      </p>,
+      <PrimaryButton
+        key="keep"
+        className="px-6"
+        onClick={() => (resolveConflict(rec.syncId, true), actions.back())}
+      >
+        {t.hub.sync2.keepThis}
+      </PrimaryButton>,
+      <PrimaryButton
+        key="other"
+        tone="glass"
+        className="px-6"
+        onClick={() => (resolveConflict(rec.syncId, false), actions.back())}
+      >
+        {t.hub.sync2.keepOther}
       </PrimaryButton>,
     );
   return (

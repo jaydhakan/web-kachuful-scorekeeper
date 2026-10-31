@@ -10,6 +10,7 @@ import { EASE } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { DeskPage, Eyebrow, Kbd } from './DeskParts';
 import { TodayStrip } from '@/components/TodayStrip';
+import { ContinueCard } from '@/components/ContinueCard';
 import { t } from '@/strings';
 
 const SUITS = [
@@ -86,6 +87,7 @@ export function DeskHome() {
               </li>
             ))}
           </motion.ul>
+          <ContinueCard className="max-w-[32.5rem]" />
           <TodayStrip className="max-w-[32.5rem]" />
         </section>
         <motion.section
