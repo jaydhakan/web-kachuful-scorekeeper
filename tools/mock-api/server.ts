@@ -174,6 +174,19 @@ export function seed(now = Date.now()) {
     store(toWire(g), admin.id, now);
   }
   recompute(now);
+  // The feed a real server would have written while these games were played.
+  for (const r of liveGames()) {
+    const sum = gameSummary(r, now);
+    if (sum.endedAt)
+      db.activity.push({
+        id: randomUUID(),
+        kind: 'game_finished',
+        game: sum,
+        data: {},
+        createdAt: sum.endedAt,
+      });
+  }
+  db.activity.sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export const toWire = (g: Game): WireGame => {

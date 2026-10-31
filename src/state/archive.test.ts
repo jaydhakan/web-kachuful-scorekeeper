@@ -33,6 +33,9 @@ const real = (patch: Partial<Game> = {}): Game => ({
 });
 
 describe('archive', () => {
+  // A fresh archive bumps its version once loading settles; every test starts after that.
+  beforeEach(() => archive.ready);
+
   it('keeps a real game, and not the demo or a game nobody has bid in', async () => {
     await archive.ready;
     archiveGame(demoGame());
