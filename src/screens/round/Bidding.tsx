@@ -60,7 +60,11 @@ export function HeroWho({
         </p>
         <h2
           className="hero-name pb-[0.06em] [overflow-wrap:anywhere]"
-          style={{ fontSize: `max(1.5rem, calc(var(--big-size) * ${k} * var(--hero-s)))` }}
+          style={{
+            fontSize: `max(1.5rem, calc(var(--big-size) * ${k} * var(--hero-s)))`,
+            // The size is the theme's, the line box is not: every theme's row is the same height.
+            lineHeight: `max(1.4rem, calc(59px * ${k} * var(--hero-s)))`,
+          }}
         >
           {p.name}
         </h2>

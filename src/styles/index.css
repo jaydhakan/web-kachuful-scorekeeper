@@ -33,6 +33,9 @@ html {
 }
 body {
   font-family: theme('fontFamily.sans');
+  /* Fixed, not `normal`: each theme's face has its own normal leading (1.2 to 1.48), which would move the layout when the
+     theme changes. 1.22 is Instrument Sans's, so the default theme looks exactly as it did. */
+  line-height: 1.22;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
