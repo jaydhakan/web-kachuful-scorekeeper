@@ -38,6 +38,7 @@ export function AvatarFill({ p }: { p: Face }) {
         <img
           src={url}
           alt=""
+          loading="lazy"
           decoding="async"
           draggable={false}
           onLoad={() => setLoaded(url)}
