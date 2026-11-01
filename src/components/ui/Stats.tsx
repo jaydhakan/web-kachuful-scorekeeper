@@ -201,14 +201,14 @@ export function Heatmap({ days, year }: { days: Record<string, number>; year: nu
 
 /** Up or down since the previous window. */
 export function RankDelta({ d }: { d: number | null }) {
-  if (!d) return <span aria-hidden className="w-7" />;
+  if (!d) return null;
   return (
     <motion.span
       initial={{ opacity: 0, y: d > 0 ? 6 : -6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={SPRING}
       aria-label={d > 0 ? s.up(d) : s.down(-d)}
-      className={`w-7 text-center text-13 font-extrabold ${d > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}`}
+      className={`mt-0.5 text-center text-13 font-extrabold leading-none ${d > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}`}
     >
       {d > 0 ? '▲' : '▼'}
       {Math.abs(d)}

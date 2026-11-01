@@ -92,6 +92,7 @@ export const hub = {
       `Nobody has played more than ${n} rounds in this range yet, so nobody is ranked. Everyone is listed below.`,
     emptyTitle: 'No rounds in this range',
     emptyBody: 'Pick a longer range, or play a round.',
+    showAll: 'Show all time',
     signedOutTitle: 'Sign in for the global board',
     signedOutBody:
       'Everyone your friends have played with, ranked. Your games on this device still count here.',

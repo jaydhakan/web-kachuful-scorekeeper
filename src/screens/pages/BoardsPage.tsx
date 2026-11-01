@@ -53,6 +53,8 @@ export function BoardsPage() {
   const [range, setRange] = useState<Range>(() => rangeFor('month', Date.now()));
   const [metric, setMetric] = useState<Metric>('avgPerRound');
   const f = useDeviceFacts();
+  // An empty range offers the whole history in one tap (on the 1st of a month "This month" is empty).
+  const showAll = range.kind === 'all' ? undefined : () => setRange(rangeFor('all', Date.now()));
   const device = useMemo(
     () => ({ ...leaderboard(f, { from: range.from, to: range.to, metric }), facts: f }),
     [f, range, metric],
@@ -81,18 +83,34 @@ export function BoardsPage() {
           metric={metric}
           key={`d-${range.from}-${range.to}-${metric}`}
           you={state.session?.player?.id}
+          onShowAll={showAll}
         />
       ) : !signedIn ? (
         <SignedOut />
       ) : (
-        <GlobalBoard range={range} metric={metric} you={state.session?.player?.id} />
+        <GlobalBoard
+          range={range}
+          metric={metric}
+          you={state.session?.player?.id}
+          onShowAll={showAll}
+        />
       )}
     </Page>
   );
 }
 
 /** The server's board for everyone; the row of the signed-in player stays pinned in view. */
-function GlobalBoard({ range, metric, you }: { range: Range; metric: Metric; you?: string }) {
+function GlobalBoard({
+  range,
+  metric,
+  you,
+  onShowAll,
+}: {
+  range: Range;
+  metric: Metric;
+  you?: string;
+  onShowAll?: () => void;
+}) {
   const key = `lb:${range.from}:${range.to}:${metric}`;
   const r = useRemote(key, (o) => ep.leaderboard(range.from, range.to, metric, o));
   return (
@@ -102,6 +120,7 @@ function GlobalBoard({ range, metric, you }: { range: Range; metric: Metric; you
           key={key}
           you={you}
           metric={metric}
+          onShowAll={onShowAll}
           data={{
             minRounds: lb.minRounds,
             facts: null,
@@ -133,15 +152,31 @@ export function BoardList({
   data,
   metric,
   you,
+  onShowAll,
 }: {
   data: BoardData;
   metric: Metric;
   you?: string | null;
+  onShowAll?: () => void;
 }) {
   const rate = RATE_METRICS.includes(metric);
   const ranked = data.rows.filter((r) => r.qualified),
     rest = data.rows.filter((r) => !r.qualified);
-  if (!data.rows.length) return <EmptyState icon="🃏" title={b.emptyTitle} body={b.emptyBody} />;
+  if (!data.rows.length)
+    return (
+      <EmptyState
+        icon="🃏"
+        title={b.emptyTitle}
+        body={b.emptyBody}
+        action={
+          onShowAll && (
+            <PrimaryButton tone="glass" className="px-8" onClick={onShowAll}>
+              {b.showAll}
+            </PrimaryButton>
+          )
+        }
+      />
+    );
   return (
     <>
       {rate && !ranked.length && (
@@ -219,12 +254,15 @@ function Row({
         aria-label={b.row(r.rank ? `#${r.rank}` : b.unrankedShort, w.name, value)}
         className={`glass flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left ${you ? 'shadow-[inset_0_0_0_1.5px_var(--accent)]' : ''}`}
       >
-        <span
-          className={`disp w-8 text-center text-22 font-extrabold ${r.rank ? rankTone(r.rank) : 'text-[var(--tx2)]'}`}
-        >
-          {r.rank ?? '–'}
+        {/* The movement sits under the rank, so rows without one don't leave a gap before the avatar. */}
+        <span className="flex w-8 shrink-0 flex-col items-center">
+          <span
+            className={`disp text-22 font-extrabold leading-none ${r.rank ? rankTone(r.rank) : 'text-[var(--tx2)]'}`}
+          >
+            {r.rank ?? '–'}
+          </span>
+          <RankDelta d={r.rankDelta} />
         </span>
-        <RankDelta d={r.rankDelta} />
         <Avatar
           p={w}
           className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-22 ${need ? 'opacity-60' : ''}`}
