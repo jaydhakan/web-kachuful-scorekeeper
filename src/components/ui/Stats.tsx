@@ -139,9 +139,9 @@ export function Bars({ bars, label }: { bars: Bar[]; label: string }) {
       {bars.map((b, i) => (
         <li
           key={i}
-          className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.5rem] items-center gap-2 text-14"
+          className="grid grid-cols-[6rem_minmax(0,1fr)_3.5rem] items-center gap-2 text-14"
         >
-          <span className="font-bold">{b.label}</span>
+          <span className="whitespace-nowrap font-bold">{b.label}</span>
           <span className="relative h-3 overflow-hidden rounded-full bg-white/[.07]">
             <motion.span
               className="absolute inset-0 origin-left rounded-full bg-[var(--accent)]"
