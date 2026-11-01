@@ -6,8 +6,12 @@ const KINDS = { invite: 'invite', reset: 'reset', live: 'live', recap: 'recap' }
  * A link that opens a screen (`/?invite=…`, `?reset=`, `?live=`, `?recap=`): read once at start, then removed from
  * the address bar so a reload or a shared screenshot doesn't carry the token.
  */
+let taken: { href: string; route: Route } | null = null;
+
 export function readEntryLink(): Route | null {
   if (typeof location === 'undefined') return null;
+  // StrictMode runs the store's initialiser twice; the second run must see the link the first one removed.
+  if (taken?.href === location.href) return taken.route;
   const q = new URLSearchParams(location.search);
   for (const [k, screen] of Object.entries(KINDS)) {
     const token = q.get(k);
@@ -19,7 +23,8 @@ export function readEntryLink(): Route | null {
       '',
       location.pathname + (rest ? '?' + rest : '') + location.hash,
     );
-    return { screen, params: { token } };
+    taken = { href: location.href, route: { screen, params: { token } } };
+    return taken.route;
   }
   return null;
 }
