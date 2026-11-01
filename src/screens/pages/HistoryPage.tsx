@@ -27,9 +27,15 @@ export function gameLine(g: Game): string {
     top = st.filter((s) => s.rank === 1);
   if (!doneRounds(g).length) return t.hub.game.noRounds;
   if (g.status !== 'finished') return h.leads(top[0].p.name, sgnN(top[0].t));
-  return top.length > 1
-    ? h.tied(top.map((s) => s.p.name).join(' & '), sgnN(top[0].t))
-    : h.won(top[0].p.name, sgnN(top[0].t));
+  const pts = sgnN(top[0].t),
+    names = top.map((s) => s.p.name);
+  if (top.length === 1) return h.won(names[0], pts);
+  // Past three names the line stops being readable; the count says it.
+  if (top.length > 3) return h.tiedMany(top.length, pts);
+  return h.tied(
+    names.length === 2 ? names.join(' & ') : `${names[0]}, ${names[1]} & ${names[2]}`,
+    pts,
+  );
 }
 
 const nameKey = (s: string) => s.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -147,29 +153,29 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
       whileTap={{ scale: 0.98 }}
       onClick={() => actions.open({ screen: 'game', params: { id: rec.syncId } })}
       aria-label={h.rowLabel(`${dayLabel(at)} ${timeLabel(at)}`, line)}
-      className="glass flex min-h-[4.5rem] w-full items-center gap-3 px-4 py-3 text-left"
+      className="glass flex min-h-[4.5rem] w-full flex-col gap-1.5 px-4 py-3 text-left"
     >
-      <AvatarStack players={g.players} s={28} max={5} />
-      <span className="min-w-0 flex-1">
-        <span className="block text-16 font-bold leading-tight [overflow-wrap:anywhere]">
-          {line}
-        </span>
-        <span className="mt-0.5 block text-14 text-[var(--tx2)]">
+      <span className="block w-full text-16 font-bold leading-tight [overflow-wrap:anywhere]">
+        {line}
+      </span>
+      <span className="flex w-full flex-wrap items-center gap-x-3 gap-y-1.5">
+        <AvatarStack players={g.players} s={24} max={6} />
+        <span className="text-14 text-[var(--tx2)]">
           {timeLabel(at)} · {h.rounds(doneRounds(g).length)} · {g.players.length} 👤
         </span>
+        {badges.length > 0 && (
+          <span className="ml-auto flex flex-wrap justify-end gap-1.5">
+            {badges.map((b) => (
+              <span
+                key={b}
+                className={`whitespace-nowrap rounded-full px-2 py-0.5 text-13 font-bold ${b === h.badge.current ? 'bg-[var(--accent)] text-ink-on-accent' : 'bg-white/[.08] text-[var(--tx2)]'}`}
+              >
+                {b}
+              </span>
+            ))}
+          </span>
+        )}
       </span>
-      {badges.length > 0 && (
-        <span className="flex shrink-0 flex-col items-end gap-1">
-          {badges.map((b) => (
-            <span
-              key={b}
-              className={`rounded-full px-2 py-0.5 text-13 font-bold ${b === h.badge.current ? 'bg-[var(--accent)] text-ink-on-accent' : 'bg-white/[.08] text-[var(--tx2)]'}`}
-            >
-              {b}
-            </span>
-          ))}
-        </span>
-      )}
     </motion.button>
   );
 }

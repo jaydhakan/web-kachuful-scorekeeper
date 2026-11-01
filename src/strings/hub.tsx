@@ -36,6 +36,7 @@ export const hub = {
     rounds: (n: number) => plural(n, 'round'),
     won: (name: string, pts: string) => `${name} won · ${pts}`,
     tied: (names: string, pts: string) => `${names} tied · ${pts}`,
+    tiedMany: (n: number, pts: string) => `${n}-way tie · ${pts}`,
     leads: (name: string, pts: string) => `${name} leads · ${pts}`,
     badge: {
       current: 'Playing now',
