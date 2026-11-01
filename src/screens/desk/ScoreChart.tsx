@@ -72,7 +72,8 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
   return (
     <div
       ref={box}
-      className="relative min-h-0 w-full flex-1"
+      // h-full as well as flex-1: in a plain block box the chart would otherwise be 0 tall and never measured.
+      className="relative h-full min-h-0 w-full flex-1"
       onPointerMove={(e) => pick(e.clientX)}
       onPointerLeave={() => setHi(null)}
     >

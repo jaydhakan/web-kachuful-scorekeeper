@@ -201,7 +201,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
               </div>
             </Section>
           )}
-          <div className="grid gap-x-6 [[data-desk]_&]:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-6 [[data-desk]_&]:grid-cols-2">
             <Section title={p.byCards}>
               <div className="glass p-4">
                 <Bars label={p.byCards} bars={accBars(s.byCards, (k) => p.cardsN(k))} />
@@ -267,7 +267,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
               <p className="text-15 text-[var(--tx2)]">{p.noShelf}</p>
             )}
           </Section>
-          <div className="grid gap-x-6 [[data-desk]_&]:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-6 [[data-desk]_&]:grid-cols-2">
             <Section title={p.recent}>
               <ul className="flex flex-col gap-2">
                 {recent.map((g) => (
