@@ -15,6 +15,7 @@ import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { PODIUM_BG } from '@/components/ui/podium';
 import { t } from '@/strings';
 import { AvatarFill } from '@/components/ui/Avatar';
+import { icon } from '@/components/ui/IconsMore';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -34,7 +35,7 @@ const AVATAR = {
 const STEP_MIN = '3rem';
 
 interface StatCardProps {
-  ic: string;
+  ic: ReactNode;
   t: string;
   p: Player;
   s: ReactNode;
@@ -169,9 +170,9 @@ export default function Winner() {
               initial={{ y: -140, scale: 0.5, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
               transition={{ ...SPRING_POP, delay: 0.5 }}
-              className="block text-center text-52 land:hidden"
+              className="mx-auto block h-[3.25rem] w-[3.25rem] text-gold land:hidden"
             >
-              🏆
+              {icon('trophy', 'h-full w-full')}
             </m.span>
             <div
               data-podium
@@ -224,35 +225,35 @@ export default function Winner() {
             <div className="grid grid-cols-2 gap-2.5 land:grid-cols-1 land:@[22rem]:grid-cols-2 md:grid-cols-3 wide:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">
               <StatCard
                 i={0}
-                ic="🎯"
+                ic={icon('target')}
                 t={t.winner.sharp}
                 p={S.sharp.p}
                 s={t.winner.exactBids(S.sharp.exact)}
               />
               <StatCard
                 i={1}
-                ic="💥"
+                ic={icon('bolt')}
                 t={t.winner.big}
                 p={S.big.p}
                 s={t.winner.inOneRound(sgnN(S.big.best))}
               />
               <StatCard
                 i={2}
-                ic="🔥"
+                ic={icon('fire')}
                 t={t.winner.streak}
                 p={S.streak.p}
                 s={t.winner.exactInRow(S.streak.maxRun)}
               />
               <StatCard
                 i={3}
-                ic="🪝"
+                ic={icon('hook')}
                 t={t.winner.hook}
                 p={S.hook.p}
                 s={t.winner.blocked(S.hook.hook)}
               />
               <StatCard
                 i={4}
-                ic="😬"
+                ic={icon('nervous')}
                 t={t.winner.ouch}
                 p={S.ouch.p}
                 s={t.winner.inOneRound(sgnN(S.ouch.worst))}

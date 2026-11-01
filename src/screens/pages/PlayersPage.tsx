@@ -38,16 +38,16 @@ export function PlayersPage({ list }: { list?: Person[] }) {
           placeholder={pp.search}
           autoComplete="off"
           spellCheck={false}
-          className="h-12 w-full rounded-2xl bg-ov/[.07] px-4 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
+          className="h-12 w-full rounded-2xl mat-inp px-4 text-17 outline-none placeholder:text-[var(--ph)]"
         />
       }
     >
       {!loaded && !list ? (
         <Skeleton rows={6} h={60} />
       ) : !all.length ? (
-        <EmptyState icon="👥" title={pp.none} body={pp.noneBody} />
+        <EmptyState icon="players" title={pp.none} body={pp.noneBody} />
       ) : !shown.length ? (
-        <EmptyState icon="🔍" title={pp.noMatch} />
+        <EmptyState icon="search" title={pp.noMatch} />
       ) : (
         <ul className="flex flex-col gap-2">
           {shown.slice(0, 200).map((p, i) => (

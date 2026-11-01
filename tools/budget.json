@@ -1,6 +1,6 @@
 {
   "initialJsKb": 145,
-  "cssKb": 20,
+  "cssKb": 22,
   "lazyChunkKb": 30,
   "performance": 90,
   "lcpMs": 2500,

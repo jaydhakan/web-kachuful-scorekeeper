@@ -15,7 +15,6 @@ import {
   toPct,
   type TableSize,
 } from '@/lib/tableGeometry';
-import { Icon } from './Icons';
 import { EASE, PRESS_SM, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
 import { AvatarFill } from './Avatar';
@@ -86,13 +85,13 @@ function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
         <path
           d={p}
           fill="none"
-          stroke="var(--accent)"
+          stroke="var(--arc)"
           strokeOpacity=".5"
           strokeWidth="2"
           strokeDasharray="3 6"
           strokeLinecap="round"
         />
-        <polygon points={tri} fill="var(--accent)" fillOpacity=".7" />
+        <polygon points={tri} fill="var(--arc)" fillOpacity=".7" />
       </g>,
     );
   }
@@ -205,7 +204,7 @@ export function Table({
                   refY="4"
                   orient="auto"
                 >
-                  <path d="M0 0L8 4L0 8z" fill="var(--accent)" />
+                  <path d="M0 0L8 4L0 8z" fill="var(--arc)" />
                 </marker>
               </defs>
               <m.path
@@ -215,7 +214,7 @@ export function Table({
                 transition={{ duration: 0.5, ease: EASE }}
                 d={`M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`}
                 fill="none"
-                stroke="var(--accent)"
+                stroke="var(--arc)"
                 strokeWidth="3"
                 strokeDasharray="6 5"
                 markerEnd={`url(#ah${uid})`}
@@ -277,7 +276,7 @@ export function Table({
                   initial={false}
                   whileTap={onSeat ? PRESS_SM : undefined}
                   transition={SPRING}
-                  className={`relative mx-auto grid place-items-center rounded-full border-2 border-ov/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
+                  className={`mat-av relative mx-auto grid place-items-center rounded-full ${ring}`}
                   style={{
                     width: av,
                     height: av,
@@ -302,7 +301,7 @@ export function Table({
                   // The label may be shortened, but only by width: it can never be wider than its share of the
                   // table, so it shrinks with the seats. The full name stays in the text and the tooltip.
                   title={p.name}
-                  className="absolute left-1/2 w-max -translate-x-1/2 overflow-hidden text-ellipsis whitespace-nowrap text-center text-13 font-bold leading-4 tracking-[0.005em] [text-shadow:0_1px_3px_black]"
+                  className="mat-name absolute left-1/2 w-max -translate-x-1/2 overflow-hidden text-ellipsis whitespace-nowrap text-center text-13 font-bold leading-4 tracking-[0.005em]"
                   style={
                     wide
                       ? {
@@ -322,7 +321,7 @@ export function Table({
                   data-seat-chip
                   layoutId={'dealer-' + uid}
                   transition={{ type: 'spring', stiffness: 170, damping: 22 }}
-                  className="absolute z-[4] flex items-center justify-center gap-[3px] rounded-full bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_2px_8px_rgba(0,0,0,.5),0_0_16px_rgba(226,182,83,.55)]"
+                  className="mat-dealer absolute z-[4] flex items-center justify-center gap-[3px] rounded-full text-13 font-extrabold"
                   style={
                     chipPill
                       ? {
@@ -338,8 +337,8 @@ export function Table({
                         }
                   }
                 >
-                  {Icon.deck}
-                  {chipPill && t.table.deals}
+                  {/* The reference's "D" disc; the wide table's pill keeps its word. */}
+                  {chipPill ? t.table.deals : t.table.dealerMark}
                 </m.div>
               )}
               {p && first === k && (
@@ -348,7 +347,7 @@ export function Table({
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
-                  className="absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] bg-[var(--accent)] px-1.5 text-13 font-extrabold leading-[18px] text-ink-on-accent"
+                  className="mat-first absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] px-1.5 text-13 font-extrabold leading-[18px]"
                   style={
                     lead && size !== 'mini'
                       ? { left: '50%', top: dpx(wide ? -24 : -22), translate: '-50% 0' }
@@ -380,7 +379,7 @@ export function Table({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.5, opacity: 0 }}
                     transition={SPRING_POP}
-                    className="disp absolute z-[3] border-[1.5px] border-[var(--accent)] bg-text-primary text-center font-extrabold text-ink-on-accent shadow-[0_2px_8px_rgba(0,0,0,.5)]"
+                    className="mat-bid disp absolute z-[3] text-center font-extrabold"
                     style={
                       big
                         ? {

@@ -156,7 +156,7 @@ export function EmailStep({
           aria-invalid={!!err}
           aria-describedby={'em-' + name + '-h'}
           placeholder={x.emailPlaceholder}
-          className="h-12 min-w-0 flex-1 rounded-2xl bg-ov/[.07] px-4 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
+          className="h-12 min-w-0 flex-1 rounded-2xl mat-inp px-4 text-17 outline-none placeholder:text-[var(--ph)]"
         />
         <button
           type="submit"

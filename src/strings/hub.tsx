@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import { Icon } from '@/components/ui/Icons';
 /** Strings for the screens opened over the game: history, boards, players, accounts and sharing. */
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 
@@ -118,7 +120,13 @@ export const hub = {
     cold: 'Longest miss run',
     hooked: 'Hooked',
     dealer: 'As dealer',
-    places: (a: number, b: number, c: number) => `🥇 ${a} · 🥈 ${b} · 🥉 ${c}`,
+    places: (a: number, b: number, c: number): ReactNode => (
+      <>
+        <span className="text-gold">{Icon.medalInline}</span> {a} ·{' '}
+        <span className="text-rank-silver">{Icon.medalInline}</span> {b} ·{' '}
+        <span className="text-rank-bronze">{Icon.medalInline}</span> {c}
+      </>
+    ),
     overTime: 'Points over time',
     byCards: 'Accuracy by cards',
     byTrump: 'Accuracy by trump',
@@ -307,6 +315,7 @@ export const hub = {
     noPlayer: 'No player linked to this account',
   },
   admin: {
+    adminTag: 'admin ·',
     title: 'Admin',
     tabs: 'Admin section',
     users: 'Users',

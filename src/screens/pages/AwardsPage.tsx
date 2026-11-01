@@ -28,6 +28,7 @@ import { useRemote } from '@/sync/useRemote';
 import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { icon } from '@/components/ui/IconsMore';
 
 const aw = t.hub.awards;
 const isFinal = (v: { final: boolean }) => v.final;
@@ -144,18 +145,18 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
       sub={
         <ChipRow label={aw.tabs}>
           <Chip on={tab === 'day'} onClick={() => setTab('day')}>
-            ⭐ {aw.today}
+            {icon('star')} {aw.today}
           </Chip>
           <Chip on={tab === 'season'} onClick={() => setTab('season')}>
-            👑 {aw.season}
+            {icon('crown')} {aw.season}
           </Chip>
           {signedIn && (
             <Chip onClick={() => actions.open({ screen: 'activity' })}>
-              📰 {t.hub.nav.activity}
+              {icon('news')} {t.hub.nav.activity}
             </Chip>
           )}
           <Chip onClick={() => actions.open({ screen: 'wrapped', params: { year: String(year) } })}>
-            🎁 {aw.wrapped(year)}
+            {icon('gift')} {aw.wrapped(year)}
           </Chip>
         </ChipRow>
       }
@@ -191,7 +192,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
               ))}
             </ul>
           ) : (
-            <EmptyState icon="🌙" title={aw.noneTitle} body={aw.noneBody} />
+            <EmptyState icon="moon" title={aw.noneTitle} body={aw.noneBody} />
           )}
         </>
       ) : (
@@ -226,7 +227,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
                     metric="avgPerRound"
                   />
                 ) : (
-                  <EmptyState icon="📅" title={aw.noSeason} />
+                  <EmptyState icon="calendar" title={aw.noSeason} />
                 )}
               </Section>
             </div>
@@ -250,7 +251,7 @@ function Podium({ s, f }: { s: ReturnType<typeof season>; f: Facts | null }) {
           k = top.indexOf(r);
         return (
           <div key={r.playerId} className="flex w-24 flex-col items-center gap-1 text-center">
-            {k === 0 && <span className="text-28">👑</span>}
+            {k === 0 && <span className="text-gold">{icon('crown', 'h-7 w-7')}</span>}
             <Avatar p={w} className="grid h-12 w-12 place-items-center rounded-full text-26" />
             <span className="text-14 font-bold [overflow-wrap:anywhere]">{w.name}</span>
             <m.span

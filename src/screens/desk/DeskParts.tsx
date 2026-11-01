@@ -7,6 +7,7 @@ import { fmt, sgnN } from '@/lib/format';
 import { Avatar as UiAvatar, type Face } from '@/components/ui/Avatar';
 import { EASE, PRESS, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { HALO, onFelt } from '@/components/ui/SuitCenter';
 
 /** A key cap. Hidden where there is no mouse or trackpad, since there is probably no keyboard either. */
 export const Kbd = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
@@ -189,8 +190,8 @@ export const TableCenter = ({ trump, cards }: { trump: Trump; cards: number }) =
     <div
       className="relative leading-none"
       style={{
-        color: TR[trump].col,
-        textShadow: '0 0 20px var(--accent)',
+        color: onFelt(trump),
+        textShadow: `0 0 20px ${HALO}`,
         fontSize: `max(2rem, ${dpx(72)})`,
       }}
     >
@@ -198,13 +199,13 @@ export const TableCenter = ({ trump, cards }: { trump: Trump; cards: number }) =
       <span
         aria-hidden
         className="suit-glow absolute inset-0"
-        style={{ textShadow: '0 0 52px var(--accent), 0 0 90px var(--glow)' }}
+        style={{ textShadow: `0 0 52px ${HALO}, 0 0 90px var(--trump-glow)` }}
       >
         {TR[trump].sym}
       </span>
     </div>
     <div
-      className="whitespace-nowrap font-medium tracking-[0.01em]"
+      className="whitespace-nowrap font-medium tracking-[0.01em] text-[var(--ctr-fg)]"
       style={{ fontSize: `max(0.8125rem, ${dpx(15)})` }}
     >
       {t.suit.big(TR[trump].name, cards)}

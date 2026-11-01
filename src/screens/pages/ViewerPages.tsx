@@ -20,6 +20,7 @@ import { ACH } from '@/domain';
 import { gameLine } from './HistoryPage';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { icon } from '@/components/ui/IconsMore';
 
 const lv = t.hub.live;
 const QUIET_MS = 2 * 60e3;
@@ -140,7 +141,7 @@ export function LivePage({ token }: { token: string }) {
           </>
         ) : (
           <EmptyState
-            icon={st.k === 'revoked' ? '🔒' : st.k === 'offline' ? '📡' : '🕳️'}
+            icon={st.k === 'revoked' ? 'locked' : st.k === 'offline' ? 'offline' : 'linkBreak'}
             title={st.k === 'revoked' ? lv.revoked : st.k === 'offline' ? lv.offline : lv.notFound}
             action={<OpenApp />}
           />
@@ -221,7 +222,7 @@ export function RecapPage({ token }: { token: string }) {
           <Skeleton rows={5} />
         ) : (
           <EmptyState
-            icon={st.k === 'revoked' ? '🔒' : st.k === 'offline' ? '📡' : '🕳️'}
+            icon={st.k === 'revoked' ? 'locked' : st.k === 'offline' ? 'offline' : 'linkBreak'}
             title={
               st.k === 'revoked'
                 ? t.hub.recap.revoked
@@ -246,9 +247,14 @@ export function RecapPage({ token }: { token: string }) {
           <ul className="grid grid-cols-2 gap-2 md:grid-cols-3 wide:grid-cols-3">
             {(
               [
-                ['🎯', t.winner.sharp, S.sharp.p.name, t.winner.exactBids(S.sharp.exact)],
-                ['💥', t.winner.big, S.big.p.name, sgnN(S.big.best)],
-                ['🔥', t.winner.streak, S.streak.p.name, t.winner.exactInRow(S.streak.maxRun)],
+                [icon('target'), t.winner.sharp, S.sharp.p.name, t.winner.exactBids(S.sharp.exact)],
+                [icon('bolt'), t.winner.big, S.big.p.name, sgnN(S.big.best)],
+                [
+                  icon('fire'),
+                  t.winner.streak,
+                  S.streak.p.name,
+                  t.winner.exactInRow(S.streak.maxRun),
+                ],
               ] as const
             ).map(([ic, title, who, v]) => (
               <li key={title} className="glass p-3">

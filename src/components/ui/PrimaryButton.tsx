@@ -6,12 +6,8 @@ interface PrimaryButtonProps extends HTMLMotionProps<'button'> {
   tone?: 'accent' | 'danger' | 'glass';
 }
 
-const FILL = {
-  accent:
-    'bg-accent-gradient shadow-[0_14px_36px_-10px_var(--accent),inset_0_1px_0_rgba(255,255,255,.35)]',
-  danger: 'bg-[rgba(255,92,108,.16)]',
-  glass: 'glass',
-};
+// Each theme paints these materials (src/styles/themes.css); the button only picks one.
+const FILL = { accent: 'mat-fill', danger: 'mat-fill-d', glass: 'mat-fill-s' };
 const INK = {
   accent: 'text-ink-on-accent',
   danger: 'text-[var(--neg-tx)]',
@@ -53,11 +49,11 @@ export function PrimaryButton({
       style={{ x, y }}
       whileTap={disabled ? undefined : PRESS}
       transition={SPRING}
-      className={`relative isolate flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] disabled:cursor-default ${disabled ? 'text-[var(--tx2)]' : INK[tone]} ${className}`}
+      className={`mat-cta mat-tone-${tone} relative isolate flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] disabled:cursor-default ${disabled ? 'text-[var(--tx2)]' : `mat-cta-on ${INK[tone]}`} ${className}`}
       {...rest}
     >
       {/* Enabling cross-fades two pre-painted fills; colours and shadows never animate. */}
-      <span aria-hidden className={`${layer} bg-ov/[.06] ${disabled ? '' : 'opacity-0'}`} />
+      <span aria-hidden className={`${layer} mat-fill-off ${disabled ? '' : 'opacity-0'}`} />
       <span aria-hidden className={`${layer} ${FILL[tone]} ${disabled ? 'opacity-0' : ''}`} />
       {children as ReactNode}
     </m.button>

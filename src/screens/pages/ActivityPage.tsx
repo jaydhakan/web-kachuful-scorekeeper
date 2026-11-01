@@ -11,6 +11,7 @@ import { EmptyState, Page } from '@/components/ui/Page';
 import { stagger } from '@/components/ui/stagger';
 import { achName } from '@/strings/achievements';
 import { t } from '@/strings';
+import { icon } from '@/components/ui/IconsMore';
 
 const ac = t.hub.activity;
 
@@ -37,7 +38,7 @@ export function ActivityPage() {
   if (!state.session)
     return (
       <Page title={ac.title}>
-        <EmptyState icon="📰" title={t.hub.boards.signedOutTitle} />
+        <EmptyState icon="news" title={t.hub.boards.signedOutTitle} />
       </Page>
     );
   return (
@@ -45,7 +46,7 @@ export function ActivityPage() {
       <RemoteGate r={first}>
         {(p) =>
           !p.items.length ? (
-            <EmptyState icon="📰" title={ac.empty} />
+            <EmptyState icon="news" title={ac.empty} />
           ) : (
             <>
               <ul className="flex flex-col gap-2">
@@ -94,10 +95,10 @@ function Row({ a }: { a: Activity }) {
     a.kind === 'achievement' && code
       ? [ACH.get(code)?.emoji ?? '🏅', ac.earned(who?.displayName ?? '', achName(code))]
       : a.kind === 'game_finished'
-        ? ['🏁', ac.finished(top?.name ?? '', top ? sgnN(top.points) : '')]
+        ? [icon('flag', 'h-6 w-6'), ac.finished(top?.name ?? '', top ? sgnN(top.points) : '')]
         : a.kind === 'player_joined'
-          ? ['👋', ac.joined(who?.displayName ?? '')]
-          : ['👑', ac.season(String(a.data.season ?? ''))];
+          ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
+          : [icon('crown', 'h-6 w-6 text-gold'), ac.season(String(a.data.season ?? ''))];
   const go = () =>
     a.game
       ? actions.open({ screen: 'game', params: { id: a.game.id } })

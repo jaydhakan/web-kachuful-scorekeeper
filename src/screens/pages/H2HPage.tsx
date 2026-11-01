@@ -112,7 +112,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
         {side(B, 60)}
       </div>
       {!x.games ? (
-        <EmptyState icon="🤝" title={h.never} />
+        <EmptyState icon="handshake" title={h.never} />
       ) : (
         <>
           <div className="glass mb-6 divide-y divide-ov/[.06] px-4">

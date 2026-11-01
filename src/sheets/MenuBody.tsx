@@ -1,38 +1,36 @@
+import type { ReactElement } from 'react';
 import { m } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
 import { destRoute, destsFor } from '@/components/hubNav';
 import { t } from '@/strings';
+import { Icon } from '@/components/ui/Icons';
+
+type Row = [ReactElement, string, () => void, boolean?];
 
 export function MenuBody() {
   const { state, actions } = useApp();
   const inGame = state.screen === 'round' || state.screen === 'winner';
-  const go: [string, string, () => void, boolean?][] = [
-    ...destsFor(!!state.session).map((d): [string, string, () => void] => [
-      d.emoji,
+  const go: Row[] = [
+    ...destsFor(!!state.session).map((d): Row => [
+      d.icon,
       d.label,
       () => actions.open(destRoute(d)),
     ]),
     state.session
-      ? ['👤', t.hub.nav.account, () => actions.open({ screen: 'account' })]
-      : ['🔑', t.hub.nav.signIn, () => actions.open({ screen: 'signin' })],
+      ? [Icon.user, t.hub.nav.account, () => actions.open({ screen: 'account' })]
+      : [Icon.key, t.hub.nav.signIn, () => actions.open({ screen: 'signin' })],
   ];
-  const game: [string, string, () => void, boolean?][] = [
-    ['📖', t.sheets.menu.rules, () => actions.openSheet({ type: 'rules' })],
-    ['📊', t.sheets.menu.board, () => actions.openSheet({ type: 'board' })],
-    ['🗓️', t.sheets.menu.upcoming, () => actions.openSheet({ type: 'upcoming' })],
-    ['↩️', t.sheets.menu.undo, () => actions.undo()],
+  const game: Row[] = [
+    [Icon.rules, t.sheets.menu.rules, () => actions.openSheet({ type: 'rules' })],
+    [Icon.scores, t.sheets.menu.board, () => actions.openSheet({ type: 'board' })],
+    [Icon.rounds, t.sheets.menu.upcoming, () => actions.openSheet({ type: 'upcoming' })],
+    [Icon.undo, t.sheets.menu.undo, () => actions.undo()],
     ...(state.session
-      ? [
-          ['🔗', t.hub.share.links, () => actions.openSheet({ type: 'share' })] as [
-            string,
-            string,
-            () => void,
-          ],
-        ]
+      ? [[Icon.link, t.hub.share.links, () => actions.openSheet({ type: 'share' })] as Row]
       : []),
     [
-      '🏁',
+      Icon.flag,
       t.sheets.menu.end,
       () => {
         actions.openSheet(null);
@@ -41,7 +39,7 @@ export function MenuBody() {
       true,
     ],
     [
-      '🏠',
+      Icon.home,
       t.sheets.menu.quit,
       () => {
         actions.openSheet(null);
@@ -69,7 +67,7 @@ export function MenuBody() {
             style={{ opacity: 0 }}
             className="absolute inset-0 -z-10 rounded-[inherit] bg-ov/[.07]"
           />
-          <span aria-hidden className="w-7 text-center text-22">
+          <span aria-hidden className="grid w-7 place-items-center">
             {ic}
           </span>
           {t}

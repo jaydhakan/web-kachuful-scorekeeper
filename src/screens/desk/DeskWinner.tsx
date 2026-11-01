@@ -14,6 +14,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { t } from '@/strings';
 import { Avatar, AvatarFill } from '@/components/ui/Avatar';
 import { seatColor } from '@/theme/palette';
+import { icon } from '@/components/ui/IconsMore';
 
 const STEP = {
   1: {
@@ -141,7 +142,7 @@ export function DeskWinner() {
           <>
             {reel.length > 0 && (
               <GhostButton onClick={() => setShowReel(true)}>
-                🏅 {t.hub.game.achievementsN(reel.length)}
+                {icon('medal')} {t.hub.game.achievementsN(reel.length)}
               </GhostButton>
             )}
             <GhostButton onClick={() => actions.openSheet({ type: 'share' })}>

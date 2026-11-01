@@ -19,6 +19,7 @@ import { stagger } from '@/components/ui/stagger';
 import { authError } from './AuthPages';
 import { t } from '@/strings';
 import { seatColor } from '@/theme/palette';
+import { icon } from '@/components/ui/IconsMore';
 
 const ad = t.hub.admin;
 
@@ -55,7 +56,7 @@ export function AdminPage() {
   if (state.session?.user.role !== 'admin')
     return (
       <Page title={ad.title}>
-        <EmptyState icon="🔒" title={t.hub.auth.errors.server} />
+        <EmptyState icon="locked" title={t.hub.auth.errors.server} />
       </Page>
     );
   return (
@@ -129,7 +130,7 @@ function Users() {
         className="mb-5 w-full"
         onClick={() => (setInvite(true), setLink(null), setEmail(''), setPid(null))}
       >
-        ✉️ {ad.invite}
+        {icon('envelope')} {ad.invite}
       </PrimaryButton>
       <ul className="flex flex-col gap-2">
         {rows.map((r, i) => (
@@ -144,7 +145,7 @@ function Users() {
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
                 style={{ background: r.player ? seatColor(r.player.color) : 'transparent' }}
               >
-                {r.player?.emoji ?? '✉️'}
+                {r.player?.emoji ?? icon('envelope')}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-16 font-bold [overflow-wrap:anywhere]">
@@ -152,7 +153,11 @@ function Users() {
                 </span>
                 <span className="block text-13 text-[var(--tx2)]">
                   {r.player?.displayName ? `${r.player.displayName} · ` : ''}
-                  {r.user?.role === 'admin' ? '🛡️ admin · ' : ''}
+                  {r.user?.role === 'admin' && (
+                    <>
+                      {icon('shield')} {ad.adminTag}{' '}
+                    </>
+                  )}
                   {r.invite
                     ? ad.pendingInvite(new Date(r.invite.expiresAt).toLocaleDateString())
                     : !r.active

@@ -24,9 +24,13 @@ interface SegProps<T extends string> {
 }
 
 const thumbBg = (tone?: 'pos' | 'neg') =>
-  tone === 'pos' ? 'var(--pos)' : tone === 'neg' ? 'var(--neg)' : 'var(--accent)';
+  tone === 'pos' ? 'var(--pos)' : tone === 'neg' ? 'var(--neg)' : undefined;
 const onInk = (tone?: 'pos' | 'neg') =>
-  tone === 'neg' ? 'text-ink-negative' : 'text-ink-on-accent';
+  tone === 'neg'
+    ? 'text-ink-negative'
+    : tone === 'pos'
+      ? 'text-[var(--on-success)]'
+      : 'text-ink-on-accent';
 
 /** Segmented control with a sliding thumb. */
 export function Seg<T extends string>({
@@ -44,7 +48,7 @@ export function Seg<T extends string>({
       role="group"
       aria-label={label}
       {...roving.group}
-      className={`relative inline-flex rounded-2xl bg-ov/[.06] p-[3px] ${className}`}
+      className={`mat-seg relative inline-flex rounded-2xl p-[3px] ${className}`}
     >
       {options.map((o, i) => {
         const on = value === o.v;
@@ -66,8 +70,8 @@ export function Seg<T extends string>({
               <m.span
                 layoutId={uid}
                 transition={SPRING}
-                className="absolute inset-0 -z-10 rounded-[13px]"
-                style={{ background: thumbBg(o.tone), boxShadow: '0 6px 18px -6px rgba(0,0,0,.6)' }}
+                className="mat-thumb absolute inset-0 -z-10 rounded-[13px]"
+                style={{ background: thumbBg(o.tone) }}
               />
             )}
             {o.label}

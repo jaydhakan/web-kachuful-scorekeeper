@@ -4,6 +4,7 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useApp } from '@/state/store';
 import { SPRING } from './ui/motion';
 import { t } from '@/strings';
+import { Icon } from './ui/Icons';
 
 /** Offers a waiting service-worker update. It never reloads on its own. */
 export function UpdatePrompt() {
@@ -42,7 +43,7 @@ export function UpdatePrompt() {
               onClick={dismiss}
               className="press-sm grid h-11 w-11 place-items-center rounded-full text-[var(--tx2)]"
             >
-              ✕
+              {Icon.close}
             </button>
           </m.div>
         )}

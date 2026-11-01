@@ -159,7 +159,7 @@ export function InvitePage({ token }: { token: string }) {
   if (st.k === 'gone')
     return (
       <Page title={a.inviteTitle}>
-        <EmptyState icon="⌛" title={st.msg} />
+        <EmptyState icon="hourglass" title={st.msg} />
       </Page>
     );
 
@@ -310,7 +310,7 @@ export function ResetPage({ token }: { token: string }) {
   if (gone)
     return (
       <Page title={a.resetTitle}>
-        <EmptyState icon="⌛" title={gone} />
+        <EmptyState icon="hourglass" title={gone} />
       </Page>
     );
   if (!email)

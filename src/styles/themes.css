@@ -133,7 +133,8 @@
   --ink: #fff6f0;
   --arc: var(--brand);
   --vignette: rgba(0, 0, 0, 0.42);
-  --sheet-bg: rgba(30, 12, 26, 0.72);
+  /* The reference's .72 relies on a backdrop blur, which a sliding full-height sheet can't afford (DEVIATIONS.md). */
+  --sheet-bg: rgba(30, 12, 26, 0.95);
   --toast-bg: rgba(58, 27, 46, 0.8);
   --toast-fg: var(--text-1);
   --medal-gold: #e2b653;
@@ -397,7 +398,7 @@
   color: var(--text-1);
   font-family: var(--font-body);
 }
-:root,
+:root:not([data-theme]),
 [data-theme='sunset-glass'] {
   --wallpaper:
     radial-gradient(62% 38% at 12% 6%, var(--g1) 0, transparent 72%),
@@ -528,4 +529,536 @@
     border: 1px solid CanvasText;
     background: Canvas;
   }
+}
+
+/* ---------- type roles ---------- */
+.disp,
+.font-display {
+  letter-spacing: var(--display-track);
+}
+/* Mono role: header lines, kickers, ticker, section labels (kf.css .kick/.sec). */
+.mono-label {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: var(--mono-track);
+  text-transform: uppercase;
+}
+[data-theme='yerba-sun'] .mono-label {
+  font-weight: 700;
+}
+[data-theme='editorial-paper'] .mono-label {
+  font-weight: 500;
+}
+
+/* ---------- primary and secondary buttons (PrimaryButton: a fill layer per state, so colours never animate) ---------- */
+.mat-fill {
+  background: var(--fill-primary);
+}
+.mat-fill-off {
+  background: color-mix(in srgb, var(--ov) 6%, transparent);
+}
+.mat-fill-d {
+  background: var(--danger-soft);
+}
+.mat-fill-s {
+  background: var(--glass);
+}
+[data-theme='sunset-glass'] .mat-fill {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 16px 36px -8px var(--glow);
+}
+[data-theme='sunset-glass'] .mat-fill-off,
+[data-theme='sunset-glass'] .mat-fill-s {
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--glass-b);
+}
+[data-theme='sunset-glass'] .mat-cta {
+  border-radius: 28px;
+}
+[data-theme='yerba-sun'] .mat-cta {
+  border-radius: var(--r-lg);
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+[data-theme='yerba-sun'] .mat-fill {
+  box-shadow:
+    inset 0 0 0 3px var(--ink),
+    5px 5px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-fill-s,
+[data-theme='yerba-sun'] .mat-fill-d {
+  background: var(--panel);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    3px 3px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-fill-off {
+  background: transparent;
+  box-shadow: inset 0 0 0 2.5px var(--text-3);
+}
+/* The sticker lifts off the page; pressing pushes it back down onto its shadow. `translate` composes with motion's transform. */
+[data-theme='yerba-sun'] .mat-cta-on {
+  translate: -2px -2px;
+}
+[data-theme='yerba-sun'] .mat-cta-on:active {
+  translate: 1px 1px;
+}
+[data-theme='editorial-paper'] .mat-cta {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+[data-theme='editorial-paper'] .mat-fill {
+  background: var(--ink);
+}
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent {
+  color: var(--paper-hi);
+  justify-content: space-between;
+  padding-inline: 20px;
+}
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent::after {
+  content: '\2192';
+  color: var(--brand);
+  font-size: 1.5rem;
+  letter-spacing: 0;
+}
+[data-theme='editorial-paper'] .mat-fill-s,
+[data-theme='editorial-paper'] .mat-fill-d,
+[data-theme='editorial-paper'] .mat-fill-off {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-fill-off {
+  box-shadow: inset 0 0 0 1px var(--text-3);
+}
+/* Small editorial buttons lose tracking so labels never wrap (reference audit fix). */
+[data-theme='editorial-paper'] .mat-cta.mat-sm {
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+}
+
+/* ---------- icon buttons in headers: round glass, an ink sticker, or an ink square ---------- */
+[data-theme='sunset-glass'] .mat-ibtn {
+  border-radius: 50%;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 var(--hl),
+    inset 0 0 0 1px var(--glass-b),
+    0 8px 20px -8px var(--drop);
+}
+[data-theme='yerba-sun'] .mat-ibtn {
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    2px 2px 0 var(--ink);
+}
+[data-theme='editorial-paper'] .mat-ibtn {
+  border-radius: 0;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+/* ---------- segmented control ---------- */
+.mat-seg {
+  background: color-mix(in srgb, var(--ov) 6%, transparent);
+}
+.mat-thumb {
+  background: var(--fill-primary);
+}
+[data-theme='sunset-glass'] .mat-seg {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 var(--hl),
+    inset 0 0 0 1px var(--glass-b);
+}
+[data-theme='sunset-glass'] .mat-thumb {
+  box-shadow: 0 6px 16px -4px var(--glow);
+}
+[data-theme='yerba-sun'] .mat-seg {
+  background: var(--panel);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-thumb {
+  background: var(--brand);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-seg {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-seg > *,
+[data-theme='editorial-paper'] .mat-thumb {
+  border-radius: 0;
+}
+[data-theme='editorial-paper'] .mat-thumb {
+  background: var(--ink);
+}
+[data-theme='editorial-paper'] .mat-seg [aria-pressed='true'] {
+  color: var(--paper-hi);
+}
+
+/* ---------- number keys (bids, tricks) ---------- */
+.mat-key {
+  font-family: var(--font-display);
+}
+[data-theme='sunset-glass'] .mat-key {
+  border-radius: var(--r-md);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 var(--hl),
+    inset 0 0 0 1px var(--glass-b),
+    0 8px 20px -8px var(--drop);
+  font-weight: 700;
+}
+[data-theme='sunset-glass'] .mat-key-on {
+  border-radius: var(--r-md);
+  background: linear-gradient(140deg, var(--ga), var(--gb));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 12px 28px -6px var(--glow);
+}
+[data-theme='yerba-sun'] .mat-key {
+  border-radius: var(--r-md);
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    3px 3px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-key[aria-pressed='true'] {
+  translate: 2px 2px;
+  box-shadow: none;
+}
+[data-theme='yerba-sun'] .mat-key-on {
+  border-radius: var(--r-md);
+  background: var(--brand);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    1px 1px 0 var(--ink);
+}
+[data-theme='editorial-paper'] .mat-key {
+  border-radius: 0;
+  background: transparent;
+  font-weight: 400;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-key-on {
+  border-radius: 0;
+  background: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+/* The dealer's forbidden bid: a quiet outline with a diagonal strike, no lock, no dashes (reference fix). */
+.mat-key-no {
+  color: var(--text-3);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ov) 16%, transparent);
+}
+[data-theme='yerba-sun'] .mat-key-no {
+  border-radius: var(--r-md);
+  box-shadow: inset 0 0 0 2.5px var(--text-3);
+}
+[data-theme='editorial-paper'] .mat-key-no {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px var(--text-3);
+}
+.mat-key-no::after {
+  content: '';
+  position: absolute;
+  left: 26%;
+  right: 26%;
+  top: 50%;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(-38deg);
+}
+
+/* ---------- seats on the table ---------- */
+[data-theme='sunset-glass'] .mat-av {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 6px 14px -2px rgba(0, 0, 0, 0.4);
+}
+[data-theme='yerba-sun'] .mat-av {
+  box-shadow: 0 0 0 2.5px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-av {
+  box-shadow: 0 0 0 1.5px var(--ink);
+}
+.mat-av-empty {
+  background: color-mix(in srgb, var(--ov) 4%, transparent);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ov) 30%, transparent);
+}
+[data-theme='sunset-glass'] .mat-name {
+  text-shadow: 0 1px 8px var(--drop);
+}
+[data-theme='yerba-sun'] .mat-name {
+  background: var(--ink);
+  color: var(--panel);
+  padding-inline: 7px;
+  border-radius: 7px;
+}
+[data-theme='editorial-paper'] .mat-name {
+  background: var(--paper-hi);
+  color: var(--ink);
+  padding-inline: 6px;
+  box-shadow: 0 0 0 1px var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mat-bid {
+  background: var(--text-1);
+  color: var(--bg);
+}
+[data-theme='sunset-glass'] .mat-bid {
+  background: var(--suit-black);
+  color: var(--on-brand);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+[data-theme='yerba-sun'] .mat-bid,
+[data-theme='editorial-paper'] .mat-bid {
+  background: var(--ink);
+  color: var(--panel);
+}
+[data-theme='yerba-sun'] .mat-bid {
+  box-shadow: 0 0 0 2px var(--ink);
+}
+.mat-first {
+  background: var(--fill-primary);
+  color: var(--on-brand);
+}
+[data-theme='yerba-sun'] .mat-first {
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 6px;
+}
+[data-theme='editorial-paper'] .mat-first {
+  border-radius: 0;
+}
+/* The dealer's "D" disc. */
+.mat-dealer {
+  background: var(--suit-black);
+  color: var(--bg);
+  font-family: var(--font-display);
+}
+[data-theme='sunset-glass'] .mat-dealer {
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 0 14px var(--glow);
+}
+
+/* ---------- sheets, modals, toast, inputs, chips ---------- */
+.mat-sheet {
+  background: var(--sheet-bg);
+  box-shadow:
+    0 -12px 40px var(--sheet-shadow),
+    inset 0 1px 0 var(--hl);
+}
+[data-theme='sunset-glass'] .mat-sheet {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+[data-theme='yerba-sun'] .mat-sheet {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow:
+    inset 0 3px 0 var(--ink),
+    0 -6px 0 var(--ink);
+}
+[data-theme='editorial-paper'] .mat-sheet {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: inset 0 1.5px 0 var(--ink);
+}
+.mat-grabber {
+  background: color-mix(in srgb, var(--ov) 25%, transparent);
+}
+[data-theme='yerba-sun'] .mat-grabber,
+[data-theme='editorial-paper'] .mat-grabber {
+  background: var(--ink);
+}
+.mat-toast {
+  background: var(--toast-bg);
+  color: var(--toast-fg);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ov) 10%, transparent),
+    0 10px 28px -8px rgba(0, 0, 0, 0.55);
+}
+[data-theme='sunset-glass'] .mat-toast {
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+}
+[data-theme='yerba-sun'] .mat-toast,
+[data-theme='editorial-paper'] .mat-toast {
+  box-shadow: none;
+}
+[data-theme='editorial-paper'] .mat-toast {
+  border-radius: 0;
+}
+.mat-toast .mat-toast-act {
+  color: var(--brand);
+}
+[data-theme='yerba-sun'] .mat-toast .mat-toast-act {
+  color: var(--bg);
+}
+[data-theme='editorial-paper'] .mat-toast .mat-toast-act {
+  color: #ff9a80;
+}
+.mat-inp {
+  background: color-mix(in srgb, var(--ov) 7%, transparent);
+}
+[data-theme='sunset-glass'] .mat-inp {
+  background: var(--glass);
+  box-shadow:
+    inset 0 1px 0 var(--hl),
+    inset 0 0 0 1px var(--glass-b);
+}
+[data-theme='yerba-sun'] .mat-inp {
+  border-radius: var(--r-md);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-inp {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.mat-inp:focus {
+  box-shadow:
+    0 0 0 3px var(--glow),
+    inset 0 0 0 1px var(--brand);
+}
+[data-theme='yerba-sun'] .mat-inp:focus,
+[data-theme='editorial-paper'] .mat-inp:focus {
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    0 0 0 3px var(--brand);
+}
+.mat-chip {
+  border-radius: 999px;
+}
+[data-theme='yerba-sun'] .mat-chip {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-chip {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- the hero layout: ticker, big name, tally (BiddingHero.dc.html) ---------- */
+@keyframes kf-ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ticker {
+  height: 30px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-block: 1px solid var(--tick-rule);
+  background: var(--tick-bg);
+  color: var(--tick-fg);
+  font: 600 11px/30px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ticker > div {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  animation: kf-ticker 24s linear infinite;
+}
+.ticker span {
+  display: flex;
+  gap: 24px;
+  padding-right: 24px;
+}
+.ticker i {
+  font-style: normal;
+  color: var(--tick-dot);
+}
+[data-theme='yerba-sun'] .ticker {
+  transform: rotate(-1.6deg) scale(1.08);
+  border: 2.5px solid var(--ink);
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-size: var(--big-size);
+  line-height: 0.92;
+  letter-spacing: var(--big-track);
+  font-weight: var(--big-weight);
+  font-style: var(--big-style);
+}
+[data-theme='yerba-sun'] .hero-name {
+  color: var(--ink);
+  text-shadow: 3px 3px 0 var(--panel);
+}
+.hero-tally {
+  font-family: var(--font-display);
+  font-weight: var(--big-weight);
+  font-style: var(--big-style);
+  color: var(--tally-fg);
+}
+.hero-tally small {
+  font: 500 13px/1 var(--font-mono);
+  font-style: normal;
+  color: var(--text-2);
+}
+
+/* ---------- meter (bids against cards) ---------- */
+.mat-meter {
+  background: color-mix(in srgb, var(--ov) 8%, transparent);
+}
+.mat-meter-fill {
+  background: var(--fill-primary);
+}
+[data-theme='sunset-glass'] .mat-meter-fill {
+  box-shadow: 0 0 14px var(--glow);
+}
+[data-theme='yerba-sun'] .mat-meter {
+  background: rgba(42, 20, 9, 0.16);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-meter {
+  border-radius: 0;
+  background: rgba(30, 27, 24, 0.18);
+}
+
+/* Theme switches cross-fade (applyTheme); the layout never moves, so a short fade is all it needs. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker > div {
+    animation: none;
+  }
+}
+
+/* Gold lettering (wordmark, winners): metallic on the dark theme; on paper and butter a gradient washes out, so ink. */
+[data-theme='yerba-sun'] .gold-text,
+[data-theme='editorial-paper'] .gold-text {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--ink);
+}
+[data-theme='yerba-sun'] .gold-text {
+  text-shadow: 3px 3px 0 var(--brand);
 }

@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Direction } from '@/domain';
+import { Icon } from '@/components/ui/Icons';
 
 /** The How-to-play text. */
-export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
+export const rulesItems = (dir: Direction): [ReactNode, string, ReactNode][] => [
   [
-    '🪑',
+    Icon.seat,
     'Seating & dealing',
     <>
       Sit in a circle. The dealer deals one card at a time, starting with the player on their{' '}
@@ -13,7 +14,7 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
     </>,
   ],
   [
-    '🔢',
+    Icon.hash,
     'Card sequence',
     <>
       Start at <b>3</b> cards and go up one at a time to the maximum: every player must get a full
@@ -39,7 +40,7 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
     </>,
   ],
   [
-    '🎯',
+    Icon.target,
     'Bidding & the dealer restriction',
     <>
       Everyone predicts how many tricks they will win (0 up to the cards dealt), starting with the
@@ -62,7 +63,7 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
     </>,
   ],
   [
-    '🏆',
+    <span className="grid h-[22px] w-[22px]">{Icon.trophy}</span>,
     'Scoring',
     <>
       <table className="my-1.5 w-full border-collapse">

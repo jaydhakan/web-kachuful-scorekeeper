@@ -13,6 +13,7 @@ import { TodayStrip } from '@/components/TodayStrip';
 import { AccountChip } from '@/components/AccountChip';
 import { ContinueCard } from '@/components/ContinueCard';
 import { t } from '@/strings';
+import { Icon } from '@/components/ui/Icons';
 
 const SUITS = ['♠', '♦', '♣', '♥'] as const;
 
@@ -173,13 +174,13 @@ export function Home() {
               {[
                 ...destsFor(false).map((d) => ({
                   key: d.screen,
-                  emoji: d.emoji,
+                  icon: d.icon,
                   label: d.label,
                   go: () => actions.open(destRoute(d)),
                 })),
                 {
                   key: 'rules',
-                  emoji: '📖',
+                  icon: Icon.rules,
                   label: t.home.howToPlay,
                   go: () => actions.openSheet({ type: 'rules' }),
                 },
@@ -191,8 +192,8 @@ export function Home() {
                   onClick={d.go}
                   className="glass flex min-h-[3.75rem] flex-col items-center justify-start gap-1 !rounded-2xl px-1 pt-2.5 pb-2 text-center text-13 font-bold leading-tight"
                 >
-                  <span aria-hidden className="text-20 leading-none">
-                    {d.emoji}
+                  <span aria-hidden className="grid h-5 place-items-center text-[var(--tx2)]">
+                    {d.icon}
                   </span>
                   {d.label}
                 </m.button>

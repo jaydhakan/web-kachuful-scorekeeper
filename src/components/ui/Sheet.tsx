@@ -62,7 +62,7 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
   return (
     <div className={`absolute inset-0 z-[60] ${WRAP[roomy]}`}>
       <m.div
-        className="absolute inset-0 bg-shade/55"
+        className="absolute inset-0 bg-[var(--scrim)]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -90,13 +90,13 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
         exit="hidden"
         transition={TRANSITION[kind]}
         // No backdrop blur: under a 95% opaque fill it can't be seen, yet it was redrawn every frame of the slide.
-        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-[28px] bg-sheet/95 shadow-[0_-24px_80px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.08)] ${full ? 'top-[calc(36px+var(--sat))]' : 'max-h-[90%]'} ${PANEL[roomy]}`}
+        className={`mat-sheet absolute inset-x-0 bottom-0 flex flex-col rounded-t-[28px] ${full ? 'top-[calc(36px+var(--sat))]' : 'max-h-[90%]'} ${PANEL[roomy]}`}
       >
         <div
           onPointerDown={(e) => controls.start(e)}
           className="shrink-0 cursor-grab touch-none px-5 pb-1.5 pt-2.5 roomy:cursor-auto roomy:touch-auto"
         >
-          <div className="mx-auto mb-3 h-[5px] w-11 rounded-full bg-ov/25 roomy:hidden" />
+          <div className="mat-grabber mx-auto mb-3 h-[5px] w-11 rounded-full roomy:hidden" />
           <div className="flex items-center justify-between">
             <h2 id={titleId} className="disp text-26 font-extrabold tracking-[-0.03em]">
               {title}

@@ -1,21 +1,22 @@
 import { m } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { COLORS, EMOJIS, MOREMOJI } from '@/domain';
 import { useApp } from '@/state/store';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { t } from '@/strings';
 import { PRESS, PRESS_SM } from '@/components/ui/motion';
+import { Icon } from '@/components/ui/Icons';
 
 export function SeatBody({ k }: { k: number }) {
   const { state, actions } = useApp();
   const s = state.setup?.seats[k];
   if (!s) return null;
-  const items: [string, string, () => void, boolean?][] = [
-    ['✏️', t.sheets.rename, () => actions.openSheet({ type: 'rename', k })],
+  const items: [ReactNode, string, () => void, boolean?][] = [
+    [Icon.edit, t.sheets.rename, () => actions.openSheet({ type: 'rename', k })],
     [s.emoji, t.sheets.changeAvatar, () => actions.openSheet({ type: 'avatar', k })],
     [
-      '🗑️',
+      Icon.trash,
       t.sheets.clearSeat,
       () => {
         actions.setupSeat(k, null);
@@ -34,7 +35,7 @@ export function SeatBody({ k }: { k: number }) {
           onClick={f}
           className={`flex min-h-14 w-full items-center gap-3.5 rounded-2xl px-2 text-left text-18 font-medium ${neg ? 'text-[var(--neg)]' : ''}`}
         >
-          <span aria-hidden className="w-7 text-center text-22">
+          <span aria-hidden className="grid w-7 place-items-center text-22">
             {ic}
           </span>
           {t}
@@ -79,7 +80,7 @@ export function RenameBody({ k }: { k: number }) {
           setErr('');
         }}
         onKeyDown={(e) => e.key === 'Enter' && save()}
-        className="mb-1 h-14 w-full rounded-2xl bg-ov/[.07] px-4 text-18 outline-none focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
+        className="mb-1 h-14 w-full rounded-2xl mat-inp px-4 text-18 outline-none"
       />
       <div className="min-h-6 text-14 text-[var(--warn)]" role="alert">
         {err}

@@ -15,6 +15,7 @@ import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
+import { icon } from '@/components/ui/IconsMore';
 
 const wr = t.hub.wrapped;
 
@@ -22,8 +23,12 @@ interface Slide {
   kicker: string;
   big: ReactNode;
   sub?: ReactNode;
-  emoji: string;
+  /** A Phosphor illustration, or the player's own avatar emoji for the people slides. */
+  emoji: ReactNode;
 }
+
+// Slide art: the size of the 72px emoji it replaced.
+const ART = 'h-[4.5rem] w-[4.5rem] text-[var(--accent)]';
 
 function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
   const out: Slide[] = [
@@ -31,7 +36,7 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
       kicker: wr.slides.totals(w.totals.rounds),
       big: <Counter from={0} to={w.totals.points} run />,
       sub: wr.slides.points,
-      emoji: '🃏',
+      emoji: icon('cards', ART),
     },
   ];
   if (w.bestMonth)
@@ -39,14 +44,14 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
       kicker: wr.slides.bestMonth,
       big: monthLabel(parseDay(w.bestMonth.month + '-01')),
       sub: sgnN(w.bestMonth.points),
-      emoji: '📅',
+      emoji: icon('calendar', ART),
     });
   if (w.bestDay)
     out.push({
       kicker: wr.slides.bestDay,
       big: shortDay(parseDay(w.bestDay.day)),
       sub: sgnN(w.bestDay.points),
-      emoji: '☀️',
+      emoji: icon('sun', ART),
     });
   if (w.favouriteTrump)
     out.push({
@@ -57,7 +62,7 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
         </>
       ),
       sub: pct(w.favouriteTrump.accuracy),
-      emoji: '🍀',
+      emoji: icon('clover', ART),
     });
   if (w.nemesis)
     out.push({
@@ -74,18 +79,26 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
       emoji: whoIs(f, w.partner.playerId).emoji,
     });
   if (w.biggestRound)
-    out.push({ kicker: wr.slides.biggest, big: sgnN(w.biggestRound.points), emoji: '💥' });
-  out.push({ kicker: wr.slides.run, big: <Counter from={0} to={w.longestRun} run />, emoji: '🔥' });
+    out.push({
+      kicker: wr.slides.biggest,
+      big: sgnN(w.biggestRound.points),
+      emoji: icon('bolt', ART),
+    });
+  out.push({
+    kicker: wr.slides.run,
+    big: <Counter from={0} to={w.longestRun} run />,
+    emoji: icon('fire', ART),
+  });
   out.push({
     kicker: wr.slides.achievements,
     big: <Counter from={0} to={w.achievements} run />,
-    emoji: '🏅',
+    emoji: icon('medal', ART),
   });
   out.push({
     kicker: wr.slides.rank,
     big: w.rank.rank ? `#${w.rank.rank}` : '–',
     sub: w.rank.rank ? `/ ${w.rank.outOf}` : wr.slides.unranked,
-    emoji: '🏆',
+    emoji: icon('trophy', ART),
   });
   return out;
 }
@@ -138,7 +151,7 @@ export function WrappedPage({
       {!data && session && who && remote.data == null ? (
         <RemotePending r={remote} rows={3} />
       ) : !s ? (
-        <EmptyState icon="🎁" title={wr.notEnough} body={wr.notEnoughBody} />
+        <EmptyState icon="gift" title={wr.notEnough} body={wr.notEnoughBody} />
       ) : (
         <div className="flex flex-col items-center">
           <div className="mb-3 flex w-[min(100%,26rem,calc(62svh*9/14))] gap-1" aria-hidden>

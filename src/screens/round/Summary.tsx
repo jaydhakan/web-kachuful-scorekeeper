@@ -17,6 +17,7 @@ import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { Icon } from '@/components/ui/Icons';
 
 function Spark({ color }: { color: string }) {
   return (
@@ -204,7 +205,7 @@ export function Summary() {
                       transition={SPRING_POP}
                       className="absolute -top-0.5 left-3.5 text-20"
                     >
-                      👑
+                      {Icon.crownInline}
                     </m.span>
                     {changed && anim && !rm && (
                       <m.span

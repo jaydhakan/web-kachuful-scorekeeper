@@ -4,13 +4,17 @@ import plugin from 'tailwindcss/plugin';
 import { CQ_HEIGHT, MQ } from './src/theme/breakpoints';
 import { COLOR_VARS, GRADIENTS } from './src/theme/colors';
 
-// Theme variables with Tailwind's opacity modifier (`bg-ov/[.07]`) mixed in, so `/alpha` keeps working.
+// Theme variables: a bare var() for `text-gold`, mixed with transparent for an opacity modifier (`bg-ov/[.07]`).
 const colors = Object.fromEntries(
   Object.entries(COLOR_VARS).map(([k, v]) => [
     k,
-    `color-mix(in srgb, var(--${v}) calc(<alpha-value> * 100%), transparent)`,
+    ({ opacityValue }: { opacityValue?: string }) =>
+      opacityValue === undefined || opacityValue === '1'
+        ? `var(--${v})`
+        : `color-mix(in srgb, var(--${v}) calc(${opacityValue} * 100%), transparent)`,
   ]),
-);
+  // Tailwind accepts colour functions at runtime; its config types only list strings.
+) as unknown as Record<string, string>;
 // 44 to 148 are the large-screen display sizes (design boards: page titles, bidder name, keys, the Home hero).
 const sizes = [
   13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 48, 52, 56, 64, 72,
@@ -20,6 +24,15 @@ const sizes = [
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   future: { hoverOnlyWhenSupported: true },
+  // The legacy `*-opacity-*` utilities are unused; without them a colour class is one short declaration.
+  corePlugins: {
+    textOpacity: false,
+    backgroundOpacity: false,
+    borderOpacity: false,
+    divideOpacity: false,
+    placeholderOpacity: false,
+    ringOpacity: false,
+  },
   theme: {
     // Layouts are chosen by orientation and height as well as width, so every screen is a raw query.
     screens: Object.fromEntries(Object.entries(MQ).map(([k, raw]) => [k, { raw }])),

@@ -155,7 +155,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
         <PhotoPicker p={{ ...w, displayName: w.name }} className="mb-5" />
       )}
       {!played ? (
-        <EmptyState icon="🃏" title={p.notFound} />
+        <EmptyState icon="cards" title={p.notFound} />
       ) : (
         <>
           <Section title={p.stats}>

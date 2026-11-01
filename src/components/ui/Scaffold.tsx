@@ -6,6 +6,10 @@ interface ScaffoldProps {
   left?: ReactNode;
   right?: ReactNode;
   navTitle?: ReactNode;
+  /** A second header line; with it the header uses the mono role, as on the round screens (BiddingHero.dc.html). */
+  navSub?: ReactNode;
+  /** One thin strip under the header (the round ticker). */
+  ticker?: ReactNode;
   title?: ReactNode;
   /** The main area. It fills the height left over, so a table inside it can grow to fit. */
   children: ReactNode;
@@ -63,6 +67,8 @@ export function Scaffold({
   left,
   right,
   navTitle,
+  navSub,
+  ticker,
   title,
   children,
   aside,
@@ -145,15 +151,29 @@ export function Scaffold({
         style={{ opacity: topBg }}
         className="chrome-top pointer-events-none absolute inset-x-0 top-0 z-10 h-[calc(5.5rem+var(--sat))]"
       />
-      <div className="relative z-20 col-span-full mt-[var(--sat)] flex h-14 items-center justify-between px-2 land:h-12">
-        <div className="w-12">{left}</div>
-        <m.span
-          style={{ opacity: title ? navO : 1 }}
-          className={`disp text-19 font-bold tracking-[-0.02em] ${aside && title ? 'pane:!opacity-100' : ''}`}
-        >
-          {navTitle}
-        </m.span>
-        <div className="flex w-12 justify-end">{right}</div>
+      <div className="relative z-20 col-span-full mt-[var(--sat)]">
+        <div className="flex min-h-14 items-center justify-between px-2 land:min-h-12">
+          <div className="w-12">{left}</div>
+          <m.span
+            style={{ opacity: title ? navO : 1 }}
+            className={`min-w-0 text-center ${navSub ? 'grid' : 'disp text-19 font-bold tracking-[-0.02em]'} ${aside && title ? 'pane:!opacity-100' : ''}`}
+          >
+            {navSub ? (
+              <>
+                <span className="mono-label flex flex-wrap items-center justify-center gap-x-1.5 text-13 leading-5">
+                  {navTitle}
+                </span>
+                <span className="mono-label text-[0.6875rem] font-normal leading-4 text-[var(--tx2)] [text-wrap:balance] land:hidden">
+                  {navSub}
+                </span>
+              </>
+            ) : (
+              navTitle
+            )}
+          </m.span>
+          <div className="flex w-12 justify-end">{right}</div>
+        </div>
+        {ticker}
       </div>
       <div
         ref={body}

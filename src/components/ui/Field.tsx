@@ -1,9 +1,10 @@
 import { useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { COLORS, EMOJIS } from '@/domain';
 import { t } from '@/strings';
+import { icon } from './IconsMore';
 
 const INPUT =
-  'h-14 w-full rounded-2xl bg-ov/[.07] px-4 text-18 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] aria-[invalid=true]:shadow-[inset_0_0_0_1px_var(--neg)]';
+  'h-14 w-full rounded-2xl mat-inp px-4 text-18 outline-none placeholder:text-[var(--ph)] aria-[invalid=true]:shadow-[inset_0_0_0_1px_var(--neg)]';
 
 interface FieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label: string;
@@ -66,7 +67,7 @@ export function PasswordField(props: Omit<FieldProps, 'type' | 'end'>) {
           aria-pressed={show}
           className="press-sm grid h-12 w-12 place-items-center rounded-xl text-20"
         >
-          <span aria-hidden>{show ? '🙈' : '👁️'}</span>
+          <span aria-hidden>{show ? icon('eyeOff', 'h-5 w-5') : icon('eye', 'h-5 w-5')}</span>
         </button>
       }
     />

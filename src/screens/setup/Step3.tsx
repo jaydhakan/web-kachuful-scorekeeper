@@ -23,7 +23,6 @@ import {
 } from '@/lib/tableGeometry';
 import type { Seat } from '@/state/types';
 import { Glass } from '@/components/ui/Glass';
-import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { SuitCenter } from '@/components/ui/SuitCenter';
@@ -35,6 +34,7 @@ import { useApp } from '@/state/store';
 import { t } from '@/strings';
 import { AvatarFill } from '@/components/ui/Avatar';
 import { seatColor } from '@/theme/palette';
+import { Icon } from '@/components/ui/Icons';
 
 function SpinToken({
   a0,
@@ -67,7 +67,7 @@ function SpinToken({
   return (
     <TablePin style={{ x, y }} className="z-[6]">
       <div
-        className="absolute flex items-center justify-center gap-[3px] rounded-full bg-gold-gradient text-13 font-extrabold text-ink-gold shadow-[0_0_24px_rgba(247,231,166,.8)]"
+        className="mat-dealer absolute flex items-center justify-center gap-[3px] rounded-full text-13 font-extrabold"
         // Where the seat's own chip sits, so the token settles exactly on it.
         style={
           pill
@@ -83,8 +83,7 @@ function SpinToken({
               }
         }
       >
-        {Icon.deck}
-        {pill && t.table.deals}
+        {pill ? t.table.deals : t.table.dealerMark}
       </div>
     </TablePin>
   );
@@ -177,7 +176,9 @@ export function Step3() {
       bar={
         <div className="flex w-full flex-col gap-1.5">
           {signedIn && (
-            <p className="text-center text-13 text-[var(--tx2)]">☁️ {t.hub.sync2.countOnline}</p>
+            <p className="text-center text-13 text-[var(--tx2)]">
+              {Icon.cloudInline} {t.hub.sync2.countOnline}
+            </p>
           )}
           <PrimaryButton className="w-full" onClick={actions.beginGame}>
             {t.setup.deal}

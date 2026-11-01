@@ -6,7 +6,6 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { MQ } from '@/theme/breakpoints';
 import { Glass } from '@/components/ui/Glass';
-import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
@@ -15,7 +14,7 @@ import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
 import { t } from '@/strings';
-import { Avatar } from '@/components/ui/Avatar';
+import { Avatar, type Face } from '@/components/ui/Avatar';
 
 /** Who deals and how many cards, big enough to read across the table; first card and trump under it. */
 function DealLine({ g, r }: { g: Game; r: Round }) {
@@ -30,6 +29,48 @@ function DealLine({ g, r }: { g: Game; r: Round }) {
         {t.round.dealSub(g.players[r.firstPlayerIndex].name, r.trump, ar)}
       </span>
     </>
+  );
+}
+
+/**
+ * The hero "who" row (BiddingHero.dc.html): avatar, a kicker, the player's name set big, and the live bid tally. The
+ * name steps down with its length so it stays on one line at 360px; short screens scale the whole row.
+ */
+export function HeroWho({
+  p,
+  kicker,
+  tally,
+  of,
+}: {
+  p: Face & { name: string };
+  kicker: string;
+  tally: number;
+  of: number;
+}) {
+  const k = Math.max(0.42, Math.min(1, 6.5 / Math.max(1, [...p.name].length)));
+  return (
+    <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-end gap-3.5 px-1 [--hero-s:1] @h-short:[--hero-s:.6] @h-tiny:[--hero-s:.5]">
+      <Avatar
+        p={p}
+        className="mat-av grid h-[calc(52px*var(--hero-s))] w-[calc(52px*var(--hero-s))] min-h-10 min-w-10 shrink-0 place-items-center self-center rounded-full text-28"
+      />
+      <div className="min-w-0">
+        <p className="mono-label text-[0.6875rem] font-medium leading-4 text-[var(--tx2)]">
+          {kicker}
+        </p>
+        <h2
+          className="hero-name pb-[0.06em] [overflow-wrap:anywhere]"
+          style={{ fontSize: `max(1.5rem, calc(var(--big-size) * ${k} * var(--hero-s)))` }}
+        >
+          {p.name}
+        </h2>
+      </div>
+      {/* The meter below says the same in words. */}
+      <p aria-hidden className="hero-tally flex items-baseline gap-0.5 leading-none">
+        <span style={{ fontSize: 'max(1.5rem, calc(44px * var(--hero-s)))' }}>{tally}</span>
+        <small>/{of}</small>
+      </p>
+    </div>
   );
 }
 
@@ -72,6 +113,7 @@ export function Bidding() {
   };
   return (
     <RoundFrame
+      hero
       r={r}
       fit
       aside={
@@ -89,21 +131,7 @@ export function Bidding() {
                   transition={{ duration: 0.28, ease: EASE }}
                   className="[grid-area:1/1]"
                 >
-                  <Glass
-                    spot={false}
-                    className="flex items-center gap-4 px-4 py-3 @h-short:gap-3 @h-short:py-1"
-                  >
-                    <Avatar
-                      p={p}
-                      className="grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-36 shadow-[0_8px_22px_rgba(0,0,0,.5)] @h-short:h-12 @h-short:w-12 @h-short:text-26"
-                    />
-                    <div className="min-w-0">
-                      <div className="disp text-26 font-extrabold leading-[1.1] tracking-[-0.035em] [overflow-wrap:anywhere] [text-wrap:balance] @h-short:text-22 wide:text-32 wide:@h-short:text-22">
-                        {p.name}
-                      </div>
-                      <div className="mt-0.5 text-16 text-[var(--tx2)] @h-short:text-14">{cap}</div>
-                    </div>
-                  </Glass>
+                  <HeroWho p={p} kicker={cap} tally={sum} of={r.cards} />
                 </m.div>
               </AnimatePresence>
             </div>
@@ -124,14 +152,14 @@ export function Bidding() {
                     : t.bidding.level}
               </span>
             </div>
-            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-ov/[.08] @h-short:mt-1 @h-[24rem]:hidden">
+            <div className="mat-meter mt-1.5 h-2 overflow-hidden rounded-full @h-short:mt-1 @h-[24rem]:hidden">
               <m.div
                 className="relative h-full origin-left"
                 animate={{ scaleX: Math.min(1, sum / r.cards) }}
                 transition={SPRING}
               >
                 <m.i
-                  className="absolute inset-0 bg-[var(--accent)]"
+                  className="mat-meter-fill absolute inset-0"
                   animate={{ opacity: diff > 0 ? 0 : 1 }}
                   transition={{ duration: 0.2, ease: EASE }}
                 />
@@ -179,19 +207,17 @@ export function Bidding() {
                   animate={shake === v ? shakeKF : { x: 0 }}
                   whileTap={PRESS_SM}
                   onClick={() => pick(v)}
-                  className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-ov/20 bg-ov/[.03] text-[var(--ph)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
+                  className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'mat-key-no' : sel ? 'mat-key text-ink-on-accent' : 'mat-key'}`}
                 >
                   {sel && (
                     <m.span
                       layoutId="pillsel"
                       transition={SPRING_POP}
-                      className="absolute inset-0 rounded-[18px] bg-accent-gradient shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
+                      className="mat-key-on absolute inset-0 rounded-[18px]"
                     />
                   )}
-                  <span className={`relative ${lock ? 'line-through' : ''}`}>{v}</span>
-                  {lock && (
-                    <span className="absolute right-1 top-1 text-[var(--warn)]">{Icon.lock}</span>
-                  )}
+                  {/* The forbidden bid is struck through by its material, not a lock (reference audit fix). */}
+                  <span className="relative">{v}</span>
                 </m.button>
               );
             })}

@@ -16,6 +16,7 @@ import { useApp } from '@/state/store';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
+import { icon } from '@/components/ui/IconsMore';
 
 const a = t.hub.ach;
 const GROUPS: AchievementGroup[] = ['round', 'game', 'career', 'daily', 'season'];
@@ -79,7 +80,7 @@ export function AchievementsPage({
                     aria-hidden
                     className={`text-32 leading-none ${got.length ? '' : 'grayscale'}`}
                   >
-                    {got.length ? x.emoji : '🔒'}
+                    {got.length ? x.emoji : icon('locked', 'h-[0.8em] w-[0.8em] text-[var(--dis)]')}
                   </span>
                   <span className="text-15 font-bold leading-tight">{names[x.code].name}</span>
                   <span className="text-13 leading-snug text-[var(--tx2)]">

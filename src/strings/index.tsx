@@ -4,6 +4,7 @@ import { messages } from './messages';
 import { hub } from './hub';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { TR } from '@/theme/trumps';
+import { Icon } from '@/components/ui/Icons';
 
 /**
  * Every user-visible string lives here (English only, no i18n library). Sentences that carry markup are
@@ -36,6 +37,7 @@ export const t = {
   },
 
   table: {
+    dealerMark: 'D',
     deals: 'DEALS',
     first: '1st',
     seat: (k: number, name?: string) => (name ? `Seat ${k}: ${name}` : `Seat ${k}`),
@@ -117,10 +119,18 @@ export const t = {
     seated: (filled: number, n: number) => `${filled} of ${n} seated`,
     step3Title: 'Ready to deal',
     deal: 'Deal!',
-    dealsFirst: (name: string): ReactNode => <>👑 {b(name)} deals first</>,
-    firstCardTo: (name: string): ReactNode => <>👉 First card to {b(name)}</>,
-    roundOne: '🃏 3 cards each · ♠ Spades are trump',
-    random: '🎲 Random',
+    dealsFirst: (name: string): ReactNode => (
+      <>
+        {Icon.crownInline} {b(name)} deals first
+      </>
+    ),
+    firstCardTo: (name: string): ReactNode => (
+      <>
+        {Icon.point} First card to {b(name)}
+      </>
+    ),
+    roundOne: <>{Icon.cardsInline} 3 cards each · ♠ Spades are trump</>,
+    random: <>{Icon.dice} Random</>,
     dragHint: 'Tap a seat to move the dealer. Press and hold, then drag, to swap seats.',
     dragHintShort: 'Tap a seat to move the dealer. Hold and drag to swap.',
     gameLength: 'Game length',
@@ -141,6 +151,25 @@ export const t = {
     menu: 'Menu',
     scoreboard: 'Scoreboard',
     title: (n: number) => `Round ${n}`,
+    /** The hero header (BiddingHero.dc.html): round and cards on top, who deals and who leads under it. */
+    heroCards: (cards: number) => `· ${cards} cards`,
+    heroSub: (dealer: string, first: string) => `${dealer} deals · ${first} leads`,
+    /** The ticker repeats the header for the room; it is decorative and hidden from assistive tech. */
+    ticker: (
+      n: number,
+      cards: number,
+      trump: Trump,
+      dealer: string,
+      first: string,
+      bids: number,
+    ) => [
+      `Round ${String(n).padStart(2, '0')}`,
+      `${cards} cards`,
+      `${TR[trump].name} trump`,
+      `${dealer} deals`,
+      `${first} leads`,
+      `Bids ${bids}/${cards}`,
+    ],
     banner: messages.banner,
     dealSub: (first: string, trump: Trump, arrow: string): ReactNode => (
       <>
@@ -154,7 +183,7 @@ export const t = {
     /** The line read from across the table. The count is marked so each screen can size it up. */
     head: (dealer: string, cards: number): ReactNode => (
       <>
-        👑 {b(dealer)} deals <b data-n>{cards}</b> cards each
+        {Icon.crownInline} {b(dealer)} deals <b data-n>{cards}</b> cards each
       </>
     ),
   },
@@ -188,7 +217,7 @@ export const t = {
         <span className="text-[var(--warn)]">someone will miss!</span>
       </>
     ),
-    leadsTrick: (name: string) => `${name} leads the first trick`,
+    leadsKicker: 'Leads the first trick',
   },
 
   results: {
@@ -226,7 +255,7 @@ export const t = {
     ),
     dealsFirst: (dealer: string, first: string): ReactNode => (
       <>
-        👑 {b(dealer)} deals · first card to {b(first)}
+        {Icon.crownInline} {b(dealer)} deals · first card to {b(first)}
       </>
     ),
     standings: 'Standings',
@@ -329,7 +358,11 @@ export const t = {
     upcomingRound: (n: number) => `ROUND ${n}`,
     upcomingPeak: 'Peak round',
     upcomingBack: 'Back to 3',
-    upcomingDeals: (dealer: string, first: string) => `👑 ${dealer} deals → ${first} first`,
+    upcomingDeals: (dealer: string, first: string): ReactNode => (
+      <>
+        {Icon.crownInline} {dealer} deals → {first} first
+      </>
+    ),
     upcomingFoot: 'Cards, trump and dealer come straight from the seating order.',
     rename: 'Rename',
     changeAvatar: 'Change avatar',
@@ -516,15 +549,19 @@ export const t = {
       dealerTag: 'Dealer',
       firstTag: '1st card',
       recent: 'Recent',
-      randomDealer: '🎲 Random dealer',
+      randomDealer: <>{Icon.dice} Random dealer</>,
       makeDealer: (name: string) => `${name} deals first`,
       preview: 'Table preview',
       pickCount: 'Pick how many are playing to lay out the seats.',
-      dealsFirst: (name: string): ReactNode => <>👑 {b(name)} deals first</>,
-      cardsEach: '🃏 3 cards each',
+      dealsFirst: (name: string): ReactNode => (
+        <>
+          {Icon.crownInline} {b(name)} deals first
+        </>
+      ),
+      cardsEach: <>{Icon.cardsInline} 3 cards each</>,
       firstCardTo: (first: string, dealer: string, dir: Direction): ReactNode => (
         <>
-          👉 First card to {b(first)}, on {dealer}’s {side(dir)}
+          {Icon.point} First card to {b(first)}, on {dealer}’s {side(dir)}
         </>
       ),
       spades: (

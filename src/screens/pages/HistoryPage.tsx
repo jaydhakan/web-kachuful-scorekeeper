@@ -19,6 +19,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';
+import { Icon } from '@/components/ui/Icons';
 
 const h = t.hub.history;
 
@@ -76,7 +77,7 @@ export function HistoryPage() {
   else if (!recs.length)
     body = (
       <EmptyState
-        icon="🗂️"
+        icon="folder"
         title={h.emptyTitle}
         body={h.emptyBody}
         action={
@@ -89,7 +90,7 @@ export function HistoryPage() {
   else if (!shown.length)
     body = (
       <EmptyState
-        icon="🔍"
+        icon="search"
         title={h.noResults}
         action={
           <button
@@ -162,7 +163,7 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
       <span className="flex w-full flex-wrap items-center gap-x-3 gap-y-1.5">
         <AvatarStack players={g.players} s={24} max={6} />
         <span className="text-14 text-[var(--tx2)]">
-          {timeLabel(at)} · {h.rounds(doneRounds(g).length)} · {g.players.length} 👤
+          {timeLabel(at)} · {h.rounds(doneRounds(g).length)} · {g.players.length} {Icon.userInline}
         </span>
         {badges.length > 0 && (
           <span className="ml-auto flex flex-wrap justify-end gap-1.5">

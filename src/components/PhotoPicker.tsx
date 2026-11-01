@@ -6,6 +6,7 @@ import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
 import { usePhoto, type Face } from '@/components/ui/Avatar';
 import { t } from '@/strings';
+import { icon } from './ui/IconsMore';
 
 const x = t.hub.photo;
 
@@ -66,7 +67,7 @@ export function PhotoPicker({
           onClick={() => input.current?.click()}
           className="press glass min-h-11 rounded-xl px-3 text-14 font-bold disabled:opacity-50"
         >
-          📷 {busy ? x.busy : url ? x.change : x.add}
+          {icon('camera')} {busy ? x.busy : url ? x.change : x.add}
         </button>
         {url && (
           <button

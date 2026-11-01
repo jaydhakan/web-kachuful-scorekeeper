@@ -20,6 +20,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { authError } from './AuthPages';
 import { InboxList } from './InboxList';
 import { t } from '@/strings';
+import { icon } from '@/components/ui/IconsMore';
 
 const ac = t.hub.account;
 
@@ -124,7 +125,7 @@ export function AccountPage() {
           onClick={() => actions.open({ screen: 'signin' })}
           className="press glass mb-5 flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold text-[var(--warn)]"
         >
-          ⚠️ {ac.stale}
+          {icon('warn')} {ac.stale}
         </button>
       )}
       <Section title={ac.myPlayer}>
@@ -254,7 +255,7 @@ export function AccountPage() {
             className="px-6"
             onClick={() => actions.open({ screen: 'admin' })}
           >
-            🛡️ {ac.admin}
+            {icon('shield')} {ac.admin}
           </PrimaryButton>
         )}
         <PrimaryButton

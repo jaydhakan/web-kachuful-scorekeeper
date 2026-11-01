@@ -31,7 +31,7 @@ export function Toast({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10 }}
             transition={SPRING}
-            className={`pointer-events-auto flex min-h-11 max-w-full items-center gap-1 rounded-full border border-ov/10 bg-toast text-15 font-semibold leading-tight shadow-[0_10px_28px_-8px_rgba(0,0,0,.7)] [[data-desk]_&]:min-h-9 ${act ? 'pl-4 pr-1' : 'px-4'}`}
+            className={`pointer-events-auto flex min-h-11 max-w-full items-center gap-1 mat-toast rounded-full text-15 font-semibold leading-tight [[data-desk]_&]:min-h-9 ${act ? 'pl-4 pr-1' : 'px-4'}`}
           >
             <span className="py-1.5 [text-wrap:balance]">{toast.msg}</span>
             {toast.undo && (
@@ -39,7 +39,7 @@ export function Toast({
                 type="button"
                 onClick={onUndo}
                 // On the large screen the pill is slimmer than the button; the button keeps its 44px target.
-                className="press min-h-11 shrink-0 rounded-full px-3 font-extrabold text-[var(--accent)] [[data-desk]_&]:-my-1"
+                className="press min-h-11 shrink-0 rounded-full px-3 mat-toast-act font-extrabold [[data-desk]_&]:-my-1"
               >
                 {t.common.undo}
               </button>
@@ -48,7 +48,7 @@ export function Toast({
               <button
                 type="button"
                 onClick={() => toast.link && onOpen(toast.link.route)}
-                className="press min-h-11 shrink-0 rounded-full px-3 font-extrabold text-[var(--accent)] [[data-desk]_&]:-my-1"
+                className="press min-h-11 shrink-0 rounded-full px-3 mat-toast-act font-extrabold [[data-desk]_&]:-my-1"
               >
                 {toast.link.label}
               </button>

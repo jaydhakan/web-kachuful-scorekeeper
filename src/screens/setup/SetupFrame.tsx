@@ -76,7 +76,7 @@ export function SetupFrame({
   return (
     <Scaffold
       left={
-        <IconButton label={t.common.back} onClick={back}>
+        <IconButton chrome label={t.common.back} onClick={back}>
           {Icon.back}
         </IconButton>
       }

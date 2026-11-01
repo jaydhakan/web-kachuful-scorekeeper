@@ -1,6 +1,7 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useSyncStatus } from '@/sync/status';
 import { t } from '@/strings';
+import { Icon } from './ui/Icons';
 
 /** Synced, syncing, waiting (offline) or needs attention, as a small mark with its words for screen readers. */
 export function SyncDot({ className = '' }: { className?: string }) {
@@ -42,7 +43,7 @@ export function SyncDot({ className = '' }: { className?: string }) {
           initial={rm ? false : { scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
         >
-          ✓
+          {Icon.check}
         </m.span>
       )}
     </span>

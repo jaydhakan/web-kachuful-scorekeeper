@@ -9,6 +9,8 @@ interface IconButtonProps {
   className?: string;
   /** Keeps a dialog from focusing this control first (close buttons). */
   skipInitialFocus?: boolean;
+  /** A header button: drawn in the theme's chrome material (round glass, sticker, ink square). */
+  chrome?: boolean;
 }
 
 export function IconButton({
@@ -17,6 +19,7 @@ export function IconButton({
   label,
   className = '',
   skipInitialFocus,
+  chrome,
 }: IconButtonProps) {
   return (
     <m.button
@@ -26,7 +29,7 @@ export function IconButton({
       onClick={onClick}
       whileTap={PRESS_SM}
       transition={SPRING}
-      className={`group relative isolate grid h-12 w-12 place-items-center rounded-2xl ${className}`}
+      className={`group relative isolate grid h-12 w-12 place-items-center rounded-2xl ${chrome ? 'mat-ibtn' : ''} ${className}`}
     >
       <span
         aria-hidden

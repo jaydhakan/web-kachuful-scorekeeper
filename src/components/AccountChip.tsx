@@ -4,6 +4,7 @@ import { SyncDot } from './SyncDot';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';
 import { seatColor } from '@/theme/palette';
+import { Icon } from './ui/Icons';
 
 /** Top corner of Home: the account (with its sync state) or Sign in. Placed by `className` (absolute). */
 export function AccountChip({ className = '' }: { className?: string }) {
@@ -24,7 +25,7 @@ export function AccountChip({ className = '' }: { className?: string }) {
             className="grid h-8 w-8 place-items-center rounded-full text-18"
             style={{ background: s.player ? seatColor(s.player.color) : 'transparent' }}
           >
-            {s.player?.emoji ?? '👤'}
+            {s.player?.emoji ?? Icon.user}
           </span>
           <span aria-hidden>{s.player?.displayName ?? t.hub.nav.account}</span>
           <SyncDot className="absolute -right-1 -top-1" />

@@ -6,6 +6,7 @@ import { newsworthy } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
 import { achName } from '@/strings/achievements';
 import { t } from '@/strings';
+import { Icon } from './ui/Icons';
 
 /** Signed in: my all-time rank and the latest activity, as small cards that open their screens. */
 export function HomeOnline({ className = '' }: { className?: string }) {
@@ -26,8 +27,8 @@ export function HomeOnline({ className = '' }: { className?: string }) {
           onClick={() => actions.open({ screen: 'player', params: { id: me } })}
           className="press glass flex min-h-14 items-center gap-3 px-4 text-left"
         >
-          <span aria-hidden className="text-24">
-            🏆
+          <span aria-hidden className="grid h-6 w-6 text-gold">
+            {Icon.trophy}
           </span>
           <span className="flex-1 text-16 font-bold">
             {rank.global ? t.hub.player.rank(rank.global, rank.outOf) : t.hub.boards.unrankedShort}
@@ -47,7 +48,7 @@ export function HomeOnline({ className = '' }: { className?: string }) {
               className="press glass flex min-h-12 items-center gap-3 px-4 text-left text-14"
             >
               <span aria-hidden className="text-20">
-                {code ? ACH.get(code)?.emoji : a.kind === 'game_finished' ? '🏁' : '👋'}
+                {code ? ACH.get(code)?.emoji : a.kind === 'game_finished' ? Icon.flag : Icon.user}
               </span>
               <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
                 {code

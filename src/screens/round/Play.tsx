@@ -6,6 +6,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
 import { stagger } from '@/components/ui/stagger';
+import { HeroWho } from './Bidding';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
 import { PRESS_SM } from '@/components/ui/motion';
@@ -17,19 +18,26 @@ export function Play() {
     sum = sumBids(r);
   return (
     <RoundFrame
+      hero
       r={r}
       fit
       aside={
         <div className="pane:flex pane:h-full pane:flex-col pane:justify-center">
+          {/* The hero row: who leads, set big, with the bids against the cards (BiddingHero.dc.html). */}
+          <m.div {...stagger(0, 0.1)} className="mt-3 @h-short:mt-1">
+            <HeroWho
+              p={g.players[r.firstPlayerIndex]}
+              kicker={t.play.leadsKicker}
+              tally={sum}
+              of={r.cards}
+            />
+          </m.div>
           <m.p
-            {...stagger(0, 0.1)}
-            className="mt-4 text-center text-19 leading-[1.4] tracking-[-0.015em]"
+            {...stagger(1, 0.1)}
+            className="mt-3 text-center text-17 leading-[1.4] tracking-[-0.015em] @h-short:mt-1.5 @h-short:text-15"
           >
             {t.play.summary(sum, r.cards)}
           </m.p>
-          <p className="mt-2 text-center text-13 text-[var(--tx2)]">
-            {t.play.leadsTrick(g.players[r.firstPlayerIndex].name)}
-          </p>
         </div>
       }
       bar={

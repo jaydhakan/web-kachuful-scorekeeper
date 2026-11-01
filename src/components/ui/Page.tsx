@@ -7,6 +7,7 @@ import { IconButton } from './IconButton';
 import { EASE, PRESS, SPRING } from './motion';
 import { t } from '@/strings';
 import { seatColor } from '@/theme/palette';
+import { icon as moreIcon, type MoreIcon } from './IconsMore';
 
 interface PageProps {
   title: ReactNode;
@@ -35,7 +36,7 @@ export function Page({ title, label, eyebrow, actions, wide, sub, children }: Pa
         <div
           className={`mx-auto flex w-full items-center gap-1 [[data-desk]_&]:gap-3 ${wide ? 'max-w-[64rem]' : 'max-w-[44rem]'}`}
         >
-          <IconButton label={t.common.back} onClick={a.back} className="shrink-0">
+          <IconButton chrome label={t.common.back} onClick={a.back} className="shrink-0">
             {Icon.back}
           </IconButton>
           <div className="min-w-0 flex-1">
@@ -110,7 +111,7 @@ export function EmptyState({
   body,
   action,
 }: {
-  icon: string;
+  icon: MoreIcon;
   title: ReactNode;
   body?: ReactNode;
   action?: ReactNode;
@@ -122,8 +123,9 @@ export function EmptyState({
       transition={{ duration: 0.4, ease: EASE }}
       className="flex flex-col items-center gap-2 px-4 py-12 text-center"
     >
-      <div aria-hidden className="mb-1 text-48">
-        {icon}
+      {/* One 32px icon in the quiet text colour (design spec, empty states). */}
+      <div aria-hidden className="mb-1 text-[var(--dis)]">
+        {moreIcon(icon, 'h-8 w-8')}
       </div>
       <h2 className="disp text-22 font-bold tracking-[-0.02em]">{title}</h2>
       {body && (
@@ -140,7 +142,7 @@ export function EmptyState({
 export function ErrorState({ msg, onRetry }: { msg: ReactNode; onRetry?: () => void }) {
   return (
     <EmptyState
-      icon="⚠️"
+      icon="warn"
       title={t.hub.common.errorTitle}
       body={msg}
       action={
@@ -209,7 +211,7 @@ export function Chip({
     >
       <span
         aria-hidden
-        className={`absolute inset-0 -z-10 rounded-full ${on ? 'bg-[var(--accent)]' : 'bg-ov/[.07] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]'}`}
+        className={`absolute inset-0 -z-10 rounded-full ${on ? 'bg-[var(--accent)]' : 'bg-ov/[.07] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--ov)_8%,transparent)]'}`}
       />
       {children}
     </m.button>

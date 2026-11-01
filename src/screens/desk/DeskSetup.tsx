@@ -378,7 +378,7 @@ export function DeskSetup() {
                             nextField(k);
                           }
                         }}
-                        className={`h-12 min-w-0 flex-1 rounded-xl bg-ov/[.07] px-3.5 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${dupe && names[k] === dupe ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
+                        className={`h-12 min-w-0 flex-1 rounded-xl mat-inp px-3.5 text-17 outline-none placeholder:text-[var(--ph)] ${dupe && names[k] === dupe ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
                       />
                       <span className="w-[4.5rem] shrink-0 text-center">
                         {k === shown ? (
@@ -543,7 +543,11 @@ export function DeskSetup() {
                 }}
               />
             )}
-            {signedIn && <p className="text-13 text-[var(--tx2)]">☁️ {t.hub.sync2.countOnline}</p>}
+            {signedIn && (
+              <p className="text-13 text-[var(--tx2)]">
+                {Icon.cloudInline} {t.hub.sync2.countOnline}
+              </p>
+            )}
             {n > 0 && !ready && noEmail < 0 && (
               <p role="status" className="text-14 font-medium text-[var(--warn)]">
                 {dupe ? t.desk.setup.dupe(tidy(dupe)) : t.desk.setup.missing(n - filled)}

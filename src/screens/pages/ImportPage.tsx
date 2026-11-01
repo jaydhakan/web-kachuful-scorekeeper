@@ -67,7 +67,7 @@ export function ImportPage() {
   if (!games.length)
     return (
       <Page title={x.importTitle}>
-        <EmptyState icon="✅" title={x.none} body={x.noneBody} />
+        <EmptyState icon="done" title={x.none} body={x.noneBody} />
       </Page>
     );
   const checkAll = async () => {

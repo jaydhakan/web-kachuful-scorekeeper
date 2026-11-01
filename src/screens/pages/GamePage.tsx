@@ -45,7 +45,7 @@ export function GamePage({ id }: { id: string }) {
         {load === 'loading' ? (
           <Skeleton rows={4} />
         ) : (
-          <EmptyState icon="🕳️" title={gt.notFound} body={gt.notFoundBody} />
+          <EmptyState icon="linkBreak" title={gt.notFound} body={gt.notFoundBody} />
         )}
       </Page>
     );

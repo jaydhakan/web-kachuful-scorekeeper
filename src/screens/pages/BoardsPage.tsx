@@ -23,6 +23,7 @@ import { useRemote } from '@/sync/useRemote';
 import { RemoteGate } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { icon } from '@/components/ui/IconsMore';
 
 const b = t.hub.boards;
 
@@ -66,10 +67,10 @@ export function BoardsPage() {
         <div className="flex flex-col gap-2">
           <ChipRow label={b.scope}>
             <Chip on={scope === 'global'} onClick={() => setScope('global')}>
-              🌍 {b.global}
+              {icon('globe')} {b.global}
             </Chip>
             <Chip on={scope === 'device'} onClick={() => setScope('device')}>
-              📱 {b.device}
+              {icon('phone')} {b.device}
             </Chip>
           </ChipRow>
           <RangeChips value={range} onChange={setRange} />
@@ -136,7 +137,7 @@ function SignedOut() {
   const { actions } = useApp();
   return (
     <EmptyState
-      icon="🌍"
+      icon="globe"
       title={b.signedOutTitle}
       body={b.signedOutBody}
       action={
@@ -165,7 +166,7 @@ export function BoardList({
   if (!data.rows.length)
     return (
       <EmptyState
-        icon="🃏"
+        icon="cards"
         title={b.emptyTitle}
         body={b.emptyBody}
         action={
