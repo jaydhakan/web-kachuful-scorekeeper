@@ -61,7 +61,10 @@ export const t = {
     roundsPlayed: (n: number) => `${n} rounds played`,
     roundLine: (round: number, cards: number, trump: Trump) => (
       <>
-        Round {round} · {cards} cards · <SuitGlyph trump={trump} /> {TR[trump].name}
+        Round {round} · {cards} cards ·{' '}
+        <span className="whitespace-nowrap">
+          <SuitGlyph trump={trump} /> {TR[trump].name}
+        </span>
       </>
     ),
     dealing: (name: string) => `${name} is dealing`,

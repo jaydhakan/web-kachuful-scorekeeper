@@ -18,5 +18,7 @@ describe('format', () => {
     expect(agoTxt(now - 12 * 60e3, now)).toBe('12 min ago');
     expect(agoTxt(now - 3 * 3600e3, now)).toBe('3 hr ago');
     expect(agoTxt(now - 2 * 86400e3, now)).toBe('2 d ago');
+    expect(agoTxt(now - 43 * 86400e3, now)).toBe('6 wk ago');
+    expect(agoTxt(now - 200 * 86400e3, now)).toBe('7 mo ago');
   });
 });
