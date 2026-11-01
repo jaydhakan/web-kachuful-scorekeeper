@@ -10,11 +10,12 @@ import { PREVIEW_SCALE } from '@/lib/tableGeometry';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 export function Step1() {
   const { su, actions } = useSetup();
   const lg = su.lg;
+  const [more, setMore] = useState(false);
   const counts = playerCounts(su.decks),
     // Eight buttons do not fit one row on a phone: two even rows of four.
     grid = counts.length > 5;
@@ -65,29 +66,6 @@ export function Step1() {
               {t.setup.useLastGroup(lg.names)}
             </m.button>
           )}
-          {/* Labelled sections, left-aligned; the labels give way first on a short screen. */}
-          <div className="mt-2 flex flex-col items-stretch gap-1.5 @h-[45rem]:mt-1">
-            <SectionLabel>{t.setup.decksLabel}</SectionLabel>
-            <Seg<`${Decks}`>
-              uid="deckseg"
-              label={t.setup.decksLabel}
-              size="sm"
-              value={`${su.decks}`}
-              onChange={(v) => {
-                const decks = +v as Decks;
-                // A count the new decks cannot seat is dropped rather than quietly changed.
-                actions.setupPatch({
-                  decks,
-                  n: su.n && playerCounts(decks).includes(su.n) ? su.n : null,
-                });
-              }}
-              options={DECK_OPTIONS.map((d) => ({ v: `${d}` as const, label: t.setup.deck(d) }))}
-              className="flex w-full [&>button]:flex-1"
-            />
-            <p className="text-13 text-[var(--tx2)] @h-short:hidden">
-              {t.setup.decksHint(counts[counts.length - 1])}
-            </p>
-          </div>
           <SectionLabel className="mt-3 @h-[45rem]:mt-1.5">{t.setup.playerCount}</SectionLabel>
           <div
             className={`my-2 justify-center land:gap-2 land:@max-[40rem]:gap-[3px] @h-[45rem]:my-1 ${grid ? 'grid grid-cols-4 justify-items-center gap-2' : 'flex gap-2.5'}`}
@@ -121,20 +99,66 @@ export function Step1() {
               </m.button>
             ))}
           </div>
-          <SectionLabel className="mt-3 @h-[45rem]:mt-1.5">{t.setup.directionLabel}</SectionLabel>
-          <div className="mt-1.5 flex">
-            <Seg
-              uid="dirseg"
-              label={t.setup.directionLabel}
-              size="sm"
-              value={su.dir}
-              onChange={(v) => actions.setupPatch({ dir: v })}
-              options={[
-                { v: 'cw', label: t.setup.cw },
-                { v: 'ccw', label: t.setup.ccw },
-              ]}
-              className="flex w-full [&>button]:flex-1"
-            />
+          <div className="mt-3 @h-[45rem]:mt-1.5">
+            <button
+              type="button"
+              aria-expanded={more}
+              aria-controls="setup-advanced"
+              onClick={() => setMore((v) => !v)}
+              className="press flex min-h-11 w-full items-center justify-between gap-3 rounded-2xl px-1 text-left"
+            >
+              <span className="mono-label text-12 text-[var(--tx2)]">{t.setup.advanced}</span>
+              <span className="flex items-center gap-2 text-13 font-medium text-[var(--tx2)]">
+                {t.setup.deck(su.decks)} · {su.dir === 'cw' ? t.setup.cw : t.setup.ccw}
+                <span aria-hidden className={`transition-transform ${more ? 'rotate-180' : ''}`}>
+                  ▾
+                </span>
+              </span>
+            </button>
+            {more && (
+              <div id="setup-advanced" className="mt-1.5 flex flex-col items-stretch gap-1.5">
+                <div className="flex flex-col items-stretch gap-1.5">
+                  <SectionLabel>{t.setup.decksLabel}</SectionLabel>
+                  <Seg<`${Decks}`>
+                    uid="deckseg"
+                    label={t.setup.decksLabel}
+                    size="sm"
+                    value={`${su.decks}`}
+                    onChange={(v) => {
+                      const decks = +v as Decks;
+                      // A count the new decks cannot seat is dropped rather than quietly changed.
+                      actions.setupPatch({
+                        decks,
+                        n: su.n && playerCounts(decks).includes(su.n) ? su.n : null,
+                      });
+                    }}
+                    options={DECK_OPTIONS.map((d) => ({
+                      v: `${d}` as const,
+                      label: t.setup.deck(d),
+                    }))}
+                    className="flex w-full [&>button]:flex-1"
+                  />
+                  <p className="text-13 text-[var(--tx2)] @h-short:hidden">
+                    {t.setup.decksHint(counts[counts.length - 1])}
+                  </p>
+                </div>
+                <SectionLabel className="mt-2">{t.setup.directionLabel}</SectionLabel>
+                <div className="mt-1.5 flex">
+                  <Seg
+                    uid="dirseg"
+                    label={t.setup.directionLabel}
+                    size="sm"
+                    value={su.dir}
+                    onChange={(v) => actions.setupPatch({ dir: v })}
+                    options={[
+                      { v: 'cw', label: t.setup.cw },
+                      { v: 'ccw', label: t.setup.ccw },
+                    ]}
+                    className="flex w-full [&>button]:flex-1"
+                  />
+                </div>
+              </div>
+            )}
           </div>
           <p
             className={`mt-2 text-14 tracking-[0.005em] text-[var(--tx2)] [text-wrap:balance] @h-[45rem]:mt-1.5 ${lg ? '@h-short:hidden' : ''}`}
