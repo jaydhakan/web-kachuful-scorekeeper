@@ -1,6 +1,6 @@
 # Architecture
 
-Kachuful is an offline-first PWA: Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`plan-backend.md`; §6 is the API contract).
+Kachuful is an offline-first PWA: Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (its `HANDOFF.md` in `../backend-kachuful-scorekeeper` is the API contract).
 
 ## Layers
 
@@ -93,7 +93,7 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 - **Share:** Web Share with a PNG file where `navigator.canShare({ files })` is true; otherwise the PNG is downloaded and the text summary copied. Both need a tap, so they live behind buttons.
 - **Install and offline:** the service worker precaches the shell and fonts. Updates wait until the player taps "Reload".
 
-## Online (plan-frontend.md)
+## Online
 
 **Archive.** `state/archive.ts` is the only IndexedDB access: games (every game this device knows, never replaced), players (the registry), outbox, cache and inbox. It loads once and is read synchronously from memory; writes land in memory at once and on disk in the background, falling back to memory when IndexedDB is missing. The current game is copied in after every change, so starting a new game saves the old one to History. Schema 3 added `syncId` (old games: a hash of a per-device id, the game id and its creation time, so a game, its undo snapshots and its backup are one remote game), `rev`, `finishedAt` and `Round.doneAt`.
 

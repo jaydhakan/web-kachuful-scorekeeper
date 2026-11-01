@@ -1,6 +1,6 @@
 import type { ScreenReport } from './audit';
 
-/** Screens that must fit without scrolling on a portrait phone (docs/RESPONSIVE-PLAN.md section 3, rule 1). */
+/** Screens that must fit without scrolling on a portrait phone (docs/codebase/ARCHITECTURE.md, Layout). */
 const ONE_SCREEN = ['01-home', '02-setup1', '03-setup2', '07-setup3', '09-bidding', '15-play'];
 /** Results and Summary fit up to five players; six or more may scroll their list. */
 const ONE_SCREEN_UP_TO_FIVE = ['16-results', '17-summary'];

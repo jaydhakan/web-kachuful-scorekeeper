@@ -25,7 +25,7 @@ const d = (
   ...(big && { big }),
 });
 
-/** The catalogue (plan-backend §8). Names and descriptions are strings, by code. */
+/** The catalogue (the backend's HANDOFF.md §5.6). Names and descriptions are strings, by code. */
 export const ACHIEVEMENTS: AchievementDef[] = [
   d('hot_3', '🔥', 'round', true),
   d('hot_5', '🚀', 'round', true),

@@ -7,7 +7,7 @@ EXPORT_FIXTURES=1 npx vitest run src/domain/fixtures.export.test.ts
 ```
 
 Without `EXPORT_FIXTURES`, the same test fails if these files no longer match the rules, so they cannot drift from
-what the app does. Copy `fixtures/` into the backend's `tests/fixtures/` (plan-backend §12.1).
+what the app does. Copy `fixtures/` into the backend's `tests/fixtures/`.
 
 ## Files
 

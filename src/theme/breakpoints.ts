@@ -1,5 +1,5 @@
 /**
- * Page layouts (docs/RESPONSIVE-PLAN.md §4.1). Tailwind's `screens` and `useMediaQuery` both read these, so the
+ * Page layouts (docs/codebase/ARCHITECTURE.md, Layout). Tailwind's `screens` and `useMediaQuery` both read these, so the
  * layout CSS and the motion that depends on it can never disagree.
  */
 const land = '(orientation: landscape) and (max-height: 500px)';

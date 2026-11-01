@@ -6,7 +6,7 @@ import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
 import { btn } from './helpers';
 
 /**
- * Every device class from docs/RESPONSIVE-PLAN.md §3 that still gets the phone UI. From 768×501 up the app shows the
+ * Every device class that still gets the phone UI (docs/codebase/ARCHITECTURE.md, Layout). From 768×501 up the app shows the
  * large-screen UI (MQ.big), which large-screen.desktop.spec covers.
  */
 const ALL = [

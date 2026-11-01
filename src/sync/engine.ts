@@ -1,5 +1,5 @@
 /**
- * The push/pull loop (plan-frontend §7): players first, then games; pulls the registry and this account's games;
+ * The push/pull loop: players first, then games; pulls the registry and this account's games;
  * settles stale uploads with a conflict copy (nothing is ever dropped). It runs only while signed in. Screens never
  * wait for it: they read the archive, which this keeps up to date.
  */

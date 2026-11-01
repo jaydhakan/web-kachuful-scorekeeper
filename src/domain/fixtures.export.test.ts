@@ -20,7 +20,7 @@ import {
 } from './index';
 
 /**
- * The backend's golden fixtures (plan-backend §12.1). `EXPORT_FIXTURES=1 npx vitest run
+ * The backend's golden fixtures (contract/README.md). `EXPORT_FIXTURES=1 npx vitest run
  * src/domain/fixtures.export.test.ts` rewrites contract/fixtures; otherwise this checks the committed files still
  * match the rules, so a rule change can't drift from what the server was given.
  */
