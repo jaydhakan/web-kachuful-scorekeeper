@@ -1,12 +1,10 @@
-# Lighthouse (mobile)
+# Lighthouse user flow (mobile, Slow 4G, 4x CPU, simulated throttling), median of 3
 
-| Category | Score |
-| --- | ---: |
-| Performance | 100 |
-| Accessibility | 100 |
-| Best practices | 100 |
-| SEO | 91 |
+Navigations use Lighthouse's simulated throttling; "Play a round" is a timespan with DevTools throttling applied (INP comes only from timespans).
 
-FCP 0.9 s · LCP 0.9 s · TBT 0 ms · CLS 0 · TTI 0.9 s
-
-Initial JS (gzip): 153.7 KB across 6 files (budget 150 KB). All JS incl. lazy chunks: 216.2 KB.
+| Step | Perf | FCP | LCP | TBT | CLS | Speed Index | INP | Transfer |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Home, first visit | 100 | 1.36 s | 1.36 s | 0 ms | 0.000 | 1.36 s | – | 276 KB |
+| Game, returning | 100 | 1.36 s | 1.36 s | 0 ms | 0.000 | 1.36 s | – | 276 KB |
+| Play a round | 100 | – | – | 0 ms | 0.014 | – | 35 ms | 0 KB |
+| Tablet UI, first visit | 100 | 1.36 s | 1.36 s | 0 ms | 0.000 | 1.36 s | – | 252 KB |
