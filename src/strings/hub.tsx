@@ -274,7 +274,12 @@ export const hub = {
   },
   account: {
     title: 'Account',
-    signedInAs: (email: string) => `Signed in as ${email}`,
+    // The eyebrow is set in capitals; an email address keeps its own case.
+    signedInAs: (email: string) => (
+      <>
+        Signed in as <span className="normal-case tracking-normal">{email}</span>
+      </>
+    ),
     stale: 'Sign in again to keep syncing',
     myPlayer: 'My player',
     edit: 'Edit',
