@@ -12,7 +12,7 @@ src/state       reducer + actions (types.ts), persistence + migrations, undo rin
                 archive.ts (IndexedDB), registry.ts (players), useFacts (this device's stats)
 src/sync        api.ts, endpoints.ts, engine.ts (push/pull), live.ts (SSE), useRemote (cache-first reads)
 src/hooks       useWakeLock, useHaptics, usePersistence, useDialog, useShare, useMediaQuery, useRovingFocus, useVisualViewport
-src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and app shell (AppShell, UpdatePrompt)
+src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and app shell (AppShell, ServiceWorkerHost)
 src/screens     one file per screen (setup/ and round/ hold the multi-step flows); Winner is lazy;
                 pages/ holds the screens opened over the game (one lazy chunk for phone and desk)
 src/sheets      one file per sheet body; SheetHost chooses the body and captures it at mount

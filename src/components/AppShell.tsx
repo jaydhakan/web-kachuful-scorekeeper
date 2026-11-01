@@ -19,9 +19,9 @@ import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
 import { RepairSaveModal } from './RepairSaveModal';
 import { BadgePop } from './BadgePop';
-import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
 import { Loader } from './ui/Loader';
+import { ServiceWorkerHost } from './ServiceWorkerHost';
 import { Toast } from './ui/Toast';
 import { EASE, SPRING_SOFT } from './ui/motion';
 
@@ -135,7 +135,7 @@ function PhoneShell() {
         </AnimatePresence>
         <Banner banner={banner} />
       </m.div>
-      <UpdatePrompt />
+      <ServiceWorkerHost />
       <Toast
         toast={toast}
         onUndo={actions.undo}

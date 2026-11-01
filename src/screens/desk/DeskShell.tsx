@@ -11,8 +11,8 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { RepairSaveModal } from '@/components/RepairSaveModal';
 import { StreakCelebration } from '@/components/StreakCelebration';
 import { BadgePop } from '@/components/BadgePop';
-import { UpdatePrompt } from '@/components/UpdatePrompt';
 import { Banner } from '@/components/ui/Banner';
+import { ServiceWorkerHost } from '@/components/ServiceWorkerHost';
 import { Toast } from '@/components/ui/Toast';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 import { DeskHome } from './DeskHome';
@@ -133,7 +133,7 @@ export default function DeskShell() {
         </main>
         <Banner banner={banner} />
       </m.div>
-      <UpdatePrompt />
+      <ServiceWorkerHost />
       <Toast
         toast={toast}
         onUndo={actions.undo}

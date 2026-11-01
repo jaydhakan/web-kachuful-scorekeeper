@@ -119,8 +119,8 @@ export default defineConfig(({ mode }) => ({
     preloadDesk(),
     precompress(),
     VitePWA({
-      // A waiting update is applied only when the player taps "Reload", never mid-round.
-      registerType: 'prompt',
+      // A new version installs and takes over by itself; the round is saved on every change, so the reload is safe.
+      registerType: 'autoUpdate',
       // The install icons are read by the OS once, at install, never by the app offline: no need to precache ~230 KB.
       includeAssets: ['icon.svg'],
       includeManifestIcons: false,
