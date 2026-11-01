@@ -14,6 +14,8 @@ import { AccountChip } from '@/components/AccountChip';
 import { ContinueCard } from '@/components/ContinueCard';
 import { t } from '@/strings';
 import { Icon } from '@/components/ui/Icons';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { MQ } from '@/theme/breakpoints';
 
 const SUITS = ['♠', '♦', '♣', '♥'] as const;
 
@@ -22,6 +24,7 @@ const ROOT =
   'absolute inset-0 cq-size flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))] pane:grid pane:grid-rows-[minmax(0,1fr)_auto] pane:pl-[max(var(--sal),calc((100%-72rem)/2))] pane:pr-[max(var(--sar),calc((100%-72rem)/2))] land:grid-cols-[minmax(0,1fr)_clamp(17rem,44vw,23rem)] wide:grid-cols-[minmax(0,1.15fr)_minmax(20rem,26rem)]';
 
 export function Home() {
+  const tall = useMediaQuery(MQ.tall);
   const { state, actions } = useApp();
   const g = state.game,
     r = curRound(g),
@@ -166,82 +169,85 @@ export function Home() {
             <ContinueCard className="md:max-w-[26rem]" />
             <TodayStrip className="md:max-w-[26rem] @h-short:hidden land:hidden" />
             {/* Short screens keep one row of tiles, so Home still fits without scrolling (e2e/responsive.spec.ts). */}
-            <m.nav
-              {...stagger(2, 0.28)}
-              aria-label={t.hub.nav.label}
-              className="grid w-full auto-cols-fr grid-flow-col gap-2 md:max-w-[26rem] land:mt-2 [@media(min-height:720px)]:hidden"
-            >
-              {[
-                ...destsFor(false).map((d) => ({
-                  key: d.screen,
-                  icon: d.icon,
-                  label: d.label,
-                  go: () => actions.open(destRoute(d)),
-                })),
-                {
-                  key: 'rules',
-                  icon: Icon.rules,
-                  label: t.home.howToPlay,
-                  go: () => actions.openSheet({ type: 'rules' }),
-                },
-              ].map((d) => (
-                <m.button
-                  key={d.key}
-                  type="button"
-                  whileTap={PRESS}
-                  onClick={d.go}
-                  className="glass flex min-h-[3.75rem] flex-col items-center justify-start gap-1 !rounded-2xl px-1 pt-2.5 pb-2 text-center text-13 font-bold leading-tight"
-                >
-                  <span aria-hidden className="grid h-5 place-items-center text-[var(--tx2)]">
-                    {d.icon}
-                  </span>
-                  {d.label}
-                </m.button>
-              ))}
-            </m.nav>
             {/* Where to go, and the rules, as one grouped list (Main.dc.html). The column scrolls; New Game stays put. */}
-            <m.nav
-              {...stagger(2, 0.28)}
-              aria-label={t.hub.nav.label}
-              className="glass hidden w-full overflow-hidden md:max-w-[26rem] [@media(min-height:720px)]:block land:!hidden"
-            >
-              {[
-                ...destsFor(false).map((d) => ({
-                  key: d.screen,
-                  icon: d.icon,
-                  label: d.label,
-                  go: () => actions.open(destRoute(d)),
-                })),
-                {
-                  key: 'rules',
-                  icon: Icon.rules,
-                  label: t.home.howToPlay,
-                  go: () => actions.openSheet({ type: 'rules' }),
-                },
-              ].map((d, k) => (
-                <m.button
-                  key={d.key}
-                  type="button"
-                  whileTap={PRESS}
-                  onClick={d.go}
-                  className="relative flex min-h-12 w-full items-center gap-3.5 px-4 text-left text-16 font-medium @h-short:min-h-11"
-                >
-                  {k > 0 && (
-                    <span aria-hidden className="absolute left-12 right-0 top-0 h-px bg-ov/10" />
-                  )}
-                  <span
-                    aria-hidden
-                    className="grid h-5 w-5 place-items-center text-[var(--tx2)] [&_svg]:h-5 [&_svg]:w-5"
+            {tall ? (
+              <m.nav
+                {...stagger(2, 0.28)}
+                aria-label={t.hub.nav.label}
+                className="glass w-full overflow-hidden md:max-w-[26rem]"
+              >
+                {[
+                  ...destsFor(false).map((d) => ({
+                    key: d.screen,
+                    icon: d.icon,
+                    label: d.label,
+                    go: () => actions.open(destRoute(d)),
+                  })),
+                  {
+                    key: 'rules',
+                    icon: Icon.rules,
+                    label: t.home.howToPlay,
+                    go: () => actions.openSheet({ type: 'rules' }),
+                  },
+                ].map((d, k) => (
+                  <m.button
+                    key={d.key}
+                    type="button"
+                    whileTap={PRESS}
+                    onClick={d.go}
+                    className="relative flex min-h-12 w-full items-center gap-3.5 px-4 text-left text-16 font-medium @h-short:min-h-11"
                   >
-                    {d.icon}
-                  </span>
-                  <span className="flex-1">{d.label}</span>
-                  <span aria-hidden className="text-[var(--dis)]">
-                    {Icon.chev}
-                  </span>
-                </m.button>
-              ))}
-            </m.nav>
+                    {k > 0 && (
+                      <span aria-hidden className="absolute left-12 right-0 top-0 h-px bg-ov/10" />
+                    )}
+                    <span
+                      aria-hidden
+                      className="grid h-5 w-5 place-items-center text-[var(--tx2)] [&_svg]:h-5 [&_svg]:w-5"
+                    >
+                      {d.icon}
+                    </span>
+                    <span className="flex-1">{d.label}</span>
+                    <span aria-hidden className="text-[var(--dis)]">
+                      {Icon.chev}
+                    </span>
+                  </m.button>
+                ))}
+              </m.nav>
+            ) : (
+              <m.nav
+                {...stagger(2, 0.28)}
+                aria-label={t.hub.nav.label}
+                className="grid w-full auto-cols-fr grid-flow-col gap-2 md:max-w-[26rem] land:mt-2"
+              >
+                {[
+                  ...destsFor(false).map((d) => ({
+                    key: d.screen,
+                    icon: d.icon,
+                    label: d.label,
+                    go: () => actions.open(destRoute(d)),
+                  })),
+                  {
+                    key: 'rules',
+                    icon: Icon.rules,
+                    label: t.home.howToPlay,
+                    go: () => actions.openSheet({ type: 'rules' }),
+                  },
+                ].map((d) => (
+                  <m.button
+                    key={d.key}
+                    type="button"
+                    whileTap={PRESS}
+                    onClick={d.go}
+                    className="glass flex min-h-[3.75rem] flex-col items-center justify-start gap-1 !rounded-2xl px-1 pt-2.5 pb-2 text-center text-13 font-bold leading-tight"
+                  >
+                    <span aria-hidden className="grid h-5 place-items-center text-[var(--tx2)]">
+                      {d.icon}
+                    </span>
+                    {d.label}
+                  </m.button>
+                ))}
+              </m.nav>
+            )}
           </div>
         </div>
       </div>
