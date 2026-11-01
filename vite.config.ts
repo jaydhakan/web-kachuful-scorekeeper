@@ -60,7 +60,9 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       // A waiting update is applied only when the player taps "Reload", never mid-round.
       registerType: 'prompt',
-      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
+      // The install icons are read by the OS once, at install, never by the app offline: no need to precache ~230 KB.
+      includeAssets: ['icon.svg'],
+      includeManifestIcons: false,
       manifest: {
         name: 'Kachuful',
         short_name: 'Kachuful',
@@ -78,7 +80,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,woff2,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,woff2,webmanifest}'],
         navigateFallback: 'index.html',
         // The API and the link-preview pages are the server's, never the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/r\//, /^\/l\//],
