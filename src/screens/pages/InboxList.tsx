@@ -78,7 +78,7 @@ function NameMatch({ i }: { i: InboxItem }) {
             placeholder={t.hub.sync2.emailFor(name)}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 min-w-0 flex-1 rounded-xl bg-white/[.07] px-3 text-15 outline-none"
+            className="h-11 min-w-0 flex-1 rounded-xl bg-white/[.07] px-3 text-16 outline-none"
           />
           <button
             type="submit"
