@@ -1,6 +1,7 @@
 import { demoGame, type Decks, type Game } from '@/domain';
 import { uuid } from '@/lib/ids';
 import { CURRENT_SCHEMA, migrateGame as migrateRaw } from './migrations';
+import type { Appearance } from '@/theme/themes';
 
 export const KEYS = {
   game: 'kachuful.v1',
@@ -11,6 +12,11 @@ export const KEYS = {
   backup: 'kachuful.v1.backup',
   device: 'kachuful.device',
   session: 'kachuful.session',
+  // Theme keys follow ADMIN_THEME_SWITCHER.md §6; index.html's boot script reads `theme` (a bare id) before the app.
+  theme: 'kf.theme',
+  themeAllowOverride: 'kf.theme.allowOverride',
+  themeAppearance: 'kf.theme.appearance',
+  themeUser: 'kf.theme.user',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -185,4 +191,35 @@ export function pushRecentNames(names: string[]) {
     rn.unshift(x);
   });
   storage.set(KEYS.recentNames, rn.slice(0, 20));
+}
+
+/** What this device knows about themes; ids are checked by the caller (`resolveTheme`), never trusted here. */
+export function loadThemeState(): {
+  cached: string | null;
+  user: string | null;
+  appearance: Partial<Appearance> | null;
+} {
+  const appearance = storage.get<Partial<Appearance> | null>(KEYS.themeAppearance, null);
+  const allow = storage.get<boolean | null>(KEYS.themeAllowOverride, null);
+  return {
+    cached: storage.getRaw(KEYS.theme),
+    user: storage.getRaw(KEYS.themeUser),
+    appearance:
+      appearance && typeof appearance === 'object'
+        ? { ...appearance, allowUserOverride: allow ?? !!appearance.allowUserOverride }
+        : null,
+  };
+}
+
+/** The theme on screen, for the boot script on the next cold start. */
+export const saveShownTheme = (id: string) => storage.setRaw(KEYS.theme, id);
+
+export function saveAppearance(a: Appearance) {
+  storage.set(KEYS.themeAppearance, a);
+  storage.set(KEYS.themeAllowOverride, a.allowUserOverride);
+}
+
+export function saveUserTheme(id: string | null) {
+  if (id) storage.setRaw(KEYS.themeUser, id);
+  else storage.remove(KEYS.themeUser);
 }

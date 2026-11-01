@@ -79,7 +79,7 @@ export function RenameBody({ k }: { k: number }) {
           setErr('');
         }}
         onKeyDown={(e) => e.key === 'Enter' && save()}
-        className="mb-1 h-14 w-full rounded-2xl bg-white/[.07] px-4 text-18 outline-none focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
+        className="mb-1 h-14 w-full rounded-2xl bg-ov/[.07] px-4 text-18 outline-none focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
       />
       <div className="min-h-6 text-14 text-[var(--warn)]" role="alert">
         {err}

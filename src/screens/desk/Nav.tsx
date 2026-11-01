@@ -89,7 +89,7 @@ function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
       )}
       <span
         aria-hidden
-        className="absolute inset-0 -z-20 rounded-2xl bg-white/[.06] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-enabled:group-hover:opacity-100"
+        className="absolute inset-0 -z-20 rounded-2xl bg-ov/[.06] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-enabled:group-hover:opacity-100"
       />
       <span className={on ? 'text-[var(--accent)]' : ''}>{icon}</span>
       {label}
@@ -104,7 +104,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
   return (
     <nav
       aria-label={t.desk.nav.label}
-      className="scroll-thin relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-white/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
+      className="scroll-thin relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-ov/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
     >
       <m.button
         type="button"
@@ -142,7 +142,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         disabled={!n.inGame}
         onClick={n.rounds}
       />
-      <div aria-hidden className="my-1 h-px w-10 shrink-0 bg-white/10" />
+      <div aria-hidden className="my-1 h-px w-10 shrink-0 bg-ov/10" />
       {destsFor(!!state.session).map((d) => (
         <RailItem
           key={d.screen}

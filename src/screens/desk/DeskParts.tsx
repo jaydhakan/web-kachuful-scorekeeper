@@ -11,7 +11,7 @@ import { t } from '@/strings';
 /** A key cap. Hidden where there is no mouse or trackpad, since there is probably no keyboard either. */
 export const Kbd = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
   <kbd
-    className={`hidden h-6 min-w-6 place-items-center rounded-md bg-black/20 px-1.5 font-sans text-13 font-bold not-italic text-current kbd:inline-grid ${className}`}
+    className={`hidden h-6 min-w-6 place-items-center rounded-md bg-shade/20 px-1.5 font-sans text-13 font-bold not-italic text-current kbd:inline-grid ${className}`}
   >
     {children}
   </kbd>
@@ -22,7 +22,7 @@ export const KeyHints = ({ items }: { items: [ReactNode, string][] }) => (
   <div className="hidden flex-wrap items-center justify-center gap-x-3 gap-y-1 text-13 text-[var(--tx2)] kbd:flex">
     {items.map(([k, label]) => (
       <span key={label} className="inline-flex items-center gap-1.5">
-        <Kbd className="bg-white/[.12]">{k}</Kbd>
+        <Kbd className="bg-ov/[.12]">{k}</Kbd>
         {label}
       </span>
     ))}
@@ -100,7 +100,7 @@ interface AvatarProps {
 export const Avatar = ({ p, s, className = '', style }: AvatarProps) => (
   <UiAvatar
     p={p}
-    className={`grid shrink-0 place-items-center rounded-full border-2 border-white/20 shadow-[0_8px_22px_rgba(0,0,0,.45)] ${className}`}
+    className={`grid shrink-0 place-items-center rounded-full border-2 border-ov/20 shadow-[0_8px_22px_rgba(0,0,0,.45)] ${className}`}
     style={{ width: s, height: s, fontSize: Math.round(s * 0.55), ...style }}
   />
 );
@@ -133,7 +133,7 @@ export const Delta = ({ v, className = '' }: { v: number; className?: string }) 
     initial={{ scale: 0.5, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
     transition={SPRING_POP}
-    className={`tick inline-grid h-[30px] min-w-[52px] shrink-0 place-items-center rounded-[10px] px-2.5 text-15 font-extrabold ${className} ${v > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : v < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
+    className={`tick inline-grid h-[30px] min-w-[52px] shrink-0 place-items-center rounded-[10px] px-2.5 text-15 font-extrabold ${className} ${v > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : v < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
   >
     {sgnN(v)}
   </m.span>

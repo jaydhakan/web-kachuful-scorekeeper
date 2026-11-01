@@ -45,7 +45,7 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
       Everyone predicts how many tricks they will win (0 up to the cards dealt), starting with the
       player after the dealer. The dealer bids <b>last</b> and can’t pick a number that makes all
       bids add up to the cards dealt, so someone always misses.
-      <div className="mt-2 rounded-2xl bg-white/[.06] p-3">
+      <div className="mt-2 rounded-2xl bg-ov/[.06] p-3">
         4 players, 5 cards. The first three bid <b>2 + 1 + 0 = 3</b>. The dealer can’t bid <b>2</b>,
         because the total would be 5. Any other bid is fine.
       </div>
@@ -80,7 +80,7 @@ export const rulesItems = (dir: Direction): [string, string, ReactNode][] => [
             [3, 30],
             [7, 70],
           ].map(([b, v]) => (
-            <tr key={b} className="border-t border-white/10">
+            <tr key={b} className="border-t border-ov/10">
               <td className="py-2">{b}</td>
               <td className="font-bold text-[var(--pos)]">+{v}</td>
               <td className="font-bold text-[var(--neg)]">−{v}</td>

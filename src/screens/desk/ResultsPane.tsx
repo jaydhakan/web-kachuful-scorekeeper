@@ -41,7 +41,7 @@ export function ResultsPane({ g }: { g: Game }) {
               <span className="shrink-0 text-14 font-medium text-[var(--tx2)]">
                 {t.results.tricksLeft}
               </span>
-              <div className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-white/[.08]">
+              <div className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-ov/[.08]">
                 <m.div
                   className="h-full origin-left rounded-full bg-[var(--accent)]"
                   initial={false}
@@ -70,7 +70,7 @@ export function ResultsPane({ g }: { g: Game }) {
             <m.span
               aria-hidden
               variants={{ press: { scale: 0.94 } }}
-              className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-white/[.16]"
+              className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-ov/[.16]"
             >
               <span
                 className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
@@ -94,11 +94,11 @@ export function ResultsPane({ g }: { g: Game }) {
             note =
               !res && !tricks ? why(blocked(p.id, 'made') ?? blocked(p.id, 'missed')) : undefined;
           return (
-            <m.li key={p.id} {...stagger(i)} className="@container shrink-0 rounded-2xl bg-white/5">
+            <m.li key={p.id} {...stagger(i)} className="@container shrink-0 rounded-2xl bg-ov/5">
               <div className="flex min-h-14 flex-wrap items-center gap-x-2.5 gap-y-1.5 px-3 py-1 @[24rem]:gap-x-3 rail:min-h-16 rail:py-2">
                 <Avatar
                   p={p}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-white/20 text-20 @[24rem]:h-11 @[24rem]:w-11 @[24rem]:text-24"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-20 @[24rem]:h-11 @[24rem]:w-11 @[24rem]:text-24"
                 />
                 <div className="min-w-[4.5rem] flex-1">
                   <div className="text-18 font-bold leading-tight [overflow-wrap:anywhere]">
@@ -119,7 +119,7 @@ export function ResultsPane({ g }: { g: Game }) {
                         whileTap={PRESS_SM}
                         aria-label={t.results.fewer(p.name)}
                         onClick={() => actions.setTricks(p.id, -1)}
-                        className="h-12 w-12 rounded-xl bg-white/[.08] text-24 font-bold"
+                        className="h-12 w-12 rounded-xl bg-ov/[.08] text-24 font-bold"
                       >
                         −
                       </m.button>
@@ -131,7 +131,7 @@ export function ResultsPane({ g }: { g: Game }) {
                         whileTap={PRESS_SM}
                         aria-label={t.results.more(p.name)}
                         onClick={() => actions.setTricks(p.id, 1)}
-                        className="h-12 w-12 rounded-xl bg-white/[.08] text-24 font-bold"
+                        className="h-12 w-12 rounded-xl bg-ov/[.08] text-24 font-bold"
                       >
                         +
                       </m.button>

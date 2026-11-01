@@ -57,7 +57,7 @@ export function PrimaryButton({
       {...rest}
     >
       {/* Enabling cross-fades two pre-painted fills; colours and shadows never animate. */}
-      <span aria-hidden className={`${layer} bg-white/[.06] ${disabled ? '' : 'opacity-0'}`} />
+      <span aria-hidden className={`${layer} bg-ov/[.06] ${disabled ? '' : 'opacity-0'}`} />
       <span aria-hidden className={`${layer} ${FILL[tone]} ${disabled ? 'opacity-0' : ''}`} />
       {children as ReactNode}
     </m.button>

@@ -32,7 +32,7 @@ export function ComingUp({
             const i = from + 1 + k,
               r = roundAt(g, i);
             return (
-              <li key={i} className="min-w-0 rounded-[14px] bg-white/5 px-3 py-2.5">
+              <li key={i} className="min-w-0 rounded-[14px] bg-ov/5 px-3 py-2.5">
                 <div className="flex flex-wrap items-center gap-1 text-13 text-[var(--tx2)]">
                   {t.desk.roundN(i + 1)}
                   {r.cards === g.maxCards && (

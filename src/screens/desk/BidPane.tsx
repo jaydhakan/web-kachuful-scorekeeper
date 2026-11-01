@@ -60,7 +60,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
           >
             <Avatar
               p={p}
-              className="ring-pulse grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-white/20 text-36 rail:h-[72px] rail:w-[72px] rail:text-40"
+              className="ring-pulse grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-36 rail:h-[72px] rail:w-[72px] rail:text-40"
             />
             <div className="min-w-0">
               <h2 className="disp text-32 font-extrabold leading-[1.05] tracking-[-0.03em] [overflow-wrap:anywhere] rail:text-34">
@@ -111,7 +111,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               whileHover={lock ? undefined : { y: -3 }}
               whileTap={PRESS_SM}
               onClick={() => onKey(k)}
-              className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-white/30 bg-white/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'} ${saved ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
+              className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'} ${saved ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
             >
               {sel && (
                 <m.span
@@ -136,7 +136,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
             {diff < 0 ? t.bidding.under(-diff) : diff > 0 ? t.bidding.over(diff) : t.bidding.level}
           </span>
         </div>
-        <div className="relative h-2 overflow-hidden rounded-full bg-white/[.08]">
+        <div className="relative h-2 overflow-hidden rounded-full bg-ov/[.08]">
           <m.i
             aria-hidden
             className="absolute inset-0 origin-left rounded-full bg-[var(--accent)] opacity-35"
@@ -173,7 +173,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
                     type="button"
                     aria-label={t.desk.bid.change(q.name, b)}
                     onClick={() => actions.pickSeat(k)}
-                    className={`press inline-flex min-h-12 items-center gap-2 rounded-full border px-3.5 text-14 font-bold ${k === pI ? 'border-[color-mix(in_srgb,var(--accent)_55%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)]' : 'border-white/10 bg-white/[.06]'}`}
+                    className={`press inline-flex min-h-12 items-center gap-2 rounded-full border px-3.5 text-14 font-bold ${k === pI ? 'border-[color-mix(in_srgb,var(--accent)_55%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)]' : 'border-ov/10 bg-ov/[.06]'}`}
                   >
                     <Avatar
                       p={q}

@@ -6,11 +6,32 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { brotliCompress, constants, gzip } from 'node:zlib';
-import tokens from './src/theme/tokens.json' with { type: 'json' };
 import { MQ } from './src/theme/breakpoints';
+import { DEFAULT_THEME, THEMES } from './src/theme/themes';
 import { mockApiPlugin } from './tools/mock-api';
 
-const felt = tokens.color.tokens.find((t) => t.name === 'felt-950')!.value.midnight;
+const splash = THEMES[DEFAULT_THEME].themeColor;
+
+/**
+ * Puts the last theme shown on <html> before any CSS or app code runs, so a cold start never flashes the wrong theme
+ * (ADMIN_THEME_SWITCHER.md §2). Generated from the registry so the two can't drift. It reads storage directly because
+ * nothing else has loaded yet; everywhere else goes through src/state/persistence.ts.
+ */
+const themeBoot = (): Plugin => {
+  const colours = Object.fromEntries(Object.entries(THEMES).map(([id, t]) => [id, t.themeColor]));
+  const dark = Object.keys(THEMES).filter(
+    (id) => THEMES[id as keyof typeof THEMES].scheme === 'dark',
+  );
+  return {
+    name: 'theme-boot',
+    // At the marker after <meta charset>, ahead of every stylesheet and script.
+    transformIndexHtml: (html) =>
+      html.replace(
+        '<!-- theme-boot -->',
+        `<meta name="theme-color" content="${splash}" />\n    <script>(function(){var c=${JSON.stringify(colours)},d=${JSON.stringify(dark)},t;try{t=localStorage.getItem('kf.theme')}catch(e){}if(!Object.prototype.hasOwnProperty.call(c,t))t=${JSON.stringify(DEFAULT_THEME)};var r=document.documentElement;r.setAttribute('data-theme',t);r.style.colorScheme=d.indexOf(t)<0?'light':'dark';var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',c[t])})()</script>`,
+      ),
+  };
+};
 
 /**
  * On a tablet or desktop, starts the large-screen chunks downloading while the entry is still parsing. Without
@@ -94,6 +115,7 @@ export default defineConfig(({ mode }) => ({
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),
+    themeBoot(),
     preloadDesk(),
     precompress(),
     VitePWA({
@@ -114,8 +136,8 @@ export default defineConfig(({ mode }) => ({
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
-        background_color: felt,
-        theme_color: felt,
+        background_color: splash,
+        theme_color: splash,
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
@@ -124,6 +146,9 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,webmanifest}'],
+        // Only the default theme's face is installed up front; other themes' fonts are cached the first time a theme
+        // uses them (runtime rule below), so the install stays light (THEMES_SPEC.md §8).
+        globIgnores: ['**/{bricolage,space-mono,dm-mono,instrument-serif}-*.woff2'],
         navigateFallback: 'index.html',
         // The API and the link-preview pages are the server's, never the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/r\//, /^\/l\//],
@@ -131,6 +156,15 @@ export default defineConfig(({ mode }) => ({
         // Player photos only (HANDOFF §5.7): public, versioned and immutable, so a cached copy is never stale and
         // holds nothing private. Every other /api/ answer stays out of the worker: it is private and ETag-checked.
         runtimeCaching: [
+          {
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.endsWith('.woff2'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kachuful-fonts',
+              expiration: { maxEntries: 20, purgeOnQuotaError: true },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             urlPattern: ({ url, request, sameOrigin }) =>
               sameOrigin &&

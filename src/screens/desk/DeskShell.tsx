@@ -96,7 +96,7 @@ export default function DeskShell() {
     <div
       data-desk
       className={`app-root scr-bg grain relative h-full w-full ${OVERLAY_VARS}`}
-      style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
+      style={{ '--trump': th.acc, '--trump-glow': th.glow, '--suit': th.col } as CSSProperties}
     >
       <m.div
         className="absolute inset-0 flex flex-col rail:flex-row"

@@ -17,7 +17,7 @@ const Dots = ({ step }: { step: number }) => (
         layoutId={`step-dot-${i}`}
         transition={SPRING}
         style={{ width: i === step ? 24 : 8, borderRadius: 999 }}
-        className="relative block h-2 overflow-hidden bg-white/[.22]"
+        className="relative block h-2 overflow-hidden bg-ov/[.22]"
       >
         <m.span
           className="absolute inset-0 bg-[var(--accent)]"

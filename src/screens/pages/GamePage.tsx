@@ -182,7 +182,7 @@ function Podium({ g }: { g: Game }) {
           >
             <Avatar
               p={s.p}
-              className="grid h-14 w-14 place-items-center rounded-full border-2 border-white/20 text-30"
+              className="grid h-14 w-14 place-items-center rounded-full border-2 border-ov/20 text-30"
             />
             <span className="text-15 font-bold leading-tight [overflow-wrap:anywhere]">
               {s.p.name}
@@ -208,7 +208,7 @@ function Standings({ g }: { g: Game }) {
   const st = standings(g),
     r = curRound(g);
   return (
-    <ol className="glass flex flex-col divide-y divide-white/[.06] px-4">
+    <ol className="glass flex flex-col divide-y divide-ov/[.06] px-4">
       {st.map((s) => (
         <li key={s.p.id} className="flex min-h-14 items-center gap-3 py-2">
           <span className={`disp w-6 text-center text-20 font-extrabold ${rankTone(s.rank)}`}>

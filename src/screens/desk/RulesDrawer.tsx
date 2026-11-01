@@ -37,7 +37,7 @@ export function RulesDrawer() {
               ] as const
             ).map(([k, what]) => (
               <span key={k} className="inline-flex items-center gap-2">
-                <Kbd className="bg-white/[.12]">{k}</Kbd>
+                <Kbd className="bg-ov/[.12]">{k}</Kbd>
                 {what}
               </span>
             ))}
@@ -50,7 +50,7 @@ export function RulesDrawer() {
           <m.li
             key={title}
             {...stagger(i, 0.12)}
-            className="flex gap-3.5 border-t border-white/[.08] py-3.5 first:border-t-0"
+            className="flex gap-3.5 border-t border-ov/[.08] py-3.5 first:border-t-0"
           >
             <span className="disp grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] text-16 font-extrabold text-[var(--accent)]">
               {i + 1}

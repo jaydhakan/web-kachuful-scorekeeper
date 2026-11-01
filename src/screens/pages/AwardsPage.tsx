@@ -257,7 +257,7 @@ function Podium({ s, f }: { s: ReturnType<typeof season>; f: Facts | null }) {
               initial={rm ? false : { scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ ...SPRING_POP, delay: 0.15 * (2 - k) }}
-              className={`w-full origin-bottom rounded-t-xl bg-white/[.08] ${['h-20', 'h-14', 'h-10'][k]}`}
+              className={`w-full origin-bottom rounded-t-xl bg-ov/[.08] ${['h-20', 'h-14', 'h-10'][k]}`}
             />
           </div>
         );

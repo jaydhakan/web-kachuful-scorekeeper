@@ -18,6 +18,7 @@ import { StatTile, TileGrid } from '@/components/ui/Stats';
 import { stagger } from '@/components/ui/stagger';
 import { authError } from './AuthPages';
 import { t } from '@/strings';
+import { seatColor } from '@/theme/palette';
 
 const ad = t.hub.admin;
 
@@ -30,7 +31,7 @@ function LinkBox({ url, note }: { url: string; note: string }) {
   return (
     <div className="glass flex flex-col gap-3 p-4">
       <p className="text-15 text-[var(--tx2)]">{note}</p>
-      <code className="block select-all break-all rounded-xl bg-black/30 p-3 text-14">{url}</code>
+      <code className="block select-all break-all rounded-xl bg-shade/30 p-3 text-14">{url}</code>
       <div className="flex gap-2">
         <PrimaryButton
           className="flex-1"
@@ -141,7 +142,7 @@ function Users() {
               <span
                 aria-hidden
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
-                style={{ background: r.player?.color ?? 'transparent' }}
+                style={{ background: r.player ? seatColor(r.player.color) : 'transparent' }}
               >
                 {r.player?.emoji ?? '✉️'}
               </span>

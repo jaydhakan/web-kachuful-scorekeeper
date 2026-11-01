@@ -19,7 +19,7 @@ export function SyncDot({ className = '' }: { className?: string }) {
     s.phase === 'attention'
       ? 'bg-[var(--warn)] text-ink-gold'
       : s.waiting || s.phase === 'offline'
-        ? 'bg-white/20 text-[var(--tx)]'
+        ? 'bg-ov/20 text-[var(--tx)]'
         : 'bg-[var(--pos)] text-ink-on-accent';
   return (
     <span

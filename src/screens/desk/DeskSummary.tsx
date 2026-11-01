@@ -66,7 +66,7 @@ export function DeskSummary() {
           <>
             <GhostButton disabled={!state.undo.length} onClick={actions.undo}>
               {Icon.undo}
-              {t.desk.nav.undo} <Kbd className="bg-white/[.12]">Z</Kbd>
+              {t.desk.nav.undo} <Kbd className="bg-ov/[.12]">Z</Kbd>
             </GhostButton>
             <GhostButton onClick={() => actions.openSheet({ type: 'board' })}>
               {t.desk.summary.full}
@@ -118,7 +118,7 @@ export function DeskSummary() {
                   </span>
                   <Avatar
                     p={x.p}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22 shadow-[0_8px_22px_rgba(0,0,0,.45)] dt:h-12 dt:w-12 dt:text-26"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22 shadow-[0_8px_22px_rgba(0,0,0,.45)] dt:h-12 dt:w-12 dt:text-26"
                   />
                   <span className="min-w-0 flex-1 text-20 font-bold leading-tight tracking-[-0.015em] [overflow-wrap:anywhere] dt:text-24">
                     {x.p.name}

@@ -205,7 +205,7 @@ export function StreakCelebration() {
             >
               <Avatar
                 p={e.p}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-white/20 text-26 big:h-16 big:w-16 big:text-36"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-26 big:h-16 big:w-16 big:text-36"
               />
               <span className="min-w-0">{e.p.name}</span>
             </m.p>

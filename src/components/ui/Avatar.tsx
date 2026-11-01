@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { archive } from '@/state/archive';
 import { resolveId } from '@/state/registry';
+import { seatColor } from '@/theme/palette';
 
 /** Anything drawn as a player: a registry player, a summary from the server, or a seat in a game. */
 export interface Face {
@@ -66,7 +67,11 @@ export function Avatar({
   // The photo fills a positioned parent and takes its rounding; callers that place the avatar themselves already are.
   const pos = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className) ? '' : 'relative ';
   return (
-    <span aria-hidden className={`${pos}${className}`} style={{ background: p.color, ...style }}>
+    <span
+      aria-hidden
+      className={`${pos}${className}`}
+      style={{ background: seatColor(p.color), ...style }}
+    >
       <AvatarFill p={p} />
     </span>
   );

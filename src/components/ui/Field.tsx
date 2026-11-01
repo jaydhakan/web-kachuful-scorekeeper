@@ -3,7 +3,7 @@ import { COLORS, EMOJIS } from '@/domain';
 import { t } from '@/strings';
 
 const INPUT =
-  'h-14 w-full rounded-2xl bg-white/[.07] px-4 text-18 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] aria-[invalid=true]:shadow-[inset_0_0_0_1px_var(--neg)]';
+  'h-14 w-full rounded-2xl bg-ov/[.07] px-4 text-18 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] aria-[invalid=true]:shadow-[inset_0_0_0_1px_var(--neg)]';
 
 interface FieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label: string;
@@ -94,7 +94,7 @@ export function LookPicker({
             aria-pressed={e === emoji}
             aria-label={e}
             onClick={() => onChange({ emoji: e, color })}
-            className={`press-sm grid h-11 w-11 place-items-center rounded-xl text-22 ${e === emoji ? 'bg-white/20 shadow-[inset_0_0_0_2px_var(--accent)]' : 'bg-white/[.05]'}`}
+            className={`press-sm grid h-11 w-11 place-items-center rounded-xl text-22 ${e === emoji ? 'bg-ov/20 shadow-[inset_0_0_0_2px_var(--accent)]' : 'bg-ov/[.05]'}`}
           >
             {e}
           </button>

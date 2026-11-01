@@ -1,10 +1,8 @@
 import type { Trump } from '@/domain';
 import { palette } from './palette';
 
-const glowOf = (hex: string) => {
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, .25)`;
-};
+// A theme with no glow sets --trump-glow-amt to 0%, which makes this transparent.
+const glowOf = (c: string) => `color-mix(in srgb, ${c} var(--trump-glow-amt), transparent)`;
 
 export interface TrumpTheme {
   sym: string;

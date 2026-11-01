@@ -12,6 +12,7 @@ import { useRemote } from '@/sync/useRemote';
 import type { GameSummary } from '@/sync/types';
 import { t } from '@/strings';
 import { AvatarFill } from '@/components/ui/Avatar';
+import { seatColor } from '@/theme/palette';
 
 const h = t.hub.h2h;
 
@@ -86,8 +87,8 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
         aria-hidden
         animate={rm ? undefined : { scale: [1, 1.12, 1] }}
         transition={{ delay: 0.45, duration: 0.35 }}
-        className="relative grid h-20 w-20 place-items-center rounded-full border-2 border-white/20 text-44"
-        style={{ background: w.color }}
+        className="relative grid h-20 w-20 place-items-center rounded-full border-2 border-ov/20 text-44"
+        style={{ background: seatColor(w.color) }}
       >
         <AvatarFill p={w} />
       </m.span>
@@ -114,7 +115,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
         <EmptyState icon="🤝" title={h.never} />
       ) : (
         <>
-          <div className="glass mb-6 divide-y divide-white/[.06] px-4">
+          <div className="glass mb-6 divide-y divide-ov/[.06] px-4">
             {stat(h.ahead(''), x.aAhead, x.bAhead)}
             {stat(h.ties, x.ties, x.ties)}
             {stat(h.points, fmt(x.aPoints), fmt(x.bPoints))}

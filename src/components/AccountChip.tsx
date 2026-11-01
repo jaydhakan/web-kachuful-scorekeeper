@@ -3,6 +3,7 @@ import { useApp } from '@/state/store';
 import { SyncDot } from './SyncDot';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';
+import { seatColor } from '@/theme/palette';
 
 /** Top corner of Home: the account (with its sync state) or Sign in. Placed by `className` (absolute). */
 export function AccountChip({ className = '' }: { className?: string }) {
@@ -21,7 +22,7 @@ export function AccountChip({ className = '' }: { className?: string }) {
           <span
             aria-hidden
             className="grid h-8 w-8 place-items-center rounded-full text-18"
-            style={{ background: s.player?.color ?? 'transparent' }}
+            style={{ background: s.player ? seatColor(s.player.color) : 'transparent' }}
           >
             {s.player?.emoji ?? '👤'}
           </span>

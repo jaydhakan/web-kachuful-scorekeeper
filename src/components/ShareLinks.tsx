@@ -85,10 +85,10 @@ export function ShareLinks() {
                       height={176}
                       initial={rm ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="mx-auto mb-3 h-44 w-44 rounded-xl bg-white p-1.5"
+                      className="mx-auto mb-3 h-44 w-44 rounded-xl bg-ov p-1.5"
                     />
                   )}
-                  <code className="mb-3 block select-all break-all rounded-xl bg-black/30 p-2.5 text-13">
+                  <code className="mb-3 block select-all break-all rounded-xl bg-shade/30 p-2.5 text-13">
                     {l.url}
                   </code>
                   <div className="flex flex-wrap gap-2">

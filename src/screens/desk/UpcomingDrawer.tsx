@@ -46,7 +46,7 @@ export function UpcomingDrawer() {
             <m.li
               key={i}
               {...stagger(k, 0.1)}
-              className={`grid min-h-[68px] grid-cols-[4.5rem_5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-4 py-2 ${now ? 'bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_60%,transparent)]' : 'bg-white/5'}`}
+              className={`grid min-h-[68px] grid-cols-[4.5rem_5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-4 py-2 ${now ? 'bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_60%,transparent)]' : 'bg-ov/5'}`}
             >
               <span className="flex flex-col items-start gap-1 text-15 font-bold text-[var(--tx2)]">
                 {t.desk.summary.axis(i + 1)}

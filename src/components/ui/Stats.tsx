@@ -100,7 +100,7 @@ export function Sparkline({ values, label }: { values: number[]; label: string }
   return (
     <div className="relative overflow-hidden" role="img" aria-label={label}>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-24 w-full">
-        <line x1="0" x2={W} y1={y(0)} y2={y(0)} className="stroke-white/15" strokeDasharray="4 4" />
+        <line x1="0" x2={W} y1={y(0)} y2={y(0)} className="stroke-ov/15" strokeDasharray="4 4" />
         <path
           d={d}
           fill="none"
@@ -142,7 +142,7 @@ export function Bars({ bars, label }: { bars: Bar[]; label: string }) {
           className="grid grid-cols-[6rem_minmax(0,1fr)_3.5rem] items-center gap-2 text-14"
         >
           <span className="whitespace-nowrap font-bold">{b.label}</span>
-          <span className="relative h-3 overflow-hidden rounded-full bg-white/[.07]">
+          <span className="relative h-3 overflow-hidden rounded-full bg-ov/[.07]">
             <m.span
               className="absolute inset-0 origin-left rounded-full bg-[var(--accent)]"
               initial={rm ? false : { scaleX: 0 }}
@@ -188,7 +188,7 @@ export function Heatmap({ days, year }: { days: Record<string, number>; year: nu
               initial={rm ? false : { opacity: 0 }}
               animate={{ opacity: c.v ? 0.25 + 0.75 * (c.v / max) : 1 }}
               transition={{ duration: 0.3, delay: rm ? 0 : Math.min(0.8, i * 0.0025) }}
-              className={`h-3 w-3 rounded-[3px] ${c.v ? 'bg-[var(--accent)]' : 'bg-white/[.06]'}`}
+              className={`h-3 w-3 rounded-[3px] ${c.v ? 'bg-[var(--accent)]' : 'bg-ov/[.06]'}`}
             />
           ) : (
             <span key={'x' + i} className="h-3 w-3" />
@@ -218,7 +218,7 @@ export function RankDelta({ d }: { d: number | null }) {
 
 /** How far along a count is. */
 export const Progress = ({ v, of }: { v: number; of: number }) => (
-  <span className="relative block h-1.5 w-full overflow-hidden rounded-full bg-white/[.08]">
+  <span className="relative block h-1.5 w-full overflow-hidden rounded-full bg-ov/[.08]">
     <span
       className="absolute inset-0 origin-left rounded-full bg-[var(--tx2)]"
       style={{ transform: `scaleX(${Math.min(1, v / of)})` }}

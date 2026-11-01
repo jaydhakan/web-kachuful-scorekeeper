@@ -6,6 +6,7 @@ import { Icon } from './Icons';
 import { IconButton } from './IconButton';
 import { EASE, PRESS, SPRING } from './motion';
 import { t } from '@/strings';
+import { seatColor } from '@/theme/palette';
 
 interface PageProps {
   title: ReactNode;
@@ -170,12 +171,12 @@ export function Skeleton({ rows = 4, h = 64 }: { rows?: number; h?: number }) {
       {Array.from({ length: rows }, (_, i) => (
         <div
           key={i}
-          className="relative overflow-hidden rounded-2xl bg-white/[.05]"
+          className="relative overflow-hidden rounded-2xl bg-ov/[.05]"
           style={{ height: h }}
         >
           <div
             aria-hidden
-            className="shimmer absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/[.06] to-transparent"
+            className="shimmer absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-ov/[.06] to-transparent"
             style={{ animationDelay: `${i * 80}ms` }}
           />
         </div>
@@ -208,7 +209,7 @@ export function Chip({
     >
       <span
         aria-hidden
-        className={`absolute inset-0 -z-10 rounded-full ${on ? 'bg-[var(--accent)]' : 'bg-white/[.07] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]'}`}
+        className={`absolute inset-0 -z-10 rounded-full ${on ? 'bg-[var(--accent)]' : 'bg-ov/[.07] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]'}`}
       />
       {children}
     </m.button>
@@ -250,7 +251,7 @@ export function AvatarStack({
             width: s,
             height: s,
             fontSize: Math.round(s * 0.55),
-            background: p.color,
+            background: seatColor(p.color),
             marginLeft: i ? -s * 0.3 : 0,
           }}
         >

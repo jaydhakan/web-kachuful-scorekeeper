@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { confettiCount } from '@/lib/confettiCount';
+import { colorValue } from '@/theme/palette';
 
 interface ConfettiProps {
   colors: string[];
@@ -32,13 +33,15 @@ export function Confetti({ colors, onDone }: ConfettiProps) {
       pod = document.querySelector('[data-podium]')?.getBoundingClientRect();
     const ox = pod ? pod.left + pod.width / 2 - pr.left : size.w / 2,
       oy = pod ? pod.top + pod.height / 2 - pr.top : size.h * 0.3;
+    // Saved player colours and theme tokens, as the canvas needs them: concrete values in the active theme.
+    const cs = colors.map((k) => colorValue(k));
     const P = Array.from({ length: confettiCount(size.w, size.h) }, () => ({
       x: ox + (Math.random() - 0.5) * 80,
       y: oy,
       vx: (Math.random() - 0.5) * 14,
       vy: -Math.random() * 13 - 3,
       r: Math.random() * 6 + 3,
-      c: colors[(Math.random() * colors.length) | 0],
+      c: cs[(Math.random() * cs.length) | 0],
       a: Math.random() * 6,
       va: (Math.random() - 0.5) * 0.4,
     }));

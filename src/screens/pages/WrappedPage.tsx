@@ -145,7 +145,7 @@ export function WrappedPage({
             {slides.map((_, k) => (
               <span
                 key={k}
-                className={`h-1 flex-1 rounded-full ${k <= i ? 'bg-[var(--accent)]' : 'bg-white/15'}`}
+                className={`h-1 flex-1 rounded-full ${k <= i ? 'bg-[var(--accent)]' : 'bg-ov/15'}`}
               />
             ))}
           </div>

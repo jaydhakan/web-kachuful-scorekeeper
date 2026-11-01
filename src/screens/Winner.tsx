@@ -4,7 +4,7 @@ import { gameStats, standings, type Player } from '@/domain';
 import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { useApp } from '@/state/store';
-import { palette } from '@/theme/palette';
+import { palette, seatColor } from '@/theme/palette';
 import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
 import { IconButton } from '@/components/ui/IconButton';
@@ -97,9 +97,9 @@ export default function Winner() {
             >
               <span
                 aria-hidden
-                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_rgba(226,182,83,.6)]' : 'border-white/25'}`}
+                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_rgba(226,182,83,.6)]' : 'border-ov/25'}`}
                 style={{
-                  background: x.p.color,
+                  background: seatColor(x.p.color),
                   width: w,
                   height: w,
                   fontSize: `calc(${w} * 0.56)`,
@@ -273,7 +273,7 @@ export default function Winner() {
             <button
               type="button"
               onClick={() => actions.go('home', -1)}
-              className="press min-h-12 px-4 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"
+              className="press min-h-12 px-4 text-16 font-medium text-[var(--tx2)] underline decoration-ov/25 underline-offset-[5px]"
             >
               {t.common.home}
             </button>

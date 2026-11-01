@@ -68,7 +68,7 @@ export function DateRangePicker({
               aria-pressed={!!inside}
               aria-label={k}
               onClick={() => tap(k)}
-              className={`grid h-11 place-items-center rounded-xl text-16 font-bold disabled:opacity-30 ${end ? 'bg-[var(--accent)] text-ink-on-accent' : inside ? 'bg-white/[.12]' : ''} ${k === todayKey && !end ? 'shadow-[inset_0_0_0_1px_var(--accent)]' : ''}`}
+              className={`grid h-11 place-items-center rounded-xl text-16 font-bold disabled:opacity-30 ${end ? 'bg-[var(--accent)] text-ink-on-accent' : inside ? 'bg-ov/[.12]' : ''} ${k === todayKey && !end ? 'shadow-[inset_0_0_0_1px_var(--accent)]' : ''}`}
             >
               {i + 1}
             </m.button>

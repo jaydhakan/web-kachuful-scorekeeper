@@ -83,7 +83,7 @@ export function DeskHome() {
             {[t.desk.home.players(maxPlayers), t.desk.home.hook, t.desk.home.offline].map((c) => (
               <li
                 key={c}
-                className="inline-flex h-9 items-center rounded-full border border-white/10 bg-white/[.06] px-3.5 text-14 font-bold"
+                className="inline-flex h-9 items-center rounded-full border border-ov/10 bg-ov/[.06] px-3.5 text-14 font-bold"
               >
                 {c}
               </li>

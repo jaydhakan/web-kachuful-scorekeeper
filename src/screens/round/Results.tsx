@@ -58,7 +58,7 @@ export function Results() {
             <m.span
               aria-hidden
               variants={{ press: { scale: 0.94 } }}
-              className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-white/[.14]"
+              className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-ov/[.14]"
             >
               <span
                 className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
@@ -108,7 +108,7 @@ export function Results() {
                 <div className="flex min-w-[7.5rem] flex-1 items-center gap-2">
                   <Avatar
                     p={p}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="break-words text-16 font-bold @[26rem]:text-18 leading-[1.2] tracking-[-0.015em] [text-wrap:balance]">
@@ -149,7 +149,7 @@ export function Results() {
                       whileTap={PRESS_SM}
                       aria-label={t.results.fewer(p.name)}
                       onClick={() => actions.setTricks(p.id, -1)}
-                      className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
+                      className="h-11 w-11 rounded-xl bg-ov/[.07] text-24 font-bold"
                     >
                       −
                     </m.button>
@@ -161,7 +161,7 @@ export function Results() {
                       whileTap={PRESS_SM}
                       aria-label={t.results.more(p.name)}
                       onClick={() => actions.setTricks(p.id, 1)}
-                      className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
+                      className="h-11 w-11 rounded-xl bg-ov/[.07] text-24 font-bold"
                     >
                       +
                     </m.button>
@@ -216,7 +216,7 @@ const result = (icon: string, word: string) => (
 function TricksLeft({ left, cards }: { left: number; cards: number }) {
   return (
     <div
-      className="mb-3 rounded-2xl bg-white/[.06] px-4 py-3 @h-[44rem]:mb-2 @h-[44rem]:py-2"
+      className="mb-3 rounded-2xl bg-ov/[.06] px-4 py-3 @h-[44rem]:mb-2 @h-[44rem]:py-2"
       role="status"
       aria-live="polite"
     >
@@ -229,7 +229,7 @@ function TricksLeft({ left, cards }: { left: number; cards: number }) {
           </span>
         </span>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08] @h-[44rem]:hidden">
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-ov/[.08] @h-[44rem]:hidden">
         <m.div
           className="h-full origin-left rounded-full bg-[var(--accent)]"
           initial={false}

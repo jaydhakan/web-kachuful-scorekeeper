@@ -1,12 +1,16 @@
 import { doneRounds, standings, type Game } from '@/domain';
 import { fmt } from '@/lib/format';
-import { palette } from '@/theme/palette';
+import { cssColor, seatColorValue } from '@/theme/palette';
 
-const DISPLAY = '"Bricolage Grotesque Variable", system-ui, sans-serif';
-const SANS = '"DM Sans Variable", system-ui, sans-serif';
-
-/** Draws the final-scores card (1080×1350). Fonts must be loaded first or the canvas falls back silently. */
+/** Draws the final-scores card (1080×1350) in the active theme. Fonts must be loaded first or the canvas falls back silently. */
 export async function drawShareCanvas(g: Game): Promise<HTMLCanvasElement> {
+  // A canvas can't read CSS variables, so the theme's faces and colours are resolved once here.
+  const font = (v: string) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const DISPLAY = font('--font-display') || 'system-ui, sans-serif',
+    SANS = font('--font-body') || 'system-ui, sans-serif';
+  const palette = new Proxy({} as Record<Parameters<typeof cssColor>[0], string>, {
+    get: (_, k: Parameters<typeof cssColor>[0]) => cssColor(k),
+  });
   await Promise.all(
     ['800 96px ' + DISPLAY, '500 34px ' + SANS, '700 28px ' + SANS].map((f) =>
       document.fonts.load(f).catch(() => []),
@@ -55,7 +59,7 @@ export async function drawShareCanvas(g: Game): Promise<HTMLCanvasElement> {
     m.slice(0, 2).forEach((s, j) => {
       const ax = cx + (m.length > 1 ? (j ? 55 : -55) : 0),
         ay = top - 70;
-      x.fillStyle = s.p.color;
+      x.fillStyle = seatColorValue(s.p.color);
       x.beginPath();
       x.arc(ax, ay, 46, 0, 7);
       x.fill();

@@ -135,7 +135,7 @@ export function Step2() {
                     add(name);
                   }
                 }}
-                className={`h-14 min-w-0 flex-1 rounded-2xl bg-white/[.07] px-4 text-18 tracking-[-0.01em] outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] @h-[45rem]:h-11 ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
+                className={`h-14 min-w-0 flex-1 rounded-2xl bg-ov/[.07] px-4 text-18 tracking-[-0.01em] outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] @h-[45rem]:h-11 ${err ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
               />
               <PrimaryButton
                 onClick={() => add(name)}

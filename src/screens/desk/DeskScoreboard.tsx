@@ -54,11 +54,11 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
           return (
             <li
               key={p.id}
-              className="flex flex-wrap items-center gap-2.5 rounded-2xl bg-white/5 p-2.5"
+              className="flex flex-wrap items-center gap-2.5 rounded-2xl bg-ov/5 p-2.5"
             >
               <Avatar
                 p={p}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
               />
               <span className="min-w-[5rem] flex-1 text-17 font-bold [overflow-wrap:anywhere]">
                 {p.name}
@@ -69,7 +69,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                   whileTap={PRESS_SM}
                   aria-label={t.sheets.lowerBid(p.name)}
                   onClick={() => step(p.id, -1)}
-                  className="h-12 w-12 rounded-xl bg-white/[.08] text-22 font-bold"
+                  className="h-12 w-12 rounded-xl bg-ov/[.08] text-22 font-bold"
                 >
                   −
                 </m.button>
@@ -81,7 +81,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                   whileTap={PRESS_SM}
                   aria-label={t.sheets.raiseBid(p.name)}
                   onClick={() => step(p.id, 1)}
-                  className="h-12 w-12 rounded-xl bg-white/[.08] text-22 font-bold"
+                  className="h-12 w-12 rounded-xl bg-ov/[.08] text-22 font-bold"
                 >
                   +
                 </m.button>
@@ -167,7 +167,7 @@ export function DeskScoreboard() {
                 {t.desk.board.hint}
               </span>
               <GhostButton onClick={close}>
-                {t.desk.board.back} <Kbd className="bg-white/[.12]">{t.desk.keys.esc}</Kbd>
+                {t.desk.board.back} <Kbd className="bg-ov/[.12]">{t.desk.keys.esc}</Kbd>
               </GhostButton>
             </>
           }
@@ -195,7 +195,7 @@ export function DeskScoreboard() {
                     >
                       <Avatar
                         p={p}
-                        className="grid h-9 w-9 place-items-center rounded-full border-2 border-white/20 text-20"
+                        className="grid h-9 w-9 place-items-center rounded-full border-2 border-ov/20 text-20"
                       />
                       <span className="max-w-full text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
                         {p.name}
@@ -208,7 +208,7 @@ export function DeskScoreboard() {
                     </span>
                   ))}
                 </div>
-                <div className="h-px bg-white/10" />
+                <div className="h-px bg-ov/10" />
                 {done.map((r) => {
                   const sel = editing === r.index;
                   return (
@@ -221,7 +221,7 @@ export function DeskScoreboard() {
                         actions.openSheet(sel ? { type: 'board' } : { type: 'edit', i: r.index })
                       }
                       whileTap={PRESS}
-                      className={`${row} min-h-[66px] text-left ${sel ? 'bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_55%,transparent)]' : '[@media(hover:hover)]:hover:bg-white/[.04]'}`}
+                      className={`${row} min-h-[66px] text-left ${sel ? 'bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_55%,transparent)]' : '[@media(hover:hover)]:hover:bg-ov/[.04]'}`}
                     >
                       <span className="flex items-center gap-2.5 text-15 font-bold [overflow-wrap:anywhere]">
                         {t.desk.board.row(

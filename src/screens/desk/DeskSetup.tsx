@@ -29,6 +29,7 @@ import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { useDeskKeys } from './useDeskKeys';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { seatColor } from '@/theme/palette';
 
 /** SPRING, typed for the imperative animate(). */
 const SWAP = { type: 'spring', stiffness: 420, damping: 38, mass: 0.9 } as const;
@@ -315,7 +316,7 @@ export function DeskSetup() {
                         rows.current[k] = el;
                       }}
                       style={drag?.k === k ? { y: drag.dy, zIndex: 3 } : undefined}
-                      className={`relative flex min-h-12 items-center gap-3 rounded-2xl ${drag?.k === k ? 'bg-white/10 shadow-[0_18px_40px_rgba(0,0,0,.5)]' : drag && drag.to === k ? 'bg-white/5' : ''}`}
+                      className={`relative flex min-h-12 items-center gap-3 rounded-2xl ${drag?.k === k ? 'bg-ov/10 shadow-[0_18px_40px_rgba(0,0,0,.5)]' : drag && drag.to === k ? 'bg-ov/5' : ''}`}
                     >
                       <button
                         type="button"
@@ -349,8 +350,8 @@ export function DeskSetup() {
                         disabled={!s}
                         whileTap={PRESS_SM}
                         onClick={() => actions.openSheet({ type: 'avatar', k })}
-                        className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 text-24 disabled:cursor-default ${s ? 'border-white/20' : 'border-dashed border-white/30 bg-white/[.04]'}`}
-                        style={s ? { background: s.color } : undefined}
+                        className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 text-24 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'}`}
+                        style={s ? { background: seatColor(s.color) } : undefined}
                       >
                         <span aria-hidden>{s?.emoji ?? ''}</span>
                       </m.button>
@@ -377,7 +378,7 @@ export function DeskSetup() {
                             nextField(k);
                           }
                         }}
-                        className={`h-12 min-w-0 flex-1 rounded-xl bg-white/[.07] px-3.5 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${dupe && names[k] === dupe ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
+                        className={`h-12 min-w-0 flex-1 rounded-xl bg-ov/[.07] px-3.5 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)] ${dupe && names[k] === dupe ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
                       />
                       <span className="w-[4.5rem] shrink-0 text-center">
                         {k === shown ? (
@@ -410,7 +411,7 @@ export function DeskSetup() {
                         type="button"
                         whileTap={PRESS}
                         onClick={() => fill(r)}
-                        className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-white/10 bg-white/[.06] pl-2 pr-3.5 text-14 font-bold"
+                        className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-ov/10 bg-ov/[.06] pl-2 pr-3.5 text-14 font-bold"
                       >
                         <Avatar
                           p={r}
@@ -438,8 +439,8 @@ export function DeskSetup() {
                     onClick={() => actions.setupPatch({ dealer: k })}
                     animate={{ scale: k === shown ? 1.08 : 1 }}
                     transition={SPRING_POP}
-                    className={`grid h-12 w-12 place-items-center rounded-full border-2 text-26 disabled:cursor-default ${s ? 'border-white/20' : 'border-dashed border-white/30 bg-white/[.04]'} ${k === shown ? 'shadow-[0_0_0_3px_var(--gold),0_0_22px_rgba(226,182,83,.55)]' : s ? 'opacity-75' : ''}`}
-                    style={s ? { background: s.color } : undefined}
+                    className={`grid h-12 w-12 place-items-center rounded-full border-2 text-26 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'} ${k === shown ? 'shadow-[0_0_0_3px_var(--gold),0_0_22px_rgba(226,182,83,.55)]' : s ? 'opacity-75' : ''}`}
+                    style={s ? { background: seatColor(s.color) } : undefined}
                   >
                     <span aria-hidden>{s?.emoji ?? k + 1}</span>
                   </m.button>

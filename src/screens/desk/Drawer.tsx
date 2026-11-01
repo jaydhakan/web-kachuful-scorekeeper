@@ -8,7 +8,7 @@ import { t } from '@/strings';
 
 const Backdrop = ({ onClose }: { onClose: () => void }) => (
   <m.div
-    className="absolute inset-0 bg-black/55"
+    className="absolute inset-0 bg-shade/55"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
@@ -113,7 +113,7 @@ export function KeysModal({ onClose }: { onClose: () => void }) {
           {t.desk.keys.list.map(([k, what]) => (
             <div key={k} className="contents">
               <dt className="justify-self-end">
-                <Kbd className="!inline-grid h-8 min-w-8 bg-white/[.12] px-2.5 text-15">{k}</Kbd>
+                <Kbd className="!inline-grid h-8 min-w-8 bg-ov/[.12] px-2.5 text-15">{k}</Kbd>
               </dt>
               <dd className="text-[var(--tx2)]">{what}</dd>
             </div>

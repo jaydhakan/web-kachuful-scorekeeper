@@ -38,7 +38,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
           placeholder={pp.search}
           autoComplete="off"
           spellCheck={false}
-          className="h-12 w-full rounded-2xl bg-white/[.07] px-4 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
+          className="h-12 w-full rounded-2xl bg-ov/[.07] px-4 text-17 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
         />
       }
     >

@@ -1,53 +1,11 @@
-/* Self-hosted variable fonts, not preloaded and swapped in: on Slow 4G they no longer hold back the first paint
-   (LCP 2.58 s -> 2.25 s, CLS 0.001). After the first visit the service worker serves them before the first paint. */
-@font-face {
-  font-family: 'Bricolage Grotesque Variable';
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2')
-    format('woff2-variations');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Bricolage Grotesque Variable';
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-wght-normal.woff2')
-    format('woff2-variations');
-  unicode-range:
-    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
-    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
-    U+A720-A7FF;
-}
-@font-face {
-  font-family: 'DM Sans Variable';
-  font-weight: 100 1000;
-  font-display: swap;
-  src: url('@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2')
-    format('woff2-variations');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'DM Sans Variable';
-  font-weight: 100 1000;
-  font-display: swap;
-  src: url('@fontsource-variable/dm-sans/files/dm-sans-latin-ext-wght-normal.woff2')
-    format('woff2-variations');
-  unicode-range:
-    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
-    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
-    U+A720-A7FF;
-}
+/* Theme tokens, materials and fonts first: the only file with colour values. */
+@import './themes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
   /* Every inset reads these, so tests can stand in for a notched phone. */
   --sat: env(safe-area-inset-top, 0px);
@@ -101,7 +59,7 @@ input {
   color: inherit;
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
   border-radius: 12px;
 }
@@ -130,9 +88,8 @@ input {
   /* clip, not hidden: focus can still scroll a hidden box sideways past the 520px ambient glow. */
   overflow: hidden;
   overflow: clip;
-  --accent: theme('colors.accent-spades');
-  --glow: rgba(127, 179, 255, 0.25);
-  --suit: theme('colors.suit-black');
+  --trump: var(--trump-spades);
+  --trump-glow: transparent;
 }
 .gold-text {
   background: theme('backgroundImage.gold-gradient');
@@ -141,11 +98,7 @@ input {
   color: transparent;
 }
 .scr-bg {
-  background: radial-gradient(
-    120% 52% at 50% 0%,
-    theme('colors.felt-800') 0%,
-    theme('colors.felt-950') 70%
-  );
+  background: var(--wallpaper), var(--bg);
 }
 .grain::after {
   content: '';
@@ -154,24 +107,8 @@ input {
   pointer-events: none;
   z-index: 70;
   background:
-    radial-gradient(120% 90% at 50% 45%, transparent 58%, rgba(0, 0, 0, 0.42)),
+    radial-gradient(120% 90% at 50% 45%, transparent 58%, var(--vignette)),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
-}
-.glass {
-  background: rgba(255, 255, 255, 0.055);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
-    0 18px 48px -12px rgba(0, 0, 0, 0.55);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  backdrop-filter: blur(24px) saturate(160%);
-  border-radius: 22px;
-}
-.glass-glow {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 56px -8px var(--glow),
-    0 18px 48px -12px rgba(0, 0, 0, 0.55);
 }
 .spot {
   position: relative;
@@ -183,7 +120,7 @@ input {
   inset: 0;
   background: radial-gradient(
     240px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.11),
+    color-mix(in srgb, var(--ov) 11%, transparent),
     transparent 62%
   );
   opacity: 0;
@@ -201,12 +138,12 @@ input {
   z-index: 1;
 }
 .chrome-top {
-  background: linear-gradient(rgba(6, 18, 13, 0.78), rgba(6, 18, 13, 0));
+  background: linear-gradient(color-mix(in srgb, var(--bg) 78%, transparent), transparent);
   -webkit-mask-image: linear-gradient(#000 60%, transparent);
   mask-image: linear-gradient(#000 60%, transparent);
 }
 .chrome-bot {
-  background: linear-gradient(rgba(6, 18, 13, 0), rgba(6, 18, 13, 0.9) 38%);
+  background: linear-gradient(transparent, color-mix(in srgb, var(--bg) 90%, transparent) 38%);
 }
 /* A table is drawn on a W×H grid. --u is one grid pixel at the current size; --s is --u capped at 1.5×. */
 .table-box {
@@ -226,23 +163,15 @@ input {
     --s: min(var(--u), 1.5px);
   }
 }
-.felt {
-  background: radial-gradient(ellipse at 50% 38%, var(--felt-hi), var(--felt));
-  box-shadow:
-    0 0 0 3px theme('colors.gold'),
-    0 0 0 4px rgba(0, 0, 0, 0.4),
-    0 0 44px 4px var(--glow),
-    inset 0 0 44px rgba(0, 0, 0, 0.4);
-}
 /* A CSS animation on transform runs on the compositor, so it never competes with a busy main thread.
    The soft edge is in the gradient: a blur filter on a scaling layer is redrawn every frame. */
 .ambient {
   transform: translateX(-50%);
   background: radial-gradient(
     closest-side,
-    color-mix(in srgb, var(--glow) 65%, transparent),
-    color-mix(in srgb, var(--glow) 40%, transparent) 40%,
-    color-mix(in srgb, var(--glow) 14%, transparent) 72%,
+    color-mix(in srgb, var(--trump-glow) 65%, transparent),
+    color-mix(in srgb, var(--trump-glow) 40%, transparent) 40%,
+    color-mix(in srgb, var(--trump-glow) 14%, transparent) 72%,
     transparent
   );
   animation: ambient 8s ease-in-out infinite;
@@ -257,7 +186,7 @@ input {
   position: relative;
   box-shadow:
     0 0 0 3px var(--pulse),
-    0 0 16px var(--pulse);
+    0 0 var(--pulse-blur) var(--pulse);
 }
 .ring-pulse {
   --pulse: var(--accent);
@@ -274,7 +203,7 @@ input {
   border-radius: inherit;
   box-shadow:
     0 0 0 4px var(--pulse),
-    0 0 32px var(--pulse);
+    0 0 calc(var(--pulse-blur) * 2) var(--pulse);
   opacity: 0;
   pointer-events: none;
   animation: pulse 1.25s ease-in-out infinite;
@@ -299,7 +228,7 @@ input {
 @media (pointer: fine) {
   .scroll-thin {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, theme('colors.text-secondary') 45%, transparent) transparent;
+    scrollbar-color: color-mix(in srgb, var(--text-2) 45%, transparent) transparent;
   }
 }
 /* A sideways scroller fades only the edge that has more behind it, following the scroll (a scroll edge effect).
@@ -393,12 +322,5 @@ input {
   }
   .shimmer {
     display: none;
-  }
-}
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    background: theme('colors.surface-solid');
   }
 }

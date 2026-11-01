@@ -19,6 +19,7 @@ import { Icon } from './Icons';
 import { EASE, PRESS_SM, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
 import { AvatarFill } from './Avatar';
+import { seatColor } from '@/theme/palette';
 
 export interface TablePlayer {
   id?: string;
@@ -276,11 +277,11 @@ export function Table({
                   initial={false}
                   whileTap={onSeat ? PRESS_SM : undefined}
                   transition={SPRING}
-                  className={`relative mx-auto grid place-items-center rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
+                  className={`relative mx-auto grid place-items-center rounded-full border-2 border-ov/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
                   style={{
                     width: av,
                     height: av,
-                    background: p.color,
+                    background: seatColor(p.color),
                     fontSize: `max(0.8125rem, ${dpx(wide ? 36 : size === 'full' ? 24 : 18)})`,
                   }}
                 >
@@ -289,7 +290,7 @@ export function Table({
               ) : (
                 <div
                   data-seat-avatar
-                  className={`mx-auto grid place-items-center rounded-full border-2 border-dashed border-white/30 bg-white/[.04] text-13 text-[var(--tx2)] ${ring}`}
+                  className={`mx-auto grid place-items-center rounded-full border-2 border-dashed border-ov/30 bg-ov/[.04] text-13 text-[var(--tx2)] ${ring}`}
                   style={{ width: av, height: av }}
                 >
                   {k + 1}

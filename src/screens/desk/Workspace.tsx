@@ -130,7 +130,7 @@ export function Workspace() {
           <>
             <GhostButton disabled={!state.undo.length} onClick={actions.undo}>
               {Icon.undo}
-              {t.desk.nav.undo} <Kbd className="bg-white/[.12]">Z</Kbd>
+              {t.desk.nav.undo} <Kbd className="bg-ov/[.12]">Z</Kbd>
             </GhostButton>
             <GhostButton onClick={() => actions.ask('endGame')}>{t.desk.endGame}</GhostButton>
           </>

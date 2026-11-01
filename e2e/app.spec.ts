@@ -64,7 +64,11 @@ test('works offline after the first visit', async ({ page, context }) => {
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByText('Try the demo')).toBeVisible();
-  await expect(page.locator('h1')).toHaveCSS('font-family', /Bricolage/);
+  // The default theme's face comes from the precache, so offline type is the designed one.
+  await expect(page.locator('h1')).toHaveCSS('font-family', /Instrument Sans/);
+  await expect
+    .poll(() => page.evaluate(() => document.fonts.check('700 16px "Instrument Sans"')))
+    .toBe(true);
   await context.setOffline(false);
 });
 

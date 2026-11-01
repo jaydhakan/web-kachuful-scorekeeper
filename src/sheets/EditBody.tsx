@@ -31,7 +31,7 @@ export function EditBody({ i }: { i: number }) {
                   whileTap={PRESS_SM}
                   aria-label={t.sheets.lowerBid(p.name)}
                   onClick={() => step(p.id, -1)}
-                  className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
+                  className="h-11 w-11 shrink-0 rounded-xl bg-ov/[.07] text-22 font-bold"
                 >
                   −
                 </m.button>
@@ -43,7 +43,7 @@ export function EditBody({ i }: { i: number }) {
                   whileTap={PRESS_SM}
                   aria-label={t.sheets.raiseBid(p.name)}
                   onClick={() => step(p.id, 1)}
-                  className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
+                  className="h-11 w-11 shrink-0 rounded-xl bg-ov/[.07] text-22 font-bold"
                 >
                   +
                 </m.button>

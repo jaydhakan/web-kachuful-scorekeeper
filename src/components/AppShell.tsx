@@ -104,7 +104,7 @@ function PhoneShell() {
     <div
       ref={root}
       className="app-root scr-bg grain relative h-full w-full"
-      style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
+      style={{ '--trump': th.acc, '--trump-glow': th.glow, '--suit': th.col } as CSSProperties}
     >
       {/* The page recedes while a sheet or modal is over it. Transform only, and not at all under reduced motion. */}
       <m.div

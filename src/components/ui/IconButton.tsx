@@ -30,7 +30,7 @@ export function IconButton({
     >
       <span
         aria-hidden
-        className="absolute inset-0 -z-10 rounded-[inherit] bg-white/[.08] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-hover:opacity-100"
+        className="absolute inset-0 -z-10 rounded-[inherit] bg-ov/[.08] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-hover:opacity-100"
       />
       {children}
     </m.button>

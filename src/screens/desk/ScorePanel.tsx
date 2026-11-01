@@ -56,7 +56,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
               </span>
               <Avatar
                 p={x.p}
-                className="grid h-[34px] w-[34px] place-items-center rounded-full border-2 border-white/20 text-19 shadow-[0_8px_22px_rgba(0,0,0,.45)] [grid-area:av] tl:h-9 tl:w-9 tl:text-20 dt:h-10 dt:w-10 dt:text-22"
+                className="grid h-[34px] w-[34px] place-items-center rounded-full border-2 border-ov/20 text-19 shadow-[0_8px_22px_rgba(0,0,0,.45)] [grid-area:av] tl:h-9 tl:w-9 tl:text-20 dt:h-10 dt:w-10 dt:text-22"
               />
               <div className="min-w-0 [grid-area:name] rail:flex rail:flex-wrap rail:items-center rail:gap-x-2 rail:gap-y-1">
                 <div className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere] rail:min-w-0 rail:text-16 rail:font-bold rail:leading-tight rail:tracking-[-0.01em] rail:text-[var(--tx)] dt:basis-full dt:text-18">

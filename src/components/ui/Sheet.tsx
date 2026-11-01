@@ -62,7 +62,7 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
   return (
     <div className={`absolute inset-0 z-[60] ${WRAP[roomy]}`}>
       <m.div
-        className="absolute inset-0 bg-black/55"
+        className="absolute inset-0 bg-shade/55"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -96,7 +96,7 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
           onPointerDown={(e) => controls.start(e)}
           className="shrink-0 cursor-grab touch-none px-5 pb-1.5 pt-2.5 roomy:cursor-auto roomy:touch-auto"
         >
-          <div className="mx-auto mb-3 h-[5px] w-11 rounded-full bg-white/25 roomy:hidden" />
+          <div className="mx-auto mb-3 h-[5px] w-11 rounded-full bg-ov/25 roomy:hidden" />
           <div className="flex items-center justify-between">
             <h2 id={titleId} className="disp text-26 font-extrabold tracking-[-0.03em]">
               {title}

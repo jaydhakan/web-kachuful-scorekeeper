@@ -16,7 +16,7 @@ export function StepTracker({ step, can, go }: StepTrackerProps) {
   const labels = [t.desk.steps.bid, t.desk.steps.play, t.desk.steps.results];
   return (
     <nav aria-label={t.desk.steps.label} className="shrink-0">
-      <ol className="flex gap-1.5 rounded-[14px] bg-white/[.07] p-1">
+      <ol className="flex gap-1.5 rounded-[14px] bg-ov/[.07] p-1">
         {labels.map((label, i) => {
           const s = i as Step,
             on = s === step,
@@ -42,7 +42,7 @@ export function StepTracker({ step, can, go }: StepTrackerProps) {
                 )}
                 <b
                   aria-hidden
-                  className={`grid h-5 w-5 place-items-center rounded-full text-13 ${on ? 'bg-black/20' : 'bg-white/[.14]'}`}
+                  className={`grid h-5 w-5 place-items-center rounded-full text-13 ${on ? 'bg-shade/20' : 'bg-ov/[.14]'}`}
                 >
                   {done ? '✓' : i + 1}
                 </b>

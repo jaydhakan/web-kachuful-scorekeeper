@@ -81,7 +81,7 @@ function NameMatch({ i }: { i: InboxItem }) {
             spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 min-w-0 flex-1 rounded-xl bg-white/[.07] px-3 text-16 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
+            className="h-11 min-w-0 flex-1 rounded-xl bg-ov/[.07] px-3 text-16 outline-none placeholder:text-[var(--ph)] focus:shadow-[0_0_0_3px_var(--glow),inset_0_0_0_1px_var(--accent)]"
           />
           <button
             type="submit"

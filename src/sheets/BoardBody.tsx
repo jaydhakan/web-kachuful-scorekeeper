@@ -85,7 +85,7 @@ export function BoardTable({ g, onRow }: { g: Game; onRow?: (i: number) => void 
                       onRow(r.index);
                     }
                   },
-                  className: 'cursor-pointer active:bg-white/5',
+                  className: 'cursor-pointer active:bg-ov/5',
                 })}
               >
                 <td className="sticky left-0 z-[5] min-w-[112px] bg-sheet px-2.5 py-1.5 text-left font-bold @[40rem]:break-words">
@@ -98,7 +98,7 @@ export function BoardTable({ g, onRow }: { g: Game; onRow?: (i: number) => void 
                   return (
                     <td
                       key={p.id}
-                      className="border-b border-white/[.06] bg-sheet px-1 py-1.5 text-center"
+                      className="border-b border-ov/[.06] bg-sheet px-1 py-1.5 text-center"
                     >
                       <div>
                         {r.bids[p.id]}{' '}

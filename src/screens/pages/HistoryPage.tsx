@@ -169,7 +169,7 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
             {badges.map((b) => (
               <span
                 key={b}
-                className={`whitespace-nowrap rounded-full px-2 py-0.5 text-13 font-bold ${b === h.badge.current ? 'bg-[var(--accent)] text-ink-on-accent' : 'bg-white/[.08] text-[var(--tx2)]'}`}
+                className={`whitespace-nowrap rounded-full px-2 py-0.5 text-13 font-bold ${b === h.badge.current ? 'bg-[var(--accent)] text-ink-on-accent' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
               >
                 {b}
               </span>

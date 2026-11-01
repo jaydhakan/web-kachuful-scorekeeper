@@ -4,6 +4,7 @@ import { pts, type Game, type Round } from '@/domain';
 import { fmt } from '@/lib/format';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { seatColor } from '@/theme/palette';
 
 const PAD = { l: 40, r: 16, t: 12, b: 28 };
 const STEPS = [10, 20, 40, 50, 100, 200, 250, 500, 1000];
@@ -85,7 +86,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
         aria-label={t.desk.summary.chart(g.players.length)}
         className="absolute inset-0 overflow-visible"
       >
-        <g className="stroke-white/[.08]">
+        <g className="stroke-ov/[.08]">
           {ticks.map((v) => (
             <line
               key={v}
@@ -93,7 +94,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
               x2={w - PAD.r}
               y1={y(v)}
               y2={y(v)}
-              className={v === 0 ? 'stroke-white/30' : ''}
+              className={v === 0 ? 'stroke-ov/30' : ''}
               strokeDasharray={v === 0 ? '4 5' : undefined}
             />
           ))}
@@ -120,7 +121,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
             x2={x(hi)}
             y1={PAD.t}
             y2={PAD.t + ih}
-            className="stroke-white/25"
+            className="stroke-ov/25"
             strokeDasharray="3 4"
           />
         )}
@@ -148,7 +149,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
               cx={x(at)}
               cy={y(row[at] ?? 0)}
               r={last[k] === lead ? 6 : 5}
-              fill={g.players[k].color}
+              fill={seatColor(g.players[k].color)}
               initial={draw && !rm ? { scale: 0.5, opacity: 0 } : false}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: draw && !rm ? 1 + k * 0.05 : 0, duration: 0.3, ease: EASE }}
@@ -167,7 +168,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
           </div>
           {order.map(({ p, v }) => (
             <div key={p.id} className="flex items-center gap-2">
-              <i className="h-2.5 w-2.5 rounded-full" style={{ background: p.color }} />
+              <i className="h-2.5 w-2.5 rounded-full" style={{ background: seatColor(p.color) }} />
               <span className="flex-1">{p.name}</span>
               <b className="tick">{fmt(v)}</b>
             </div>
@@ -183,7 +184,11 @@ export const ChartLegend = ({ g }: { g: Game }) => (
   <ul className="flex flex-wrap gap-x-3.5 gap-y-1 text-13 text-[var(--tx2)]">
     {g.players.map((p) => (
       <li key={p.id} className="inline-flex items-center gap-1.5">
-        <i aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: p.color }} />
+        <i
+          aria-hidden
+          className="h-2.5 w-2.5 rounded-full"
+          style={{ background: seatColor(p.color) }}
+        />
         {p.name}
       </li>
     ))}

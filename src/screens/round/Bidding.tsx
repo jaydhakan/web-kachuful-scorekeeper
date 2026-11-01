@@ -95,7 +95,7 @@ export function Bidding() {
                   >
                     <Avatar
                       p={p}
-                      className="grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-white/20 text-36 shadow-[0_8px_22px_rgba(0,0,0,.5)] @h-short:h-12 @h-short:w-12 @h-short:text-26"
+                      className="grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-36 shadow-[0_8px_22px_rgba(0,0,0,.5)] @h-short:h-12 @h-short:w-12 @h-short:text-26"
                     />
                     <div className="min-w-0">
                       <div className="disp text-26 font-extrabold leading-[1.1] tracking-[-0.035em] [overflow-wrap:anywhere] [text-wrap:balance] @h-short:text-22 wide:text-32 wide:@h-short:text-22">
@@ -124,7 +124,7 @@ export function Bidding() {
                     : t.bidding.level}
               </span>
             </div>
-            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[.08] @h-short:mt-1 @h-[24rem]:hidden">
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-ov/[.08] @h-short:mt-1 @h-[24rem]:hidden">
               <m.div
                 className="relative h-full origin-left"
                 animate={{ scaleX: Math.min(1, sum / r.cards) }}
@@ -179,7 +179,7 @@ export function Bidding() {
                   animate={shake === v ? shakeKF : { x: 0 }}
                   whileTap={PRESS_SM}
                   onClick={() => pick(v)}
-                  className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--ph)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
+                  className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-ov/20 bg-ov/[.03] text-[var(--ph)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
                 >
                   {sel && (
                     <m.span

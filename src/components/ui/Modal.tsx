@@ -32,7 +32,7 @@ export function Modal({
   return (
     <div className="absolute inset-0 z-[65] grid place-items-center p-7">
       <m.div
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-shade/60"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}

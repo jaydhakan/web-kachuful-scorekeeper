@@ -44,7 +44,7 @@ export function Seg<T extends string>({
       role="group"
       aria-label={label}
       {...roving.group}
-      className={`relative inline-flex rounded-2xl bg-white/[.06] p-[3px] ${className}`}
+      className={`relative inline-flex rounded-2xl bg-ov/[.06] p-[3px] ${className}`}
     >
       {options.map((o, i) => {
         const on = value === o.v;

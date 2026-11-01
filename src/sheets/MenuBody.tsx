@@ -67,7 +67,7 @@ export function MenuBody() {
             initial={false}
             variants={{ press: { opacity: 1 } }}
             style={{ opacity: 0 }}
-            className="absolute inset-0 -z-10 rounded-[inherit] bg-white/[.07]"
+            className="absolute inset-0 -z-10 rounded-[inherit] bg-ov/[.07]"
           />
           <span aria-hidden className="w-7 text-center text-22">
             {ic}

@@ -56,7 +56,7 @@ export function UpcomingBody() {
                 {g.players.map((_, j) => (
                   <i
                     key={j}
-                    className={`h-2 w-2 rounded-full ${j === r.dealerIndex ? 'bg-[var(--gold)] shadow-[0_0_6px_var(--gold)]' : 'bg-white/25'}`}
+                    className={`h-2 w-2 rounded-full ${j === r.dealerIndex ? 'bg-[var(--gold)] shadow-[0_0_6px_var(--gold)]' : 'bg-ov/25'}`}
                   />
                 ))}
               </div>

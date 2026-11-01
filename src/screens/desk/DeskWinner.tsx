@@ -13,6 +13,7 @@ import { AchievementReel, useGameAchievements } from '@/components/AchievementRe
 import { Sheet } from '@/components/ui/Sheet';
 import { t } from '@/strings';
 import { Avatar, AvatarFill } from '@/components/ui/Avatar';
+import { seatColor } from '@/theme/palette';
 
 const STEP = {
   1: {
@@ -103,7 +104,7 @@ export function DeskWinner() {
                   width: tied.length > 1 ? s.av * 0.7 : s.av,
                   height: tied.length > 1 ? s.av * 0.7 : s.av,
                   fontSize: (tied.length > 1 ? s.av * 0.7 : s.av) * 0.56,
-                  background: x.p.color,
+                  background: seatColor(x.p.color),
                 }}
               >
                 <AvatarFill p={x.p} />
@@ -194,7 +195,7 @@ export function DeskWinner() {
                 </span>
                 <Avatar
                   p={x.p}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
                 />
                 <span className="min-w-0 flex-1 text-18 font-bold [overflow-wrap:anywhere]">
                   {x.p.name}

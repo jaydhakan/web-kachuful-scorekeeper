@@ -35,11 +35,11 @@ export function PlayPane({ g }: { g: Game }) {
             <m.li
               key={q.id}
               {...stagger(i)}
-              className="flex min-h-14 shrink-0 items-center gap-3.5 rounded-2xl bg-white/5 px-3 py-1.5"
+              className="flex min-h-14 shrink-0 items-center gap-3.5 rounded-2xl bg-ov/5 px-3 py-1.5"
             >
               <Avatar
                 p={q}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white/20 text-22"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
               />
               <span className="min-w-0 flex-1 text-18 font-bold leading-tight [overflow-wrap:anywhere]">
                 {q.name}
@@ -67,7 +67,7 @@ export function PlayPane({ g }: { g: Game }) {
         </PrimaryButton>
         <GhostButton className="w-full" onClick={() => actions.phase('bidding', -1)}>
           {Icon.edit}
-          {t.play.editBids} <Kbd className="bg-white/[.12]">E</Kbd>
+          {t.play.editBids} <Kbd className="bg-ov/[.12]">E</Kbd>
         </GhostButton>
       </div>
     </div>
