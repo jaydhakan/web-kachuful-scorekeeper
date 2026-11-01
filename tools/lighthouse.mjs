@@ -17,7 +17,8 @@ const server = await preview({
   preview: { port: 4310, strictPort: true, host: '127.0.0.1' },
 });
 const chrome = await chromeLauncher.launch({
-  chromePath: '/usr/bin/google-chrome',
+  // chrome-launcher finds the installed Chrome; CHROME_PATH overrides it.
+  chromePath: process.env.CHROME_PATH,
   chromeFlags: ['--headless=new', '--no-sandbox'],
 });
 try {

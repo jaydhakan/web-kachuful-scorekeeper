@@ -23,6 +23,8 @@ Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating,
 
 Parity against the original prototype: `node tools/parity/run.mjs` (writes `reports/parity/report.md`). Lighthouse: `node tools/lighthouse.mjs`.
 
+**Screenshots of every screen** (phone, tablet, desktop; signed out and signed in) for design review: start the backend, then `npx playwright test -c tools/screens`. They land in `screenshots/` (not committed), with `screenshots/overflow.txt` listing anything wider than the screen. **Smoothness:** `npm run build && node tools/trace.mjs` reports long tasks and, per transition, frames that missed 60 Hz at 4× CPU throttle (`CPU=6` for a slower phone), in `reports/lighthouse/trace-summary.md`.
+
 ## Docs
 
 [CONTRIBUTING](CONTRIBUTING.md) · [Architecture](docs/codebase/ARCHITECTURE.md) · [Design system](docs/codebase/DESIGN-SYSTEM.md) · [Manual test checklist](docs/MANUAL-TEST.md)
