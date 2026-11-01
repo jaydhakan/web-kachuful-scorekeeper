@@ -42,7 +42,7 @@ export function UpcomingBody() {
                     : ''}
                   {t.sheets.upcomingRound(i + 1)}{' '}
                   {tag && (
-                    <span className="ml-1 rounded-[10px] bg-[var(--gold)] px-2 py-0.5 text-13 text-ink-gold">
+                    <span className="ml-1 inline-block whitespace-nowrap rounded-[10px] bg-[var(--gold)] px-2 py-0.5 text-13 leading-tight text-ink-gold">
                       {tag}
                     </span>
                   )}
