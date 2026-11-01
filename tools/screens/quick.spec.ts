@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { seedGame, type SeedView } from '../../e2e/fixtures';
 
-// Scratch: one view in each theme. OUT and VIEWS from env.
+// One seeded view per theme at 360×780, for a quick look: OUT=<dir> VIEWS=home,bidding,... (SHOT_PORT as screens).
 const OUT = process.env.OUT!;
 const VIEWS = (process.env.VIEWS ?? 'home,bidding').split(',');
 const THEMES = (process.env.THEMES ?? 'sunset-glass,yerba-sun,editorial-paper').split(',');
