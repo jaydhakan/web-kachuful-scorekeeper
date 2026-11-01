@@ -89,7 +89,8 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
         animate="shown"
         exit="hidden"
         transition={TRANSITION[kind]}
-        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-[28px] bg-sheet/95 shadow-[0_-24px_80px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.08)] [backdrop-filter:blur(30px)_saturate(160%)] ${full ? 'top-[calc(36px+var(--sat))]' : 'max-h-[90%]'} ${PANEL[roomy]}`}
+        // No backdrop blur: under a 95% opaque fill it can't be seen, yet it was redrawn every frame of the slide.
+        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-[28px] bg-sheet/95 shadow-[0_-24px_80px_rgba(0,0,0,.6),inset_0_1px_0_rgba(255,255,255,.08)] ${full ? 'top-[calc(36px+var(--sat))]' : 'max-h-[90%]'} ${PANEL[roomy]}`}
       >
         <div
           onPointerDown={(e) => controls.start(e)}
