@@ -20,6 +20,8 @@ interface RoundFrameProps {
   fit?: boolean;
   /** The hero layout (Bidding and Playing): mono header with who deals and leads, and the ticker. */
   hero?: boolean;
+  /** A mono header with this second line, without the ticker (Results: "Bids in order"). */
+  sub?: string;
 }
 
 export function RoundFrame({
@@ -33,6 +35,7 @@ export function RoundFrame({
   asideFirst,
   fit,
   hero,
+  sub,
 }: RoundFrameProps) {
   const { state, actions } = useApp();
   const ps = state.game.players;
@@ -46,7 +49,7 @@ export function RoundFrame({
       asideFirst={asideFirst}
       fit={fit}
       navTitle={
-        hero ? (
+        hero || sub ? (
           <>
             <span>{t.round.title(r.index + 1)}</span> {t.round.heroCards(r.cards)}{' '}
             <SuitGlyph trump={r.trump} />
@@ -55,7 +58,7 @@ export function RoundFrame({
           t.round.title(r.index + 1)
         )
       }
-      navSub={hero ? t.round.heroSub(dealer, first) : undefined}
+      navSub={hero ? t.round.heroSub(dealer, first) : sub}
       ticker={
         hero ? (
           <Ticker items={t.round.ticker(r.index + 1, r.cards, r.trump, dealer, first, bids)} />

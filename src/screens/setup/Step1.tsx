@@ -10,6 +10,7 @@ import { PREVIEW_SCALE } from '@/lib/tableGeometry';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { t } from '@/strings';
+import type { ReactNode } from 'react';
 
 export function Step1() {
   const { su, actions } = useSetup();
@@ -64,7 +65,9 @@ export function Step1() {
               {t.setup.useLastGroup(lg.names)}
             </m.button>
           )}
-          <div className="mt-2 flex flex-col items-center gap-1 @h-[45rem]:mt-1">
+          {/* Labelled sections, left-aligned (Setup.dc.html); the labels give way first on a short screen. */}
+          <div className="mt-2 flex flex-col items-stretch gap-1.5 @h-[45rem]:mt-1">
+            <SectionLabel>{t.setup.decksLabel}</SectionLabel>
             <Seg<`${Decks}`>
               uid="deckseg"
               label={t.setup.decksLabel}
@@ -79,11 +82,13 @@ export function Step1() {
                 });
               }}
               options={DECK_OPTIONS.map((d) => ({ v: `${d}` as const, label: t.setup.deck(d) }))}
+              className="flex w-full [&>button]:flex-1"
             />
             <p className="text-13 text-[var(--tx2)] @h-short:hidden">
               {t.setup.decksHint(counts[counts.length - 1])}
             </p>
           </div>
+          <SectionLabel className="mt-3 @h-[45rem]:mt-1.5">{t.setup.playerCount}</SectionLabel>
           <div
             className={`my-2 justify-center land:gap-2 land:@max-[40rem]:gap-[3px] @h-[45rem]:my-1 ${grid ? 'grid grid-cols-4 justify-items-center gap-2' : 'flex gap-2.5'}`}
             role="group"
@@ -103,20 +108,21 @@ export function Step1() {
                   actions.setupPatch({ n });
                   actions.vib();
                 }}
-                className={`disp relative grid w-16 min-w-11 max-w-16 place-items-center ${grid ? 'h-14 w-full @h-[45rem]:h-11' : 'h-16 flex-1 @h-[45rem]:h-12'} rounded-[22px] text-30 font-extrabold tracking-[-0.03em] @h-tiny:!h-11 @h-tiny:rounded-2xl ${su.n === n ? 'text-ink-on-accent' : 'glass'}`}
+                className={`mat-key relative grid w-16 min-w-11 max-w-16 place-items-center ${grid ? 'h-14 w-full @h-[45rem]:h-11' : 'h-16 flex-1 @h-[45rem]:h-12'} rounded-[22px] text-30 tracking-[-0.03em] @h-tiny:!h-11 @h-tiny:rounded-2xl ${su.n === n ? 'text-ink-on-accent' : ''}`}
               >
                 {su.n === n && (
                   <m.span
                     layoutId="nsel"
                     transition={SPRING_POP}
-                    className="absolute inset-0 rounded-[inherit] bg-accent-gradient shadow-[0_0_0_4px_var(--glow),0_12px_32px_-8px_var(--accent)]"
+                    className="mat-key-on absolute inset-0 rounded-[inherit]"
                   />
                 )}
                 <span className="relative">{n}</span>
               </m.button>
             ))}
           </div>
-          <div className="mt-3 flex justify-center @h-[45rem]:mt-1.5">
+          <SectionLabel className="mt-3 @h-[45rem]:mt-1.5">{t.setup.directionLabel}</SectionLabel>
+          <div className="mt-1.5 flex">
             <Seg
               uid="dirseg"
               label={t.setup.directionLabel}
@@ -127,10 +133,11 @@ export function Step1() {
                 { v: 'cw', label: t.setup.cw },
                 { v: 'ccw', label: t.setup.ccw },
               ]}
+              className="flex w-full [&>button]:flex-1"
             />
           </div>
           <p
-            className={`mt-3 text-center text-14 tracking-[0.005em] text-[var(--tx2)] [text-wrap:balance] @h-[45rem]:mt-1.5 ${lg ? '@h-short:hidden' : ''}`}
+            className={`mt-2 text-14 tracking-[0.005em] text-[var(--tx2)] [text-wrap:balance] @h-[45rem]:mt-1.5 ${lg ? '@h-short:hidden' : ''}`}
           >
             {t.setup.info(su.n, su.n ? maxFor(su.n, su.decks) : 0)}
           </p>
@@ -154,7 +161,7 @@ export function Step1() {
                 minFit={PREVIEW_SCALE}
                 n={su.n}
                 dir={su.dir}
-                center={<div className="text-13 text-[var(--tx2)]">{t.setup.seats(su.n)}</div>}
+                center={<div className="text-13 text-[var(--ctr-fg)]">{t.setup.seats(su.n)}</div>}
               />
             </m.div>
           ) : (
@@ -172,3 +179,16 @@ export function Step1() {
     </SetupFrame>
   );
 }
+
+/** A section's name in the mono role (kf.css .sec); hidden on short screens, where the controls speak for themselves. */
+const SectionLabel = ({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) => (
+  <h2 className={`mono-label text-12 text-[var(--tx2)] @h-short:hidden ${className}`}>
+    {children}
+  </h2>
+);

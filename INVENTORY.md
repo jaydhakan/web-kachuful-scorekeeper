@@ -175,8 +175,10 @@ Large-screen UI (`src/screens/desk/*`, tablets and desktops):
 - Three runtime themes and the admin Appearance switcher; a player theme picker while the admin allows it.
 - New theme keys in storage: `kf.theme`, `kf.theme.appearance`, `kf.theme.allowOverride`, `kf.theme.user`. No
   existing key or shape changed.
-- Motion: deal fan, squash-and-stretch loader, bid pop, outline-to-fill headline, variable-weight score, turn light,
-  Results row flash, swipe-to-dismiss toast.
+- Motion: deal fan, squash-and-stretch loader, bid pop, bid flight from the key to the seat (phone and large screen),
+  outline-to-fill headline, variable-weight score, turn light, Results row flash, swipe-to-dismiss toast.
+- Layouts from the reference: Home's grouped list, the grouped Menu, Setup step 1's labelled sections, Results as one
+  grouped list with a points column, the dealer's D and the exact-tricks hint.
 
 ## Proposed removals
 

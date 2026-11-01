@@ -15,6 +15,7 @@ import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
 import { t } from '@/strings';
 import { Avatar, type Face } from '@/components/ui/Avatar';
+import { useBidFlight } from '@/components/ui/BidFlight';
 
 /** Who deals and how many cards, big enough to read across the table; first card and trump under it. */
 function DealLine({ g, r }: { g: Game; r: Round }) {
@@ -110,8 +111,10 @@ export function Bidding() {
     orientation: 'grid',
   });
   const cols = pillColumns(r.cards + 1);
-  const pick = (v: number) => {
+  const flight = useBidFlight('bid');
+  const pick = (v: number, key: HTMLElement) => {
     const locked = isD && v === forb;
+    if (!locked) flight.launch(key, v, pI);
     actions.bid(v);
     if (locked) {
       setShake(v);
@@ -119,157 +122,160 @@ export function Bidding() {
     }
   };
   return (
-    <RoundFrame
-      hero
-      r={r}
-      fit
-      aside={
-        // Content height: a long name wraps instead of being cut. The old and new card share one grid cell, so
-        // the slide moves transforms only and the cell follows the taller of the two.
-        <div className="mt-3 @h-short:mt-2 pane:mt-0 pane:flex pane:min-h-full pane:flex-col pane:justify-end">
-          <div className="@h-[24rem]:hidden">
-            <div className="grid">
-              <AnimatePresence initial={false}>
+    <>
+      {flight.node}
+      <RoundFrame
+        hero
+        r={r}
+        fit
+        aside={
+          // Content height: a long name wraps instead of being cut. The old and new card share one grid cell, so
+          // the slide moves transforms only and the cell follows the taller of the two.
+          <div className="mt-3 @h-short:mt-2 pane:mt-0 pane:flex pane:min-h-full pane:flex-col pane:justify-end">
+            <div className="@h-[24rem]:hidden">
+              <div className="grid">
+                <AnimatePresence initial={false}>
+                  <m.div
+                    key={pI}
+                    initial={{ opacity: 0, x: 44, scale: 0.97 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -44, scale: 0.97 }}
+                    transition={{ duration: 0.28, ease: EASE }}
+                    className="[grid-area:1/1]"
+                  >
+                    <HeroWho p={p} kicker={cap} tally={sum} of={r.cards} />
+                  </m.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        }
+        bar={
+          // The dock: everything a bidder touches sits in the thumb's reach, above the button.
+          <div className="flex w-full flex-col gap-2.5 @h-short:gap-2 @h-tiny:gap-1.5 @h-[24rem]:gap-1">
+            <div>
+              <div className="flex justify-between text-15 font-bold tracking-[-0.01em] @h-[24rem]:leading-4">
+                <span>{t.bidding.total(sum, r.cards)}</span>
+                <span className={diff === 0 ? 'text-[var(--pos)]' : 'text-[var(--warn)]'}>
+                  {diff < 0
+                    ? t.bidding.under(-diff)
+                    : diff > 0
+                      ? t.bidding.over(diff)
+                      : t.bidding.level}
+                </span>
+              </div>
+              <div className="mat-meter mt-1.5 h-2 overflow-hidden rounded-full @h-short:mt-1 @h-[24rem]:hidden">
                 <m.div
-                  key={pI}
-                  initial={{ opacity: 0, x: 44, scale: 0.97 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: -44, scale: 0.97 }}
-                  transition={{ duration: 0.28, ease: EASE }}
-                  className="[grid-area:1/1]"
+                  className="relative h-full origin-left"
+                  animate={{ scaleX: Math.min(1, sum / r.cards) }}
+                  transition={SPRING}
                 >
-                  <HeroWho p={p} kicker={cap} tally={sum} of={r.cards} />
+                  <m.i
+                    className="mat-meter-fill absolute inset-0"
+                    animate={{ opacity: diff > 0 ? 0 : 1 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                  />
+                  <m.i
+                    className="absolute inset-0 bg-[var(--warn)]"
+                    animate={{ opacity: diff > 0 ? 1 : 0 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                  />
                 </m.div>
-              </AnimatePresence>
+              </div>
             </div>
-          </div>
-        </div>
-      }
-      bar={
-        // The dock: everything a bidder touches sits in the thumb's reach, above the button.
-        <div className="flex w-full flex-col gap-2.5 @h-short:gap-2 @h-tiny:gap-1.5 @h-[24rem]:gap-1">
-          <div>
-            <div className="flex justify-between text-15 font-bold tracking-[-0.01em] @h-[24rem]:leading-4">
-              <span>{t.bidding.total(sum, r.cards)}</span>
-              <span className={diff === 0 ? 'text-[var(--pos)]' : 'text-[var(--warn)]'}>
-                {diff < 0
-                  ? t.bidding.under(-diff)
-                  : diff > 0
-                    ? t.bidding.over(diff)
-                    : t.bidding.level}
-              </span>
+            <div
+              id={reasonId}
+              aria-live="polite"
+              className="min-h-5 text-14 font-medium leading-5 text-[var(--warn)] @h-[24rem]:min-h-0"
+            >
+              {reason}
             </div>
-            <div className="mat-meter mt-1.5 h-2 overflow-hidden rounded-full @h-short:mt-1 @h-[24rem]:hidden">
-              <m.div
-                className="relative h-full origin-left"
-                animate={{ scaleX: Math.min(1, sum / r.cards) }}
-                transition={SPRING}
+            <div
+              role="group"
+              aria-label={t.bidding.bidFor(p.name)}
+              {...roving.group}
+              // At most `cols` across and each at least 44px: the gap gives way before a pill gets smaller.
+              style={
+                {
+                  '--g': `max(0px, min(0.5rem, calc((100% - ${cols} * 2.75rem) / ${cols - 1})))`,
+                  columnGap: 'var(--g)',
+                  gridTemplateColumns: `repeat(auto-fill, minmax(max(2.75rem, calc((100% - ${cols - 1} * var(--g)) / ${cols})), 1fr))`,
+                } as CSSProperties
+              }
+              className="grid justify-items-center gap-y-2 @h-short:gap-y-1.5 @h-tiny:gap-y-1"
+            >
+              {Array.from({ length: r.cards + 1 }, (_, v) => {
+                const lock = isD && forb === v,
+                  sel = r.bids[p.id] === v;
+                return (
+                  <m.button
+                    key={v}
+                    type="button"
+                    aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
+                    aria-pressed={sel}
+                    aria-disabled={lock || undefined}
+                    aria-describedby={lock ? reasonId : undefined}
+                    {...roving.item(v)}
+                    animate={shake === v ? shakeKF : { x: 0 }}
+                    whileTap={PRESS_SM}
+                    onClick={(e) => pick(v, e.currentTarget)}
+                    className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'mat-key-no' : sel ? 'mat-key text-ink-on-accent' : 'mat-key'}`}
+                  >
+                    {sel && (
+                      <m.span
+                        layoutId="pillsel"
+                        transition={SPRING_POP}
+                        className="mat-key-on absolute inset-0 rounded-[18px]"
+                      />
+                    )}
+                    {/* The forbidden bid is struck through by its material, not a lock (reference audit fix). */}
+                    <span className="relative">{v}</span>
+                  </m.button>
+                );
+              })}
+            </div>
+            {allBid && !hookWarn ? (
+              <PrimaryButton
+                className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"
+                onClick={() => actions.phase('playing')}
               >
-                <m.i
-                  className="mat-meter-fill absolute inset-0"
-                  animate={{ opacity: diff > 0 ? 0 : 1 }}
-                  transition={{ duration: 0.2, ease: EASE }}
-                />
-                <m.i
-                  className="absolute inset-0 bg-[var(--warn)]"
-                  animate={{ opacity: diff > 0 ? 1 : 0 }}
-                  transition={{ duration: 0.2, ease: EASE }}
-                />
-              </m.div>
-            </div>
+                {t.bidding.startPlaying}
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton
+                className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"
+                disabled
+              >
+                {t.bidding.bidsIn(cnt, n)}
+              </PrimaryButton>
+            )}
           </div>
-          <div
-            id={reasonId}
-            aria-live="polite"
-            className="min-h-5 text-14 font-medium leading-5 text-[var(--warn)] @h-[24rem]:min-h-0"
-          >
-            {reason}
+        }
+      >
+        <Glass glow spot={false} className="flex min-h-0 flex-1 flex-col p-2 pb-2.5">
+          <div className="-mx-2 flex min-h-0 flex-1 flex-col">
+            <Table
+              uid="bid"
+              fit
+              size={wide ? 'full' : 'mini'}
+              big={wide}
+              players={g.players}
+              dir={g.direction}
+              dealer={r.dealerIndex}
+              first={r.firstPlayerIndex}
+              bids={r.bids}
+              cur={pI}
+              warn={hookWarn && r.bids[dealer.id] === undefined ? r.dealerIndex : undefined}
+              onSeat={actions.pickSeat}
+              noSeatAnim
+              center={<SuitCenter trump={r.trump} cards={r.cards} big={wide} />}
+            />
           </div>
-          <div
-            role="group"
-            aria-label={t.bidding.bidFor(p.name)}
-            {...roving.group}
-            // At most `cols` across and each at least 44px: the gap gives way before a pill gets smaller.
-            style={
-              {
-                '--g': `max(0px, min(0.5rem, calc((100% - ${cols} * 2.75rem) / ${cols - 1})))`,
-                columnGap: 'var(--g)',
-                gridTemplateColumns: `repeat(auto-fill, minmax(max(2.75rem, calc((100% - ${cols - 1} * var(--g)) / ${cols})), 1fr))`,
-              } as CSSProperties
-            }
-            className="grid justify-items-center gap-y-2 @h-short:gap-y-1.5 @h-tiny:gap-y-1"
-          >
-            {Array.from({ length: r.cards + 1 }, (_, v) => {
-              const lock = isD && forb === v,
-                sel = r.bids[p.id] === v;
-              return (
-                <m.button
-                  key={v}
-                  type="button"
-                  aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
-                  aria-pressed={sel}
-                  aria-disabled={lock || undefined}
-                  aria-describedby={lock ? reasonId : undefined}
-                  {...roving.item(v)}
-                  animate={shake === v ? shakeKF : { x: 0 }}
-                  whileTap={PRESS_SM}
-                  onClick={() => pick(v)}
-                  className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'mat-key-no' : sel ? 'mat-key text-ink-on-accent' : 'mat-key'}`}
-                >
-                  {sel && (
-                    <m.span
-                      layoutId="pillsel"
-                      transition={SPRING_POP}
-                      className="mat-key-on absolute inset-0 rounded-[18px]"
-                    />
-                  )}
-                  {/* The forbidden bid is struck through by its material, not a lock (reference audit fix). */}
-                  <span className="relative">{v}</span>
-                </m.button>
-              );
-            })}
-          </div>
-          {allBid && !hookWarn ? (
-            <PrimaryButton
-              className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"
-              onClick={() => actions.phase('playing')}
-            >
-              {t.bidding.startPlaying}
-            </PrimaryButton>
-          ) : (
-            <PrimaryButton
-              className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"
-              disabled
-            >
-              {t.bidding.bidsIn(cnt, n)}
-            </PrimaryButton>
-          )}
-        </div>
-      }
-    >
-      <Glass glow spot={false} className="flex min-h-0 flex-1 flex-col p-2 pb-2.5">
-        <div className="-mx-2 flex min-h-0 flex-1 flex-col">
-          <Table
-            uid="bid"
-            fit
-            size={wide ? 'full' : 'mini'}
-            big={wide}
-            players={g.players}
-            dir={g.direction}
-            dealer={r.dealerIndex}
-            first={r.firstPlayerIndex}
-            bids={r.bids}
-            cur={pI}
-            warn={hookWarn && r.bids[dealer.id] === undefined ? r.dealerIndex : undefined}
-            onSeat={actions.pickSeat}
-            noSeatAnim
-            center={<SuitCenter trump={r.trump} cards={r.cards} big={wide} />}
-          />
-        </div>
-        <p className="px-2 pb-0.5 pt-2.5 text-center tracking-[-0.01em] [text-wrap:balance] @h-short:sr-only">
-          <DealLine g={g} r={r} />
-        </p>
-      </Glass>
-    </RoundFrame>
+          <p className="px-2 pb-0.5 pt-2.5 text-center tracking-[-0.01em] [text-wrap:balance] @h-short:sr-only">
+            <DealLine g={g} r={r} />
+          </p>
+        </Glass>
+      </RoundFrame>
+    </>
   );
 }

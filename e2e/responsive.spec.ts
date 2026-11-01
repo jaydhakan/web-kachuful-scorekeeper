@@ -73,7 +73,12 @@ for (const [w, h] of MATRIX) {
           reports.push(await auditScreen(page, screen, opts));
           await page.screenshot({ path: `${dir}/${screen}.png` });
         };
-        const close = () => btn(page, 'Close').last().click();
+        // Closing a sheet steps the history back; a reload before that lands is aborted, so wait for it.
+        const close = async () => {
+          await btn(page, 'Close').last().click();
+          await expect(page.getByRole('dialog')).toHaveCount(0);
+          await page.waitForTimeout(300);
+        };
         // A control the layout makes unreachable is itself a finding: record it and go on to the next section.
         const section = async (name: string, run: () => Promise<void>) => {
           try {

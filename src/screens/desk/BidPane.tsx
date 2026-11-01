@@ -21,7 +21,8 @@ interface BidPaneProps {
   pending: number | null;
   primary: BidPrimary;
   shake: number | null;
-  onKey: (n: number) => void;
+  /** A key was tapped or clicked; `el` is the key, for the flight to the seat. */
+  onKey: (n: number, el: HTMLElement) => void;
   onPrimary: () => void;
 }
 
@@ -110,7 +111,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               animate={shake === k ? shakeKF : { x: 0 }}
               whileHover={lock ? undefined : { y: -3 }}
               whileTap={PRESS_SM}
-              onClick={() => onKey(k)}
+              onClick={(e) => onKey(k, e.currentTarget)}
               className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'} ${saved ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
             >
               {sel && (

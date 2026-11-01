@@ -210,7 +210,7 @@ export function Step2() {
           arrowFrom={tgt > 0 && seats[tgt - 1] ? tgt - 1 : undefined}
           arrowTo={tgt > 0 && seats[tgt - 1] ? tgt : undefined}
           onSeat={(k) => seats[k] && actions.openSheet({ type: 'seat', k })}
-          center={<div className="text-13 text-[var(--tx2)]">{t.setup.seated(filled, n)}</div>}
+          center={<div className="text-13 text-[var(--ctr-fg)]">{t.setup.seated(filled, n)}</div>}
         />
       </TableSlot>
     </SetupFrame>

@@ -15,6 +15,7 @@ import { ResultsPane } from './ResultsPane';
 import { ScorePanel } from './ScorePanel';
 import { StepTracker, type Step } from './StepTracker';
 import { t } from '@/strings';
+import { useBidFlight } from '@/components/ui/BidFlight';
 
 // One DOM tree for every layout: grid areas move, nothing remounts. Upright: table, score strip, action pane.
 // On its side: table and scores left, action pane right. Desktop: table, action pane, scores.
@@ -46,6 +47,7 @@ export function Workspace() {
 
   // A picked-but-not-locked bid belongs to one bidder in one round; a new bidder starts from their saved bid.
   const owner = `${r.index}:${pI}`;
+  const flight = useBidFlight('ws');
   const [pick, setPick] = useState<{ owner: string; v: number | null }>({ owner: '', v: null });
   const picked = pick.owner === owner ? pick.v : (r.bids[p.id] ?? null);
   // A pick that became the dealer's locked number (an earlier bid was voided) is no pick at all.
@@ -81,8 +83,10 @@ export function Workspace() {
     return true;
   };
   // A tap or click saves the bid and moves on, as on a phone. Typed digits only pick, so 1 then 0 can make 10.
-  const tap = (k: number) => {
-    if (!hooked(k)) actions.bid(k);
+  const tap = (k: number, el: HTMLElement) => {
+    if (hooked(k)) return;
+    flight.launch(el, k, pI);
+    actions.bid(k);
   };
   const choose = (k: number) => {
     if (k < 0 || k > r.cards || hooked(k)) return;
@@ -122,6 +126,7 @@ export function Workspace() {
   const first = g.players[r.firstPlayerIndex];
   return (
     <DeskPage>
+      {flight.node}
       <PageHead
         barTitled
         eyebrow={t.desk.roundEyebrow(r.index + 1)}
