@@ -1,0 +1,58 @@
+import { useEffect, useState } from 'react';
+import { useApp } from '@/state/store';
+import { whenIdle } from '@/lib/idle';
+import { t } from '@/strings';
+
+// Five minutes: a theme change is not urgent, and an unchanged setting costs a 304 (backend-requests.md, request 1).
+const EVERY = 5 * 60_000;
+// The boot script has already painted the cached theme, so the store can arrive once the page is idle.
+const loadStore = () => import('@/state/theme');
+
+/**
+ * Keeps the theme current: applies the device's resolution once the page is idle and, signed in, reads the admin's
+ * setting then, when the app comes back to the front and every five minutes. Announces each change to assistive tech.
+ * Signed out it never touches the network.
+ */
+export function ThemeSync() {
+  const { state } = useApp();
+  const signedIn = !!state.session && !state.session.stale;
+  const [said, setSaid] = useState('');
+  useEffect(() => {
+    let off = () => {};
+    const cancel = whenIdle(
+      () =>
+        void loadStore().then((s) => {
+          s.initTheme();
+          let shown = s.themeStore.get().shown;
+          off = s.themeStore.subscribe(() => {
+            const now = s.themeStore.get().shown;
+            if (now === shown) return;
+            shown = now;
+            setSaid(t.theme.changed(s.themeLabel(now)));
+          });
+        }),
+    );
+    return () => {
+      cancel();
+      off();
+    };
+  }, []);
+  useEffect(() => {
+    if (!signedIn) return;
+    const refresh = () => void loadStore().then((s) => s.refreshAppearance());
+    const cancel = whenIdle(refresh);
+    const back = () => document.visibilityState === 'visible' && refresh();
+    document.addEventListener('visibilitychange', back);
+    const id = setInterval(back, EVERY);
+    return () => {
+      cancel();
+      document.removeEventListener('visibilitychange', back);
+      clearInterval(id);
+    };
+  }, [signedIn]);
+  return (
+    <div aria-live="polite" className="sr-only">
+      {said}
+    </div>
+  );
+}

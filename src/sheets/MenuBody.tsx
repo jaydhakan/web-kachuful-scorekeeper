@@ -4,6 +4,7 @@ import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
 import { destRoute, destsFor } from '@/components/hubNav';
 import { t } from '@/strings';
+import { loadThemeState } from '@/state/persistence';
 import { Icon } from '@/components/ui/Icons';
 
 type Row = [ReactElement, string, () => void, boolean?];
@@ -47,7 +48,11 @@ export function MenuBody() {
       },
     ],
   ];
-  const items = inGame ? [...game, ...go] : go;
+  // Players pick their own theme only while the admin allows it.
+  const own: Row[] = loadThemeState().appearance?.allowUserOverride
+    ? [[Icon.palette, t.theme.menu, () => actions.openSheet({ type: 'theme' })]]
+    : [];
+  const items = inGame ? [...game, ...go, ...own] : [...go, ...own];
   return (
     <>
       {items.map(([ic, t, f, neg], i) => (

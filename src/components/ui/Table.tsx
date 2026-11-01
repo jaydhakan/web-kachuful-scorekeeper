@@ -347,7 +347,7 @@ export function Table({
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
-                  className="mat-first absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] px-1.5 text-13 font-extrabold leading-[18px]"
+                  className="mat-first absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] px-[5px] text-13 font-extrabold leading-[18px] tracking-[-0.03em]"
                   style={
                     lead && size !== 'mini'
                       ? { left: '50%', top: dpx(wide ? -24 : -22), translate: '-50% 0' }

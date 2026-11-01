@@ -147,6 +147,13 @@ export const t = {
     ],
   },
 
+  theme: {
+    changed: (name: string) => `Theme changed to ${name}`,
+    menu: 'Theme',
+    own: 'Your theme',
+    followAdmin: 'Same as everyone',
+  },
+
   round: {
     menu: 'Menu',
     scoreboard: 'Scoreboard',

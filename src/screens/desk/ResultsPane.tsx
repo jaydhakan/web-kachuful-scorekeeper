@@ -4,12 +4,13 @@ import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
-import { PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { PRESS_SM, SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { resultsView } from '@/screens/round/roundView';
 import { Delta, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { ToggleTrack } from '@/components/ui/Toggle';
 
 /** A tick or cross, with its word once the row has room; the word always names the button for assistive tech. */
 const mark = (icon: string, word: string) => (
@@ -67,20 +68,7 @@ export function ResultsPane({ g }: { g: Game }) {
             className="flex min-h-12 shrink-0 items-center gap-2 rounded-xl pl-2"
           >
             <span className="text-14 text-[var(--tx2)]">{t.desk.results.exactShort}</span>
-            <m.span
-              aria-hidden
-              variants={{ press: { scale: 0.94 } }}
-              className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-ov/[.16]"
-            >
-              <span
-                className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
-              />
-              <m.span
-                animate={{ x: st.exact ? 22 : 0 }}
-                transition={SPRING_POP}
-                className="absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-text-primary shadow-[0_2px_6px_rgba(0,0,0,.4)]"
-              />
-            </m.span>
+            <ToggleTrack on={st.exact} />
           </m.button>
         </div>
       </div>

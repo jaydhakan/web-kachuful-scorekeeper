@@ -10,6 +10,7 @@ import { RulesBody } from './RulesBody';
 import { UpcomingBody } from './UpcomingBody';
 import { t } from '@/strings';
 
+const ThemeBody = lazy(() => import('./ThemeBody').then((m) => ({ default: m.ThemeBody })));
 const ShareBody = lazy(() => import('./ShareBody'));
 
 interface Spec {
@@ -47,6 +48,15 @@ function specFor(
       return { title: t.sheets.rename, body: <RenameBody k={s.k} /> };
     case 'avatar':
       return { title: t.sheets.avatarTitle, body: <AvatarBody k={s.k} /> };
+    case 'theme':
+      return {
+        title: t.theme.own,
+        body: (
+          <Suspense fallback={null}>
+            <ThemeBody />
+          </Suspense>
+        ),
+      };
     case 'share':
       return {
         title: t.sheets.shareTitle,

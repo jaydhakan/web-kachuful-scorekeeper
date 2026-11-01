@@ -315,6 +315,26 @@ export const hub = {
     noPlayer: 'No player linked to this account',
   },
   admin: {
+    appearanceTab: 'Appearance',
+    appearance: {
+      title: 'Theme for everyone',
+      body: 'Every phone and tablet switches without a reload. A game in progress keeps going.',
+      preview: 'Preview on this device',
+      stopPreview: 'Stop preview',
+      previewing: (name: string) => `Previewing ${name} on this device only.`,
+      apply: 'Apply to everyone',
+      applied: (name: string) => `${name} applied to everyone`,
+      appliedHere: (name: string) => `${name} saved on this device only`,
+      undo: 'Undo',
+      allow: 'Let players choose their own theme',
+      allowHint: 'Their choice wins on their own devices.',
+      deviceOnly:
+        'Saved on this device only: the server doesn’t store themes yet, so other devices keep their own.',
+      offline:
+        'You’re offline. The theme is saved on this device; apply it again when you’re back online.',
+      last: (who: string, when: string) => `Last changed by ${who}, ${when}`,
+      current: 'In use',
+    },
     adminTag: 'admin ·',
     title: 'Admin',
     tabs: 'Admin section',

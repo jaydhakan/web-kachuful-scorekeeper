@@ -8,12 +8,13 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
-import { PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { PRESS_SM, SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { resultsView } from './roundView';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { ToggleTrack } from '@/components/ui/Toggle';
 
 export function Results() {
   const { state, actions } = useApp();
@@ -55,20 +56,7 @@ export function Results() {
             className="mb-1 flex min-h-12 w-full items-center justify-between rounded-2xl px-1 text-left"
           >
             <span className="text-16 font-medium">{t.results.exactSwitch}</span>
-            <m.span
-              aria-hidden
-              variants={{ press: { scale: 0.94 } }}
-              className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-ov/[.14]"
-            >
-              <span
-                className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
-              />
-              <m.span
-                animate={{ x: st.exact ? 22 : 0 }}
-                transition={SPRING_POP}
-                className="absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-text-primary shadow-[0_2px_6px_rgba(0,0,0,.4)]"
-              />
-            </m.span>
+            <ToggleTrack on={st.exact} />
           </m.button>
           {tricks && (
             <div className="mb-3 px-1 text-13 text-[var(--tx2)]">

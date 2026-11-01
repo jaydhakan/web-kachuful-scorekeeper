@@ -31,6 +31,14 @@ export type PlayerEdit = Partial<
 >;
 
 /** One function per endpoint in the backend's HANDOFF.md §6, typed as built. */
+/** The appearance setting as the server would store it (backend-requests.md, request 1). */
+export interface AppearanceDto {
+  theme: string;
+  allowUserOverride: boolean;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
 export const ep = {
   // §6.3 auth
   login: (email: string, password: string) =>
@@ -51,6 +59,14 @@ export const ep = {
     post<{ user: User; player: Player | null }>(`/auth/resets/${token}`, { password }),
   changePassword: (current: string, password: string) =>
     post<null>('/me/password', { current, password }),
+
+  // Requested in backend-requests.md (1 and 2); until the backend has them they answer 404 and the app keeps the
+  // choice on the device.
+  appearance: (o?: CallOpts) => call<AppearanceDto>('GET', '/settings/appearance', undefined, o),
+  setAppearance: (a: Pick<AppearanceDto, 'theme' | 'allowUserOverride'>) =>
+    put<AppearanceDto>('/admin/settings/appearance', a),
+  setMyTheme: (theme: string | null) =>
+    patch<{ theme: string | null }>('/me/preferences', { theme }),
 
   // §6.4 admin
   adminUsers: () => get<AdminUserRow[]>('/admin/users'),

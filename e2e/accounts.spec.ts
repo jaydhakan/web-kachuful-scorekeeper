@@ -15,7 +15,7 @@ test('a wrong password says so; the right one signs in and shows the account', a
   await expect(page.getByText('Signed in as Jay')).toBeVisible();
   await btn(page, 'Account').click();
   await expect(page.getByText(/Signed in as admin@kachuful.test/i)).toBeVisible();
-  await expect(btn(page, '🛡️ Admin')).toBeVisible();
+  await expect(btn(page, 'Admin')).toBeVisible();
 });
 
 test('admin invites someone, who opens the link, makes a player and sets a password', async ({
@@ -26,8 +26,8 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
   const name = uniq().slice(0, 10);
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
-  await btn(page, '🛡️ Admin').click();
-  await btn(page, '✉️ Invite someone').click();
+  await btn(page, 'Admin').click();
+  await btn(page, 'Invite someone').click();
   await page.getByLabel('Their email').fill(email);
   await btn(page, 'Create invite link').click();
   const url = path(await page.locator('code').innerText());
@@ -100,7 +100,7 @@ test("an invite to a player's email offers that player, who claims their history
 test('the admin list shows a pending invite, and a new link replaces it', async ({ page }) => {
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
-  await btn(page, '🛡️ Admin').click();
+  await btn(page, 'Admin').click();
   // seed-demo leaves an invite for new.player@kachuful.test pending.
   const row = page.locator('li').filter({ hasText: 'new.player@kachuful.test' });
   await expect(row).toBeVisible();
@@ -114,7 +114,7 @@ test("the admin edits a player's email, and players who sat at one table are nev
   const email = `zoya.${uniq()}@kachuful.test`;
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
-  await btn(page, '🛡️ Admin').click();
+  await btn(page, 'Admin').click();
   // Scoped to the admin tabs: Home's Players tile is still on screen while the page slides in.
   await page
     .getByRole('group', { name: 'Admin section' })

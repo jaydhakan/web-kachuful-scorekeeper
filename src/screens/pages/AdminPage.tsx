@@ -16,6 +16,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { StatTile, TileGrid } from '@/components/ui/Stats';
 import { stagger } from '@/components/ui/stagger';
+import { AppearancePanel } from './AppearancePanel';
 import { authError } from './AuthPages';
 import { t } from '@/strings';
 import { seatColor } from '@/theme/palette';
@@ -52,7 +53,7 @@ function LinkBox({ url, note }: { url: string; note: string }) {
 
 export function AdminPage() {
   const { state } = useApp();
-  const [tab, setTab] = useState<'users' | 'players' | 'overview'>('users');
+  const [tab, setTab] = useState<'users' | 'players' | 'overview' | 'appearance'>('users');
   if (state.session?.user.role !== 'admin')
     return (
       <Page title={ad.title}>
@@ -73,10 +74,21 @@ export function AdminPage() {
           <Chip on={tab === 'overview'} onClick={() => setTab('overview')}>
             {ad.overview}
           </Chip>
+          <Chip on={tab === 'appearance'} onClick={() => setTab('appearance')}>
+            {ad.appearanceTab}
+          </Chip>
         </ChipRow>
       }
     >
-      {tab === 'users' ? <Users /> : tab === 'players' ? <Players /> : <Overview />}
+      {tab === 'users' ? (
+        <Users />
+      ) : tab === 'players' ? (
+        <Players />
+      ) : tab === 'overview' ? (
+        <Overview />
+      ) : (
+        <AppearancePanel />
+      )}
     </Page>
   );
 }

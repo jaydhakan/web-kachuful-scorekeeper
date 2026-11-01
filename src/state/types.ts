@@ -61,7 +61,7 @@ export interface SetupState {
 }
 
 export type SheetState =
-  | { type: 'menu' | 'rules' | 'board' | 'upcoming' | 'share' }
+  | { type: 'menu' | 'rules' | 'board' | 'upcoming' | 'share' | 'theme' }
   | { type: 'edit'; i: number }
   | { type: 'seat' | 'rename' | 'avatar'; k: number };
 

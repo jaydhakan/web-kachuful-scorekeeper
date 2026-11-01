@@ -17,7 +17,7 @@ test('the global board ranks everyone, and a row opens the server player page', 
     .getByRole('button', { name: /Boards/ })
     .first()
     .click();
-  await expect(page.getByRole('button', { name: '🌍 Global' })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: 'Global' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
@@ -35,11 +35,11 @@ test('awards, seasons and the activity feed come from the server', async ({ page
     .getByRole('button', { name: /Awards/ })
     .first()
     .click();
-  await btn(page, '👑 Season').click();
+  await btn(page, 'Season').click();
   await expect(page.getByText('Standings')).toBeVisible();
   // Early in a month its few rounds rank nobody yet; either way the standings list players.
   await expect(page.getByRole('button', { name: /^(#1|Not ranked) / }).first()).toBeVisible();
-  await btn(page, '📰 Activity').click();
+  await btn(page, 'Activity').click();
   await expect(page.getByRole('heading', { name: 'Activity' })).toBeVisible();
   await expect(page.getByText(/won a game|earned|joined/).first()).toBeVisible();
   // System Back walks back to Awards.
