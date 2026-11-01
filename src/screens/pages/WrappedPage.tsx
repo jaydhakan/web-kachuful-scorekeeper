@@ -13,6 +13,7 @@ import { TR } from '@/theme/trumps';
 import { useApp } from '@/state/store';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
+import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 
 const wr = t.hub.wrapped;
@@ -134,7 +135,9 @@ export function WrappedPage({
         )
       }
     >
-      {!s ? (
+      {!data && session && who && remote.data == null ? (
+        <RemotePending r={remote} rows={3} />
+      ) : !s ? (
         <EmptyState icon="🎁" title={wr.notEnough} body={wr.notEnoughBody} />
       ) : (
         <div className="flex flex-col items-center">

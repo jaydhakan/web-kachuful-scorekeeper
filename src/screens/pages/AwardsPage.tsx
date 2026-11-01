@@ -25,6 +25,7 @@ import { achName } from '@/strings/achievements';
 import { ep } from '@/sync/endpoints';
 import type { AwardRow } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
+import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 
@@ -181,7 +182,9 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
               <span className="w-12" />
             )}
           </div>
-          {d === 'loading' ? null : d.awards.length ? (
+          {d === 'loading' ? (
+            <RemotePending r={rDay} rows={3} />
+          ) : d.awards.length ? (
             <ul className="flex flex-col gap-2" key={day}>
               {d.awards.map((a, i) => (
                 <AwardCard key={a.code + a.playerId} a={a} f={src.facts} i={i} />
@@ -200,6 +203,11 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
               </Chip>
             ))}
           </ChipRow>
+          {s === 'loading' && (
+            <div className="mt-4">
+              <RemotePending r={rSeason} />
+            </div>
+          )}
           {s && s !== 'loading' && (
             <div className="mt-4">
               {month === thisMonth && <p className="mb-3 text-13 text-[var(--tx2)]">{aw.live}</p>}

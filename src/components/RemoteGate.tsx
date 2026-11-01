@@ -15,10 +15,7 @@ export function RemoteGate<T>({
   children: (data: T) => ReactNode;
   rows?: number;
 }) {
-  if (r.data == null) {
-    if (r.error) return <ErrorState msg={authError(r.error)} onRetry={r.reload} />;
-    return <Skeleton rows={rows} />;
-  }
+  if (r.data == null) return <RemotePending r={r} rows={rows} />;
   return (
     <>
       {r.offline && r.fetchedAt && (
@@ -29,4 +26,10 @@ export function RemoteGate<T>({
       {children(r.data)}
     </>
   );
+}
+
+/** What server data shows before it has arrived: placeholder rows, or the error with a retry. */
+export function RemotePending<T>({ r, rows = 5 }: { r: Remote<T>; rows?: number }) {
+  if (r.error) return <ErrorState msg={authError(r.error)} onRetry={r.reload} />;
+  return <Skeleton rows={rows} />;
 }
