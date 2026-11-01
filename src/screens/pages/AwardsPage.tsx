@@ -92,18 +92,23 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
   const [tab, setTab] = useState<'day' | 'season'>('day');
   const [day, setDay] = useState(() => dayOf(Date.now()));
   const thisMonth = monthOf(Date.now());
-  const [month, setMonth] = useState(thisMonth);
+  const [picked, setMonth] = useState<string | null>(null);
   const today = dayOf(Date.now());
   // Signed in, the awards are the server's (Kolkata days and months); signed out, this device's.
   const signedIn = !!useApp().state.session;
   // Closed days and seasons never change (HANDOFF §5.5): a cached one is never asked for again.
   const rDay = useRemote(signedIn ? `daily:${day}` : null, (o) => ep.daily(day, o), isFinal);
+  const rSeasons = useRemote(signedIn ? 'seasons' : null, (o) => ep.seasons(o));
+  const months = signedIn && rSeasons.data ? rSeasons.data.map((x) => x.season) : src.months;
+  // Until one is picked, the season shown is this month, or the latest played one while this month has no rounds.
+  const month =
+    picked ??
+    (months.length && !months.includes(thisMonth) ? [...months].sort().reverse()[0] : thisMonth);
   const rSeason = useRemote(
     signedIn && tab === 'season' ? `season:${month}` : null,
     (o) => ep.season(month, o),
     isFinal,
   );
-  const rSeasons = useRemote(signedIn ? 'seasons' : null, (o) => ep.seasons(o));
   const unwrap = <T extends { player: { id: string } }>(xs: T[]) =>
     xs.map(({ player, ...x }) => ({ ...x, playerId: player.id }));
   // The server sends null where the device engine leaves a field out.
@@ -131,7 +136,6 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
               awards: unaward(rSeason.data.awards),
             }
           : 'loading';
-  const months = signedIn && rSeasons.data ? rSeasons.data.map((x) => x.season) : src.months;
   const year = new Date().getFullYear();
   return (
     <Page
