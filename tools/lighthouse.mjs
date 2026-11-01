@@ -1,13 +1,17 @@
 // Usage: npm run build && node tools/lighthouse.mjs [--check]  → reports/lighthouse/summary.md
 // A Lighthouse user flow, mobile preset (Slow 4G, 4x CPU), run RUNS times (default 3) and reported as medians:
 // first visit, a returning visit mid-game (saved game, no HTTP cache), a played round as a timespan (INP), and the tablet UI.
-// With --check it exits 1 when a step misses the targets in tools/budget.json.
+// With --check it exits 1 when a step misses the targets in tools/budget.json. DIST=<dir> measures another build.
+// Served over HTTPS so Chrome speaks HTTP/2 as production does (Cloudflare); HTTP/1.1's six connections per host
+// would queue the chunks and penalise splitting in a way real visitors never see.
 /* global document -- the evaluated callbacks run in the page */
 import lighthouse, { startFlow } from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 import puppeteer from 'puppeteer-core';
 import { preview } from 'vite';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -15,7 +19,7 @@ const out = path.join(root, 'reports/lighthouse');
 mkdirSync(out, { recursive: true });
 const budget = JSON.parse(readFileSync(path.join(import.meta.dirname, 'budget.json'), 'utf8'));
 const RUNS = Number(process.env.RUNS ?? 3);
-const URL = 'http://127.0.0.1:4310/';
+const URL = 'https://127.0.0.1:4310/';
 // THROTTLE=devtools applies the same Slow 4G + 4x CPU for real to every step instead of simulating navigations.
 const APPLIED = process.env.THROTTLE === 'devtools';
 
@@ -136,15 +140,32 @@ async function run(port) {
   );
 }
 
+const certs = mkdtempSync(path.join(tmpdir(), 'kachuful-lh-'));
+execFileSync(
+  'openssl',
+  [
+    ...['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=127.0.0.1'],
+    ...['-keyout', path.join(certs, 'key.pem'), '-out', path.join(certs, 'cert.pem')],
+  ],
+  { stdio: 'ignore' },
+);
 const server = await preview({
   configFile: false,
   root,
-  build: { outDir: path.join(root, 'dist') },
-  preview: { port: 4310, strictPort: true, host: '127.0.0.1' },
+  build: { outDir: path.resolve(root, process.env.DIST ?? 'dist') },
+  preview: {
+    port: 4310,
+    strictPort: true,
+    host: '127.0.0.1',
+    https: {
+      key: readFileSync(path.join(certs, 'key.pem')),
+      cert: readFileSync(path.join(certs, 'cert.pem')),
+    },
+  },
 });
 const chrome = await chromeLauncher.launch({
   chromePath: process.env.CHROME_PATH,
-  chromeFlags: ['--headless=new', '--no-sandbox'],
+  chromeFlags: ['--headless=new', '--no-sandbox', '--ignore-certificate-errors'],
 });
 const runs = [];
 try {
