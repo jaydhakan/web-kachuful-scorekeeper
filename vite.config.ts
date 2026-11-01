@@ -2,7 +2,10 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { promisify } from 'node:util';
+import { brotliCompress, constants, gzip } from 'node:zlib';
 import tokens from './src/theme/tokens.json' with { type: 'json' };
 import { MQ } from './src/theme/breakpoints';
 import { mockApiPlugin } from './tools/mock-api';
@@ -45,6 +48,41 @@ const preloadDesk = (): Plugin => ({
   },
 });
 
+/**
+ * Writes .br and .gz beside every text file in the build, at the strongest settings, for nginx's brotli_static and
+ * gzip_static (reports/perf/hosting.md): ~22% smaller than on-the-fly gzip and no CPU per request. The service
+ * worker's precache globs name their extensions, so it never picks these up.
+ */
+const precompress = (): Plugin => {
+  let outDir = 'dist';
+  const br = promisify(brotliCompress);
+  const gz = promisify(gzip);
+  return {
+    name: 'precompress',
+    apply: 'build',
+    configResolved: (c) => void (outDir = path.resolve(c.root, c.build.outDir)),
+    // After vite-plugin-pwa's closeBundle, so sw.js and the workbox runtime are compressed too.
+    closeBundle: {
+      order: 'post',
+      sequential: true,
+      handler: async () => {
+        const files = (await readdir(outDir, { recursive: true }))
+          .filter((f) => /\.(js|css|html|svg|webmanifest)$/.test(f))
+          .map((f) => path.join(outDir, f));
+        await Promise.all(
+          files.map(async (f) => {
+            const b = await readFile(f);
+            if (b.length < 1024) return;
+            const q = { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } };
+            await writeFile(f + '.br', await br(b, q));
+            await writeFile(f + '.gz', await gz(b, { level: 9 }));
+          }),
+        );
+      },
+    },
+  };
+};
+
 // The real backend (HANDOFF §2) behind the dev and preview servers, so the app and the API share one origin.
 const API_TARGET = process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000';
 const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
@@ -57,6 +95,7 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),
     preloadDesk(),
+    precompress(),
     VitePWA({
       // A waiting update is applied only when the player taps "Reload", never mid-round.
       registerType: 'prompt',
