@@ -168,7 +168,7 @@ function Users() {
                   {/* Links are kept only as hashes: a fresh one replaces the pending invite. */}
                   <button
                     type="button"
-                    className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+                    className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
                     onClick={() =>
                       act(async () => {
                         const x = await ep.invitePerson(r.invite!.email, r.player?.id);
@@ -180,7 +180,7 @@ function Users() {
                   </button>
                   <button
                     type="button"
-                    className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+                    className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
                     onClick={() => act(() => ep.revokeInvite(r.invite!.email))}
                   >
                     {ad.revoke}
@@ -191,7 +191,7 @@ function Users() {
                 <>
                   <button
                     type="button"
-                    className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+                    className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
                     onClick={() =>
                       act(async () => {
                         const x = await ep.resetLink(r.user!.id);
@@ -203,7 +203,7 @@ function Users() {
                   </button>
                   <button
                     type="button"
-                    className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+                    className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
                     onClick={() =>
                       r.active ? setOff(r) : act(() => ep.setActive(r.user!.id, true))
                     }
@@ -330,14 +330,14 @@ function Players() {
             <button
               type="button"
               onClick={() => setMail({ p, v: p.email ?? '', err: '' })}
-              className="min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
+              className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
             >
               {ad.editPlayer}
             </button>
             <button
               type="button"
               onClick={() => setFrom(p)}
-              className="min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
+              className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
             >
               {ad.merge}
             </button>
@@ -388,7 +388,7 @@ function Players() {
                   <button
                     type="button"
                     onClick={() => void pickInto(p)}
-                    className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 text-left text-17 font-bold"
+                    className="press flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 text-left text-17 font-bold"
                   >
                     <Avatar p={p} />
                     {p.displayName}

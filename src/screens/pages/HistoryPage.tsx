@@ -18,6 +18,7 @@ import {
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
+import { PRESS } from '@/components/ui/motion';
 
 const h = t.hub.history;
 
@@ -94,7 +95,7 @@ export function HistoryPage() {
           <button
             type="button"
             onClick={() => setWho(null)}
-            className="min-h-12 px-3 text-16 font-bold text-[var(--accent)]"
+            className="press min-h-12 px-3 text-16 font-bold text-[var(--accent)]"
           >
             {h.clear}
           </button>
@@ -150,7 +151,7 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
   return (
     <m.button
       type="button"
-      whileTap={{ scale: 0.98 }}
+      whileTap={PRESS}
       onClick={() => actions.open({ screen: 'game', params: { id: rec.syncId } })}
       aria-label={h.rowLabel(`${dayLabel(at)} ${timeLabel(at)}`, line)}
       className="glass flex min-h-[4.5rem] w-full flex-col gap-1.5 px-4 py-3 text-left"

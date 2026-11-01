@@ -16,7 +16,7 @@ import {
   type TableSize,
 } from '@/lib/tableGeometry';
 import { Icon } from './Icons';
-import { EASE, SPRING, SPRING_POP } from './motion';
+import { EASE, PRESS_SM, SPRING, SPRING_POP } from './motion';
 import { t } from '@/strings';
 import { AvatarFill } from './Avatar';
 
@@ -274,7 +274,7 @@ export function Table({
                   data-seat-avatar
                   title={named ? undefined : p.name}
                   initial={false}
-                  whileTap={onSeat ? { scale: 0.9 } : undefined}
+                  whileTap={onSeat ? PRESS_SM : undefined}
                   transition={SPRING}
                   className={`relative mx-auto grid place-items-center rounded-full border-2 border-white/20 shadow-[0_6px_16px_rgba(0,0,0,.5)] ${ring}`}
                   style={{

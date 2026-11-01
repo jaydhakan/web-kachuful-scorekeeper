@@ -39,7 +39,7 @@ export function Toast({
                 type="button"
                 onClick={onUndo}
                 // On the large screen the pill is slimmer than the button; the button keeps its 44px target.
-                className="min-h-11 shrink-0 rounded-full px-3 font-extrabold text-[var(--accent)] [[data-desk]_&]:-my-1"
+                className="press min-h-11 shrink-0 rounded-full px-3 font-extrabold text-[var(--accent)] [[data-desk]_&]:-my-1"
               >
                 {t.common.undo}
               </button>
@@ -48,7 +48,7 @@ export function Toast({
               <button
                 type="button"
                 onClick={() => toast.link && onOpen(toast.link.route)}
-                className="min-h-11 shrink-0 rounded-full px-3 font-extrabold text-[var(--accent)] [[data-desk]_&]:-my-1"
+                className="press min-h-11 shrink-0 rounded-full px-3 font-extrabold text-[var(--accent)] [[data-desk]_&]:-my-1"
               >
                 {toast.link.label}
               </button>

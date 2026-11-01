@@ -188,7 +188,7 @@ export function WrappedPage({
               type="button"
               disabled={!i}
               onClick={() => go(-1)}
-              className="glass min-h-12 rounded-2xl px-5 font-bold disabled:opacity-40"
+              className="press glass min-h-12 rounded-2xl px-5 font-bold disabled:opacity-40"
             >
               {wr.prev}
             </button>
@@ -196,7 +196,7 @@ export function WrappedPage({
               type="button"
               disabled={i === slides.length - 1}
               onClick={() => go(1)}
-              className="glass min-h-12 rounded-2xl px-5 font-bold disabled:opacity-40"
+              className="press glass min-h-12 rounded-2xl px-5 font-bold disabled:opacity-40"
             >
               {wr.next}
             </button>

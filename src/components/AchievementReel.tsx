@@ -54,7 +54,7 @@ export function AchievementReel({ g, max = 12 }: { g: Game; max?: number }) {
               type="button"
               aria-expanded={flipped}
               onClick={() => setOpen(flipped ? null : k)}
-              className="glass flex min-h-[6.5rem] w-full flex-col items-start gap-1 p-3 text-left"
+              className="press glass flex min-h-[6.5rem] w-full flex-col items-start gap-1 p-3 text-left"
             >
               <span aria-hidden className="text-30 leading-none">
                 {ACH.get(e.code)?.emoji}

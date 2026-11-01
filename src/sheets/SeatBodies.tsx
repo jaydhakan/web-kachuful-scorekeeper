@@ -5,6 +5,7 @@ import { useApp } from '@/state/store';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { t } from '@/strings';
+import { PRESS, PRESS_SM } from '@/components/ui/motion';
 
 export function SeatBody({ k }: { k: number }) {
   const { state, actions } = useApp();
@@ -29,7 +30,7 @@ export function SeatBody({ k }: { k: number }) {
         <m.button
           key={t}
           type="button"
-          whileTap={{ scale: 0.97 }}
+          whileTap={PRESS}
           onClick={f}
           className={`flex min-h-14 w-full items-center gap-3.5 rounded-2xl px-2 text-left text-18 font-medium ${neg ? 'text-[var(--neg)]' : ''}`}
         >
@@ -107,7 +108,7 @@ export function AvatarBody({ k }: { k: number }) {
             aria-label={t.sheets.avatar(e)}
             aria-pressed={s.emoji === e}
             {...emojiNav.item(i)}
-            whileTap={{ scale: 0.88 }}
+            whileTap={PRESS_SM}
             onClick={() => actions.setupSeatPatch(k, { emoji: e })}
             className={`glass grid aspect-square min-h-11 place-items-center !rounded-2xl text-26 ${s.emoji === e ? 'ring-2 ring-[var(--accent)]' : ''}`}
           >
@@ -127,7 +128,7 @@ export function AvatarBody({ k }: { k: number }) {
             aria-label={t.sheets.colour}
             aria-pressed={s.color === c}
             {...colourNav.item(i)}
-            whileTap={{ scale: 0.85 }}
+            whileTap={PRESS_SM}
             onClick={() => actions.setupSeatPatch(k, { color: c })}
             className={`h-11 w-11 shrink-0 rounded-full border-[3px] ${s.color === c ? 'border-text-primary' : 'border-transparent'}`}
             style={{ background: c }}

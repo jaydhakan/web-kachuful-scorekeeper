@@ -8,7 +8,7 @@ import { useArchive } from '@/state/useArchive';
 import { findPerson, lookFor } from './seatLook';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Table } from '@/components/ui/Table';
-import { EASE } from '@/components/ui/motion';
+import { EASE, PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
@@ -178,7 +178,7 @@ export function Step2() {
                   key={r.id}
                   type="button"
                   {...stagger(i)}
-                  whileTap={{ scale: 0.94 }}
+                  whileTap={PRESS}
                   onClick={() => add(r.displayName, r)}
                   className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 whitespace-nowrap !rounded-full pl-2 pr-4 text-16 font-medium @h-[45rem]:min-h-11"
                 >

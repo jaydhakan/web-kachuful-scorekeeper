@@ -52,7 +52,7 @@ export function ActivityPage() {
                 <button
                   type="button"
                   onClick={() => void loadMore()}
-                  className="glass mt-4 min-h-12 w-full rounded-2xl font-bold"
+                  className="press glass mt-4 min-h-12 w-full rounded-2xl font-bold"
                 >
                   {ac.more}
                 </button>
@@ -86,7 +86,7 @@ function Row({ a }: { a: Activity }) {
     <button
       type="button"
       onClick={go}
-      className="glass flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left"
+      className="press glass flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left"
     >
       <span aria-hidden className="text-24">
         {emoji}

@@ -1,6 +1,6 @@
 import { m, type HTMLMotionProps } from 'framer-motion';
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
-import { SPRING } from './motion';
+import { PRESS, SPRING } from './motion';
 
 interface GlassProps extends HTMLMotionProps<'div'> {
   glow?: boolean;
@@ -37,7 +37,7 @@ export function Glass({
           e.currentTarget.click();
         },
       })}
-      whileTap={onClick ? { scale: 0.975 } : undefined}
+      whileTap={onClick ? PRESS : undefined}
       transition={SPRING}
       className={`glass ${glow ? 'glass-glow' : ''} ${spot ? 'spot' : ''} ${className}`}
       {...rest}

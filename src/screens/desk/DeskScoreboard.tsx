@@ -9,7 +9,7 @@ import { TR } from '@/theme/trumps';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
-import { EASE, SPRING, SPRING_SHEET } from '@/components/ui/motion';
+import { EASE, PRESS, PRESS_SM, SPRING, SPRING_SHEET } from '@/components/ui/motion';
 import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
@@ -66,7 +66,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
               <span className="flex items-center">
                 <m.button
                   type="button"
-                  whileTap={{ scale: 0.88 }}
+                  whileTap={PRESS_SM}
                   aria-label={t.sheets.lowerBid(p.name)}
                   onClick={() => step(p.id, -1)}
                   className="h-12 w-12 rounded-xl bg-white/[.08] text-22 font-bold"
@@ -78,7 +78,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                 </output>
                 <m.button
                   type="button"
-                  whileTap={{ scale: 0.88 }}
+                  whileTap={PRESS_SM}
                   aria-label={t.sheets.raiseBid(p.name)}
                   onClick={() => step(p.id, 1)}
                   className="h-12 w-12 rounded-xl bg-white/[.08] text-22 font-bold"
@@ -220,7 +220,7 @@ export function DeskScoreboard() {
                       onClick={() =>
                         actions.openSheet(sel ? { type: 'board' } : { type: 'edit', i: r.index })
                       }
-                      whileTap={{ scale: 0.99 }}
+                      whileTap={PRESS}
                       className={`${row} min-h-[66px] text-left ${sel ? 'bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_55%,transparent)]' : '[@media(hover:hover)]:hover:bg-white/[.04]'}`}
                     >
                       <span className="flex items-center gap-2.5 text-15 font-bold [overflow-wrap:anywhere]">

@@ -30,7 +30,7 @@ export function UpdatePrompt() {
             <button
               type="button"
               onClick={reload}
-              className="min-h-11 rounded-full px-3 font-extrabold text-[var(--accent)]"
+              className="press min-h-11 rounded-full px-3 font-extrabold text-[var(--accent)]"
             >
               {t.update.reload}
             </button>
@@ -38,7 +38,7 @@ export function UpdatePrompt() {
               type="button"
               aria-label={t.update.notNow}
               onClick={dismiss}
-              className="grid h-11 w-11 place-items-center rounded-full text-[var(--tx2)]"
+              className="press-sm grid h-11 w-11 place-items-center rounded-full text-[var(--tx2)]"
             >
               ✕
             </button>

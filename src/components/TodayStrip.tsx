@@ -22,7 +22,7 @@ export function TodayStrip({ className = '' }: { className?: string }) {
         <button
           type="button"
           onClick={() => actions.open({ screen: 'awards' })}
-          className="min-h-11 px-1 text-13 font-bold text-[var(--accent)]"
+          className="press min-h-11 px-1 text-13 font-bold text-[var(--accent)]"
         >
           {t.hub.home.seeAwards}
         </button>
@@ -33,7 +33,7 @@ export function TodayStrip({ className = '' }: { className?: string }) {
             <button
               type="button"
               onClick={() => actions.open({ screen: 'player', params: { id: a.playerId } })}
-              className="glass flex min-h-12 items-center gap-2 !rounded-full px-3 text-14 font-bold"
+              className="press glass flex min-h-12 items-center gap-2 !rounded-full px-3 text-14 font-bold"
             >
               <span aria-hidden className="text-18">
                 {ACH.get(a.code)?.emoji}

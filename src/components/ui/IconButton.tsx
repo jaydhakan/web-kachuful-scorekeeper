@@ -1,6 +1,6 @@
 import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { SPRING } from './motion';
+import { PRESS_SM, SPRING } from './motion';
 
 interface IconButtonProps {
   children: ReactNode;
@@ -24,7 +24,7 @@ export function IconButton({
       aria-label={label}
       data-skip-initial-focus={skipInitialFocus || undefined}
       onClick={onClick}
-      whileTap={{ scale: 0.88 }}
+      whileTap={PRESS_SM}
       transition={SPRING}
       className={`group relative isolate grid h-12 w-12 place-items-center rounded-2xl ${className}`}
     >

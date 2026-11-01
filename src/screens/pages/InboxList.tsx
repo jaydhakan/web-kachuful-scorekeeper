@@ -22,7 +22,7 @@ export function InboxList() {
             <button
               type="button"
               onClick={() => actions.open({ screen: 'game', params: { id: String(i.data.copy) } })}
-              className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+              className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
             >
               {t.hub.sync2.view}
             </button>
@@ -31,7 +31,7 @@ export function InboxList() {
             <button
               type="button"
               onClick={() => archive.del('inbox', i.id)}
-              className="min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
+              className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
             >
               {t.common.done}
             </button>
@@ -83,7 +83,7 @@ function NameMatch({ i }: { i: InboxItem }) {
           <button
             type="submit"
             disabled={!emailOk(email)}
-            className="glass min-h-11 rounded-xl px-3 text-14 font-bold disabled:opacity-50"
+            className="press glass min-h-11 rounded-xl px-3 text-14 font-bold disabled:opacity-50"
           >
             {t.common.save}
           </button>
@@ -92,7 +92,7 @@ function NameMatch({ i }: { i: InboxItem }) {
         <button
           type="button"
           onClick={() => resolveNameMatch(i.key, { rename: other })}
-          className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+          className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
         >
           {t.hub.sync2.useSuggestion(other)}
         </button>

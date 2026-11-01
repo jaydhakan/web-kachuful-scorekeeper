@@ -71,7 +71,7 @@ export function ShareLinks() {
                   type="button"
                   disabled={busy === k}
                   onClick={() => void make(k)}
-                  className="min-h-11 rounded-xl bg-[var(--accent)] px-4 text-15 font-bold text-ink-on-accent disabled:opacity-50"
+                  className="press min-h-11 rounded-xl bg-[var(--accent)] px-4 text-15 font-bold text-ink-on-accent disabled:opacity-50"
                 >
                   {x.make}
                 </button>
@@ -95,7 +95,7 @@ export function ShareLinks() {
                     <button
                       type="button"
                       onClick={async () => actions.say((await copyText(l.url)) ? x.copied : l.url)}
-                      className="min-h-11 rounded-xl bg-[var(--accent)] px-4 text-15 font-bold text-ink-on-accent"
+                      className="press min-h-11 rounded-xl bg-[var(--accent)] px-4 text-15 font-bold text-ink-on-accent"
                     >
                       {x.copy}
                     </button>
@@ -111,7 +111,7 @@ export function ShareLinks() {
                       <button
                         type="button"
                         onClick={() => void shareLink(l.url)}
-                        className="glass min-h-11 rounded-xl px-4 text-15 font-bold"
+                        className="press glass min-h-11 rounded-xl px-4 text-15 font-bold"
                       >
                         {x.share}
                       </button>
@@ -119,7 +119,7 @@ export function ShareLinks() {
                     <button
                       type="button"
                       onClick={() => void revoke(k)}
-                      className="min-h-11 rounded-xl px-3 text-15 font-bold text-[var(--neg)]"
+                      className="press min-h-11 rounded-xl px-3 text-15 font-bold text-[var(--neg)]"
                     >
                       {x.revoke}
                     </button>

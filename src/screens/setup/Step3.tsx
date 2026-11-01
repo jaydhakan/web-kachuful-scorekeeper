@@ -21,7 +21,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table, TablePin } from '@/components/ui/Table';
-import { EASE } from '@/components/ui/motion';
+import { EASE, PRESS } from '@/components/ui/motion';
 import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { useApp } from '@/state/store';
@@ -196,7 +196,7 @@ export function Step3() {
             <div className="mt-2.5 flex items-center gap-3 @h-[45rem]:mt-0.5">
               <m.button
                 type="button"
-                whileTap={{ scale: 0.94 }}
+                whileTap={PRESS}
                 onClick={doSpin}
                 className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 !rounded-full px-4 text-16 font-medium @h-[45rem]:min-h-11"
               >

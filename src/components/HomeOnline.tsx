@@ -24,7 +24,7 @@ export function HomeOnline({ className = '' }: { className?: string }) {
         <button
           type="button"
           onClick={() => actions.open({ screen: 'player', params: { id: me } })}
-          className="glass flex min-h-14 items-center gap-3 px-4 text-left"
+          className="press glass flex min-h-14 items-center gap-3 px-4 text-left"
         >
           <span aria-hidden className="text-24">
             🏆
@@ -44,7 +44,7 @@ export function HomeOnline({ className = '' }: { className?: string }) {
               key={a.id}
               type="button"
               onClick={() => actions.open({ screen: 'activity' })}
-              className="glass flex min-h-12 items-center gap-3 px-4 text-left text-14"
+              className="press glass flex min-h-12 items-center gap-3 px-4 text-left text-14"
             >
               <span aria-hidden className="text-20">
                 {code ? ACH.get(code)?.emoji : a.kind === 'game_finished' ? '🏁' : '👋'}

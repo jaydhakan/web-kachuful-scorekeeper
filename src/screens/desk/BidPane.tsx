@@ -5,7 +5,7 @@ import { useApp } from '@/state/store';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { EASE, PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import type { bidView } from '@/screens/round/roundView';
 import { KeyHints, Kbd } from './DeskParts';
@@ -109,7 +109,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               {...roving.item(k)}
               animate={shake === k ? shakeKF : { x: 0 }}
               whileHover={lock ? undefined : { y: -3 }}
-              whileTap={{ scale: 0.9 }}
+              whileTap={PRESS_SM}
               onClick={() => onKey(k)}
               className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-white/30 bg-white/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'} ${saved ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
             >
@@ -173,7 +173,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
                     type="button"
                     aria-label={t.desk.bid.change(q.name, b)}
                     onClick={() => actions.pickSeat(k)}
-                    className={`inline-flex min-h-12 items-center gap-2 rounded-full border px-3.5 text-14 font-bold ${k === pI ? 'border-[color-mix(in_srgb,var(--accent)_55%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)]' : 'border-white/10 bg-white/[.06]'}`}
+                    className={`press inline-flex min-h-12 items-center gap-2 rounded-full border px-3.5 text-14 font-bold ${k === pI ? 'border-[color-mix(in_srgb,var(--accent)_55%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)]' : 'border-white/10 bg-white/[.06]'}`}
                   >
                     <Avatar
                       p={q}

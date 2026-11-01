@@ -122,7 +122,7 @@ export function AccountPage() {
         <button
           type="button"
           onClick={() => actions.open({ screen: 'signin' })}
-          className="glass mb-5 flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold text-[var(--warn)]"
+          className="press glass mb-5 flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold text-[var(--warn)]"
         >
           ⚠️ {ac.stale}
         </button>
@@ -196,7 +196,7 @@ export function AccountPage() {
             <button
               type="button"
               onClick={startEdit}
-              className="min-h-12 rounded-xl px-3 font-bold text-[var(--accent)]"
+              className="press min-h-12 rounded-xl px-3 font-bold text-[var(--accent)]"
             >
               {ac.edit}
             </button>

@@ -4,7 +4,7 @@ import { useApp } from '@/state/store';
 import { AvatarFill, type Face } from './Avatar';
 import { Icon } from './Icons';
 import { IconButton } from './IconButton';
-import { EASE, SPRING } from './motion';
+import { EASE, PRESS, SPRING } from './motion';
 import { t } from '@/strings';
 
 interface PageProps {
@@ -147,7 +147,7 @@ export function ErrorState({ msg, onRetry }: { msg: ReactNode; onRetry?: () => v
           <button
             type="button"
             onClick={onRetry}
-            className="glass min-h-12 rounded-2xl px-5 text-16 font-bold"
+            className="press glass min-h-12 rounded-2xl px-5 text-16 font-bold"
           >
             {t.hub.common.retry}
           </button>
@@ -201,7 +201,7 @@ export function Chip({
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      whileTap={{ scale: 0.94 }}
+      whileTap={PRESS}
       transition={SPRING}
       className={`relative isolate inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-15 font-bold ${on ? 'text-ink-on-accent' : 'text-[var(--tx)]'}`}
       {...rest}

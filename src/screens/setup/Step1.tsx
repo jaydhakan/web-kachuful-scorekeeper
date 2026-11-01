@@ -4,7 +4,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
-import { EASE, SPRING_POP } from '@/components/ui/motion';
+import { EASE, PRESS, PRESS_SM, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { PREVIEW_SCALE } from '@/lib/tableGeometry';
 import { SetupFrame, TableSlot } from './SetupFrame';
@@ -44,7 +44,7 @@ export function Step1() {
             <m.button
               type="button"
               {...stagger(0)}
-              whileTap={{ scale: 0.96 }}
+              whileTap={PRESS}
               onClick={() =>
                 actions.setupPatch({
                   decks: lgDecks,
@@ -98,7 +98,7 @@ export function Step1() {
                 aria-label={t.setup.players(n)}
                 {...roving.item(i)}
                 {...stagger(i, 0.05)}
-                whileTap={{ scale: 0.92 }}
+                whileTap={PRESS_SM}
                 onClick={() => {
                   actions.setupPatch({ n });
                   actions.vib();

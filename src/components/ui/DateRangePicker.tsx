@@ -6,6 +6,7 @@ import { PrimaryButton } from './PrimaryButton';
 import { Icon } from './Icons';
 import { IconButton } from './IconButton';
 import { t } from '@/strings';
+import { PRESS_SM } from './motion';
 
 const W = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -62,7 +63,7 @@ export function DateRangePicker({
             <m.button
               key={k}
               type="button"
-              whileTap={{ scale: 0.9 }}
+              whileTap={PRESS_SM}
               disabled={k > todayKey}
               aria-pressed={!!inside}
               aria-label={k}

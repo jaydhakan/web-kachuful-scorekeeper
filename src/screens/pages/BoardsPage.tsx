@@ -16,7 +16,7 @@ import { Chip, ChipRow, EmptyState, Page, Section } from '@/components/ui/Page';
 import { MetricChips, pct, Progress, RangeChips, RankDelta } from '@/components/ui/Stats';
 import { StreakBadge } from '@/components/ui/StreakBadge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { SPRING } from '@/components/ui/motion';
+import { PRESS, SPRING } from '@/components/ui/motion';
 import { rankTone } from '@/screens/desk/DeskParts';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
@@ -249,7 +249,7 @@ function Row({
     >
       <m.button
         type="button"
-        whileTap={{ scale: 0.98 }}
+        whileTap={PRESS}
         onClick={() => actions.open({ screen: 'player', params: { id: r.playerId } })}
         aria-label={b.row(r.rank ? `#${r.rank}` : b.unrankedShort, w.name, value)}
         className={`glass flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left ${you ? 'shadow-[inset_0_0_0_1.5px_var(--accent)]' : ''}`}

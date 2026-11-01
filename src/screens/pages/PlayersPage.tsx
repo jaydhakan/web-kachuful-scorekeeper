@@ -55,7 +55,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
               <button
                 type="button"
                 onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
-                className="glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
+                className="press glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
               >
                 <Avatar
                   p={p}

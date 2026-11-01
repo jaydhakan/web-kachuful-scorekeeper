@@ -50,7 +50,7 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
       <button
         type="button"
         onClick={() => actions.open({ screen: 'player', params: { id: a.playerId } })}
-        className="glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
+        className="press glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
       >
         <span aria-hidden className="text-30">
           {ACH.get(a.code)?.emoji}

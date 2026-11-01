@@ -23,7 +23,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
-import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { EASE, PRESS, PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { useDeskKeys } from './useDeskKeys';
@@ -225,7 +225,7 @@ export function DeskSetup() {
               <m.button
                 type="button"
                 {...stagger(0)}
-                whileTap={{ scale: 0.97 }}
+                whileTap={PRESS}
                 onClick={() =>
                   actions.setupPatch({
                     decks: lgDecks,
@@ -282,7 +282,7 @@ export function DeskSetup() {
                   aria-pressed={su.n === k}
                   aria-label={t.setup.players(k)}
                   {...roving.item(i)}
-                  whileTap={{ scale: 0.92 }}
+                  whileTap={PRESS_SM}
                   onClick={() => pickCount(k)}
                   className={`disp relative grid h-14 w-14 place-items-center rounded-2xl text-26 font-extrabold ${su.n === k ? 'text-ink-on-accent' : 'glass'}`}
                 >
@@ -347,7 +347,7 @@ export function DeskSetup() {
                         type="button"
                         aria-label={t.desk.setup.avatar(s?.name || t.table.seat(k + 1))}
                         disabled={!s}
-                        whileTap={{ scale: 0.9 }}
+                        whileTap={PRESS_SM}
                         onClick={() => actions.openSheet({ type: 'avatar', k })}
                         className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 text-24 disabled:cursor-default ${s ? 'border-white/20' : 'border-dashed border-white/30 bg-white/[.04]'}`}
                         style={s ? { background: s.color } : undefined}
@@ -408,7 +408,7 @@ export function DeskSetup() {
                       <m.button
                         key={r.id}
                         type="button"
-                        whileTap={{ scale: 0.94 }}
+                        whileTap={PRESS}
                         onClick={() => fill(r)}
                         className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-white/10 bg-white/[.06] pl-2 pr-3.5 text-14 font-bold"
                       >
@@ -434,7 +434,7 @@ export function DeskSetup() {
                     disabled={!s || spin != null}
                     aria-pressed={k === dealer}
                     aria-label={t.desk.setup.makeDealer(s?.name || t.table.seat(k + 1))}
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={PRESS_SM}
                     onClick={() => actions.setupPatch({ dealer: k })}
                     animate={{ scale: k === shown ? 1.08 : 1 }}
                     transition={SPRING_POP}

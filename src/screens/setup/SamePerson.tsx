@@ -52,14 +52,14 @@ export function SameCard({
         <button
           type="button"
           onClick={onYes}
-          className="min-h-11 rounded-xl bg-[var(--accent)] px-3 text-14 font-bold text-ink-on-accent"
+          className="press min-h-11 rounded-xl bg-[var(--accent)] px-3 text-14 font-bold text-ink-on-accent"
         >
           {x.yes}
         </button>
         <button
           type="button"
           onClick={onNo}
-          className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+          className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
         >
           {x.recheck}
         </button>
@@ -161,7 +161,7 @@ export function EmailStep({
         <button
           type="submit"
           disabled={busy || !email.trim()}
-          className="min-h-12 rounded-2xl bg-[var(--accent)] px-4 text-16 font-bold text-ink-on-accent disabled:opacity-50"
+          className="press min-h-12 rounded-2xl bg-[var(--accent)] px-4 text-16 font-bold text-ink-on-accent disabled:opacity-50"
         >
           {t.setup.add}
         </button>
@@ -177,7 +177,7 @@ export function EmailStep({
         <button
           type="button"
           onClick={() => onRename(other, email)}
-          className="glass min-h-11 self-start rounded-xl px-3 text-14 font-bold"
+          className="press glass min-h-11 self-start rounded-xl px-3 text-14 font-bold"
         >
           {x.useSuggestion(other)}
         </button>

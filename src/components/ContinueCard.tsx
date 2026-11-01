@@ -5,6 +5,7 @@ import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
 import { continueElsewhere } from '@/sync/elsewhere';
 import { t } from '@/strings';
+import { PRESS } from '@/components/ui/motion';
 
 /** "Continue round 7 from your other device": an unfinished game of this account, newer than the one here. */
 export function ContinueCard({ className = '' }: { className?: string }) {
@@ -17,7 +18,7 @@ export function ContinueCard({ className = '' }: { className?: string }) {
       type="button"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      whileTap={{ scale: 0.97 }}
+      whileTap={PRESS}
       onClick={() => {
         archive.put('games', { ...rec, origin: 'local' });
         actions.openGame(rec.game);

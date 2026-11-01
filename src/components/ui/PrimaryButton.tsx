@@ -1,6 +1,6 @@
 import { m, useReducedMotion, useSpring, type HTMLMotionProps } from 'framer-motion';
 import { useRef, type PointerEvent, type ReactNode } from 'react';
-import { SPRING } from './motion';
+import { PRESS, SPRING } from './motion';
 
 interface PrimaryButtonProps extends HTMLMotionProps<'button'> {
   tone?: 'accent' | 'danger' | 'glass';
@@ -51,7 +51,7 @@ export function PrimaryButton({
       onClick={onClick}
       disabled={disabled}
       style={{ x, y }}
-      whileTap={disabled ? undefined : { scale: 0.96 }}
+      whileTap={disabled ? undefined : PRESS}
       transition={SPRING}
       className={`relative isolate flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] disabled:cursor-default ${disabled ? 'text-[var(--tx2)]' : INK[tone]} ${className}`}
       {...rest}

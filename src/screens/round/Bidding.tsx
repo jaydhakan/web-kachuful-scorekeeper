@@ -10,7 +10,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
-import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { EASE, PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
@@ -177,7 +177,7 @@ export function Bidding() {
                   aria-describedby={lock ? reasonId : undefined}
                   {...roving.item(v)}
                   animate={shake === v ? shakeKF : { x: 0 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileTap={PRESS_SM}
                   onClick={() => pick(v)}
                   className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--ph)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
                 >

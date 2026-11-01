@@ -64,7 +64,7 @@ export function PasswordField(props: Omit<FieldProps, 'type' | 'end'>) {
           onClick={() => setShow(!show)}
           aria-label={show ? t.hub.auth.hide : t.hub.auth.show}
           aria-pressed={show}
-          className="grid h-12 w-12 place-items-center rounded-xl text-20"
+          className="press-sm grid h-12 w-12 place-items-center rounded-xl text-20"
         >
           <span aria-hidden>{show ? '🙈' : '👁️'}</span>
         </button>
@@ -94,7 +94,7 @@ export function LookPicker({
             aria-pressed={e === emoji}
             aria-label={e}
             onClick={() => onChange({ emoji: e, color })}
-            className={`grid h-11 w-11 place-items-center rounded-xl text-22 ${e === emoji ? 'bg-white/20 shadow-[inset_0_0_0_2px_var(--accent)]' : 'bg-white/[.05]'}`}
+            className={`press-sm grid h-11 w-11 place-items-center rounded-xl text-22 ${e === emoji ? 'bg-white/20 shadow-[inset_0_0_0_2px_var(--accent)]' : 'bg-white/[.05]'}`}
           >
             {e}
           </button>
@@ -108,7 +108,7 @@ export function LookPicker({
             aria-pressed={c === color}
             aria-label={c}
             onClick={() => onChange({ emoji, color: c })}
-            className={`h-11 w-11 rounded-full ${c === color ? 'shadow-[0_0_0_3px_var(--tx)]' : ''}`}
+            className={`press-sm h-11 w-11 rounded-full ${c === color ? 'shadow-[0_0_0_3px_var(--tx)]' : ''}`}
             style={{ background: c }}
           />
         ))}

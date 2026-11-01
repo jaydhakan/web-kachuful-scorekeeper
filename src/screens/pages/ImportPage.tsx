@@ -264,14 +264,14 @@ function SameChoice({
           type="button"
           aria-pressed={r.same === true}
           onClick={() => onPick(true)}
-          className={`min-h-11 rounded-xl px-3 text-14 font-bold ${r.same ? 'bg-[var(--accent)] text-ink-on-accent' : 'glass'}`}
+          className={`press min-h-11 rounded-xl px-3 text-14 font-bold ${r.same ? 'bg-[var(--accent)] text-ink-on-accent' : 'glass'}`}
         >
           {x.yes}
         </button>
         <button
           type="button"
           onClick={onRecheck}
-          className="glass min-h-11 rounded-xl px-3 text-14 font-bold"
+          className="press glass min-h-11 rounded-xl px-3 text-14 font-bold"
         >
           {x.recheck}
         </button>

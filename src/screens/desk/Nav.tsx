@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
-import { SPRING } from '@/components/ui/motion';
+import { PRESS_SM, SPRING } from '@/components/ui/motion';
 import { GhostButton, Kbd } from './DeskParts';
 import { DESTS, destRoute, destsFor, type Dest } from '@/components/hubNav';
 import { SyncDot } from '@/components/SyncDot';
@@ -75,7 +75,7 @@ function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
       onClick={onClick}
       disabled={disabled}
       aria-current={on ? 'page' : undefined}
-      whileTap={disabled ? undefined : { scale: 0.92 }}
+      whileTap={disabled ? undefined : PRESS_SM}
       transition={SPRING}
       className={`group relative isolate flex min-h-[3.75rem] w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl pb-2 pt-2.5 text-13 [@media(max-height:900px)]:min-h-[3.125rem] [@media(max-height:900px)]:gap-0.5 [@media(max-height:900px)]:py-1 font-bold disabled:cursor-default disabled:opacity-35 ${on ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}
     >
@@ -110,7 +110,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         type="button"
         onClick={n.home}
         aria-label={t.desk.nav.home}
-        whileTap={{ scale: 0.92 }}
+        whileTap={PRESS_SM}
         className="disp mb-5 grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-gradient [@media(max-height:900px)]:mb-2 text-26 font-extrabold text-ink-gold shadow-[0_0_28px_rgba(247,231,166,.35)]"
       >
         <span aria-hidden>{t.desk.logo}</span>
@@ -199,7 +199,7 @@ export function TopBar({ onKeys }: { onKeys: () => void }) {
         type="button"
         onClick={n.home}
         aria-label={t.desk.nav.home}
-        whileTap={{ scale: 0.92 }}
+        whileTap={PRESS_SM}
         className="disp grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-gold-gradient text-22 font-extrabold text-ink-gold"
       >
         <span aria-hidden>{t.desk.logo}</span>

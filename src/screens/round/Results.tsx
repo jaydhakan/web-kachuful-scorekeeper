@@ -8,7 +8,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
-import { SPRING, SPRING_POP } from '@/components/ui/motion';
+import { PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { resultsView } from './roundView';
@@ -146,7 +146,7 @@ export function Results() {
                   <div className="ml-auto flex items-center">
                     <m.button
                       type="button"
-                      whileTap={{ scale: 0.88 }}
+                      whileTap={PRESS_SM}
                       aria-label={t.results.fewer(p.name)}
                       onClick={() => actions.setTricks(p.id, -1)}
                       className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
@@ -158,7 +158,7 @@ export function Results() {
                     </output>
                     <m.button
                       type="button"
-                      whileTap={{ scale: 0.88 }}
+                      whileTap={PRESS_SM}
                       aria-label={t.results.more(p.name)}
                       onClick={() => actions.setTricks(p.id, 1)}
                       className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"

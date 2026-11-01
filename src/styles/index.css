@@ -105,6 +105,24 @@ input {
   outline-offset: 3px;
   border-radius: 12px;
 }
+/* Press feedback for plain buttons, matching PRESS and PRESS_SM in motion.ts. The `scale` property composes with
+   any transform the element already has, so positioned controls don't jump. */
+.press,
+.press-sm {
+  transition: scale 0.16s var(--ease);
+}
+.press:active:not(:disabled, [aria-disabled='true']) {
+  scale: 0.97;
+}
+.press-sm:active:not(:disabled, [aria-disabled='true']) {
+  scale: 0.92;
+}
+@media (prefers-reduced-motion: reduce) {
+  .press,
+  .press-sm {
+    transition: none;
+  }
+}
 .disp {
   font-family: theme('fontFamily.display');
 }

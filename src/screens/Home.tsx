@@ -6,7 +6,7 @@ import { useApp } from '@/state/store';
 import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { EASE } from '@/components/ui/motion';
+import { EASE, PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { destRoute, destsFor } from '@/components/hubNav';
 import { TodayStrip } from '@/components/TodayStrip';
@@ -187,7 +187,7 @@ export function Home() {
                 <m.button
                   key={d.key}
                   type="button"
-                  whileTap={{ scale: 0.94 }}
+                  whileTap={PRESS}
                   onClick={d.go}
                   className="glass flex min-h-[3.75rem] flex-col items-center justify-start gap-1 !rounded-2xl px-1 pt-2.5 pb-2 text-center text-13 font-bold leading-tight"
                 >

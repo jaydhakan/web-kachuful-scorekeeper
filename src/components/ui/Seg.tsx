@@ -1,7 +1,7 @@
 import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
-import { SPRING } from './motion';
+import { PRESS, SPRING } from './motion';
 
 export interface SegOption<T extends string> {
   v: T;
@@ -58,7 +58,7 @@ export function Seg<T extends string>({
             {...roving.item(i)}
             // Commit on release: a touch that turns into a scroll never fires click.
             onClick={() => !o.disabled && onChange(o.v)}
-            whileTap={o.disabled ? undefined : { scale: 0.95, opacity: 0.85 }}
+            whileTap={o.disabled ? undefined : PRESS}
             transition={SPRING}
             className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-11 min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'} ${o.disabled ? 'opacity-35' : ''}`}
           >

@@ -130,7 +130,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
                   <button
                     type="button"
                     onClick={() => actions.open({ screen: 'game', params: { id: g.id } })}
-                    className="glass grid min-h-14 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4"
+                    className="press glass grid min-h-14 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4"
                   >
                     <span
                       className={`text-right text-18 font-extrabold ${g.a[0] < g.b[0] ? 'text-gold' : ''}`}

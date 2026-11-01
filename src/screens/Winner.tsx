@@ -273,7 +273,7 @@ export default function Winner() {
             <button
               type="button"
               onClick={() => actions.go('home', -1)}
-              className="min-h-12 px-4 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"
+              className="press min-h-12 px-4 text-16 font-medium text-[var(--tx2)] underline decoration-white/25 underline-offset-[5px]"
             >
               {t.common.home}
             </button>

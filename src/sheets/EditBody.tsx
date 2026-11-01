@@ -7,6 +7,7 @@ import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { t } from '@/strings';
+import { PRESS_SM } from '@/components/ui/motion';
 
 export function EditBody({ i }: { i: number }) {
   const { g, r, od, bids, res, problem, step, mark, save } = useRoundEdit(i);
@@ -27,7 +28,7 @@ export function EditBody({ i }: { i: number }) {
               <div className="mt-1 flex items-center">
                 <m.button
                   type="button"
-                  whileTap={{ scale: 0.88 }}
+                  whileTap={PRESS_SM}
                   aria-label={t.sheets.lowerBid(p.name)}
                   onClick={() => step(p.id, -1)}
                   className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
@@ -39,7 +40,7 @@ export function EditBody({ i }: { i: number }) {
                 </output>
                 <m.button
                   type="button"
-                  whileTap={{ scale: 0.88 }}
+                  whileTap={PRESS_SM}
                   aria-label={t.sheets.raiseBid(p.name)}
                   onClick={() => step(p.id, 1)}
                   className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"

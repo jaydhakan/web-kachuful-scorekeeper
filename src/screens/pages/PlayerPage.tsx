@@ -239,7 +239,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
               <button
                 type="button"
                 onClick={() => actions.open({ screen: 'achievements', params: { id } })}
-                className="min-h-11 px-2 text-14 font-bold text-[var(--accent)]"
+                className="press min-h-11 px-2 text-14 font-bold text-[var(--accent)]"
               >
                 {t.hub.common.see}
               </button>
@@ -275,7 +275,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                     <button
                       type="button"
                       onClick={() => actions.open({ screen: 'game', params: { id: g.gameId } })}
-                      className="glass flex min-h-14 w-full items-center gap-3 px-4 text-left"
+                      className="press glass flex min-h-14 w-full items-center gap-3 px-4 text-left"
                     >
                       <span className="disp w-8 text-20 font-extrabold">
                         {g.place ? `#${g.place}` : '…'}
@@ -301,7 +301,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                           actions.open({ screen: 'h2h', params: { a: id, b: o.playerId } })
                         }
                         aria-label={`${p.vs}: ${w.name} vs ${ow.name}`}
-                        className="glass flex min-h-14 w-full items-center gap-3 px-4 text-left"
+                        className="press glass flex min-h-14 w-full items-center gap-3 px-4 text-left"
                       >
                         <Avatar
                           p={ow}
@@ -322,7 +322,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             <button
               type="button"
               onClick={() => setMerge(true)}
-              className="min-h-12 px-2 text-15 font-bold text-[var(--tx2)]"
+              className="press min-h-12 px-2 text-15 font-bold text-[var(--tx2)]"
             >
               {p.merge}
             </button>
@@ -339,7 +339,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                   <button
                     type="button"
                     onClick={() => setInto(x.id)}
-                    className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 text-left text-17 font-bold"
+                    className="press flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 text-left text-17 font-bold"
                   >
                     <Avatar p={x} />
                     {x.displayName}

@@ -8,6 +8,7 @@ import { Table } from '@/components/ui/Table';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
+import { PRESS_SM } from '@/components/ui/motion';
 
 export function Play() {
   const { state, actions } = useApp();
@@ -35,7 +36,7 @@ export function Play() {
         <>
           <m.button
             type="button"
-            whileTap={{ scale: 0.92 }}
+            whileTap={PRESS_SM}
             onClick={() => actions.phase('bidding', -1)}
             aria-label={t.play.editBids}
             className="glass grid h-[60px] w-[60px] shrink-0 place-items-center !rounded-[20px]"

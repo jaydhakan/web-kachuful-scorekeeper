@@ -141,7 +141,7 @@ export function GamePage({ id }: { id: string }) {
         <button
           type="button"
           onClick={() => setAsk(true)}
-          className="mt-2 min-h-12 rounded-2xl px-4 text-16 font-bold text-[var(--neg)]"
+          className="press mt-2 min-h-12 rounded-2xl px-4 text-16 font-bold text-[var(--neg)]"
         >
           {gt.delete}
         </button>

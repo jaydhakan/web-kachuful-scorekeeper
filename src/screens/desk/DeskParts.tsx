@@ -5,7 +5,7 @@ import { TR } from '@/theme/trumps';
 import { dpx } from '@/lib/tableGeometry';
 import { fmt, sgnN } from '@/lib/format';
 import { Avatar as UiAvatar, type Face } from '@/components/ui/Avatar';
-import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { EASE, PRESS, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { t } from '@/strings';
 
 /** A key cap. Hidden where there is no mouse or trackpad, since there is probably no keyboard either. */
@@ -116,7 +116,7 @@ export function GhostButton({
     <m.button
       type="button"
       whileHover={rest.disabled ? undefined : { y: -2 }}
-      whileTap={{ scale: 0.95 }}
+      whileTap={PRESS}
       transition={SPRING}
       className={`glass inline-flex h-12 shrink-0 items-center justify-center gap-2 !rounded-[14px] text-16 font-bold disabled:cursor-default disabled:opacity-45 ${icon ? 'w-12' : 'px-[18px]'} ${className}`}
       {...rest}

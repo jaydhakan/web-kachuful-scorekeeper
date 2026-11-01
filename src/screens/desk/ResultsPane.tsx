@@ -4,7 +4,7 @@ import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
-import { SPRING, SPRING_POP } from '@/components/ui/motion';
+import { PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { resultsView } from '@/screens/round/roundView';
 import { Delta, Kbd } from './DeskParts';
@@ -116,7 +116,7 @@ export function ResultsPane({ g }: { g: Game }) {
                     <div className="flex items-center">
                       <m.button
                         type="button"
-                        whileTap={{ scale: 0.88 }}
+                        whileTap={PRESS_SM}
                         aria-label={t.results.fewer(p.name)}
                         onClick={() => actions.setTricks(p.id, -1)}
                         className="h-12 w-12 rounded-xl bg-white/[.08] text-24 font-bold"
@@ -128,7 +128,7 @@ export function ResultsPane({ g }: { g: Game }) {
                       </output>
                       <m.button
                         type="button"
-                        whileTap={{ scale: 0.88 }}
+                        whileTap={PRESS_SM}
                         aria-label={t.results.more(p.name)}
                         onClick={() => actions.setTricks(p.id, 1)}
                         className="h-12 w-12 rounded-xl bg-white/[.08] text-24 font-bold"
