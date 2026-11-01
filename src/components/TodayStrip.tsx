@@ -27,7 +27,7 @@ export function TodayStrip({ className = '' }: { className?: string }) {
           {t.hub.home.seeAwards}
         </button>
       </div>
-      <ul className="scroll-thin -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+      <ul className="scroll-thin edge-fade -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {awards.slice(0, 8).map((a, i) => (
           <motion.li key={a.code + a.playerId} {...stagger(i, 0.3)} className="shrink-0">
             <button

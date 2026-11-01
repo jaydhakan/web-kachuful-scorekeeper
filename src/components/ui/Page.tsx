@@ -63,7 +63,7 @@ export function Page({ title, label, eyebrow, actions, wide, sub, children }: Pa
         role="region"
         aria-label={label ?? (typeof title === 'string' ? title : undefined)}
         aria-labelledby={label || typeof title === 'string' ? undefined : titleId}
-        className="scroll-thin min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-[max(1.5rem,var(--sab))] pt-3 focus-visible:rounded-none focus-visible:[outline-offset:-3px] [[data-desk]_&]:px-6 tl:[[data-desk]_&]:px-7 dt:[[data-desk]_&]:px-8"
+        className="scroll-thin edge-fade-top min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-[max(1.5rem,var(--sab))] pt-3 focus-visible:rounded-none focus-visible:[outline-offset:-3px] [[data-desk]_&]:px-6 tl:[[data-desk]_&]:px-7 dt:[[data-desk]_&]:px-8"
       >
         <div className={`mx-auto w-full ${wide ? 'max-w-[64rem]' : 'max-w-[44rem]'}`}>
           {children}
@@ -226,7 +226,7 @@ export function ChipRow({ label, children }: { label: string; children: ReactNod
     <div
       role="group"
       aria-label={label}
-      className="scroll-thin -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [[data-desk]_&]:mx-0 [[data-desk]_&]:flex-wrap [[data-desk]_&]:px-0"
+      className="scroll-thin edge-fade -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [[data-desk]_&]:mx-0 [[data-desk]_&]:flex-wrap [[data-desk]_&]:px-0"
     >
       {children}
     </div>

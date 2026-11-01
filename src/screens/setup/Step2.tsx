@@ -171,7 +171,7 @@ export function Step2() {
             <div
               role="group"
               aria-label={t.setup.recentNames}
-              className="scroll-thin -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 @h-[45rem]:pb-0 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%-2rem),transparent)] land:order-4 wide:flex-wrap wide:overflow-visible wide:[mask-image:none]"
+              className="scroll-thin edge-fade -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 @h-[45rem]:pb-0 land:order-4 wide:flex-wrap wide:overflow-visible"
             >
               {recent.map((r, i) => (
                 <motion.button

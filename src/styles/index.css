@@ -272,6 +272,66 @@ input {
     scrollbar-color: color-mix(in srgb, theme('colors.text-secondary') 45%, transparent) transparent;
   }
 }
+/* A sideways scroller fades only the edge that has more behind it, following the scroll (a scroll edge effect).
+   Without scroll-driven animations, or when nothing overflows, there is no fade. */
+@property --fade-l {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-r {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes edge-fade {
+  from {
+    --fade-l: 0px;
+    --fade-r: 1.5rem;
+  }
+  8%,
+  92% {
+    --fade-l: 1.5rem;
+    --fade-r: 1.5rem;
+  }
+  to {
+    --fade-l: 1.5rem;
+    --fade-r: 0px;
+  }
+}
+/* A page's content fades under the header once it has scrolled, instead of meeting it at a hard line. */
+@property --fade-t {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes edge-fade-top {
+  from {
+    --fade-t: 0px;
+  }
+  to {
+    --fade-t: 1rem;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .edge-fade-top {
+    mask-image: linear-gradient(to bottom, transparent, black var(--fade-t));
+    animation: edge-fade-top linear both;
+    animation-timeline: scroll(self block);
+    animation-range: 0 3rem;
+  }
+  .edge-fade {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black var(--fade-l),
+      black calc(100% - var(--fade-r)),
+      transparent
+    );
+    animation: edge-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
 .tick {
   font-feature-settings: 'tnum' 1;
 }
