@@ -621,7 +621,9 @@
   padding-inline: 20px;
 }
 [data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent::after {
+  /* Decorative: empty alt text keeps the arrow out of the button's accessible name. */
   content: '\2192';
+  content: '\2192' / '';
   color: var(--brand);
   font-size: 1.5rem;
   letter-spacing: 0;
@@ -1145,4 +1147,13 @@
   --m-btn-shadow: none;
   --m-av-shadow: 0 0 0 1px var(--ink);
   --m-r: 0;
+}
+
+/* Small square buttons (Add) drop the arrow and centre the label (reference audit fix, .addrow / .btn.sq). */
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent.mat-sq {
+  justify-content: center;
+  padding-inline: 0;
+}
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent.mat-sq::after {
+  content: none;
 }

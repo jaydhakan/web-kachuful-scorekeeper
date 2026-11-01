@@ -139,7 +139,7 @@ export function Step2() {
               />
               <PrimaryButton
                 onClick={() => add(name)}
-                className="!h-14 w-24 !text-16 @h-[45rem]:!h-11 land:w-20"
+                className="mat-sq mat-sm !h-14 w-24 !text-16 @h-[45rem]:!h-11 land:w-20"
               >
                 {t.setup.add}
               </PrimaryButton>

@@ -64,6 +64,9 @@ for (const [w, h, names] of [
     await btn(page, 'Menu').click();
     await check('menu sheet');
     await page.keyboard.press('Escape');
+    // Closing a sheet steps the history back; navigating before that lands aborts the navigation.
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page.waitForTimeout(300);
 
     await page.evaluate(() => localStorage.clear());
     await page.goto('/');

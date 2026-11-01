@@ -57,8 +57,16 @@ async function withTheme(context: BrowserContext) {
   if (THEME) await context.addInitScript((t) => localStorage.setItem('kf.theme', t), THEME);
 }
 
+// Case-insensitive: Editorial Paper sets button labels in uppercase, and Chrome names the button as it is drawn.
 const btn = (page: Page, name: string | RegExp) =>
-  page.getByRole('button', { name, exact: typeof name === 'string' }).first();
+  page
+    .getByRole('button', {
+      name:
+        typeof name === 'string'
+          ? new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+          : name,
+    })
+    .first();
 
 /** Numbered screenshots per device; a step that fails is logged and skipped so one miss doesn't stop the run. */
 function shooter(page: Page, device: Device, group: string) {
