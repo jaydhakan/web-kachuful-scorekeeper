@@ -191,7 +191,7 @@ export const hub = {
     prev: 'Previous',
     slides: {
       totals: (n: number) => `You played ${plural(n, 'round')}`,
-      points: (p: string) => `and scored ${p} points`,
+      points: 'points scored',
       bestMonth: 'Your best month',
       bestDay: 'Your best day',
       trump: 'Your lucky trump',

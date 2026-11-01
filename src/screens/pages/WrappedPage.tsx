@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useMemo, useState, type ReactNode } from 'react';
 import { wrapped, type Facts, type Wrapped } from '@/domain';
 import { monthLabel, parseDay, shortDay } from '@/lib/dates';
-import { fmt, sgnN } from '@/lib/format';
+import { sgnN } from '@/lib/format';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { Chip, ChipRow, EmptyState, Page } from '@/components/ui/Page';
 import { Counter } from '@/components/ui/Counter';
@@ -29,7 +29,7 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
     {
       kicker: wr.slides.totals(w.totals.rounds),
       big: <Counter from={0} to={w.totals.points} run />,
-      sub: wr.slides.points(fmt(w.totals.points)),
+      sub: wr.slides.points,
       emoji: '🃏',
     },
   ];
