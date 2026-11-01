@@ -1,4 +1,11 @@
-import { AnimatePresence, animate, m, useMotionValue, useTransform } from 'framer-motion';
+import {
+  AnimatePresence,
+  animate,
+  m,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from 'framer-motion';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { cycleLen, maxFor, type LengthMode } from '@/domain';
 import {
@@ -42,10 +49,16 @@ function SpinToken({
   right: boolean;
   onDone: () => void;
 }) {
-  const a = useMotionValue(a0);
+  const rm = useReducedMotion();
+  // Reduced motion skips the two laps round the table: the token shows on the chosen seat, then hands over.
+  const a = useMotionValue(rm ? a1 : a0);
   const x = useTransform(a, (v) => `${toPct('full', posAt('full', v)).x}%`),
     y = useTransform(a, (v) => `${toPct('full', posAt('full', v)).y}%`);
   useEffect(() => {
+    if (rm) {
+      const id = setTimeout(onDone, 600);
+      return () => clearTimeout(id);
+    }
     const c = animate(a, a1, { duration: 1.5, ease: [0.12, 0.8, 0.2, 1], onComplete: onDone });
     return () => c.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one spin per mount
