@@ -9,22 +9,6 @@ import { mockApiPlugin } from './tools/mock-api';
 
 const felt = tokens.color.tokens.find((t) => t.name === 'felt-950')!.value.midnight;
 
-/** Preloads the two Latin font files the first screen needs so text never paints in a fallback face. */
-const preloadFonts = (): Plugin => ({
-  name: 'preload-latin-fonts',
-  transformIndexHtml: {
-    order: 'post',
-    handler: (_html, ctx) =>
-      Object.keys(ctx.bundle ?? {})
-        .filter((f) => /(bricolage-grotesque|dm-sans)-latin-wght-normal.*\.woff2$/.test(f))
-        .map((f) => ({
-          tag: 'link',
-          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `/${f}` },
-          injectTo: 'head' as const,
-        })),
-  },
-});
-
 /**
  * On a tablet or desktop, starts the large-screen chunks downloading while the entry is still parsing. Without
  * this they are only requested once the entry has run, a whole extra round trip before the first paint.
@@ -72,7 +56,6 @@ export default defineConfig(({ mode }) => ({
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),
-    preloadFonts(),
     preloadDesk(),
     VitePWA({
       // A waiting update is applied only when the player taps "Reload", never mid-round.
