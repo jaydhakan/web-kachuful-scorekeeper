@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { pts, type Outcome } from '@/domain';
 import { sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -91,12 +91,25 @@ export function Results() {
               {/* The controls wrap under the name when the pane is too narrow for both. */}
               <Glass
                 spot={false}
-                className="flex min-h-14 flex-wrap items-center gap-x-2 gap-y-1 px-2 py-[3px]"
+                className="relative flex min-h-14 flex-wrap items-center gap-x-2 gap-y-1 px-2 py-[3px]"
               >
+                {/* Made or missed reads at a glance: the row floods with its colour, then settles (MOTION_SPEC.md). */}
+                <AnimatePresence initial={false}>
+                  {res && (
+                    <m.span
+                      key={res}
+                      aria-hidden
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: [1, 1, 0] }}
+                      transition={{ duration: 0.5, times: [0, 0.4, 1] }}
+                      className={`pointer-events-none absolute inset-0 rounded-[inherit] ${res === 'made' ? 'bg-[var(--success-soft)]' : 'bg-[var(--danger-soft)]'}`}
+                    />
+                  )}
+                </AnimatePresence>
                 <div className="flex min-w-[7.5rem] flex-1 items-center gap-2">
                   <Avatar
                     p={p}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
+                    className="mat-av grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="break-words text-16 font-bold @[26rem]:text-18 leading-[1.2] tracking-[-0.015em] [text-wrap:balance]">

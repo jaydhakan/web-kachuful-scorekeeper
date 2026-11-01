@@ -16,6 +16,7 @@ import { PODIUM_BG } from '@/components/ui/podium';
 import { t } from '@/strings';
 import { AvatarFill } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
+import { InkFill } from '@/components/ui/InkFill';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -174,6 +175,11 @@ export default function Winner() {
             >
               {icon('trophy', 'h-full w-full')}
             </m.span>
+            <h2 className="disp mt-1 text-center text-28 font-extrabold leading-tight [overflow-wrap:anywhere] land:hidden">
+              <InkFill
+                text={t.winner.headline(st.filter((x) => x.rank === 1).map((x) => x.p.name))}
+              />
+            </h2>
             <div
               data-podium
               className="mb-4 mt-2 flex min-h-[240px] items-end justify-center gap-2 land:mb-0 land:mt-0 land:min-h-0"

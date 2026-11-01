@@ -75,6 +75,8 @@ export interface Actions {
   popsDone(): void;
   setFresh(v: boolean): void;
   say(msg: string): void;
+  /** Closes the toast now (a swipe), as its timeout would. */
+  dismissToast(): void;
   vib(): void;
   /** Opens a screen over the current one. */
   open(route: Route): void;
@@ -321,6 +323,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       popsDone: () => dispatch({ type: 'popsDone' }),
       setFresh: (v) => dispatch({ type: 'setFresh', v }),
       say: (msg) => dispatch({ type: 'say', msg }),
+      dismissToast: () => dispatch({ type: 'toastDone' }),
       vib,
       open: (route) => nav({ type: 'navPush', route }),
       back: () => nav({ type: 'navPop' }),

@@ -1,5 +1,5 @@
 import { AnimatePresence, m } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
@@ -62,9 +62,19 @@ export function RoundStart() {
         {t.round.title(r.index + 1)}
       </div>
       <div
-        className="my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
+        className="relative my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
         style={{ perspective: 800 }}
       >
+        {/* The deal fan (MOTION_SPEC.md, idea 1): backs leave the deck behind the card, once; reduced motion hides it. */}
+        <div aria-hidden className="deal-fan pointer-events-none absolute inset-0">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <i
+              key={i}
+              className="bg-card-back shadow-[inset_0_0_0_3px_var(--card-bg),0_6px_14px_-4px_color-mix(in_srgb,var(--shade)_50%,transparent)]"
+              style={{ '--i': i } as CSSProperties}
+            />
+          ))}
+        </div>
         <m.div
           initial={{ rotateY: 0, scale: 0.9 }}
           animate={{ rotateY: 180, scale: 1 }}
@@ -72,9 +82,9 @@ export function RoundStart() {
           className="relative h-full w-full"
           style={{ transformStyle: 'preserve-3d' }}
         >
-          <div className="absolute inset-0 rounded-[14px] border-4 border-text-primary bg-card-back [backface-visibility:hidden]" />
+          <div className="absolute inset-0 rounded-[14px] border-4 border-[var(--card-bg)] bg-card-back [backface-visibility:hidden]" />
           <div
-            className={`absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--accent)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
+            className={`absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--glow)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
             style={{ transform: 'rotateY(180deg)' }}
           >
             {th.sym}

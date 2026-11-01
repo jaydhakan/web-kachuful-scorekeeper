@@ -25,6 +25,7 @@ import { Rail, TopBar } from './Nav';
 import { RulesDrawer } from './RulesDrawer';
 import { UpcomingDrawer } from './UpcomingDrawer';
 import { Workspace } from './Workspace';
+import { Loader } from '@/components/ui/Loader';
 
 const Pages = lazy(() => import('@/screens/pages/Pages'));
 const Confetti = lazy(() =>
@@ -69,7 +70,7 @@ export default function DeskShell() {
         : 'round'
       : screen;
   const content = top ? (
-    <Suspense fallback={null}>
+    <Suspense fallback={<Loader />}>
       <Pages route={top} />
     </Suspense>
   ) : screen === 'home' ? (
@@ -133,7 +134,12 @@ export default function DeskShell() {
         <Banner banner={banner} />
       </m.div>
       <UpdatePrompt />
-      <Toast toast={toast} onUndo={actions.undo} onOpen={actions.open} />
+      <Toast
+        toast={toast}
+        onUndo={actions.undo}
+        onOpen={actions.open}
+        onDismiss={actions.dismissToast}
+      />
       <AnimatePresence>
         {overlay &&
           (sheet.type === 'rules' ? (

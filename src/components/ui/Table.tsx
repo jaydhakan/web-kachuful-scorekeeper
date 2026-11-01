@@ -1,5 +1,5 @@
-import { AnimatePresence, m, type HTMLMotionProps } from 'framer-motion';
-import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { AnimatePresence, m, type HTMLMotionProps, type Variants } from 'framer-motion';
+import { useMemo, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
 import {
   DEALS_PILL,
@@ -109,6 +109,57 @@ function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
   );
 }
 
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const BID_POP: Variants = {
+  bid: {
+    scaleX: [1, 1.18, 0.92, 1.04, 1],
+    scaleY: [1, 0.84, 1.1, 0.97, 1],
+    y: [0, 0, -8, 0, 0],
+    transition: { duration: 0.42, times: [0, 0.2, 0.5, 0.75, 1], ease: 'easeOut' },
+  },
+  rest: { scaleX: 1, scaleY: 1, y: 0 },
+};
+
+/** Where a seat sits round the table, as a conic angle: 0 at 12 o'clock, clockwise. */
+const turnAngle = (p: { x: number; y: number }, cx: number, cy: number) =>
+  (Math.atan2(p.x - cx, cy - p.y) * 180) / Math.PI;
+
+/**
+ * The turn light (MOTION_SPEC.md, idea 6): a lit arc just outside the felt pointing at the player whose turn it is.
+ * It turns round to the next player the short way, as a rotation, so it never repaints.
+ */
+function TurnRim({
+  felt,
+  angle,
+}: {
+  felt: { left: { x: number; y: number }; w: number; h: number };
+  angle: number;
+}) {
+  // Unwrapped against the last angle, so 350° to 10° turns 20° forward, not 340° back.
+  const [seen, setSeen] = useState(angle);
+  const [a, setA] = useState(angle);
+  if (angle !== seen) {
+    setSeen(angle);
+    setA(a + ((((angle - a) % 360) + 540) % 360) - 180);
+  }
+  return (
+    <div
+      aria-hidden
+      className="turn-rim pointer-events-none absolute"
+      style={
+        {
+          left: `calc(${felt.left.x}% - 7px)`,
+          top: `calc(${felt.left.y}% - 7px)`,
+          width: `calc(${felt.w}% + 14px)`,
+          height: `calc(${felt.h}% + 14px)`,
+        } as CSSProperties
+      }
+    >
+      <i style={{ transform: `rotate(${a}deg)` }} />
+    </div>
+  );
+}
+
 export function Table({
   uid,
   size = 'full',
@@ -168,6 +219,9 @@ export function Table({
           height: `${felt.h}%`,
         }}
       />
+      {cur != null && seats[cur] && (
+        <TurnRim felt={felt} angle={turnAngle(seats[cur], d.W / 2, d.cy)} />
+      )}
       <Arcs sz={size} dir={dir} />
       {center && (
         <div
@@ -274,6 +328,9 @@ export function Table({
                   data-seat-avatar
                   title={named ? undefined : p.name}
                   initial={false}
+                  // Bid pop (MOTION_SPEC.md, idea 3): a bid landing squashes the player, who stretches up and settles.
+                  animate={bid !== undefined ? 'bid' : 'rest'}
+                  variants={BID_POP}
                   whileTap={onSeat ? PRESS_SM : undefined}
                   transition={SPRING}
                   className={`mat-av relative mx-auto grid place-items-center rounded-full ${ring}`}
@@ -375,10 +432,11 @@ export function Table({
                   <m.div
                     key={'b' + bid}
                     data-seat-bid
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.5, opacity: 0 }}
-                    transition={SPRING_POP}
+                    // The badge springs in with an overshoot and a quarter-turn; it leaves quickly and quietly.
+                    initial={{ scale: 0.3, rotate: -40, opacity: 0 }}
+                    animate={{ scale: [0.3, 1.35, 1], rotate: [-40, 8, 0], opacity: 1 }}
+                    exit={{ scale: 0.6, opacity: 0, transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.42, ease: EASE_OUT, opacity: { duration: 0.12 } }}
                     className="mat-bid disp absolute z-[3] text-center font-extrabold"
                     style={
                       big

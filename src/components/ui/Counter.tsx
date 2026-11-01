@@ -27,7 +27,22 @@ export function Counter({ from, to, run, duration = 0.6 }: CounterProps) {
         el.textContent = fmt(Math.round(v));
       },
     });
-    return () => c.stop();
+    // Variable-weight score (MOTION_SPEC.md, idea 5): the number swells from light to heavy as it counts, then
+    // settles on its own weight. Off under reduced motion; a theme whose face has one weight simply doesn't change.
+    const w =
+      from !== to && !matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? el.animate?.(
+            [
+              { fontWeight: 300, letterSpacing: '0.03em' },
+              { fontWeight: 800, letterSpacing: '-0.02em', offset: 0.7 },
+            ],
+            { duration: duration * 1000 + 250, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
+          )
+        : undefined;
+    return () => {
+      c.stop();
+      w?.cancel();
+    };
   }, [run, from, to, duration]);
   return <span ref={ref}>{fmt(from)}</span>;
 }

@@ -11,10 +11,12 @@ export function Toast({
   toast,
   onUndo,
   onOpen,
+  onDismiss,
 }: {
   toast: ToastData | null;
   onUndo: () => void;
   onOpen?: (r: Route) => void;
+  onDismiss?: () => void;
 }) {
   const act = toast?.undo || (toast?.link && onOpen);
   return (
@@ -31,6 +33,13 @@ export function Toast({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10 }}
             transition={SPRING}
+            // A flick up sends it back where it came from (design spec: toast swipe to dismiss); a short drag springs back.
+            drag={onDismiss ? 'y' : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0.6, bottom: 0.05 }}
+            onDragEnd={(_e, i) => {
+              if (i.offset.y + i.velocity.y * 0.2 < -24) onDismiss?.();
+            }}
             className={`pointer-events-auto flex min-h-11 max-w-full items-center gap-1 mat-toast rounded-full text-15 font-semibold leading-tight [[data-desk]_&]:min-h-9 ${act ? 'pl-4 pr-1' : 'px-4'}`}
           >
             <span className="py-1.5 [text-wrap:balance]">{toast.msg}</span>

@@ -324,3 +324,146 @@ input {
     display: none;
   }
 }
+
+/* ---------- Motion ideas (design-reference/specs/MOTION_SPEC.md). Transform and opacity, plus clip-path for the
+   headline fill. Each stops or fades under reduced motion. ---------- */
+/* 1. Deal fan: five backs leave the deck in a staggered arc behind the trump card, settle, then fade. Once. */
+.deal-fan > i {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  opacity: 0;
+  animation: deal-fan 1.5s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i) * 140ms) forwards;
+}
+@keyframes deal-fan {
+  15% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(calc((var(--i) - 2) * 34px)) rotate(calc((var(--i) - 2) * 7deg));
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc((var(--i) - 2) * 34px), 18px) rotate(calc((var(--i) - 2) * 7deg));
+  }
+}
+
+/* 2. Squash-and-stretch loader: only appears if the wait passes 300ms. */
+.sq-loader {
+  opacity: 0;
+  animation: sq-show 0.2s ease-out 0.3s forwards;
+}
+.sq-ball {
+  animation: sq-bounce 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+.sq-shadow {
+  animation: sq-shadow 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+@keyframes sq-show {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sq-bounce {
+  0%,
+  100% {
+    transform: translateY(44px) scale(1.25, 0.75);
+  }
+  6%,
+  94% {
+    transform: translateY(40px) scale(1.12, 0.88);
+  }
+  50% {
+    transform: translateY(0) scale(0.94, 1.08);
+  }
+}
+@keyframes sq-shadow {
+  0%,
+  100% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(0.55);
+    opacity: 0.25;
+  }
+}
+
+/* 4. Outline-to-fill headline: the name draws as an outline, then the fill wipes in left to right and holds. */
+.ink-fill {
+  position: relative;
+  display: inline-block;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--text-1);
+}
+.ink-fill::before {
+  /* The filled copy is drawn, not written: empty alt text keeps screen readers to the one real line. */
+  content: attr(data-text);
+  content: attr(data-text) / '';
+  position: absolute;
+  inset: 0;
+  color: var(--brand);
+  -webkit-text-stroke: 0;
+  clip-path: inset(0 100% 0 0);
+  animation: ink-fill 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+}
+@keyframes ink-fill {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* 6. Turn light: a lit arc on the table's rim points at whoever's turn it is. The ring is a fixed mask; a circle with
+   the arc turns inside it, so moving to the next player is a rotation on the compositor. */
+.turn-rim {
+  --turn-arc: var(--ga);
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 4.5px),
+    #000 calc(100% - 4px)
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4.5px), #000 calc(100% - 4px));
+}
+.turn-rim > i {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-top: -50%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -34deg,
+    transparent,
+    var(--turn-arc) 34deg,
+    transparent 68deg,
+    transparent
+  );
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+[data-theme='yerba-sun'] .turn-rim,
+[data-theme='editorial-paper'] .turn-rim {
+  --turn-arc: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deal-fan,
+  .sq-ball,
+  .sq-shadow {
+    animation: none;
+  }
+  .deal-fan {
+    display: none;
+  }
+  .sq-ball {
+    transform: translateY(22px);
+  }
+  .ink-fill::before {
+    animation: none;
+    clip-path: none;
+  }
+  .turn-rim > i {
+    transition: none;
+  }
+}

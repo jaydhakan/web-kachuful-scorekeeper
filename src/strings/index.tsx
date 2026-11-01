@@ -25,6 +25,7 @@ export const t = {
   appName: 'Kachuful',
   tagline: 'Judgement scorekeeper',
   common: {
+    loading: 'Loading',
     cancel: 'Cancel',
     back: 'Back',
     close: 'Close',
@@ -317,6 +318,9 @@ export const t = {
   },
 
   winner: {
+    /** The winner headline under the trophy. */
+    headline: (names: string[]) =>
+      names.length > 1 ? `${names.join(' & ')} share it` : `${names[0]} wins`,
     finalScores: 'Final scores',
     share: 'Share',
     rematch: 'Rematch',

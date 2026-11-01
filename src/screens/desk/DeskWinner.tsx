@@ -15,6 +15,7 @@ import { t } from '@/strings';
 import { Avatar, AvatarFill } from '@/components/ui/Avatar';
 import { seatColor } from '@/theme/palette';
 import { icon } from '@/components/ui/IconsMore';
+import { InkFill } from '@/components/ui/InkFill';
 
 const STEP = {
   1: {
@@ -137,7 +138,7 @@ export function DeskWinner() {
     <DeskPage scroll label={t.winner.finalScores} className="dt:px-12 rail:overflow-hidden">
       <PageHead
         eyebrow={t.desk.winner.eyebrow(done.length)}
-        title={title}
+        title={<InkFill text={title} />}
         actions={
           <>
             {reel.length > 0 && (

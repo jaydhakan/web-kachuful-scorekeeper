@@ -21,6 +21,7 @@ import { RepairSaveModal } from './RepairSaveModal';
 import { BadgePop } from './BadgePop';
 import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
+import { Loader } from './ui/Loader';
 import { Toast } from './ui/Toast';
 import { EASE, SPRING_SOFT } from './ui/motion';
 
@@ -80,20 +81,20 @@ function PhoneShell() {
   let content;
   if (top)
     content = (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loader />}>
         <Pages route={top} />
       </Suspense>
     );
   else if (screen === 'home') content = <Home />;
   else if (screen === 'setup')
     content = (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loader />}>
         <Setup />
       </Suspense>
     );
   else if (screen === 'winner')
     content = (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loader />}>
         <Winner />
       </Suspense>
     );
@@ -135,7 +136,12 @@ function PhoneShell() {
         <Banner banner={banner} />
       </m.div>
       <UpdatePrompt />
-      <Toast toast={toast} onUndo={actions.undo} onOpen={actions.open} />
+      <Toast
+        toast={toast}
+        onUndo={actions.undo}
+        onOpen={actions.open}
+        onDismiss={actions.dismissToast}
+      />
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
