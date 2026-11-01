@@ -32,7 +32,10 @@ function ThemePreview({ id }: { id: ThemeId }) {
       aria-hidden
       className="scr-bg relative h-[120px] w-[160px] shrink-0 overflow-hidden rounded-[var(--r-md)] shadow-[inset_0_0_0_1px_var(--hairline-2)]"
     >
-      <div className="felt absolute left-[30px] top-[14px] h-[46px] w-[100px] rounded-[50%]" />
+      <div
+        className="absolute left-[30px] top-[14px] h-[46px] w-[100px] rounded-[50%]"
+        style={{ background: 'var(--m-felt)', boxShadow: 'var(--m-felt-shadow)' }}
+      />
       {[
         [26, 26],
         [80, 6],
@@ -40,21 +43,38 @@ function ThemePreview({ id }: { id: ThemeId }) {
       ].map(([x, y], k) => (
         <span
           key={k}
-          className="mat-av absolute h-[18px] w-[18px] rounded-full"
-          style={{ left: x - 9, top: y + 2, background: seatColor(COLORS[k]) }}
+          className="absolute h-[18px] w-[18px] rounded-full"
+          style={{
+            left: x - 9,
+            top: y + 2,
+            background: seatColor(COLORS[k]),
+            boxShadow: 'var(--m-av-shadow)',
+          }}
         />
       ))}
       <div className="absolute left-[12px] right-[12px] top-[70px] grid grid-cols-4 gap-[5px]">
         {[0, 1, 2, 3].map((k) => (
-          <span key={k} className="mat-key relative grid h-[20px] place-items-center text-[11px]">
-            {k === 1 && <span className="mat-key-on absolute inset-0" />}
-            <span className={`relative ${k === 1 ? 'text-[var(--on-brand)]' : ''}`}>{k}</span>
+          <span
+            key={k}
+            className="grid h-[20px] place-items-center rounded-[var(--r-sm)] font-display text-[11px]"
+            style={
+              k === 1
+                ? { background: 'var(--m-on)', color: 'var(--on-brand)' }
+                : { background: 'var(--m-key)', boxShadow: 'var(--m-key-shadow)' }
+            }
+          >
+            {k}
           </span>
         ))}
       </div>
-      <div className="mat-cta absolute bottom-[8px] left-[12px] right-[12px] h-[14px] rounded-[7px]">
-        <span className="mat-fill absolute inset-0 rounded-[inherit]" />
-      </div>
+      <div
+        className="absolute bottom-[8px] left-[12px] right-[12px] h-[14px]"
+        style={{
+          background: 'var(--m-btn)',
+          boxShadow: 'var(--m-btn-shadow)',
+          borderRadius: 'var(--m-r)',
+        }}
+      />
     </div>
   );
 }

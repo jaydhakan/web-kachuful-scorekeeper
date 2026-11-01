@@ -47,7 +47,7 @@ export function Play() {
             whileTap={PRESS_SM}
             onClick={() => actions.phase('bidding', -1)}
             aria-label={t.play.editBids}
-            className="glass grid h-[60px] w-[60px] shrink-0 place-items-center !rounded-[20px]"
+            className="glass grid h-[60px] w-[60px] shrink-0 place-items-center !rounded-[var(--r-lg)]"
           >
             {Icon.edit}
           </m.button>

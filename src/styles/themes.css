@@ -1104,3 +1104,45 @@
     inset 0 0 0 2.5px var(--ink),
     1px 1px 0 var(--ink);
 }
+
+/* ---------- material tokens for the Appearance previews ----------
+   A preview nests one theme inside another, where class rules from the page's theme would also match. Custom
+   properties always resolve against the nearest data-theme, so previews paint from these and never leak. */
+[data-theme='sunset-glass'] {
+  --m-felt: radial-gradient(
+    110% 120% at 30% 14%,
+    var(--felt-hi) 0,
+    var(--felt) 52%,
+    var(--felt-lo) 100%
+  );
+  --m-felt-shadow: inset 0 0 0 1px var(--glass-b), 0 10px 22px -8px var(--glow);
+  --m-key: var(--glass);
+  --m-key-shadow: inset 0 1px 0 var(--hl), inset 0 0 0 1px var(--glass-b);
+  --m-on: linear-gradient(140deg, var(--ga), var(--gb));
+  --m-btn: linear-gradient(135deg, var(--ga), var(--gb));
+  --m-btn-shadow: 0 6px 14px -6px var(--glow);
+  --m-av-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --m-r: 999px;
+}
+[data-theme='yerba-sun'] {
+  --m-felt: var(--felt);
+  --m-felt-shadow: inset 0 0 0 2px var(--ink), 3px 3px 0 var(--ink);
+  --m-key: var(--panel);
+  --m-key-shadow: inset 0 0 0 1.5px var(--ink), 1.5px 1.5px 0 var(--ink);
+  --m-on: var(--brand);
+  --m-btn: var(--brand);
+  --m-btn-shadow: inset 0 0 0 1.5px var(--ink), 2px 2px 0 var(--ink);
+  --m-av-shadow: 0 0 0 1.5px var(--ink);
+  --m-r: 6px;
+}
+[data-theme='editorial-paper'] {
+  --m-felt: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
+  --m-felt-shadow: inset 0 0 0 1px var(--ink), 0 0 0 3px var(--bg), 0 0 0 4px var(--ink);
+  --m-key: transparent;
+  --m-key-shadow: inset 0 0 0 1px var(--ink);
+  --m-on: var(--brand);
+  --m-btn: var(--ink);
+  --m-btn-shadow: none;
+  --m-av-shadow: 0 0 0 1px var(--ink);
+  --m-r: 0;
+}

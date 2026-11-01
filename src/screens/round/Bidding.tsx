@@ -47,21 +47,24 @@ export function HeroWho({
   tally: number;
   of: number;
 }) {
-  const k = Math.max(0.42, Math.min(1, 6.5 / Math.max(1, [...p.name].length)));
+  const len = Math.max(1, [...p.name].length);
+  const k = Math.max(0.42, Math.min(1, 6.5 / len));
+  // Never wider than its column: about 0.62em a letter in the widest face (Bricolage at 800), so a name never breaks.
+  const fit = `calc(100cqw / ${(len * 0.62).toFixed(2)})`;
   return (
     <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-end gap-3.5 px-1 [--hero-s:1] @h-short:[--hero-s:.6] @h-tiny:[--hero-s:.5]">
       <Avatar
         p={p}
         className="mat-av grid h-[calc(52px*var(--hero-s))] w-[calc(52px*var(--hero-s))] min-h-10 min-w-10 shrink-0 place-items-center self-center rounded-full text-28"
       />
-      <div className="min-w-0">
+      <div className="min-w-0 [container-type:inline-size]">
         <p className="mono-label text-[0.6875rem] font-medium leading-4 text-[var(--tx2)]">
           {kicker}
         </p>
         <h2
           className="hero-name pb-[0.06em] [overflow-wrap:anywhere]"
           style={{
-            fontSize: `max(1.5rem, calc(var(--big-size) * ${k} * var(--hero-s)))`,
+            fontSize: `max(1.5rem, min(${fit}, calc(var(--big-size) * ${k} * var(--hero-s))))`,
             // The size is the theme's, the line box is not: every theme's row is the same height.
             lineHeight: `max(1.4rem, calc(59px * ${k} * var(--hero-s)))`,
           }}
