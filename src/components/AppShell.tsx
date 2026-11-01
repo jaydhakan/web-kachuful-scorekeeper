@@ -112,8 +112,7 @@ function PhoneShell() {
       >
         <div
           aria-hidden
-          className="ambient pointer-events-none absolute -top-32 left-1/2 h-[max(360px,45vh)] w-[max(520px,70vw)] rounded-full opacity-90 blur-3xl"
-          style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
+          className="ambient pointer-events-none absolute -top-48 left-1/2 box-content h-[max(360px,45vh)] w-[max(520px,70vw)] rounded-full p-16 opacity-90"
         />
         <AnimatePresence custom={dir} initial={false} mode="popLayout">
           <m.div

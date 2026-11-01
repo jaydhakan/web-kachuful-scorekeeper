@@ -103,8 +103,7 @@ export default function DeskShell() {
       >
         <div
           aria-hidden
-          className="ambient pointer-events-none absolute -top-40 left-1/2 h-[max(420px,50vh)] w-[max(640px,60vw)] rounded-full opacity-90 blur-3xl"
-          style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
+          className="ambient pointer-events-none absolute -top-56 left-1/2 box-content h-[max(420px,50vh)] w-[max(640px,60vw)] rounded-full p-16 opacity-90"
         />
         <Rail onKeys={() => setKeys(true)} />
         <TopBar onKeys={() => setKeys(true)} />

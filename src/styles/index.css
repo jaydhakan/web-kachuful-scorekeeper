@@ -216,9 +216,17 @@ input {
     0 0 44px 4px var(--glow),
     inset 0 0 44px rgba(0, 0, 0, 0.4);
 }
-/* A CSS animation on transform runs on the compositor, so it never competes with a busy main thread. */
+/* A CSS animation on transform runs on the compositor, so it never competes with a busy main thread.
+   The soft edge is in the gradient: a blur filter on a scaling layer is redrawn every frame. */
 .ambient {
   transform: translateX(-50%);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--glow) 65%, transparent),
+    color-mix(in srgb, var(--glow) 40%, transparent) 40%,
+    color-mix(in srgb, var(--glow) 14%, transparent) 72%,
+    transparent
+  );
   animation: ambient 8s ease-in-out infinite;
 }
 @keyframes ambient {
