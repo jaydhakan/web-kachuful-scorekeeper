@@ -86,7 +86,11 @@ export default function DeskShell() {
   const variants = {
     enter: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * 48, scale: 0.985 }),
     center: { opacity: 1, x: 0, scale: 1 },
-    exit: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * -48, scale: 0.985 }),
+    // The old screen leaves faster than the new one arrives, so the two overlap less.
+    exit: (d: number) => ({
+      ...(rm ? { opacity: 0 } : { opacity: 0, x: d * -48, scale: 0.985 }),
+      transition: { duration: 0.26, ease: EASE },
+    }),
   };
   return (
     <div
