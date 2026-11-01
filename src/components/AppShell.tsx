@@ -1,5 +1,6 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react';
+import { whenIdle } from '@/lib/idle';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -14,11 +15,9 @@ import { Play } from '@/screens/round/Play';
 import { Results } from '@/screens/round/Results';
 import { RoundStart } from '@/screens/round/RoundStart';
 import { Summary } from '@/screens/round/Summary';
-import { Setup } from '@/screens/setup/Setup';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
 import { RepairSaveModal } from './RepairSaveModal';
-import { StreakCelebration } from './StreakCelebration';
 import { BadgePop } from './BadgePop';
 import { UpdatePrompt } from './UpdatePrompt';
 import { Banner } from './ui/Banner';
@@ -30,6 +29,12 @@ const Pages = lazy(() => import('@/screens/pages/Pages'));
 // The large-screen UI is its own chunk, so phones never download it.
 const DeskShell = lazy(() => import('@/screens/desk/DeskShell'));
 const Confetti = lazy(() => import('./ui/Confetti').then((m) => ({ default: m.Confetti })));
+// Never on the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
+const loadSetup = () => import('@/screens/setup/Setup').then((m) => ({ default: m.Setup }));
+const loadStreak = () =>
+  import('./StreakCelebration').then((m) => ({ default: m.StreakCelebration }));
+const Setup = lazy(loadSetup);
+const StreakCelebration = lazy(loadStreak);
 
 /** Phones (and phones on their side) get the phone UI; tablets and desktops get the purpose-built large-screen one. */
 export function AppShell() {
@@ -63,6 +68,7 @@ function PhoneShell() {
     exit: (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: d * -36, scale: 0.985 }),
   };
   const blocked = !!(sheet || modal || seq || state.corrupt || state.streakFx);
+  useEffect(() => whenIdle(() => void Promise.all([loadSetup(), loadStreak()])), []);
   // Confetti is skipped under reduced motion; the podium still marks the moment.
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
@@ -75,7 +81,12 @@ function PhoneShell() {
       </Suspense>
     );
   else if (screen === 'home') content = <Home />;
-  else if (screen === 'setup') content = <Setup />;
+  else if (screen === 'setup')
+    content = (
+      <Suspense fallback={null}>
+        <Setup />
+      </Suspense>
+    );
   else if (screen === 'winner')
     content = (
       <Suspense fallback={null}>
@@ -92,7 +103,7 @@ function PhoneShell() {
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
       {/* The page recedes while a sheet or modal is over it. Transform only, and not at all under reduced motion. */}
-      <motion.div
+      <m.div
         className="absolute inset-0"
         initial={false}
         animate={rm ? undefined : { scale: sheet || modal ? 0.975 : 1 }}
@@ -105,7 +116,7 @@ function PhoneShell() {
           style={{ background: 'radial-gradient(closest-side, var(--glow), transparent)' }}
         />
         <AnimatePresence custom={dir} initial={false} mode="popLayout">
-          <motion.div
+          <m.div
             key={screenKey}
             custom={dir}
             variants={variants}
@@ -116,16 +127,22 @@ function PhoneShell() {
             className="absolute inset-0"
           >
             {content}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
         <Banner banner={banner} />
-      </motion.div>
+      </m.div>
       <UpdatePrompt />
       <Toast toast={toast} onUndo={actions.undo} onOpen={actions.open} />
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
-      <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
+      <AnimatePresence>
+        {state.streakFx && (
+          <Suspense key="streak" fallback={null}>
+            <StreakCelebration />
+          </Suspense>
+        )}
+      </AnimatePresence>
       <BadgePop />
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && !rm && (
