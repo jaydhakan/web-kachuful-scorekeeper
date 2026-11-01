@@ -227,9 +227,9 @@ function step(s: AppState, a: Action): AppState {
         screen: 'setup',
         setup: {
           step: 1,
-          decks: 1,
-          n: null,
-          dir: 'cw',
+          decks: a.defaults?.decks ?? 1,
+          n: a.defaults?.n ?? null,
+          dir: a.defaults?.dir ?? 'cw',
           seats: [],
           dealer: 0,
           length: 'endless',

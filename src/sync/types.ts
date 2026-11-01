@@ -1,5 +1,5 @@
 /** The API's shapes as built (the backend's HANDOFF.md §6.2). Times are epoch ms, ids UUID strings. */
-import type { Game, Trump, Wrapped } from '@/domain';
+import type { Decks, Direction, Game, Trump, Wrapped } from '@/domain';
 
 export type Role = 'admin' | 'member';
 
@@ -9,6 +9,27 @@ export interface User {
   role: Role;
   playerId: string | null;
   createdAt: number;
+}
+
+/** The table a player last set up (backend-requests.md, request 3); the server checks the count fits the decks. */
+export interface SetupPrefs {
+  playerCount: number;
+  decks: Decks;
+  direction: Direction;
+}
+
+/** The signed-in user's own preferences; `updatedAt` is the server's last change to any of them. */
+export interface Preferences {
+  theme: string | null;
+  setup: SetupPrefs | null;
+  updatedAt: number | null;
+}
+
+/** Login, `/auth/me`, invite and reset answers. `preferences` is missing until the backend is deployed. */
+export interface AuthResp {
+  user: User;
+  player: Player | null;
+  preferences?: Preferences;
 }
 
 export interface Player {

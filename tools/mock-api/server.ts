@@ -40,9 +40,11 @@ import type {
   AdminUserRow,
   Player,
   PlayerSummary,
+  Preferences,
   User,
   WireGame,
 } from '../../src/sync/types';
+import type { AppearanceDto } from '../../src/sync/endpoints';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -92,6 +94,9 @@ interface Db {
   links: Map<string, { gameId: string; kind: 'live' | 'recap'; revoked: boolean }>;
   failed: Map<string, number[]>;
   version: number;
+  /** backend-requests.md 1-3, as built on 2026-11-01. */
+  appearance: AppearanceDto;
+  prefs: Map<string, Preferences>;
 }
 
 let db: Db;
@@ -153,6 +158,13 @@ export function seed(now = Date.now()) {
     links: new Map(),
     failed: new Map(),
     version: 1,
+    appearance: {
+      theme: 'sunset-glass',
+      allowUserOverride: false,
+      updatedAt: null,
+      updatedBy: null,
+    },
+    prefs: new Map(),
   };
   const admin = account('admin@kachuful.test', 'admin-demo', 'admin', now - 30 * DAY);
   const riya = account('riya@kachuful.test', 'riya-demo', 'member', now - 20 * DAY);
@@ -449,6 +461,12 @@ function checkPlayer(
 }
 
 /** A player as `me` may see it: the email only for the admin, its creator and its linked user. */
+const authOut = (u: UserRec) => ({
+  user: userOut(u),
+  player: u.playerId ? view(db.players.get(u.playerId)!, u) : null,
+  preferences: prefsOf(u.id),
+});
+
 const view = (p: Player, me: User | null): Player => ({
   ...p,
   photoUrl: photoUrl(p.id),
@@ -500,7 +518,7 @@ on(
     }
     if (!u.active) throw err(403, 'inactive');
     signIn(res, u);
-    return { user: userOut(u), player: u.playerId ? view(db.players.get(u.playerId)!, u) : null };
+    return authOut(u);
   },
   'public',
 );
@@ -515,10 +533,60 @@ on(
   },
   'public',
 );
-on('GET', '/api/auth/me', ({ me }) => ({
-  user: userOut(me!),
-  player: me!.playerId ? view(db.players.get(me!.playerId)!, me) : null,
-}));
+on('GET', '/api/auth/me', ({ me }) => authOut(me!));
+
+// ——— backend-requests.md 1-3 ———
+
+const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper'];
+const prefsOf = (id: string): Preferences =>
+  db.prefs.get(id) ?? { theme: null, setup: null, updatedAt: null };
+on('GET', '/api/settings/appearance', () => db.appearance, 'public');
+on(
+  'PUT',
+  '/api/admin/settings/appearance',
+  ({ body, me }) => {
+    if (!THEMES.includes(body.theme as string))
+      throw err(422, 'invalid', { fields: { theme: 'must be a known theme' } });
+    if (typeof body.allowUserOverride !== 'boolean')
+      throw err(422, 'invalid', { fields: { allowUserOverride: 'must be a boolean' } });
+    const a = db.appearance;
+    if (a.theme === body.theme && a.allowUserOverride === body.allowUserOverride) return a;
+    const by = me!.playerId ? db.players.get(me!.playerId)!.displayName : null;
+    db.appearance = {
+      theme: body.theme as string,
+      allowUserOverride: body.allowUserOverride,
+      updatedAt: Date.now(),
+      updatedBy: by,
+    };
+    return db.appearance;
+  },
+  'admin',
+);
+on('PATCH', '/api/me/preferences', ({ body, me }) => {
+  const p = prefsOf(me!.id);
+  const keys = (['theme', 'setup'] as const).filter((k) => k in body);
+  if (!keys.length) return p;
+  const fields: Record<string, string> = {};
+  if ('theme' in body && body.theme !== null && !THEMES.includes(body.theme as string))
+    fields.theme = 'must be a known theme or null';
+  const su = body.setup as Preferences['setup'] | undefined;
+  if (su) {
+    if (su.decks !== 1 && su.decks !== 2) fields['setup.decks'] = 'must be 1 or 2';
+    else if (su.direction !== 'cw' && su.direction !== 'ccw')
+      fields['setup.direction'] = 'must be cw or ccw';
+    else if (!Number.isInteger(su.playerCount)) fields['setup.playerCount'] = 'must be a number';
+    else if (su.playerCount < 3 || su.playerCount > (su.decks === 2 ? 10 : 7))
+      fields.setup = "playerCount doesn't fit the decks";
+  }
+  if (Object.keys(fields).length) throw err(422, 'invalid', { fields });
+  const next = {
+    ...p,
+    ...Object.fromEntries(keys.map((k) => [k, body[k]])),
+    updatedAt: Date.now(),
+  };
+  db.prefs.set(me!.id, next as Preferences);
+  return next;
+});
 on('GET', '/api/bootstrap', ({ me }) => {
   return {
     user: userOut(me!),
@@ -595,7 +663,7 @@ on(
       createdAt: Date.now(),
     });
     signIn(res, u);
-    return { user: userOut(u), player: view(player, u) };
+    return { ...authOut(u), player: view(player, u) };
   },
   'public',
 );
@@ -622,7 +690,7 @@ on(
     r.done = true;
     for (const [t, id] of db.sessions) if (id === u.id) db.sessions.delete(t);
     signIn(res, u);
-    return { user: userOut(u), player: u.playerId ? view(db.players.get(u.playerId)!, u) : null };
+    return authOut(u);
   },
   'public',
 );
@@ -1018,9 +1086,17 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
 on('GET', '/api/games', ({ url, me }) => {
   const since = Number(url.searchParams.get('updatedSince')) || 0;
   const mine = url.searchParams.get('mine') === 'true';
+  const status = url.searchParams.get('status');
+  if (status !== null && status !== 'active')
+    throw err(422, 'invalid', { fields: { status: 'must be active' } });
   const list = [...db.games.values()]
     .filter(
-      (g) => g.updatedAt > since && (!mine || g.ownerId === me!.id) && (!g.deletedAt || since > 0),
+      (g) =>
+        g.updatedAt > since &&
+        (!mine || g.ownerId === me!.id) &&
+        (!g.deletedAt || since > 0) &&
+        (!status ||
+          (!g.deletedAt && gameSummary(g).status === 'active' && !gameSummary(g).endedAt)),
     )
     .sort((a, b) => b.updatedAt - a.updatedAt)
     // Deleted games come back only to a caller catching up, as tombstones.

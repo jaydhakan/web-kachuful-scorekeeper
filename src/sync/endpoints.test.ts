@@ -270,3 +270,35 @@ describe('boards and ETags (HANDOFF §5.5)', () => {
     expect(r.data.awards[0]).toMatchObject({ gameId: null, roundIndex: null });
   });
 });
+
+describe('appearance, preferences and the active game (backend-requests.md 1-4, 2026-11-01)', () => {
+  it('builds the paths and bodies the contract names', async () => {
+    let calls = serve(200, { items: [], nextCursor: null });
+    await ep.activeGame();
+    expect(calls()[0][0]).toBe('/api/games?status=active&mine=true&limit=1');
+    calls = serve(200, { theme: null, setup: null, updatedAt: null });
+    await ep.setPrefs({ theme: null });
+    expect(calls()[0][1]).toMatchObject({ method: 'PATCH', body: '{"theme":null}' });
+    expect(calls()[0][1].headers).toMatchObject({ 'X-Kachuful': '1' });
+    calls = serve(200, {
+      theme: 'yerba-sun',
+      allowUserOverride: true,
+      updatedAt: 1,
+      updatedBy: 'Jay',
+    });
+    await ep.setAppearance({ theme: 'yerba-sun', allowUserOverride: true });
+    expect(calls()[0]).toMatchObject(['/api/admin/settings/appearance', { method: 'PUT' }]);
+  });
+
+  it('errors keep the usual shape: 403 forbidden, 422 invalid with fields', async () => {
+    serve(403, { code: 'forbidden', message: '' });
+    expect(await fail(ep.setAppearance({ theme: 'x', allowUserOverride: true }))).toMatchObject({
+      status: 403,
+      code: 'forbidden',
+    });
+    serve(422, { code: 'invalid', fields: { 'setup.decks': 'must be 1 or 2' } });
+    expect((await fail(ep.setPrefs({ setup: null })))?.body.fields).toEqual({
+      'setup.decks': 'must be 1 or 2',
+    });
+  });
+});

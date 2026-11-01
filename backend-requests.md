@@ -1,21 +1,29 @@
 # Backend requests from the three-theme redesign
 
-Contract today: `../backend-kachuful-scorekeeper/HANDOFF.md`
-(§6 API reference). Nothing here is faked in the app: every request has a client fallback that works signed out,
-offline and against today's backend.
+**Status (2026-11-01): requests 1-4 are built in the backend (commits e61d547, b202799, ce0e72e) and wired in the
+app, not yet deployed to production.** Until they are, production answers 404 (or ignores `status=active`) and every
+client fallback below keeps working unchanged. The backend's `HANDOFF.md` has been removed; for these endpoints the
+contract is Jay's message of 2026-11-01, summarised under "As built" in each request.
 
 ## Summary
 
-| #   | Feature                                    | Screen               | Priority | Client fallback in place                              |
-| --- | ------------------------------------------ | -------------------- | -------- | ----------------------------------------------------- |
-| 1   | Appearance settings (theme for everyone)   | Admin › Appearance   | must     | yes: saved on this device only, with a notice         |
-| 2   | Per-player theme preference                | Menu › Theme         | should   | yes: saved on this device                             |
-| 3   | Setup defaults per account (count, decks)  | Setup step 1         | should   | yes: last group on this device (`kachuful.lastGroup`) |
-| 4   | Resume summary on Home for signed-in users | Home › Continue card | nice     | yes: the game saved on this device                    |
-| 5   | Remembered names across devices            | Setup step 2         | none     | already served by `GET /api/players` (see below)      |
-| 6   | Standings trend per round                  | Scoreboard, Summary  | none     | derived on the client from stored rounds (see below)  |
+| #   | Feature                                    | Screen               | Status | Client fallback kept                                  |
+| --- | ------------------------------------------ | -------------------- | ------ | ----------------------------------------------------- |
+| 1   | Appearance settings (theme for everyone)   | Admin › Appearance   | done   | yes: saved on this device only, with a notice         |
+| 2   | Per-player theme preference                | Menu › Theme         | done   | yes: saved on this device                             |
+| 3   | Setup defaults per account (count, decks)  | Setup step 1         | done   | yes: last group on this device (`kachuful.lastGroup`) |
+| 4   | Resume summary on Home for signed-in users | Home › Continue card | done   | yes: this device's synced copies                      |
+| 5   | Remembered names across devices            | Setup step 2         | none   | already served by `GET /api/players` (see below)      |
+| 6   | Standings trend per round                  | Scoreboard, Summary  | none   | derived on the client from stored rounds (see below)  |
 
 ## Request 1: Appearance settings
+
+**Done.** As built: `GET /api/settings/appearance` (public, ETag, `Cache-Control: public, max-age=60`, 304) and
+`PUT /api/admin/settings/appearance` (401 / 403 `forbidden` / 422 `invalid` with `fields.theme` or
+`fields.allowUserOverride`; same values again change nothing). Adjustment: `updatedAt` is epoch ms; the app converts it
+to the ISO string it already stores in `kf.theme.appearance`. Not built: `appearance` in bootstrap, an Activity item,
+a push event (the app keeps polling). Answered: switching "Let players choose" off keeps players' stored themes.
+The app reads it only signed in (signed out never touches the network) and ignores a GET older than its own PUT.
 
 - **Screen and design element:** Admin page, new "Appearance" section (`src/screens/pages/AdminPage.tsx`): three live
   preview cards, "Preview on this device", "Apply to everyone" with an 8-second Undo, "Let players choose their own
@@ -67,6 +75,10 @@ changed_at)`, one row per change, so "who changed the theme and when" is answera
 
 ## Request 2: Per-player theme preference
 
+**Done.** As built: `PATCH /api/me/preferences` answers the whole `{theme, setup, updatedAt}`; `preferences` is in
+login, `/auth/me`, invite and reset answers (not bootstrap), so the app reads `/auth/me` at idle and on return. A pick
+made signed in is marked unsent (`kf.theme.user.unsent`) until the server has it; otherwise the account's pick wins.
+
 - **Screen and design element:** the Menu's "Theme" row, shown when the admin allows players to choose
   (`docs/codebase/DESIGN-SYSTEM.md`, Switching themes: resolution order).
 - **What the app does today:** nothing (new).
@@ -82,6 +94,10 @@ changed_at)`, one row per change, so "who changed the theme and when" is answera
 
 ## Request 3: Setup defaults per account
 
+**Done.** As built: the same PATCH with a complete `setup` (count must fit the decks; 422 keys `setup`, `setup.decks`,
+`setup.direction`, `setup.playerCount`). The last group now records `at`; Setup step 1 preselects the account's setup
+when it is newer and different. Every PATCH moves `updatedAt` (a theme change too), hence "different".
+
 - **Screen and design element:** Setup step 1, "Last-used count preselected" and the deck choice
 - **What the app does today:** remembers the last group on this device (`kachuful.lastGroup`: names, avatars, colours,
   direction, decks) and offers "Use last group".
@@ -94,6 +110,11 @@ changed_at)`, one row per change, so "who changed the theme and when" is answera
 - **Client fallback shipped meanwhile:** the device's own last group, as today. No UI change was needed for this.
 
 ## Request 4: Resume summary on Home for signed-in users
+
+**Done.** Adjustment: `GET /api/games?status=active&mine=true&limit=1` (`mine` limits it to the user), answering the
+usual page. The app already had a Continue card fed by sync that takes the game over; Jay chose (2026-11-01) to keep
+that: the endpoint decides when the card shows (hidden offline, hidden when the server says none), and a tap fetches
+the game if needed. A backend that ignores `status` (production today) falls back to the synced copies.
 
 - **Screen and design element:** Home, game in progress: the Continue card.
 - **What the app does today:** shows the game saved on this device. A game started on another device appears in

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { ApiError } from '@/sync/api';
-import { ep } from '@/sync/endpoints';
+import { ep, type AppearanceDto } from '@/sync/endpoints';
 import { applyTheme, shownTheme } from '@/theme/applyTheme';
 import {
   DEFAULT_THEME,
@@ -10,7 +10,8 @@ import {
   type Appearance,
   type ThemeId,
 } from '@/theme/themes';
-import { loadThemeState, saveAppearance, saveUserTheme } from './persistence';
+import { loadThemeState, saveAppearance, saveUserTheme, userThemeUnsent } from './persistence';
+import { keepPrefs } from './prefs';
 
 /**
  * Which theme is on screen and why (DESIGN-SYSTEM.md, Switching themes). Local-first: the device's cached setting applies before
@@ -24,7 +25,7 @@ export interface ThemeState {
   appearance: Appearance | null;
   /** This player's own pick, used only while the admin allows it. */
   user: ThemeId | null;
-  /** Whether the server stores appearance settings: `missing` until the backend builds request 1. */
+  /** Whether the server stores appearance settings: `missing` while it answers 404 (not deployed yet). */
   remote: 'unknown' | 'ok' | 'missing' | 'offline';
   etag: string | null;
 }
@@ -85,25 +86,42 @@ const settle = (animate = true) => {
   if (!s.preview) void show(resolved(s), { animate });
 };
 
+/** Only a 404 means the server doesn't store the setting yet; other failures leave what was known. */
+const remoteAfter = (e: unknown): Pick<ThemeState, 'remote'> | null =>
+  e instanceof ApiError
+    ? e.offline
+      ? { remote: 'offline' }
+      : e.status === 404
+        ? { remote: 'missing' }
+        : null
+    : null;
+
+// The server sends epoch ms; the device keeps the ISO string it has always saved in `kf.theme.appearance`.
+const fromServer = (d: AppearanceDto, fallback: Partial<Appearance> = {}): Appearance => ({
+  theme: isThemeId(d.theme) ? d.theme : (fallback.theme ?? DEFAULT_THEME),
+  allowUserOverride: !!d.allowUserOverride,
+  updatedAt: d.updatedAt != null ? new Date(d.updatedAt).toISOString() : fallback.updatedAt,
+  updatedBy: d.updatedBy ?? fallback.updatedBy,
+  source: 'server',
+});
+const msOf = (iso?: string) => (iso ? Date.parse(iso) : 0) || 0;
+
 /** Reads the server's setting when signed in (start, back to the front, every 5 minutes). Never throws. */
 export async function refreshAppearance(): Promise<void> {
   try {
     const r = await ep.appearance({ etag: state().etag });
     if (r.status === 304 || !r.data) return set({ remote: 'ok' });
-    const d = r.data;
-    const theme = isThemeId(d.theme) ? d.theme : DEFAULT_THEME;
-    const a: Appearance = {
-      theme,
-      allowUserOverride: !!d.allowUserOverride,
-      updatedAt: d.updatedAt ?? undefined,
-      updatedBy: d.updatedBy ?? undefined,
-      source: 'server',
-    };
+    const a = fromServer(r.data);
+    // The browser may answer from its 60-second cache with the copy from before this admin's own save.
+    const known = state().appearance;
+    if (known?.source === 'server' && msOf(a.updatedAt) < msOf(known.updatedAt))
+      return set({ remote: 'ok' });
     saveAppearance(a);
     set({ appearance: a, remote: 'ok', etag: r.etag });
     settle();
   } catch (e) {
-    set({ remote: e instanceof ApiError && e.offline ? 'offline' : 'missing' });
+    const r = remoteAfter(e);
+    if (r) set(r);
   }
 }
 
@@ -139,19 +157,15 @@ export async function applyToEveryone(
   set({ appearance: local, preview: null });
   settle();
   try {
-    const d = await ep.setAppearance({ theme, allowUserOverride });
-    const a: Appearance = {
-      theme: isThemeId(d.theme) ? d.theme : theme,
-      allowUserOverride: !!d.allowUserOverride,
-      updatedAt: d.updatedAt ?? local.updatedAt,
-      updatedBy: d.updatedBy ?? who,
-      source: 'server',
-    };
+    // The PUT's answer is the stored setting; a GET now could come from the browser's cache.
+    const a = fromServer(await ep.setAppearance({ theme, allowUserOverride }), local);
     saveAppearance(a);
     set({ appearance: a, remote: 'ok' });
+    settle();
     return { saved: 'everyone', previous };
   } catch (e) {
-    set({ remote: e instanceof ApiError && e.offline ? 'offline' : 'missing' });
+    const r = remoteAfter(e);
+    if (r) set(r);
     return { saved: 'device', previous };
   }
 }
@@ -164,11 +178,36 @@ export async function restoreAppearance(prev: Appearance | null, who: string) {
 
 /** A player's own theme (only offered while the admin allows it); `null` follows the admin's choice again. */
 export function chooseOwnTheme(id: ThemeId | null, signedIn: boolean) {
-  saveUserTheme(id);
+  saveUserTheme(id, signedIn);
   set({ user: id });
   settle();
-  // Sent for other devices when the server supports it (backend-requests.md, request 2); the device keeps it anyway.
-  if (signedIn) ep.setMyTheme(id).catch(() => {});
+  if (signedIn) void sendOwnTheme();
+}
+
+/** Sends this device's pick (backend-requests.md, request 2). On failure it stays marked unsent and goes next time. */
+async function sendOwnTheme() {
+  const id = state().user;
+  try {
+    const p = await ep.setPrefs({ theme: id });
+    keepPrefs(p);
+    if (state().user === id) saveUserTheme(id);
+  } catch {
+    /* kept on this device; a 404 means the server doesn't store it yet */
+  }
+}
+
+/**
+ * The account's pick, from an auth answer or `/auth/me`. A pick made here that hasn't reached the server goes first;
+ * otherwise the server's wins. It is kept even while the admin doesn't let players choose; `resolved` ignores it then.
+ */
+export async function syncUserTheme(server: string | null): Promise<void> {
+  if (userThemeUnsent()) return sendOwnTheme();
+  // A theme this version doesn't know (a newer app set it) leaves the device's as it is.
+  if (server !== null && !isThemeId(server)) return;
+  if (server === state().user) return;
+  saveUserTheme(server);
+  set({ user: server });
+  settle();
 }
 
 export const themeLabel = (id: ThemeId) => THEMES[id].label;

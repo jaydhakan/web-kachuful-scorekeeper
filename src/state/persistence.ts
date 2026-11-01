@@ -17,6 +17,8 @@ export const KEYS = {
   themeAllowOverride: 'kf.theme.allowOverride',
   themeAppearance: 'kf.theme.appearance',
   themeUser: 'kf.theme.user',
+  /** Set while a signed-in player's own pick hasn't reached the server; it is sent before the server's is taken. */
+  themeUserUnsent: 'kf.theme.user.unsent',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -29,6 +31,8 @@ export interface LastGroup {
   direction: 'cw' | 'ccw';
   /** Absent in a group saved before the deck question; that was one deck. */
   decks?: Decks;
+  /** When it was saved (epoch ms), for newest-wins against the account's setup; absent in older groups. */
+  at?: number;
 }
 
 const mem: Record<string, unknown> = {};
@@ -219,7 +223,11 @@ export function saveAppearance(a: Appearance) {
   storage.set(KEYS.themeAllowOverride, a.allowUserOverride);
 }
 
-export function saveUserTheme(id: string | null) {
+export function saveUserTheme(id: string | null, unsent = false) {
   if (id) storage.setRaw(KEYS.themeUser, id);
   else storage.remove(KEYS.themeUser);
+  if (unsent) storage.set(KEYS.themeUserUnsent, true);
+  else storage.remove(KEYS.themeUserUnsent);
 }
+
+export const userThemeUnsent = () => storage.get<boolean>(KEYS.themeUserUnsent, false) === true;

@@ -118,7 +118,11 @@ export interface AppState {
 
 export type Action =
   | { type: 'go'; screen: Screen; dir?: Dir }
-  | { type: 'startSetup'; lg: LastGroup | null }
+  | {
+      type: 'startSetup';
+      lg: LastGroup | null;
+      defaults?: { n: number; decks: Decks; dir: Direction } | null;
+    }
   | { type: 'setupPatch'; patch: Partial<SetupState> }
   | { type: 'setupSeat'; k: number; seat: Seat | null }
   | { type: 'setupSeatPatch'; k: number; patch: Partial<Seat> }

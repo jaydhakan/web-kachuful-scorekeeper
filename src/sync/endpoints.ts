@@ -4,6 +4,7 @@ import type {
   Activity,
   AdminOverview,
   AdminUserRow,
+  AuthResp,
   Bootstrap,
   Daily,
   GameSummary,
@@ -16,6 +17,7 @@ import type {
   PlayerCheck,
   PlayerStats,
   PlayerSummary,
+  Preferences,
   PutGameResp,
   RecapResp,
   SeasonResp,
@@ -30,21 +32,23 @@ export type PlayerEdit = Partial<
   Pick<Player, 'displayName' | 'email' | 'firstName' | 'lastName' | 'emoji' | 'color'>
 >;
 
-/** One function per endpoint in the backend's HANDOFF.md §6, typed as built. */
-/** The appearance setting as the server would store it (backend-requests.md, request 1). */
+/** The appearance setting as the server stores it (backend-requests.md, request 1); `updatedAt` is epoch ms. */
 export interface AppearanceDto {
   theme: string;
   allowUserOverride: boolean;
-  updatedAt: string | null;
+  updatedAt: number | null;
   updatedBy: string | null;
 }
 
+/** `PATCH /api/me/preferences`: fields sent replace the stored ones, `null` clears one, fields left out stay. */
+export type PrefsPatch = Partial<Pick<Preferences, 'theme' | 'setup'>>;
+
+/** One function per endpoint in the backend's HANDOFF.md §6, typed as built. */
 export const ep = {
   // §6.3 auth
-  login: (email: string, password: string) =>
-    post<{ user: User; player: Player | null }>('/auth/login', { email, password }),
+  login: (email: string, password: string) => post<AuthResp>('/auth/login', { email, password }),
   logout: () => post<null>('/auth/logout'),
-  me: () => get<{ user: User; player: Player | null }>('/auth/me'),
+  me: () => get<AuthResp>('/auth/me'),
   bootstrap: (o?: CallOpts) => call<Bootstrap>('GET', '/bootstrap', undefined, o),
   invite: (token: string) =>
     get<{ email: string; player: PlayerSummary | null }>(`/auth/invites/${token}`),
@@ -53,20 +57,18 @@ export const ep = {
     token: string,
     password: string,
     player: { id: string } | Omit<NewPlayer, 'email'>,
-  ) => post<{ user: User; player: Player }>(`/auth/invites/${token}`, { password, player }),
+  ) => post<AuthResp & { player: Player }>(`/auth/invites/${token}`, { password, player }),
   reset: (token: string) => get<{ email: string }>(`/auth/resets/${token}`),
   acceptReset: (token: string, password: string) =>
-    post<{ user: User; player: Player | null }>(`/auth/resets/${token}`, { password }),
+    post<AuthResp>(`/auth/resets/${token}`, { password }),
   changePassword: (current: string, password: string) =>
     post<null>('/me/password', { current, password }),
 
-  // Requested in backend-requests.md (1 and 2); until the backend has them they answer 404 and the app keeps the
-  // choice on the device.
+  // backend-requests.md 1-3. Until production has them they answer 404 and the app keeps the choice on the device.
   appearance: (o?: CallOpts) => call<AppearanceDto>('GET', '/settings/appearance', undefined, o),
   setAppearance: (a: Pick<AppearanceDto, 'theme' | 'allowUserOverride'>) =>
     put<AppearanceDto>('/admin/settings/appearance', a),
-  setMyTheme: (theme: string | null) =>
-    patch<{ theme: string | null }>('/me/preferences', { theme }),
+  setPrefs: (p: PrefsPatch) => patch<Preferences>('/me/preferences', p),
 
   // §6.4 admin
   adminUsers: () => get<AdminUserRow[]>('/admin/users'),
@@ -124,6 +126,8 @@ export const ep = {
       mine: p.mine ? 'true' : undefined,
       limit: 200,
     }),
+  /** This account's newest unfinished game, if any (backend-requests.md, request 4). */
+  activeGame: () => get<Page<GameSummary>>('/games', { status: 'active', mine: 'true', limit: 1 }),
   game: (id: string) =>
     get<{ game: WireGame; summary: GameSummary; achievements: Achievement[] }>(`/games/${id}`),
   deleteGame: (id: string) => del(`/games/${id}`),

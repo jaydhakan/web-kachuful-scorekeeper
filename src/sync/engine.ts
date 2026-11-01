@@ -13,7 +13,13 @@ import { ApiError } from './api';
 import { sessionOf } from './account';
 import { ep } from './endpoints';
 import { setSyncStatus } from './status';
-import { isTombstone, type Achievement, type Player, type WireGame } from './types';
+import {
+  isTombstone,
+  type Achievement,
+  type GameSummary,
+  type Player,
+  type WireGame,
+} from './types';
 
 /** What the engine needs from the app; bound by the provider. */
 export interface EngineCtx {
@@ -227,7 +233,6 @@ const newest = (xs: { updatedAt: number }[]) => Math.max(0, ...xs.map((x) => x.u
  * games deleted on the server leave this device too.
  */
 async function pullMyGames() {
-  const me = ctx!.session()!.user.id;
   const since = cacheGet<number>('games:since') ?? 0;
   let max = since;
   let cursor: string | null = null;
@@ -243,29 +248,39 @@ async function pullMyGames() {
         dropDeleted(sum.id);
         continue;
       }
-      const rec = archive.get('games', sum.id);
-      const dirty = rec && rec.syncedRev !== rec.game.rev;
-      if (dirty) continue;
-      if (rec && doneRounds(rec.game).length === sum.rounds && rec.game.status === sum.status)
-        continue;
-      const full = await ep.game(sum.id);
-      const g = fromWire(full.game, sum.id);
-      archive.put('games', {
-        ...rec,
-        syncId: sum.id,
-        game: g,
-        updatedAt: g.updatedAt,
-        endedAt: sum.endedAt,
-        origin: rec?.origin ?? 'remote',
-        account: me,
-        syncedRev: g.rev,
-        earned: full.achievements,
-      });
-      if (ctx!.game().syncId === g.syncId && ctx!.game().rev < g.rev) ctx!.syncGame(g, true);
+      await pullSummary(sum);
     }
     cursor = page.nextCursor;
   } while (cursor);
   cacheSet('games:since', max);
+}
+
+/**
+ * One of this account's games, from its list summary: fetched when this device has no copy or an older one, left
+ * alone when this device has changes the server hasn't accepted. Resolves with the copy kept here.
+ */
+export async function pullSummary(sum: GameSummary): Promise<GameRec | undefined> {
+  const rec = archive.get('games', sum.id);
+  const dirty = rec && rec.syncedRev !== rec.game.rev;
+  if (dirty) return rec;
+  if (rec && doneRounds(rec.game).length === sum.rounds && rec.game.status === sum.status)
+    return rec;
+  const full = await ep.game(sum.id);
+  const g = fromWire(full.game, sum.id);
+  const next: GameRec = {
+    ...rec,
+    syncId: sum.id,
+    game: g,
+    updatedAt: g.updatedAt,
+    endedAt: sum.endedAt,
+    origin: rec?.origin ?? 'remote',
+    account: ctx!.session()!.user.id,
+    syncedRev: g.rev,
+    earned: full.achievements,
+  };
+  archive.put('games', next);
+  if (ctx!.game().syncId === g.syncId && ctx!.game().rev < g.rev) ctx!.syncGame(g, true);
+  return next;
 }
 
 /** A game deleted on the server: gone here too, except the one on the table, which stays on this phone only. */

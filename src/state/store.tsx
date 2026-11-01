@@ -29,6 +29,7 @@ import {
 import { initialState, reducer } from './reducer';
 import { archive, archiveGame } from './archive';
 import { backfillRegistry, ensurePlayer } from './registry';
+import { cachedPrefs, setupDefaults } from './prefs';
 import type {
   Action,
   AppState,
@@ -262,8 +263,10 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     const nav = (a: Action) => startTransition(() => dispatch(a));
     return {
       go: (screen, dir) => nav({ type: 'go', screen, dir }),
-      startSetup: () =>
-        nav({ type: 'startSetup', lg: storage.get<LastGroup | null>(KEYS.lastGroup, null) }),
+      startSetup: () => {
+        const lg = storage.get<LastGroup | null>(KEYS.lastGroup, null);
+        nav({ type: 'startSetup', lg, defaults: setupDefaults(lg, cachedPrefs()) });
+      },
       setupPatch: (patch) => dispatch({ type: 'setupPatch', patch }),
       setupSeat: (k, seat) => dispatch({ type: 'setupSeat', k, seat }),
       setupSeatPatch: (k, patch) => dispatch({ type: 'setupSeatPatch', k, patch }),
@@ -272,15 +275,18 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         const su = ref.current.setup;
         if (!su || !su.n) return;
         const names = su.seats.map((p) => p?.name ?? '');
-        storage.set(KEYS.lastGroup, {
+        const lg: LastGroup = {
           names,
           emojis: su.seats.map((p) => p?.emoji ?? ''),
           colors: su.seats.map((p) => p?.color ?? ''),
           direction: su.dir,
           decks: su.decks,
-        } satisfies LastGroup);
+          at: Date.now(),
+        };
+        storage.set(KEYS.lastGroup, lg);
         pushRecentNames(names);
         const online = !!ref.current.session;
+        if (online) void import('@/sync/prefs').then((p) => p.sendSetup(lg));
         const playerIds = su.seats.map((p) => (p ? ensurePlayer(p, online).id : ''));
         const now = Date.now();
         nav({ type: 'beginGame', id: 'g' + now, syncId: uuid(), now, playerIds });

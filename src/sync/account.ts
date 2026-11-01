@@ -1,4 +1,5 @@
 import { ep } from './endpoints';
+import { takePrefs } from './prefs';
 import type { Player, User } from './types';
 import type { Session } from '@/state/persistence';
 
@@ -13,8 +14,9 @@ export const sessionOf = (user: User, player: Player | null): Session => ({
   },
 });
 
-/** Email and password in, a session out (with the linked player, which login returns). */
+/** Email and password in, a session out (with the linked player, which login returns); the account's preferences are taken. */
 export async function signIn(email: string, password: string): Promise<Session> {
-  const { user, player } = await ep.login(email.trim(), password);
+  const { user, player, preferences } = await ep.login(email.trim(), password);
+  takePrefs(preferences);
   return sessionOf(user, player);
 }

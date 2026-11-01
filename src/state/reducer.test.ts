@@ -93,6 +93,21 @@ describe('setup and starting a game', () => {
     expect(st.seq).toMatchObject({ prev: null, round: { index: 0, cards: 3 } });
   });
 
+  it('setup starts from the account’s defaults when they are given (request 3), else as before', () => {
+    const home = initialState(demoGame(), 'home', []);
+    const fresh = run(home, {
+      type: 'startSetup',
+      lg: null,
+      defaults: { n: 8, decks: 2, dir: 'ccw' },
+    });
+    expect(fresh.setup).toMatchObject({ step: 1, n: 8, decks: 2, dir: 'ccw' });
+    expect(run(home, { type: 'startSetup', lg: null, defaults: null }).setup).toMatchObject({
+      n: null,
+      decks: 1,
+      dir: 'cw',
+    });
+  });
+
   it('starts with one deck, and deals the most the chosen decks allow', () => {
     const fresh = run(initialState(demoGame(), 'home', []), { type: 'startSetup', lg: null });
     expect(fresh.setup?.decks).toBe(1);

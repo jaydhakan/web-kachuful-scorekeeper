@@ -407,6 +407,7 @@ export const hub = {
     none: 'Nothing to add',
     noneBody: 'Every game on this phone is already in your account.',
     continueOther: (round: number) => `Continue round ${round} from your other device`,
+    continueFailed: 'Couldn’t open that game. Check your connection and try again.',
     keepThis: 'Keep this one',
     keepOther: 'Keep the other',
     conflictNote:

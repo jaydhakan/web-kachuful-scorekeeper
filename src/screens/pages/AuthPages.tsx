@@ -6,6 +6,7 @@ import { passwordOk } from '@/lib/password';
 import { useApp } from '@/state/store';
 import { ApiError } from '@/sync/api';
 import { sessionOf, signIn } from '@/sync/account';
+import { takePrefs } from '@/sync/prefs';
 import { ep } from '@/sync/endpoints';
 import type { PlayerSummary } from '@/sync/types';
 import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
@@ -184,6 +185,7 @@ export function InvitePage({ token }: { token: string }) {
     try {
       const r = await ep.acceptInvite(token, pw.value, player);
       actions.setSession(sessionOf(r.user, r.player));
+      takePrefs(r.preferences);
       actions.navReset();
       actions.say(a.signedIn(r.player.displayName));
     } catch (x) {
@@ -328,6 +330,7 @@ export function ResetPage({ token }: { token: string }) {
     try {
       const r = await ep.acceptReset(token, pw.value);
       actions.setSession(sessionOf(r.user, r.player));
+      takePrefs(r.preferences);
       actions.navReset();
       actions.say(a.resetDone);
     } catch (x) {
