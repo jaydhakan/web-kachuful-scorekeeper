@@ -427,6 +427,7 @@ export const hub = {
     title: 'Activity',
     empty: 'Nothing yet',
     more: 'Show more',
+    loadingMore: 'Loading…',
     earned: (name: string, ach: string) => `${name} earned ${ach}`,
     finished: (name: string, pts: string) => `${name} won a game · ${pts}`,
     joined: (name: string) => `${name} joined`,

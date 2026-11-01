@@ -21,11 +21,18 @@ export function ActivityPage() {
   const [more, setMore] = useState<Activity[]>([]);
   const [cursor, setCursor] = useState<string | null | undefined>(undefined);
   const next = cursor === undefined ? first.data?.nextCursor : cursor;
+  const [paging, setPaging] = useState<'idle' | 'busy' | 'failed'>('idle');
   const loadMore = async () => {
-    if (!next) return;
-    const p = await ep.activity(next);
-    setMore((m) => [...m, ...p.items]);
-    setCursor(p.nextCursor);
+    if (!next || paging === 'busy') return;
+    setPaging('busy');
+    try {
+      const p = await ep.activity(next);
+      setMore((m) => [...m, ...p.items]);
+      setCursor(p.nextCursor);
+      setPaging('idle');
+    } catch {
+      setPaging('failed');
+    }
   };
   if (!state.session)
     return (
@@ -49,13 +56,26 @@ export function ActivityPage() {
                 ))}
               </ul>
               {next && (
-                <button
-                  type="button"
-                  onClick={() => void loadMore()}
-                  className="press glass mt-4 min-h-12 w-full rounded-2xl font-bold"
-                >
-                  {ac.more}
-                </button>
+                <>
+                  {paging === 'failed' && (
+                    <p role="alert" className="mt-4 text-14 text-[var(--warn)]">
+                      {t.hub.common.errorTitle}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void loadMore()}
+                    disabled={paging === 'busy'}
+                    aria-busy={paging === 'busy'}
+                    className="press glass mt-4 min-h-12 w-full rounded-2xl font-bold disabled:opacity-60"
+                  >
+                    {paging === 'busy'
+                      ? ac.loadingMore
+                      : paging === 'failed'
+                        ? t.hub.common.retry
+                        : ac.more}
+                  </button>
+                </>
               )}
             </>
           )
