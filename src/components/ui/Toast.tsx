@@ -23,7 +23,7 @@ export function Toast({
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none absolute left-[var(--toast-x,0px)] top-[var(--toast-top,calc(var(--sat)+0.375rem))] z-[66] box-border flex w-[var(--toast-w,100%)] justify-center pl-[calc(3.5rem+var(--sal))] pr-[calc(3.5rem+var(--sar))] land:top-[var(--toast-top,calc(var(--sat)+0.125rem))]"
+      className="pointer-events-none absolute left-[var(--toast-x,0px)] top-[var(--toast-top,calc(var(--sat)+0.375rem))] z-[66] box-border grid w-[var(--toast-w,100%)] justify-items-center pl-[calc(3.5rem+var(--sal))] pr-[calc(3.5rem+var(--sar))] land:top-[var(--toast-top,calc(var(--sat)+0.125rem))]"
     >
       <AnimatePresence>
         {toast && (
@@ -40,7 +40,7 @@ export function Toast({
             onDragEnd={(_e, i) => {
               if (i.offset.y + i.velocity.y * 0.2 < -24) onDismiss?.();
             }}
-            className={`pointer-events-auto flex min-h-11 max-w-full items-center gap-1 mat-toast rounded-full text-15 font-semibold leading-tight [[data-desk]_&]:min-h-9 ${act ? 'pl-4 pr-1' : 'px-4'}`}
+            className={`pointer-events-auto col-start-1 row-start-1 flex min-h-11 max-w-full items-center gap-1 mat-toast rounded-full text-15 font-semibold leading-tight [[data-desk]_&]:min-h-9 ${act ? 'pl-4 pr-1' : 'px-4'}`}
           >
             <span className="py-1.5 [text-wrap:balance]">{toast.msg}</span>
             {toast.undo && (
