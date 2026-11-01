@@ -85,6 +85,28 @@ export default defineConfig(({ mode }) => ({
         // The API and the link-preview pages are the server's, never the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/r\//, /^\/l\//],
         cleanupOutdatedCaches: true,
+        // Player photos only (HANDOFF §5.7): public, versioned and immutable, so a cached copy is never stale and
+        // holds nothing private. Every other /api/ answer stays out of the worker: it is private and ETag-checked.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url, request, sameOrigin }) =>
+              sameOrigin &&
+              request.method === 'GET' &&
+              /^\/api\/players\/[^/]+\/photo$/.test(url.pathname) &&
+              url.searchParams.has('v'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kachuful-photos',
+              // ~60 KB each (§5.7): at most ~12 MB, and a photo unseen for 30 days goes.
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 30 * 24 * 3600,
+                purgeOnQuotaError: true,
+              },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+        ],
       },
     }),
   ],

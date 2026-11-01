@@ -68,6 +68,36 @@ test('a player adds a photo, it shows instead of the emoji, and can be removed',
   await expect(page.locator('img[src*="/photo?v="]')).toHaveCount(0);
 });
 
+test('the service worker keeps photos for offline, and no other API answer', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await signIn(page, 'riya');
+  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await btn(page, 'Account').click();
+  await page
+    .getByLabel('Choose a photo for Riya')
+    .setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: png(64, 64) });
+  const img = photo(page);
+  await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
+  const src = (await img.getAttribute('src'))!;
+  const cached = () =>
+    page.evaluate(async () => {
+      const out: Record<string, string[]> = {};
+      for (const name of await caches.keys())
+        out[name] = (await (await caches.open(name)).keys()).map(
+          (r) => new URL(r.url).pathname + new URL(r.url).search,
+        );
+      return out;
+    });
+  await expect.poll(async () => (await cached())['kachuful-photos'] ?? []).toContain(src);
+  const api = Object.values(await cached())
+    .flat()
+    .filter((u) => u.startsWith('/api/'));
+  expect(api.every((u) => /^\/api\/players\/[\w-]+\/photo\?v=\d+$/.test(u))).toBe(true);
+});
+
 test("only the admin, the creator and the player may change a player's photo", async ({ page }) => {
   // Riya is linked to her player; Kabir didn't create it.
   await signIn(page, 'kabir');
