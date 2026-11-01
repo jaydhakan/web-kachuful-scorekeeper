@@ -149,8 +149,8 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
               cy={y(row[at] ?? 0)}
               r={last[k] === lead ? 6 : 5}
               fill={g.players[k].color}
-              initial={draw && !rm ? { scale: 0 } : false}
-              animate={{ scale: 1 }}
+              initial={draw && !rm ? { scale: 0.5, opacity: 0 } : false}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: draw && !rm ? 1 + k * 0.05 : 0, duration: 0.3, ease: EASE }}
             />
           ))}

@@ -37,7 +37,11 @@ export function SyncDot({ className = '' }: { className?: string }) {
       ) : s.waiting ? (
         s.waiting
       ) : (
-        <m.span aria-hidden initial={rm ? false : { scale: 0 }} animate={{ scale: 1 }}>
+        <m.span
+          aria-hidden
+          initial={rm ? false : { scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
           ✓
         </m.span>
       )}

@@ -260,7 +260,7 @@ export function Table({
             }}
           >
             <m.div
-              initial={noSeatAnim ? false : { opacity: 0, scale: 0.3, y: dropIdx === k ? -60 : 0 }}
+              initial={noSeatAnim ? false : { opacity: 0, scale: 0.5, y: dropIdx === k ? -60 : 0 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={
                 dropIdx === k ? SPRING_POP : { ...SPRING, delay: noSeatAnim ? 0 : k * 0.04 }
@@ -344,7 +344,7 @@ export function Table({
               {p && first === k && (
                 <m.div
                   data-seat-chip
-                  initial={{ scale: 0.2, opacity: 0 }}
+                  initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
                   className="absolute z-[3] h-[18px] whitespace-nowrap rounded-[9px] bg-[var(--accent)] px-1.5 text-13 font-extrabold leading-[18px] text-ink-on-accent"
@@ -375,7 +375,7 @@ export function Table({
                   <m.div
                     key={'b' + bid}
                     data-seat-bid
-                    initial={{ scale: 0.2, opacity: 0 }}
+                    initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.5, opacity: 0 }}
                     transition={SPRING_POP}
@@ -409,8 +409,8 @@ export function Table({
               {p && out && (
                 <m.div
                   data-seat-chip
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
                   className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
                   style={{
