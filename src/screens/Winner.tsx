@@ -12,6 +12,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
+import { PODIUM_BG } from '@/components/ui/podium';
 import { t } from '@/strings';
 import { AvatarFill } from '@/components/ui/Avatar';
 
@@ -23,12 +24,6 @@ const rankColor = (rank: number) =>
       : rank === 3
         ? palette['rank-bronze']
         : 'var(--tx)';
-
-const PODIUM_BG = {
-  1: 'bg-gold-gradient-v',
-  2: 'bg-silver-gradient-v',
-  3: 'bg-bronze-gradient-v',
-} as const;
 
 // Podium sizes in design pixels times --pu, which is 1px except on a short screen where the podium shrinks to fit.
 const AVATAR = {
@@ -79,12 +74,14 @@ export default function Winner() {
   const col = (k: 1 | 2 | 3) => {
     const m = st.filter((x) => x.rank === k),
       h = k === 1 ? 128 : k === 2 ? 96 : 76;
+    // Tied players share their step side by side, so their avatars shrink to fit the column.
+    const w = `calc(${AVATAR[k].w} * ${m.length > 2 ? 0.56 : m.length > 1 ? 0.82 : 1})`;
     return (
       <div
         key={k}
         className="flex max-w-[120px] flex-1 flex-col items-center justify-end wide:max-w-[9rem]"
       >
-        <div className="mb-1.5 flex flex-wrap justify-center gap-1.5">
+        <div className="mb-1.5 flex flex-wrap items-end justify-center gap-1.5">
           {m.map((x, i) => (
             <motion.div
               key={x.p.id}
@@ -95,15 +92,17 @@ export default function Winner() {
               role="group"
               aria-label={x.p.name}
               title={x.p.name}
-              className="flex max-w-[70px] flex-col items-center text-13 font-bold wide:max-w-[7rem]"
+              className="flex min-w-0 max-w-[70px] flex-col items-center text-center text-13 font-bold leading-tight [overflow-wrap:anywhere] wide:max-w-[7rem]"
+              style={m.length > 1 ? { maxWidth: `max(${w}, 3.5rem)` } : undefined}
             >
               <span
                 aria-hidden
-                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold text-36 shadow-[0_0_28px_rgba(226,182,83,.6)] land:text-22' : 'border-white/25 text-28 land:text-19'}`}
+                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_rgba(226,182,83,.6)]' : 'border-white/25'}`}
                 style={{
                   background: x.p.color,
-                  width: AVATAR[k].w,
-                  height: AVATAR[k].w,
+                  width: w,
+                  height: w,
+                  fontSize: `calc(${w} * 0.56)`,
                 }}
               >
                 <AvatarFill p={x.p} />

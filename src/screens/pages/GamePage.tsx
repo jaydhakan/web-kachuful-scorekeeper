@@ -9,6 +9,7 @@ import { useApp } from '@/state/store';
 import { BoardTable } from '@/sheets/BoardBody';
 import { ChartLegend, ScoreChart } from '@/screens/desk/ScoreChart';
 import { rankTone } from '@/screens/desk/DeskParts';
+import { PODIUM_BG } from '@/components/ui/podium';
 import { EmptyState, Page, Section, Skeleton } from '@/components/ui/Page';
 import { fetchGame, queueDelete, resolveConflict } from '@/sync/engine';
 import { Modal } from '@/components/ui/Modal';
@@ -191,7 +192,8 @@ function Podium({ g }: { g: Game }) {
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ ...SPRING_POP, delay: 0.2 + (2 - k) * 0.08 }}
-              className={`w-full origin-bottom rounded-t-2xl bg-white/[.08] ${STEP_H[k]} grid place-items-start justify-center pt-2 text-22 font-extrabold ${rankTone(s.rank)}`}
+              // The step follows the rank, so players tied for first stand equally high.
+              className={`w-full origin-bottom rounded-t-2xl ${PODIUM_BG[Math.min(s.rank, 3) as 1 | 2 | 3]} ${STEP_H[Math.min(s.rank, 3) - 1]} grid place-items-start justify-center pt-2 text-22 font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)]`}
             >
               {s.rank}
             </motion.span>
