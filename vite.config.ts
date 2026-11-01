@@ -64,9 +64,13 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ['icon.svg'],
       includeManifestIcons: false,
       manifest: {
+        // Pinned to what browsers derived from start_url, so installs keep their identity if start_url ever moves.
+        id: '/',
         name: 'Kachuful',
         short_name: 'Kachuful',
         description: 'Scorekeeper for the Judgement / Kachuful card game.',
+        lang: 'en',
+        categories: ['games', 'utilities'],
         start_url: '/',
         scope: '/',
         display: 'standalone',
