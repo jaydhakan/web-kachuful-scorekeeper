@@ -115,7 +115,11 @@ test("the admin edits a player's email, and players who sat at one table are nev
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
   await btn(page, '🛡️ Admin').click();
-  await page.getByRole('button', { name: 'Players', exact: true }).click();
+  // Scoped to the admin tabs: Home's Players tile is still on screen while the page slides in.
+  await page
+    .getByRole('group', { name: 'Admin section' })
+    .getByRole('button', { name: 'Players', exact: true })
+    .click();
   const zoya = page
     .locator('li')
     .filter({ hasText: /^.*Zoya/ })
