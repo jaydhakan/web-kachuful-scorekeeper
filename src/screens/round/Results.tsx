@@ -132,7 +132,7 @@ export function Results() {
                       <div className="break-words text-16 font-bold @[26rem]:text-18 leading-[1.2] tracking-[-0.015em] [text-wrap:balance]">
                         {p.name}
                       </div>
-                      <div className="whitespace-nowrap text-13 font-medium leading-4 text-[var(--tx2)]">
+                      <div className="text-13 font-medium leading-4 text-[var(--tx2)] [text-wrap:balance]">
                         {t.results.bid(b)}
                         {i === r.dealerIndex && ` · ${t.results.dealer}`}
                         {!res && !tricks && (blocked(p.id, 'made') || blocked(p.id, 'missed')) && (
