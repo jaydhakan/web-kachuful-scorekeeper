@@ -42,7 +42,6 @@ import type {
 } from './types';
 import { useHistorySync } from '@/hooks/useHistorySync';
 import { onUnauthenticated } from '@/sync/api';
-import { bindEngine, hasWork, importable, importAsked, scheduleSync, syncNow } from '@/sync/engine';
 import { setSyncStatus } from '@/sync/status';
 import { messages } from '@/strings/messages';
 import type { Game, Trump } from '@/domain';
@@ -111,6 +110,10 @@ const trumpOf = (s: AppState): Trump =>
         : curRound(s.game).trump
     : 'spades';
 
+// The sync engine is downloaded on the first sign-in; signed out, none of it loads.
+let engine: Promise<typeof import('@/sync/engine')> | null = null;
+const loadEngine = () => (engine ??= import('@/sync/engine'));
+
 export function AppProvider({ children, initial }: { children: ReactNode; initial?: Loaded }) {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
     const l = initial ?? loadInitial();
@@ -123,6 +126,9 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   const vib = useHaptics();
   const ref = useRef(state);
   ref.current = state;
+  const withEngineRef = useRef<
+    ((f: (m: Awaited<ReturnType<typeof loadEngine>>) => void) => void) | null
+  >(null);
 
   usePersistence(state, dispatch);
   useWakeLock(state.game.status === 'active');
@@ -164,24 +170,36 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
 
   // The sync engine reads the session and game through these, and runs only while signed in.
   useEffect(() => {
-    bindEngine({
-      session: () => ref.current.session,
-      game: () => ref.current.game,
-      setSession: (session) => dispatch({ type: 'session', session }),
-      syncGame: (game, fresh) => dispatch({ type: 'syncGame', game, fresh }),
-      open: (route) => dispatch({ type: 'navPush', route }),
-    });
-    const kick = () => ref.current.session && scheduleSync(300);
+    let bound = false;
+    const withEngine = (f: (m: Awaited<ReturnType<typeof loadEngine>>) => void) => {
+      if (!ref.current.session) return;
+      void loadEngine().then((m) => {
+        if (!bound) {
+          bound = true;
+          m.bindEngine({
+            session: () => ref.current.session,
+            game: () => ref.current.game,
+            setSession: (session) => dispatch({ type: 'session', session }),
+            syncGame: (game, fresh) => dispatch({ type: 'syncGame', game, fresh }),
+            open: (route) => dispatch({ type: 'navPush', route }),
+          });
+        }
+        f(m);
+      });
+    };
+    withEngineRef.current = withEngine;
+    const kick = () => withEngine((m) => m.scheduleSync(300));
     const onVis = () => document.visibilityState === 'visible' && kick();
     const offArchive = archive.subscribe(() => {
       const s = ref.current.session;
-      if (s && !s.stale && hasWork(s.user.id)) scheduleSync(1500);
+      if (s && !s.stale) withEngine((m) => m.hasWork(s.user.id) && m.scheduleSync(1500));
     });
     const tick = setInterval(() => document.visibilityState === 'visible' && kick(), 60e3);
     window.addEventListener('online', kick);
     document.addEventListener('visibilitychange', onVis);
     return () => {
-      bindEngine(null);
+      withEngineRef.current = null;
+      if (bound) void loadEngine().then((m) => m.bindEngine(null));
       offArchive();
       clearInterval(tick);
       window.removeEventListener('online', kick);
@@ -194,11 +212,14 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       setSyncStatus({ phase: 'signedOut', waiting: 0, attention: 0 });
       return;
     }
-    void syncNow({ full: true }).then(() => {
-      // First sign-in on a phone with games of its own: offer to add them to the account.
-      if (!importAsked() && importable().length && ref.current.screen !== 'round')
-        dispatch({ type: 'navPush', route: { screen: 'import' } });
-    });
+    withEngineRef.current?.(
+      (m) =>
+        void m.syncNow({ full: true }).then(() => {
+          // First sign-in on a phone with games of its own: offer to add them to the account.
+          if (!m.importAsked() && m.importable().length && ref.current.screen !== 'round')
+            dispatch({ type: 'navPush', route: { screen: 'import' } });
+        }),
+    );
   }, [userId]);
 
   // Names seen before the registry existed become registry players once the archive is read.

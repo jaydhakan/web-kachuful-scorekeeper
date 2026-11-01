@@ -3,14 +3,14 @@ import { curRound } from '@/domain';
 import { archive } from '@/state/archive';
 import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
-import { continueElsewhere } from '@/sync/engine';
+import { continueElsewhere } from '@/sync/elsewhere';
 import { t } from '@/strings';
 
 /** "Continue round 7 from your other device": an unfinished game of this account, newer than the one here. */
 export function ContinueCard({ className = '' }: { className?: string }) {
   const { state, actions } = useApp();
-  const signedIn = !!state.session;
-  const rec = useArchive(() => (signedIn ? continueElsewhere(state.game) : null));
+  const me = state.session?.user.id;
+  const rec = useArchive(() => continueElsewhere(state.game, me));
   if (!rec) return null;
   return (
     <motion.button

@@ -542,26 +542,6 @@ export function importGames(syncIds: string[], matches: Record<string, string | 
 export const importAsked = () => !!cacheGet<boolean>('import:asked');
 export const markImportAsked = () => cacheSet('import:asked', true);
 
-/** An unfinished game of this account last touched on another device, newer than the one here. */
-export function continueElsewhere(current: Game): GameRec | null {
-  const me = ctx?.session()?.user.id;
-  if (!me) return null;
-  return (
-    archive
-      .games()
-      .filter(
-        (r) =>
-          r.origin === 'remote' &&
-          r.account === me &&
-          r.endedAt == null &&
-          r.game.status === 'active' &&
-          r.syncId !== current.syncId &&
-          r.updatedAt > (current.id === 'demo' ? 0 : current.updatedAt),
-      )
-      .sort((a, b) => b.updatedAt - a.updatedAt)[0] ?? null
-  );
-}
-
 /** Someone else's game, fetched once and kept for viewing. */
 export async function fetchGame(id: string): Promise<GameRec | null> {
   const have = archive.get('games', id);
