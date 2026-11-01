@@ -1,4 +1,4 @@
-import { m, useReducedMotion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { useApp } from '@/state/store';
 import { AvatarFill, type Face } from './Avatar';
@@ -160,7 +160,6 @@ export function ErrorState({ msg, onRetry }: { msg: ReactNode; onRetry?: () => v
 /** Placeholder rows, shown only when loading takes longer than 150 ms so fast loads never flash. */
 export function Skeleton({ rows = 4, h = 64 }: { rows?: number; h?: number }) {
   const [show, setShow] = useState(false);
-  const rm = useReducedMotion();
   useEffect(() => {
     const id = setTimeout(() => setShow(true), 150);
     return () => clearTimeout(id);
@@ -174,15 +173,11 @@ export function Skeleton({ rows = 4, h = 64 }: { rows?: number; h?: number }) {
           className="relative overflow-hidden rounded-2xl bg-white/[.05]"
           style={{ height: h }}
         >
-          {!rm && (
-            <m.div
-              aria-hidden
-              className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/[.06] to-transparent"
-              initial={{ x: '-100%' }}
-              animate={{ x: '250%' }}
-              transition={{ duration: 1.3, repeat: Infinity, ease: 'linear', delay: i * 0.08 }}
-            />
-          )}
+          <div
+            aria-hidden
+            className="shimmer absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/[.06] to-transparent"
+            style={{ animationDelay: `${i * 80}ms` }}
+          />
         </div>
       ))}
     </div>

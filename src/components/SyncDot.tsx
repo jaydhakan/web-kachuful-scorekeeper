@@ -29,13 +29,9 @@ export function SyncDot({ className = '' }: { className?: string }) {
       className={`inline-grid h-5 min-w-5 place-items-center rounded-full px-1 text-13 font-extrabold leading-none ${tone} ${className}`}
     >
       {s.phase === 'syncing' ? (
-        <m.span
-          aria-hidden
-          animate={rm ? undefined : { rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        >
+        <span aria-hidden className="spin">
           ↻
-        </m.span>
+        </span>
       ) : s.phase === 'attention' ? (
         '!'
       ) : s.waiting ? (

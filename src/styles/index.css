@@ -344,6 +344,24 @@ input {
     animation-timeline: scroll(self inline);
   }
 }
+/* Loading motion runs on the compositor: it plays exactly while the main thread is busy. */
+.shimmer {
+  transform: translateX(-100%);
+  animation: shimmer 1.3s linear infinite;
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(250%);
+  }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .tick {
   font-feature-settings: 'tnum' 1;
 }
@@ -351,8 +369,12 @@ input {
   .ambient,
   .ring-pulse::after,
   .warn-pulse::after,
-  .suit-glow {
+  .suit-glow,
+  .spin {
     animation: none;
+  }
+  .shimmer {
+    display: none;
   }
 }
 @media (prefers-reduced-transparency: reduce) {
