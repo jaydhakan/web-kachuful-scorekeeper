@@ -7,13 +7,15 @@ import { t } from '@/strings';
 
 /** Offers a waiting service-worker update. It never reloads on its own. */
 export function UpdatePrompt() {
-  const { actions } = useApp();
+  const { state, actions } = useApp();
   const { needRefresh, offlineReady, reload, dismiss, announced } = useServiceWorker();
+  // There is one toast slot, and this news can wait: it never displaces a toast the player just caused.
+  const slotBusy = !!state.toast;
   useEffect(() => {
-    if (!offlineReady) return;
+    if (!offlineReady || slotBusy) return;
     actions.say(t.toasts.offlineReady);
     announced();
-  }, [offlineReady, actions, announced]);
+  }, [offlineReady, slotBusy, actions, announced]);
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[calc(4.25rem+var(--sat))] z-[67] flex justify-center pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))] land:top-[calc(3.5rem+var(--sat))]">
       <AnimatePresence>
