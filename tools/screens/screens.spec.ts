@@ -1,13 +1,16 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { test, type Page } from '@playwright/test';
+import { test, type BrowserContext, type Page } from '@playwright/test';
 import type { Game } from '@/domain';
 import { seedGame, type SeedView } from '../../e2e/fixtures';
 import { ACCOUNTS, makeInvite, makeResetLink } from '../../e2e/backend';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
-const OUT = path.join(ROOT, 'screenshots');
+const OUT = process.env.SHOT_DIR
+  ? path.resolve(process.env.SHOT_DIR)
+  : path.join(ROOT, 'screenshots');
+const THEME = process.env.SHOT_THEME;
 const overflow: string[] = [];
 test.afterAll(() => {
   if (overflow.length) writeFileSync(path.join(OUT, 'overflow.txt'), overflow.join('\n') + '\n');
@@ -21,6 +24,18 @@ const DEVICES = {
     isMobile: true,
     hasTouch: true,
   },
+  p360: {
+    viewport: { width: 360, height: 780 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  },
+  p412: {
+    viewport: { width: 412, height: 915 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  },
   tablet: {
     viewport: { width: 820, height: 1180 },
     deviceScaleFactor: 2,
@@ -30,6 +45,17 @@ const DEVICES = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 },
 } as const;
 type Device = keyof typeof DEVICES;
+const isPhone = (d: Device) => d === 'phone' || d === 'p360' || d === 'p412';
+// The two extra phone sizes run only when asked for, so the default run stays as it was.
+const RUN = (process.env.SHOT_DEVICES?.split(',') ?? ['phone', 'tablet', 'desktop']).map((d) => {
+  if (!(d.trim() in DEVICES)) throw new Error(`SHOT_DEVICES: unknown device "${d}"`);
+  return d.trim() as Device;
+});
+
+/** Every navigation, reloads included, boots in SHOT_THEME, even after the spec clears localStorage. */
+async function withTheme(context: BrowserContext) {
+  if (THEME) await context.addInitScript((t) => localStorage.setItem('kf.theme', t), THEME);
+}
 
 const btn = (page: Page, name: string | RegExp) =>
   page.getByRole('button', { name, exact: typeof name === 'string' }).first();
@@ -197,12 +223,13 @@ const back = async (page: Page) => {
   await page.waitForTimeout(500);
 };
 
-for (const device of Object.keys(DEVICES) as Device[]) {
+for (const device of RUN) {
   test.describe(device, () => {
     test.use(DEVICES[device]);
+    test.beforeEach(({ context }) => withTheme(context));
 
     test(`${device}: game flow`, async ({ page }) => {
-      test.skip(device !== 'phone', 'the large-screen UI has its own flow');
+      test.skip(!isPhone(device), 'the large-screen UI has its own flow');
       const { shot, step, missed } = shooter(page, device, '1');
       await clearAll(page);
       await shot('home-first-run', 1400);
@@ -307,7 +334,7 @@ for (const device of Object.keys(DEVICES) as Device[]) {
     });
 
     test(`${device}: game flow (large-screen UI)`, async ({ page }) => {
-      test.skip(device === 'phone', 'the phone flow covers this');
+      test.skip(isPhone(device), 'the phone flow covers this');
       const { shot, step, missed } = shooter(page, device, '1');
       await clearAll(page);
       await shot('home-first-run', 1400);
@@ -463,6 +490,7 @@ for (const device of Object.keys(DEVICES) as Device[]) {
       const invite = await makeInvite(page, 'new.guest@kachuful.test');
       const reset = await makeResetLink(page, ACCOUNTS.riya.email);
       const guest = await browser.newContext({ ...DEVICES[device], serviceWorkers: 'block' });
+      await withTheme(guest);
       const g = await guest.newPage();
       const gs = shooter(g, device, '4');
       await g.goto(`/?invite=${invite}`);
