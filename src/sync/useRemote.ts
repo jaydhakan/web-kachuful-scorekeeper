@@ -86,5 +86,12 @@ export function useRemote<T>(
       });
     return () => ctl.abort();
   }, [key, n]);
+  // Offline answers ask again by themselves once the connection is back, instead of waiting for "Try again".
+  useEffect(() => {
+    if (!key || !state.offline) return;
+    const back = () => setN((x) => x + 1);
+    window.addEventListener('online', back);
+    return () => window.removeEventListener('online', back);
+  }, [key, state.offline]);
   return { ...state, reload: () => setN((x) => x + 1) };
 }

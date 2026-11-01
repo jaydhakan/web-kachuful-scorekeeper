@@ -55,4 +55,20 @@ describe('useRemote (cache first, HANDOFF §5.5 ETags)', () => {
     expect(result.current).toMatchObject({ data: { final: true }, loading: false });
     expect(f).not.toHaveBeenCalled();
   });
+
+  it('asks again by itself when the connection comes back', async () => {
+    archive.put('cache', { key: 'r:back', value: { n: 1 }, fetchedAt: 1 });
+    const f = vi.fn().mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    f.mockResolvedValue(new Response(JSON.stringify({ n: 3 }), { status: 200 }));
+    vi.stubGlobal('fetch', f);
+    const { result } = renderHook(() =>
+      useRemote<{ n: number }>('back', (o) => call('GET', '/leaderboard', undefined, o)),
+    );
+    await waitFor(() => expect(result.current.offline).toBe(true));
+    expect(result.current.data).toEqual({ n: 1 });
+    act(() => void window.dispatchEvent(new Event('online')));
+    await waitFor(() => expect(result.current.data).toEqual({ n: 3 }));
+    expect(result.current.offline).toBe(false);
+    expect(f).toHaveBeenCalledTimes(2);
+  });
 });
