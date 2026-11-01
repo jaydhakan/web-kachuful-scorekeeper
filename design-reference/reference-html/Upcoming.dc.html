@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Upcoming rounds</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./kf.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Instrument+Sans:wght@400..700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-list" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol>
+<symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol>
+<symbol id="s-spade" viewBox="0 0 24 24"><path d="M12 2C9.5 6 3 9.2 3 14.2A4.4 4.4 0 0 0 11 16.8C10.9 19 10.2 20.6 8.6 22H15.4C13.8 20.6 13.1 19 13 16.8A4.4 4.4 0 0 0 21 14.2C21 9.2 14.5 6 12 2Z"/></symbol>
+<symbol id="s-heart" viewBox="0 0 24 24"><path d="M12 21.5C5.6 16.4 2.8 13 2.8 9.2a4.9 4.9 0 0 1 9.2-2.4 4.9 4.9 0 0 1 9.2 2.4c0 3.8-2.8 7.2-9.2 12.3z"/></symbol>
+<symbol id="s-diamond" viewBox="0 0 24 24"><path d="M12 2l7 10-7 10-7-10z"/></symbol>
+<symbol id="s-club" viewBox="0 0 24 24"><circle cx="12" cy="7.3" r="4.4"/><circle cx="7" cy="14.2" r="4.4"/><circle cx="17" cy="14.2" r="4.4"/><path d="M12 12.5l-3.6 9.4h7.2z"/></symbol>
+</svg>
+<div class="app">
+  <div class="hdr" style="opacity:.5">
+    <span class="ibtn"><svg class="ic24 ic"><use href="#i-list"/></svg></span>
+    <div class="t"><b>Round 8 · 10 cards</b></div>
+    <span></span>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet" style="--top:60px" role="dialog" aria-label="Upcoming rounds">
+    <div class="sh-h" style="min-height:56px;padding-top:16px"><h2 class="title">Upcoming rounds</h2><button class="ibtn xs" aria-label="Close"><svg class="ic24 ic"><use href="#i-x"/></svg></button></div>
+    <p class="sh-sub" style="display:flex;align-items:center;gap:6px">Dealer <svg class="ic12 ic"><use href="#i-arrow"/></svg> first to bid</p>
+    <div class="sh-b" style="padding-top:8px">
+      <!-- NOW -->
+      <div class="rrow" style="height:64px;border-top:0;gap:12px;background:var(--brand-soft);border-radius:var(--r-md);margin:0 -8px;padding:0 8px">
+        <span class="sx" style="width:52px;text-align:center">10</span><svg class="su h" style="width:20px;height:20px;flex:none"><use href="#s-heart"/></svg>
+        <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="cap t2">Round 8</span><span class="chip b">Now</span><span class="chip n">Peak</span></div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c3" style="--s:20px">🦊</span>Kabir<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c4" style="--s:20px">🐼</span>Meera</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px;border-top:0">
+        <span class="sx" style="width:52px;text-align:center">10</span><svg class="su s" style="width:20px;height:20px;flex:none"><use href="#s-spade"/></svg>
+        <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="cap t2">Round 9</span><span class="chip n">Peak</span></div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c4" style="--s:20px">🐼</span>Meera<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c5" style="--s:20px">🐸</span>Dev</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">9</span><svg class="su d" style="width:20px;height:20px;flex:none"><use href="#s-diamond"/></svg>
+        <div style="flex:1;min-width:0"><div class="cap t2">Round 10</div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c5" style="--s:20px">🐸</span>Dev<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c1" style="--s:20px">🦁</span>Aarav</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">8</span><svg class="su c" style="width:20px;height:20px;flex:none"><use href="#s-club"/></svg>
+        <div style="flex:1;min-width:0"><div class="cap t2">Round 11</div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c1" style="--s:20px">🦁</span>Aarav<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c2" style="--s:20px">🐯</span>Riya</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">7</span><svg class="su h" style="width:20px;height:20px;flex:none"><use href="#s-heart"/></svg>
+        <div style="flex:1;min-width:0"><div class="cap t2">Round 12</div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c2" style="--s:20px">🐯</span>Riya<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c3" style="--s:20px">🦊</span>Kabir</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">6</span><svg class="su s" style="width:20px;height:20px;flex:none"><use href="#s-spade"/></svg>
+        <div style="flex:1;min-width:0"><div class="cap t2">Round 13</div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c3" style="--s:20px">🦊</span>Kabir<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c4" style="--s:20px">🐼</span>Meera</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">5</span><svg class="su d" style="width:20px;height:20px;flex:none"><use href="#s-diamond"/></svg>
+        <div style="flex:1;min-width:0"><div class="cap t2">Round 14</div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c4" style="--s:20px">🐼</span>Meera<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c5" style="--s:20px">🐸</span>Dev</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">4</span><svg class="su c" style="width:20px;height:20px;flex:none"><use href="#s-club"/></svg>
+        <div style="flex:1;min-width:0"><div class="cap t2">Round 15</div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c5" style="--s:20px">🐸</span>Dev<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c1" style="--s:20px">🦁</span>Aarav</div></div>
+      </div>
+      <div class="rrow" style="height:64px;gap:12px">
+        <span class="sx" style="width:52px;text-align:center">3</span><svg class="su h" style="width:20px;height:20px;flex:none"><use href="#s-heart"/></svg>
+        <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="cap t2">Round 16</span><span class="chip n">Last of cycle</span></div>
+          <div class="small" style="display:flex;align-items:center;gap:6px"><span class="av c1" style="--s:20px">🦁</span>Aarav<svg class="ic12 ic t3"><use href="#i-arrow"/></svg><span class="av c2" style="--s:20px">🐯</span>Riya</div></div>
+      </div>
+      <p class="small t3" style="padding:12px 0 16px">Cards, trump and dealer follow the seating order.</p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":780}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Everyone is seated</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./kf.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Instrument+Sans:wght@400..700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-back" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></symbol>
+<symbol id="i-cw" viewBox="0 0 256 256"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"/></symbol>
+<symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"/></symbol>
+</svg>
+<div class="app">
+  <div class="hdr">
+    <button class="ibtn" aria-label="Back"><svg class="ic24 ic"><use href="#i-back"/></svg></button>
+    <div class="t"><b>Seat the table</b><span>Step 2 of 3</span></div>
+    <span></span>
+  </div>
+  <div class="pg" style="padding-bottom:104px">
+    <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
+      <div class="tbl" style="--rx:104px;--ry:70px;--s:56px;--nf:14px;width:320px;height:240px">
+        <div class="felt"></div>
+        <div class="ctr"><svg class="ic t3"><use href="#i-cw"/></svg><span class="tn">5 of 5 seated</span></div>
+        <div class="seat" style="--a:270deg"><span class="av c1">🦁</span><span class="nm">Aarav</span></div>
+        <div class="seat" style="--a:198deg"><span class="av c2">🐯</span><span class="nm">Riya</span></div>
+        <div class="seat" style="--a:126deg"><span class="av c3">🦊</span><span class="nm">Kabir</span></div>
+        <div class="seat" style="--a:54deg"><span class="av c4">🐼</span><span class="nm">Meera</span></div>
+        <div class="seat" style="--a:342deg"><span class="av c5">🐸</span><span class="nm">Dev</span></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:52px;white-space:nowrap">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--success-soft);color:var(--success);display:grid;place-items:center;flex:none"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>
+        <h2 class="heading">Everyone's seated</h2>
+      </div>
+      <button class="gtxt" style="padding:0 8px;flex:none"><svg class="ic"><use href="#i-pencil"/></svg>Edit seats</button>
+    </div>
+  </div>
+  <div class="bar"><button class="btn p">Next</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":780}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

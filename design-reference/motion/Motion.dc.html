@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motion ideas</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./kf.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Unbounded:wght@300..800&family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Instrument+Sans:wght@400..700&display=swap">
+<style>
+@property --n{syntax:'<integer>';initial-value:0;inherits:false}
+body{margin:0}
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tl{border:1px solid var(--hairline-2);border-radius:20px;background:var(--surface-1);overflow:hidden;display:flex;flex-direction:column}
+.st{height:190px;position:relative;overflow:hidden;display:grid;place-items:center;background:radial-gradient(80% 80% at 50% 0,#1d2a3a,#0c1119)}
+.cp{padding:14px 16px 16px;display:grid;gap:4px}
+.cp b{font-size:15px;line-height:20px}
+.cp span{font-size:12px;line-height:17px;color:var(--text-2)}
+.cp em{font-style:normal;font-size:11px;line-height:16px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase}
+/* 1 deal */
+.dk{position:absolute;left:24px;top:60px;width:44px;height:62px;border-radius:7px;background:#F4EFE6;box-shadow:0 0 0 1px #0003,3px 3px 0 #0005;}
+.dc{position:absolute;left:24px;top:60px;width:44px;height:62px;border-radius:7px;background:#fff;color:#c4002f;font:700 20px/62px 'Bricolage Grotesque';text-align:center;box-shadow:0 6px 14px -4px #0008;animation:deal 4.2s var(--ease-out) infinite;animation-delay:calc(var(--i)*.14s);opacity:0}
+@keyframes deal{0%{opacity:0;transform:translate(0,0) rotate(0)}6%{opacity:1}34%,78%{opacity:1;transform:translate(calc(60px + var(--i)*34px),calc(var(--i)*-3px)) rotate(calc((var(--i) - 2)*7deg))}92%,100%{opacity:0;transform:translate(calc(60px + var(--i)*34px),20px) rotate(calc((var(--i) - 2)*7deg))}}
+/* 2 loader */
+.bl{position:absolute;left:50%;top:40px;width:34px;height:34px;margin-left:-17px;border-radius:50%;background:#FFD372;box-shadow:inset -5px -5px 0 #F15B40;animation:bnc 1s cubic-bezier(.5,0,.5,1) infinite}
+.sh{position:absolute;left:50%;top:138px;width:34px;height:8px;margin-left:-17px;border-radius:50%;background:#0006;animation:shd 1s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes bnc{0%,100%{transform:translateY(80px) scale(1.25,.75)}6%{transform:translateY(74px) scale(1.12,.88)}50%{transform:translateY(0) scale(.94,1.08)}94%{transform:translateY(74px) scale(1.12,.88)}}
+@keyframes shd{0%,100%{transform:scale(1.2);opacity:.6}50%{transform:scale(.55);opacity:.25}}
+.pc{position:absolute;bottom:14px;left:0;right:0;text-align:center;font:700 13px 'Space Mono';color:#F4EFE6;animation:cnt 4s linear infinite;counter-reset:n var(--n)}
+.pc::after{content:counter(n) "%"}
+@keyframes cnt{from{--n:0}to{--n:100}}
+/* 3 bid pop */
+.av3{position:relative;width:76px;height:76px;border-radius:50%;background:#8FC9A3;display:grid;place-items:center;font-size:40px;animation:sq 2.4s var(--ease-out) infinite}
+.bd{position:absolute;left:-12px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:#F4EFE6;color:#0B1412;font:700 17px/30px 'Bricolage Grotesque';text-align:center;animation:pop 2.4s var(--ease-out) infinite}
+@keyframes sq{0%,18%{transform:scale(1)}24%{transform:scale(1.18,.84)}34%{transform:scale(.92,1.1) translateY(-8px)}46%{transform:scale(1.04,.97)}60%,100%{transform:scale(1)}}
+@keyframes pop{0%,22%{transform:scale(0) rotate(-40deg)}40%{transform:scale(1.35) rotate(8deg)}52%,100%{transform:scale(1) rotate(0)}}
+/* 4 outline to fill */
+.ol{position:relative;font:italic 400 64px/1 'Instrument Serif';color:transparent;-webkit-text-stroke:1.2px #F4EFE6;letter-spacing:-.02em}
+.ol::before{content:attr(data-t);position:absolute;inset:0;color:#FF4B1F;-webkit-text-stroke:0;clip-path:inset(0 100% 0 0);animation:fill 3.6s var(--ease-in-out) infinite}
+@keyframes fill{0%,10%{clip-path:inset(0 100% 0 0)}50%,80%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}
+/* 5 variable type */
+.vt{font-family:'Unbounded';font-size:44px;line-height:1;color:#F7F2FF;animation:vw 3s ease-in-out infinite alternate}
+@keyframes vw{from{font-weight:200;letter-spacing:.06em}to{font-weight:800;letter-spacing:-.04em}}
+.vs{position:absolute;bottom:16px;font:500 11px 'Space Mono';color:#9C92BA;letter-spacing:.1em}
+/* 6 turn glow + tilt */
+.ps{perspective:500px}
+.tt{position:relative;width:200px;height:112px;border-radius:50%;background:radial-gradient(100% 100% at 35% 15%,#2A1A55,#120A26 70%);animation:tilt 5s ease-in-out infinite alternate;transform-style:preserve-3d}
+.tt::before{content:"";position:absolute;inset:-3px;border-radius:50%;padding:3px;background:conic-gradient(from 0deg,#FF6BD6,#6BE8FF,#B8FFB0,#B58CFF,#FF6BD6);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 4s linear infinite}
+.tt::after{content:"";position:absolute;inset:-18px;border-radius:50%;background:conic-gradient(from 0deg,#FF6BD655,transparent 25%,transparent 75%,#6BE8FF55);filter:blur(16px);z-index:-1;animation:spin 4s linear infinite}
+@keyframes tilt{from{transform:rotateX(34deg) rotateZ(-4deg)}to{transform:rotateX(52deg) rotateZ(5deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.dc,.bl,.sh,.pc,.av3,.bd,.ol::before,.vt,.tt,.tt::before,.tt::after{animation:none!important}.dc{opacity:1}}
+</style>
+</helmet>
+<div class="app" style="width:1080px;height:860px;display:block;padding:40px">
+  <h1 class="title">Motion ideas, borrowed from the sites you sent</h1>
+  <p class="small t2" style="margin-top:4px;margin-bottom:22px">Six loops you can see running. Each notes where it lives in the app. All stop under reduced-motion.</p>
+  <div class="mg">
+    <div class="tl"><div class="st"><div class="dk"></div><div class="dc" style="--i:0">K</div><div class="dc" style="--i:1">7</div><div class="dc" style="--i:2">A</div><div class="dc" style="--i:3">3</div><div class="dc" style="--i:4">9</div></div>
+      <div class="cp"><em>Corn Revolution · depth and staging</em><b>The deal fan</b><span>Cards leave the deck in a staggered arc on the Round intro, then settle. Replaces a static "Deal" screen.</span></div></div>
+    <div class="tl"><div class="st"><div class="sh"></div><div class="bl"></div><div class="pc"></div></div>
+      <div class="cp"><em>Don't Board Me · playful loader</em><b>Squash-and-stretch loader</b><span>A ball bounces with a counting percent while the saved game loads, so waiting feels like play.</span></div></div>
+    <div class="tl"><div class="st"><div class="av3">🦊<i class="bd" style="font-style:normal">3</i></div></div>
+      <div class="cp"><em>Dropbox, Rive · character personality</em><b>Bid pop</b><span>When a bid is placed, the avatar squashes and the badge springs in with a little overshoot.</span></div></div>
+    <div class="tl"><div class="st"><div class="ol" data-t="Kabir wins">Kabir wins</div></div>
+      <div class="cp"><em>Corn Revolution · outline headline</em><b>Outline to fill</b><span>Round winner headline draws as an outline, then floods with colour. Great for the Results screen.</span></div></div>
+    <div class="tl"><div class="st"><div class="vt">SCORE</div><div class="vs">WEIGHT 200 → 800</div></div>
+      <div class="cp"><em>Epic · responsive typography</em><b>Variable-weight score</b><span>Headline weight and tracking breathe with the score changing, using one variable font file.</span></div></div>
+    <div class="tl"><div class="st ps"><div class="tt"></div></div>
+      <div class="cp"><em>Lusion · light and depth</em><b>Turn glow and table tilt</b><span>The table tilts in perspective, and a light chases the rim to show whose turn it is.</span></div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1080,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

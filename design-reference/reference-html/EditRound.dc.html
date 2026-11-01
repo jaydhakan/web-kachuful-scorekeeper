@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit round</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./kf.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Instrument+Sans:wght@400..700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-list" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol>
+<symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
+<symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
+<symbol id="i-minus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></symbol>
+<symbol id="s-spade" viewBox="0 0 24 24"><path d="M12 2C9.5 6 3 9.2 3 14.2A4.4 4.4 0 0 0 11 16.8C10.9 19 10.2 20.6 8.6 22H15.4C13.8 20.6 13.1 19 13 16.8A4.4 4.4 0 0 0 21 14.2C21 9.2 14.5 6 12 2Z"/></symbol>
+</svg>
+<div class="app">
+  <div class="hdr" style="opacity:.5">
+    <span class="ibtn"><svg class="ic24 ic"><use href="#i-list"/></svg></span>
+    <div class="t"><b>Round 8 · 10 cards</b></div>
+    <span></span>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet" style="--top:210px" role="dialog" aria-label="Edit round 1">
+    <div class="sh-h" style="min-height:56px;padding-top:16px"><h2 class="title">Edit round 1</h2><button class="ibtn xs" aria-label="Close"><svg class="ic24 ic"><use href="#i-x"/></svg></button></div>
+    <p class="sh-sub" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">3 cards · <svg class="su s" style="width:14px;height:14px"><use href="#s-spade"/></svg> Spades · dealt by Aarav</p>
+    <div class="sh-b" style="padding-top:12px;display:flex;flex-direction:column">
+      <div>
+        <div class="rrow" style="height:64px;border-top:0;gap:6px"><span class="av c2" style="--s:36px">🐯</span><span class="label" style="flex:1;min-width:0">Riya</span>
+          <div class="stp"><button aria-label="Decrease bid"><svg class="ic"><use href="#i-minus"/></svg></button><output>1</output><button aria-label="Increase bid"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+          <div class="mk sm"><button class="ok" aria-label="Made it"><svg class="ic"><use href="#i-check"/></svg></button><button class="no on" aria-label="Missed" aria-pressed="true"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+        <div class="rrow" style="height:64px;gap:6px"><span class="av c3" style="--s:36px">🦊</span><span class="label" style="flex:1;min-width:0">Kabir</span>
+          <div class="stp"><button aria-label="Decrease bid"><svg class="ic"><use href="#i-minus"/></svg></button><output>2</output><button aria-label="Increase bid"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+          <div class="mk sm"><button class="ok" aria-label="Made it"><svg class="ic"><use href="#i-check"/></svg></button><button class="no on" aria-label="Missed" aria-pressed="true"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+        <div class="rrow" style="height:64px;gap:6px"><span class="av c4" style="--s:36px">🐼</span><span class="label" style="flex:1;min-width:0">Meera</span>
+          <div class="stp"><button aria-label="Decrease bid"><svg class="ic"><use href="#i-minus"/></svg></button><output>0</output><button aria-label="Increase bid"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+          <div class="mk sm"><button class="ok on" aria-label="Made it" aria-pressed="true"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+        <div class="rrow" style="height:64px;gap:6px"><span class="av c5" style="--s:36px">🐸</span><span class="label" style="flex:1;min-width:0">Dev</span>
+          <div class="stp"><button aria-label="Decrease bid"><svg class="ic"><use href="#i-minus"/></svg></button><output>1</output><button aria-label="Increase bid"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+          <div class="mk sm"><button class="ok on" aria-label="Made it" aria-pressed="true"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+        <div class="rrow" style="height:64px;gap:6px"><span class="av c1" style="--s:36px">🦁<i class="dbtn" style="font-style:normal;right:-8px;bottom:-4px;width:18px;height:18px;line-height:18px;font-size:11px">D</i></span><span class="label" style="flex:1;min-width:0">Aarav</span>
+          <div class="stp"><button aria-label="Decrease bid"><svg class="ic"><use href="#i-minus"/></svg></button><output>0</output><button aria-label="Increase bid"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+          <div class="mk sm"><button class="ok on" aria-label="Made it" aria-pressed="true"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+      </div>
+      <p class="small t2" style="display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--hairline)"><svg class="ic ts" style="width:16px;height:16px"><use href="#i-check"/></svg>Bids total 4 · 3 cards dealt</p>
+    </div>
+    <div style="flex:none;display:flex;gap:8px;padding:12px 20px calc(16px + env(safe-area-inset-bottom,0px))">
+      <button class="btn g" style="width:104px;flex:none">Cancel</button>
+      <button class="btn p">Save</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":780}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

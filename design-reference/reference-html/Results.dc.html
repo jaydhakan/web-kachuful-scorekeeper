@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Who made their bid</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./kf.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Instrument+Sans:wght@400..700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-back" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></symbol>
+<symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
+<symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
+</svg>
+<div class="app">
+  <div class="hdr">
+    <button class="ibtn" aria-label="Back"><svg class="ic24 ic"><use href="#i-back"/></svg></button>
+    <div class="t"><b>Round 8 · 10 cards</b><span>Bids in order</span></div>
+    <span></span>
+  </div>
+  <div class="pg" style="padding-bottom:104px">
+    <h1 class="title" style="margin-top:4px">Who made their bid?</h1>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="small t2">Tricks unaccounted</span><span class="label">7 / 10</span></div>
+      <div class="m4" style="--p:.7"><i></i></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;height:72px;margin-top:8px">
+      <div><div class="label">Enter exact tricks</div><div class="small t2">For when someone took more than they bid</div></div>
+      <span class="tog" role="switch" aria-checked="false" aria-label="Enter exact tricks"></span>
+    </div>
+    <div>
+      <div class="rrow" style="height:72px"><span class="av c4" style="--s:40px">🐼</span><div style="flex:1;min-width:0"><div class="label">Meera</div><div class="small t2">Bid 1</div></div><span class="dlt ts">+10</span><div class="mk"><button class="ok on" aria-label="Made it" aria-pressed="true"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+      <div class="rrow" style="height:72px"><span class="av c5" style="--s:40px">🐸</span><div style="flex:1;min-width:0"><div class="label">Dev</div><div class="small t2">Bid 1</div></div><span class="dlt td">−10</span><div class="mk"><button class="ok" aria-label="Made it"><svg class="ic"><use href="#i-check"/></svg></button><button class="no on" aria-label="Missed" aria-pressed="true"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+      <div class="rrow" style="height:72px"><span class="av c1" style="--s:40px">🦁</span><div style="flex:1;min-width:0"><div class="label">Aarav</div><div class="small t2">Bid 1</div></div><span class="dlt ts">+10</span><div class="mk"><button class="ok on" aria-label="Made it" aria-pressed="true"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+      <div class="rrow" style="height:72px"><span class="av c2" style="--s:40px">🐯</span><div style="flex:1;min-width:0"><div class="label">Riya</div><div class="small t2">Bid 1</div></div><span class="dlt ts">+10</span><div class="mk"><button class="ok on" aria-label="Made it" aria-pressed="true"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+      <div class="rrow" style="height:72px"><span class="av c3" style="--s:40px">🦊<i class="dbtn" style="font-style:normal;right:-8px;bottom:-4px;width:18px;height:18px;line-height:18px;font-size:11px">D</i></span><div style="flex:1;min-width:0"><div class="label">Kabir</div><div class="small t2">Bid 1 · dealer</div></div><span class="dlt t3">—</span><div class="mk"><button class="ok" aria-label="Made it"><svg class="ic"><use href="#i-check"/></svg></button><button class="no" aria-label="Missed"><svg class="ic"><use href="#i-x"/></svg></button></div></div>
+    </div>
+  </div>
+  <div class="bar"><button class="btn p dis info" disabled>Mark 1 more player</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":780}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

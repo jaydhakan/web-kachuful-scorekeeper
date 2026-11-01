@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bidding, dealer locked</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./kf.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Instrument+Sans:wght@400..700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-list" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol>
+<symbol id="i-bars" viewBox="0 0 256 256"><path d="M224,200h-8V40a8,8,0,0,0-8-8H152a8,8,0,0,0-8,8V80H96a8,8,0,0,0-8,8v40H48a8,8,0,0,0-8,8v64H32a8,8,0,0,0,0,16H224a8,8,0,0,0,0-16ZM160,48h40V200H160ZM104,96h40V200H104ZM56,144H88v56H56Z"/></symbol>
+<symbol id="i-warn" viewBox="0 0 256 256"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></symbol>
+<symbol id="s-heart" viewBox="0 0 24 24"><path d="M12 21.5C5.6 16.4 2.8 13 2.8 9.2a4.9 4.9 0 0 1 9.2-2.4 4.9 4.9 0 0 1 9.2 2.4c0 3.8-2.8 7.2-9.2 12.3z"/></symbol>
+</svg>
+<div class="app">
+  <div class="hdr">
+    <button class="ibtn" aria-label="Menu"><svg class="ic24 ic"><use href="#i-list"/></svg></button>
+    <div class="t"><b>Round 8 · 10 cards <svg class="su h" style="width:16px;height:16px"><use href="#s-heart"/></svg></b><span>Kabir deals · Meera leads</span></div>
+    <button class="ibtn" aria-label="Scoreboard"><svg class="ic24 ic"><use href="#i-bars"/></svg></button>
+  </div>
+  <div class="pg" style="padding-bottom:104px;gap:16px">
+    <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
+      <div class="tbl" style="--rx:116px;--ry:76px;--s:40px;width:340px;height:252px">
+        <div class="felt"></div>
+        <div class="ctr"><svg class="su h" style="width:24px;height:24px"><use href="#s-heart"/></svg><span>10 cards</span></div>
+        <div class="seat" style="--a:270deg"><span class="av c1">🦁<i class="bid" style="font-style:normal">1</i></span><span class="nm">Aarav</span></div>
+        <div class="seat" style="--a:198deg"><span class="av c2">🐯<i class="bid" style="font-style:normal">1</i></span><span class="nm">Riya</span></div>
+        <div class="seat" style="--a:126deg"><span class="av c3 live">🦊<i class="dbtn" style="font-style:normal">D</i></span><span class="nm">Kabir</span></div>
+        <div class="seat" style="--a:54deg"><span class="av c4">🐼<i class="first" style="font-style:normal">1st</i><i class="bid" style="font-style:normal">1</i></span><span class="nm">Meera</span></div>
+        <div class="seat" style="--a:342deg"><span class="av c5">🐸<i class="bid" style="font-style:normal">1</i></span><span class="nm">Dev</span></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="av c3" style="--s:64px">🦊</span>
+      <div><h2 class="title">Kabir</h2><p class="small t2">Dealer · bids last</p></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="label">Bids 4 of 10</span><span class="small t2">6 tricks unbid</span></div>
+      <div class="m4" style="--p:.4"><i></i></div>
+      <p class="warnln"><svg class="ic"><use href="#i-warn"/></svg>Dealer can't bid 6 — total would equal 10</p>
+    </div>
+    <div class="keys" role="group" aria-label="Choose a bid">
+      <button class="key">0</button><button class="key">1</button><button class="key">2</button><button class="key">3</button><button class="key">4</button><button class="key">5</button>
+      <button class="key no" aria-disabled="true" aria-label="6, not allowed for the dealer">6</button><button class="key">7</button><button class="key">8</button><button class="key">9</button><button class="key">10</button>
+    </div>
+  </div>
+  <div class="bar"><button class="btn p dis info" disabled>4 of 5 bids in</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":780}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

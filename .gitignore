@@ -165,3 +165,8 @@ reports/responsive/raw/
 screenshots/
 dist-profile/
 reports/lighthouse/*.html
+
+# Design reference images and the archive they came in (large; the specs and HTML are committed)
+design-reference/screenshots/
+design-reference/explorations/
+kachuful-design-reference-v*.zip
