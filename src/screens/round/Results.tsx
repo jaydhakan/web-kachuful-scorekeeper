@@ -84,7 +84,7 @@ export function Results() {
         // A container, so the Made/Missed buttons can relax once the row has room for them.
         className="@container scroll-thin min-h-[8.5rem] flex-1 overflow-y-auto overflow-x-hidden pane:overflow-visible"
       >
-        {/* One grouped list with hairlines between players (Results.dc.html). */}
+        {/* One grouped list with hairlines between players. */}
         <div className="glass overflow-hidden">
           {od.map((i, k) => {
             const p = g.players[i],
@@ -100,7 +100,7 @@ export function Results() {
                   {k > 0 && (
                     <span aria-hidden className="absolute left-14 right-2 top-0 h-px bg-ov/10" />
                   )}
-                  {/* Made or missed reads at a glance: the row floods with its colour, then settles (MOTION_SPEC.md). */}
+                  {/* Made or missed reads at a glance: the row floods with its colour, then settles (DESIGN-SYSTEM.md, Motion). */}
                   <AnimatePresence initial={false}>
                     {res && (
                       <m.span
@@ -151,7 +151,7 @@ export function Results() {
                         </div>
                       )}
                     </div>
-                    {/* Points for the round in their own column, once marked (Results.dc.html). */}
+                    {/* Points for the round in their own column, once marked. */}
                     <b
                       className={`tick w-10 shrink-0 text-right text-15 ${pv == null ? 'font-normal text-[var(--dis)]' : pv > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}`}
                     >

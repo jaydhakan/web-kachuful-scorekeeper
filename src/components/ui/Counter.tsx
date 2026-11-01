@@ -27,7 +27,7 @@ export function Counter({ from, to, run, duration = 0.6 }: CounterProps) {
         el.textContent = fmt(Math.round(v));
       },
     });
-    // Variable-weight score (MOTION_SPEC.md, idea 5): the number swells from light to heavy as it counts, then
+    // Variable-weight score (DESIGN-SYSTEM.md, Motion): the number swells from light to heavy as it counts, then
     // settles on its own weight. Off under reduced motion; a theme whose face has one weight simply doesn't change.
     const w =
       from !== to && !matchMedia('(prefers-reduced-motion: reduce)').matches

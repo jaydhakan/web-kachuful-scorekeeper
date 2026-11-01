@@ -12,7 +12,7 @@ export function loadThemeFonts(id: ThemeId, ms = 600): Promise<void> {
 }
 
 /**
- * Puts a theme on screen (ADMIN_THEME_SWITCHER.md §4). Only `data-theme`, the colour scheme and the browser chrome
+ * Puts a theme on screen (DESIGN-SYSTEM.md, Switching themes). Only `data-theme`, the colour scheme and the browser chrome
  * colour change; layout is identical in every theme, so nothing moves and no state is touched. A 250ms cross-fade
  * where View Transitions exist and motion is welcome; instant otherwise. `persist: false` is a preview.
  */

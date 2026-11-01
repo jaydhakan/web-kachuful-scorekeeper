@@ -1,5 +1,5 @@
 /* =====================================================================================================================
-   Kachuful themes: the only file with colour values (design-reference/specs/THEMES_SPEC.md, themes.css).
+   Kachuful themes: the only file with colour values (docs/codebase/DESIGN-SYSTEM.md).
    <html data-theme="…"> picks one; switching theme changes that attribute and nothing else. Themes change paint only:
    every rule below may set colour, type, radius, border-as-shadow and material, never size, padding or position.
    Add a theme = one token block + one material block + one entry in src/theme/themes.ts.
@@ -133,7 +133,7 @@
   --ink: #fff6f0;
   --arc: var(--brand);
   --vignette: rgba(0, 0, 0, 0.42);
-  /* The reference's .72 relies on a backdrop blur, which a sliding full-height sheet can't afford (DEVIATIONS.md). */
+  /* The reference's .72 relies on a backdrop blur, which a sliding full-height sheet can't afford. */
   --sheet-bg: rgba(30, 12, 26, 0.95);
   --toast-bg: rgba(58, 27, 46, 0.8);
   --toast-fg: var(--text-1);
@@ -414,7 +414,7 @@
    no theme changes a box's size.
    ===================================================================================================================== */
 
-/* Grouped surface: cards, list groups, panels (kf.css .grp). */
+/* Grouped surface: cards, list groups, panels. */
 .glass {
   border-radius: var(--r-card, 22px);
 }
@@ -512,7 +512,7 @@
     backdrop-filter: none;
   }
 }
-/* "Lite": a hidden setting for low-end phones (THEMES_SPEC.md §3), set as <html data-lite>. */
+/* "Lite": a hidden setting for low-end phones (DESIGN-SYSTEM.md, Themes), set as <html data-lite>. */
 [data-lite][data-theme='sunset-glass'] {
   --glass: var(--surface-2);
   --sheet-bg: var(--surface-1);
@@ -536,7 +536,7 @@
 .font-display {
   letter-spacing: var(--display-track);
 }
-/* Mono role: header lines, kickers, ticker, section labels (kf.css .kick/.sec). */
+/* Mono role: header lines, kickers, ticker, section labels. */
 .mono-label {
   font-family: var(--font-mono);
   font-weight: 600;
@@ -962,7 +962,7 @@
   text-transform: uppercase;
 }
 
-/* ---------- the hero layout: ticker, big name, tally (BiddingHero.dc.html) ---------- */
+/* ---------- the hero layout: ticker, big name, tally (DESIGN-SYSTEM.md, Hero layout) ---------- */
 @keyframes kf-ticker {
   to {
     transform: translateX(-50%);
@@ -1099,7 +1099,7 @@
   box-shadow: none;
 }
 
-/* Yerba Sun keys press into their shadow the moment they're touched (MOTION_SPEC.md, theme feel). */
+/* Yerba Sun keys press into their shadow the moment they're touched (DESIGN-SYSTEM.md, Themes). */
 [data-theme='yerba-sun'] .mat-key:active:not([aria-disabled='true']) {
   translate: 2px 2px;
   box-shadow:

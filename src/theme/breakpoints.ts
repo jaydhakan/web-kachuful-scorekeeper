@@ -28,7 +28,7 @@ export const MQ = {
   tl: '(min-width: 1024px) and (max-width: 1279.98px) and (min-height: 501px)',
   /** Desktop: rail and three panes. */
   dt: '(min-width: 1280px) and (min-height: 501px)',
-  /** A phone tall enough for Home's grouped list (Main.dc.html is 780px); shorter screens get the tile row. */
+  /** A phone tall enough for Home's grouped list (the design is drawn at 780px); shorter screens get the tile row. */
   tall: '(min-height: 720px)',
   /** Any mouse or trackpad attached, so keyboard hints are worth showing. */
   kbd: '(any-pointer: fine)',

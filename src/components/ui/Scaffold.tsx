@@ -6,7 +6,7 @@ interface ScaffoldProps {
   left?: ReactNode;
   right?: ReactNode;
   navTitle?: ReactNode;
-  /** A second header line; with it the header uses the mono role, as on the round screens (BiddingHero.dc.html). */
+  /** A second header line; with it the header uses the mono role, as on the round screens (DESIGN-SYSTEM.md, Hero layout). */
   navSub?: ReactNode;
   /** One thin strip under the header (the round ticker). */
   ticker?: ReactNode;

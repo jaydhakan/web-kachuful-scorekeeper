@@ -34,7 +34,7 @@ function DealLine({ g, r }: { g: Game; r: Round }) {
 }
 
 /**
- * The hero "who" row (BiddingHero.dc.html): avatar, a kicker, the player's name set big, and the live bid tally. The
+ * The hero "who" row (DESIGN-SYSTEM.md, Hero layout): avatar, a kicker, the player's name set big, and the live bid tally. The
  * name steps down with its length so it stays on one line at 360px; short screens scale the whole row.
  */
 export function HeroWho({

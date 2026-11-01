@@ -1,6 +1,6 @@
 # Backend requests from the three-theme redesign
 
-Format: `design-reference/specs/BACKEND_REQUESTS_TEMPLATE.md`. Contract today: `../backend-kachuful-scorekeeper/HANDOFF.md`
+Contract today: `../backend-kachuful-scorekeeper/HANDOFF.md`
 (§6 API reference). Nothing here is faked in the app: every request has a client fallback that works signed out,
 offline and against today's backend.
 
@@ -19,7 +19,7 @@ offline and against today's backend.
 
 - **Screen and design element:** Admin page, new "Appearance" section (`src/screens/pages/AdminPage.tsx`): three live
   preview cards, "Preview on this device", "Apply to everyone" with an 8-second Undo, "Let players choose their own
-  theme", and "Last changed by … on …" (`design-reference/specs/ADMIN_THEME_SWITCHER.md` §1, §8).
+  theme", and "Last changed by … on …" (`docs/codebase/DESIGN-SYSTEM.md`, Switching themes).
 - **What the app does today:** one look, built in. Nothing to read or store.
 - **What the new design needs:** an admin picks the theme everyone sees, at runtime, without a deploy; optionally lets
   each player pick their own; and everyone's app picks up a change soon after.
@@ -68,7 +68,7 @@ changed_at)`, one row per change, so "who changed the theme and when" is answera
 ## Request 2: Per-player theme preference
 
 - **Screen and design element:** the Menu's "Theme" row, shown when the admin allows players to choose
-  (`ADMIN_THEME_SWITCHER.md` §1, resolution order).
+  (`docs/codebase/DESIGN-SYSTEM.md`, Switching themes: resolution order).
 - **What the app does today:** nothing (new).
 - **What the new design needs:** a signed-in player's choice follows them to their other devices.
 - **Proposed API:** `PATCH /api/me/preferences` with `{ "theme": "editorial-paper" }`, or `{ "theme": null }` to go
@@ -83,7 +83,6 @@ changed_at)`, one row per change, so "who changed the theme and when" is answera
 ## Request 3: Setup defaults per account
 
 - **Screen and design element:** Setup step 1, "Last-used count preselected" and the deck choice
-  (`DESIGN_SPEC_v1_structure.md`, Setup).
 - **What the app does today:** remembers the last group on this device (`kachuful.lastGroup`: names, avatars, colours,
   direction, decks) and offers "Use last group".
 - **What the new design needs:** the same defaults on any device the player signs in on.
@@ -96,7 +95,7 @@ changed_at)`, one row per change, so "who changed the theme and when" is answera
 
 ## Request 4: Resume summary on Home for signed-in users
 
-- **Screen and design element:** Home, game in progress (`HomeResume.dc.html`): the Continue card.
+- **Screen and design element:** Home, game in progress: the Continue card.
 - **What the app does today:** shows the game saved on this device. A game started on another device appears in
   History once it finishes.
 - **What the new design needs:** a signed-in player sees their unfinished game from another device as "Resume".

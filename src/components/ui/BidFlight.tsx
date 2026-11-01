@@ -13,7 +13,7 @@ interface Flight {
 let seq = 0;
 
 /**
- * The bid flies from its key to the bidder's seat (DESIGN_SPEC_v1, "bid commit"): a copy of the key leaves the keypad,
+ * The bid flies from its key to the bidder's seat (DESIGN-SYSTEM.md, Motion): a copy of the key leaves the keypad,
  * shrinks towards the seat and fades as the seat's own badge pops in. Measured once at the tap, moved by transform
  * only, never in the way of the next tap, and skipped under reduced motion. Drawn on <body>, so a screen's transform
  * can't offset it.

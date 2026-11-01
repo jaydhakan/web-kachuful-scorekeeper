@@ -5,7 +5,7 @@ import { PRESS } from '@/components/ui/motion';
 import { THEME_IDS, type ThemeId } from '@/theme/themes';
 import { t } from '@/strings';
 
-/** A player's own theme, offered only while the admin lets players choose (ADMIN_THEME_SWITCHER.md §1). */
+/** A player's own theme, offered only while the admin lets players choose (DESIGN-SYSTEM.md, Switching themes). */
 export function ThemeBody() {
   const { state } = useApp();
   const th = useThemeState();

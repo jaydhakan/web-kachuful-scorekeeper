@@ -65,7 +65,7 @@ export function RoundStart() {
         className="relative my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
         style={{ perspective: 800 }}
       >
-        {/* The deal fan (MOTION_SPEC.md, idea 1): backs leave the deck behind the card, once; reduced motion hides it. */}
+        {/* The deal fan (DESIGN-SYSTEM.md, Motion): backs leave the deck behind the card, once; reduced motion hides it. */}
         <div aria-hidden className="deal-fan pointer-events-none absolute inset-0">
           {[0, 1, 2, 3, 4].map((i) => (
             <i

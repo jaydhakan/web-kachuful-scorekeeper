@@ -1,5 +1,5 @@
 /**
- * The theme registry (design-reference/specs/ADMIN_THEME_SWITCHER.md §3): the client's single list of themes. The look
+ * The theme registry: the client's single list of themes (docs/codebase/DESIGN-SYSTEM.md, Switching themes). The look
  * of each lives in src/styles/themes.css; the boot script in index.html is generated from this list.
  */
 export type ThemeId = 'sunset-glass' | 'yerba-sun' | 'editorial-paper';

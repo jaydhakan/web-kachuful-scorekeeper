@@ -13,7 +13,7 @@ import {
 import { loadThemeState, saveAppearance, saveUserTheme } from './persistence';
 
 /**
- * Which theme is on screen and why (ADMIN_THEME_SWITCHER.md). Local-first: the device's cached setting applies before
+ * Which theme is on screen and why (DESIGN-SYSTEM.md, Switching themes). Local-first: the device's cached setting applies before
  * the app draws, the server's (when signed in and when it exists) refreshes it, and a theme change never touches game
  * state.
  */

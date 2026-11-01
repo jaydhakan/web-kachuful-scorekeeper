@@ -99,7 +99,7 @@ function MenuRow({
       onClick={onClick}
       className="relative isolate flex min-h-12 w-full items-center gap-3.5 rounded-2xl px-2 text-left text-17 font-medium tracking-[-0.012em]"
     >
-      {/* Hairlines between rows, inset past the icon (kf.css .lr + .lr). */}
+      {/* Hairlines between rows, inset past the icon. */}
       {rule && <span aria-hidden className="absolute left-12 right-2 top-0 h-px bg-ov/10" />}
       <m.span
         aria-hidden

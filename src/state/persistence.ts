@@ -12,7 +12,7 @@ export const KEYS = {
   backup: 'kachuful.v1.backup',
   device: 'kachuful.device',
   session: 'kachuful.session',
-  // Theme keys follow ADMIN_THEME_SWITCHER.md §6; index.html's boot script reads `theme` (a bare id) before the app.
+  // Theme keys follow DESIGN-SYSTEM.md, Switching themes; index.html's boot script reads `theme` (a bare id) before the app.
   theme: 'kf.theme',
   themeAllowOverride: 'kf.theme.allowOverride',
   themeAppearance: 'kf.theme.appearance',

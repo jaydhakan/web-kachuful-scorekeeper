@@ -23,7 +23,7 @@ const ap = t.hub.admin.appearance;
 
 /**
  * A theme drawn small with its own real tokens and materials: the box carries `data-theme`, so nothing here can drift
- * from what the theme really looks like (ADMIN_THEME_SWITCHER.md §8).
+ * from what the theme really looks like (DESIGN-SYSTEM.md, Switching themes).
  */
 function ThemePreview({ id }: { id: ThemeId }) {
   return (
@@ -92,7 +92,7 @@ export function AppearancePanel() {
   const roving = useRovingFocus({ selected: THEME_IDS.indexOf(pick) });
   // A preview never outlives the Admin page.
   useEffect(() => () => previewTheme(null), []);
-  // Undo stays on screen for 8 seconds (ADMIN_THEME_SWITCHER.md §1).
+  // Undo stays on screen for 8 seconds (DESIGN-SYSTEM.md, Switching themes).
   useEffect(() => {
     if (!done) return;
     const id = setTimeout(() => setDone(null), 8000);

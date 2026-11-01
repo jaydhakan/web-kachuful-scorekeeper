@@ -23,7 +23,7 @@ export function Play() {
       fit
       aside={
         <div className="pane:flex pane:h-full pane:flex-col pane:justify-center">
-          {/* The hero row: who leads, set big, with the bids against the cards (BiddingHero.dc.html). */}
+          {/* The hero row: who leads, set big, with the bids against the cards (DESIGN-SYSTEM.md, Hero layout). */}
           <m.div {...stagger(0, 0.1)} className="mt-3 @h-short:mt-1">
             <HeroWho
               p={g.players[r.firstPlayerIndex]}

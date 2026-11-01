@@ -3,7 +3,7 @@
  * `palette` both read this, so a class, an inline style and a canvas all follow the active theme.
  */
 export const COLOR_VARS = {
-  // Theme roles (design-reference/specs/THEMES_SPEC.md §2).
+  // Theme roles (docs/codebase/DESIGN-SYSTEM.md).
   bg: 'bg',
   'surface-1': 'surface-1',
   'surface-2': 'surface-2',

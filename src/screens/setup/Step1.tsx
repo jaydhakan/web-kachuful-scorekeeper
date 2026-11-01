@@ -65,7 +65,7 @@ export function Step1() {
               {t.setup.useLastGroup(lg.names)}
             </m.button>
           )}
-          {/* Labelled sections, left-aligned (Setup.dc.html); the labels give way first on a short screen. */}
+          {/* Labelled sections, left-aligned; the labels give way first on a short screen. */}
           <div className="mt-2 flex flex-col items-stretch gap-1.5 @h-[45rem]:mt-1">
             <SectionLabel>{t.setup.decksLabel}</SectionLabel>
             <Seg<`${Decks}`>
@@ -180,7 +180,7 @@ export function Step1() {
   );
 }
 
-/** A section's name in the mono role (kf.css .sec); hidden on short screens, where the controls speak for themselves. */
+/** A section's name in the mono role; hidden on short screens, where the controls speak for themselves. */
 const SectionLabel = ({
   children,
   className = '',

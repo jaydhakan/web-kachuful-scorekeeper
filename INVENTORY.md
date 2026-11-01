@@ -183,4 +183,4 @@ Large-screen UI (`src/screens/desk/*`, tablets and desktops):
 ## Proposed removals
 
 None. The lock icon on the dealer's forbidden bid is replaced by the reference's diagonal strike (the key keeps its
-"Locked" name and its reason); see DEVIATIONS.md for every other difference.
+"Locked" name and its reason). Design decisions are in `docs/codebase/DESIGN-SYSTEM.md`.

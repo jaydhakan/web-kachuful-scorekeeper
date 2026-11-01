@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
 
-// ADMIN_THEME_SWITCHER.md §9: themes change paint, never geometry, and switching mid-game touches no state.
+// DESIGN-SYSTEM.md, Switching themes: themes change paint, never geometry, and switching mid-game touches no state.
 const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper'] as const;
 const NAMES = ['Aarav', 'Riya', 'Kabir', 'Meera', 'Dev'];
 

@@ -159,7 +159,7 @@ export const t = {
     menu: 'Menu',
     scoreboard: 'Scoreboard',
     title: (n: number) => `Round ${n}`,
-    /** The hero header (BiddingHero.dc.html): round and cards on top, who deals and who leads under it. */
+    /** The hero header (DESIGN-SYSTEM.md, Hero layout): round and cards on top, who deals and who leads under it. */
     heroCards: (cards: number) => `· ${cards} cards`,
     heroSub: (dealer: string, first: string) => `${dealer} deals · ${first} leads`,
     /** The ticker repeats the header for the room; it is decorative and hidden from assistive tech. */

@@ -328,7 +328,7 @@ input {
   }
 }
 
-/* ---------- Motion ideas (design-reference/specs/MOTION_SPEC.md). Transform and opacity, plus clip-path for the
+/* ---------- Motion (docs/codebase/DESIGN-SYSTEM.md, Motion). Transform and opacity, plus clip-path for the
    headline fill. Each stops or fades under reduced motion. ---------- */
 /* 1. Deal fan: five backs leave the deck in a staggered arc behind the trump card, settle, then fade. Once. */
 .deal-fan > i {

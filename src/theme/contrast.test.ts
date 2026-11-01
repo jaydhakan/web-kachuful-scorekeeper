@@ -57,8 +57,8 @@ const ratio = (a: RGBA, b: RGBA) => {
 };
 
 /**
- * The baseline pairs from THEMES_SPEC.md §7, plus the status colours the app shows on its surfaces. Glass is measured
- * over the plain background (the brightest wallpaper blob is checked by screenshot, see DEVIATIONS.md).
+ * The baseline pairs from DESIGN-SYSTEM.md, Contrast, plus the status colours the app shows on its surfaces. Glass is measured
+ * over the plain background (the brightest wallpaper blob is checked by screenshot).
  */
 const cases = THEME_IDS.flatMap((id) => {
   const t = tokens(id);
@@ -89,7 +89,7 @@ const cases = THEME_IDS.flatMap((id) => {
     ['on-gold on gold', parse(t['--on-gold']), parse(t['--medal-gold']), 4.5],
     ['card ink on card', parse(t['--card-fg']), parse(t['--card-bg']), 4.5],
     ['card red on card', parse(t['--card-red']), parse(t['--card-bg']), 4.5],
-    // A large glyph, so the 3:1 large-text bar (THEMES_SPEC.md §7 lists Yerba Sun's heart at 3.9).
+    // A large glyph, so the 3:1 large-text bar (DESIGN-SYSTEM.md, Contrast lists Yerba Sun's heart at 3.9).
     ['heart on the table', parse(t['--suit-red-felt']), parse(t['--felt']), 3],
   ];
   return pairs.map(([name, a, b, min]) => [`${id}: ${name}`, a, b, min] as const);

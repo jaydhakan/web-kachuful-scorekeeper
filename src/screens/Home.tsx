@@ -169,7 +169,7 @@ export function Home() {
             <ContinueCard className="md:max-w-[26rem]" />
             <TodayStrip className="md:max-w-[26rem] @h-short:hidden land:hidden" />
             {/* Short screens keep one row of tiles, so Home still fits without scrolling (e2e/responsive.spec.ts). */}
-            {/* Where to go, and the rules, as one grouped list (Main.dc.html). The column scrolls; New Game stays put. */}
+            {/* Where to go, and the rules, as one grouped list. The column scrolls; New Game stays put. */}
             {tall ? (
               <m.nav
                 {...stagger(2, 0.28)}

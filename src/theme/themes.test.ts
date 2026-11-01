@@ -1,6 +1,6 @@
 import { DEFAULT_THEME, isThemeId, resolveTheme } from './themes';
 
-describe('theme resolution (ADMIN_THEME_SWITCHER.md §1)', () => {
+describe('theme resolution (DESIGN-SYSTEM.md, Switching themes)', () => {
   const admin = {
     theme: 'yerba-sun' as const,
     allowUserOverride: false,

@@ -14,7 +14,7 @@ const splash = THEMES[DEFAULT_THEME].themeColor;
 
 /**
  * Puts the last theme shown on <html> before any CSS or app code runs, so a cold start never flashes the wrong theme
- * (ADMIN_THEME_SWITCHER.md §2). Generated from the registry so the two can't drift. It reads storage directly because
+ * (DESIGN-SYSTEM.md, Switching themes). Generated from the registry so the two can't drift. It reads storage directly because
  * nothing else has loaded yet; everywhere else goes through src/state/persistence.ts.
  */
 const themeBoot = (): Plugin => {
@@ -147,7 +147,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,webmanifest}'],
         // Only the default theme's face is installed up front; other themes' fonts are cached the first time a theme
-        // uses them (runtime rule below), so the install stays light (THEMES_SPEC.md §8).
+        // uses them (runtime rule below), so the install stays light (DESIGN-SYSTEM.md, Switching themes).
         globIgnores: ['**/{bricolage,space-mono,dm-mono,instrument-serif}-*.woff2'],
         navigateFallback: 'index.html',
         // The API and the link-preview pages are the server's, never the app shell.

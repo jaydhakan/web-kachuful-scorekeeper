@@ -125,7 +125,7 @@ const turnAngle = (p: { x: number; y: number }, cx: number, cy: number) =>
   (Math.atan2(p.x - cx, cy - p.y) * 180) / Math.PI;
 
 /**
- * The turn light (MOTION_SPEC.md, idea 6): a lit arc just outside the felt pointing at the player whose turn it is.
+ * The turn light (DESIGN-SYSTEM.md, Motion): a lit arc just outside the felt pointing at the player whose turn it is.
  * It turns round to the next player the short way, as a rotation, so it never repaints.
  */
 function TurnRim({
@@ -328,7 +328,7 @@ export function Table({
                   data-seat-avatar
                   title={named ? undefined : p.name}
                   initial={false}
-                  // Bid pop (MOTION_SPEC.md, idea 3): a bid landing squashes the player, who stretches up and settles.
+                  // Bid pop (DESIGN-SYSTEM.md, Motion): a bid landing squashes the player, who stretches up and settles.
                   animate={bid !== undefined ? 'bid' : 'rest'}
                   variants={BID_POP}
                   whileTap={onSeat ? PRESS_SM : undefined}
