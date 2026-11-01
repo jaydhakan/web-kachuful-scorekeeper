@@ -163,3 +163,5 @@ reports/parity/app-dist/
 reports/lighthouse/*.json
 reports/responsive/raw/
 screenshots/
+dist-profile/
+reports/lighthouse/*.html

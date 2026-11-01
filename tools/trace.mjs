@@ -1,6 +1,8 @@
 // Usage: npm run build && node tools/trace.mjs   (CPU=6 for a slower phone; the default throttle is 4x)
 // Records a Chrome trace at 4x CPU throttle through the key transitions and reports long tasks (>50 ms), forced
-// layouts and, per transition, frames that missed the 60 Hz budget (from requestAnimationFrame timings).
+// layouts and, per transition, frames that missed the 60 Hz budget, the slowest interaction (Event Timing, as INP
+// measures it) and React commits. Component names need an unminified build:
+//   npx vite build --minify false --outDir dist-profile && DIST=dist-profile node tools/trace.mjs
 /* global window, requestAnimationFrame -- the evaluated callbacks run in the page */
 import { chromium } from '@playwright/test';
 import { preview } from 'vite';
@@ -13,7 +15,7 @@ mkdirSync(out, { recursive: true });
 const server = await preview({
   configFile: false,
   root,
-  build: { outDir: path.join(root, 'dist') },
+  build: { outDir: path.join(root, process.env.DIST ?? 'dist') },
   preview: { port: 4311, strictPort: true, host: '127.0.0.1' },
 });
 const browser = await chromium.launch({ channel: 'chrome' });
@@ -21,8 +23,14 @@ const traceFile = path.join(out, 'trace.json');
 const RATE = Number(process.env.CPU ?? 4);
 /** @type {number[]} */
 let frames = [];
-/** @type {{ name: string, at: number }[]} */
+/** @type {{ name: string, at: number, ev: number, commits: number }[]} */
 let phases = [];
+/** @type {{ id: number, dur: number }[]} */
+let events = [];
+/** @type {number[]} */
+let commits = [];
+/** @type {Record<string, number>} */
+let renders = {};
 
 try {
   const ctx = await browser.newContext({
@@ -43,6 +51,43 @@ try {
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
+    // Every input that counts towards INP, with its full latency (input delay + handlers + next paint).
+    w.__events = [];
+    new PerformanceObserver((l) => {
+      for (const e of l.getEntries())
+        if (e.interactionId) w.__events.push({ id: e.interactionId, dur: e.duration });
+    }).observe({ type: 'event', durationThreshold: 16, buffered: true });
+    // A stand-in for the React DevTools hook: counts the components that rendered in each commit, the way DevTools
+    // decides it (PerformedWork flag; a subtree whose child pointer is unchanged bailed out and is skipped).
+    w.__commits = [];
+    w.__renders = {};
+    const nameOf = (f) => {
+      const t = f.type;
+      return t?.displayName || t?.name || t?.type?.name || t?.render?.name || 'Anonymous';
+    };
+    const walk = (next, prev, acc) => {
+      if ([0, 1, 11, 14, 15].includes(next.tag) && (!prev || next.flags & 1)) {
+        acc.n++;
+        const k = nameOf(next);
+        w.__renders[k] = (w.__renders[k] ?? 0) + 1;
+      }
+      if (prev && next.child === prev.child) return;
+      for (let c = next.child; c; c = c.sibling) walk(c, c.alternate, acc);
+    };
+    w.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+      supportsFiber: true,
+      isDisabled: false,
+      renderers: new Map(),
+      inject: () => 1,
+      checkDCE() {},
+      onCommitFiberUnmount() {},
+      onPostCommitFiberRoot() {},
+      onCommitFiberRoot(_id, root) {
+        const acc = { n: 0 };
+        walk(root.current, root.current.alternate, acc);
+        w.__commits.push(acc.n);
+      },
+    };
   });
   const page = await ctx.newPage();
   const cdp = await ctx.newCDPSession(page);
@@ -60,11 +105,12 @@ try {
   });
 
   const marks = [];
-  const phase = async (name) =>
-    marks.push({
-      name,
-      at: await page.evaluate(() => /** @type {any} */ (window).__frames.length),
+  const at = () =>
+    page.evaluate(() => {
+      const w = /** @type {any} */ (window);
+      return { at: w.__frames.length, ev: w.__events.length, commits: w.__commits.length };
     });
+  const phase = async (name) => marks.push({ name, ...(await at()) });
   const click = async (name, ms = 700) => {
     await page.getByRole('button', { name, exact: true }).first().click();
     await page.waitForTimeout(ms);
@@ -117,11 +163,11 @@ try {
   await page.waitForTimeout(1200);
   await page.goBack();
   await page.waitForTimeout(1000);
-  marks.push({
-    name: 'end',
-    at: await page.evaluate(() => /** @type {any} */ (window).__frames.length),
-  });
-  frames = await page.evaluate(() => /** @type {any} */ (window).__frames);
+  marks.push({ name: 'end', ...(await at()) });
+  ({ frames, events, commits, renders } = await page.evaluate(() => {
+    const w = /** @type {any} */ (window);
+    return { frames: w.__frames, events: w.__events, commits: w.__commits, renders: w.__renders };
+  }));
   phases = marks;
   await browser.stopTracing();
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
@@ -130,13 +176,13 @@ try {
   await server.close();
 }
 
-const events = JSON.parse(readFileSync(traceFile, 'utf8')).traceEvents;
-const main = events.find((e) => e.name === 'thread_name' && e.args?.name === 'CrRendererMain');
+const trace = JSON.parse(readFileSync(traceFile, 'utf8')).traceEvents;
+const main = trace.find((e) => e.name === 'thread_name' && e.args?.name === 'CrRendererMain');
 const isMain = (e) => main && e.pid === main.pid && e.tid === main.tid;
-const tasks = events.filter((e) => e.name === 'RunTask' && e.ph === 'X' && isMain(e));
+const tasks = trace.filter((e) => e.name === 'RunTask' && e.ph === 'X' && isMain(e));
 const long = tasks.filter((e) => e.dur > 50_000).sort((a, b) => b.dur - a.dur);
 // A layout whose begin data carries a JS stack was forced by script (read-after-write).
-const layouts = events.filter(
+const layouts = trace.filter(
   (e) => e.name === 'Layout' && (e.ph === 'X' || e.ph === 'B') && isMain(e),
 );
 const forced = layouts.filter((e) => e.args?.beginData?.stackTrace?.length);
@@ -158,17 +204,34 @@ const md = [
   }.`,
   `Layout passes: ${layouts.length}. Forced (script-triggered) layouts: ${forced.length}.`,
   '',
-  '## Frames per transition',
+  `Slowest interaction (INP for this flow): ${Math.max(0, ...events.map((e) => e.dur))} ms over ${new Set(events.map((e) => e.id)).size} interactions. React commits: ${commits.length}, components rendered: ${commits.reduce((a, b) => a + b, 0)}.`,
   '',
-  'A frame over 25 ms missed at least one 60 Hz refresh (a visible hitch).',
+  '## Per transition',
   '',
-  '| Transition | Frames | Over 25 ms | Worst |',
-  '| --- | ---: | ---: | ---: |',
+  'A frame over 25 ms missed at least one 60 Hz refresh (a visible hitch). Interaction = worst Event Timing duration.',
+  '',
+  '| Transition | Frames | Over 25 ms | Worst frame | Worst interaction | Commits | Components rendered |',
+  '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
   ...phases.slice(0, -1).map((p, i) => {
-    const f = frames.slice(p.at, phases[i + 1].at);
+    const n = phases[i + 1];
+    const f = frames.slice(p.at, n.at);
     const late = f.filter((d) => d > 25).length;
-    return `| ${p.name} | ${f.length} | ${late} (${f.length ? ((late / f.length) * 100).toFixed(1) : 0}%) | ${f.length ? Math.max(...f).toFixed(0) : 0} ms |`;
+    const ev = events.slice(p.ev, n.ev);
+    const c = commits.slice(p.commits, n.commits);
+    return `| ${p.name} | ${f.length} | ${late} (${f.length ? ((late / f.length) * 100).toFixed(1) : 0}%) | ${f.length ? Math.max(...f).toFixed(0) : 0} ms | ${ev.length ? Math.max(...ev.map((e) => e.dur)) + ' ms' : '–'} | ${c.length} | ${c.reduce((a, b) => a + b, 0)} |`;
   }),
+  '',
+  '## Most rendered components',
+  '',
+  '| Component | Renders |',
+  '| --- | ---: |',
+  ...Object.entries(renders)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)
+    .map(([k, v]) => `| ${k} | ${v} |`),
 ].join('\n');
-writeFileSync(path.join(out, 'trace-summary.md'), md + '\n');
+writeFileSync(
+  path.join(out, process.env.DIST ? 'trace-profile.md' : 'trace-summary.md'),
+  md + '\n',
+);
 console.log(md);
