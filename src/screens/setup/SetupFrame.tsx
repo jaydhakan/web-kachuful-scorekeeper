@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
@@ -12,20 +12,20 @@ const Dots = ({ step }: { step: number }) => (
   <div className="flex items-center gap-2" role="img" aria-label={t.setup.stepOf(step)}>
     {[1, 2, 3].map((i) => (
       // Each step remounts the frame; layoutId morphs the dots across it as transforms (radius corrected).
-      <motion.i
+      <m.i
         key={i}
         layoutId={`step-dot-${i}`}
         transition={SPRING}
         style={{ width: i === step ? 24 : 8, borderRadius: 999 }}
         className="relative block h-2 overflow-hidden bg-white/[.22]"
       >
-        <motion.span
+        <m.span
           className="absolute inset-0 bg-[var(--accent)]"
           initial={false}
           animate={{ opacity: i === step ? 1 : 0 }}
           transition={SPRING}
         />
-      </motion.i>
+      </m.i>
     ))}
   </div>
 );

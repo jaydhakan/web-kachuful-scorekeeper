@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { Outcome } from '@/domain';
 import { useRoundEdit } from '@/hooks/useRoundEdit';
 import { TR } from '@/theme/trumps';
@@ -25,7 +25,7 @@ export function EditBody({ i }: { i: number }) {
                 {p.name}
               </div>
               <div className="mt-1 flex items-center">
-                <motion.button
+                <m.button
                   type="button"
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.lowerBid(p.name)}
@@ -33,11 +33,11 @@ export function EditBody({ i }: { i: number }) {
                   className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
                   −
-                </motion.button>
+                </m.button>
                 <output className="disp w-8 text-center text-22 font-extrabold">
                   {bids[p.id]}
                 </output>
-                <motion.button
+                <m.button
                   type="button"
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.raiseBid(p.name)}
@@ -45,7 +45,7 @@ export function EditBody({ i }: { i: number }) {
                   className="h-11 w-11 shrink-0 rounded-xl bg-white/[.07] text-22 font-bold"
                 >
                   +
-                </motion.button>
+                </m.button>
               </div>
             </div>
             <Seg<Outcome>

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useId, useRef } from 'react';
 import { useDialog } from '@/hooks/useDialog';
 import { PrimaryButton } from './PrimaryButton';
@@ -31,14 +31,14 @@ export function Modal({
   useDialog(ref, locked ? undefined : onCancel);
   return (
     <div className="absolute inset-0 z-[65] grid place-items-center p-7">
-      <motion.div
+      <m.div
         className="absolute inset-0 bg-black/60"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={locked ? undefined : onCancel}
       />
-      <motion.div
+      <m.div
         ref={ref}
         role="alertdialog"
         aria-modal="true"
@@ -65,7 +65,7 @@ export function Modal({
             {ok}
           </PrimaryButton>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

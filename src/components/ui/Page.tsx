@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { useApp } from '@/state/store';
 import { AvatarFill, type Face } from './Avatar';
@@ -115,7 +115,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: EASE }}
@@ -131,7 +131,7 @@ export function EmptyState({
         </p>
       )}
       {action && <div className="mt-3">{action}</div>}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -175,7 +175,7 @@ export function Skeleton({ rows = 4, h = 64 }: { rows?: number; h?: number }) {
           style={{ height: h }}
         >
           {!rm && (
-            <motion.div
+            <m.div
               aria-hidden
               className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/[.06] to-transparent"
               initial={{ x: '-100%' }}
@@ -202,7 +202,7 @@ export function Chip({
   'aria-label'?: string;
 }) {
   return (
-    <motion.button
+    <m.button
       type="button"
       aria-pressed={on}
       onClick={onClick}
@@ -216,7 +216,7 @@ export function Chip({
         className={`absolute inset-0 -z-10 rounded-full ${on ? 'bg-[var(--accent)]' : 'bg-white/[.07] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]'}`}
       />
       {children}
-    </motion.button>
+    </m.button>
   );
 }
 

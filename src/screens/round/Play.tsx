@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { curRound, sumBids } from '@/domain';
 import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
@@ -20,12 +20,12 @@ export function Play() {
       fit
       aside={
         <div className="pane:flex pane:h-full pane:flex-col pane:justify-center">
-          <motion.p
+          <m.p
             {...stagger(0, 0.1)}
             className="mt-4 text-center text-19 leading-[1.4] tracking-[-0.015em]"
           >
             {t.play.summary(sum, r.cards)}
-          </motion.p>
+          </m.p>
           <p className="mt-2 text-center text-13 text-[var(--tx2)]">
             {t.play.leadsTrick(g.players[r.firstPlayerIndex].name)}
           </p>
@@ -33,7 +33,7 @@ export function Play() {
       }
       bar={
         <>
-          <motion.button
+          <m.button
             type="button"
             whileTap={{ scale: 0.92 }}
             onClick={() => actions.phase('bidding', -1)}
@@ -41,7 +41,7 @@ export function Play() {
             className="glass grid h-[60px] w-[60px] shrink-0 place-items-center !rounded-[20px]"
           >
             {Icon.edit}
-          </motion.button>
+          </m.button>
           <PrimaryButton className="flex-1" onClick={() => actions.phase('results')}>
             {t.play.enterResults}
           </PrimaryButton>

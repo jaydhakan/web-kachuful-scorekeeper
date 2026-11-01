@@ -1,4 +1,4 @@
-import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion';
+import { AnimatePresence, animate, m, useMotionValue, useTransform } from 'framer-motion';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { cycleLen, maxFor, type LengthMode } from '@/domain';
 import {
@@ -89,8 +89,8 @@ export function Step3() {
   const signedIn = !!useApp().state.session;
   const n = su.n ?? 0,
     seats = su.seats as Seat[],
-    m = maxFor(n, su.decks),
-    L = cycleLen(m);
+    max = maxFor(n, su.decks),
+    L = cycleLen(max);
   const [spin, setSpin] = useState<{ tgt: number; a0: number; a1: number } | null>(null),
     [ghost, setGhost] = useState<{ x: number; y: number; p: Seat } | null>(null);
   const wrap = useRef<HTMLDivElement>(null),
@@ -178,7 +178,7 @@ export function Step3() {
             className="px-4 py-3.5 text-18 leading-[1.5] tracking-[-0.01em] @h-[45rem]:py-1 @h-[45rem]:text-17 @h-[45rem]:leading-[1.3]"
           >
             <AnimatePresence mode="popLayout" initial={false}>
-              <motion.div
+              <m.div
                 key={su.dealer}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -191,17 +191,17 @@ export function Step3() {
                 <div className="text-14 text-[var(--tx2)] @h-[45rem]:hidden">
                   {t.setup.roundOne}
                 </div>
-              </motion.div>
+              </m.div>
             </AnimatePresence>
             <div className="mt-2.5 flex items-center gap-3 @h-[45rem]:mt-0.5">
-              <motion.button
+              <m.button
                 type="button"
                 whileTap={{ scale: 0.94 }}
                 onClick={doSpin}
                 className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 !rounded-full px-4 text-16 font-medium @h-[45rem]:min-h-11"
               >
                 {t.setup.random}
-              </motion.button>
+              </m.button>
               <span className="text-13 leading-[1.35] text-[var(--tx2)] @h-[45rem]:leading-[1.25]">
                 <span className="@h-[45rem]:hidden">{t.setup.dragHint}</span>
                 <span className="hidden @h-[45rem]:inline">{t.setup.dragHintShort}</span>

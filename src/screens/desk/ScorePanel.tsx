@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import { curRound, doneRounds, pts, standings, type Game } from '@/domain';
 import { sgnN } from '@/lib/format';
@@ -43,7 +43,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
             move = before[id] - x.rank,
             lead = x.rank === 1 && done.length + (projected ? 1 : 0) > 0;
           return (
-            <motion.li
+            <m.li
               layout="position"
               key={id}
               transition={SPRING}
@@ -87,7 +87,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
                 v={x.t}
                 className={`disp text-24 font-extrabold leading-none tracking-[-0.02em] [grid-area:tot] tick rail:min-w-12 rail:text-right dt:min-w-10 dt:text-28 ${x.t < 0 ? 'text-[var(--neg-tx)]' : ''}`}
               />
-            </motion.li>
+            </m.li>
           );
         })}
       </ol>

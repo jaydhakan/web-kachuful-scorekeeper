@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { doneRounds, gameStats, standings, type Player } from '@/domain';
 import { fmt, sgnN } from '@/lib/format';
@@ -51,7 +51,7 @@ const Highlight = ({
   who: Player;
   i: number;
 }) => (
-  <motion.div
+  <m.div
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ ...SPRING_SOFT, delay: 1.1 + i * 0.08 }}
@@ -64,7 +64,7 @@ const Highlight = ({
       {value}
     </div>
     <div className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">{who.name}</div>
-  </motion.div>
+  </m.div>
 );
 
 export function DeskWinner() {
@@ -83,13 +83,13 @@ export function DeskWinner() {
       ? t.desk.winner.tie(top.map((x) => x.p.name).join(', '), fmt(top[0].t))
       : t.desk.winner.title(top[0].p.name, fmt(top[0].t));
   const col = (k: 1 | 2 | 3) => {
-    const m = st.filter((x) => x.rank === k),
+    const tied = st.filter((x) => x.rank === k),
       s = STEP[k];
     return (
       <div key={k} className="flex min-w-0 flex-1 flex-col items-center justify-end">
         <div className="mb-2.5 flex flex-wrap justify-center gap-2">
-          {m.map((x, i) => (
-            <motion.div
+          {tied.map((x, i) => (
+            <m.div
               key={x.p.id}
               initial={rm ? false : { y: -40, opacity: 0, scale: 0.6 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -100,9 +100,9 @@ export function DeskWinner() {
                 aria-hidden
                 className={`relative grid place-items-center rounded-full border-[3px] ${s.ring}`}
                 style={{
-                  width: m.length > 1 ? s.av * 0.7 : s.av,
-                  height: m.length > 1 ? s.av * 0.7 : s.av,
-                  fontSize: (m.length > 1 ? s.av * 0.7 : s.av) * 0.56,
+                  width: tied.length > 1 ? s.av * 0.7 : s.av,
+                  height: tied.length > 1 ? s.av * 0.7 : s.av,
+                  fontSize: (tied.length > 1 ? s.av * 0.7 : s.av) * 0.56,
                   background: x.p.color,
                 }}
               >
@@ -111,23 +111,23 @@ export function DeskWinner() {
               <span className="mt-2 max-w-[9rem] text-center text-20 font-bold leading-tight [overflow-wrap:anywhere]">
                 {x.p.name}
               </span>
-            </motion.div>
+            </m.div>
           ))}
         </div>
-        <motion.div
+        <m.div
           initial={rm ? false : { scaleY: 0 }}
           animate={{ scaleY: 1 }}
           transition={{ duration: 0.85, ease: EASE, delay: (3 - k) * 0.15 }}
-          style={{ originY: 1, opacity: m.length ? 1 : 0.25 }}
+          style={{ originY: 1, opacity: tied.length ? 1 : 0.25 }}
           className={`flex w-full flex-col items-center rounded-t-[20px] pt-3.5 text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)] ${s.h} ${s.bg}`}
         >
           <span className={`disp font-extrabold leading-none ${s.text}`}>
             {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
           </span>
           <span className="disp tick mt-1 text-30 font-extrabold">
-            {m.length ? fmt(m[0].t) : '—'}
+            {tied.length ? fmt(tied[0].t) : '—'}
           </span>
-        </motion.div>
+        </m.div>
       </div>
     );
   };
@@ -162,7 +162,7 @@ export function DeskWinner() {
           aria-label={t.winner.finalScores}
           className="glass glass-glow cq-size relative flex h-[28rem] flex-col items-center justify-end overflow-hidden px-6 pt-8 rail:h-auto dt:px-10"
         >
-          <motion.span
+          <m.span
             initial={rm ? false : { y: -120, scale: 0.4, opacity: 0 }}
             animate={{ y: 0, scale: 1, opacity: 1 }}
             transition={{ ...SPRING_POP, delay: 0.4 }}
@@ -171,7 +171,7 @@ export function DeskWinner() {
             className="absolute left-1/2 top-7 h-[min(84px,12cqh)] w-[min(84px,12cqh)] -translate-x-1/2 text-gold [filter:drop-shadow(0_0_24px_rgba(226,182,83,.6))]"
           >
             {Icon.trophy}
-          </motion.span>
+          </m.span>
           <div className="flex w-full max-w-[40rem] items-end justify-center gap-4">
             {([2, 1, 3] as const).map(col)}
           </div>
@@ -182,7 +182,7 @@ export function DeskWinner() {
             className="glass scroll-thin flex shrink-0 flex-col gap-1 p-3.5 rail:max-h-[45%] rail:overflow-y-auto"
           >
             {st.map((x, i) => (
-              <motion.li
+              <m.li
                 key={x.p.id}
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -204,7 +204,7 @@ export function DeskWinner() {
                 >
                   {fmt(x.t)}
                 </span>
-              </motion.li>
+              </m.li>
             ))}
           </ol>
           {done.length > 0 && (

@@ -1,4 +1,4 @@
-import { motion, useDragControls, useReducedMotion, type Variants } from 'framer-motion';
+import { m, useDragControls, useReducedMotion, type Variants } from 'framer-motion';
 import { useId, useRef, type ReactNode } from 'react';
 import { useDialog } from '@/hooks/useDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -61,7 +61,7 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
   useDialog(ref, onClose);
   return (
     <div className={`absolute inset-0 z-[60] ${WRAP[roomy]}`}>
-      <motion.div
+      <m.div
         className="absolute inset-0 bg-black/55"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -69,7 +69,7 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
         transition={{ duration: 0.3, ease: EASE }}
         onClick={onClose}
       />
-      <motion.div
+      <m.div
         ref={ref}
         role="dialog"
         aria-modal="true"
@@ -113,7 +113,7 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
         >
           {children}
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

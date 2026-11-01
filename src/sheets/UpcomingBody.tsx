@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { curRound, roundAt } from '@/domain';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
@@ -23,7 +23,7 @@ export function UpcomingBody() {
                 ? t.sheets.upcomingBack
                 : '';
         return (
-          <motion.div key={i} {...stagger(k)} className="mb-2">
+          <m.div key={i} {...stagger(k)} className="mb-2">
             <Glass
               className={`flex min-h-[72px] items-center gap-3 p-3 ${k === 0 ? 'ring-1 ring-[var(--accent)] shadow-[0_0_28px_-6px_var(--glow)]' : ''}`}
             >
@@ -61,7 +61,7 @@ export function UpcomingBody() {
                 ))}
               </div>
             </Glass>
-          </motion.div>
+          </m.div>
         );
       })}
       <p className="p-1.5 text-center text-13 text-[var(--tx2)]">{t.sheets.upcomingFoot}</p>

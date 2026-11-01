@@ -1,4 +1,4 @@
-import { motion, useAnimationFrame, useReducedMotion } from 'framer-motion';
+import { m, useAnimationFrame, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { curRound, doneRounds, standings } from '@/domain';
 import { agoTxt, sgnN } from '@/lib/format';
@@ -77,7 +77,7 @@ export function Home() {
       >
         <div className="m-auto flex w-full flex-col items-center gap-[clamp(1rem,4.5svh,2rem)] py-2 pane:contents">
           <div className="@container flex w-full justify-center pane:h-full pane:cq-size pane:items-center pane:px-5 pane:[grid-area:1/1/3/2]">
-            <motion.div
+            <m.div
               ref={orbit}
               initial={{ opacity: 0, scale: 0.94, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -105,10 +105,10 @@ export function Home() {
                   {t.tagline}
                 </p>
               </div>
-            </motion.div>
+            </m.div>
           </div>
           <div className="scroll-thin flex w-full flex-col items-center gap-[clamp(1rem,4.5svh,2rem)] pane:max-h-full pane:min-h-0 pane:self-center land:overflow-y-auto land:overflow-x-hidden pane:px-5 pane:py-2 land:gap-0 pane:[grid-area:1/2]">
-            <motion.div {...stagger(1, 0.25)} className="w-full md:max-w-[26rem]">
+            <m.div {...stagger(1, 0.25)} className="w-full md:max-w-[26rem]">
               <Glass
                 glow
                 onClick={actions.resume}
@@ -161,11 +161,11 @@ export function Home() {
                   </div>
                 )}
               </Glass>
-            </motion.div>
+            </m.div>
             <ContinueCard className="md:max-w-[26rem]" />
             <TodayStrip className="md:max-w-[26rem] @h-short:hidden land:hidden" />
             {/* One row of small tiles: where to go, and the rules, without pushing New Game off a small phone. */}
-            <motion.nav
+            <m.nav
               {...stagger(2, 0.28)}
               aria-label={t.hub.nav.label}
               className="grid w-full auto-cols-fr grid-flow-col gap-2 md:max-w-[26rem] land:mt-2"
@@ -184,7 +184,7 @@ export function Home() {
                   go: () => actions.openSheet({ type: 'rules' }),
                 },
               ].map((d) => (
-                <motion.button
+                <m.button
                   key={d.key}
                   type="button"
                   whileTap={{ scale: 0.94 }}
@@ -195,9 +195,9 @@ export function Home() {
                     {d.emoji}
                   </span>
                   {d.label}
-                </motion.button>
+                </m.button>
               ))}
-            </motion.nav>
+            </m.nav>
           </div>
         </div>
       </div>

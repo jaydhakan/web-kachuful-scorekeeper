@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { SPRING } from './motion';
 
@@ -19,7 +19,7 @@ export function IconButton({
   skipInitialFocus,
 }: IconButtonProps) {
   return (
-    <motion.button
+    <m.button
       type="button"
       aria-label={label}
       data-skip-initial-focus={skipInitialFocus || undefined}
@@ -33,6 +33,6 @@ export function IconButton({
         className="absolute inset-0 -z-10 rounded-[inherit] bg-white/[.08] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-hover:opacity-100"
       />
       {children}
-    </motion.button>
+    </m.button>
   );
 }

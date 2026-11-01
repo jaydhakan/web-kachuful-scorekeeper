@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { bidOrder, curRound, sumBids, type Game } from '@/domain';
 import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
@@ -32,7 +32,7 @@ export function PlayPane({ g }: { g: Game }) {
         {bidOrder(g, r).map((k, i) => {
           const q = g.players[k];
           return (
-            <motion.li
+            <m.li
               key={q.id}
               {...stagger(i)}
               className="flex min-h-14 shrink-0 items-center gap-3.5 rounded-2xl bg-white/5 px-3 py-1.5"
@@ -57,7 +57,7 @@ export function PlayPane({ g }: { g: Game }) {
               <span className="disp tick w-8 text-right text-28 font-extrabold">
                 {r.bids[q.id]}
               </span>
-            </motion.li>
+            </m.li>
           );
         })}
       </ol>

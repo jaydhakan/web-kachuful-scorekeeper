@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useSpring, type HTMLMotionProps } from 'framer-motion';
+import { m, useReducedMotion, useSpring, type HTMLMotionProps } from 'framer-motion';
 import { useRef, type PointerEvent, type ReactNode } from 'react';
 import { SPRING } from './motion';
 
@@ -44,7 +44,7 @@ export function PrimaryButton({
     y.set(0);
   };
   return (
-    <motion.button
+    <m.button
       ref={ref}
       onPointerMove={move}
       onPointerLeave={leave}
@@ -60,6 +60,6 @@ export function PrimaryButton({
       <span aria-hidden className={`${layer} bg-white/[.06] ${disabled ? '' : 'opacity-0'}`} />
       <span aria-hidden className={`${layer} ${FILL[tone]} ${disabled ? 'opacity-0' : ''}`} />
       {children as ReactNode}
-    </motion.button>
+    </m.button>
   );
 }

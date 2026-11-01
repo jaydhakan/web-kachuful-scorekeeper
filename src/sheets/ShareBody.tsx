@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { canShareFiles, copySummary, shareScores } from '@/hooks/useShare';
 import { drawShareCanvas } from '@/lib/shareImage';
@@ -34,7 +34,7 @@ export default function ShareBody() {
   return (
     <div className="text-center">
       {img && (
-        <motion.img
+        <m.img
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           src={img.url}

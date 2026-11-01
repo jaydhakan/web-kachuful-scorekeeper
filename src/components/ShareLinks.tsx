@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
 import { archive } from '@/state/archive';
@@ -78,7 +78,7 @@ export function ShareLinks() {
               ) : (
                 <>
                   {k === 'live' && (
-                    <motion.img
+                    <m.img
                       src={l.qr}
                       alt={x.qr(x.live)}
                       width={176}

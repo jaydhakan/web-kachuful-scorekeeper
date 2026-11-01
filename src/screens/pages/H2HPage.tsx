@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
 import { headToHead, type Facts } from '@/domain';
 import { dayLabel } from '@/lib/dates';
@@ -76,13 +76,13 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
   const A = whoIs(f, a),
     B = whoIs(f, b);
   const side = (w: typeof A, from: number) => (
-    <motion.div
+    <m.div
       initial={rm ? false : { opacity: 0, x: from }}
       animate={{ opacity: 1, x: 0 }}
       transition={SPRING_POP}
       className="flex flex-1 flex-col items-center gap-2 text-center"
     >
-      <motion.span
+      <m.span
         aria-hidden
         animate={rm ? undefined : { scale: [1, 1.12, 1] }}
         transition={{ delay: 0.45, duration: 0.35 }}
@@ -90,9 +90,9 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
         style={{ background: w.color }}
       >
         <AvatarFill p={w} />
-      </motion.span>
+      </m.span>
       <span className="text-18 font-bold [overflow-wrap:anywhere]">{w.name}</span>
-    </motion.div>
+    </m.div>
   );
   const stat = (label: string, l: number | string, r: number | string) => (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-2.5">

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { emailKey, emailOk, nameKey } from '@/domain';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
@@ -132,7 +132,7 @@ function Users() {
       </PrimaryButton>
       <ul className="flex flex-col gap-2">
         {rows.map((r, i) => (
-          <motion.li
+          <m.li
             key={r.user?.id ?? 'invite:' + r.invite?.email}
             {...stagger(Math.min(i, 10))}
             className="glass flex flex-col gap-2 p-4"
@@ -213,7 +213,7 @@ function Users() {
                 </>
               )}
             </div>
-          </motion.li>
+          </m.li>
         ))}
       </ul>
       {invite && (

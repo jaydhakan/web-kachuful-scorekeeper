@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { SyncDot } from './SyncDot';
 import { t } from '@/strings';
@@ -8,7 +8,7 @@ export function AccountChip({ className = '' }: { className?: string }) {
   const { state, actions } = useApp();
   const s = state.session;
   return (
-    <motion.button
+    <m.button
       type="button"
       whileTap={{ scale: 0.94 }}
       onClick={() => actions.open({ screen: s ? 'account' : 'signin' })}
@@ -30,6 +30,6 @@ export function AccountChip({ className = '' }: { className?: string }) {
       ) : (
         <span className="pl-2">{t.hub.nav.signIn}</span>
       )}
-    </motion.button>
+    </m.button>
   );
 }

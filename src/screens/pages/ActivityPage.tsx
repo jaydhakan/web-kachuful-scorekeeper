@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useState } from 'react';
 import { ACH } from '@/domain';
 import { agoTxt, sgnN } from '@/lib/format';
@@ -43,9 +43,9 @@ export function ActivityPage() {
             <>
               <ul className="flex flex-col gap-2">
                 {[...p.items, ...more].filter(newsworthy).map((a, i) => (
-                  <motion.li key={a.id} {...stagger(Math.min(i, 10))}>
+                  <m.li key={a.id} {...stagger(Math.min(i, 10))}>
                     <Row a={a} />
-                  </motion.li>
+                  </m.li>
                 ))}
               </ul>
               {next && (

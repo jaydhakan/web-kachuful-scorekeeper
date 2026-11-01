@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { curRound, doneRounds, playerCounts, standings } from '@/domain';
 import { agoTxt, sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -36,7 +36,7 @@ export function DeskHome() {
     <DeskPage scroll label={t.appName} className="rail:overflow-hidden">
       <div className="relative grid flex-1 items-center gap-10 py-4 rail:min-h-0 rail:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] rail:px-6 dt:grid-cols-[minmax(0,1fr)_minmax(0,40rem)] dt:gap-16 dt:px-8">
         {SUITS.map(({ s, red, at, d }) => (
-          <motion.span
+          <m.span
             key={s}
             aria-hidden
             className={`pointer-events-none absolute text-64 opacity-[.13] [text-shadow:0_0_24px_var(--glow)] ${at} ${red ? 'text-suit-red' : 'text-suit-black'}`}
@@ -44,27 +44,27 @@ export function DeskHome() {
             transition={{ duration: 7, delay: d, repeat: Infinity, ease: 'easeInOut' }}
           >
             {s}
-          </motion.span>
+          </m.span>
         ))}
         <section className="@container relative flex flex-col items-center gap-6 text-center rail:items-start rail:text-left dt:gap-7">
-          <motion.div {...stagger(0, 0.05)}>
+          <m.div {...stagger(0, 0.05)}>
             <Eyebrow>{t.desk.home.eyebrow}</Eyebrow>
-          </motion.div>
-          <motion.h1
+          </m.div>
+          <m.h1
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.9, ease: EASE }}
             className="disp gold-text pb-2 text-96 font-extrabold leading-[.92] tracking-[-0.055em] @[40rem]:text-148"
           >
             {t.appName}
-          </motion.h1>
-          <motion.p
+          </m.h1>
+          <m.p
             {...stagger(1, 0.15)}
             className="max-w-[32.5rem] text-20 leading-[1.45] text-[var(--tx2)] dt:text-22"
           >
             {t.desk.home.pitch}
-          </motion.p>
-          <motion.div {...stagger(2, 0.15)} className="mt-2 flex flex-wrap justify-center gap-4">
+          </m.p>
+          <m.div {...stagger(2, 0.15)} className="mt-2 flex flex-wrap justify-center gap-4">
             <PrimaryButton className="w-60" onClick={actions.startSetup}>
               {t.desk.home.newGame} <Kbd>N</Kbd>
             </PrimaryButton>
@@ -75,8 +75,8 @@ export function DeskHome() {
             >
               {t.desk.home.howToPlay}
             </PrimaryButton>
-          </motion.div>
-          <motion.ul
+          </m.div>
+          <m.ul
             {...stagger(3, 0.15)}
             className="mt-2 flex flex-wrap justify-center gap-2.5 rail:justify-start"
           >
@@ -88,12 +88,12 @@ export function DeskHome() {
                 {c}
               </li>
             ))}
-          </motion.ul>
+          </m.ul>
           <ContinueCard className="max-w-[32.5rem]" />
           <TodayStrip className="max-w-[32.5rem]" />
           <HomeOnline className="max-w-[32.5rem]" />
         </section>
-        <motion.section
+        <m.section
           initial={{ opacity: 0, y: 30, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
@@ -160,7 +160,7 @@ export function DeskHome() {
               {fin ? t.desk.home.results : t.desk.home.resume} <Kbd>⏎</Kbd>
             </PrimaryButton>
           </div>
-        </motion.section>
+        </m.section>
       </div>
     </DeskPage>
   );

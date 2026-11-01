@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { SPRING } from './motion';
@@ -49,7 +49,7 @@ export function Seg<T extends string>({
       {options.map((o, i) => {
         const on = value === o.v;
         return (
-          <motion.button
+          <m.button
             key={o.v}
             type="button"
             aria-pressed={on}
@@ -63,7 +63,7 @@ export function Seg<T extends string>({
             className={`relative z-10 flex items-center justify-center rounded-[13px] px-3.5 font-bold tracking-[-0.005em] ${size === 'sm' ? 'h-11 min-w-[48px] text-15' : 'h-11 min-w-[56px] text-16'} ${on ? onInk(o.tone) : 'text-[var(--tx2)]'} ${o.disabled ? 'opacity-35' : ''}`}
           >
             {on && (
-              <motion.span
+              <m.span
                 layoutId={uid}
                 transition={SPRING}
                 className="absolute inset-0 -z-10 rounded-[13px]"
@@ -71,7 +71,7 @@ export function Seg<T extends string>({
               />
             )}
             {o.label}
-          </motion.button>
+          </m.button>
         );
       })}
     </div>

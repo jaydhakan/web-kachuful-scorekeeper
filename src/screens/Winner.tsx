@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { gameStats, standings, type Player } from '@/domain';
 import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
@@ -42,7 +42,7 @@ interface StatCardProps {
 }
 
 const StatCard = ({ ic, t, p, s, i }: StatCardProps) => (
-  <motion.div
+  <m.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
@@ -58,7 +58,7 @@ const StatCard = ({ ic, t, p, s, i }: StatCardProps) => (
       </div>
       <div className="text-13 text-[var(--tx2)]">{s}</div>
     </Glass>
-  </motion.div>
+  </m.div>
 );
 
 // Two panes (short screens) and the wide layout share one centred 72rem frame, like every other screen.
@@ -72,18 +72,18 @@ export default function Winner() {
     S = gameStats(g);
   const reel = useGameAchievements(g);
   const col = (k: 1 | 2 | 3) => {
-    const m = st.filter((x) => x.rank === k),
+    const tied = st.filter((x) => x.rank === k),
       h = k === 1 ? 128 : k === 2 ? 96 : 76;
     // Tied players share their step side by side, so their avatars shrink to fit the column.
-    const w = `calc(${AVATAR[k].w} * ${m.length > 2 ? 0.56 : m.length > 1 ? 0.82 : 1})`;
+    const w = `calc(${AVATAR[k].w} * ${tied.length > 2 ? 0.56 : tied.length > 1 ? 0.82 : 1})`;
     return (
       <div
         key={k}
         className="flex max-w-[120px] flex-1 flex-col items-center justify-end wide:max-w-[9rem]"
       >
         <div className="mb-1.5 flex flex-wrap items-end justify-center gap-1.5">
-          {m.map((x, i) => (
-            <motion.div
+          {tied.map((x, i) => (
+            <m.div
               key={x.p.id}
               initial={{ y: -30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -93,7 +93,7 @@ export default function Winner() {
               aria-label={x.p.name}
               title={x.p.name}
               className="flex min-w-0 max-w-[70px] flex-col items-center text-center text-13 font-bold leading-tight [overflow-wrap:anywhere] wide:max-w-[7rem]"
-              style={m.length > 1 ? { maxWidth: `max(${w}, 3.5rem)` } : undefined}
+              style={tied.length > 1 ? { maxWidth: `max(${w}, 3.5rem)` } : undefined}
             >
               <span
                 aria-hidden
@@ -108,25 +108,25 @@ export default function Winner() {
                 <AvatarFill p={x.p} />
               </span>
               <span aria-hidden>{trunc(x.p.name)}</span>
-            </motion.div>
+            </m.div>
           ))}
         </div>
-        <motion.div
+        <m.div
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
           transition={{ duration: 0.8, ease: EASE, delay: (3 - k) * 0.15 }}
           style={{
             height: `max(${STEP_MIN}, calc(${h} * var(--pu)))`,
             originY: 1,
-            opacity: m.length ? 1 : 0.25,
+            opacity: tied.length ? 1 : 0.25,
           }}
           className={`disp flex w-full flex-col items-center rounded-t-2xl pt-2 text-32 land:text-22 land:leading-none font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)] ${PODIUM_BG[k]}`}
         >
           {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
           <small className="font-sans text-13 font-bold land:mt-1">
-            {m.length ? sgnN(m[0].t) : '—'}
+            {tied.length ? sgnN(tied[0].t) : '—'}
           </small>
-        </motion.div>
+        </m.div>
       </div>
     );
   };
@@ -164,7 +164,7 @@ export default function Winner() {
           className="scroll-thin land:flex land:min-h-0 land:overflow-x-hidden land:overflow-y-auto land:cq-size wide:[grid-area:1/1]"
         >
           <div className="[--pu:1px] land:m-auto land:[--pu:min(1px,calc(100cqh/340))]">
-            <motion.span
+            <m.span
               aria-hidden
               initial={{ y: -140, scale: 0.5, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
@@ -172,7 +172,7 @@ export default function Winner() {
               className="block text-center text-52 land:hidden"
             >
               🏆
-            </motion.span>
+            </m.span>
             <div
               data-podium
               className="mb-4 mt-2 flex min-h-[240px] items-end justify-center gap-2 land:mb-0 land:mt-0 land:min-h-0"
@@ -189,7 +189,7 @@ export default function Winner() {
         >
           <div className="wide:[grid-area:1/2]">
             {st.map((x, i) => (
-              <motion.div
+              <m.div
                 key={x.p.id}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -214,7 +214,7 @@ export default function Winner() {
                     {fmt(x.t)}
                   </div>
                 </Glass>
-              </motion.div>
+              </m.div>
             ))}
           </div>
           <div className="wide:[grid-area:2/1/3/3]">

@@ -1,4 +1,4 @@
-import { motion, useIsPresent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { m, useIsPresent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { t } from '@/strings';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 
@@ -141,18 +141,18 @@ export function Scaffold({
     <div
       className={`absolute inset-0 grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto] cq-size overflow-hidden ${COLUMN} ${aside ? PANES : ''} ${className}`}
     >
-      <motion.div
+      <m.div
         style={{ opacity: topBg }}
         className="chrome-top pointer-events-none absolute inset-x-0 top-0 z-10 h-[calc(5.5rem+var(--sat))]"
       />
       <div className="relative z-20 col-span-full mt-[var(--sat)] flex h-14 items-center justify-between px-2 land:h-12">
         <div className="w-12">{left}</div>
-        <motion.span
+        <m.span
           style={{ opacity: title ? navO : 1 }}
           className={`disp text-19 font-bold tracking-[-0.02em] ${aside && title ? 'pane:!opacity-100' : ''}`}
         >
           {navTitle}
-        </motion.span>
+        </m.span>
         <div className="flex w-12 justify-end">{right}</div>
       </div>
       <div
@@ -164,12 +164,12 @@ export function Scaffold({
         className={`scroll-thin min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 ${hasBar ? 'pb-6' : 'pb-[max(1.5rem,var(--sab))]'} ${fit ? 'flex flex-col' : ''} ${aside ? BODY_PANES : ''}`}
       >
         {title && (
-          <motion.h1
+          <m.h1
             style={rm ? undefined : { opacity: lgO, y: lgY, scale: lgS, transformOrigin: '0 50%' }}
             className={`disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance] @h-tiny:hidden ${aside ? 'pane:hidden' : ''}`}
           >
             {title}
-          </motion.h1>
+          </m.h1>
         )}
         {aside ? (
           <>

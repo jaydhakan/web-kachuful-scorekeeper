@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { currentStreaks, curRound, doneRounds, pts, roundAt, standings, totals } from '@/domain';
 import { sgnN } from '@/lib/format';
@@ -25,7 +25,7 @@ function Spark({ color }: { color: string }) {
         const a = (i / 8) * Math.PI * 2,
           d = 26 + (i % 3) * 8;
         return (
-          <motion.i
+          <m.i
             key={i}
             aria-hidden
             initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
@@ -155,7 +155,7 @@ export function Summary() {
             rank = x.rank,
             lead = stage >= 4 && x.rank === 1;
           return (
-            <motion.div
+            <m.div
               layout="position"
               key={id}
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
@@ -182,14 +182,14 @@ export function Summary() {
                 </div>
                 <AnimatePresence>
                   {stage >= 1 && (
-                    <motion.span
+                    <m.span
                       initial={{ scale: 0.4, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={SPRING_POP}
                       className={`min-w-10 rounded-xl px-1.5 py-0.5 text-center text-14 font-extrabold @[26rem]:min-w-[46px] @[26rem]:px-2 @[26rem]:text-15 ${d > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : d < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
                     >
                       {sgnN(d)}
-                    </motion.span>
+                    </m.span>
                   )}
                 </AnimatePresence>
                 {stage === 1 && d > 0 && !rm && <Spark color={palette.positive} />}
@@ -198,16 +198,16 @@ export function Summary() {
                 </div>
                 {lead && (
                   <>
-                    <motion.span
+                    <m.span
                       initial={changed && anim ? { y: -60, opacity: 0, rotate: -16 } : false}
                       animate={{ y: 0, opacity: 1, rotate: -16 }}
                       transition={SPRING_POP}
                       className="absolute -top-0.5 left-3.5 text-20"
                     >
                       👑
-                    </motion.span>
+                    </m.span>
                     {changed && anim && !rm && (
-                      <motion.span
+                      <m.span
                         aria-hidden
                         initial={{ x: '-120%' }}
                         animate={{ x: '120%' }}
@@ -218,7 +218,7 @@ export function Summary() {
                   </>
                 )}
               </Glass>
-            </motion.div>
+            </m.div>
           );
         })}
       </div>

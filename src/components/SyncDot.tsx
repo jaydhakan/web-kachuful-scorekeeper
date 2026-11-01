@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useSyncStatus } from '@/sync/status';
 import { t } from '@/strings';
 
@@ -29,21 +29,21 @@ export function SyncDot({ className = '' }: { className?: string }) {
       className={`inline-grid h-5 min-w-5 place-items-center rounded-full px-1 text-13 font-extrabold leading-none ${tone} ${className}`}
     >
       {s.phase === 'syncing' ? (
-        <motion.span
+        <m.span
           aria-hidden
           animate={rm ? undefined : { rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
           ↻
-        </motion.span>
+        </m.span>
       ) : s.phase === 'attention' ? (
         '!'
       ) : s.waiting ? (
         s.waiting
       ) : (
-        <motion.span aria-hidden initial={rm ? false : { scale: 0 }} animate={{ scale: 1 }}>
+        <m.span aria-hidden initial={rm ? false : { scale: 0 }} animate={{ scale: 1 }}>
           ✓
-        </motion.span>
+        </m.span>
       )}
     </span>
   );

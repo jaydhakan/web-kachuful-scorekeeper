@@ -1,4 +1,4 @@
-import { animate, motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
+import { animate, m, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import type { Trump } from '@/domain';
 import { TR } from '@/theme/trumps';
@@ -113,7 +113,7 @@ export function GhostButton({
   ...rest
 }: HTMLMotionProps<'button'> & { icon?: boolean }) {
   return (
-    <motion.button
+    <m.button
       type="button"
       whileHover={rest.disabled ? undefined : { y: -2 }}
       whileTap={{ scale: 0.95 }}
@@ -122,13 +122,13 @@ export function GhostButton({
       {...rest}
     >
       {children}
-    </motion.button>
+    </m.button>
   );
 }
 
 /** Points won or lost this round. */
 export const Delta = ({ v, className = '' }: { v: number; className?: string }) => (
-  <motion.span
+  <m.span
     key={v}
     initial={{ scale: 0.5, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
@@ -136,7 +136,7 @@ export const Delta = ({ v, className = '' }: { v: number; className?: string }) 
     className={`tick inline-grid h-[30px] min-w-[52px] shrink-0 place-items-center rounded-[10px] px-2.5 text-15 font-extrabold ${className} ${v > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : v < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-white/[.08] text-[var(--tx2)]'}`}
   >
     {sgnN(v)}
-  </motion.span>
+  </m.span>
 );
 
 export const rankTone = (rank: number) =>

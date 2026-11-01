@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { ACH, allAchievements, type Game } from '@/domain';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
@@ -39,7 +39,7 @@ export function AchievementReel({ g, max = 12 }: { g: Game; max?: number }) {
         const k = e.playerId + e.code,
           flipped = open === k;
         return (
-          <motion.li
+          <m.li
             key={k}
             initial={rm ? { opacity: 0 } : { opacity: 0, rotateY: -100 }}
             animate={{ opacity: 1, rotateY: 0 }}
@@ -66,7 +66,7 @@ export function AchievementReel({ g, max = 12 }: { g: Game; max?: number }) {
                 {flipped ? names[e.code]?.how : `${who.emoji} ${who.name}`}
               </span>
             </button>
-          </motion.li>
+          </m.li>
         );
       })}
     </ul>

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { currentStreaks, curRound, doneRounds, pts, roundAt, standings, totals } from '@/domain';
 import { useApp } from '@/state/store';
@@ -87,7 +87,7 @@ export function DeskSummary() {
                 move = before[id] - (cur.find((c) => c.p.id === id)?.rank ?? 0),
                 showMove = stage >= 3;
               return (
-                <motion.li
+                <m.li
                   layout="position"
                   key={id}
                   transition={{ type: 'spring', stiffness: 260, damping: 30 }}
@@ -102,7 +102,7 @@ export function DeskSummary() {
                   <span className="grid w-[26px] shrink-0 place-items-center">
                     <AnimatePresence>
                       {lead && (
-                        <motion.span
+                        <m.span
                           aria-label={t.desk.scores.leader}
                           role="img"
                           initial={
@@ -112,7 +112,7 @@ export function DeskSummary() {
                           transition={SPRING_POP}
                         >
                           {Icon.crown}
-                        </motion.span>
+                        </m.span>
                       )}
                     </AnimatePresence>
                   </span>
@@ -144,7 +144,7 @@ export function DeskSummary() {
                     <Counter from={anim ? pt[id] : ct[id]} to={ct[id]} run={anim && stage >= 2} />
                   </span>
                   {lead && newLead && anim && !rm && (
-                    <motion.span
+                    <m.span
                       aria-hidden
                       initial={{ x: '-120%' }}
                       animate={{ x: '120%' }}
@@ -152,7 +152,7 @@ export function DeskSummary() {
                       className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,rgba(247,231,166,.35)_50%,transparent_70%)]"
                     />
                   )}
-                </motion.li>
+                </m.li>
               );
             })}
           </ol>

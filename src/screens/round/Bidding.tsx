@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useId, useState, type CSSProperties } from 'react';
 import { roundAt, type Game, type Round } from '@/domain';
 import { useApp } from '@/state/store';
@@ -81,7 +81,7 @@ export function Bidding() {
           <div className="@h-[24rem]:hidden">
             <div className="grid">
               <AnimatePresence initial={false}>
-                <motion.div
+                <m.div
                   key={pI}
                   initial={{ opacity: 0, x: 44, scale: 0.97 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -104,7 +104,7 @@ export function Bidding() {
                       <div className="mt-0.5 text-16 text-[var(--tx2)] @h-short:text-14">{cap}</div>
                     </div>
                   </Glass>
-                </motion.div>
+                </m.div>
               </AnimatePresence>
             </div>
           </div>
@@ -125,22 +125,22 @@ export function Bidding() {
               </span>
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[.08] @h-short:mt-1 @h-[24rem]:hidden">
-              <motion.div
+              <m.div
                 className="relative h-full origin-left"
                 animate={{ scaleX: Math.min(1, sum / r.cards) }}
                 transition={SPRING}
               >
-                <motion.i
+                <m.i
                   className="absolute inset-0 bg-[var(--accent)]"
                   animate={{ opacity: diff > 0 ? 0 : 1 }}
                   transition={{ duration: 0.2, ease: EASE }}
                 />
-                <motion.i
+                <m.i
                   className="absolute inset-0 bg-[var(--warn)]"
                   animate={{ opacity: diff > 0 ? 1 : 0 }}
                   transition={{ duration: 0.2, ease: EASE }}
                 />
-              </motion.div>
+              </m.div>
             </div>
           </div>
           <div
@@ -168,7 +168,7 @@ export function Bidding() {
               const lock = isD && forb === v,
                 sel = r.bids[p.id] === v;
               return (
-                <motion.button
+                <m.button
                   key={v}
                   type="button"
                   aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
@@ -182,7 +182,7 @@ export function Bidding() {
                   className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'border border-dashed border-white/20 bg-white/[.03] text-[var(--ph)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
                 >
                   {sel && (
-                    <motion.span
+                    <m.span
                       layoutId="pillsel"
                       transition={SPRING_POP}
                       className="absolute inset-0 rounded-[18px] bg-accent-gradient shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
@@ -192,7 +192,7 @@ export function Bidding() {
                   {lock && (
                     <span className="absolute right-1 top-1 text-[var(--warn)]">{Icon.lock}</span>
                   )}
-                </motion.button>
+                </m.button>
               );
             })}
           </div>

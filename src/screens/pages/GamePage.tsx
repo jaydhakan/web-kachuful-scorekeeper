@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useEffect, useState, type ReactNode } from 'react';
 import { curRound, doneRounds, standings, type Game } from '@/domain';
 import { dayLabel, timeLabel } from '@/lib/dates';
@@ -173,7 +173,7 @@ function Podium({ g }: { g: Game }) {
       {order.map((s) => {
         const k = st.indexOf(s);
         return (
-          <motion.div
+          <m.div
             key={s.p.id}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -188,7 +188,7 @@ function Podium({ g }: { g: Game }) {
               {s.p.name}
             </span>
             <span className={`disp text-20 font-extrabold ${rankTone(s.rank)}`}>{fmt(s.t)}</span>
-            <motion.span
+            <m.span
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ ...SPRING_POP, delay: 0.2 + (2 - k) * 0.08 }}
@@ -196,8 +196,8 @@ function Podium({ g }: { g: Game }) {
               className={`w-full origin-bottom rounded-t-2xl ${PODIUM_BG[Math.min(s.rank, 3) as 1 | 2 | 3]} ${STEP_H[Math.min(s.rank, 3) - 1]} grid place-items-start justify-center pt-2 text-22 font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)]`}
             >
               {s.rank}
-            </motion.span>
-          </motion.div>
+            </m.span>
+          </m.div>
         );
       })}
     </div>

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState, type CSSProperties } from 'react';
 import { useApp } from '@/state/store';
 import { useShortcuts } from '@/hooks/useShortcuts';
@@ -94,7 +94,7 @@ export default function DeskShell() {
       className={`app-root scr-bg grain relative h-full w-full ${OVERLAY_VARS}`}
       style={{ '--accent': th.acc, '--glow': th.glow, '--suit': th.col } as CSSProperties}
     >
-      <motion.div
+      <m.div
         className="absolute inset-0 flex flex-col rail:flex-row"
         initial={false}
         animate={rm ? undefined : { scale: overlay || modal || keys ? 0.985 : 1 }}
@@ -111,7 +111,7 @@ export default function DeskShell() {
         <main className="relative min-h-0 min-w-0 flex-1">
           <div className="absolute inset-0" {...(board ? { inert: '' as const } : {})}>
             <AnimatePresence custom={dir} initial={false} mode="popLayout">
-              <motion.div
+              <m.div
                 key={key}
                 custom={dir}
                 variants={variants}
@@ -122,13 +122,13 @@ export default function DeskShell() {
                 className="absolute inset-0"
               >
                 {content}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
           <AnimatePresence>{board && <DeskScoreboard key="board" />}</AnimatePresence>
         </main>
         <Banner banner={banner} />
-      </motion.div>
+      </m.div>
       <UpdatePrompt />
       <Toast toast={toast} onUndo={actions.undo} onOpen={actions.open} />
       <AnimatePresence>

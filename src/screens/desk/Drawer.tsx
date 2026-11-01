@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useId, useRef, type ReactNode } from 'react';
 import { useDialog } from '@/hooks/useDialog';
 import { Icon } from '@/components/ui/Icons';
@@ -7,7 +7,7 @@ import { Eyebrow, GhostButton, Kbd } from './DeskParts';
 import { t } from '@/strings';
 
 const Backdrop = ({ onClose }: { onClose: () => void }) => (
-  <motion.div
+  <m.div
     className="absolute inset-0 bg-black/55"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -35,7 +35,7 @@ export function Drawer({ eyebrow, title, closeLabel, onClose, children, foot }: 
   return (
     <div className="absolute inset-0 z-[60] flex justify-end">
       <Backdrop onClose={onClose} />
-      <motion.div
+      <m.div
         ref={ref}
         role="dialog"
         aria-modal="true"
@@ -75,7 +75,7 @@ export function Drawer({ eyebrow, title, closeLabel, onClose, children, foot }: 
           {children}
         </div>
         {foot}
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -89,7 +89,7 @@ export function KeysModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="absolute inset-0 z-[64] grid place-items-center p-6">
       <Backdrop onClose={onClose} />
-      <motion.div
+      <m.div
         ref={ref}
         role="dialog"
         aria-modal="true"
@@ -119,7 +119,7 @@ export function KeysModal({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </dl>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

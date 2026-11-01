@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
   ACH,
@@ -46,7 +46,7 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
   const { actions } = useApp();
   const w = whoIs(f, a.playerId);
   return (
-    <motion.li {...stagger(i)}>
+    <m.li {...stagger(i)}>
       <button
         type="button"
         onClick={() => actions.open({ screen: 'player', params: { id: a.playerId } })}
@@ -65,7 +65,7 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
         </span>
         <span className="disp text-20 font-extrabold">{awardValue(a)}</span>
       </button>
-    </motion.li>
+    </m.li>
   );
 }
 
@@ -245,7 +245,7 @@ function Podium({ s, f }: { s: ReturnType<typeof season>; f: Facts | null }) {
             {k === 0 && <span className="text-28">👑</span>}
             <Avatar p={w} className="grid h-12 w-12 place-items-center rounded-full text-26" />
             <span className="text-14 font-bold [overflow-wrap:anywhere]">{w.name}</span>
-            <motion.span
+            <m.span
               initial={rm ? false : { scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ ...SPRING_POP, delay: 0.15 * (2 - k) }}

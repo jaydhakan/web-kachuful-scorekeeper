@@ -1,4 +1,4 @@
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { m, type HTMLMotionProps } from 'framer-motion';
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
 import { SPRING } from './motion';
 
@@ -24,7 +24,7 @@ export function Glass({
     el.style.setProperty('--my', e.clientY - r.top + 'px');
   };
   return (
-    <motion.div
+    <m.div
       ref={ref}
       onPointerMove={move}
       onClick={onClick}
@@ -43,6 +43,6 @@ export function Glass({
       {...rest}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

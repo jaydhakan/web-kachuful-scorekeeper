@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useState, type FormEvent } from 'react';
 import { emailKey, emailOk, nameKey, suggestName } from '@/domain';
 import { ApiError } from '@/sync/api';
@@ -30,7 +30,7 @@ export function SameCard({
   const ask = x.isThis(match.displayName);
   const rm = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       role="group"
       aria-label={ask}
       initial={rm ? { opacity: 0 } : { opacity: 0, rotateX: -70, y: -6 }}
@@ -64,7 +64,7 @@ export function SameCard({
           {x.recheck}
         </button>
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 

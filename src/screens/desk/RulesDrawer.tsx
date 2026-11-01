@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
 import { drawerRules } from '@/strings/rules';
@@ -47,7 +47,7 @@ export function RulesDrawer() {
     >
       <ol>
         {items.map(([title, body], i) => (
-          <motion.li
+          <m.li
             key={title}
             {...stagger(i, 0.12)}
             className="flex gap-3.5 border-t border-white/[.08] py-3.5 first:border-t-0"
@@ -61,7 +61,7 @@ export function RulesDrawer() {
                 {body}
               </p>
             </div>
-          </motion.li>
+          </m.li>
         ))}
       </ol>
     </Drawer>

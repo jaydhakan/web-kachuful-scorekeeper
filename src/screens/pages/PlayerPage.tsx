@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
   ACH,
@@ -248,7 +248,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             {earned.length ? (
               <ul className="flex flex-wrap gap-2">
                 {shelf(earned).map((x, i) => (
-                  <motion.li
+                  <m.li
                     key={x.code}
                     {...stagger(Math.min(i, 10))}
                     className="glass flex items-center gap-2 px-3 py-2"
@@ -260,7 +260,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                       {achName(x.code)}
                       {x.n > 1 && <span className="ml-1 text-[var(--tx2)]">×{x.n}</span>}
                     </span>
-                  </motion.li>
+                  </m.li>
                 ))}
               </ul>
             ) : (

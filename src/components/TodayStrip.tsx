@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useMemo } from 'react';
 import { ACH, dailyAwards, dayOf } from '@/domain';
 import { useApp } from '@/state/store';
@@ -29,7 +29,7 @@ export function TodayStrip({ className = '' }: { className?: string }) {
       </div>
       <ul className="scroll-thin edge-fade -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {awards.slice(0, 8).map((a, i) => (
-          <motion.li key={a.code + a.playerId} {...stagger(i, 0.3)} className="shrink-0">
+          <m.li key={a.code + a.playerId} {...stagger(i, 0.3)} className="shrink-0">
             <button
               type="button"
               onClick={() => actions.open({ screen: 'player', params: { id: a.playerId } })}
@@ -43,7 +43,7 @@ export function TodayStrip({ className = '' }: { className?: string }) {
                 <span className="sr-only"> · {achName(a.code)}</span>
               </span>
             </button>
-          </motion.li>
+          </m.li>
         ))}
       </ul>
     </section>

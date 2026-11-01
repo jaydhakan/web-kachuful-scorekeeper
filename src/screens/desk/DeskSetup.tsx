@@ -1,4 +1,4 @@
-import { animate, AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { animate, AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import {
   COLORS,
@@ -222,7 +222,7 @@ export function DeskSetup() {
         <div className="scroll-thin flex flex-col gap-3.5 rail:-mr-2 rail:min-h-0 rail:overflow-y-auto rail:pr-2">
           <Section title={t.desk.setup.count}>
             {lg && lgFits && (
-              <motion.button
+              <m.button
                 type="button"
                 {...stagger(0)}
                 whileTap={{ scale: 0.97 }}
@@ -242,7 +242,7 @@ export function DeskSetup() {
                 className="inline-flex min-h-12 items-center self-start rounded-full border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] px-4 text-left text-15 font-bold"
               >
                 {t.setup.useLastGroup(lg.names)}
-              </motion.button>
+              </m.button>
             )}
             <div className="flex flex-wrap items-center justify-between gap-4">
               <Seg<`${Decks}`>
@@ -276,7 +276,7 @@ export function DeskSetup() {
               className="flex flex-wrap gap-2"
             >
               {counts.map((k, i) => (
-                <motion.button
+                <m.button
                   key={k}
                   type="button"
                   aria-pressed={su.n === k}
@@ -287,7 +287,7 @@ export function DeskSetup() {
                   className={`disp relative grid h-14 w-14 place-items-center rounded-2xl text-26 font-extrabold ${su.n === k ? 'text-ink-on-accent' : 'glass'}`}
                 >
                   {su.n === k && (
-                    <motion.span
+                    <m.span
                       layoutId="dset-n"
                       transition={SPRING_POP}
                       aria-hidden
@@ -295,7 +295,7 @@ export function DeskSetup() {
                     />
                   )}
                   <span className="relative">{k}</span>
-                </motion.button>
+                </m.button>
               ))}
             </div>
             <p className="text-13 text-[var(--tx2)]">
@@ -309,7 +309,7 @@ export function DeskSetup() {
               <>
                 <ol className="flex flex-col gap-1.5">
                   {seats.map((s, k) => (
-                    <motion.li
+                    <m.li
                       key={k}
                       ref={(el) => {
                         rows.current[k] = el;
@@ -343,7 +343,7 @@ export function DeskSetup() {
                       <span className="w-5 shrink-0 text-center text-13 text-[var(--tx2)]">
                         {k + 1}
                       </span>
-                      <motion.button
+                      <m.button
                         type="button"
                         aria-label={t.desk.setup.avatar(s?.name || t.table.seat(k + 1))}
                         disabled={!s}
@@ -353,7 +353,7 @@ export function DeskSetup() {
                         style={s ? { background: s.color } : undefined}
                       >
                         <span aria-hidden>{s?.emoji ?? ''}</span>
-                      </motion.button>
+                      </m.button>
                       <input
                         ref={(el) => {
                           inputs.current[k] = el;
@@ -381,20 +381,20 @@ export function DeskSetup() {
                       />
                       <span className="w-[4.5rem] shrink-0 text-center">
                         {k === shown ? (
-                          <motion.span
+                          <m.span
                             layoutId="dset-dealer"
                             transition={SPRING}
                             className="inline-flex h-6 items-center rounded-xl bg-[var(--gold)] px-2.5 text-13 font-extrabold text-ink-gold"
                           >
                             {t.desk.setup.dealerTag}
-                          </motion.span>
+                          </m.span>
                         ) : k === first ? (
                           <span className="inline-flex h-6 items-center rounded-xl border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] px-2 text-13 font-bold">
                             {t.desk.setup.firstTag}
                           </span>
                         ) : null}
                       </span>
-                    </motion.li>
+                    </m.li>
                   ))}
                 </ol>
                 {recent.length > 0 && filled < n && (
@@ -405,7 +405,7 @@ export function DeskSetup() {
                   >
                     <span className="text-13 text-[var(--tx2)]">{t.desk.setup.recent}</span>
                     {recent.map((r) => (
-                      <motion.button
+                      <m.button
                         key={r.id}
                         type="button"
                         whileTap={{ scale: 0.94 }}
@@ -417,7 +417,7 @@ export function DeskSetup() {
                           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-16"
                         />
                         {r.displayName}
-                      </motion.button>
+                      </m.button>
                     ))}
                   </div>
                 )}
@@ -428,7 +428,7 @@ export function DeskSetup() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap gap-2.5">
                 {seats.map((s, k) => (
-                  <motion.button
+                  <m.button
                     key={k}
                     type="button"
                     disabled={!s || spin != null}
@@ -442,7 +442,7 @@ export function DeskSetup() {
                     style={s ? { background: s.color } : undefined}
                   >
                     <span aria-hidden>{s?.emoji ?? k + 1}</span>
-                  </motion.button>
+                  </m.button>
                 ))}
               </div>
               <GhostButton disabled={!n || spin != null} onClick={randomDealer}>
@@ -469,7 +469,7 @@ export function DeskSetup() {
           <div className="flex min-h-[15rem] flex-1 flex-col">
             <AnimatePresence mode="wait">
               {n ? (
-                <motion.div
+                <m.div
                   key={n}
                   className="flex min-h-0 flex-1 flex-col"
                   initial={{ opacity: 0, scale: 0.94 }}
@@ -492,16 +492,16 @@ export function DeskSetup() {
                     onSeat={(k) => seats[k] && spin == null && actions.setupPatch({ dealer: k })}
                     center={<SuitCenter trump="spades" cards={3} />}
                   />
-                </motion.div>
+                </m.div>
               ) : (
-                <motion.p
+                <m.p
                   key="none"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="grid flex-1 place-items-center text-center text-16 text-[var(--tx2)]"
                 >
                   {t.setup.tapNumber}
-                </motion.p>
+                </m.p>
               )}
             </AnimatePresence>
           </div>

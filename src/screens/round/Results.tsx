@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { pts, type Outcome } from '@/domain';
 import { sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -46,7 +46,7 @@ export function Results() {
               res={r.results}
             />
           </div>
-          <motion.button
+          <m.button
             type="button"
             role="switch"
             aria-checked={st.exact}
@@ -55,7 +55,7 @@ export function Results() {
             className="mb-1 flex min-h-12 w-full items-center justify-between rounded-2xl px-1 text-left"
           >
             <span className="text-16 font-medium">{t.results.exactSwitch}</span>
-            <motion.span
+            <m.span
               aria-hidden
               variants={{ press: { scale: 0.94 } }}
               className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-white/[.14]"
@@ -63,13 +63,13 @@ export function Results() {
               <span
                 className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
               />
-              <motion.span
+              <m.span
                 animate={{ x: st.exact ? 22 : 0 }}
                 transition={SPRING_POP}
                 className="absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-text-primary shadow-[0_2px_6px_rgba(0,0,0,.4)]"
               />
-            </motion.span>
-          </motion.button>
+            </m.span>
+          </m.button>
           {tricks && (
             <div className="mb-3 px-1 text-13 text-[var(--tx2)]">
               {t.results.totalTricks(
@@ -99,7 +99,7 @@ export function Results() {
           // The one result the app filled in because nothing else could work.
           const forced = state.autoResult === p.id && !!res && !tricks;
           return (
-            <motion.div key={p.id} {...stagger(k)} className="mb-1.5 last:mb-0">
+            <m.div key={p.id} {...stagger(k)} className="mb-1.5 last:mb-0">
               {/* The controls wrap under the name when the pane is too narrow for both. */}
               <Glass
                 spot={false}
@@ -144,7 +144,7 @@ export function Results() {
                 </div>
                 {tricks ? (
                   <div className="ml-auto flex items-center">
-                    <motion.button
+                    <m.button
                       type="button"
                       whileTap={{ scale: 0.88 }}
                       aria-label={t.results.fewer(p.name)}
@@ -152,11 +152,11 @@ export function Results() {
                       className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
                     >
                       −
-                    </motion.button>
+                    </m.button>
                     <output className="disp w-[34px] text-center text-24 font-extrabold">
                       {tricks[p.id]}
                     </output>
-                    <motion.button
+                    <m.button
                       type="button"
                       whileTap={{ scale: 0.88 }}
                       aria-label={t.results.more(p.name)}
@@ -164,7 +164,7 @@ export function Results() {
                       className="h-11 w-11 rounded-xl bg-white/[.07] text-24 font-bold"
                     >
                       +
-                    </motion.button>
+                    </m.button>
                   </div>
                 ) : (
                   <Seg<Outcome>
@@ -193,7 +193,7 @@ export function Results() {
                   />
                 )}
               </Glass>
-            </motion.div>
+            </m.div>
           );
         })}
       </div>
@@ -230,7 +230,7 @@ function TricksLeft({ left, cards }: { left: number; cards: number }) {
         </span>
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[.08] @h-[44rem]:hidden">
-        <motion.div
+        <m.div
           className="h-full origin-left rounded-full bg-[var(--accent)]"
           initial={false}
           animate={{ scaleX: cards ? left / cards : 0 }}

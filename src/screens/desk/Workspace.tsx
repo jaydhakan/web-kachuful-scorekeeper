@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useIsPresent, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { roundAt, sumBids } from '@/domain';
 import { useApp } from '@/state/store';
@@ -165,7 +165,7 @@ export function Workspace() {
           </div>
           <div className="hidden shrink-0 dt:block">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div
+              <m.div
                 key={phase}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -194,7 +194,7 @@ export function Workspace() {
                     <div className="mt-1 text-13 text-[var(--tx2)]">{t.desk.results.hint}</div>
                   </>
                 )}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
           {phase !== 'results' && (
@@ -212,7 +212,7 @@ export function Workspace() {
           <StepTracker step={step} can={canStep} go={goStep} />
           <div className="grid min-h-0 flex-1">
             <AnimatePresence initial={false} mode="popLayout" custom={stepDir}>
-              <motion.div
+              <m.div
                 key={phase}
                 custom={stepDir}
                 variants={{
@@ -243,7 +243,7 @@ export function Workspace() {
                     <ResultsPane g={g} />
                   )}
                 </Leaving>
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
         </section>

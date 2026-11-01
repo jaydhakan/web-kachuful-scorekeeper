@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { curRound, doneRounds, gameStats, standings, type Game } from '@/domain';
 import { agoTxt, fmt, sgnN } from '@/lib/format';
@@ -62,7 +62,7 @@ function LiveStandings({ g }: { g: Game }) {
   return (
     <ol className="flex flex-col gap-2">
       {st.map((s) => (
-        <motion.li
+        <m.li
           key={s.p.id}
           layout={!rm}
           transition={SPRING}
@@ -75,15 +75,15 @@ function LiveStandings({ g }: { g: Game }) {
           <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
             {s.p.name}
           </span>
-          <motion.span
+          <m.span
             key={s.t}
             initial={{ opacity: 0.3 }}
             animate={{ opacity: 1 }}
             className="disp text-22 font-extrabold"
           >
             {fmt(s.t)}
-          </motion.span>
-        </motion.li>
+          </m.span>
+        </m.li>
       ))}
     </ol>
   );
@@ -161,7 +161,7 @@ export function LivePage({ token }: { token: string }) {
     >
       {g.status === 'active' && (
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={r.index}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -190,7 +190,7 @@ export function LivePage({ token }: { token: string }) {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       )}
       <Section title={g.status === 'finished' ? gameLine(g) : t.hub.game.standings}>

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
@@ -70,7 +70,7 @@ interface RailItemProps {
 
 function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       disabled={disabled}
@@ -80,7 +80,7 @@ function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
       className={`group relative isolate flex min-h-[3.75rem] w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl pb-2 pt-2.5 text-13 [@media(max-height:900px)]:min-h-[3.125rem] [@media(max-height:900px)]:gap-0.5 [@media(max-height:900px)]:py-1 font-bold disabled:cursor-default disabled:opacity-35 ${on ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}
     >
       {on && (
-        <motion.span
+        <m.span
           layoutId="rail-on"
           transition={SPRING}
           aria-hidden
@@ -93,7 +93,7 @@ function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
       />
       <span className={on ? 'text-[var(--accent)]' : ''}>{icon}</span>
       {label}
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -106,7 +106,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
       aria-label={t.desk.nav.label}
       className="scroll-thin relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-white/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
     >
-      <motion.button
+      <m.button
         type="button"
         onClick={n.home}
         aria-label={t.desk.nav.home}
@@ -114,7 +114,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         className="disp mb-5 grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-gradient [@media(max-height:900px)]:mb-2 text-26 font-extrabold text-ink-gold shadow-[0_0_28px_rgba(247,231,166,.35)]"
       >
         <span aria-hidden>{t.desk.logo}</span>
-      </motion.button>
+      </m.button>
       <RailItem icon={Icon.home} label={t.desk.nav.home} on={n.where === 'home'} onClick={n.home} />
       <RailItem
         icon={Icon.cards}
@@ -195,7 +195,7 @@ export function TopBar({ onKeys }: { onKeys: () => void }) {
                 : t.desk.roundShort(r.index + 1, r.cards, r.trump);
   return (
     <header className="relative z-[2] mx-6 mt-[calc(1.25rem+var(--sat))] hidden h-[60px] shrink-0 items-center gap-3 pl-2 pr-3 tp:flex glass">
-      <motion.button
+      <m.button
         type="button"
         onClick={n.home}
         aria-label={t.desk.nav.home}
@@ -203,7 +203,7 @@ export function TopBar({ onKeys }: { onKeys: () => void }) {
         className="disp grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-gold-gradient text-22 font-extrabold text-ink-gold"
       >
         <span aria-hidden>{t.desk.logo}</span>
-      </motion.button>
+      </m.button>
       <div className="disp min-w-0 flex-1 text-22 font-extrabold leading-tight tracking-[-0.02em] [overflow-wrap:anywhere]">
         {title}
       </div>

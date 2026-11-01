@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { COLORS, EMOJIS, MOREMOJI } from '@/domain';
 import { useApp } from '@/state/store';
@@ -26,7 +26,7 @@ export function SeatBody({ k }: { k: number }) {
   return (
     <>
       {items.map(([ic, t, f, neg]) => (
-        <motion.button
+        <m.button
           key={t}
           type="button"
           whileTap={{ scale: 0.97 }}
@@ -37,7 +37,7 @@ export function SeatBody({ k }: { k: number }) {
             {ic}
           </span>
           {t}
-        </motion.button>
+        </m.button>
       ))}
     </>
   );
@@ -101,7 +101,7 @@ export function AvatarBody({ k }: { k: number }) {
     <>
       <div className="mb-4 grid grid-cols-7 gap-2" {...emojiNav.group}>
         {emojis.map((e, i) => (
-          <motion.button
+          <m.button
             key={e}
             type="button"
             aria-label={t.sheets.avatar(e)}
@@ -112,7 +112,7 @@ export function AvatarBody({ k }: { k: number }) {
             className={`glass grid aspect-square min-h-11 place-items-center !rounded-2xl text-26 ${s.emoji === e ? 'ring-2 ring-[var(--accent)]' : ''}`}
           >
             {e}
-          </motion.button>
+          </m.button>
         ))}
       </div>
       {/* 44px circles do not fit ten across a phone: rows of four until there is room for one row. */}
@@ -121,7 +121,7 @@ export function AvatarBody({ k }: { k: number }) {
         {...colourNav.group}
       >
         {COLORS.map((c, i) => (
-          <motion.button
+          <m.button
             key={c}
             type="button"
             aria-label={t.sheets.colour}

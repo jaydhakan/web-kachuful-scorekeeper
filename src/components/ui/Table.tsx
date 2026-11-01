@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion';
+import { AnimatePresence, m, type HTMLMotionProps } from 'framer-motion';
 import { useMemo, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction, Outcome } from '@/domain';
 import {
@@ -96,7 +96,7 @@ function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
     );
   }
   return (
-    <motion.svg
+    <m.svg
       viewBox={`0 0 ${d.W} ${d.H}`}
       aria-hidden
       className="pointer-events-none absolute inset-0 h-full w-full"
@@ -105,7 +105,7 @@ function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
       transition={{ type: 'spring', stiffness: 160, damping: 22 }}
     >
       {items}
-    </motion.svg>
+    </m.svg>
   );
 }
 
@@ -207,7 +207,7 @@ export function Table({
                   <path d="M0 0L8 4L0 8z" fill="var(--accent)" />
                 </marker>
               </defs>
-              <motion.path
+              <m.path
                 key={arrowFrom + '-' + arrowTo}
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
@@ -259,7 +259,7 @@ export function Table({
               height: boxH,
             }}
           >
-            <motion.div
+            <m.div
               initial={noSeatAnim ? false : { opacity: 0, scale: 0.3, y: dropIdx === k ? -60 : 0 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={
@@ -269,7 +269,7 @@ export function Table({
               style={{ height: av, marginTop: onSeat ? `max(0px, calc((44px - ${av}) / 2))` : 0 }}
             >
               {p ? (
-                <motion.div
+                <m.div
                   key={p.emoji + p.color}
                   data-seat-avatar
                   title={named ? undefined : p.name}
@@ -285,7 +285,7 @@ export function Table({
                   }}
                 >
                   <AvatarFill p={p} />
-                </motion.div>
+                </m.div>
               ) : (
                 <div
                   data-seat-avatar
@@ -317,7 +317,7 @@ export function Table({
                 </div>
               )}
               {p && dealer === k && (
-                <motion.div
+                <m.div
                   data-seat-chip
                   layoutId={'dealer-' + uid}
                   transition={{ type: 'spring', stiffness: 170, damping: 22 }}
@@ -339,10 +339,10 @@ export function Table({
                 >
                   {Icon.deck}
                   {chipPill && t.table.deals}
-                </motion.div>
+                </m.div>
               )}
               {p && first === k && (
-                <motion.div
+                <m.div
                   data-seat-chip
                   initial={{ scale: 0.2, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -366,13 +366,13 @@ export function Table({
                   ) : (
                     lead || t.table.first
                   )}
-                </motion.div>
+                </m.div>
               )}
               <AnimatePresence>
                 {p && bid !== undefined && (
                   // Centred on the avatar's right edge: clear of the name below and the dealer pill above. On a flat
                   // table the left-hand seats put it on their left edge, away from their neighbours' names.
-                  <motion.div
+                  <m.div
                     key={'b' + bid}
                     data-seat-bid
                     initial={{ scale: 0.2, opacity: 0 }}
@@ -403,11 +403,11 @@ export function Table({
                     }
                   >
                     {bid}
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
               {p && out && (
-                <motion.div
+                <m.div
                   data-seat-chip
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -420,9 +420,9 @@ export function Table({
                   }}
                 >
                   {out === 'made' ? t.table.made : t.table.missed}
-                </motion.div>
+                </m.div>
               )}
-            </motion.div>
+            </m.div>
           </div>
         );
       })}
@@ -444,9 +444,5 @@ export function Table({
 
 /** Full-table layer for something that moves between seats: translate it by `x`/`y` in percent, no measuring. */
 export const TablePin = ({ className = '', ...rest }: HTMLMotionProps<'div'>) => (
-  <motion.div
-    aria-hidden
-    className={`pointer-events-none absolute inset-0 ${className}`}
-    {...rest}
-  />
+  <m.div aria-hidden className={`pointer-events-none absolute inset-0 ${className}`} {...rest} />
 );

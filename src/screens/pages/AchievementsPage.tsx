@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
   ACHIEVEMENTS,
@@ -70,7 +70,7 @@ export function AchievementsPage({
               const last = got.reduce((m, e) => Math.max(m, e.earnedAt), 0);
               const holders = [...new Set(got.map((e) => whoIs(f, e.playerId).name))];
               return (
-                <motion.li
+                <m.li
                   key={x.code}
                   {...stagger(Math.min(i, 10))}
                   className={`glass flex min-h-[7.5rem] flex-col gap-1 p-3 ${got.length ? '' : 'opacity-70'}`}
@@ -93,7 +93,7 @@ export function AchievementsPage({
                       {a.by(holders.slice(0, 3).join(', ') + (holders.length > 3 ? '…' : ''))}
                     </span>
                   )}
-                </motion.li>
+                </m.li>
               );
             })}
           </ul>

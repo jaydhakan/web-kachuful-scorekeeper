@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useApp } from '@/state/store';
 import { SPRING } from './ui/motion';
@@ -15,7 +15,7 @@ export function UpdatePrompt() {
     <div className="pointer-events-none absolute inset-x-0 top-[calc(4.25rem+var(--sat))] z-[67] flex justify-center pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))] land:top-[calc(3.5rem+var(--sat))]">
       <AnimatePresence>
         {needRefresh && (
-          <motion.div
+          <m.div
             role="status"
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -39,7 +39,7 @@ export function UpdatePrompt() {
             >
               ✕
             </button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

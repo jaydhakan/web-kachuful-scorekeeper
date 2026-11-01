@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useMemo, useState, type ReactNode } from 'react';
 import { wrapped, type Facts, type Wrapped } from '@/domain';
 import { monthLabel, parseDay, shortDay } from '@/lib/dates';
@@ -146,7 +146,7 @@ export function WrappedPage({
               />
             ))}
           </div>
-          <motion.button
+          <m.button
             type="button"
             onClick={() => go(1)}
             aria-label={wr.tap}
@@ -156,7 +156,7 @@ export function WrappedPage({
             className="glass glass-glow relative grid aspect-[9/14] w-[min(100%,26rem,calc(62svh*9/14))] place-items-center overflow-hidden p-8 text-center"
           >
             <AnimatePresence mode="wait">
-              <motion.div
+              <m.div
                 key={i}
                 initial={rm ? { opacity: 0 } : { opacity: 0, x: 40, scale: 0.96 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -165,14 +165,14 @@ export function WrappedPage({
                 className="flex flex-col items-center gap-4"
                 aria-live="polite"
               >
-                <motion.span
+                <m.span
                   aria-hidden
                   className="text-72"
                   animate={rm ? undefined : { y: [0, -10, 0] }}
                   transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                 >
                   {s.emoji}
-                </motion.span>
+                </m.span>
                 <span className="text-15 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
                   {s.kicker}
                 </span>
@@ -180,9 +180,9 @@ export function WrappedPage({
                   {s.big}
                 </span>
                 {s.sub && <span className="text-20 text-[var(--tx2)]">{s.sub}</span>}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
-          </motion.button>
+          </m.button>
           <div className="mt-4 flex gap-3">
             <button
               type="button"

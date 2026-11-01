@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect } from 'react';
 import { ACH } from '@/domain';
 import { useApp } from '@/state/store';
@@ -38,7 +38,7 @@ export function BadgePop() {
             })),
             ...(pops.more ? [{ k: 'more', emoji: '✨', text: t.hub.pops.more(pops.more) }] : []),
           ].map((c, i) => (
-            <motion.div
+            <m.div
               key={`${pops.id}-${c.k}`}
               initial={rm ? { opacity: 0 } : { opacity: 0, y: -28, rotate: -4, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
@@ -50,7 +50,7 @@ export function BadgePop() {
                 {c.emoji}
               </span>
               <span className="[overflow-wrap:anywhere]">{c.text}</span>
-            </motion.div>
+            </m.div>
           ))}
       </AnimatePresence>
     </div>

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useState, type FormEvent } from 'react';
 import { COLORS, EMOJIS, nameKey, NAME_MAX, tidyName } from '@/domain';
 import { uuid } from '@/lib/ids';
@@ -199,7 +199,7 @@ export function InvitePage({ token }: { token: string }) {
       <form onSubmit={submit} noValidate>
         <AnimatePresence mode="wait" initial={false}>
           {offer ? (
-            <motion.div
+            <m.div
               key={'offer' + offer.id}
               initial={rm ? { opacity: 0 } : { opacity: 0, rotateX: -60 }}
               animate={{ opacity: 1, rotateX: 0 }}
@@ -237,9 +237,9 @@ export function InvitePage({ token }: { token: string }) {
                   {a.notMe}
                 </PrimaryButton>
               </div>
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.fieldset
+            <m.fieldset
               key="new"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -278,7 +278,7 @@ export function InvitePage({ token }: { token: string }) {
                 />
               </div>
               <LookPicker emoji={look.emoji} color={look.color} onChange={setLook} />
-            </motion.fieldset>
+            </m.fieldset>
           )}
         </AnimatePresence>
         {pw.fields}

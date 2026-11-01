@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useApp } from '@/state/store';
 import { stagger } from '@/components/ui/stagger';
 import { destRoute, destsFor } from '@/components/hubNav';
@@ -53,7 +53,7 @@ export function MenuBody() {
   return (
     <>
       {items.map(([ic, t, f, neg], i) => (
-        <motion.button
+        <m.button
           key={t}
           type="button"
           {...stagger(i)}
@@ -62,7 +62,7 @@ export function MenuBody() {
           onClick={f}
           className={`relative isolate flex min-h-14 w-full items-center gap-3.5 rounded-2xl px-2 text-left text-18 font-medium tracking-[-0.012em] ${neg ? 'text-[var(--neg)]' : ''}`}
         >
-          <motion.span
+          <m.span
             aria-hidden
             initial={false}
             variants={{ press: { opacity: 1 } }}
@@ -73,7 +73,7 @@ export function MenuBody() {
             {ic}
           </span>
           {t}
-        </motion.button>
+        </m.button>
       ))}
     </>
   );

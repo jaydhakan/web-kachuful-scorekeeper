@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
 import { nameKey } from '@/domain';
 import { useApp } from '@/state/store';
@@ -96,7 +96,7 @@ export function Step2() {
         // In land the keyboard covers the lower pane, so the input is ordered first there (land:order-*).
         <div className="flex flex-col">
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={prompt}
               id={promptId}
               initial={{ opacity: 0, y: 10 }}
@@ -106,7 +106,7 @@ export function Step2() {
               className="mt-4 min-h-8 text-21 font-bold leading-[1.25] tracking-[-0.02em] [text-wrap:balance] @h-[45rem]:mt-0 @h-short:text-19 land:order-2 land:!mt-2 wide:!mt-0 wide:mb-1"
             >
               {prompt}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
           {tgt >= 0 && (
             <div className="mt-2.5 flex gap-2 @h-[45rem]:mt-1.5 land:order-1 land:!mt-0">
@@ -174,7 +174,7 @@ export function Step2() {
               className="scroll-thin edge-fade -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 @h-[45rem]:pb-0 land:order-4 wide:flex-wrap wide:overflow-visible"
             >
               {recent.map((r, i) => (
-                <motion.button
+                <m.button
                   key={r.id}
                   type="button"
                   {...stagger(i)}
@@ -187,7 +187,7 @@ export function Step2() {
                     className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-18"
                   />
                   {r.displayName}
-                </motion.button>
+                </m.button>
               ))}
             </div>
           )}

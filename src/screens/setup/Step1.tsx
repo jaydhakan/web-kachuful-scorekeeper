@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { COLORS, DECK_OPTIONS, EMOJIS, maxFor, playerCounts, type Decks } from '@/domain';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
@@ -41,7 +41,7 @@ export function Step1() {
       aside={
         <>
           {lg && lgFits && (
-            <motion.button
+            <m.button
               type="button"
               {...stagger(0)}
               whileTap={{ scale: 0.96 }}
@@ -62,7 +62,7 @@ export function Step1() {
               className="glass mb-3 inline-flex min-h-12 items-center gap-2 !rounded-full px-4 py-2 text-left text-16 font-medium leading-[1.3] shadow-[0_0_24px_-6px_var(--accent)] [text-wrap:balance] @h-[45rem]:mb-1.5 @h-[45rem]:min-h-11 @h-[45rem]:py-1 @h-[45rem]:text-14"
             >
               {t.setup.useLastGroup(lg.names)}
-            </motion.button>
+            </m.button>
           )}
           <div className="mt-2 flex flex-col items-center gap-1 @h-[45rem]:mt-1">
             <Seg<`${Decks}`>
@@ -91,7 +91,7 @@ export function Step1() {
             {...roving.group}
           >
             {counts.map((n, i) => (
-              <motion.button
+              <m.button
                 key={n}
                 type="button"
                 aria-pressed={su.n === n}
@@ -106,14 +106,14 @@ export function Step1() {
                 className={`disp relative grid w-16 min-w-11 max-w-16 place-items-center ${grid ? 'h-14 w-full @h-[45rem]:h-11' : 'h-16 flex-1 @h-[45rem]:h-12'} rounded-[22px] text-30 font-extrabold tracking-[-0.03em] @h-tiny:!h-11 @h-tiny:rounded-2xl ${su.n === n ? 'text-ink-on-accent' : 'glass'}`}
               >
                 {su.n === n && (
-                  <motion.span
+                  <m.span
                     layoutId="nsel"
                     transition={SPRING_POP}
                     className="absolute inset-0 rounded-[inherit] bg-accent-gradient shadow-[0_0_0_4px_var(--glow),0_12px_32px_-8px_var(--accent)]"
                   />
                 )}
                 <span className="relative">{n}</span>
-              </motion.button>
+              </m.button>
             ))}
           </div>
           <div className="mt-3 flex justify-center @h-[45rem]:mt-1.5">
@@ -140,7 +140,7 @@ export function Step1() {
       <TableSlot players={su.n ?? 0} minFit={PREVIEW_SCALE}>
         <AnimatePresence mode="wait">
           {su.n ? (
-            <motion.div
+            <m.div
               key={su.n}
               className="flex min-h-0 flex-1 flex-col"
               initial={{ opacity: 0, scale: 0.94 }}
@@ -156,16 +156,16 @@ export function Step1() {
                 dir={su.dir}
                 center={<div className="text-13 text-[var(--tx2)]">{t.setup.seats(su.n)}</div>}
               />
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               key="none"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="grid flex-1 place-items-center text-center text-13 text-[var(--tx2)] [text-wrap:balance]"
             >
               {t.setup.tapNumber}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </TableSlot>

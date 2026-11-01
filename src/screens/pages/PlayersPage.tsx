@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useState } from 'react';
 import { nameKey } from '@/domain';
 import { dayLabel } from '@/lib/dates';
@@ -51,7 +51,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
       ) : (
         <ul className="flex flex-col gap-2">
           {shown.slice(0, 200).map((p, i) => (
-            <motion.li key={p.id} {...stagger(Math.min(i, 10))}>
+            <m.li key={p.id} {...stagger(Math.min(i, 10))}>
               <button
                 type="button"
                 onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
@@ -75,7 +75,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
                   </span>
                 </span>
               </button>
-            </motion.li>
+            </m.li>
           ))}
         </ul>
       )}

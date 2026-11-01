@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useId, type CSSProperties } from 'react';
 import type { Game } from '@/domain';
 import { useApp } from '@/state/store';
@@ -50,7 +50,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="grid">
         <AnimatePresence initial={false} mode="popLayout">
-          <motion.div
+          <m.div
             key={pI}
             initial={{ opacity: 0, x: 40, scale: 0.97 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -71,7 +71,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
                 {!isD && bi > 0 ? '' : t.desk.bid.order(bi + 1, n)}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
       <div
@@ -98,7 +98,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
             sel = pending === k,
             saved = r.bids[p.id] === k && !sel;
           return (
-            <motion.button
+            <m.button
               key={k}
               type="button"
               data-bid-key={k}
@@ -114,7 +114,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-white/30 bg-white/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'} ${saved ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
             >
               {sel && (
-                <motion.span
+                <m.span
                   layoutId="ws-key"
                   transition={SPRING_POP}
                   aria-hidden
@@ -125,7 +125,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               {lock && (
                 <span className="absolute right-1.5 top-1.5 text-[var(--warn)]">{Icon.lock}</span>
               )}
-            </motion.button>
+            </m.button>
           );
         })}
       </div>
@@ -137,14 +137,14 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
           </span>
         </div>
         <div className="relative h-2 overflow-hidden rounded-full bg-white/[.08]">
-          <motion.i
+          <m.i
             aria-hidden
             className="absolute inset-0 origin-left rounded-full bg-[var(--accent)] opacity-35"
             initial={false}
             animate={{ scaleX: Math.min(1, ghost / r.cards) }}
             transition={SPRING}
           />
-          <motion.i
+          <m.i
             aria-hidden
             className={`absolute inset-0 origin-left rounded-full ${diff > 0 ? 'bg-[var(--warn)]' : 'bg-[var(--accent)]'}`}
             initial={false}
@@ -161,7 +161,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               const q = g.players[k],
                 b = r.bids[q.id];
               return (
-                <motion.li
+                <m.li
                   key={q.id}
                   layout="position"
                   initial={{ opacity: 0, scale: 0.6 }}
@@ -181,7 +181,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
                     />
                     {q.name} {b}
                   </button>
-                </motion.li>
+                </m.li>
               );
             })}
         </AnimatePresence>

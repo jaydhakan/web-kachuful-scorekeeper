@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
   leaderboard,
@@ -240,14 +240,14 @@ function Row({
   const run = facts ? lastRun(facts, r.playerId) : null;
   const value = fmtValue(metric, r.value);
   return (
-    <motion.li
+    <m.li
       layout={!rm}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING, delay: rm ? 0 : Math.min(i, 12) * 0.02 }}
       className={you ? 'sticky bottom-2 top-2 z-10' : ''}
     >
-      <motion.button
+      <m.button
         type="button"
         whileTap={{ scale: 0.98 }}
         onClick={() => actions.open({ screen: 'player', params: { id: r.playerId } })}
@@ -284,7 +284,7 @@ function Row({
         <span className={`disp shrink-0 text-24 font-extrabold ${need ? 'text-[var(--tx2)]' : ''}`}>
           {value}
         </span>
-      </motion.button>
-    </motion.li>
+      </m.button>
+    </m.li>
   );
 }

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { doneRounds, emailKey, emailOk, nameKey, NAME_MAX, tidyName } from '@/domain';
 import { dayLabel } from '@/lib/dates';
@@ -122,7 +122,7 @@ export function ImportPage() {
           {people.map((p, i) => {
             const r = row(p);
             return (
-              <motion.li key={p.id} {...stagger(i)} className="glass p-4">
+              <m.li key={p.id} {...stagger(i)} className="glass p-4">
                 <div className="mb-2 flex items-center gap-3">
                   <Avatar p={p} />
                   <span className="flex-1 text-17 font-bold">{p.displayName}</span>
@@ -165,7 +165,7 @@ export function ImportPage() {
                     />
                   </>
                 )}
-              </motion.li>
+              </m.li>
             );
           })}
         </ul>
@@ -244,15 +244,18 @@ function SameChoice({
   onPick: (same: boolean) => void;
   onRecheck: () => void;
 }) {
-  const m = r.match!;
+  const match = r.match!;
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <Avatar p={m} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-20" />
+        <Avatar
+          p={match}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-20"
+        />
         <span className="text-15">
-          <span className="block font-bold">{x.isThis(m.displayName)}</span>
+          <span className="block font-bold">{x.isThis(match.displayName)}</span>
           <span className="block text-13 text-[var(--tx2)]">
-            {t.hub.auth.games(m.games, m.createdByName || '—')}
+            {t.hub.auth.games(match.games, match.createdByName || '—')}
           </span>
         </span>
       </div>

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { doneRounds, standings, type Game } from '@/domain';
 import { dayKey, dayLabel, timeLabel } from '@/lib/dates';
@@ -106,9 +106,9 @@ export function HistoryPage() {
       <Section key={grp.key} title={grp.label}>
         <ul className="flex flex-col gap-2">
           {grp.rows.map((r, i) => (
-            <motion.li key={r.syncId} {...stagger(Math.min(i, 8))}>
+            <m.li key={r.syncId} {...stagger(Math.min(i, 8))}>
               <GameRow rec={r} current={r.syncId === state.game.syncId} />
-            </motion.li>
+            </m.li>
           ))}
         </ul>
       </Section>
@@ -148,7 +148,7 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
   if (rec.origin === 'remote') badges.push(h.badge.remote);
   const line = gameLine(g);
   return (
-    <motion.button
+    <m.button
       type="button"
       whileTap={{ scale: 0.98 }}
       onClick={() => actions.open({ screen: 'game', params: { id: rec.syncId } })}
@@ -176,6 +176,6 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
           </span>
         )}
       </span>
-    </motion.button>
+    </m.button>
   );
 }

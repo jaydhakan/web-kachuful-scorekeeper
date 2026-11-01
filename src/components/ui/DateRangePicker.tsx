@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useState } from 'react';
 import { dayKey, monthLabel } from '@/lib/dates';
 import { Sheet } from './Sheet';
@@ -59,7 +59,7 @@ export function DateRangePicker({
           const inside = lo && hi && k >= lo && k <= hi;
           const end = k === lo || k === hi;
           return (
-            <motion.button
+            <m.button
               key={k}
               type="button"
               whileTap={{ scale: 0.9 }}
@@ -70,7 +70,7 @@ export function DateRangePicker({
               className={`grid h-11 place-items-center rounded-xl text-16 font-bold disabled:opacity-30 ${end ? 'bg-[var(--accent)] text-ink-on-accent' : inside ? 'bg-white/[.12]' : ''} ${k === todayKey && !end ? 'shadow-[inset_0_0_0_1px_var(--accent)]' : ''}`}
             >
               {i + 1}
-            </motion.button>
+            </m.button>
           );
         })}
       </div>

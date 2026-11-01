@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useState, type ReactNode } from 'react';
 import { customRange, rangeFor, type Metric, type Range, type RangeKind } from '@/domain';
 import { shortDay } from '@/lib/dates';
@@ -111,7 +111,7 @@ export function Sparkline({ values, label }: { values: number[]; label: string }
       </svg>
       {/* A cover that slides away: the line appears to draw, using transform only. */}
       {!rm && (
-        <motion.div
+        <m.div
           aria-hidden
           className="absolute inset-0 origin-right bg-felt-950"
           initial={{ scaleX: 1 }}
@@ -143,7 +143,7 @@ export function Bars({ bars, label }: { bars: Bar[]; label: string }) {
         >
           <span className="whitespace-nowrap font-bold">{b.label}</span>
           <span className="relative h-3 overflow-hidden rounded-full bg-white/[.07]">
-            <motion.span
+            <m.span
               className="absolute inset-0 origin-left rounded-full bg-[var(--accent)]"
               initial={rm ? false : { scaleX: 0 }}
               animate={{ scaleX: Math.max(0.02, b.share) }}
@@ -182,7 +182,7 @@ export function Heatmap({ days, year }: { days: Record<string, number>; year: nu
       >
         {cells.map((c, i) =>
           c ? (
-            <motion.span
+            <m.span
               key={c.k}
               title={`${c.k}: ${c.v}`}
               initial={rm ? false : { opacity: 0 }}
@@ -203,7 +203,7 @@ export function Heatmap({ days, year }: { days: Record<string, number>; year: nu
 export function RankDelta({ d }: { d: number | null }) {
   if (!d) return null;
   return (
-    <motion.span
+    <m.span
       initial={{ opacity: 0, y: d > 0 ? 6 : -6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={SPRING}
@@ -212,7 +212,7 @@ export function RankDelta({ d }: { d: number | null }) {
     >
       {d > 0 ? '▲' : '▼'}
       {Math.abs(d)}
-    </motion.span>
+    </m.span>
   );
 }
 

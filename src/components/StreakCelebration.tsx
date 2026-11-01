@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { StreakKind } from '@/domain';
 import { useApp } from '@/state/store';
@@ -60,7 +60,7 @@ export function StreakCelebration() {
     words = t.streak[e.kind][e.tier];
   const next = () => setI((k) => Math.min(k + 1, fx.length));
   return (
-    <motion.div
+    <m.div
       ref={root}
       role="button"
       tabIndex={0}
@@ -79,7 +79,7 @@ export function StreakCelebration() {
       }}
       className="absolute inset-0 z-[58] cq-size flex cursor-pointer flex-col items-center justify-center overflow-hidden bg-felt-950/90 px-6 pb-[max(1rem,var(--sab))] pt-[calc(3.5rem+var(--sat))] outline-none focus-visible:rounded-none focus-visible:[outline-offset:-3px]"
     >
-      <motion.div
+      <m.div
         aria-hidden
         key={`tint-${e.kind}`}
         initial={{ opacity: 0 }}
@@ -92,7 +92,7 @@ export function StreakCelebration() {
       />
       {/* The longer runs open with a flash. */}
       {!rm && e.tier > 0 && (
-        <motion.div
+        <m.div
           key={`flash-${i}`}
           aria-hidden
           initial={{ opacity: 0 }}
@@ -102,7 +102,7 @@ export function StreakCelebration() {
         />
       )}
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={i < fx.length ? i : fx.length - 1}
           initial={{ opacity: 0, scale: rm ? 1 : 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -113,7 +113,7 @@ export function StreakCelebration() {
           <div className="relative grid aspect-square w-[min(68cqw,22rem,40cqh)] place-items-center">
             {!rm && (
               <>
-                <motion.div
+                <m.div
                   aria-hidden
                   initial={{ opacity: 0, scale: 0.3, rotate: 0 }}
                   animate={{ opacity: 1, scale: 1, rotate: 70 }}
@@ -128,7 +128,7 @@ export function StreakCelebration() {
                   }}
                 />
                 {[0, 0.22].map((delay) => (
-                  <motion.span
+                  <m.span
                     key={delay}
                     aria-hidden
                     initial={{ opacity: 0.9, scale: 0.25 }}
@@ -141,7 +141,7 @@ export function StreakCelebration() {
                 {Array.from({ length: BITS }, (_, k) => {
                   const b = bitPath(k, e.kind);
                   return (
-                    <motion.span
+                    <m.span
                       key={k}
                       aria-hidden
                       initial={{ x: 0, y: 0, opacity: 0, scale: 0.4, rotate: 0 }}
@@ -156,12 +156,12 @@ export function StreakCelebration() {
                       className="absolute text-26"
                     >
                       {look.bits[k % look.bits.length]}
-                    </motion.span>
+                    </m.span>
                   );
                 })}
               </>
             )}
-            <motion.span
+            <m.span
               aria-hidden
               initial={rm ? false : { scale: 0, rotate: -35 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -171,7 +171,7 @@ export function StreakCelebration() {
               {rm ? (
                 words.emoji
               ) : (
-                <motion.span
+                <m.span
                   className="inline-block"
                   animate={e.kind === 'hot' ? { y: [0, -10, 0] } : { x: [0, -3, 3, -2, 2, 0] }}
                   transition={{
@@ -182,12 +182,12 @@ export function StreakCelebration() {
                   }}
                 >
                   {words.emoji}
-                </motion.span>
+                </m.span>
               )}
-            </motion.span>
+            </m.span>
           </div>
           <div id={textId} className="relative">
-            <motion.p
+            <m.p
               initial={rm ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.35, ease: EASE }}
@@ -196,8 +196,8 @@ export function StreakCelebration() {
             >
               <span className="sr-only">{t.streak.count(e.kind, e.n)}. </span>
               <span aria-hidden>{t.streak.kicker(e.kind, e.n)}</span>
-            </motion.p>
-            <motion.p
+            </m.p>
+            <m.p
               initial={rm ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.4, ease: EASE }}
@@ -208,17 +208,17 @@ export function StreakCelebration() {
                 className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-white/20 text-26 big:h-16 big:w-16 big:text-36"
               />
               <span className="min-w-0">{e.p.name}</span>
-            </motion.p>
-            <motion.p
+            </m.p>
+            <m.p
               initial={rm ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45, duration: 0.4, ease: EASE }}
               className="disp mt-1.5 text-26 font-bold tracking-[-0.02em] text-[var(--tx)] @h-tiny:text-20 big:text-36"
             >
               {words.title}
-            </motion.p>
+            </m.p>
           </div>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
       <div className="relative mt-6 flex flex-col items-center gap-1 text-13 text-[var(--tx2)] @h-tiny:mt-2">
         {fx.length > 1 && (
@@ -227,6 +227,6 @@ export function StreakCelebration() {
         <span className="fine:hidden">{t.streak.tapToContinue}</span>
         <span className="hidden fine:inline">{t.streak.clickToContinue}</span>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

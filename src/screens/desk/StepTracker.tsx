@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { SPRING } from '@/components/ui/motion';
 import { t } from '@/strings';
 
@@ -23,7 +23,7 @@ export function StepTracker({ step, can, go }: StepTrackerProps) {
             done = s < step;
           return (
             <li key={label} className="flex-1">
-              <motion.button
+              <m.button
                 type="button"
                 aria-current={on ? 'step' : undefined}
                 disabled={!on && !can(s)}
@@ -33,7 +33,7 @@ export function StepTracker({ step, can, go }: StepTrackerProps) {
                 className={`relative isolate flex h-12 w-full items-center justify-center gap-2 rounded-[11px] text-15 font-bold disabled:cursor-default ${on ? 'text-ink-on-accent' : done ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}
               >
                 {on && (
-                  <motion.span
+                  <m.span
                     layoutId="ws-step"
                     transition={SPRING}
                     aria-hidden
@@ -50,7 +50,7 @@ export function StepTracker({ step, can, go }: StepTrackerProps) {
                 <span className="sr-only">
                   {on ? `, ${t.desk.steps.now}` : done ? `, ${t.desk.steps.done}` : ''}
                 </span>
-              </motion.button>
+              </m.button>
             </li>
           );
         })}

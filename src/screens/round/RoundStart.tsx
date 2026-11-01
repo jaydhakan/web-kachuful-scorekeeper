@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { useApp } from '@/state/store';
@@ -40,7 +40,7 @@ export function RoundStart() {
   const th = TR[r.trump];
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
-    <motion.div
+    <m.div
       ref={root}
       role="button"
       tabIndex={0}
@@ -65,7 +65,7 @@ export function RoundStart() {
         className="my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
         style={{ perspective: 800 }}
       >
-        <motion.div
+        <m.div
           initial={{ rotateY: 0, scale: 0.9 }}
           animate={{ rotateY: 180, scale: 1 }}
           transition={{ duration: 0.8, ease: EASE }}
@@ -79,16 +79,16 @@ export function RoundStart() {
           >
             {th.sym}
           </div>
-        </motion.div>
+        </m.div>
       </div>
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
         className="mb-2 px-7 text-center text-17 font-bold text-[var(--accent)] @h-short:mb-1 pane:[grid-area:4/1]"
       >
         {t.start.trumpIs(th.name)}
-      </motion.div>
+      </m.div>
       <div className="flex min-h-0 w-full flex-1 flex-col pane:[grid-area:1/2/8/3]">
         <Table
           uid="rs"
@@ -114,7 +114,7 @@ export function RoundStart() {
                   transition={{ duration: 0.52, delay, ease: EASE }}
                   className="z-[7]"
                 >
-                  <motion.div
+                  <m.div
                     initial={{ rotate: 0, opacity: 1 }}
                     animate={{ rotate: rot, opacity: [1, 1, 0] }}
                     transition={{
@@ -136,12 +136,12 @@ export function RoundStart() {
       >
         <AnimatePresence>
           {stage >= 3 && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
               <div className="disp text-24 font-bold leading-[1.2] tracking-[-0.02em] @h-short:text-20 land:text-20 [&_[data-n]]:text-32 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] @h-short:[&_[data-n]]:text-26 land:[&_[data-n]]:text-26">
                 {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
               </div>
               <div className="mt-1">{t.start.firstCard(g.players[r.firstPlayerIndex].name)}</div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
@@ -150,6 +150,6 @@ export function RoundStart() {
         <span className="fine:hidden">{t.start.tapToSkip}</span>
         <span className="hidden fine:inline">{t.start.clickToSkip}</span>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

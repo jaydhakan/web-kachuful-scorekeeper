@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { doneRounds, pts, totals, type Outcome } from '@/domain';
 import { fmt, sgnN } from '@/lib/format';
@@ -25,7 +25,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
     ref.current?.querySelector<HTMLElement>('button')?.focus({ preventScroll: true });
   }, []);
   return (
-    <motion.aside
+    <m.aside
       ref={ref}
       aria-labelledby={titleId}
       initial={rm ? { opacity: 0 } : { x: '110%', opacity: 0 }}
@@ -64,7 +64,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                 {p.name}
               </span>
               <span className="flex items-center">
-                <motion.button
+                <m.button
                   type="button"
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.lowerBid(p.name)}
@@ -72,11 +72,11 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                   className="h-12 w-12 rounded-xl bg-white/[.08] text-22 font-bold"
                 >
                   −
-                </motion.button>
+                </m.button>
                 <output className="disp w-8 text-center text-22 font-extrabold">
                   {bids[p.id]}
                 </output>
-                <motion.button
+                <m.button
                   type="button"
                   whileTap={{ scale: 0.88 }}
                   aria-label={t.sheets.raiseBid(p.name)}
@@ -84,7 +84,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                   className="h-12 w-12 rounded-xl bg-white/[.08] text-22 font-bold"
                 >
                   +
-                </motion.button>
+                </m.button>
               </span>
               <Seg<Outcome>
                 uid={'de' + p.id}
@@ -116,7 +116,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
           {!problem && <Kbd>⏎</Kbd>}
         </PrimaryButton>
       </div>
-    </motion.aside>
+    </m.aside>
   );
 }
 
@@ -149,7 +149,7 @@ export function DeskScoreboard() {
   const row =
     'grid grid-cols-[minmax(9rem,12.25rem)_repeat(var(--pc),minmax(4.25rem,1fr))] items-center gap-x-1 rounded-[14px] px-3';
   return (
-    <motion.div
+    <m.div
       initial={rm ? { opacity: 0 } : { opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       exit={rm ? { opacity: 0 } : { opacity: 0, y: 24 }}
@@ -175,7 +175,7 @@ export function DeskScoreboard() {
         <div
           className={`grid gap-5 rail:min-h-0 rail:flex-1 ${editing != null ? "[grid-template-areas:'edit'_'grid'] rail:[grid-template-areas:'grid_edit'] rail:grid-cols-[minmax(0,1fr)_clamp(22rem,32vw,28rem)] dt:gap-6" : "[grid-template-areas:'grid']"}`}
         >
-          <motion.section
+          <m.section
             layout="position"
             transition={SPRING}
             aria-label={t.desk.board.grid}
@@ -212,7 +212,7 @@ export function DeskScoreboard() {
                 {done.map((r) => {
                   const sel = editing === r.index;
                   return (
-                    <motion.button
+                    <m.button
                       key={r.index}
                       type="button"
                       aria-label={t.sheets.editRow(r.index + 1)}
@@ -255,17 +255,17 @@ export function DeskScoreboard() {
                           </span>
                         );
                       })}
-                    </motion.button>
+                    </m.button>
                   );
                 })}
               </div>
             )}
-          </motion.section>
+          </m.section>
           <AnimatePresence>
             {editing != null && <EditPanel key={editing} i={editing} onClose={closeEdit} />}
           </AnimatePresence>
         </div>
       </DeskPage>
-    </motion.div>
+    </m.div>
   );
 }

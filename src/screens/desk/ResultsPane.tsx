@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { pts, type Game, type Outcome } from '@/domain';
 import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
@@ -42,7 +42,7 @@ export function ResultsPane({ g }: { g: Game }) {
                 {t.results.tricksLeft}
               </span>
               <div className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-white/[.08]">
-                <motion.div
+                <m.div
                   className="h-full origin-left rounded-full bg-[var(--accent)]"
                   initial={false}
                   animate={{ scaleX: r.cards ? left / r.cards : 0 }}
@@ -57,7 +57,7 @@ export function ResultsPane({ g }: { g: Game }) {
               </span>
             </div>
           )}
-          <motion.button
+          <m.button
             type="button"
             role="switch"
             aria-checked={st.exact}
@@ -67,7 +67,7 @@ export function ResultsPane({ g }: { g: Game }) {
             className="flex min-h-12 shrink-0 items-center gap-2 rounded-xl pl-2"
           >
             <span className="text-14 text-[var(--tx2)]">{t.desk.results.exactShort}</span>
-            <motion.span
+            <m.span
               aria-hidden
               variants={{ press: { scale: 0.94 } }}
               className="relative h-[30px] w-[52px] shrink-0 rounded-full bg-white/[.16]"
@@ -75,13 +75,13 @@ export function ResultsPane({ g }: { g: Game }) {
               <span
                 className={`absolute inset-0 rounded-full bg-[var(--accent)] transition-opacity duration-300 ease-apple ${st.exact ? '' : 'opacity-0'}`}
               />
-              <motion.span
+              <m.span
                 animate={{ x: st.exact ? 22 : 0 }}
                 transition={SPRING_POP}
                 className="absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-text-primary shadow-[0_2px_6px_rgba(0,0,0,.4)]"
               />
-            </motion.span>
-          </motion.button>
+            </m.span>
+          </m.button>
         </div>
       </div>
       <ol className="scroll-thin -mr-1.5 flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1.5 rail:gap-2">
@@ -94,11 +94,7 @@ export function ResultsPane({ g }: { g: Game }) {
             note =
               !res && !tricks ? why(blocked(p.id, 'made') ?? blocked(p.id, 'missed')) : undefined;
           return (
-            <motion.li
-              key={p.id}
-              {...stagger(i)}
-              className="@container shrink-0 rounded-2xl bg-white/5"
-            >
+            <m.li key={p.id} {...stagger(i)} className="@container shrink-0 rounded-2xl bg-white/5">
               <div className="flex min-h-14 flex-wrap items-center gap-x-2.5 gap-y-1.5 px-3 py-1 @[24rem]:gap-x-3 rail:min-h-16 rail:py-2">
                 <Avatar
                   p={p}
@@ -118,7 +114,7 @@ export function ResultsPane({ g }: { g: Game }) {
                 <div className="ml-auto flex items-center gap-2.5 @[24rem]:gap-3">
                   {tricks ? (
                     <div className="flex items-center">
-                      <motion.button
+                      <m.button
                         type="button"
                         whileTap={{ scale: 0.88 }}
                         aria-label={t.results.fewer(p.name)}
@@ -126,11 +122,11 @@ export function ResultsPane({ g }: { g: Game }) {
                         className="h-12 w-12 rounded-xl bg-white/[.08] text-24 font-bold"
                       >
                         −
-                      </motion.button>
+                      </m.button>
                       <output className="disp w-9 text-center text-24 font-extrabold">
                         {tricks[p.id]}
                       </output>
-                      <motion.button
+                      <m.button
                         type="button"
                         whileTap={{ scale: 0.88 }}
                         aria-label={t.results.more(p.name)}
@@ -138,7 +134,7 @@ export function ResultsPane({ g }: { g: Game }) {
                         className="h-12 w-12 rounded-xl bg-white/[.08] text-24 font-bold"
                       >
                         +
-                      </motion.button>
+                      </m.button>
                     </div>
                   ) : (
                     <Seg<Outcome>
@@ -168,7 +164,7 @@ export function ResultsPane({ g }: { g: Game }) {
                   <span className="w-[52px]">{pv != null && <Delta v={pv} />}</span>
                 </div>
               </div>
-            </motion.li>
+            </m.li>
           );
         })}
       </ol>

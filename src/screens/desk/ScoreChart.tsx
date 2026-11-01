@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { pts, type Game, type Round } from '@/domain';
 import { fmt } from '@/lib/format';
@@ -129,7 +129,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
             const d = row.map((v, i) => `${i ? 'L' : 'M'}${x(i)} ${y(v)}`).join('');
             const top = last[k] === lead;
             return (
-              <motion.path
+              <m.path
                 key={g.players[k].id}
                 d={d}
                 stroke={g.players[k].color}
@@ -143,7 +143,7 @@ export function ScoreChart({ g, rounds, draw = true }: ScoreChartProps) {
         </g>
         <g className="stroke-felt-950" strokeWidth={2}>
           {s.map((row, k) => (
-            <motion.circle
+            <m.circle
               key={g.players[k].id}
               cx={x(at)}
               cy={y(row[at] ?? 0)}

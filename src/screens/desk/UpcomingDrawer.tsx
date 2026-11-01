@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { curRound, roundAt, totalRounds } from '@/domain';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
@@ -43,7 +43,7 @@ export function UpcomingDrawer() {
             peak = r.cards === g.maxCards,
             now = k === 0;
           return (
-            <motion.li
+            <m.li
               key={i}
               {...stagger(k, 0.1)}
               className={`grid min-h-[68px] grid-cols-[4.5rem_5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-4 py-2 ${now ? 'bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_60%,transparent)]' : 'bg-white/5'}`}
@@ -75,7 +75,7 @@ export function UpcomingDrawer() {
               ) : (
                 <span className="text-13 text-[var(--tx2)]">{TR[r.trump].name}</span>
               )}
-            </motion.li>
+            </m.li>
           );
         })}
       </ol>
