@@ -3,7 +3,8 @@
 // With --check it exits 1 when the first load or any lazy chunk is over the budget in tools/budget.json.
 import { build } from 'vite';
 import { gzipSync } from 'node:zlib';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -41,7 +42,14 @@ const collect = {
   },
 };
 
-await build({ root, logLevel: 'warn', plugins: [collect] });
+// Its own output folder, so a preview or e2e run serving dist/ is never pulled out from under.
+const dist = mkdtempSync(path.join(tmpdir(), 'kachuful-bundle-'));
+await build({
+  root,
+  logLevel: 'warn',
+  plugins: [collect],
+  build: { outDir: dist, emptyOutDir: true },
+});
 
 const byFile = new Map(chunks.map((c) => [c.file, c]));
 const entry = chunks.find((c) => c.entry);
@@ -53,10 +61,11 @@ const walk = (f) => {
   byFile.get(f)?.imports.forEach(walk);
 };
 walk(entry.file);
-const css = readFileSync(path.join(root, 'dist/index.html'), 'utf8').match(
+const css = readFileSync(path.join(dist, 'index.html'), 'utf8').match(
   /href="\/(assets\/[^"]+\.css)"/,
 )[1];
-const cssGz = gzipSync(readFileSync(path.join(root, 'dist', css))).length;
+const cssGz = gzipSync(readFileSync(path.join(dist, css))).length;
+rmSync(dist, { recursive: true, force: true });
 const eagerGz = [...eager].reduce((n, f) => n + byFile.get(f).gz, 0);
 const allGz = chunks.reduce((n, c) => n + c.gz, 0);
 const kb = (n) => (n / 1024).toFixed(1);

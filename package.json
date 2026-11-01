@@ -61,6 +61,9 @@
     "typecheck": "tsc",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test"
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "perf:budget": "node tools/bundle.mjs --check",
+    "perf:lighthouse": "npm run build && node tools/lighthouse.mjs --check",
+    "perf:trace": "npm run build && node tools/trace.mjs"
   }
 }

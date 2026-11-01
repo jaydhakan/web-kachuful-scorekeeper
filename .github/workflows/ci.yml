@@ -19,6 +19,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      # First-load JS, CSS and every lazy chunk against tools/budget.json.
+      - run: npm run perf:budget
 
   e2e:
     runs-on: ubuntu-latest
