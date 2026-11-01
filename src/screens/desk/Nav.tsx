@@ -111,7 +111,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         onClick={n.home}
         aria-label={t.desk.nav.home}
         whileTap={PRESS_SM}
-        className="disp mb-5 grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-gradient [@media(max-height:900px)]:mb-2 text-26 font-extrabold text-ink-gold shadow-[0_0_28px_rgba(247,231,166,.35)]"
+        className="disp mb-5 grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-gradient [@media(max-height:900px)]:mb-2 text-26 font-extrabold text-ink-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold-hi)_35%,transparent)]"
       >
         <span aria-hidden>{t.desk.logo}</span>
       </m.button>

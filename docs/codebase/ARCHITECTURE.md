@@ -17,7 +17,7 @@ src/screens     one file per screen (setup/ and round/ hold the multi-step flows
                 pages/ holds the screens opened over the game (one lazy chunk for phone and desk)
 src/sheets      one file per sheet body; SheetHost chooses the body and captures it at mount
 src/strings     every user-visible string (messages.ts is plain text used by domain/reducer)
-src/theme       tokens.json (design system), extended.json (parity extras), palette, trump themes
+src/theme       theme registry, colour-name map, palette, trump themes (look: src/styles/themes.css)
 src/lib         format helpers, table geometry, share image + text, clock
 ```
 

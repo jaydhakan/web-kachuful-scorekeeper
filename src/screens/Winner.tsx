@@ -99,7 +99,7 @@ export default function Winner() {
             >
               <span
                 aria-hidden
-                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_rgba(226,182,83,.6)]' : 'border-ov/25'}`}
+                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]' : 'border-ov/25'}`}
                 style={{
                   background: seatColor(x.p.color),
                   width: w,
@@ -122,7 +122,7 @@ export default function Winner() {
             originY: 1,
             opacity: tied.length ? 1 : 0.25,
           }}
-          className={`disp flex w-full flex-col items-center rounded-t-2xl pt-2 text-32 land:text-22 land:leading-none font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)] ${PODIUM_BG[k]}`}
+          className={`disp flex w-full flex-col items-center rounded-t-2xl pt-2 text-32 land:text-22 land:leading-none font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${PODIUM_BG[k]}`}
         >
           {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
           <small className="font-sans text-13 font-bold land:mt-1">

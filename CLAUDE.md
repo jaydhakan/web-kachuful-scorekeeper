@@ -14,17 +14,17 @@ Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `sr
 
 ## Reuse before you write
 
-| Need                        | Use                                                              |
-| --------------------------- | ---------------------------------------------------------------- |
-| Rules, scoring, ranking     | `src/domain` (pure; never import UI into it)                     |
-| Numbers and text formats    | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)           |
-| User-visible strings        | `src/strings`                                                    |
-| Storage                     | `src/state/persistence.ts` — never call `localStorage` elsewhere |
-| Archive (IndexedDB)         | `src/state/archive.ts` — the only IndexedDB access               |
-| Network                     | `src/sync/` — the only `fetch`/`EventSource`, signed in only     |
-| Stats, boards, achievements | `src/domain` (timeline, leaderboard, achievements, awards)       |
-| UI primitives               | `src/components/ui/`                                             |
-| Colours                     | Tailwind theme / CSS variables from `src/theme/tokens.json`      |
+| Need                        | Use                                                               |
+| --------------------------- | ----------------------------------------------------------------- |
+| Rules, scoring, ranking     | `src/domain` (pure; never import UI into it)                      |
+| Numbers and text formats    | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)            |
+| User-visible strings        | `src/strings`                                                     |
+| Storage                     | `src/state/persistence.ts` — never call `localStorage` elsewhere  |
+| Archive (IndexedDB)         | `src/state/archive.ts` — the only IndexedDB access                |
+| Network                     | `src/sync/` — the only `fetch`/`EventSource`, signed in only      |
+| Stats, boards, achievements | `src/domain` (timeline, leaderboard, achievements, awards)        |
+| UI primitives               | `src/components/ui/`                                              |
+| Colours, themes, materials  | `src/styles/themes.css` (the only colour file) via Tailwind names |
 
 Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the prototype's shape; `direction` changes seat layout only, not rotation.
 

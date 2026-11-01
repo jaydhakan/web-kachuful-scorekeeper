@@ -92,7 +92,7 @@ export function DeskSummary() {
                   key={id}
                   transition={{ type: 'spring', stiffness: 260, damping: 30 }}
                   animate={stage === 1 && d < 0 ? shakeKF : undefined}
-                  className={`relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl py-1 pl-1.5 pr-3.5 dt:min-h-16 dt:gap-3.5 ${lead ? 'bg-[rgba(226,182,83,.10)] shadow-[inset_0_0_0_1px_rgba(226,182,83,.5)]' : ''}`}
+                  className={`relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl py-1 pl-1.5 pr-3.5 dt:min-h-16 dt:gap-3.5 ${lead ? 'bg-[color-mix(in_srgb,var(--medal-gold)_10%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--medal-gold)_50%,transparent)]' : ''}`}
                 >
                   <span
                     className={`disp w-8 shrink-0 text-center text-22 font-extrabold ${rankTone(x.rank)}`}
@@ -118,7 +118,7 @@ export function DeskSummary() {
                   </span>
                   <Avatar
                     p={x.p}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22 shadow-[0_8px_22px_rgba(0,0,0,.45)] dt:h-12 dt:w-12 dt:text-26"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22 shadow-[0_8px_22px_color-mix(in_srgb,var(--shade)_45%,transparent)] dt:h-12 dt:w-12 dt:text-26"
                   />
                   <span className="min-w-0 flex-1 text-20 font-bold leading-tight tracking-[-0.015em] [overflow-wrap:anywhere] dt:text-24">
                     {x.p.name}
@@ -149,7 +149,7 @@ export function DeskSummary() {
                       initial={{ x: '-120%' }}
                       animate={{ x: '120%' }}
                       transition={{ duration: 0.9, ease: EASE }}
-                      className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,rgba(247,231,166,.35)_50%,transparent_70%)]"
+                      className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,color-mix(in_srgb,var(--medal-gold-hi)_35%,transparent)_50%,transparent_70%)]"
                     />
                   )}
                 </m.li>

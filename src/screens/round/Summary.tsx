@@ -165,7 +165,7 @@ export function Summary() {
             >
               <Glass
                 spot={false}
-                className={`relative flex min-h-14 items-center gap-2 overflow-hidden px-2.5 py-1.5 ${lead ? 'ring-1 ring-[rgba(226,182,83,.55)]' : ''}`}
+                className={`relative flex min-h-14 items-center gap-2 overflow-hidden px-2.5 py-1.5 ${lead ? 'ring-1 ring-[color-mix(in_srgb,var(--medal-gold)_55%,transparent)]' : ''}`}
               >
                 <div
                   className="disp w-[22px] shrink-0 text-center text-22 font-extrabold"
@@ -187,7 +187,7 @@ export function Summary() {
                       initial={{ scale: 0.4, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={SPRING_POP}
-                      className={`min-w-10 rounded-xl px-1.5 py-0.5 text-center text-14 font-extrabold @[26rem]:min-w-[46px] @[26rem]:px-2 @[26rem]:text-15 ${d > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : d < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
+                      className={`min-w-10 rounded-xl px-1.5 py-0.5 text-center text-14 font-extrabold @[26rem]:min-w-[46px] @[26rem]:px-2 @[26rem]:text-15 ${d > 0 ? 'bg-[var(--success-soft)] text-[var(--pos)]' : d < 0 ? 'bg-[var(--danger-soft)] text-[var(--neg-tx)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
                     >
                       {sgnN(d)}
                     </m.span>
@@ -213,7 +213,7 @@ export function Summary() {
                         initial={{ x: '-120%' }}
                         animate={{ x: '120%' }}
                         transition={{ duration: 0.8, ease: EASE }}
-                        className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,rgba(247,231,166,.4)_50%,transparent_70%)]"
+                        className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,color-mix(in_srgb,var(--medal-gold-hi)_40%,transparent)_50%,transparent_70%)]"
                       />
                     )}
                   </>

@@ -166,7 +166,7 @@ export function StreakCelebration() {
               initial={rm ? false : { scale: 0.4, opacity: 0, rotate: -35 }}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
               transition={POP}
-              className="relative text-96 leading-none drop-shadow-[0_12px_30px_rgba(0,0,0,.55)] @h-tiny:text-64 big:text-148"
+              className="relative text-96 leading-none drop-shadow-[0_12px_30px_color-mix(in_srgb,var(--shade)_55%,transparent)] @h-tiny:text-64 big:text-148"
             >
               {rm ? (
                 words.emoji

@@ -316,7 +316,7 @@ export function DeskSetup() {
                         rows.current[k] = el;
                       }}
                       style={drag?.k === k ? { y: drag.dy, zIndex: 3 } : undefined}
-                      className={`relative flex min-h-12 items-center gap-3 rounded-2xl ${drag?.k === k ? 'bg-ov/10 shadow-[0_18px_40px_rgba(0,0,0,.5)]' : drag && drag.to === k ? 'bg-ov/5' : ''}`}
+                      className={`relative flex min-h-12 items-center gap-3 rounded-2xl ${drag?.k === k ? 'bg-ov/10 shadow-[0_18px_40px_color-mix(in_srgb,var(--shade)_50%,transparent)]' : drag && drag.to === k ? 'bg-ov/5' : ''}`}
                     >
                       <button
                         type="button"
@@ -439,7 +439,7 @@ export function DeskSetup() {
                     onClick={() => actions.setupPatch({ dealer: k })}
                     animate={{ scale: k === shown ? 1.08 : 1 }}
                     transition={SPRING_POP}
-                    className={`grid h-12 w-12 place-items-center rounded-full border-2 text-26 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'} ${k === shown ? 'shadow-[0_0_0_3px_var(--gold),0_0_22px_rgba(226,182,83,.55)]' : s ? 'opacity-75' : ''}`}
+                    className={`grid h-12 w-12 place-items-center rounded-full border-2 text-26 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'} ${k === shown ? 'shadow-[0_0_0_3px_var(--gold),0_0_22px_color-mix(in_srgb,var(--medal-gold)_55%,transparent)]' : s ? 'opacity-75' : ''}`}
                     style={s ? { background: seatColor(s.color) } : undefined}
                   >
                     <span aria-hidden>{s?.emoji ?? k + 1}</span>

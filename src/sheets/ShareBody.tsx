@@ -39,7 +39,7 @@ export default function ShareBody() {
           animate={{ opacity: 1, scale: 1 }}
           src={img.url}
           alt={t.sheets.imageAlt}
-          className="mx-auto max-h-[46dvh] max-w-full rounded-2xl shadow-[0_24px_60px_-12px_rgba(0,0,0,.7)]"
+          className="mx-auto max-h-[46dvh] max-w-full rounded-2xl shadow-[0_24px_60px_-12px_color-mix(in_srgb,var(--shade)_70%,transparent)]"
         />
       )}
       <div className="mt-4 flex gap-2.5">

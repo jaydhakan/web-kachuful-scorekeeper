@@ -44,7 +44,7 @@ export function BadgePop() {
               animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
               exit={rm ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.95 }}
               transition={{ ...SPRING_POP, delay: rm ? 0 : i * 0.12 }}
-              className="flex max-w-full items-center gap-2 rounded-2xl border border-ov/10 bg-toast px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_rgba(0,0,0,.7)]"
+              className="flex max-w-full items-center gap-2 rounded-2xl border border-ov/10 bg-toast px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_color-mix(in_srgb,var(--shade)_70%,transparent)]"
             >
               <span aria-hidden className="text-22">
                 {c.emoji}

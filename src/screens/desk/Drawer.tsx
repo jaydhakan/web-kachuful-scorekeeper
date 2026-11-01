@@ -45,7 +45,7 @@ export function Drawer({ eyebrow, title, closeLabel, onClose, children, foot }: 
         animate={rm ? { opacity: 1 } : { x: 0 }}
         exit={rm ? { opacity: 0 } : { x: '100%' }}
         transition={rm ? { duration: 0.2, ease: EASE } : SPRING_SHEET}
-        className="relative flex h-full w-[32.5rem] max-w-full flex-col gap-4 rounded-l-[28px] bg-sheet/95 px-8 pb-[max(1.75rem,var(--sab))] pr-[max(2rem,var(--sar))] pt-[calc(1.75rem+var(--sat))] shadow-[-24px_0_80px_rgba(0,0,0,.6),inset_1px_0_0_rgba(255,255,255,.08)]"
+        className="relative flex h-full w-[32.5rem] max-w-full flex-col gap-4 rounded-l-[28px] bg-sheet/95 px-8 pb-[max(1.75rem,var(--sab))] pr-[max(2rem,var(--sar))] pt-[calc(1.75rem+var(--sat))] shadow-[-24px_0_80px_color-mix(in_srgb,var(--shade)_60%,transparent),inset_1px_0_0_color-mix(in_srgb,var(--ov)_8%,transparent)]"
       >
         <div className="flex shrink-0 items-start justify-between gap-4">
           <div>

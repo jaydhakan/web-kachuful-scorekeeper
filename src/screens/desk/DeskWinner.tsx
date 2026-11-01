@@ -23,7 +23,7 @@ const STEP = {
     bg: 'bg-gold-gradient-v',
     text: 'text-64',
     av: 104,
-    ring: 'border-gold shadow-[0_0_44px_rgba(226,182,83,.6)]',
+    ring: 'border-gold shadow-[0_0_44px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]',
   },
   2: {
     h: 'h-[min(230px,31cqh)]',
@@ -122,7 +122,7 @@ export function DeskWinner() {
           animate={{ scaleY: 1 }}
           transition={{ duration: 0.85, ease: EASE, delay: (3 - k) * 0.15 }}
           style={{ originY: 1, opacity: tied.length ? 1 : 0.25 }}
-          className={`flex w-full flex-col items-center rounded-t-[20px] pt-3.5 text-ink-podium shadow-[0_20px_50px_-16px_rgba(0,0,0,.7)] ${s.h} ${s.bg}`}
+          className={`flex w-full flex-col items-center rounded-t-[20px] pt-3.5 text-ink-podium shadow-[0_20px_50px_-16px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${s.h} ${s.bg}`}
         >
           <span className={`disp font-extrabold leading-none ${s.text}`}>
             {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
@@ -171,7 +171,7 @@ export function DeskWinner() {
             transition={{ ...SPRING_POP, delay: 0.4 }}
             role="img"
             aria-label={t.desk.winner.trophy}
-            className="absolute left-1/2 top-7 h-[min(84px,12cqh)] w-[min(84px,12cqh)] -translate-x-1/2 text-gold [filter:drop-shadow(0_0_24px_rgba(226,182,83,.6))]"
+            className="absolute left-1/2 top-7 h-[min(84px,12cqh)] w-[min(84px,12cqh)] -translate-x-1/2 text-gold [filter:drop-shadow(0_0_24px_color-mix(in_srgb,var(--medal-gold)_60%,transparent))]"
           >
             {Icon.trophy}
           </m.span>

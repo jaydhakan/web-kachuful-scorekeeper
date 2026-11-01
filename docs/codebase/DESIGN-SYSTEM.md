@@ -1,19 +1,39 @@
-# Design system: Midnight Card Room
+# Design system: three runtime themes
 
-Source of truth: `src/theme/tokens.json` (copied from the design handoff). `src/theme/extended.json` holds the colours and gradients the prototype used that the tokens file does not define; they are needed for parity and should be proposed upstream.
+Source of truth: `src/styles/themes.css` (from `design-reference/reference-html/themes.css`; spec in
+`design-reference/specs/THEMES_SPEC.md`). Three themes share one set of components: `sunset-glass` (dark, default),
+`yerba-sun` and `editorial-paper`. `<html data-theme>` picks one; switching changes that attribute and nothing else.
 
 ## How tokens reach the code
 
-- `tailwind.config.ts` turns every colour token into a Tailwind colour (`bg-felt-950`, `text-ink-on-accent`, `bg-sheet/95`) and adds the type sizes the screens use as `text-13 … text-96`, in rem (`text-16` is `1rem`), so browser and OS text-size settings work.
-- The same file writes the `:root` CSS variables (`--bg`, `--tx`, `--tx2`, `--dis`, `--gold`, `--pos`, `--neg`, `--warn`).
-- `src/styles/index.css` reads colours with `theme()`; nothing is hard-coded.
-- The accent follows the trump: `AppShell` sets `--accent`, `--glow` and `--suit` from `src/theme/trumps.ts`. The swap is instant: transitioning an inherited variable on the root restyles the whole tree every frame, so the change is shown by an opacity-only colour wash instead.
-- ESLint rejects hex colour literals in `src/components`, `src/screens` and `src/sheets`.
+- `themes.css` is the only file with colour values. Each `[data-theme]` block sets the same tokens (`--bg`,
+  `--surface-1…3`, `--text-1…3`, `--brand`, `--on-brand`, `--felt*`, `--suit-*`, `--success`/`--danger`/`--warning`,
+  medals, `--seat-1…10`, font roles `--font-display/body/mono`, radii) and then paints the materials.
+- **Materials** are classes the shared components carry: `.glass` (grouped surface), `.mat-fill` / `-s` / `-d` / `-off`
+  (button fills), `.mat-cta`, `.mat-ibtn` (header buttons), `.mat-seg` / `.mat-thumb`, `.mat-key` / `-on` / `-no`,
+  `.mat-av`, `.mat-name`, `.mat-bid`, `.mat-first`, `.mat-dealer`, `.mat-sheet`, `.mat-toast`, `.mat-inp`, `.mat-tog`,
+  `.mat-meter`, `.felt`, plus the hero pieces `.ticker`, `.hero-name`, `.hero-tally` and the `.mono-label` type role.
+  A theme may change colour, type, radius and shadow only; borders are inset shadows, so no box changes size.
+- `src/theme/colors.ts` maps every Tailwind colour name to a theme variable (`text-primary` → `--text-1`,
+  `gold` → `--medal-gold`, `ov`/`shade` → white or ink per theme), and `palette` gives the same as `var()` strings;
+  canvas code resolves real values with `cssColor` / `colorValue`. The old names still work.
+- Saved player colours stay hex in storage; `seatColor(hex)` draws each in the theme's avatar palette, matched by hue.
+- The trump tints only the glow and the table's suit halo (`--trump`, `--trump-glow`, set by the shells); flat themes
+  switch that off with `--trump-glow-amt: 0%`.
+- The theme registry is `src/theme/themes.ts`; the boot script that sets `data-theme` before the first paint is
+  generated from it (`vite.config.ts`, `themeBoot`). The runtime store is `src/state/theme.ts`.
+- ESLint rejects hex colour literals in `src/components`, `src/screens` and `src/sheets`;
+  `src/theme/contrast.test.ts` checks every theme's text pairs against WCAG AA.
 
 ## Rules
 
-- Gold means status. Accent follows the trump. Positive and negative colours always come with a sign or a mark.
-- Score numbers use tabular figures; display type is Bricolage Grotesque, UI type is DM Sans (both self-hosted variable fonts).
+- Positive and negative colours always come with a sign or a mark. Gold is for first place.
+- Fonts are self-hosted Latin subsets: Instrument Sans (all themes), Bricolage Grotesque and Space Mono (Yerba Sun),
+  Instrument Serif and DM Mono (Editorial Paper). Only the active theme's faces download; only Instrument Sans is
+  precached.
+- Icons are Phosphor (regular), inlined in `src/components/ui/Icons.tsx` (first load) and `IconsMore.tsx` (lazy screens).
+  Emoji are for avatars and personality copy, never for UI icons.
+- A new component or state is added to all three themes at once.
 - Component-intrinsic sizes (a 60px button, a 66px dealer chip) stay as arbitrary values; colours and font sizes do not.
 
 ## Layout and sizing

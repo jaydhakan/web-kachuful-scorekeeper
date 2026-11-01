@@ -101,7 +101,7 @@ interface AvatarProps {
 export const Avatar = ({ p, s, className = '', style }: AvatarProps) => (
   <UiAvatar
     p={p}
-    className={`grid shrink-0 place-items-center rounded-full border-2 border-ov/20 shadow-[0_8px_22px_rgba(0,0,0,.45)] ${className}`}
+    className={`grid shrink-0 place-items-center rounded-full border-2 border-ov/20 shadow-[0_8px_22px_color-mix(in_srgb,var(--shade)_45%,transparent)] ${className}`}
     style={{ width: s, height: s, fontSize: Math.round(s * 0.55), ...style }}
   />
 );
@@ -134,7 +134,7 @@ export const Delta = ({ v, className = '' }: { v: number; className?: string }) 
     initial={{ scale: 0.5, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
     transition={SPRING_POP}
-    className={`tick inline-grid h-[30px] min-w-[52px] shrink-0 place-items-center rounded-[10px] px-2.5 text-15 font-extrabold ${className} ${v > 0 ? 'bg-[rgba(74,222,128,.16)] text-[var(--pos)]' : v < 0 ? 'bg-[rgba(255,92,108,.16)] text-[var(--neg-tx)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
+    className={`tick inline-grid h-[30px] min-w-[52px] shrink-0 place-items-center rounded-[10px] px-2.5 text-15 font-extrabold ${className} ${v > 0 ? 'bg-[var(--success-soft)] text-[var(--pos)]' : v < 0 ? 'bg-[var(--danger-soft)] text-[var(--neg-tx)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
   >
     {sgnN(v)}
   </m.span>
