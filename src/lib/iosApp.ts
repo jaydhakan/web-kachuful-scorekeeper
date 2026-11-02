@@ -1,49 +1,41 @@
-export interface Viewport {
+export interface ScreenFit {
   screenW: number;
   screenH: number;
   innerW: number;
-  innerH: number;
-  /** env(safe-area-inset-top) in CSS pixels. */
-  top: number;
+  portrait: boolean;
 }
 
 /**
- * How far short of the screen the page is laid out: recent iOS sizes a Home Screen app's viewport without the status
- * bar yet still draws it from the top, which leaves a band the status bar's height empty at the bottom. Any other
- * difference is not that bug, so it gives 0 and leaves the layout alone.
+ * The page height for an iOS Home Screen app: the screen's, since the app covers all of it. The viewport iOS reports
+ * can't be trusted there (it has come out a status bar short, and dvh a status bar long once the page grew). 0 when
+ * the app has only part of the screen (iPad split view), where the usual viewport height stands.
  */
-export function iosGap({ screenW, screenH, innerW, innerH, top }: Viewport): number {
-  // iOS never swaps screen.width and screen.height on rotation, so the screen's height is taken from the orientation.
-  const tall = innerH > innerW ? Math.max(screenW, screenH) : Math.min(screenW, screenH);
-  const gap = tall - innerH;
-  return top > 0 && Math.abs(gap - top) <= 2 ? gap : 0;
+export function iosAppHeight({ screenW, screenH, innerW, portrait }: ScreenFit): number {
+  // iOS never swaps screen.width and screen.height on rotation, so the sides are taken from the orientation.
+  const long = Math.max(screenW, screenH),
+    short = Math.min(screenW, screenH);
+  const [w, h] = portrait ? [short, long] : [long, short];
+  return Math.abs(innerW - w) <= 2 ? h : 0;
 }
 
 /**
- * In an iOS Home Screen app: marks the page (index.css moves top insets below the status bar's blur) and stretches it
- * over the empty band `iosGap` finds. Runs before the first render so nothing moves once the app shows.
+ * In an iOS Home Screen app: marks the page (index.css moves top insets below the status bar's blur) and sizes it to
+ * the screen. Runs before the first render so nothing moves once the app shows.
  */
 export function fitIosApp() {
   if ((navigator as Navigator & { standalone?: boolean }).standalone !== true) return;
   const root = document.documentElement;
   root.setAttribute('data-ios-app', '');
-  const probe = document.createElement('div');
-  probe.style.cssText =
-    'position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none';
-  document.body.appendChild(probe);
+  const portrait = matchMedia('(orientation: portrait)');
   const fit = () => {
-    // The keyboard changes the measured heights without the screen changing; the last fit stands until it closes.
-    const a = document.activeElement;
-    if (a instanceof HTMLInputElement || a instanceof HTMLTextAreaElement) return;
-    const gap = iosGap({
+    const h = iosAppHeight({
       screenW: screen.width,
       screenH: screen.height,
       innerW: window.innerWidth,
-      innerH: window.innerHeight,
-      top: probe.offsetHeight,
+      portrait: portrait.matches,
     });
-    if (gap) root.style.setProperty('--ios-gap', `${gap}px`);
-    else root.style.removeProperty('--ios-gap');
+    if (h) root.style.setProperty('--app-h', `${h}px`);
+    else root.style.removeProperty('--app-h');
   };
   fit();
   window.addEventListener('resize', fit);

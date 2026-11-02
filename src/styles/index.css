@@ -22,9 +22,9 @@
 html,
 body {
   height: 100%;
-  /* dvh tracks the mobile address bar; plain vh would leave the bar covering the action buttons. --ios-gap is the
-     band an iOS Home Screen app's viewport leaves empty at the bottom (lib/iosApp.ts). */
-  height: calc(100dvh + var(--ios-gap, 0px));
+  /* dvh tracks the mobile address bar; plain vh would leave the bar covering the action buttons. An iOS Home Screen
+     app is sized to the screen instead, as its viewport is misreported (--app-h, lib/iosApp.ts). */
+  height: var(--app-h, 100dvh);
   margin: 0;
   background: var(--bg);
   color: var(--tx);
