@@ -3,7 +3,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { auditScreen, type ScreenReport } from './audit';
 import { violations } from './audit-rules';
 import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
-import { btn, openAdvanced } from './helpers';
+import { btn, nameField, openAdvanced } from './helpers';
 
 /**
  * Every device class that still gets the phone UI (docs/codebase/ARCHITECTURE.md, Layout). From 768×501 up the app shows the
@@ -108,12 +108,17 @@ for (const [w, h] of MATRIX) {
           await shot('02-setup1', { primary: btn(page, 'Next') });
 
           await btn(page, 'Next').click();
-          const input = page.getByLabel('Player name');
+          const input = await nameField(page);
           for (const name of LONG_NAMES_10.slice(0, 2)) {
             await input.fill(name);
             await input.press('Enter');
           }
-          await shot('03-setup2', { primary: btn(page, 'Next') });
+          await shot('03-sheet-add', {
+            primary: page.getByRole('dialog').getByLabel('Player name'),
+          });
+          await close();
+          await settle(page);
+          await shot('03-setup2', { primary: btn(page, 'Add player') });
           await page.locator('[data-table="su2"] [data-seat="0"]').click();
           await shot('04-sheet-seat', { primary: btn(page, 'Close').last() });
           await btn(page, 'Rename').click();
@@ -125,6 +130,7 @@ for (const [w, h] of MATRIX) {
           await shot('06-sheet-avatar', { primary: btn(page, 'Close').last() });
           await close();
           await settle(page);
+          await nameField(page);
           for (const name of LONG_NAMES_10.slice(2, n)) {
             await input.fill(name);
             await input.press('Enter');

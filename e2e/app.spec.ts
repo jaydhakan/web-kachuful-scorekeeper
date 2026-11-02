@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { NAMES7, bidEveryone, btn, startGame } from './helpers';
+import { NAMES7, bidEveryone, btn, nameField, startGame } from './helpers';
 
 const noOverflow = (page: import('@playwright/test').Page) =>
   page.evaluate(
@@ -123,7 +123,9 @@ test.describe('accessibility (axe)', () => {
     await btn(page, 'Next').click();
     await page.waitForTimeout(600);
     await scan(page, 'setup 2');
-    const input = page.getByLabel('Player name');
+    const input = await nameField(page);
+    await page.waitForTimeout(600);
+    await scan(page, 'add player sheet');
     for (const n of ['A1', 'B2', 'C3', 'D4']) {
       await input.fill(n);
       await input.press('Enter');

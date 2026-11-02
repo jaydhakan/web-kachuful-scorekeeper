@@ -1,7 +1,8 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { useApp } from '@/state/store';
-import type { SheetState } from '@/state/types';
+import type { SetupState, SheetState } from '@/state/types';
 import { Sheet, type Presentation } from '@/components/ui/Sheet';
+import { AddPlayerBody } from './AddPlayerBody';
 import { AvatarBody, RenameBody, SeatBody } from './SeatBodies';
 import { BoardBody } from './BoardBody';
 import { EditBody } from './EditBody';
@@ -24,7 +25,7 @@ interface Spec {
 function specFor(
   s: SheetState,
   game: ReturnType<typeof useApp>['state']['game'],
-  seatName?: string,
+  setup: SetupState | null,
 ): Spec {
   switch (s.type) {
     case 'menu':
@@ -43,7 +44,15 @@ function specFor(
     case 'upcoming':
       return { title: t.sheets.upcomingTitle, body: <UpcomingBody />, full: true, roomy: 'panel' };
     case 'seat':
-      return { title: seatName ?? t.sheets.seatTitle, body: <SeatBody k={s.k} /> };
+      return { title: setup?.seats[s.k]?.name ?? t.sheets.seatTitle, body: <SeatBody k={s.k} /> };
+    case 'addPlayer': {
+      const k = setup?.seats.findIndex((x) => !x) ?? -1;
+      return {
+        title: setup && k >= 0 ? t.setup.seatOf(k + 1, setup.n ?? 0) : t.setup.everyoneSeated,
+        body: <AddPlayerBody name={s.name} />,
+        full: true,
+      };
+    }
     case 'rename':
       return { title: t.sheets.rename, body: <RenameBody k={s.k} /> };
     case 'avatar':
@@ -74,8 +83,7 @@ export function SheetHost() {
   const { state, actions } = useApp();
   const [s] = useState(state.sheet);
   if (!s) return null;
-  const seatName = 'k' in s ? state.setup?.seats[s.k]?.name : undefined;
-  const { title, body, full, roomy } = specFor(s, state.game, seatName);
+  const { title, body, full, roomy } = specFor(s, state.game, state.setup);
   return (
     <Sheet title={title} full={full} roomy={roomy} onClose={() => actions.openSheet(null)}>
       {body}

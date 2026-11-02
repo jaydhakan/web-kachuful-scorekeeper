@@ -67,7 +67,9 @@ export interface SetupState {
 export type SheetState =
   | { type: 'menu' | 'rules' | 'board' | 'upcoming' | 'share' | 'theme' }
   | { type: 'edit'; i: number }
-  | { type: 'seat' | 'rename' | 'avatar'; k: number };
+  | { type: 'seat' | 'rename' | 'avatar'; k: number }
+  /** Seats the next empty seat; `name` opens on that known player's email. */
+  | { type: 'addPlayer'; name?: string };
 
 export type ModalKind = 'endGame';
 

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { LONG_NAMES } from './fixtures';
-import { btn, NAMES7, toSetup3 } from './helpers';
+import { btn, nameField, NAMES7, toSetup3 } from './helpers';
 import { fits, inView, toSetup1 } from './setup-helpers';
 
 test.describe('setup 3 fits the screen', () => {
@@ -9,7 +9,7 @@ test.describe('setup 3 fits the screen', () => {
     await toSetup1(page, 7);
     await btn(page, '7 players').click();
     await btn(page, 'Next').click();
-    const input = page.getByLabel('Player name');
+    const input = await nameField(page);
     for (const name of LONG_NAMES) {
       await input.fill(name);
       await input.press('Enter');

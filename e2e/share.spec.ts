@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { freshBackend, signIn } from './backend';
-import { btn, giveEmail } from './helpers';
+import { btn, giveEmail, nameField } from './helpers';
 
 // Live and recap links (mock API, or a real backend with E2E_API=local).
 freshBackend();
@@ -12,6 +12,7 @@ async function signedInGame(page: Page) {
   await btn(page, 'New Game').click();
   await btn(page, '3 players').click();
   await btn(page, 'Next').click();
+  await nameField(page);
   for (const n of ['Lu' + uniq(), 'Mo' + uniq(), 'Ny' + uniq()]) {
     await page.getByLabel('Player name').fill(n);
     await page.getByLabel('Player name').press('Enter');

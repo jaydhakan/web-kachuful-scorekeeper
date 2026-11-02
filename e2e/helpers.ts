@@ -9,6 +9,13 @@ export async function openAdvanced(page: Page) {
   if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
 }
 
+/** Setup 2's names are typed in the Add player sheet: opens it unless it is open, and returns its field. */
+export async function nameField(page: Page) {
+  const field = page.getByRole('dialog').getByLabel('Player name');
+  if (!(await field.isVisible())) await btn(page, 'Add player').click();
+  return field;
+}
+
 /** New Game → seat `names` → stop on setup step 3. `onStep` runs on each setup step. */
 export async function toSetup3(
   page: Page,
@@ -25,7 +32,7 @@ export async function toSetup3(
   await onStep('setup 1');
   await btn(page, 'Next').click();
   await onStep('setup 2');
-  const input = page.getByLabel('Player name');
+  const input = await nameField(page);
   for (const [i, n] of names.entries()) {
     await input.fill(n);
     await input.press('Enter');

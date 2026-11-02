@@ -19,6 +19,7 @@ async function seatThree(u: ReturnType<typeof setup>) {
   await u.click(await btn('New Game'));
   await u.click(await btn('3 players'));
   await u.click(await btn('Next'));
+  await u.click(await btn('Add player'));
   for (const [i, n] of ['Asha', 'Bo', 'Cy'].entries()) {
     await u.type(await screen.findByLabelText('Player name'), n + '{Enter}');
     await screen.findByText(`${i + 1} of 3 seated`);
@@ -100,9 +101,10 @@ describe('setup → bid → play → results → summary', () => {
     await u.click(await btn('New Game'));
     await u.click(await btn('4 players'));
     await u.click(await btn('Next'));
+    await u.click(await btn('Add player'));
     const input = await screen.findByLabelText('Player name');
     await u.type(input, 'Asha{Enter}');
-    await screen.findByText(/sitting on Asha/);
+    expect(await screen.findAllByText(/sitting on Asha/)).not.toHaveLength(0);
     await u.type(screen.getByLabelText('Player name'), 'asha{Enter}');
     expect(await screen.findByText('Asha is already at the table.')).toBeInTheDocument();
   });

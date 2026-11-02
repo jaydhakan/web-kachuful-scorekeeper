@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { addPlayer, freshBackend, signIn } from './backend';
 import { openSeeded, seedGame } from './fixtures';
-import { bidEveryone, btn, giveEmail } from './helpers';
+import { bidEveryone, btn, giveEmail, nameField } from './helpers';
 
 // Signed-in play against the mock API, or a real backend with E2E_API=local (e2e/backend.ts).
 freshBackend();
@@ -17,7 +17,7 @@ async function newGameStep2(page: Page, n: number) {
 }
 
 const typeName = async (page: Page, n: string) => {
-  const input = page.getByLabel('Player name');
+  const input = await nameField(page);
   await input.fill(n);
   await input.press('Enter');
 };
