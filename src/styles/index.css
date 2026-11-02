@@ -1,6 +1,5 @@
 /* Theme tokens, materials and fonts first: the only file with colour values. */
 @import './themes.css';
-@import './credits.css';
 
 @tailwind base;
 @tailwind components;
