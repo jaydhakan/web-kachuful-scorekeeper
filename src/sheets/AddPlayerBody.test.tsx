@@ -1,8 +1,9 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
-// The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
+// The shell and the sheets it opens are lazy chunks; loaded up front so transforming them can't outlast a findBy.
 import '@/components/PhoneShell';
+import '@/sheets/AddPlayerBody';
 import { archive } from '@/state/archive';
 import { KEYS } from '@/state/persistence';
 import { ensurePlayer } from '@/state/registry';
@@ -31,7 +32,7 @@ describe('the Add player sheet', () => {
     await u.click(await btn('Add player'));
     const d = await sheet();
     expect(within(d).getByRole('heading', { name: 'Seat 1 of 3' })).toBeInTheDocument();
-    const field = within(d).getByLabelText('Player name');
+    const field = await within(d).findByLabelText('Player name');
     await waitFor(() => expect(field).toHaveFocus());
 
     await u.type(field, 'as');
@@ -64,7 +65,7 @@ describe('the Add player sheet', () => {
     await u.click(await btn('Asha'));
     await u.click(await btn('Add player'));
     const d = await sheet();
-    await u.type(within(d).getByLabelText('Player name'), 'asha{Enter}');
+    await u.type(await within(d).findByLabelText('Player name'), 'asha{Enter}');
     expect(await within(d).findByText('Asha is already at the table.')).toBeInTheDocument();
     expect(within(d).getByRole('heading', { name: 'Seat 2 of 3' })).toBeInTheDocument();
   });
@@ -91,7 +92,7 @@ describe('signed in, a known player with no email', () => {
     const d = await sheet();
     const email = within(d).getByLabelText("Bo's email");
     await waitFor(() => expect(email).toHaveFocus());
-    expect(within(d).getByLabelText('Player name')).toHaveValue('Bo');
+    expect(await within(d).findByLabelText('Player name')).toHaveValue('Bo');
     expect(within(d).getByRole('button', { name: 'Add Bo' })).toBeDisabled();
     expect(screen.getByText('0 of 3 seated')).toBeInTheDocument();
   });

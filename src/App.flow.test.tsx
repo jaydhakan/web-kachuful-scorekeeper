@@ -1,8 +1,9 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
-// The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
+// The shell and the sheets it opens are lazy chunks; loaded up front so transforming them can't outlast a findBy.
 import './components/PhoneShell';
+import './sheets/AddPlayerBody';
 import { KEYS } from './state/persistence';
 import fixture from './state/__fixtures__/prototype-save.json';
 
@@ -105,7 +106,7 @@ describe('setup → bid → play → results → summary', () => {
     const input = await screen.findByLabelText('Player name');
     await u.type(input, 'Asha{Enter}');
     expect(await screen.findAllByText(/sitting on Asha/)).not.toHaveLength(0);
-    await u.type(screen.getByLabelText('Player name'), 'asha{Enter}');
+    await u.type(await screen.findByLabelText('Player name'), 'asha{Enter}');
     expect(await screen.findByText('Asha is already at the table.')).toBeInTheDocument();
   });
 });

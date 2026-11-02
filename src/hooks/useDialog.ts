@@ -48,10 +48,21 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
     if (!active?.closest('[aria-modal="true"]')) opener = trigger?.isConnected ? trigger : active;
     const mine = opener;
 
-    const first =
+    const initial = () =>
       root.querySelector<HTMLElement>('[data-autofocus]') ??
       focusables(root).find((el) => !el.matches('[data-skip-initial-focus],[role="region"]'));
+    const first = initial();
     (first ?? root).focus({ preventScroll: true });
+    // A lazy body mounts after this runs; focus moves in when it arrives, unless the person has moved it already.
+    const late = first
+      ? null
+      : new MutationObserver(() => {
+          const el = initial();
+          if (!el) return;
+          late?.disconnect();
+          if (document.activeElement === root) el.focus({ preventScroll: true });
+        });
+    late?.observe(root, { childList: true, subtree: true });
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && close.current) {
@@ -80,6 +91,7 @@ export function useDialog(ref: RefObject<HTMLElement>, onClose: (() => void) | u
     };
     document.addEventListener('keydown', onKey, true);
     return () => {
+      late?.disconnect();
       document.removeEventListener('keydown', onKey, true);
       if (!document.querySelector('[aria-modal="true"]:not([data-closing])') && mine?.isConnected)
         mine.focus({ preventScroll: true });
