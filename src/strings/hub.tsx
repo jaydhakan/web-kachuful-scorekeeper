@@ -26,6 +26,19 @@ export const hub = {
     account: 'Account',
     signIn: 'Sign in',
     admin: 'Admin',
+    fresh: 'Start fresh',
+  },
+  fresh: {
+    title: 'Start fresh',
+    body: 'Deletes every game and player saved on this device so you can begin again.',
+    bodyOnline:
+      'Deletes every game you scored, here and on your account, so you can begin again. Players you added and games other people scored stay.',
+    warn: 'This can’t be undone.',
+    button: 'Delete my games',
+    confirm: 'Delete everything and start fresh?',
+    confirmOk: 'Delete',
+    done: 'All clear. Starting fresh.',
+    failed: 'Couldn’t delete your games. Nothing was changed. Check your connection and try again.',
   },
   credits: {
     share: 'Share Kachuful',

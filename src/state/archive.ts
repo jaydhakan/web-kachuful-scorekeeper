@@ -240,13 +240,21 @@ export class Archive {
   private fail(e: WriteError) {
     this.errorListeners.forEach((f) => f(e));
   }
+  private pending = new Set<Promise<void>>();
   private persist(p: Promise<void>) {
-    p.catch((e: unknown) =>
-      this.fail(
-        e instanceof DOMException && e.name === 'QuotaExceededError' ? 'quota' : 'unavailable',
-      ),
-    );
+    const done = p
+      .catch((e: unknown) =>
+        this.fail(
+          e instanceof DOMException && e.name === 'QuotaExceededError' ? 'quota' : 'unavailable',
+        ),
+      )
+      .finally(() => this.pending.delete(done));
+    this.pending.add(done);
   }
+  /** Resolves once every write made so far has reached the disk; a reload right after a clear needs it. */
+  flush = async () => {
+    await Promise.all(this.pending);
+  };
 
   all<K extends StoreName>(s: K): Stores[K][] {
     return [...this.data[s].values()] as Stores[K][];

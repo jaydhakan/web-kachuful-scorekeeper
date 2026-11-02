@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
+import { AppProvider } from '@/state/store';
+import { FreshPage } from './FreshPage';
 // The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
 import '@/components/PhoneShell';
 import { kitGame, rows } from '@/domain/__fixtures__/kit';
@@ -110,5 +112,26 @@ describe('editing a player from the Players list (signed out)', () => {
       expect(archive.all('players').some((p) => p.displayName === 'Bobby')).toBe(true),
     );
     expect(archive.all('players').find((p) => p.displayName === 'Bobby')?.firstName).toBe('Robert');
+  });
+});
+
+describe('Start fresh (signed out)', () => {
+  it('asks first, then clears this device and reloads', async () => {
+    await seed();
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    const u = setup();
+    render(
+      <AppProvider>
+        <FreshPage />
+      </AppProvider>,
+    );
+    await u.click(await screen.findByRole('button', { name: 'Delete my games' }));
+    expect(await screen.findByText('Delete everything and start fresh?')).toBeInTheDocument();
+    expect(archive.games().length).toBe(1);
+    await u.click(screen.getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(assign).toHaveBeenCalledWith('/'));
+    expect(archive.all('games')).toEqual([]);
+    vi.unstubAllGlobals();
   });
 });

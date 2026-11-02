@@ -32,7 +32,8 @@ export type RouteName =
   | 'live'
   | 'recap'
   | 'import'
-  | 'credits';
+  | 'credits'
+  | 'fresh';
 
 export interface Route {
   screen: RouteName;

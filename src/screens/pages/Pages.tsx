@@ -4,6 +4,7 @@ import { ActivityPage } from './ActivityPage';
 import { AchievementsPage } from './AchievementsPage';
 import { AdminPage } from './AdminPage';
 import { InvitePage, ResetPage, SignInPage } from './AuthPages';
+import { FreshPage } from './FreshPage';
 import { CreditsPage } from './CreditsPage';
 import { AwardsPage } from './AwardsPage';
 import { BoardsPage } from './BoardsPage';
@@ -56,6 +57,8 @@ export default function Pages({ route }: { route: Route }) {
       return <RecapPage token={p.token ?? ''} />;
     case 'credits':
       return <CreditsPage />;
+    case 'fresh':
+      return <FreshPage />;
     case 'import':
       return <ImportPage />;
     default:
