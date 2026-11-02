@@ -12,6 +12,20 @@ Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist
 
 Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `src`, `e2e`, `tools` and the config files; `prototype/` is excluded and read-only.
 
+## E2E tests that fail under load (not regressions)
+
+`npm run test:e2e` runs on half the CPU cores. A full run on a busy machine fails a few tests that **pass when run alone**. Which ones varies by run (6 workers: 7 failed; 3 workers: 2). Measured 2026-11-02 at `b9a6450`, 158 tests:
+
+| Test                                                                                              | Fails with                                  | Why                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `app.spec.ts` · accessibility (axe)                                                               | 30s test timeout                            | About 12 axe scans plus fixed waits: ~22s alone, so load pushes it past the 30s default                                                  |
+| `targets.spec.ts` · every control is at least 44px (both viewports)                               | 30s test timeout                            | Walks every screen measuring targets: ~21–24s alone                                                                                      |
+| `share.spec.ts` · a live link follows the table                                                   | 30s test timeout                            | Two pages following one game: ~9s alone                                                                                                  |
+| `accounts.spec.ts` · admin invites someone; `results-rule.spec.ts` · the last player is filled in | 5s `expect` timeout                         | The next screen arrives late under load                                                                                                  |
+| `themes.spec.ts` · yerba-sun: only this theme's fonts are downloaded                              | Instrument Sans counted as the theme's font | Probably the default theme's font request starting after the first `networkidle`, so it lands after the counter is reset (not confirmed) |
+
+**How to pass:** after a full run, rerun only the failures, one at a time: `npx playwright test --last-failed --workers=1`. If a test still fails alone, it's real. CI hides these because it retries once (`retries: 1` in `playwright.config.ts`).
+
 ## Reuse before you write
 
 | Need                        | Use                                                               |
