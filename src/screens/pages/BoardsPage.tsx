@@ -12,8 +12,9 @@ import {
 } from '@/domain';
 import { useApp } from '@/state/store';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
-import { Chip, ChipRow, EmptyState, Page, Section } from '@/components/ui/Page';
-import { MetricChips, pct, Progress, RangeChips, RankDelta } from '@/components/ui/Stats';
+import { EmptyState, Page, Section } from '@/components/ui/Page';
+import { MetricPick, pct, Progress, RangePick, RankDelta } from '@/components/ui/Stats';
+import { Seg } from '@/components/ui/Seg';
 import { StreakBadge } from '@/components/ui/StreakBadge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS, SPRING } from '@/components/ui/motion';
@@ -65,16 +66,37 @@ export function BoardsPage() {
       title={b.title}
       sub={
         <div className="flex flex-col gap-2">
-          <ChipRow label={b.scope}>
-            <Chip on={scope === 'global'} onClick={() => setScope('global')}>
-              {icon('globe')} {b.global}
-            </Chip>
-            <Chip on={scope === 'device'} onClick={() => setScope('device')}>
-              {icon('phone')} {b.device}
-            </Chip>
-          </ChipRow>
-          <RangeChips value={range} onChange={setRange} />
-          <MetricChips value={metric} onChange={setMetric} />
+          <Seg
+            uid="board-scope"
+            label={b.scope}
+            value={scope}
+            onChange={setScope}
+            className="self-start"
+            options={[
+              {
+                v: 'global',
+                label: (
+                  <span className="flex items-center gap-1.5">
+                    {icon('globe')}
+                    {b.global}
+                  </span>
+                ),
+              },
+              {
+                v: 'device',
+                label: (
+                  <span className="flex items-center gap-1.5">
+                    {icon('phone')}
+                    {b.device}
+                  </span>
+                ),
+              },
+            ]}
+          />
+          <div className="flex gap-2">
+            <RangePick value={range} onChange={setRange} />
+            <MetricPick value={metric} onChange={setMetric} />
+          </div>
         </div>
       }
     >

@@ -36,6 +36,7 @@ describe('boards, players and awards on this device', () => {
     const u = setup();
     render(<App />);
     await open(u, /Boards/);
+    await u.click(await screen.findByRole('button', { name: /^Date range/ }));
     await u.click(await screen.findByRole('button', { name: 'Today' }));
     const first = await screen.findByRole('button', { name: /^#1 Asha/ });
     await u.click(first);

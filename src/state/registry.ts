@@ -2,6 +2,7 @@ import { COLORS, emailKey, nameKey, pidOf, tidyName, type Game, type Player } fr
 import { uuid } from '@/lib/ids';
 import { archive, type PlayerRec } from './archive';
 import { KEYS, storage } from './persistence';
+import type { Seat } from './types';
 
 /**
  * The people this device knows: one row per player, unique by name key. Signed out these are local rows; signed
@@ -29,23 +30,40 @@ export const findByName = (name: string): PlayerRec | undefined => {
   return all.find((p) => !p.local) ?? all[0];
 };
 
+type SeatLike = Pick<
+  Seat,
+  'name' | 'emoji' | 'color' | 'playerId' | 'email' | 'firstName' | 'lastName'
+>;
+
+const fullName = (seat: SeatLike) => ({
+  ...(seat.firstName && { firstName: seat.firstName }),
+  ...(seat.lastName && { lastName: seat.lastName }),
+});
+
 /** The registry row for a seat: by id when it has one, else by name, else a new local player. */
-export function ensurePlayer(
-  seat: { name: string; emoji: string; color: string; playerId?: string; email?: string },
-  online = false,
-) {
-  if (seat.playerId) {
-    const p = archive.get('players', resolveId(seat.playerId));
-    if (p) return p;
+export function ensurePlayer(seat: SeatLike, online = false) {
+  const found =
+    (seat.playerId && archive.get('players', resolveId(seat.playerId))) || findByName(seat.name);
+  if (found) {
+    // A device-only player given an email at setup goes up to the server with it.
+    if (!seat.email || found.email || !found.local) return found;
+    const rec: PlayerRec = {
+      ...found,
+      email: emailKey(seat.email),
+      ...fullName(seat),
+      updatedAt: Date.now(),
+      ...(online && { pendingCreate: true }),
+    };
+    archive.put('players', rec);
+    return rec;
   }
-  const found = findByName(seat.name);
-  if (found) return found;
   const now = Date.now();
   const rec: PlayerRec = {
     id: seat.playerId ?? uuid(),
     displayName: tidyName(seat.name),
     nameKey: nameKey(seat.name),
     ...(seat.email && { email: emailKey(seat.email) }),
+    ...fullName(seat),
     emoji: seat.emoji,
     color: seat.color,
     createdAt: now,

@@ -48,6 +48,8 @@ export interface Seat {
   playerId?: string;
   /** A new player's email (signed in), which says who they are. */
   email?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface SetupState {

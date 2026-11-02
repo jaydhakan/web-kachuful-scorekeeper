@@ -13,7 +13,7 @@ import {
 } from '@/domain';
 import { circle, people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
-import { findPerson, lookFor } from '@/screens/setup/seatLook';
+import { findPerson, lacksEmail, lookFor } from '@/screens/setup/seatLook';
 import { EmailStep, personFor } from '@/screens/setup/SamePerson';
 import { useApp } from '@/state/store';
 import type { Seat } from '@/state/types';
@@ -93,7 +93,13 @@ export function DeskSetup() {
   const dupe = names.find((x, i) => x && names.indexOf(x) !== i);
   const noEmail = signedIn
     ? seats.findIndex(
-        (x) => x && x.name.trim() && !x.playerId && !x.email && !findPerson(known, x.name),
+        (x) =>
+          x &&
+          x.name.trim() &&
+          !x.email &&
+          (x.playerId
+            ? known.some((p) => p.id === x.playerId && lacksEmail(p))
+            : lacksEmail(findPerson(known, x.name))),
       )
     : -1;
   const [emailDraft, setEmailDraft] = useState('');
@@ -529,7 +535,10 @@ export function DeskSetup() {
                 name={tidy(seats[noEmail]!.name)}
                 initialEmail={emailDraft}
                 taken={seats.flatMap((x) => (x?.email ? [x.email] : []))}
-                onDone={(email) => (setEmailDraft(''), actions.setupSeatPatch(noEmail, { email }))}
+                onDone={(email, names) => (
+                  setEmailDraft(''),
+                  actions.setupSeatPatch(noEmail, { email, ...names })
+                )}
                 onSame={(p) => {
                   setEmailDraft('');
                   actions.setupSeatPatch(noEmail, {
@@ -539,7 +548,8 @@ export function DeskSetup() {
                 }}
                 onRename={(name, email) => {
                   setEmailDraft(email);
-                  actions.setupSeatPatch(noEmail, { name });
+                  // A new name is a new player, so a device-only one picked from the list is left as it was.
+                  actions.setupSeatPatch(noEmail, { name, playerId: undefined });
                 }}
               />
             )}

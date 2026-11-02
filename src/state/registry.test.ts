@@ -83,6 +83,18 @@ describe('local player registry', () => {
     expect(archive.all('players')).toHaveLength(1);
   });
 
+  it('a device-only player given an email at setup is queued for the server with it', () => {
+    const a = ensurePlayer({ name: 'Riya', emoji: '🦊', color: 'c' });
+    const b = ensurePlayer(
+      { name: 'Riya', emoji: '🦊', color: 'c', playerId: a.id, email: 'Riya@X.com', lastName: 'S' },
+      true,
+    );
+    expect(b).toMatchObject({ id: a.id, email: 'riya@x.com', lastName: 'S', pendingCreate: true });
+    expect(
+      ensurePlayer({ name: 'Riya', emoji: '🦊', color: 'c', email: 'other@x.com' }).email,
+    ).toBe('riya@x.com');
+  });
+
   it('gives names from older games and recent names a row, once', async () => {
     await archive.ready;
     archiveGame({ ...demoGame(), id: 'g', syncId: 's' });

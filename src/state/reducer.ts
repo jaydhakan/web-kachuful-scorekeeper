@@ -53,10 +53,13 @@ export function initialState(
 
 /** At most two full-screen bursts a round; the rest of the round's moments drop in as small cards. */
 const MAX_BURSTS = 2;
+// Common and a little mean, so they are earned quietly: the Achievements page still lists them.
+const QUIET = new Set(['odd_one_out', 'hooked']);
 const celebrate = (s: AppState, g: Game): Pick<AppState, 'streakFx' | 'pops'> => {
-  const fx = streakMilestones(g);
+  // Three misses in a row is common enough that a full screen rubs it in; it drops in as a card instead.
+  const fx = streakMilestones(g).filter((e) => e.kind === 'hot' || e.tier > 0);
   const items = lastRoundMoments(g)
-    .filter(({ e }) => !e.code.startsWith('hot_') && !e.code.startsWith('cold_'))
+    .filter(({ e }) => !QUIET.has(e.code) && (e.code === 'cold_3' || !/^(hot|cold)_/.test(e.code)))
     .map(({ e, p }) => ({ code: e.code, name: p.name }));
   const more = Math.max(0, fx.length - MAX_BURSTS);
   return {

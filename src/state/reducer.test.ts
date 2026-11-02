@@ -602,4 +602,21 @@ describe('achievement pop-ups after a round', () => {
     st = run(st, { type: 'undo' });
     expect(st.pops).toBeNull();
   });
+
+  it('three misses in a row is a card, not a burst; odd one out stays quiet', () => {
+    const g = kitGame({
+      id: 'c3',
+      players: ['a', 'b', 'c', 'd'],
+      start: 0,
+      rounds: Array.from({ length: 3 }, () => ({ made: [false, true, true, true] })),
+    });
+    g.rounds = g.rounds.slice(0, 3);
+    g.rounds[2].phase = 'results';
+    delete g.rounds[2].doneAt;
+    const st = run(initialState(g, 'round', []), { type: 'confirmRound' });
+    expect(st.streakFx?.some((e) => e.kind === 'cold')).toBe(false);
+    const codes = st.pops?.items.map((x) => x.code);
+    expect(codes).toContain('cold_3');
+    expect(codes).not.toContain('odd_one_out');
+  });
 });

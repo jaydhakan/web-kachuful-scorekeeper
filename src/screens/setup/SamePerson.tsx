@@ -12,6 +12,9 @@ import { t } from '@/strings';
 
 const x = t.hub.sync2;
 
+/** The optional first and last name a new player can be given at setup. */
+export type FullName = { firstName?: string; lastName?: string };
+
 /** "Is this Riya?": only ever shown when name and email both belong to that player. */
 export function SameCard({
   match,
@@ -85,8 +88,8 @@ export function EmailStep({
   name: string;
   /** Emails already at this table. */
   taken: string[];
-  /** A new player with this email. */
-  onDone: (email: string) => void;
+  /** A new player with this email, and their full name when given. */
+  onDone: (email: string, names: FullName) => void;
   /** The server's player with this name and email. */
   onSame: (p: PlayerSummary) => void;
   /** The name is someone else's: ask again with this free one (and the email typed so far). */
@@ -99,7 +102,14 @@ export function EmailStep({
   const [match, setMatch] = useState<PlayerSummary | null>(null);
   const [nameTaken, setNameTaken] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [full, setFull] = useState(false);
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
   const { actions } = useApp();
+  const names: FullName = {
+    ...(first.trim() && { firstName: first.trim() }),
+    ...(last.trim() && { lastName: last.trim() }),
+  };
   const other = suggestName(name, new Set(livePlayers().map((p) => p.nameKey)));
   const submit = async (e?: FormEvent) => {
     e?.preventDefault();
@@ -115,9 +125,9 @@ export function EmailStep({
       else if (r.status === 'name_taken') {
         setNameTaken(true);
         setErr(x.nameTaken(name));
-      } else onDone(emailKey(email));
+      } else onDone(emailKey(email), names);
     } catch (x2) {
-      if (x2 instanceof ApiError && x2.offline) onDone(emailKey(email));
+      if (x2 instanceof ApiError && x2.offline) onDone(emailKey(email), names);
       else if (x2 instanceof ApiError && x2.retryAfter) setErr(t.hub.auth.wait(x2.retryAfter));
       else setErr(t.hub.auth.errors.server);
     } finally {
@@ -173,6 +183,40 @@ export function EmailStep({
       >
         {err || x.emailHint}
       </p>
+      {full ? (
+        <div className="grid grid-cols-2 gap-2">
+          {(
+            [
+              [t.hub.auth.firstName, first, setFirst, 'first'],
+              [t.hub.auth.lastName, last, setLast, 'last'],
+            ] as const
+          ).map(([label, v, set, k]) => (
+            <label
+              key={k}
+              className="flex min-w-0 flex-col gap-1 text-13 font-bold text-[var(--tx2)]"
+            >
+              {label}
+              <input
+                value={v}
+                onChange={(e) => set(e.target.value)}
+                autoComplete="off"
+                autoCapitalize="words"
+                autoCorrect="off"
+                spellCheck={false}
+                className="h-12 min-w-0 rounded-2xl mat-inp px-4 text-17 font-normal text-[var(--tx)] outline-none"
+              />
+            </label>
+          ))}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setFull(true)}
+          className="press min-h-11 self-start rounded-xl px-1 text-14 font-bold text-[var(--accent)]"
+        >
+          {x.addFullName}
+        </button>
+      )}
       {nameTaken && (
         <button
           type="button"

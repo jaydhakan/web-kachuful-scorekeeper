@@ -21,6 +21,7 @@ test('the global board ranks everyone, and a row opens the server player page', 
     'aria-pressed',
     'true',
   );
+  await page.getByRole('button', { name: /^Date range/ }).click();
   await btn(page, 'All time').click();
   const row = page.getByRole('button', { name: /^#1 / });
   await expect(row).toBeVisible();
@@ -53,6 +54,7 @@ test('a player page leads to head-to-head, and Wrapped comes from the server', a
     .getByRole('button', { name: /Boards/ })
     .first()
     .click();
+  await page.getByRole('button', { name: /^Date range/ }).click();
   await btn(page, 'All time').click();
   await page.getByRole('button', { name: /^#1 / }).click();
   const vs = page.getByRole('button', { name: /^Head to head: / }).first();

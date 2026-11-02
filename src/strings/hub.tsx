@@ -435,6 +435,7 @@ export const hub = {
     emailFor: (name: string) => `${name}'s email`,
     emailHint: 'Only to tell people apart. Nobody is emailed, and other players never see it.',
     emailPlaceholder: 'name@example.com',
+    addFullName: '+ Add first and last name',
     emailInvalid: 'That doesn’t look like an email.',
     emailAtTable: 'Someone at this table already has that email.',
     useSuggestion: (s: string) => `Use “${s}”`,

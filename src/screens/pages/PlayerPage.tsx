@@ -27,7 +27,7 @@ import {
   Bars,
   Heatmap,
   pct,
-  RangeChips,
+  RangePick,
   Sparkline,
   StatTile,
   TileGrid,
@@ -149,7 +149,11 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
           {w.name}
         </span>
       }
-      sub={<RangeChips value={range} onChange={setRange} />}
+      sub={
+        <div className="flex">
+          <RangePick value={range} onChange={setRange} />
+        </div>
+      }
     >
       {reg && mayEdit(reg, state.session?.user) && (
         <PhotoPicker p={{ ...w, displayName: w.name }} className="mb-5" />

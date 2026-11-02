@@ -5,6 +5,9 @@ import type { Seat } from '@/state/types';
 export const findPerson = (known: Person[], name: string): Person | undefined =>
   known.find((p) => p.nameKey === nameKey(name));
 
+/** Signed in, a seat takes an email first unless the server knows the player or this device has their email. */
+export const lacksEmail = (who: Person | undefined) => !who || (who.local && !who.email);
+
 /**
  * A seat's emoji, colour and registry id: a known player keeps their own look unless someone at the table already
  * has that emoji or colour, in which case the seat's default is used.

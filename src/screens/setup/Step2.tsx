@@ -2,10 +2,10 @@ import { AnimatePresence, m } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
 import { nameKey } from '@/domain';
 import { useApp } from '@/state/store';
-import { EmailStep, personFor } from './SamePerson';
+import { EmailStep, personFor, type FullName } from './SamePerson';
 import { circle, people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
-import { findPerson, lookFor } from './seatLook';
+import { findPerson, lacksEmail, lookFor } from './seatLook';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Table } from '@/components/ui/Table';
 import { EASE, PRESS } from '@/components/ui/motion';
@@ -49,9 +49,11 @@ export function Step2() {
     const t = setTimeout(() => inp.current?.focus(), 350);
     return () => clearTimeout(t);
   }, [tgt]);
-  // Signed in, someone new (to this account) needs an email before taking the seat.
-  const [needEmail, setNeedEmail] = useState<{ name: string; email: string } | null>(null);
-  const add = (raw: string, who?: Person, email?: string) => {
+  // Signed in, someone new to this account, or only on this device without an email, needs one before taking the seat.
+  const [needEmail, setNeedEmail] = useState<{ name: string; email: string; who?: Person } | null>(
+    null,
+  );
+  const add = (raw: string, who?: Person, email?: string, names?: FullName) => {
     const nm = (raw || '').trim().replace(/\s+/g, ' ');
     if (!nm || tgt < 0) return;
     if (signedIn && !who) who = findPerson(known, nm);
@@ -61,8 +63,8 @@ export function Step2() {
       actions.vib();
       return;
     }
-    if (signedIn && !who && email === undefined) {
-      setNeedEmail({ name: nm, email: '' });
+    if (signedIn && email === undefined && lacksEmail(who)) {
+      setNeedEmail({ name: nm, email: '', ...(who && { who }) });
       return;
     }
     setNeedEmail(null);
@@ -71,6 +73,7 @@ export function Step2() {
       name: nm.charAt(0).toUpperCase() + nm.slice(1),
       ...look,
       ...(email && { email }),
+      ...names,
     });
     setDrop(tgt);
     setName('');
@@ -152,8 +155,9 @@ export function Step2() {
               name={needEmail.name}
               initialEmail={needEmail.email}
               taken={seats.flatMap((s) => (s?.email ? [s.email] : []))}
-              onDone={(email) => add(needEmail.name, undefined, email)}
+              onDone={(email, names) => add(needEmail.name, needEmail.who, email, names)}
               onSame={(p) => add(p.displayName, personFor(p))}
+              // A new name is a new player, so a device-only one picked from the list is left as it was.
               onRename={(name, email) => setNeedEmail({ name, email })}
             />
           )}

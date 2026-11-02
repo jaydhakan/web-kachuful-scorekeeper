@@ -1,18 +1,85 @@
-import { m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useState, type ReactNode } from 'react';
 import { customRange, rangeFor, type Metric, type Range, type RangeKind } from '@/domain';
 import { shortDay } from '@/lib/dates';
-import { Chip, ChipRow } from './Page';
+import { Icon } from './Icons';
+import { Sheet } from './Sheet';
 import { DateRangePicker } from './DateRangePicker';
-import { EASE, SPRING } from './motion';
+import { EASE, PRESS, SPRING } from './motion';
 import { t } from '@/strings';
 
 const s = t.hub.stats;
 
 const PRESETS: Exclude<RangeKind, 'custom'>[] = ['today', '7d', 'month', 'lastMonth', 'all'];
 
+/** A button showing the current choice; it opens a sheet of the options. */
+function PickButton({
+  label,
+  value,
+  onClick,
+}: {
+  label: string;
+  value: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <m.button
+      type="button"
+      aria-haspopup="dialog"
+      onClick={onClick}
+      whileTap={PRESS}
+      transition={SPRING}
+      className="glass flex min-h-11 min-w-0 flex-1 items-center gap-1.5 !rounded-full py-1 pl-4 pr-3 text-left [[data-desk]_&]:flex-none"
+    >
+      <span className="flex min-w-0 flex-1 flex-col leading-tight">
+        <span className="text-13 font-bold uppercase tracking-[0.06em] text-[var(--tx2)]">
+          {label}
+        </span>
+        <span className="text-15 font-bold">{value}</span>
+      </span>
+      <span aria-hidden className="shrink-0 rotate-90 text-[var(--tx2)]">
+        {Icon.chev}
+      </span>
+    </m.button>
+  );
+}
+
+/** The options as full-width rows; the current one is ticked. */
+function OptionSheet<T extends string>({
+  title,
+  options,
+  value,
+  onPick,
+  onClose,
+}: {
+  title: string;
+  options: [T, ReactNode][];
+  value: T;
+  onPick: (v: T) => void;
+  onClose: () => void;
+}) {
+  return (
+    <Sheet title={title} onClose={onClose}>
+      <div role="group" aria-label={title} className="flex flex-col gap-1">
+        {options.map(([v, label]) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={v === value}
+            onClick={() => onPick(v)}
+            className={`press flex min-h-12 items-center justify-between rounded-2xl px-4 text-left text-17 font-bold ${v === value ? 'bg-ov/[.07] text-[var(--accent)]' : ''}`}
+          >
+            {label}
+            {v === value && <span aria-hidden>{Icon.check}</span>}
+          </button>
+        ))}
+      </div>
+    </Sheet>
+  );
+}
+
 /** Today, 7 days, this month, last month, all time, or a custom range picked on a calendar. */
-export function RangeChips({
+export function RangePick({
   value,
   onChange,
   tz,
@@ -21,43 +88,62 @@ export function RangeChips({
   onChange: (r: Range) => void;
   tz?: string;
 }) {
-  const [pick, setPick] = useState(false);
+  const [open, setOpen] = useState<'list' | 'days' | null>(null);
+  const shown =
+    value.kind === 'custom'
+      ? `${shortDay(value.from)} – ${shortDay(value.to - 1)}`
+      : s.ranges[value.kind];
   return (
     <>
-      <ChipRow label={s.range}>
-        {PRESETS.map((k) => (
-          <Chip key={k} on={value.kind === k} onClick={() => onChange(rangeFor(k, Date.now(), tz))}>
-            {s.ranges[k]}
-          </Chip>
-        ))}
-        <Chip on={value.kind === 'custom'} onClick={() => setPick(true)}>
-          {value.kind === 'custom'
-            ? `${shortDay(value.from)} – ${shortDay(value.to - 1)}`
-            : s.ranges.custom}
-        </Chip>
-      </ChipRow>
-      {pick && (
-        <DateRangePicker
-          onClose={() => setPick(false)}
-          onPick={(a, b) => {
-            setPick(false);
-            onChange(customRange(a, b, tz));
-          }}
-        />
-      )}
+      <PickButton label={s.range} value={shown} onClick={() => setOpen('list')} />
+      <AnimatePresence>
+        {open === 'list' && (
+          <OptionSheet
+            key="list"
+            title={s.range}
+            value={value.kind}
+            options={[...PRESETS, 'custom' as const].map((k) => [k, s.ranges[k]])}
+            onPick={(k) =>
+              k === 'custom'
+                ? setOpen('days')
+                : (setOpen(null), onChange(rangeFor(k, Date.now(), tz)))
+            }
+            onClose={() => setOpen(null)}
+          />
+        )}
+        {open === 'days' && (
+          <DateRangePicker
+            key="days"
+            onClose={() => setOpen(null)}
+            onPick={(a, b) => {
+              setOpen(null);
+              onChange(customRange(a, b, tz));
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
 
-export function MetricChips({ value, onChange }: { value: Metric; onChange: (m: Metric) => void }) {
+/** What the board ranks by. */
+export function MetricPick({ value, onChange }: { value: Metric; onChange: (m: Metric) => void }) {
+  const [open, setOpen] = useState(false);
   return (
-    <ChipRow label={s.metric}>
-      {(Object.keys(s.metrics) as Metric[]).map((m) => (
-        <Chip key={m} on={value === m} onClick={() => onChange(m)}>
-          {s.metrics[m]}
-        </Chip>
-      ))}
-    </ChipRow>
+    <>
+      <PickButton label={s.metric} value={s.metrics[value]} onClick={() => setOpen(true)} />
+      <AnimatePresence>
+        {open && (
+          <OptionSheet
+            title={s.metric}
+            value={value}
+            options={(Object.keys(s.metrics) as Metric[]).map((k) => [k, s.metrics[k]])}
+            onPick={(k) => (setOpen(false), onChange(k))}
+            onClose={() => setOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
