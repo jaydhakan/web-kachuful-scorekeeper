@@ -4,6 +4,7 @@ import { ActivityPage } from './ActivityPage';
 import { AchievementsPage } from './AchievementsPage';
 import { AdminPage } from './AdminPage';
 import { InvitePage, ResetPage, SignInPage } from './AuthPages';
+import { CreditsPage } from './CreditsPage';
 import { AwardsPage } from './AwardsPage';
 import { BoardsPage } from './BoardsPage';
 import { GamePage } from './GamePage';
@@ -53,6 +54,8 @@ export default function Pages({ route }: { route: Route }) {
       return <LivePage token={p.token ?? ''} />;
     case 'recap':
       return <RecapPage token={p.token ?? ''} />;
+    case 'credits':
+      return <CreditsPage />;
     case 'import':
       return <ImportPage />;
     default:

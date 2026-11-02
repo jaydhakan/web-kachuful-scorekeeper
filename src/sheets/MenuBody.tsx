@@ -18,6 +18,7 @@ export function MenuBody() {
     d.label,
     () => actions.open(destRoute(d)),
   ]);
+  app.push([Icon.heart, t.hub.nav.credits, () => actions.open({ screen: 'credits' })]);
   const account: Row[] = [
     state.session
       ? [Icon.user, t.hub.nav.account, () => actions.open({ screen: 'account' })]
