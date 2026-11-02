@@ -159,3 +159,40 @@ Lighthouse is 100/100 on both form factors, so nothing here is urgent.
 | Remove or rewrite each Credits effect | **Proposed**, measured per-effect, awaiting approval |
 | Remove orbit / ticker / ambient on Home and round | Not proposed. Cost 0.5-4 pts at 4x CPU, compositor only, high UX value |
 | `will-change` on Credits layers | Rejected as a first step. Skill: only after the wrong-property cause is fixed |
+
+## Implemented: Credits fixes (2026-11-02)
+
+Files: [credits.css](src/styles/credits.css), [CreditsPage.tsx](src/screens/pages/CreditsPage.tsx) (one `.cr-ring` element). Not committed.
+
+| Fix | Change |
+| --- | --- |
+| Halo | Static gradient, blur 46 → 32 px, layer rotated with `transform` (`cr-spin`), `will-change: transform` |
+| Card ring | Static masked frame `.cr-ring`, conic child rotates with `transform` (same pattern as `.turn-rim`) |
+| Sheen | `left` animation replaced by `translateX(367%)`; same sweep distance |
+| Name hue | Kept for 2 passes (`cr-hue … 2`) instead of `infinite`; the gradient tiles, so the resting frame equals the first |
+| `@property --ang` | Removed (nothing animates an angle any more) |
+
+Measured, mobile 390x844 @2x, 4x CPU, 5 s steady state, same script and conditions, 3 runs each (old / new build):
+
+| Metric | Before | After |
+| --- | ---: | ---: |
+| Layout events | 118 | **0** |
+| Paint events | 1,204 | **~600** (all from the 2-pass name shimmer; **0** after it ends, ~15 s) |
+| Raster time | ~1,340 ms | **~115 ms** (-91 %) |
+| Main thread busy | ~30 % | **~22 %** |
+| Frame rate | 60 fps | 60 fps |
+
+Attribution on the new build: halo, ring and sheen each add 0 main-thread paints; the shimmer is the only paint source. Screenshots in all three themes match the old build.
+
+Caveats: an antivirus scan was using about half a CPU during these runs, so absolute numbers and the occasional late frame (seen in both builds) are noisy. The main-thread, layout, paint and raster comparisons were consistent across runs. No real-device check yet.
+
+## Problem 1 resolved: HEAD vs working tree (2026-11-02)
+
+`tools/trace.mjs`, 4x CPU, three runs each, alternating, same machine (antivirus scan running, so noisy):
+
+| Run | Long tasks | Late frames (>25 ms) | Worst interaction | "Three bids" commits / components |
+| --- | ---: | ---: | ---: | ---: |
+| HEAD #1 / #2 / #3 | 2 / 2 / 7 | 28 / 25 / 68 | 104 / 88 / 136 ms | 15 / 15 / 15 / 936 |
+| Working tree #1 / #2 / #3 | 1 / 4 / 5 | 22 / 40 / 33 | 88 / 96 / 88 ms | 16 / 16 / 15 / 936 |
+
+**Verdict: the uncommitted changes are not the cause.** HEAD alone shows the same late frames and the same 936 components on "Three bids", and the ranges overlap. The drop from the 2026-11-02 11:27 baseline (0 long tasks, 648 components) is either a commit made since then or machine load; it is **not bisected**. If it matters, run the same script on `a5e76d8` (the baseline era) and step forward.

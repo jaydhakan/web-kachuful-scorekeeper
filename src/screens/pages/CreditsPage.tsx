@@ -151,6 +151,9 @@ export function CreditsPage() {
           />
           <Sparkle style={{ '--d': '.4s', right: '30%', bottom: 64 } as CSSProperties} />
           <div className="cr-card" role="img" aria-label={t.hub.credits.cardLabel}>
+            <div aria-hidden className="cr-ring">
+              <i />
+            </div>
             <div className="cr-pip" style={{ left: 12, top: 12 }}>
               J
               <Suit s="heart" />
