@@ -2,7 +2,6 @@ import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { useApp } from '@/state/store';
 import type { SetupState, SheetState } from '@/state/types';
 import { Sheet, type Presentation } from '@/components/ui/Sheet';
-import { AddPlayerBody } from './AddPlayerBody';
 import { AvatarBody, RenameBody, SeatBody } from './SeatBodies';
 import { BoardBody } from './BoardBody';
 import { EditBody } from './EditBody';
@@ -13,6 +12,9 @@ import { t } from '@/strings';
 
 const ThemeBody = lazy(() => import('./ThemeBody').then((m) => ({ default: m.ThemeBody })));
 const ShareBody = lazy(() => import('./ShareBody'));
+const AddPlayerBody = lazy(() =>
+  import('./AddPlayerBody').then((m) => ({ default: m.AddPlayerBody })),
+);
 
 interface Spec {
   title: string;
@@ -49,7 +51,11 @@ function specFor(
       const k = setup?.seats.findIndex((x) => !x) ?? -1;
       return {
         title: setup && k >= 0 ? t.setup.seatOf(k + 1, setup.n ?? 0) : t.setup.everyoneSeated,
-        body: <AddPlayerBody name={s.name} />,
+        body: (
+          <Suspense fallback={null}>
+            <AddPlayerBody name={s.name} />
+          </Suspense>
+        ),
         full: true,
       };
     }
