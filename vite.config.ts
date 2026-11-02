@@ -34,11 +34,11 @@ const themeBoot = (): Plugin => {
 };
 
 /**
- * On a tablet or desktop, starts the large-screen chunks downloading while the entry is still parsing. Without
- * this they are only requested once the entry has run, a whole extra round trip before the first paint.
+ * Starts the chunks of whichever UI fits this screen (phone or large-screen) downloading while the entry is still
+ * parsing. Without this they are only requested once the entry has run, a whole extra round trip before first paint.
  */
-const preloadDesk = (): Plugin => ({
-  name: 'preload-desk',
+const preloadShell = (): Plugin => ({
+  name: 'preload-shell',
   transformIndexHtml: {
     order: 'post',
     handler: (_html, ctx) => {
@@ -53,15 +53,17 @@ const preloadDesk = (): Plugin => ({
         return seen;
       };
       const entry = closure(chunks.filter((c) => c.isEntry).map((c) => c.fileName));
-      const desk = chunks.find((c) =>
-        c.facadeModuleId?.endsWith('/src/screens/desk/DeskShell.tsx'),
-      );
-      if (!desk) return [];
-      const files = [...closure([desk.fileName])].filter((f) => !entry.has(f)).map((f) => `/${f}`);
+      const files = (src: string) => {
+        const shell = chunks.find((c) => c.facadeModuleId?.endsWith(src));
+        if (!shell) throw new Error(`preload-shell: no chunk for ${src}`);
+        return [...closure([shell.fileName])].filter((f) => !entry.has(f)).map((f) => `/${f}`);
+      };
+      const desk = files('/src/screens/desk/DeskShell.tsx');
+      const phone = files('/src/components/PhoneShell.tsx');
       return [
         {
           tag: 'script',
-          children: `matchMedia(${JSON.stringify(MQ.big)}).matches&&${JSON.stringify(files)}.forEach(function(h){var l=document.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=h;document.head.appendChild(l)})`,
+          children: `(matchMedia(${JSON.stringify(MQ.big)}).matches?${JSON.stringify(desk)}:${JSON.stringify(phone)}).forEach(function(h){var l=document.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=h;document.head.appendChild(l)})`,
           injectTo: 'head' as const,
         },
       ];
@@ -104,19 +106,45 @@ const precompress = (): Plugin => {
   };
 };
 
+const SHELLS = ['/src/components/PhoneShell.tsx', '/src/screens/desk/DeskShell.tsx'];
+type Graph = {
+  getModuleInfo(id: string): { isEntry: boolean; importers: readonly string[] } | null;
+};
+/** What loads a module through static imports: the UI shells, and 'entry' if the entry does. */
+const loadedBy = (id: string, g: Graph, seen = new Set<string>()): string[] => {
+  const shell = SHELLS.find((s) => id.endsWith(s));
+  if (shell) return [shell];
+  if (seen.has(id)) return [];
+  seen.add(id);
+  const info = g.getModuleInfo(id);
+  return [
+    ...(info?.isEntry ? ['entry'] : []),
+    ...(info?.importers ?? []).flatMap((i) => loadedBy(i, g, seen)),
+  ];
+};
+/**
+ * Code both UIs load and the entry doesn't goes into one chunk, with its dependencies (React included). Left to
+ * automatic splitting it came out as a dozen small chunks that compress worse apart: the phone's first load grew 3 KB.
+ */
+const shellCommon = (id: string, g: Graph) => {
+  const by = loadedBy(id, g);
+  return !by.includes('entry') && SHELLS.every((s) => by.includes(s)) ? 'shell-common' : null;
+};
+
 // The real backend (HANDOFF §2) behind the dev and preview servers, so the app and the API share one origin.
 const API_TARGET = process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000';
 const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
 
 export default defineConfig(({ mode }) => ({
   server: mode === 'mock' ? {} : { proxy: apiProxy },
+  build: { rolldownOptions: { output: { codeSplitting: { groups: [{ name: shellCommon }] } } } },
   preview: mode === 'mock' ? {} : { proxy: apiProxy },
   plugins: [
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),
     themeBoot(),
-    preloadDesk(),
+    preloadShell(),
     precompress(),
     VitePWA({
       // A new version installs and takes over by itself; the round is saved on every change, so the reload is safe.

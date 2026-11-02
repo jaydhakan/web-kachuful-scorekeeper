@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
+// The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
+import '@/components/PhoneShell';
 import { kitGame, rows } from '@/domain/__fixtures__/kit';
 import { archive, archiveGame } from '@/state/archive';
 import { ensurePlayer } from '@/state/registry';

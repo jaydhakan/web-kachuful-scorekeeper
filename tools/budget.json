@@ -1,5 +1,6 @@
 {
   "initialJsKb": 145,
+  "largeScreenJsKb": 165,
   "cssKb": 22,
   "lazyChunkKb": 30,
   "performance": 90,

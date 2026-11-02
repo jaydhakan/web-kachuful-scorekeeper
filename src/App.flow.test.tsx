@@ -1,6 +1,8 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
+// The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
+import './components/PhoneShell';
 import { KEYS } from './state/persistence';
 import fixture from './state/__fixtures__/prototype-save.json';
 

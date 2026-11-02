@@ -1,6 +1,8 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
+// The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
+import '@/screens/desk/DeskShell';
 import { MQ } from '@/theme/breakpoints';
 
 /** A desktop: the large-screen queries match (layout CSS is not applied in jsdom; only the JS switch matters). */
