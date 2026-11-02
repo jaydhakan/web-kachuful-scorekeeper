@@ -182,8 +182,11 @@ export const t = {
     banner: messages.banner,
     dealSub: (first: string, trump: Trump, arrow: string): ReactNode => (
       <>
-        First card to {b(first)} · <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
-        <b className="text-[var(--accent)]">{arrow}</b>
+        First card to {b(first)} ·{' '}
+        <b data-t>
+          <SuitGlyph trump={trump} /> {TR[trump].name}
+        </b>{' '}
+        trump <b className="text-[var(--accent)]">{arrow}</b>
       </>
     ),
   },
@@ -441,10 +444,14 @@ export const t = {
       change: (name: string, v: number) => `${name} bid ${v}. Change it`,
       level: 'Exactly level: the dealer has to break it',
     },
-    /** `delta` is the change in cards from the last round; null for the first round. */
+    /** `delta` is the change in cards from the last round; null for the first round. The trump is marked like the count. */
     dealSub: (first: string, trump: Trump, delta: number | null): ReactNode => (
       <>
-        First card to {b(first)} · <SuitGlyph trump={trump} /> {TR[trump].name} trump{' '}
+        First card to {b(first)} ·{' '}
+        <b data-t>
+          <SuitGlyph trump={trump} /> {TR[trump].name}
+        </b>{' '}
+        trump{' '}
         {delta != null && delta !== 0 && (
           <>
             · <b className="text-[var(--accent)]">{delta > 0 ? '↑' : '↓'}</b> one{' '}

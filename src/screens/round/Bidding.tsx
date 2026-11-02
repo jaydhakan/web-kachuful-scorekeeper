@@ -17,7 +17,7 @@ import { t } from '@/strings';
 import { Avatar, type Face } from '@/components/ui/Avatar';
 import { useBidFlight } from '@/components/ui/BidFlight';
 
-/** Who deals and how many cards, big enough to read across the table; first card and trump under it. */
+/** Who deals and how many cards, big enough to read across the table; first card and a sized-up trump under it. */
 function DealLine({ g, r }: { g: Game; r: Round }) {
   const prev = r.index > 0 ? roundAt(g, r.index - 1).cards : 0,
     ar = r.cards > prev ? '↑' : r.cards < prev ? '↓' : '→';
@@ -26,7 +26,7 @@ function DealLine({ g, r }: { g: Game; r: Round }) {
       <span className="disp block text-20 font-bold leading-[1.2] tracking-[-0.02em] [&_[data-n]]:text-28 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] wide:text-22 wide:[&_[data-n]]:text-32">
         {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
       </span>
-      <span className="mt-1 block text-15 leading-[1.35] text-[var(--tx2)] [&_b]:text-[var(--tx)]">
+      <span className="mt-1 block text-15 leading-[1.35] text-[var(--tx2)] [&_b]:text-[var(--tx)] [&_[data-t]]:text-20 [&_[data-t]]:font-bold wide:[&_[data-t]]:text-22">
         {t.round.dealSub(g.players[r.firstPlayerIndex].name, r.trump, ar)}
       </span>
     </>

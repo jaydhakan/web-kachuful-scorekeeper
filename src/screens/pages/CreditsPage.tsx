@@ -206,18 +206,18 @@ export function CreditsPage() {
         </section>
 
         <div className="flex flex-col gap-3 pt-7">
-          <Box d="2.1s" icon={Icon.palette} title={t.hub.credits.design}>
+          <Box d="0.3s" icon={Icon.palette} title={t.hub.credits.design}>
             {credits.design.map((p, i) => (
               <PersonRow key={i} p={p} />
             ))}
           </Box>
-          <Box d="2.3s" icon={icon('eye', 'h-4 w-4')} title={t.hub.credits.tested}>
+          <Box d="0.4s" icon={icon('eye', 'h-4 w-4')} title={t.hub.credits.tested}>
             {credits.testers.map((p, i) => (
               <PersonRow key={i} p={p} alt={i % 2 === 1} />
             ))}
           </Box>
           {credits.thanks.length > 0 && (
-            <Box d="2.5s" icon={Icon.heart} title={t.hub.credits.thanks}>
+            <Box d="0.5s" icon={Icon.heart} title={t.hub.credits.thanks}>
               <ul className="flex flex-wrap gap-2 px-2.5 pb-3 pt-1.5">
                 {credits.thanks.map((n, i) => (
                   <li
