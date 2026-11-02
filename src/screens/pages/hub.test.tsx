@@ -3,8 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
 import { AppProvider } from '@/state/store';
 import { FreshPage } from './FreshPage';
-// The shell is a lazy chunk; loaded up front so transforming it on first render can't outlast a findBy.
+// The shell and the pages it opens are lazy chunks; loaded up front so transforming them can't outlast a findBy.
 import '@/components/PhoneShell';
+import '@/screens/pages/Pages';
 import { kitGame, rows } from '@/domain/__fixtures__/kit';
 import { archive, archiveGame } from '@/state/archive';
 import { ensurePlayer } from '@/state/registry';
