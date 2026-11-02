@@ -78,6 +78,8 @@ for (const id of THEMES)
     const fonts: string[] = [];
     page.on('request', (r) => r.resourceType() === 'font' && fonts.push(r.url()));
     await page.goto('/');
+    // The default theme's own fonts can still be arriving; they aren't this theme's.
+    await page.waitForLoadState('networkidle');
     await page.evaluate((t) => localStorage.setItem('kf.theme', t), id);
     fonts.length = 0;
     await page.reload();

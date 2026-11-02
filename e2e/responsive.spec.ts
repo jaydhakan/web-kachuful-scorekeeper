@@ -3,7 +3,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { auditScreen, type ScreenReport } from './audit';
 import { violations } from './audit-rules';
 import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
-import { btn } from './helpers';
+import { btn, openAdvanced } from './helpers';
 
 /**
  * Every device class that still gets the phone UI (docs/codebase/ARCHITECTURE.md, Layout). From 768×501 up the app shows the
@@ -98,7 +98,12 @@ for (const [w, h] of MATRIX) {
           await shot('01-home', { primary: btn(page, 'New Game') });
 
           await btn(page, 'New Game').click();
-          if (n > 7) await btn(page, '2 decks').click();
+          if (n > 7) {
+            await openAdvanced(page);
+            await btn(page, '2 decks').click();
+            // The fit check is for the default, collapsed Setup 1.
+            await btn(page, /^Advanced/).click();
+          }
           await btn(page, `${n} players`).click();
           await shot('02-setup1', { primary: btn(page, 'Next') });
 

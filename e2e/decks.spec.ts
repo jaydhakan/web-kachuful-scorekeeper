@@ -1,13 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
-import { btn, startGame } from './helpers';
+import { btn, openAdvanced, startGame } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await btn(page, 'New Game').click();
 });
 
-test('setup asks for the decks first: one deck seats 3 to 7', async ({ page }) => {
+test('setup defaults to one deck, which seats 3 to 7', async ({ page }) => {
+  await openAdvanced(page);
   await expect(btn(page, '1 deck')).toHaveAttribute('aria-pressed', 'true');
   for (const n of [3, 4, 5, 6, 7]) await expect(btn(page, `${n} players`)).toBeVisible();
   await expect(btn(page, '8 players')).toHaveCount(0);
@@ -16,6 +17,7 @@ test('setup asks for the decks first: one deck seats 3 to 7', async ({ page }) =
 });
 
 test('two decks seat 8 to 10 and keep 10 cards up to 10 players', async ({ page }) => {
+  await openAdvanced(page);
   await btn(page, '2 decks').click();
   await expect(btn(page, '2 decks')).toHaveAttribute('aria-pressed', 'true');
   for (const n of [8, 9, 10]) await expect(btn(page, `${n} players`)).toBeVisible();
@@ -26,6 +28,7 @@ test('two decks seat 8 to 10 and keep 10 cards up to 10 players', async ({ page 
 });
 
 test('going back to one deck drops a count it cannot seat', async ({ page }) => {
+  await openAdvanced(page);
   await btn(page, '2 decks').click();
   await btn(page, '9 players').click();
   await btn(page, '1 deck').click();

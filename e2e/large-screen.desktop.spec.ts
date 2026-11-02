@@ -78,7 +78,9 @@ test.describe('the round workspace', () => {
     const mark = () =>
       page.evaluate(() => {
         const t = document.querySelector('[data-table="ws"]') as HTMLElement & { _id?: number };
-        const s = document.querySelector('section[aria-label^="After round"]') as HTMLElement & {
+        const s = document.querySelector(
+          'section[aria-label^="After round"], section[aria-label^="Before round"], section[aria-label^="Projected"]',
+        ) as HTMLElement & {
           _id?: number;
         };
         t._id = 7;
@@ -88,10 +90,14 @@ test.describe('the round workspace', () => {
       page.evaluate(() => {
         const t = document.querySelector('[data-table="ws"]') as HTMLElement & { _id?: number };
         const s = document.querySelector(
-          'section[aria-label^="After round"], section[aria-label^="Projected"]',
+          'section[aria-label^="After round"], section[aria-label^="Before round"], section[aria-label^="Projected"]',
         ) as HTMLElement & { _id?: number };
         return t?._id === 7 && s?._id === 7;
       });
+    await expect(page.locator('[data-table="ws"]')).toBeVisible();
+    await expect(
+      page.getByRole('region', { name: /^(After|Before) round|^Projected/ }),
+    ).toBeVisible();
     await mark();
     // Three bids to go: pick an allowed number for each and lock it in.
     for (let i = 0; i < 3; i++) {

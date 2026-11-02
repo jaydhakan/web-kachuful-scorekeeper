@@ -3,6 +3,12 @@ import type { Page } from '@playwright/test';
 export const btn = (page: Page, name: string | RegExp) =>
   page.getByRole('button', { name, exact: typeof name === 'string' });
 
+/** Opens Setup 1's collapsed Advanced section (decks, direction); a no-op when already open. */
+export async function openAdvanced(page: Page) {
+  const toggle = btn(page, /^Advanced/);
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+}
+
 /** New Game → seat `names` → stop on setup step 3. `onStep` runs on each setup step. */
 export async function toSetup3(
   page: Page,
@@ -11,7 +17,10 @@ export async function toSetup3(
 ) {
   await btn(page, 'New Game').click();
   // One deck seats seven; more players need the second.
-  if (names.length > 7) await btn(page, '2 decks').click();
+  if (names.length > 7) {
+    await openAdvanced(page);
+    await btn(page, '2 decks').click();
+  }
   await btn(page, `${names.length} players`).click();
   await onStep('setup 1');
   await btn(page, 'Next').click();

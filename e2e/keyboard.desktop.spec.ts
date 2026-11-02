@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
-import { btn } from './helpers';
+import { btn, openAdvanced } from './helpers';
 
 // A narrow window with a mouse and keyboard gets the phone UI; the large-screen UI has large-screen.desktop.spec.
 test.use({ viewport: { width: 740, height: 900 } });
@@ -57,6 +57,7 @@ test.describe('pill groups and segmented controls', () => {
   test('direction control follows the same rules and shows a focus ring', async ({ page }) => {
     await page.goto('/');
     await btn(page, 'New Game').click();
+    await openAdvanced(page);
     const seg = page.getByRole('group', { name: 'Seating direction' });
     const clockwise = seg.getByRole('button').nth(0);
     const anti = seg.getByRole('button').nth(1);
