@@ -1,5 +1,5 @@
-import { m, useAnimationFrame, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { m } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { curRound, doneRounds, standings } from '@/domain';
 import { agoTxt, sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -23,50 +23,36 @@ const SUITS = ['♠', '♦', '♣', '♥'] as const;
 const ROOT =
   'absolute inset-0 cq-size flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))] pane:grid pane:grid-rows-[minmax(0,1fr)_auto] pane:pl-[max(var(--sal),calc((100%-72rem)/2))] pane:pr-[max(var(--sar),calc((100%-72rem)/2))] land:grid-cols-[minmax(0,1fr)_clamp(17rem,44vw,23rem)] wide:grid-cols-[minmax(0,1.15fr)_minmax(20rem,26rem)]';
 
+/** The suits circling the wordmark; drawn twice, behind and in front of it, and the CSS shows one copy at a time. */
+function Orbit({ front }: { front?: boolean }) {
+  return (
+    <div
+      aria-hidden
+      className={`orbit pointer-events-none absolute inset-0 ${front ? 'orbit-front' : ''}`}
+    >
+      {SUITS.map((s, i) => (
+        <span
+          key={s}
+          className="orb-x absolute left-1/2 top-1/2 -ml-4 -mt-4 h-8 w-8 md:-ml-5 md:-mt-5 md:h-10 md:w-10 wide:-ml-5 wide:-mt-5 wide:h-10 wide:w-10"
+          style={{ '--i': i } as CSSProperties}
+        >
+          <span
+            className={`orb-y grid h-full w-full place-items-center text-30 [text-shadow:0_0_14px_var(--glow)] md:text-40 wide:text-40 ${s === '♦' || s === '♥' ? 'text-suit-red' : 'text-suit-black'}`}
+          >
+            {s}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function Home() {
   const tall = useMediaQuery(MQ.tall);
   const { state, actions } = useApp();
   const g = state.game,
     r = curRound(g),
     ld = standings(g)[0];
-  const els = useRef<(HTMLSpanElement | null)[]>([]);
-  const orbit = useRef<HTMLDivElement>(null);
-  // Orbit radii follow the box, which is sized by the layout; the frame loop reads this, never the DOM.
-  const size = useRef({ w: 320, h: 200 });
-  const rm = useReducedMotion();
-  const still = useRef(false);
-  useEffect(() => {
-    const el = orbit.current;
-    if (!el) return;
-    const measure = () => {
-      size.current = { w: el.clientWidth, h: el.clientHeight };
-      // Reduced motion stops the loop after one pass; a new size needs one more.
-      still.current = false;
-    };
-    measure();
-    if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  useAnimationFrame((t) => {
-    // Reduced motion places the suits once and then leaves the frame loop idle.
-    if (rm && still.current) return;
-    still.current = !!rm;
-    const { w, h } = size.current;
-    els.current.forEach((el, i) => {
-      if (!el) return;
-      const a = rm ? (i * Math.PI) / 2 : (t / 9000) * Math.PI * 2 + (i * Math.PI) / 2;
-      const front = Math.sin(a) > 0;
-      el.style.transform = `translate3d(${Math.cos(a) * w * 0.43}px, ${Math.sin(a) * h * 0.41}px, 0) scale(${0.85 + 0.25 * Math.sin(a)})`;
-      // Stacking only changes twice a lap; writing it every frame would restack every frame.
-      if (el.dataset.front !== String(front)) {
-        el.dataset.front = String(front);
-        el.style.opacity = front ? '1' : '0.5';
-        el.style.zIndex = front ? '3' : '0';
-      }
-    });
-  });
   const fin = g.status === 'finished';
   const demo = g.id === 'demo';
   return (
@@ -82,25 +68,12 @@ export function Home() {
         <div className="m-auto flex w-full flex-col items-center gap-[clamp(1rem,4.5svh,2rem)] py-2 pane:contents">
           <div className="@container flex w-full justify-center pane:h-full pane:cq-size pane:items-center pane:px-5 pane:[grid-area:1/1/3/2]">
             <m.div
-              ref={orbit}
               initial={{ opacity: 0, scale: 0.94, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1, ease: EASE }}
               className="relative aspect-[8/5] w-[min(100%,20rem)] @h-short:w-[min(100%,17.5rem)] md:w-[min(100%,28rem)] land:w-[min(100cqw,160cqh,26rem)] wide:w-[min(100cqw,160cqh,32rem)]"
             >
-              {SUITS.map((s, i) => (
-                <span
-                  key={s}
-                  aria-hidden
-                  ref={(e) => {
-                    els.current[i] = e;
-                  }}
-                  className={`absolute left-1/2 top-1/2 -ml-4 -mt-4 grid h-8 w-8 place-items-center text-30 [text-shadow:0_0_14px_var(--glow)] md:-ml-5 md:-mt-5 md:h-10 md:w-10 md:text-40 wide:-ml-5 wide:-mt-5 wide:h-10 wide:w-10 wide:text-40 ${s === '♦' || s === '♥' ? 'text-suit-red' : 'text-suit-black'}`}
-                  style={{ willChange: 'transform' }}
-                >
-                  {s}
-                </span>
-              ))}
+              <Orbit />
               <div className="absolute inset-0 grid place-content-center text-center">
                 <h1 className="disp gold-text text-72 font-extrabold leading-none tracking-[-0.055em] @h-short:text-64 md:text-96 land:text-52 land:@[24rem]:text-72 wide:text-96">
                   {t.appName}
@@ -109,6 +82,7 @@ export function Home() {
                   {t.tagline}
                 </p>
               </div>
+              <Orbit front />
             </m.div>
           </div>
           <div className="scroll-thin flex w-full flex-col items-center gap-[clamp(1rem,4.5svh,2rem)] pane:max-h-full pane:min-h-0 pane:self-center land:overflow-y-auto land:overflow-x-hidden pane:px-5 pane:py-2 land:gap-0 pane:[grid-area:1/2]">

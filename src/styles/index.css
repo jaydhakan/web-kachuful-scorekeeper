@@ -420,6 +420,55 @@ input {
   }
 }
 
+/* Home's suit orbit: X and Y run one sine-shaped loop a quarter lap apart, which traces the ellipse on the compositor.
+   z-index can't animate there, so each suit is drawn behind and in front of the wordmark and opacity picks the copy. */
+.orbit {
+  container-type: size;
+}
+.orb-x {
+  animation: orb-x 9s cubic-bezier(0.37, 0, 0.63, 1) calc(var(--i) * -2.25s) infinite;
+}
+.orb-y {
+  --front: 0;
+  --back: 0.5;
+  animation:
+    orb-y 9s cubic-bezier(0.37, 0, 0.63, 1) infinite,
+    orb-show 9s step-end infinite;
+  animation-delay: calc(var(--i) * -2.25s - 6.75s);
+}
+.orbit-front .orb-y {
+  --front: 1;
+  --back: 0;
+}
+@keyframes orb-x {
+  from,
+  to {
+    transform: translateX(43cqw);
+  }
+  50% {
+    transform: translateX(-43cqw);
+  }
+}
+/* Starts at the front of the lap: lowest, largest, drawn over the wordmark. */
+@keyframes orb-y {
+  from,
+  to {
+    transform: translateY(41cqh) scale(1.1);
+  }
+  50% {
+    transform: translateY(-41cqh) scale(0.6);
+  }
+}
+@keyframes orb-show {
+  0%,
+  75% {
+    opacity: var(--front);
+  }
+  25% {
+    opacity: var(--back);
+  }
+}
+
 /* 6. Turn light: a lit arc on the table's rim points at whoever's turn it is. The ring is a fixed mask; a circle with
    the arc turns inside it, so moving to the next player is a rotation on the compositor. */
 .turn-rim {
@@ -471,5 +520,10 @@ input {
   }
   .turn-rim > i {
     transition: none;
+  }
+  /* Paused at time zero, the delays leave the suits at the quarter points. */
+  .orb-x,
+  .orb-y {
+    animation-play-state: paused;
   }
 }
