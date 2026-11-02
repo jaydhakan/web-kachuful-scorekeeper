@@ -175,20 +175,22 @@ export function CreditsPage() {
             {dev.name}
           </h2>
           <div className="flex flex-wrap justify-center gap-2">
-            <a
-              href={instagramUrl(dev.instagram)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${LINK} min-h-11 rounded-full py-1 pl-1.5 pr-4`}
-            >
-              <span
-                aria-hidden
-                className="cr-fillbg grid size-8 place-items-center rounded-full font-mono text-15 font-bold"
+            {dev.instagram && (
+              <a
+                href={instagramUrl(dev.instagram)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${LINK} min-h-11 rounded-full py-1 pl-1.5 pr-4`}
               >
-                @
-              </span>
-              {dev.instagram}
-            </a>
+                <span
+                  aria-hidden
+                  className="cr-fillbg grid size-8 place-items-center rounded-full font-mono text-15 font-bold"
+                >
+                  @
+                </span>
+                {dev.instagram}
+              </a>
+            )}
             <a
               href={`https://${dev.site}`}
               target="_blank"
@@ -214,20 +216,22 @@ export function CreditsPage() {
               <PersonRow key={i} p={p} alt={i % 2 === 1} />
             ))}
           </Box>
-          <Box d="2.5s" icon={Icon.heart} title={t.hub.credits.thanks}>
-            <ul className="flex flex-wrap gap-2 px-2.5 pb-3 pt-1.5">
-              {credits.thanks.map((n, i) => (
-                <li
-                  key={i}
-                  className="cr-pill inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-14 font-semibold"
-                  style={{ '--i': i } as CSSProperties}
-                >
-                  <Suit s="heart" className="cr-red size-3" />
-                  {n}
-                </li>
-              ))}
-            </ul>
-          </Box>
+          {credits.thanks.length > 0 && (
+            <Box d="2.5s" icon={Icon.heart} title={t.hub.credits.thanks}>
+              <ul className="flex flex-wrap gap-2 px-2.5 pb-3 pt-1.5">
+                {credits.thanks.map((n, i) => (
+                  <li
+                    key={i}
+                    className="cr-pill inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-14 font-semibold"
+                    style={{ '--i': i } as CSSProperties}
+                  >
+                    <Suit s="heart" className="cr-red size-3" />
+                    {n}
+                  </li>
+                ))}
+              </ul>
+            </Box>
+          )}
         </div>
 
         <footer className="px-5 pb-6 pt-10 text-center">

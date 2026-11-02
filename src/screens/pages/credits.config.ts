@@ -6,14 +6,15 @@ export interface Person {
 }
 
 export const credits = {
-  developer: { name: 'Jay Dhakan', instagram: 'YOUR_INSTA', site: 'jay.vectanix.com' },
-  design: [{ name: 'Friend Name', instagram: 'insta_id' }] as Person[],
+  /** An empty handle hides the Instagram link. */
+  developer: { name: 'Jay Dhakan', instagram: '', site: 'jay.vectanix.com' },
+  design: [{ name: 'Nirav', instagram: 'wxtermelonsugxrhigh' }] as Person[],
   testers: [
-    { name: 'Friend Name', instagram: 'insta_id' },
-    { name: 'Friend Name', instagram: 'insta_id' },
+    { name: 'Priyank', instagram: 'priiyyankkk' },
+    { name: 'Rahil', instagram: '_ex_calibur__' },
   ] as Person[],
-  /** The people who play the most. */
-  thanks: ['Name', 'Name', 'Name', 'Name', 'Name'],
+  /** The people who play the most; the section is hidden while this is empty. */
+  thanks: [] as string[],
 };
 
 export const instagramUrl = (handle: string) => `https://instagram.com/${handle}`;
