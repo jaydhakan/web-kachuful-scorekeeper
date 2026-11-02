@@ -19,7 +19,7 @@ interface ScaffoldProps {
   asideFirst?: boolean;
   /** The main area takes the height left over and does not scroll, so a fitted table can fill it. */
   fit?: boolean;
-  /** Tuck the bar away on a very short one-column screen, such as while the keyboard is up. */
+  /** While the keyboard is up on one column, tuck the large title, the main area and the bar away so the aside's form gets the screen. */
   collapseBar?: boolean;
   bar?: ReactNode;
   /** Status line above the bar's buttons, announced politely (why a button is disabled). */
@@ -136,7 +136,7 @@ export function Scaffold({
     aside || fit ? (
       <div
         ref={mainRef}
-        className={`${aside ? MAIN_PANE : ''} ${fit ? 'flex min-h-0 flex-1 flex-col' : ''}`}
+        className={`${aside ? MAIN_PANE : ''} ${fit ? 'flex min-h-0 flex-1 flex-col' : ''} ${collapseBar ? 'kb:hidden pane:!flex' : ''}`}
       >
         {children}
       </div>
@@ -189,7 +189,7 @@ export function Scaffold({
         {title && (
           <m.h1
             style={rm ? undefined : { opacity: lgO, y: lgY, scale: lgS, transformOrigin: '0 50%' }}
-            className={`disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance] @h-tiny:hidden ${aside ? 'pane:hidden' : ''}`}
+            className={`disp mb-3 mt-1 text-30 font-extrabold leading-[1.08] tracking-[-0.035em] [text-wrap:balance] @h-tiny:hidden ${collapseBar ? 'kb:hidden' : ''} ${aside ? 'pane:hidden' : ''}`}
           >
             {title}
           </m.h1>
@@ -214,7 +214,7 @@ export function Scaffold({
       </div>
       {bar && (
         <div
-          className={`chrome-bot relative z-20 px-5 pb-[max(1.125rem,var(--sab))] pt-[1.125rem] before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-b before:from-transparent before:to-felt-950/60 ${aside ? 'pane:[grid-area:3/2]' : ''} ${collapseBar ? '@h-tiny:hidden pane:!block' : ''}`}
+          className={`chrome-bot relative z-20 px-5 pb-[max(1.125rem,var(--sab))] pt-[1.125rem] before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-b before:from-transparent before:to-felt-950/60 ${aside ? 'pane:[grid-area:3/2]' : ''} ${collapseBar ? 'kb:hidden pane:!block' : ''}`}
         >
           {barNote !== undefined && (
             <div

@@ -71,6 +71,36 @@ export function SameCard({
   );
 }
 
+export type NewPlayerCheck =
+  | { kind: 'ok' }
+  | { kind: 'match'; player: PlayerSummary }
+  | { kind: 'emailErr' | 'nameTaken'; msg: string };
+
+/**
+ * A new player's name and email, checked with the server (HANDOFF §5.7). Offline, `ok`: the player is created
+ * later and a clash lands in the inbox.
+ */
+export async function checkNewPlayer(
+  name: string,
+  email: string,
+  taken: string[],
+): Promise<NewPlayerCheck> {
+  if (!emailOk(email)) return { kind: 'emailErr', msg: x.emailInvalid };
+  if (taken.includes(emailKey(email))) return { kind: 'emailErr', msg: x.emailAtTable };
+  try {
+    const r = await ep.checkPlayer(name, emailKey(email));
+    if (r.status === 'match') return { kind: 'match', player: r.player };
+    if (r.status === 'email_taken') return { kind: 'emailErr', msg: x.emailTaken };
+    if (r.status === 'name_taken') return { kind: 'nameTaken', msg: x.nameTaken(name) };
+    return { kind: 'ok' };
+  } catch (e) {
+    if (e instanceof ApiError && e.offline) return { kind: 'ok' };
+    if (e instanceof ApiError && e.retryAfter)
+      return { kind: 'emailErr', msg: t.hub.auth.wait(e.retryAfter) };
+    return { kind: 'emailErr', msg: t.hub.auth.errors.server };
+  }
+}
+
 /**
  * Signed in, someone outside this account's circle is added by name and email, checked with the server
  * (HANDOFF §5.7). Both matching one player asks "Is this Riya?"; a taken name or email reveals nobody and asks for
@@ -114,24 +144,15 @@ export function EmailStep({
   const submit = async (e?: FormEvent) => {
     e?.preventDefault();
     if (busy) return;
-    if (!emailOk(email)) return setErr(x.emailInvalid);
-    if (taken.includes(emailKey(email))) return setErr(x.emailAtTable);
     setBusy(true);
     setNameTaken(false);
-    try {
-      const r = await ep.checkPlayer(name, emailKey(email));
-      if (r.status === 'match') setMatch(r.player);
-      else if (r.status === 'email_taken') setErr(x.emailTaken);
-      else if (r.status === 'name_taken') {
-        setNameTaken(true);
-        setErr(x.nameTaken(name));
-      } else onDone(emailKey(email), names);
-    } catch (x2) {
-      if (x2 instanceof ApiError && x2.offline) onDone(emailKey(email), names);
-      else if (x2 instanceof ApiError && x2.retryAfter) setErr(t.hub.auth.wait(x2.retryAfter));
-      else setErr(t.hub.auth.errors.server);
-    } finally {
-      setBusy(false);
+    const r = await checkNewPlayer(name, email, taken);
+    setBusy(false);
+    if (r.kind === 'match') setMatch(r.player);
+    else if (r.kind === 'ok') onDone(emailKey(email), names);
+    else {
+      setNameTaken(r.kind === 'nameTaken');
+      setErr(r.msg);
     }
   };
   if (match)

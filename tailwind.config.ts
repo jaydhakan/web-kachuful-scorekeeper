@@ -53,9 +53,11 @@ export default {
   plugins: [
     containerQueries,
     // The official plugin only queries width; a size container also answers to its height.
-    plugin(({ addUtilities, matchVariant }) => {
+    plugin(({ addUtilities, addVariant, matchVariant }) => {
       addUtilities({ '.cq-size': { 'container-type': 'size' } });
       matchVariant('@h', (v: string) => `@container (max-height: ${v})`, { values: CQ_HEIGHT });
+      // The on-screen keyboard is up (useVisualViewport sets data-kb on the app root).
+      addVariant('kb', '[data-kb] &');
     }),
   ],
 } satisfies Config;

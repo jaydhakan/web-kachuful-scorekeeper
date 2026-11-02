@@ -2,7 +2,9 @@
  * Page layouts (docs/codebase/ARCHITECTURE.md, Layout). Tailwind's `screens` and `useMediaQuery` both read these, so the
  * layout CSS and the motion that depends on it can never disagree.
  */
-const land = '(orientation: landscape) and (max-height: 500px)';
+// An aspect ratio, not orientation: Android shrinks the page for the keyboard, which leaves an upright phone slightly
+// wider than tall; a phone on its side is about 2:1.
+const land = '(min-aspect-ratio: 4/3) and (max-height: 500px)';
 const wide = '(min-width: 768px) and (orientation: landscape) and (min-height: 501px)';
 
 export const MQ = {

@@ -49,7 +49,7 @@ Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.
 
 ## Layout
 
-The app fills the viewport and rearranges itself by page layout, not by device. `src/theme/breakpoints.ts` is the one list (`land`, `md`, `wide`, `pane` = land or wide, `roomy` = md or wide, `fine`); Tailwind's `screens` and `useMediaQuery` both read it, so CSS and the few JavaScript checks cannot disagree. `land` is a phone on its side or any short window, `md` a tablet held upright, `wide` a tablet on its side, laptop or desktop.
+The app fills the viewport and rearranges itself by page layout, not by device. `src/theme/breakpoints.ts` is the one list (`land`, `md`, `wide`, `pane` = land or wide, `roomy` = md or wide, `fine`); Tailwind's `screens` and `useMediaQuery` both read it, so CSS and the few JavaScript checks cannot disagree. `land` is a phone on its side or any short window at least 4:3 wide (so an upright phone with the Android keyboard up stays one column), `md` a tablet held upright, `wide` a tablet on its side, laptop or desktop.
 
 **Scaffold** (`components/ui/Scaffold.tsx`) is a grid with one DOM tree for every orientation, so rotating never remounts a screen or loses state. A screen passes its main area, an optional `aside` (the controls), a `bar` and a `title`:
 

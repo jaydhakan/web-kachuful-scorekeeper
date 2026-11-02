@@ -51,6 +51,28 @@ describe('useVisualViewport', () => {
     expect(root.style.top).toBe('240px');
   });
 
+  it('marks the root while the keyboard is up, and clears it when the field loses focus', async () => {
+    render(<Probe />);
+    const input = screen.getByLabelText('name');
+    input.focus();
+    act(() => vv.resize(420));
+    expect(screen.getByTestId('root').hasAttribute('data-kb')).toBe(true);
+    input.blur();
+    act(() => vv.resize(768));
+    await act(() => new Promise((r) => setTimeout(r, 5)));
+    expect(screen.getByTestId('root').hasAttribute('data-kb')).toBe(false);
+  });
+
+  it('marks the keyboard on Android, where the page itself shrinks, without resizing the root', () => {
+    render(<Probe />);
+    screen.getByLabelText('name').focus();
+    Object.defineProperty(window, 'innerHeight', { value: 420, configurable: true });
+    act(() => vv.resize(420));
+    const root = screen.getByTestId('root');
+    expect(root.hasAttribute('data-kb')).toBe(true);
+    expect(root.style.height).toBe('');
+  });
+
   it('leaves the root alone when nothing is being typed into', () => {
     render(<Probe />);
     screen.getByRole('button', { name: 'Other' }).focus();

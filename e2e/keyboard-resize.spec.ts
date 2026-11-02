@@ -2,8 +2,10 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { btn } from './helpers';
 
 // Android shrinks the layout viewport when the keyboard opens (interactive-widget=resizes-content), which
-// is what cutting the height does here. A real keyboard cannot be summoned in this runner.
-const KEYBOARD = { width: 360, height: 380 };
+// is what cutting the height does here. A real keyboard cannot be summoned in this runner. The width stays the
+// phone's: a keyboard never changes it, and a new width reads as the phone turning.
+const KEYBOARD = { width: 390, height: 380 };
+const PHONE = { width: 390, height: 844 };
 
 /** Fully on screen, and the element at its centre is itself (nothing is laid over it). */
 async function reachable(page: Page, el: Locator, what: string) {
@@ -46,6 +48,35 @@ test('Setup 2: the name field and Add stay visible with the keyboard open', asyn
   // The table is out of the way, so the prompt is what shows the name was seated.
   await expect(page.getByText(/sitting on Riya/)).toBeVisible();
   await reachable(page, input, 'the name field after adding');
+  // Adding keeps the field focused, so the keyboard stays up for the next seat.
+  await expect(input).toBeFocused();
+});
+
+test('Setup 2: the table steps aside exactly while the keyboard is up', async ({ page }) => {
+  await page.goto('/');
+  await btn(page, 'New Game').click();
+  await btn(page, '4 players').click();
+  await btn(page, 'Next').click();
+  await quiet(page);
+  const table = page.locator('[data-table="su2"]');
+  const input = page.getByLabel('Player name');
+  await input.blur();
+  await expect(table).toBeVisible();
+  await page.setViewportSize(KEYBOARD);
+  await input.focus();
+  await expect(table).toBeHidden();
+  await expect(btn(page, 'Next')).toBeHidden();
+  // Seat after seat, and tapping Add rather than Return, it stays put: no keyboard bounce, no table flicker.
+  for (const n of ['Riya', 'Kabir']) {
+    await input.fill(n);
+    await btn(page, 'Add').click();
+    await expect(input).toBeFocused();
+    await expect(table).toBeHidden();
+  }
+  await input.blur();
+  await page.setViewportSize(PHONE);
+  await expect(table).toBeVisible();
+  await expect(btn(page, 'Next')).toBeVisible();
 });
 
 test('Rename: the field and Save stay visible with the keyboard open', async ({ page }) => {
