@@ -2,7 +2,13 @@
 
 The app is served by nginx (the `play.vectanix.com` server block) behind Cloudflare. Neither config lives in this
 repo; the API's own snippet is `../backend-kachuful-scorekeeper/deploy/nginx/kachuful-api.conf`. This page is what
-the static part should look like, and why. Nothing here is applied yet.
+the static part should look like, and why.
+
+**Applied 2026-11-02** and checked through Cloudflare: assets go out as brotli and immutable, `/sw.js` as `no-cache`
+with `cf-cache-status: DYNAMIC`, a missing asset is a 404. The server's root is `/var/www/play` (backup of the old
+site file: `/root/play.nginx.bak2`). On Cloudflare a single Cache Rule does the job: host `play.vectanix.com` and
+path in `/sw.js`, `/manifest.webmanifest` → Bypass cache, Browser TTL "Respect origin TTL". The zone-wide Browser
+Cache TTL was left alone so the zone's other sites are unaffected.
 
 ## What production sends today (measured 2026-11-01)
 
