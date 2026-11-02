@@ -2,19 +2,23 @@ import { m } from 'framer-motion';
 import { useState } from 'react';
 import { nameKey } from '@/domain';
 import { dayLabel } from '@/lib/dates';
-import { people, type Person } from '@/state/registry';
+import { mayEdit, people, type Person } from '@/state/registry';
 import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
 import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { Icon } from '@/components/ui/Icons';
+import { EditPlayerSheet } from '@/sheets/EditPlayerSheet';
 
 const pp = t.hub.people;
 
 /** Everyone in the registry, searchable; a row opens the player. `list` replaces this device's registry. */
 export function PlayersPage({ list }: { list?: Person[] }) {
-  const { actions } = useApp();
+  const { state, actions } = useApp();
+  const user = state.session?.user;
+  const [editing, setEditing] = useState<Person | null>(null);
   const local = useArchive(() => people());
   const loaded = useArchive((a) => a.loaded);
   const all = list ?? local;
@@ -51,11 +55,11 @@ export function PlayersPage({ list }: { list?: Person[] }) {
       ) : (
         <ul className="flex flex-col gap-2">
           {shown.slice(0, 200).map((p, i) => (
-            <m.li key={p.id} {...stagger(Math.min(i, 10))}>
+            <m.li key={p.id} {...stagger(Math.min(i, 10))} className="flex items-stretch gap-2">
               <button
                 type="button"
                 onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
-                className="press glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
+                className="press glass flex min-h-16 min-w-0 flex-1 items-center gap-3 px-4 py-2 text-left"
               >
                 <Avatar
                   p={p}
@@ -75,10 +79,21 @@ export function PlayersPage({ list }: { list?: Person[] }) {
                   </span>
                 </span>
               </button>
+              {(!user || p.local || mayEdit(p, user)) && (
+                <button
+                  type="button"
+                  onClick={() => setEditing(p)}
+                  aria-label={pp.edit(p.displayName)}
+                  className="press glass grid min-h-16 w-12 shrink-0 place-items-center text-[var(--accent)]"
+                >
+                  {Icon.edit}
+                </button>
+              )}
             </m.li>
           ))}
         </ul>
       )}
+      {editing && <EditPlayerSheet p={editing} onClose={() => setEditing(null)} />}
     </Page>
   );
 }

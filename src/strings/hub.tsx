@@ -235,6 +235,9 @@ export const hub = {
     noMatch: 'No player by that name',
     meta: (games: number, last: string) => `${plural(games, 'game')} · last ${last}`,
     never: 'never played',
+    edit: (name: string) => `Edit ${name}`,
+    editTitle: (name: string) => `Edit ${name}`,
+    nameTaken: 'Another player already has that name.',
   },
   sync: {
     synced: 'Synced',

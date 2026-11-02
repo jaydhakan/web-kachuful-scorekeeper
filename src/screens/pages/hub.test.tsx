@@ -72,7 +72,7 @@ describe('boards, players and awards on this device', () => {
     await u.click(screen.getByRole('button', { name: 'Back' }));
     await waitFor(() => expect(screen.queryByText('Player of the day')).not.toBeInTheDocument());
     await open(u, /Players/);
-    expect(await screen.findByRole('button', { name: /Asha/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /^Asha/ })).toBeInTheDocument();
     await u.type(screen.getByRole('searchbox'), 'zz');
     expect(await screen.findByText('No player by that name')).toBeInTheDocument();
   });
@@ -86,5 +86,29 @@ describe('boards, players and awards on this device', () => {
     await u.click(await screen.findByRole('button', { name: 'See all' }));
     expect(await screen.findByText('Perfect game')).toBeInTheDocument();
     expect(screen.getAllByText('Not earned yet').length).toBeGreaterThan(10);
+  });
+});
+
+describe('editing a player from the Players list (signed out)', () => {
+  it('renames a local player and sets a first name, and refuses a name that is taken', async () => {
+    await seed();
+    const u = setup();
+    render(<App />);
+    await open(u, /Players/);
+    await u.click(await screen.findByRole('button', { name: 'Edit Bo' }));
+    expect(screen.queryByLabelText(/email/i)).toBeNull();
+    const name = await screen.findByLabelText(/Name at the table/);
+    await u.clear(name);
+    await u.type(name, 'Cy');
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText(/already has that name/)).toBeTruthy();
+    await u.clear(name);
+    await u.type(name, 'Bobby');
+    await u.type(screen.getByLabelText(/First name/), 'Robert');
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(archive.all('players').some((p) => p.displayName === 'Bobby')).toBe(true),
+    );
+    expect(archive.all('players').find((p) => p.displayName === 'Bobby')?.firstName).toBe('Robert');
   });
 });
