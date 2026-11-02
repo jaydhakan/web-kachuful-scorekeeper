@@ -7,7 +7,8 @@ const typing = () => {
 
 /**
  * iOS Safari ignores interactive-widget and lets the keyboard cover the page instead of resizing it. While a
- * field has focus, this sizes `ref` to the visible part of the screen; it writes only when the size changes.
+ * field has focus, this fits `ref` (a positioned element) to the visible part of the screen; it writes only when
+ * that changes.
  */
 export function useVisualViewport(ref: RefObject<HTMLElement>) {
   useEffect(() => {
@@ -18,22 +19,34 @@ export function useVisualViewport(ref: RefObject<HTMLElement>) {
     const apply = () => {
       // A small difference is browser chrome, not a keyboard.
       const keyboard = typing() && window.innerHeight - vv.height > 80;
-      const next = keyboard ? `${Math.round(vv.height)}px` : '';
+      // The browser also scrolls the page to show the field; without following it, the app sits above the
+      // visible area and the bare page shows below it as a black band.
+      const next = keyboard ? `${Math.round(vv.height)}px ${Math.round(vv.pageTop)}px` : '';
       if (next === last) return;
       last = next;
-      if (next) el.style.height = next;
-      else el.style.removeProperty('height');
+      if (keyboard) {
+        el.style.height = `${Math.round(vv.height)}px`;
+        el.style.top = `${Math.round(vv.pageTop)}px`;
+      } else {
+        el.style.removeProperty('height');
+        el.style.removeProperty('top');
+        // iOS can leave the page scrolled once the keyboard has gone, which would leave the same band.
+        if (window.scrollY) window.scrollTo(0, 0);
+      }
     };
     // Focus leaves before the keyboard finishes closing, so blur is checked on the next turn.
     const afterBlur = () => setTimeout(apply, 0);
     vv.addEventListener('resize', apply);
+    vv.addEventListener('scroll', apply);
     document.addEventListener('focusin', apply);
     document.addEventListener('focusout', afterBlur);
     return () => {
       vv.removeEventListener('resize', apply);
+      vv.removeEventListener('scroll', apply);
       document.removeEventListener('focusin', apply);
       document.removeEventListener('focusout', afterBlur);
       el.style.removeProperty('height');
+      el.style.removeProperty('top');
     };
   }, [ref]);
 }

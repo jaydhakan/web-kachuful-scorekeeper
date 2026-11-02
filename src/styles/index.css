@@ -94,6 +94,18 @@ input {
   --trump: var(--trump-spades);
   --trump-glow: transparent;
 }
+/* A toast drops over the header title on the phone; the title steps out rather than ghosting through the pill. */
+.nav-title {
+  transition: opacity 0.2s var(--ease);
+}
+.app-root:not([data-desk]):has(> [data-toast][data-on]) .nav-title {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-title {
+    transition: none;
+  }
+}
 .gold-text {
   background: theme('backgroundImage.gold-gradient');
   -webkit-background-clip: text;

@@ -154,23 +154,26 @@ export function Scaffold({
       <div className="relative z-20 col-span-full mt-[var(--sat)]">
         <div className="flex min-h-14 items-center justify-between px-2 land:min-h-12">
           <div className="w-12">{left}</div>
-          <m.span
-            style={{ opacity: title ? navO : 1 }}
-            className={`min-w-0 text-center ${navSub ? 'grid' : 'disp text-19 font-bold tracking-[-0.02em]'} ${aside && title ? 'pane:!opacity-100' : ''}`}
-          >
-            {navSub ? (
-              <>
-                <span className="mono-label flex flex-wrap items-center justify-center gap-x-1.5 text-13 leading-5">
-                  {navTitle}
-                </span>
-                <span className="mono-label text-[0.6875rem] font-normal leading-4 text-[var(--tx2)] [text-wrap:balance] land:hidden">
-                  {navSub}
-                </span>
-              </>
-            ) : (
-              navTitle
-            )}
-          </m.span>
+          {/* Wrapped so the shell can fade it under a toast; the inner span's inline opacity would win over a class. */}
+          <span className="nav-title min-w-0 text-center">
+            <m.span
+              style={{ opacity: title ? navO : 1 }}
+              className={`min-w-0 text-center ${navSub ? 'grid' : 'disp text-19 font-bold tracking-[-0.02em]'} ${aside && title ? 'pane:!opacity-100' : ''}`}
+            >
+              {navSub ? (
+                <>
+                  <span className="mono-label flex flex-wrap items-center justify-center gap-x-1.5 text-13 leading-5">
+                    {navTitle}
+                  </span>
+                  <span className="mono-label text-[0.6875rem] font-normal leading-4 text-[var(--tx2)] [text-wrap:balance] land:hidden">
+                    {navSub}
+                  </span>
+                </>
+              ) : (
+                navTitle
+              )}
+            </m.span>
+          </span>
           <div className="flex w-12 justify-end">{right}</div>
         </div>
         {ticker}

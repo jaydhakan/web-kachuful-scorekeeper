@@ -4,9 +4,14 @@ import { useVisualViewport } from './useVisualViewport';
 
 class FakeViewport extends EventTarget {
   height = 768;
+  pageTop = 0;
   resize(h: number) {
     this.height = h;
     this.dispatchEvent(new Event('resize'));
+  }
+  scroll(top: number) {
+    this.pageTop = top;
+    this.dispatchEvent(new Event('scroll'));
   }
 }
 
@@ -36,6 +41,16 @@ describe('useVisualViewport', () => {
     expect(screen.getByTestId('root').style.height).toBe('420px');
   });
 
+  it('follows the visible area when the browser scrolls the page to show the field', () => {
+    render(<Probe />);
+    screen.getByLabelText('name').focus();
+    act(() => vv.resize(420));
+    act(() => vv.scroll(240));
+    const root = screen.getByTestId('root');
+    expect(root.style.height).toBe('420px');
+    expect(root.style.top).toBe('240px');
+  });
+
   it('leaves the root alone when nothing is being typed into', () => {
     render(<Probe />);
     screen.getByRole('button', { name: 'Other' }).focus();
@@ -58,5 +73,6 @@ describe('useVisualViewport', () => {
     input.blur();
     await act(() => new Promise((r) => setTimeout(r, 5)));
     expect(screen.getByTestId('root').style.height).toBe('');
+    expect(screen.getByTestId('root').style.top).toBe('');
   });
 });

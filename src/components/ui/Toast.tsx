@@ -5,6 +5,7 @@ import { t } from '@/strings';
 
 /**
  * A small pill that drops into the top bar, between its corner buttons, so it never covers a control or content.
+ * On the phone the header title fades while it shows (index.css), so the title never ghosts through the pill.
  * The large-screen shell moves it above the page title with --toast-top, --toast-x and --toast-w.
  */
 export function Toast({
@@ -23,6 +24,8 @@ export function Toast({
     <div
       role="status"
       aria-live="polite"
+      data-toast
+      data-on={toast ? '' : undefined}
       className="pointer-events-none absolute left-[var(--toast-x,0px)] top-[var(--toast-top,calc(var(--sat)+0.375rem))] z-[66] box-border grid w-[var(--toast-w,100%)] justify-items-center pl-[calc(3.5rem+var(--sal))] pr-[calc(3.5rem+var(--sar))] land:top-[var(--toast-top,calc(var(--sat)+0.125rem))]"
     >
       <AnimatePresence>
