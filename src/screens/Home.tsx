@@ -5,6 +5,7 @@ import { agoTxt, sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
+import { IconButton } from '@/components/ui/IconButton';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE, PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
@@ -57,6 +58,15 @@ export function Home() {
   const demo = g.id === 'demo';
   return (
     <div className={ROOT}>
+      {/* Opposite the account chip, so Account, Sign in and Start fresh are reachable from Home. */}
+      <IconButton
+        chrome
+        label={t.round.menu}
+        onClick={() => actions.openSheet({ type: 'menu' })}
+        className="!absolute left-[max(1rem,var(--sal))] top-[calc(var(--sat)+0.75rem)] z-10 pane:left-auto pane:right-[max(1rem,var(--sar))]"
+      >
+        {Icon.menu}
+      </IconButton>
       <AccountChip className="absolute right-[max(1rem,var(--sar))] top-[calc(var(--sat)+0.75rem)] z-10 pane:left-[max(1rem,var(--sal))] pane:right-auto" />
       {/* The scroll fallback only matters on the smallest phones; in two panes the grid takes over (contents). */}
       <div
