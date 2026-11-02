@@ -50,6 +50,10 @@ test('a player adds a photo, it shows instead of the emoji, and can be removed',
   await page
     .getByLabel('Choose a photo for Riya')
     .setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: png(640, 480) });
+  // The crop step: move and zoom, then use it.
+  await expect(page.getByRole('dialog', { name: 'Adjust photo' })).toBeVisible();
+  await page.getByRole('slider', { name: 'Zoom' }).fill('2');
+  await btn(page, 'Use photo').click();
   await expect(page.getByText('Photo saved')).toBeVisible();
   const img = photo(page);
   await expect(img).toBeVisible();
@@ -79,6 +83,7 @@ test('the service worker keeps photos for offline, and no other API answer', asy
   await page
     .getByLabel('Choose a photo for Riya')
     .setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: png(64, 64) });
+  await btn(page, 'Use photo').click();
   const img = photo(page);
   await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
   const src = (await img.getAttribute('src'))!;
