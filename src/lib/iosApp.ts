@@ -20,12 +20,13 @@ export function iosGap({ screenW, screenH, innerW, innerH, top }: Viewport): num
 }
 
 /**
- * In an iOS Home Screen app: stretches the page over the empty band `iosGap` finds. Runs before the first render so
- * nothing moves once the app shows.
+ * In an iOS Home Screen app: marks the page (index.css moves top insets below the status bar's blur) and stretches it
+ * over the empty band `iosGap` finds. Runs before the first render so nothing moves once the app shows.
  */
 export function fitIosApp() {
   if ((navigator as Navigator & { standalone?: boolean }).standalone !== true) return;
   const root = document.documentElement;
+  root.setAttribute('data-ios-app', '');
   const probe = document.createElement('div');
   probe.style.cssText =
     'position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none';

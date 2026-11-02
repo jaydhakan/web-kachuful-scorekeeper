@@ -14,6 +14,11 @@
   --sal: env(safe-area-inset-left, 0px);
   --sar: env(safe-area-inset-right, 0px);
 }
+/* An iOS Home Screen app blurs a strip under the status bar, so top insets clear it there; min() keeps landscape,
+   which has no status bar, at 0 (lib/iosApp.ts sets the attribute). */
+:root[data-ios-app] {
+  --sat: calc(env(safe-area-inset-top, 0px) + min(1.5rem, env(safe-area-inset-top, 0px)));
+}
 html,
 body {
   height: 100%;

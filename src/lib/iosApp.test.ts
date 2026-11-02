@@ -23,14 +23,16 @@ describe('iosGap', () => {
 
 describe('fitIosApp', () => {
   afterEach(() => {
+    document.documentElement.removeAttribute('data-ios-app');
     delete (navigator as { standalone?: boolean }).standalone;
   });
 
-  it('leaves the page alone where there is no band to make up for', () => {
+  it('marks only a Home Screen app on iOS', () => {
     fitIosApp();
-    expect(document.documentElement.style.getPropertyValue('--ios-gap')).toBe('');
+    expect(document.documentElement).not.toHaveAttribute('data-ios-app');
     Object.defineProperty(navigator, 'standalone', { value: true, configurable: true });
     fitIosApp();
+    expect(document.documentElement).toHaveAttribute('data-ios-app');
     // jsdom has no safe area, so there is nothing to make up for.
     expect(document.documentElement.style.getPropertyValue('--ios-gap')).toBe('');
   });
