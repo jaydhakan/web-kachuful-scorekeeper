@@ -212,11 +212,11 @@ describe('games (HANDOFF §5.1, §6.5)', () => {
     expect(isTombstone(page.items[0])).toBe(true);
   });
 
-  it('deletes every game I scored and says how many', async () => {
-    const calls = serve(200, { deleted: 3 });
-    expect(await ep.deleteMyGames()).toEqual({ deleted: 3 });
+  it('starts fresh: deletes my games and the players I added, and says how many', async () => {
+    const calls = serve(200, { games: 3, players: 2 });
+    expect(await ep.deleteMyData()).toEqual({ games: 3, players: 2 });
     const [url, init] = calls()[0];
-    expect([url, init.method]).toEqual(['/api/me/games', 'DELETE']);
+    expect([url, init.method]).toEqual(['/api/me/data', 'DELETE']);
   });
 
   it('upload outcomes: stale with the server copy, gone, unknown players, invalid games', async () => {

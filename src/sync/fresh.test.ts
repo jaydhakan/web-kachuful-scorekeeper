@@ -30,7 +30,7 @@ afterEach(() => vi.restoreAllMocks());
 describe('start fresh', () => {
   it('signed out clears games, players and saved play, and keeps the device id and theme', async () => {
     await seed();
-    const del = vi.spyOn(ep, 'deleteMyGames');
+    const del = vi.spyOn(ep, 'deleteMyData');
 
     await startFresh(false);
 
@@ -43,21 +43,21 @@ describe('start fresh', () => {
     expect(storage.get(KEYS.theme, '')).toBe('keep-theme');
   });
 
-  it('signed in deletes on the server first and keeps the registry', async () => {
+  it('signed in deletes on the server first, then clears the players here too', async () => {
     await seed();
-    const del = vi.spyOn(ep, 'deleteMyGames').mockResolvedValue({ deleted: 1 });
+    const del = vi.spyOn(ep, 'deleteMyData').mockResolvedValue({ games: 1, players: 3 });
 
     await startFresh(true);
 
     expect(del).toHaveBeenCalledOnce();
     expect(archive.all('games')).toEqual([]);
-    expect(archive.all('players').length).toBeGreaterThan(0);
+    expect(archive.all('players')).toEqual([]);
     expect(storage.getRaw(KEYS.game)).toBeNull();
   });
 
   it('leaves everything as it was when the server call fails', async () => {
     await seed();
-    vi.spyOn(ep, 'deleteMyGames').mockRejectedValue(new Error('offline'));
+    vi.spyOn(ep, 'deleteMyData').mockRejectedValue(new Error('offline'));
 
     await expect(startFresh(true)).rejects.toThrow('offline');
 

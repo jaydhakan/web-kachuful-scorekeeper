@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
 import { AppProvider } from '@/state/store';
@@ -126,12 +126,24 @@ describe('Start fresh (signed out)', () => {
         <FreshPage />
       </AppProvider>,
     );
-    await u.click(await screen.findByRole('button', { name: 'Delete my games' }));
+    await u.click(await screen.findByRole('button', { name: 'Delete everything' }));
     expect(await screen.findByText('Delete everything and start fresh?')).toBeInTheDocument();
     expect(archive.games().length).toBe(1);
     await u.click(screen.getByRole('button', { name: 'Delete' }));
     await waitFor(() => expect(assign).toHaveBeenCalledWith('/'));
     expect(archive.all('games')).toEqual([]);
     vi.unstubAllGlobals();
+  });
+});
+
+describe('the menu on Home', () => {
+  it('opens from the hamburger and leads to Start fresh', async () => {
+    const u = setup();
+    render(<App />);
+    await u.click((await screen.findAllByRole('button', { name: 'Menu' }))[0]);
+    const menu = await screen.findByRole('dialog', { name: 'Menu' });
+    expect(within(menu).getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    await u.click(within(menu).getByRole('button', { name: 'Start fresh' }));
+    expect(await screen.findByRole('button', { name: 'Delete everything' })).toBeInTheDocument();
   });
 });

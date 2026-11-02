@@ -131,8 +131,9 @@ export const ep = {
   game: (id: string) =>
     get<{ game: WireGame; summary: GameSummary; achievements: Achievement[] }>(`/games/${id}`),
   deleteGame: (id: string) => del(`/games/${id}`),
-  /** Deletes every game this account scored (a fresh start); players stay. */
-  deleteMyGames: () => call<{ deleted: number }>('DELETE', '/me/games').then((r) => r.data),
+  /** A fresh start: deletes the games this account scored and the players it added that nobody else uses. */
+  deleteMyData: () =>
+    call<{ games: number; players: number }>('DELETE', '/me/data').then((r) => r.data),
   link: (id: string, kind: 'live' | 'recap') =>
     post<{ token: string; url: string; qrSvgUrl: string }>(`/games/${id}/links`, { kind }),
   revokeLink: (id: string, kind: 'live' | 'recap') => del(`/games/${id}/links/${kind}`),

@@ -30,15 +30,15 @@ export const hub = {
   },
   fresh: {
     title: 'Start fresh',
-    body: 'Deletes every game and player saved on this device so you can begin again.',
+    body: 'Deletes every game and player saved on this device, so you can begin again.',
     bodyOnline:
-      'Deletes every game you scored, here and on your account, so you can begin again. Players you added and games other people scored stay.',
+      'Deletes every game you scored and every player you added, here and on your account, so you can begin again. Players that other people’s games still use, and those games, stay.',
     warn: 'This can’t be undone.',
-    button: 'Delete my games',
+    button: 'Delete everything',
     confirm: 'Delete everything and start fresh?',
     confirmOk: 'Delete',
     done: 'All clear. Starting fresh.',
-    failed: 'Couldn’t delete your games. Nothing was changed. Check your connection and try again.',
+    failed: 'Couldn’t delete your data. Nothing was changed. Check your connection and try again.',
   },
   credits: {
     share: 'Share Kachuful',
@@ -465,6 +465,13 @@ export const hub = {
     choose: (name: string) => `Choose a photo for ${name}`,
     saved: 'Photo saved',
     removed: 'Photo removed',
+    adjustTitle: 'Adjust photo',
+    frame: 'Photo frame. Arrow keys move the photo, plus and minus zoom.',
+    hint: 'Drag to move. Pinch or use the slider to zoom.',
+    zoom: 'Zoom',
+    rotate: 'Rotate',
+    reset: 'Reset',
+    use: 'Use photo',
     offline: 'Photos need a connection. Try again when you’re online.',
     unreadable: 'That photo couldn’t be read. Try a JPEG or PNG.',
     errors: {

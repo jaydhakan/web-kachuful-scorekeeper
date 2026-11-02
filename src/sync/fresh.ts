@@ -13,12 +13,13 @@ const FRESH_KEYS = [
 ] as const;
 
 /**
- * Deletes the games and saved players on this device, and when signed in the account's games on the server first,
- * so a failed call leaves everything as it was. Signed in, the registry is the server's and comes back on the next sync.
+ * Deletes everything saved on this device (games, players, setup defaults), and when signed in the account's games
+ * and the players it added on the server first, so a failed call leaves everything as it was. Players that other
+ * people's games still use stay on the server and come back on the next sync.
  */
 export async function startFresh(signedIn: boolean) {
-  if (signedIn) await ep.deleteMyGames();
-  archive.clear('games', 'outbox', 'cache', 'inbox', ...(signedIn ? [] : (['players'] as const)));
+  if (signedIn) await ep.deleteMyData();
+  archive.clear('games', 'players', 'outbox', 'cache', 'inbox');
   FRESH_KEYS.forEach((k) => storage.remove(k));
   await archive.flush();
 }

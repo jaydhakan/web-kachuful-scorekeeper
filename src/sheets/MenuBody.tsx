@@ -23,7 +23,7 @@ export function MenuBody() {
     state.session
       ? [Icon.user, t.hub.nav.account, () => actions.open({ screen: 'account' })]
       : [Icon.key, t.hub.nav.signIn, () => actions.open({ screen: 'signin' })],
-    [Icon.undo, t.hub.nav.fresh, () => actions.open({ screen: 'fresh' })],
+    [Icon.trash, t.hub.nav.fresh, () => actions.open({ screen: 'fresh' })],
     // Players pick their own theme only while the admin allows it.
     ...(loadThemeState().appearance?.allowUserOverride
       ? [[Icon.palette, t.theme.menu, () => actions.openSheet({ type: 'theme' })] as Row]
