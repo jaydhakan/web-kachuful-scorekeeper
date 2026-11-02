@@ -2,7 +2,7 @@ import type { Preferences } from '@/sync/types';
 import type { LastGroup } from './persistence';
 import { setupDefaults } from './prefs';
 
-/** Newest wins between this device's last group and the account's setup (backend-requests.md, request 3). */
+/** Newest wins between this device's last group and the account's setup. */
 const group = (n: number, o: Partial<LastGroup> = {}): LastGroup => ({
   names: Array.from({ length: n }, (_, i) => 'P' + i),
   emojis: [],

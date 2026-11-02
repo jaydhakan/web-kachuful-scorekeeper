@@ -4,7 +4,7 @@ import { archive } from './archive';
 import type { LastGroup } from './persistence';
 
 /**
- * The account's preferences as last seen from the server (backend-requests.md, requests 2 and 3), kept in the
+ * The account's preferences as last seen from the server (theme and setup), kept in the
  * archive's cache so signing out forgets them. Reading needs no network; `src/sync/prefs.ts` writes them.
  */
 export const PREFS_KEY = 'prefs';

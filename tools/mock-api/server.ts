@@ -94,7 +94,7 @@ interface Db {
   links: Map<string, { gameId: string; kind: 'live' | 'recap'; revoked: boolean }>;
   failed: Map<string, number[]>;
   version: number;
-  /** backend-requests.md 1-3, as built on 2026-11-01. */
+  /** Appearance and preferences, as the backend built them on 2026-11-01. */
   appearance: AppearanceDto;
   prefs: Map<string, Preferences>;
 }
@@ -535,7 +535,7 @@ on(
 );
 on('GET', '/api/auth/me', ({ me }) => authOut(me!));
 
-// ——— backend-requests.md 1-3 ———
+// ——— appearance and preferences ———
 
 const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper'];
 const prefsOf = (id: string): Preferences =>

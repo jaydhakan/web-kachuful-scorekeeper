@@ -45,7 +45,7 @@ export interface Appearance {
   allowUserOverride: boolean;
   updatedAt?: string;
   updatedBy?: string;
-  /** `device` until the server stores appearance settings (backend-requests.md, request 1). */
+  /** `device` until the server stores appearance settings. */
   source: 'server' | 'device';
 }
 

@@ -5,7 +5,7 @@ import { isTombstone } from './types';
 
 export { pullSummary } from './engine';
 
-/** Asks the server for this account's newest unfinished game (backend-requests.md, request 4). Never throws. */
+/** Asks the server for this account's newest unfinished game. Never throws. */
 export async function askActive(): Promise<ServerActive> {
   try {
     const g = (await ep.activeGame()).items[0];

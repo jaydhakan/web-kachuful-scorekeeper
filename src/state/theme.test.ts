@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-// Production answers 404 until the backend is deployed (backend-requests.md 1 and 2): the store must keep working.
+// Production answers 404 until the backend is deployed: the store must keep working.
 vi.mock('@/sync/endpoints', () => ({
   ep: {
     appearance: vi.fn(),

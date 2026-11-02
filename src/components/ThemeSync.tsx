@@ -3,7 +3,7 @@ import { useApp } from '@/state/store';
 import { whenIdle } from '@/lib/idle';
 import { t } from '@/strings';
 
-// Five minutes: a theme change is not urgent, and an unchanged setting costs a 304 (backend-requests.md, request 1).
+// Five minutes: a theme change is not urgent, and an unchanged setting costs a 304.
 const EVERY = 5 * 60_000;
 // The boot script has already painted the cached theme, so the store can arrive once the page is idle.
 const loadStore = () => import('@/state/theme');

@@ -29,7 +29,7 @@ export async function refreshPrefs(): Promise<void> {
 }
 
 /**
- * This device's last group as the account's setup (backend-requests.md, request 3). Not sent when the server already
+ * This device's last group as the account's setup. Not sent when the server already
  * has it, since every PATCH moves `updatedAt`. A failure is retried by `takePrefs`, as the group is then newer.
  */
 export async function sendSetup(lg: LastGroup): Promise<void> {

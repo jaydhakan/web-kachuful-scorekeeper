@@ -61,7 +61,7 @@ Source of truth: `src/styles/themes.css`. Three themes share one set of componen
   fonts first. Only the active theme's fonts download; only Instrument Sans is precached, the rest are cached on use.
 - Admin › Appearance: preview cards, Preview on this device (not saved), Apply to everyone with an 8-second Undo,
   and Let players choose. Signed in, the setting is read at idle, on return to the app and every 5 minutes; signed out
-  nothing touches the network. Until the server stores it (`backend-requests.md`), a change is saved on this device
+  nothing touches the network. Until the server stores it, a change is saved on this device
   only, and the section says so. Changes are announced in an `aria-live` region.
 
 ## Hero layout

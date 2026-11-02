@@ -184,7 +184,7 @@ export function chooseOwnTheme(id: ThemeId | null, signedIn: boolean) {
   if (signedIn) void sendOwnTheme();
 }
 
-/** Sends this device's pick (backend-requests.md, request 2). On failure it stays marked unsent and goes next time. */
+/** Sends this device's pick. On failure it stays marked unsent and goes next time. */
 async function sendOwnTheme() {
   const id = state().user;
   try {

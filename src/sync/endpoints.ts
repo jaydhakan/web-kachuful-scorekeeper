@@ -32,7 +32,7 @@ export type PlayerEdit = Partial<
   Pick<Player, 'displayName' | 'email' | 'firstName' | 'lastName' | 'emoji' | 'color'>
 >;
 
-/** The appearance setting as the server stores it (backend-requests.md, request 1); `updatedAt` is epoch ms. */
+/** The appearance setting as the server stores it; `updatedAt` is epoch ms. */
 export interface AppearanceDto {
   theme: string;
   allowUserOverride: boolean;
@@ -64,7 +64,7 @@ export const ep = {
   changePassword: (current: string, password: string) =>
     post<null>('/me/password', { current, password }),
 
-  // backend-requests.md 1-3. Until production has them they answer 404 and the app keeps the choice on the device.
+  // Appearance and preferences. Until production has them they answer 404 and the app keeps the choice on the device.
   appearance: (o?: CallOpts) => call<AppearanceDto>('GET', '/settings/appearance', undefined, o),
   setAppearance: (a: Pick<AppearanceDto, 'theme' | 'allowUserOverride'>) =>
     put<AppearanceDto>('/admin/settings/appearance', a),
@@ -126,7 +126,7 @@ export const ep = {
       mine: p.mine ? 'true' : undefined,
       limit: 200,
     }),
-  /** This account's newest unfinished game, if any (backend-requests.md, request 4). */
+  /** This account's newest unfinished game, if any. */
   activeGame: () => get<Page<GameSummary>>('/games', { status: 'active', mine: 'true', limit: 1 }),
   game: (id: string) =>
     get<{ game: WireGame; summary: GameSummary; achievements: Achievement[] }>(`/games/${id}`),

@@ -35,7 +35,7 @@ export interface Elsewhere {
 }
 
 /**
- * What Home's Continue card offers (backend-requests.md, request 4): nothing offline; the server's game when it is
+ * What Home's Continue card offers: nothing offline; the server's game when it is
  * newer than the one here; this device's synced copies when the server can't say. The game here always stays first.
  */
 export function resumeElsewhere(

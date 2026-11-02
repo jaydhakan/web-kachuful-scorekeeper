@@ -271,7 +271,7 @@ describe('boards and ETags (HANDOFF §5.5)', () => {
   });
 });
 
-describe('appearance, preferences and the active game (backend-requests.md 1-4, 2026-11-01)', () => {
+describe('appearance, preferences and the active game', () => {
   it('builds the paths and bodies the contract names', async () => {
     let calls = serve(200, { items: [], nextCursor: null });
     await ep.activeGame();

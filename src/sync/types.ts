@@ -11,7 +11,7 @@ export interface User {
   createdAt: number;
 }
 
-/** The table a player last set up (backend-requests.md, request 3); the server checks the count fits the decks. */
+/** The table a player last set up; the server checks the count fits the decks. */
 export interface SetupPrefs {
   playerCount: number;
   decks: Decks;
