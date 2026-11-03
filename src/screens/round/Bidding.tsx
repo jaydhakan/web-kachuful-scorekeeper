@@ -3,6 +3,7 @@ import { useId, useState, type CSSProperties } from 'react';
 import { roundAt, type Game, type Round } from '@/domain';
 import { useApp } from '@/state/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { usePageHeight } from '@/hooks/usePageHeight';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { MQ } from '@/theme/breakpoints';
 import { Glass } from '@/components/ui/Glass';
@@ -82,6 +83,9 @@ export function HeroWho({
   );
 }
 
+/** Measured on a 390px-wide phone: below this the round table overlaps the deal line with seven players. */
+const ROUND_TABLE_MIN = 870;
+
 /** One row up to six pills, else two rows, so the dock stays short; never more than six across. */
 const pillColumns = (pills: number) => Math.min(6, pills <= 6 ? pills : Math.ceil(pills / 2));
 
@@ -101,9 +105,11 @@ export function Bidding() {
       </>
     ) : null;
   const reasonId = useId();
-  // Geometry cannot be switched in CSS, so this is the one JS media query outside dialogs. Only props change on
-  // rotation: the screen stays mounted and keeps its bids, bidder and selection.
+  // Geometry cannot be switched in CSS, so it is chosen here. Only props change on rotation: the screen stays mounted
+  // and keeps its bids, bidder and selection.
   const wide = useMediaQuery(MQ.wide);
+  // The round table only where it fits seven seats and two rows of pills with seats no smaller than the flat oval's.
+  const round = usePageHeight() >= ROUND_TABLE_MIN;
   // The grid narrows to fewer columns on a tight pane, so the row length is read from the layout.
   const roving = useRovingFocus({
     selected: r.bids[p.id] ?? -1,
@@ -257,7 +263,7 @@ export function Bidding() {
             <Table
               uid="bid"
               fit
-              size={wide ? 'full' : 'mini'}
+              size={wide || round ? 'full' : 'mini'}
               big={wide}
               players={g.players}
               dir={g.direction}
