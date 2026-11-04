@@ -20,6 +20,12 @@ describe('theme resolution (DESIGN-SYSTEM.md, Switching themes)', () => {
     expect(resolveTheme({})).toBe(DEFAULT_THEME);
   });
 
+  it('knows Emerald Gilt, which is a choice but never the default', () => {
+    expect(isThemeId('emerald-gilt')).toBe(true);
+    expect(resolveTheme({ appearance: { theme: 'emerald-gilt' } })).toBe('emerald-gilt');
+    expect(DEFAULT_THEME).toBe('sunset-glass');
+  });
+
   it('never trusts an unknown or corrupted id', () => {
     expect(resolveTheme({ user: 'neon', appearance: { theme: 'x' as never }, cached: '{' })).toBe(
       DEFAULT_THEME,

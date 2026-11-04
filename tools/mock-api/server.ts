@@ -537,7 +537,7 @@ on('GET', '/api/auth/me', ({ me }) => authOut(me!));
 
 // ——— appearance and preferences ———
 
-const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper'];
+const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gilt'];
 const prefsOf = (id: string): Preferences =>
   db.prefs.get(id) ?? { theme: null, setup: null, updatedAt: null };
 on('GET', '/api/settings/appearance', () => db.appearance, 'public');

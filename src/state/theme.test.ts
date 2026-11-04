@@ -50,6 +50,23 @@ describe('theme store', () => {
     expect(localStorage.getItem('kf.theme')).toBe('editorial-paper');
   });
 
+  it('applies Emerald Gilt to everyone when the server stores it', async () => {
+    vi.mocked(ep.setAppearance).mockResolvedValue({
+      theme: 'emerald-gilt',
+      allowUserOverride: false,
+      updatedAt: at('2026-11-04T10:00:00Z'),
+      updatedBy: 'Jay',
+    });
+    const r = await store.applyToEveryone('emerald-gilt', false, 'Jay');
+    expect(r.saved).toBe('everyone');
+    expect(store.themeStore.get().appearance).toMatchObject({
+      theme: 'emerald-gilt',
+      source: 'server',
+    });
+    expect(document.documentElement.getAttribute('data-theme')).toBe('emerald-gilt');
+    expect(localStorage.getItem('kf.theme')).toBe('emerald-gilt');
+  });
+
   it('a preview is not saved, and stopping it returns to the resolved theme', async () => {
     vi.mocked(ep.setAppearance).mockRejectedValue(new ApiError(0, 'offline'));
     await store.applyToEveryone('yerba-sun', false, 'Jay');

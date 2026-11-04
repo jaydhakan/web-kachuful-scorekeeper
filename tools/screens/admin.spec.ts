@@ -9,7 +9,7 @@ test.use({
   isMobile: true,
   hasTouch: true,
 });
-for (const theme of ['sunset-glass', 'yerba-sun', 'editorial-paper'])
+for (const theme of ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gilt'])
   test(`signed in: ${theme}`, async ({ page, context }) => {
     await context.addInitScript((t) => localStorage.setItem('kf.theme', t), theme);
     await signIn(page, ACCOUNTS.admin);

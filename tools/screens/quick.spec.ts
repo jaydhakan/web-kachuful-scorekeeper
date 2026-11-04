@@ -4,7 +4,9 @@ import { seedGame, type SeedView } from '../../e2e/fixtures';
 // One seeded view per theme at 360×780, for a quick look: OUT=<dir> VIEWS=home,bidding,... (SHOT_PORT as screens).
 const OUT = process.env.OUT!;
 const VIEWS = (process.env.VIEWS ?? 'home,bidding').split(',');
-const THEMES = (process.env.THEMES ?? 'sunset-glass,yerba-sun,editorial-paper').split(',');
+const THEMES = (process.env.THEMES ?? 'sunset-glass,yerba-sun,editorial-paper,emerald-gilt').split(
+  ',',
+);
 test.use({
   viewport: { width: 360, height: 780 },
   deviceScaleFactor: 2,
