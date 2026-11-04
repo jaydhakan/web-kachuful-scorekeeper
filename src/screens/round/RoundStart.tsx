@@ -1,4 +1,4 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { useApp } from '@/state/store';
@@ -19,6 +19,14 @@ export function RoundStart() {
   const g = state.game,
     n = g.players.length;
   const [stage, setStage] = useState(0);
+  const rm = useReducedMotion();
+  // A theme can hold the fanned backs before the card turns (--reveal-hold; 0 in most themes, which keeps their
+  // timing). The CSS minifier may rewrite 700ms as .7s, so both units are read.
+  const [hold] = useState(() => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue('--reveal-hold').trim();
+    const n = parseFloat(v) || 0;
+    return rm ? 0 : v.endsWith('ms') ? n : n * 1000;
+  });
   const root = useRef<HTMLDivElement>(null);
   // The rest of the app is inert during the deal, so keys only reach the skip control if it holds focus.
   useEffect(() => root.current?.focus({ preventScroll: true }), []);
@@ -31,7 +39,7 @@ export function RoundStart() {
       actions.seqDone();
       return;
     }
-    const T = [820, needPass ? 800 : 120, dealMs, 700];
+    const T = [820 + hold, needPass ? 800 : 120, dealMs, 700];
     const t = setTimeout(() => setStage((s) => s + 1), T[stage]);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
@@ -65,6 +73,8 @@ export function RoundStart() {
         className="relative my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
         style={{ perspective: 800 }}
       >
+        {/* Gold rays behind the card as it lands, painted only by a theme that sets --reveal-rays. */}
+        <div aria-hidden className="reveal-halo pointer-events-none absolute" />
         {/* The deal fan (DESIGN-SYSTEM.md, Motion): backs leave the deck behind the card, once; reduced motion hides it. */}
         <div aria-hidden className="deal-fan pointer-events-none absolute inset-0">
           {[0, 1, 2, 3, 4].map((i) => (
@@ -78,7 +88,11 @@ export function RoundStart() {
         <m.div
           initial={{ rotateY: 0, scale: 0.9 }}
           animate={{ rotateY: 180, scale: 1 }}
-          transition={{ duration: 0.8, ease: EASE }}
+          transition={{
+            duration: 0.8,
+            ease: EASE,
+            rotateY: { duration: 0.8, delay: hold / 1000, ease: EASE },
+          }}
           className="relative h-full w-full"
           style={{ transformStyle: 'preserve-3d' }}
         >
@@ -89,13 +103,16 @@ export function RoundStart() {
             style={{ transform: 'rotateY(180deg)' }}
           >
             <span className="trump-glyph">{th.sym}</span>
+            <span aria-hidden className="reveal-glint">
+              <i />
+            </span>
           </div>
         </m.div>
       </div>
       <m.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.6 + hold / 1000 }}
         className="mb-2 px-7 text-center text-17 font-bold text-[var(--accent)] @h-short:mb-1 pane:[grid-area:4/1]"
       >
         {t.start.trumpIs(th.name)}

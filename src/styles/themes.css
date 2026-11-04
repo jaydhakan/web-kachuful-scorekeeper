@@ -186,6 +186,12 @@
   --art-back-mini: none;
   --art-trump-hearts: none;
   --art-trump-clubs: none;
+  --reveal-hold: 0ms;
+  --fan-anim: deal-fan;
+  --fan-dur: 1.5s;
+  --fan-step: 140ms;
+  --reveal-rays: none;
+  --reveal-glint: none;
 }
 
 /* ---------- THEME 2: YERBA SUN (light, butter, tomato, ink outlines, hard offset shadows) ---------- */
@@ -295,6 +301,12 @@
   --art-back-mini: none;
   --art-trump-hearts: none;
   --art-trump-clubs: none;
+  --reveal-hold: 0ms;
+  --fan-anim: deal-fan;
+  --fan-dur: 1.5s;
+  --fan-step: 140ms;
+  --reveal-rays: none;
+  --reveal-glint: none;
 }
 
 /* ---------- THEME 3: EDITORIAL PAPER (light, newsprint, ink, tomato, serif display, mono labels, green table) ---------- */
@@ -406,6 +418,12 @@
   --art-back-mini: none;
   --art-trump-hearts: none;
   --art-trump-clubs: none;
+  --reveal-hold: 0ms;
+  --fan-anim: deal-fan;
+  --fan-dur: 1.5s;
+  --fan-step: 140ms;
+  --reveal-rays: none;
+  --reveal-glint: none;
 }
 
 /* ---------- THEME 4: EMERALD GILT (dark, from the emerald-and-gold deck: bottle green, gold foil lines, ivory cards) ----------
@@ -523,6 +541,21 @@
   --art-back-mini: url('../assets/themes/emerald-gilt/back-mini.webp');
   --art-trump-hearts: url('../assets/themes/emerald-gilt/queen-hearts.webp');
   --art-trump-clubs: url('../assets/themes/emerald-gilt/king-clubs.webp');
+  /* The backs fan out and hold so the art is seen before the trump card turns (RoundStart reads --reveal-hold). */
+  --reveal-hold: 700ms;
+  --fan-anim: deal-fan-hold;
+  --fan-dur: 1.9s;
+  --fan-step: 90ms;
+  --reveal-rays: repeating-conic-gradient(
+    rgba(235, 208, 140, 0.5) 0 1.2deg,
+    transparent 1.2deg 7.5deg
+  );
+  --reveal-glint: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 248, 225, 0.8) 50%,
+    transparent 58%
+  );
 }
 
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */

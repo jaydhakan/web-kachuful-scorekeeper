@@ -363,7 +363,9 @@ input {
   inset: 0;
   border-radius: 14px;
   opacity: 0;
-  animation: deal-fan 1.5s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i) * 140ms) forwards;
+  /* A theme with a reveal hold swaps in a keyframe that spreads, waits, then falls (themes.css, --fan-*). */
+  animation: var(--fan-anim, deal-fan) var(--fan-dur, 1.5s) cubic-bezier(0.22, 1, 0.36, 1)
+    calc(var(--i) * var(--fan-step, 140ms)) forwards;
 }
 @keyframes deal-fan {
   15% {
@@ -376,6 +378,76 @@ input {
   to {
     opacity: 0;
     transform: translate(calc((var(--i) - 2) * 34px), 18px) rotate(calc((var(--i) - 2) * 7deg));
+  }
+}
+
+@keyframes deal-fan-hold {
+  12% {
+    opacity: 1;
+    transform: none;
+  }
+  40%,
+  72% {
+    opacity: 1;
+    transform: translateX(calc((var(--i) - 2) * 40px)) rotate(calc((var(--i) - 2) * 8deg));
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc((var(--i) - 2) * 40px), 22px) rotate(calc((var(--i) - 2) * 8deg));
+  }
+}
+/* 1b. The reveal's rays and glint, timed from the same hold as the card's turn. Themes that don't paint them leave
+   --reveal-rays and --reveal-glint at none, so both stay empty. */
+.reveal-halo {
+  /* Behind the round title too, inside the intro's own stacking context. */
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: 270%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--reveal-rays);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 38%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 38%, #000 52%, transparent 100%);
+  opacity: 0;
+  animation: reveal-halo 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--reveal-hold) + 600ms)
+    forwards;
+}
+@keyframes reveal-halo {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 0.7;
+    transform: none;
+  }
+}
+.reveal-glint {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.reveal-glint > i {
+  position: absolute;
+  inset: -10% -40%;
+  background: var(--reveal-glint);
+  opacity: 0;
+  animation: reveal-glint 0.65s ease-in-out calc(var(--reveal-hold) + 850ms);
+}
+@keyframes reveal-glint {
+  from {
+    opacity: 1;
+    transform: translateX(-70%);
+  }
+  95% {
+    opacity: 1;
+    transform: translateX(70%);
+  }
+  to {
+    transform: translateX(70%);
   }
 }
 
@@ -532,8 +604,14 @@ input {
   .sq-shadow {
     animation: none;
   }
-  .deal-fan {
+  .deal-fan,
+  .reveal-glint {
     display: none;
+  }
+  /* No bloom: the rays are simply there when the face appears. */
+  .reveal-halo {
+    animation: none;
+    opacity: 0.7;
   }
   .sq-ball {
     transform: translateY(22px);
