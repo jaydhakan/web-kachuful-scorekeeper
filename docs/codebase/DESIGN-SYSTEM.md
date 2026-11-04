@@ -1,7 +1,7 @@
-# Design system: three runtime themes
+# Design system: four runtime themes
 
-Source of truth: `src/styles/themes.css`. Three themes share one set of components: `sunset-glass` (dark, default),
-`yerba-sun` and `editorial-paper`. `<html data-theme>` picks one; switching changes that attribute and nothing else.
+Source of truth: `src/styles/themes.css`. Four themes share one set of components: `sunset-glass` (dark, default),
+`yerba-sun`, `editorial-paper` and `emerald-gilt` (dark). `<html data-theme>` picks one; switching changes that attribute and nothing else.
 
 ## How tokens reach the code
 
@@ -21,6 +21,15 @@ Source of truth: `src/styles/themes.css`. Three themes share one set of componen
   switch that off with `--trump-glow-amt: 0%`.
 - The theme registry is `src/theme/themes.ts`; the boot script that sets `data-theme` before the first paint is
   generated from it (`vite.config.ts`, `themeBoot`). The runtime store is `src/state/theme.ts`.
+- **Deck art** (Emerald Gilt's card back and court cards, `src/assets/themes/emerald-gilt/`, used with permission,
+  see its `SOURCE.md`) is referenced only as tokens in `themes.css` (`--art-back`, `--art-back-mini`,
+  `--art-trump-<suit>`), which the other themes set to `none`. Components paint it through classes (`.card-art`,
+  `.trump-face`, `TrumpMark`), so none knows which theme has art and other themes never download it. A trump with no
+  file keeps its suit symbol; never show another suit's card. It never leaves the app (share image, icons, manifest).
+- **Theme hooks** have a neutral value in every theme: `--card-back-edge`, `--reveal-hold` (ms the round intro holds
+  the fanned backs; read once by `RoundStart`), `--fan-*`, `--reveal-rays`, `--reveal-glint`, `--name-frame`, the
+  `--m-back` preview token, and slots that only one theme paints (`.suit-ring`, `.trump-mini`, `.empty-card`,
+  `.streak-ring`, `.sq-card`, `.badge-pop`). `--confetti-1…4` are set only by a theme that wants its own confetti.
 - ESLint rejects hex colour literals in `src/components`, `src/screens` and `src/sheets`;
   `src/theme/contrast.test.ts` checks every theme's text pairs against WCAG AA.
 
@@ -28,11 +37,12 @@ Source of truth: `src/styles/themes.css`. Three themes share one set of componen
 
 - Positive and negative colours always come with a sign or a mark. Gold is for first place.
 - Fonts are self-hosted Latin subsets: Instrument Sans (all themes), Bricolage Grotesque and Space Mono (Yerba Sun),
-  Instrument Serif and DM Mono (Editorial Paper). Only the active theme's faces download; only Instrument Sans is
+  Instrument Serif and DM Mono (Editorial Paper), Cinzel (Emerald Gilt; its `@font-face` leaves out digits and signs,
+  so every number falls through to Instrument Sans). Only the active theme's faces download; only Instrument Sans is
   precached.
 - Icons are Phosphor (regular), inlined in `src/components/ui/Icons.tsx` (first load) and `IconsMore.tsx` (lazy screens).
   Emoji are for avatars and personality copy, never for UI icons.
-- A new component or state is added to all three themes at once.
+- A new component or state is added to all four themes at once.
 - Component-intrinsic sizes (a 60px button, a 66px dealer chip) stay as arbitrary values; colours and font sizes do not.
 
 ## Themes
@@ -45,6 +55,11 @@ Source of truth: `src/styles/themes.css`. Three themes share one set of componen
   shadow, the primary button lifts. Bricolage Grotesque and Space Mono.
 - **Editorial Paper** (light): newsprint, ink, tomato, hairlines and no shadows; serif display, mono labels in
   uppercase (tracking drops on small buttons so labels never wrap), green table with a double rule.
+- **Emerald Gilt** (dark): from the emerald-and-gold deck. Bottle-green field, gold foil for lines, frames and the main
+  action (never a large fill), ivory card faces, the deck's real art. Cinzel caps for display and labels, Instrument
+  Sans for body, names and every number; a sentence that would wrap in Cinzel where other faces don't stays in the
+  body face (`.face-body`). Double gold rim and faint rays on the felt, a dotted ring round the trump, a gold piano
+  strip only on sheets, the winner's frame and a new badge.
 - **Paint, never geometry.** Every control keeps its size and a 48px hit area in every theme; body text has a fixed
   line-height (1.22) because each face's `normal` differs. `e2e/themes.spec.ts` checks it.
 - **Nested themes** (the Appearance previews) paint from the `--m-*` tokens, not material classes: custom properties
@@ -83,6 +98,11 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
 6. **Variable-weight score**: count-ups swell from light to heavy, then settle.
 7. **Turn light**: a lit arc on the rim points at the active seat and turns to the next one.
 8. **Feedback**: Results rows flash made or missed; Yerba Sun keys press in; toasts flick away.
+9. **Trump reveal (Emerald Gilt)**: the real backs fan out wider and hold (`--reveal-hold`, 700ms), the card turns to
+   its court card, gold rays bloom behind it and one glint crosses it. Other themes keep today's timing exactly.
+   Reduced motion: the face with the rays, nothing else.
+10. **Emerald Gilt extras**: one sheen across the foil button on press (200ms), the winner's frame settling in with the
+    fill, the loader's card back turning. Each is off or static under reduced motion.
 
 Rules: transform and opacity only (plus `clip-path` for the fill); entrances ease out (`cubic-bezier(.22,1,.36,1)`),
 in-place changes ease in and out; nothing blocks a tap.
