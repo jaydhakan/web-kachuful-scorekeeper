@@ -21,12 +21,10 @@ Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating,
 
 **e2e against the backend.** `npm run test:e2e` uses the mock. `E2E_API=local npx playwright test` runs the online specs (accounts, sync, global, share, photos) against the local backend, serving the app on `localhost:5173`, resetting the demo data before each test, one test at a time. The backend's golden fixtures live in [`contract/`](contract/README.md).
 
-Parity against the original prototype: `node tools/parity/run.mjs` (writes `reports/parity/report.md`). Lighthouse: `node tools/lighthouse.mjs`.
+Lighthouse: `node tools/lighthouse.mjs`.
 
 **Screenshots of every screen** (phone, tablet, desktop; signed out and signed in) for design review: start the backend, then `npx playwright test -c tools/screens`. They land in `screenshots/` (not committed), with `screenshots/overflow.txt` listing anything wider than the screen. **Smoothness:** `npm run build && node tools/trace.mjs` reports long tasks and, per transition, frames that missed 60 Hz at 4× CPU throttle (`CPU=6` for a slower phone), in `reports/lighthouse/trace-summary.md`.
 
 ## Docs
 
 [CONTRIBUTING](CONTRIBUTING.md) · [Architecture](docs/codebase/ARCHITECTURE.md) · [Design system](docs/codebase/DESIGN-SYSTEM.md) · [Manual test checklist](docs/MANUAL-TEST.md)
-
-`prototype/` is the read-only Claude.ai prototype this was ported from. Remove it after sign-off; it stays in git history.

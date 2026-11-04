@@ -10,7 +10,7 @@ Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist
 
 ## Commands — npm, not others
 
-Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `src`, `e2e`, `tools` and the config files; `prototype/` is excluded and read-only.
+Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `src`, `e2e`, `tools` and the config files.
 
 ## E2E tests that fail under load (not regressions)
 
@@ -40,7 +40,7 @@ Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `sr
 | UI primitives               | `src/components/ui/`                                              |
 | Colours, themes, materials  | `src/styles/themes.css` (the only colour file) via Tailwind names |
 
-Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the prototype's shape; `direction` changes seat layout only, not rotation.
+Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the original prototype's shape (the prototype itself is gone; it's in git history); `direction` changes seat layout only, not rotation.
 
 ## Rules
 
