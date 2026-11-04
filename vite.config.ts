@@ -194,6 +194,17 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
+            // A theme's deck art (Emerald Gilt): hashed and immutable, cached on first use so the reveal works offline.
+            urlPattern: ({ url, sameOrigin }) =>
+              sameOrigin && url.pathname.startsWith('/assets/') && url.pathname.endsWith('.webp'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kachuful-art',
+              expiration: { maxEntries: 20, purgeOnQuotaError: true },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
             urlPattern: ({ url, request, sameOrigin }) =>
               sameOrigin &&
               request.method === 'GET' &&

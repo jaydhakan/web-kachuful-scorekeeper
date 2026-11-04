@@ -180,6 +180,12 @@
   --fill-primary: linear-gradient(135deg, var(--ga), var(--gb));
   --card-back-a: #7e2058;
   --card-back-b: #c03c80;
+  /* No deck art: backs keep the stripes; set here because custom properties inherit into nested previews. */
+  --card-back-edge: var(--card-bg);
+  --art-back: none;
+  --art-back-mini: none;
+  --art-trump-hearts: none;
+  --art-trump-clubs: none;
 }
 
 /* ---------- THEME 2: YERBA SUN (light, butter, tomato, ink outlines, hard offset shadows) ---------- */
@@ -284,6 +290,11 @@
   --fill-primary: var(--brand);
   --card-back-a: #2b1a0e;
   --card-back-b: #ee6a4b;
+  --card-back-edge: var(--card-bg);
+  --art-back: none;
+  --art-back-mini: none;
+  --art-trump-hearts: none;
+  --art-trump-clubs: none;
 }
 
 /* ---------- THEME 3: EDITORIAL PAPER (light, newsprint, ink, tomato, serif display, mono labels, green table) ---------- */
@@ -390,6 +401,11 @@
   --card-back-a: #16352a;
   --card-back-b: #1f4a39;
   font-synthesis: none;
+  --card-back-edge: var(--card-bg);
+  --art-back: none;
+  --art-back-mini: none;
+  --art-trump-hearts: none;
+  --art-trump-clubs: none;
 }
 
 /* ---------- THEME 4: EMERALD GILT (dark, from the emerald-and-gold deck: bottle green, gold foil lines, ivory cards) ----------
@@ -500,6 +516,13 @@
   --fill-primary: linear-gradient(135deg, var(--ga), var(--brand) 55%, var(--gb));
   --card-back-a: #0f3b24;
   --card-back-b: #1e7a3c;
+  /* The deck's real art (src/assets/themes/emerald-gilt/SOURCE.md). Referenced only here, so other themes never
+     download it. A trump with no file (spades, diamonds) keeps its suit symbol. */
+  --card-back-edge: var(--felt-lo);
+  --art-back: url('../assets/themes/emerald-gilt/back.webp');
+  --art-back-mini: url('../assets/themes/emerald-gilt/back-mini.webp');
+  --art-trump-hearts: url('../assets/themes/emerald-gilt/queen-hearts.webp');
+  --art-trump-clubs: url('../assets/themes/emerald-gilt/king-clubs.webp');
 }
 
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */
@@ -1118,6 +1141,18 @@
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.5),
     0 0 14px var(--glow);
+}
+/* The trump card's face: the suit's court card where the deck art has one, the suit symbol otherwise. */
+.trump-face[data-suit='hearts'] {
+  background-image: var(--art-trump-hearts);
+}
+.trump-face[data-suit='clubs'] {
+  background-image: var(--art-trump-clubs);
+}
+[data-theme='emerald-gilt']
+  .trump-face:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-glyph {
+  opacity: 0;
 }
 [data-theme='emerald-gilt'] .mat-dealer {
   background: var(--fill-primary);

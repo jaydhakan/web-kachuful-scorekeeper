@@ -74,9 +74,10 @@ export const GRADIENTS = {
   'gold-gradient-v': 'linear-gradient(var(--medal-gold-hi), var(--medal-gold-lo))',
   'silver-gradient-v': 'linear-gradient(var(--medal-silver-hi), var(--medal-silver-lo))',
   'bronze-gradient-v': 'linear-gradient(var(--medal-bronze-hi), var(--medal-bronze-lo))',
+  // A theme with deck art paints it over the stripes (pair with `.card-art` to size it); the others set it to none.
   'card-back':
-    'repeating-linear-gradient(45deg, var(--card-back-a), var(--card-back-a) 6px, var(--card-back-b) 6px, var(--card-back-b) 12px)',
+    'var(--art-back), repeating-linear-gradient(45deg, var(--card-back-a), var(--card-back-a) 6px, var(--card-back-b) 6px, var(--card-back-b) 12px)',
   'card-deal':
-    'repeating-linear-gradient(45deg, var(--card-back-a), var(--card-back-a) 3px, var(--medal-gold) 3px, var(--medal-gold) 4px)',
+    'var(--art-back-mini), repeating-linear-gradient(45deg, var(--card-back-a), var(--card-back-a) 3px, var(--medal-gold) 3px, var(--medal-gold) 4px)',
   'accent-gradient': 'var(--fill-primary)',
 } as const;

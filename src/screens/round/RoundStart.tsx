@@ -70,7 +70,7 @@ export function RoundStart() {
           {[0, 1, 2, 3, 4].map((i) => (
             <i
               key={i}
-              className="bg-card-back shadow-[inset_0_0_0_3px_var(--card-bg),0_6px_14px_-4px_color-mix(in_srgb,var(--shade)_50%,transparent)]"
+              className="card-art bg-card-back shadow-[inset_0_0_0_3px_var(--card-back-edge),0_6px_14px_-4px_color-mix(in_srgb,var(--shade)_50%,transparent)]"
               style={{ '--i': i } as CSSProperties}
             />
           ))}
@@ -82,12 +82,13 @@ export function RoundStart() {
           className="relative h-full w-full"
           style={{ transformStyle: 'preserve-3d' }}
         >
-          <div className="absolute inset-0 rounded-[14px] border-4 border-[var(--card-bg)] bg-card-back [backface-visibility:hidden]" />
+          <div className="card-art absolute inset-0 rounded-[14px] border-4 border-[var(--card-back-edge)] bg-card-back [backface-visibility:hidden]" />
           <div
-            className={`absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--glow)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
+            data-suit={r.trump}
+            className={`trump-face absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--glow)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
             style={{ transform: 'rotateY(180deg)' }}
           >
-            {th.sym}
+            <span className="trump-glyph">{th.sym}</span>
           </div>
         </m.div>
       </div>
@@ -131,7 +132,7 @@ export function RoundStart() {
                       default: { duration: 0.52, delay, ease: EASE },
                       opacity: { duration: 0.52, delay, times: [0, 0.8, 1] },
                     }}
-                    className="absolute left-0 top-0 rounded-[3px] border-[1.5px] border-text-primary bg-card-deal"
+                    className="card-art absolute left-0 top-0 rounded-[3px] border-[1.5px] border-text-primary bg-card-deal"
                     // Centred on the point the layer is translated to.
                     style={{ width: dpx(16), height: dpx(22), translate: '-50% -50%' }}
                   />
@@ -147,7 +148,7 @@ export function RoundStart() {
         <AnimatePresence>
           {stage >= 3 && (
             <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="disp text-24 font-bold leading-[1.2] tracking-[-0.02em] @h-short:text-20 land:text-20 [&_[data-n]]:text-32 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] @h-short:[&_[data-n]]:text-26 land:[&_[data-n]]:text-26">
+              <div className="disp face-body text-24 font-bold leading-[1.2] tracking-[-0.02em] @h-short:text-20 land:text-20 [&_[data-n]]:text-32 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] @h-short:[&_[data-n]]:text-26 land:[&_[data-n]]:text-26">
                 {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
               </div>
               <div className="mt-1">{t.start.firstCard(g.players[r.firstPlayerIndex].name)}</div>

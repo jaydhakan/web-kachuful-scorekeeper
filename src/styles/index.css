@@ -336,6 +336,12 @@ input {
 .tick {
   font-feature-settings: 'tnum' 1;
 }
+/* Card backs and faces painted from a theme's deck art (themes.css tokens); a theme without art keeps its stripes. */
+.card-art,
+.trump-face {
+  background-size: cover;
+  background-position: center;
+}
 @media (prefers-reduced-motion: reduce) {
   .ambient,
   .ring-pulse::after,
