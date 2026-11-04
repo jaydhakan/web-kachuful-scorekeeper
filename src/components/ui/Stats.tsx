@@ -51,32 +51,61 @@ function OptionSheet<T extends string>({
   value,
   onPick,
   onClose,
+  groups,
+  hints,
 }: {
   title: string;
   options: [T, ReactNode][];
   value: T;
   onPick: (v: T) => void;
   onClose: () => void;
+  /** Sections of the list, in order; options outside every group are left out. */
+  groups?: { title: string; keys: T[] }[];
+  /** A line under an option saying what it means. */
+  hints?: Partial<Record<T, string>>;
 }) {
+  const label = new Map(options);
+  const sections = groups ?? [{ title: '', keys: options.map(([v]) => v) }];
   return (
     <Sheet title={title} onClose={onClose}>
-      <div role="group" aria-label={title} className="flex flex-col gap-1">
-        {options.map(([v, label]) => (
-          <button
-            key={v}
-            type="button"
-            aria-pressed={v === value}
-            onClick={() => onPick(v)}
-            className={`press flex min-h-12 items-center justify-between rounded-2xl px-4 text-left text-17 font-bold ${v === value ? 'bg-ov/[.07] text-[var(--accent)]' : ''}`}
+      <div className="flex flex-col gap-3">
+        {sections.map((g) => (
+          <div
+            key={g.title}
+            role="group"
+            aria-label={g.title || title}
+            className="flex flex-col gap-1"
           >
-            {label}
-            {v === value && <span aria-hidden>{Icon.check}</span>}
-          </button>
+            {g.title && (
+              <h3 className="mono-label px-4 pt-1 text-12 uppercase text-[var(--tx2)]">
+                {g.title}
+              </h3>
+            )}
+            {g.keys.map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={v === value}
+                onClick={() => onPick(v)}
+                className={`press flex min-h-12 items-center justify-between gap-3 rounded-2xl px-4 py-1.5 text-left ${v === value ? 'bg-ov/[.07] text-[var(--accent)]' : ''}`}
+              >
+                <span className="flex flex-col">
+                  <span className="text-17 font-bold">{label.get(v)}</span>
+                  {hints?.[v] && (
+                    <span className="text-13 font-medium text-[var(--tx2)]">{hints[v]}</span>
+                  )}
+                </span>
+                {v === value && <span aria-hidden>{Icon.check}</span>}
+              </button>
+            ))}
+          </div>
         ))}
       </div>
     </Sheet>
   );
 }
+
+const SKILL: Metric[] = ['avgPerRound', 'accuracy', 'winRate'];
 
 /** Today, 7 days, this month, last month, all time, or a custom range picked on a calendar. */
 export function RangePick({
@@ -138,6 +167,14 @@ export function MetricPick({ value, onChange }: { value: Metric; onChange: (m: M
             title={s.metric}
             value={value}
             options={(Object.keys(s.metrics) as Metric[]).map((k) => [k, s.metrics[k]])}
+            groups={[
+              { title: s.metricGroups.skill, keys: SKILL },
+              {
+                title: s.metricGroups.totals,
+                keys: (Object.keys(s.metrics) as Metric[]).filter((k) => !SKILL.includes(k)),
+              },
+            ]}
+            hints={s.metricHints}
             onPick={(k) => (setOpen(false), onChange(k))}
             onClose={() => setOpen(false)}
           />
