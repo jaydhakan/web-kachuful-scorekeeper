@@ -49,6 +49,34 @@ describe('History and the game view', () => {
     expect(await screen.findByText('History')).toBeInTheDocument();
   });
 
+  it('filters by date range, and clears the filters when nothing matches', async () => {
+    await archive.ready;
+    const done = (id: string, at: number, name: string) => {
+      const g = game(id, {
+        status: 'finished',
+        finishedAt: at,
+        players: game(id).players.map((p, i) => ({ ...p, name: name + i })),
+      });
+      g.rounds = g.rounds.filter((r) => r.phase === 'done');
+      archiveGame(g);
+    };
+    done('new', Date.now() - 1000, 'Ann');
+    done('old', Date.now() - 40 * 864e5, 'Ole');
+    const u = setup();
+    render(<App />);
+    await u.click(await screen.findByRole('button', { name: /History/ }));
+    expect(await screen.findAllByRole('button', { name: /^Game on/ })).toHaveLength(2);
+    await u.click(screen.getByRole('button', { name: /^Date range/ }));
+    await u.click(await screen.findByRole('button', { name: 'Today' }));
+    await waitFor(() =>
+      expect(screen.getAllByRole('button', { name: /^Game on/ })).toHaveLength(1),
+    );
+    await u.click(screen.getByRole('button', { name: 'Ole0' }));
+    expect(await screen.findByText('No games match these filters')).toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(await screen.findAllByRole('button', { name: /^Game on/ })).toHaveLength(2);
+  });
+
   it('continues an unfinished game, keeping the current one in History', async () => {
     await archive.ready;
     archiveGame(game('old'));

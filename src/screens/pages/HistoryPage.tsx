@@ -1,6 +1,6 @@
 import { m } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { doneRounds, standings, type Game } from '@/domain';
+import { doneRounds, rangeFor, standings, type Game, type Range } from '@/domain';
 import { dayKey, dayLabel, timeLabel } from '@/lib/dates';
 import { sgnN } from '@/lib/format';
 import type { GameRec } from '@/state/archive';
@@ -16,6 +16,7 @@ import {
   Skeleton,
 } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { RangePick } from '@/components/ui/Stats';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';
@@ -47,6 +48,8 @@ export function HistoryPage() {
   const recs = useArchive((a) => a.games());
   const loaded = useArchive((a) => a.loaded);
   const [who, setWho] = useState<string | null>(null);
+  const allTime = () => rangeFor('all', Date.now());
+  const [range, setRange] = useState<Range>(allTime);
   // The people who played most, for the filter chips.
   const people = useMemo(() => {
     const n = new Map<string, { name: string; n: number }>();
@@ -58,9 +61,12 @@ export function HistoryPage() {
       }
     return [...n.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 12);
   }, [recs]);
-  const shown = who
-    ? recs.filter((r) => r.game.players.some((p) => nameKey(p.name) === who))
-    : recs;
+  // A game counts on the day it's listed under, so the range never hides a row inside it.
+  const shown = recs.filter((r) => {
+    const at = r.endedAt ?? r.updatedAt;
+    if (range.kind !== 'all' && (at < range.from || at >= range.to)) return false;
+    return !who || r.game.players.some((p) => nameKey(p.name) === who);
+  });
   const groups = useMemo(() => {
     const out: { key: string; label: string; rows: GameRec[] }[] = [];
     for (const r of shown) {
@@ -95,7 +101,7 @@ export function HistoryPage() {
         action={
           <button
             type="button"
-            onClick={() => setWho(null)}
+            onClick={() => (setWho(null), setRange(allTime()))}
             className="press min-h-12 px-3 text-16 font-bold text-[var(--accent)]"
           >
             {h.clear}
@@ -120,17 +126,24 @@ export function HistoryPage() {
     <Page
       title={h.title}
       sub={
-        people.length > 1 && (
-          <ChipRow label={h.filterPlayer}>
-            <Chip on={!who} onClick={() => setWho(null)}>
-              {h.allPlayers}
-            </Chip>
-            {people.map(([k, v]) => (
-              <Chip key={k} on={who === k} onClick={() => setWho(who === k ? null : k)}>
-                {v.name}
-              </Chip>
-            ))}
-          </ChipRow>
+        recs.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <div className="flex">
+              <RangePick value={range} onChange={setRange} />
+            </div>
+            {people.length > 1 && (
+              <ChipRow label={h.filterPlayer}>
+                <Chip on={!who} onClick={() => setWho(null)}>
+                  {h.allPlayers}
+                </Chip>
+                {people.map(([k, v]) => (
+                  <Chip key={k} on={who === k} onClick={() => setWho(who === k ? null : k)}>
+                    {v.name}
+                  </Chip>
+                ))}
+              </ChipRow>
+            )}
+          </div>
         )
       }
     >
