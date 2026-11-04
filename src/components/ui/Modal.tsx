@@ -7,22 +7,28 @@ import { t } from '@/strings';
 
 interface ModalProps {
   text: string;
+  /** A quieter line under the question. */
+  body?: string;
   ok: string;
   danger?: boolean;
   /** Label for the secondary button. */
   cancel?: string;
   /** A locked modal ignores backdrop taps, so a choice must be made. */
   locked?: boolean;
+  /** A third, destructive choice; the buttons then stack, the safe choice first. */
+  alt?: { label: string; onClick: () => void };
   onOk: () => void;
   onCancel: () => void;
 }
 
 export function Modal({
   text,
+  body,
   ok,
   danger,
   cancel = t.common.cancel,
   locked,
+  alt,
   onOk,
   onCancel,
 }: ModalProps) {
@@ -53,18 +59,37 @@ export function Modal({
         <p id={textId} className="mb-5 text-19 font-medium leading-snug tracking-[-0.012em]">
           {text}
         </p>
-        <div className="flex gap-2.5">
-          <PrimaryButton tone="glass" onClick={onCancel} className="!h-[52px] flex-1 !text-16">
-            {cancel}
-          </PrimaryButton>
-          <PrimaryButton
-            tone={danger ? 'danger' : 'accent'}
-            onClick={onOk}
-            className="!h-[52px] flex-1 !text-16"
-          >
-            {ok}
-          </PrimaryButton>
-        </div>
+        {body && <p className="-mt-3 mb-5 text-15 text-[var(--tx2)]">{body}</p>}
+        {alt ? (
+          <div className="flex flex-col gap-2.5">
+            <PrimaryButton onClick={onOk} className="!h-[52px] !text-16">
+              {ok}
+            </PrimaryButton>
+            <PrimaryButton
+              tone="glass"
+              onClick={alt.onClick}
+              className="!h-[52px] !text-16 !text-[var(--danger)]"
+            >
+              {alt.label}
+            </PrimaryButton>
+            <PrimaryButton tone="glass" onClick={onCancel} className="!h-[52px] !text-16">
+              {cancel}
+            </PrimaryButton>
+          </div>
+        ) : (
+          <div className="flex gap-2.5">
+            <PrimaryButton tone="glass" onClick={onCancel} className="!h-[52px] flex-1 !text-16">
+              {cancel}
+            </PrimaryButton>
+            <PrimaryButton
+              tone={danger ? 'danger' : 'accent'}
+              onClick={onOk}
+              className="!h-[52px] flex-1 !text-16"
+            >
+              {ok}
+            </PrimaryButton>
+          </div>
+        )}
       </m.div>
     </div>
   );

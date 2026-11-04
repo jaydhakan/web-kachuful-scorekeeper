@@ -41,7 +41,7 @@ export function AccountPage() {
   const [err, setErr] = useState('');
   const [pw, setPw] = useState({ cur: '', next: '' });
   const [pwErr, setPwErr] = useState('');
-  const [ask, setAsk] = useState<null | 'pending' | 'keep'>(null);
+  const [ask, setAsk] = useState(false);
   if (!s)
     return (
       <Page title={ac.title}>
@@ -111,7 +111,7 @@ export function AccountPage() {
     }
   };
   const signOut = async (remove: boolean) => {
-    setAsk(null);
+    setAsk(false);
     await signOutDevice(remove);
     actions.setSession(null);
     actions.navReset();
@@ -258,34 +258,20 @@ export function AccountPage() {
             {icon('shield')} {ac.admin}
           </PrimaryButton>
         )}
-        <PrimaryButton
-          tone="danger"
-          className="px-6"
-          onClick={() => setAsk(pendingUploads() ? 'pending' : 'keep')}
-        >
+        <PrimaryButton tone="danger" className="px-6" onClick={() => setAsk(true)}>
           {ac.signOut}
         </PrimaryButton>
       </div>
       <AnimatePresence>
-        {ask === 'pending' && (
+        {ask && (
           <Modal
-            key="p"
-            text={ac.pending(pendingUploads())}
-            ok={ac.signOut}
-            danger
-            onOk={() => setAsk('keep')}
-            onCancel={() => setAsk(null)}
-          />
-        )}
-        {ask === 'keep' && (
-          <Modal
-            key="k"
-            text={ac.keepOrRemove}
+            key="out"
+            text={ac.signOutOf(s.user.email)}
+            body={pendingUploads() ? ac.pending(pendingUploads()) : ac.safe}
             ok={ac.keep}
-            cancel={ac.remove}
-            locked
+            alt={{ label: ac.remove, onClick: () => void signOut(true) }}
             onOk={() => void signOut(false)}
-            onCancel={() => void signOut(true)}
+            onCancel={() => setAsk(false)}
           />
         )}
       </AnimatePresence>
