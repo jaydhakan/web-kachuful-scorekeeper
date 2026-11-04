@@ -54,7 +54,7 @@ export function DeskHome() {
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.9, ease: EASE }}
-            className="disp gold-text pb-2 text-96 font-extrabold leading-[.92] tracking-[-0.055em] @[40rem]:text-148"
+            className="disp gold-text wordmark pb-2 text-96 font-extrabold leading-[.92] tracking-[-0.055em] @[40rem]:text-148"
           >
             {t.appName}
           </m.h1>

@@ -86,7 +86,7 @@ export function Home() {
             >
               <Orbit />
               <div className="absolute inset-0 grid place-content-center text-center">
-                <h1 className="disp gold-text text-72 font-extrabold leading-none tracking-[-0.055em] @h-short:text-64 md:text-96 land:text-52 land:@[24rem]:text-72 wide:text-96">
+                <h1 className="disp gold-text wordmark text-72 font-extrabold leading-none tracking-[-0.055em] @h-short:text-64 md:text-96 land:text-52 land:@[24rem]:text-72 wide:text-96">
                   {t.appName}
                 </h1>
                 <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)] md:text-18 wide:text-18">

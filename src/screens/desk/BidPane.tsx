@@ -64,7 +64,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               className="ring-pulse grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-36 rail:h-[72px] rail:w-[72px] rail:text-40"
             />
             <div className="min-w-0">
-              <h2 className="disp text-32 font-extrabold leading-[1.05] tracking-[-0.03em] [overflow-wrap:anywhere] rail:text-34">
+              <h2 className="disp face-body text-32 font-extrabold leading-[1.05] tracking-[-0.03em] [overflow-wrap:anywhere] rail:text-34">
                 {p.name}
               </h2>
               <p className="text-15 text-[var(--tx2)]">

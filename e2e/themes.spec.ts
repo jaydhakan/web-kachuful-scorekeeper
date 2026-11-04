@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
 
 // DESIGN-SYSTEM.md, Switching themes: themes change paint, never geometry, and switching mid-game touches no state.
-const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper'] as const;
+const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gilt'] as const;
 const NAMES = ['Aarav', 'Riya', 'Kabir', 'Meera', 'Dev'];
 
 /** Every control and seat on screen, by its accessible name or seat index, with its box rounded to the pixel. */
@@ -88,6 +88,7 @@ for (const id of THEMES)
       'sunset-glass': ['instrument-sans'],
       'yerba-sun': ['bricolage', 'space-mono'],
       'editorial-paper': ['instrument-serif', 'instrument-sans', 'dm-mono'],
+      'emerald-gilt': ['cinzel', 'instrument-sans'],
     }[id];
     for (const f of fonts)
       expect(
