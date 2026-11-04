@@ -4,8 +4,11 @@ A dark theme taken from the emerald-and-gold playing-card deck Jay owns: a bottl
 Art Deco frames, ivory card faces. It is a fourth option in Admin › Appearance (not the default) and works everywhere
 the other three do.
 
-Working doc: delete it with `backend-requests.md` and `docs/EMERALD-GILT-PROMPT.md` once the frontend and backend
-work is committed. Never commit it.
+Working doc, tracked on `main` by Jay's choice. Once the theme and the backend change are pushed, delete it in one
+cleanup commit together with `docs/EMERALD-GILT-PROMPT.md`, `backend-requests.md` and the prototype
+`docs/EMERALD-GILT-TRUMP-REVEAL.html`.
+
+The prototype is the reference for the trump reveal: open it in a browser for the look, the timing and the card art.
 
 ## Decisions (agreed with Jay, 2026-11-04)
 
@@ -15,9 +18,12 @@ work is committed. Never commit it.
 | Scheme              | Dark                                                                                                                  |
 | Colours             | Taken from the deck only (below); the Instagram palettes were only examples                                           |
 | Fonts               | **Cinzel** (OFL, self-hosted latin woff2) for display and labels; **Instrument Sans** for body text and every number |
-| Card back           | Our own design with the deck's layout (below); none of the deck's artwork, monogram or trademarks                     |
+| Card art            | **The deck's real artwork**, used under permission Jay has from the rights holder: the card back and court cards (see Deck art) |
+| Trump card          | The **King** of the trump suit; the **Queen of hearts** when Hearts are trump                                         |
+| Reveal timing       | The backs fan out and **hold about 0.7s** before the trump card turns, so the art is seen (Emerald Gilt only)         |
 | Scope               | Everything in "Where the theme shows" below                                                                           |
 | Default             | No; a fourth option. `DEFAULT_THEME` stays `sunset-glass`                                                             |
+| Git                 | Work on `main`, one commit per step, pushed as Jay asks; no feature branch                                            |
 | Backend             | Written up in `backend-requests.md`; done after the whole frontend, in `../backend-kachuful-scorekeeper`             |
 
 ## Palette (from the deck)
@@ -71,35 +77,36 @@ foil gradient was 4.48:1 with `#9C7A34`, which is why the dark end is now `#A885
   (`https://cdn.jsdelivr.net/fontsource/fonts/cinzel:vf@latest/latin-wght-normal.woff2`). That's a downloaded file,
   not an npm package. Add `cinzel` to `globIgnores` in `vite.config.ts` so only Instrument Sans stays precached.
 
-## The card back (our own, in the deck's layout)
+## Deck art (licensed)
 
-The deck's layout: a gold piano-key frame with a thin inner rule; emerald filigree along the edges; gold rays from the
-centre; two dotted-ring medallions stacked with the monogram drawn twice, the second turned 180° (a two-way back); a
-small centre joint. Ours keeps that layout and uses none of the deck's pictures:
+The theme uses the deck's real artwork. Jay has the rights holder's permission; keep that permission in writing
+outside the repo. **The GitHub repo is public**, so every committed image is published: confirm the permission covers
+that before committing any art (the prototype is already public).
 
-```
-┌▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬┐   ▬ gold piano-key frame + thin emerald inner rule
-▌ ♠ ∿∿∿∿∿∿∿∿∿∿∿∿ ♥ ▐   corners: the four suits in gold (the deck has flying monkeys here)
-▌ ∿   ╱ ⋯⋯⋯ ╲   ∿ ▐   ∿ emerald filigree, symmetric
-▌ ∿  ⋮  K   ⋮  ∿ ▐   top medallion: a dotted gold ring, a gold Deco "K" for Kachuful
-▌ ◆ ∿ ╲ ⋯⋯⋯ ╱ ∿ ◆ ▐   sides: a small cut emerald gem in gold (the deck has balloons here)
-▌ ∿     ◇●●◇     ∿ ▐   centre joint: a gold lozenge with two emerald dots
-▌ ∿  ╱ ⋯⋯⋯ ╲  ∿ ▐
-▌ ∿  ⋮  ꓘ   ⋮  ∿ ▐   bottom medallion: the same K turned 180°
-▌ ♦ ∿∿∿∿∿∿∿∿∿∿∿∿ ♣ ▐   gold rays fan out behind both medallions
-└▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬┘
-```
+| Asset                | Used for                                          | What we have now                         | Final source                |
+| -------------------- | ------------------------------------------------- | ---------------------------------------- | --------------------------- |
+| Card back            | Reveal fan and flip, dealt cards, loader, previews | Straightened photo, good                 | Publisher's original file   |
+| Queen of hearts      | Trump card when Hearts are trump                  | Straightened photo, good                 | Publisher's original file   |
+| King of clubs        | Trump card for Clubs                              | Straightened photo, a little soft        | Publisher's original file   |
+| King of spades       | Trump card for Spades                             | **None**                                 | Publisher's file or a photo |
+| King of diamonds     | Trump card for Diamonds                           | **None**                                 | Publisher's file or a photo |
+| Joker (optional)     | Winner screen, see section 7                      | None                                     | Publisher's file            |
 
-**How it's built (colours stay in `themes.css`):** two SVGs used only as **masks**, holding shape but no colour:
-`src/assets/themes/emerald-gilt/back-gold.svg` (frame, rays, rings, K, suits, gem outlines, lozenge) and
-`back-filigree.svg` (filigree, inner rule, gem fill, dots). A `.card-art` box paints the dark field from
-`--card-back-a`, then a `::before` layer filled with the emerald token and masked by the filigree, then an `::after`
-layer filled with the foil gradient and masked by the gold shapes. Use `mask-image` and `-webkit-mask-image`. Draw the
-K as paths, not text, so it doesn't depend on a font. Each SVG under 6 KB, the whole back symmetric under a 180° turn.
-Add a simpler `back-mini.svg` (frame plus one centre dot) for the 16×22px dealt cards, where detail would blur.
-
-Every other theme keeps its striped back exactly as it is: `.card-art` without the Emerald Gilt rules paints today's
-`bg-card-back` gradient. One component, four looks.
+- **Files:** `src/assets/themes/emerald-gilt/` — `back.webp`, `back-mini.webp` (a 48×68 version for the tiny dealt
+  cards), `king-spades.webp`, `king-diamonds.webp`, `king-clubs.webp`, `queen-hearts.webp`, each 600×840 (2× the
+  largest size shown), WebP at about quality 85. Add a short `SOURCE.md` there saying where the art comes from and
+  that it's used with permission.
+- **Until a file arrives:** the photo crops are in the prototype (`docs/EMERALD-GILT-TRUMP-REVEAL.html`, embedded as
+  data URIs) and can be extracted. A missing King falls back to today's suit-glyph face; never show another suit's
+  card in its place.
+- **Only downloaded in this theme:** reference the images only from `themes.css`, as tokens on the Emerald Gilt block
+  (`--art-back: url(...)`, `--art-trump-hearts: url(...)` and so on). A CSS background loads only when something
+  painted with it is on screen, so other themes never download them. Components use classes that paint from those
+  tokens (`.card-art`, `.trump-face`); in other themes the tokens are unset and the classes paint what they do today.
+- **Offline:** the precache only takes `js, css, html, woff2, webmanifest`. Add a runtime cache rule for
+  `/assets/*.webp` (cache-first, like the fonts) so the art works offline after its first use.
+- **Never used in:** the share image, the app icon, the splash screen or the manifest. Those leave the app; keep the
+  art inside it unless the permission says otherwise.
 
 ## Where the theme shows
 
@@ -109,17 +116,45 @@ layer is `aria-hidden`.
 
 ### 1. Trump reveal — `src/screens/round/RoundStart.tsx`, `.deal-fan` in `src/styles/index.css`
 
-- The five fanned backs and the back of the flipping card use `.card-art`. In Emerald Gilt the flipping card's edge is
-  dark green, not the white `--card-bg` border: give the edge its own token (`--card-back-edge`; every other theme
-  sets it to `var(--card-bg)` so nothing else changes).
-- The face is ivory, framed by a thin gold rule inset from the edge, with gold **rays** behind the suit like the
-  deck's aces. Rays are a `repeating-conic-gradient` masked to fade out from the centre; they scale `0.7 → 1` and fade
-  in as the flip lands (about 0.65s).
-- One **foil glint**: a narrow diagonal highlight sweeps once across the face (translateX, about 600ms) after the flip
-  lands. Emerald Gilt only.
-- The dealt cards flying to seats use the mini back.
-- Reduced motion: no fan and no glint (as today), rays shown still.
+Match the prototype. In order:
+
+1. **Backs fan out and hold.** The five fanned backs and the back of the trump card show the real card back
+   (`.card-art`). The fan spreads a little wider than today (40px apart, 8° each), holds, then falls away as the trump
+   card turns. In Emerald Gilt the trump card's edge is the back's own dark border, not the white `--card-bg` border:
+   give the edge its own token (`--card-back-edge`; every other theme sets it to `var(--card-bg)`).
+2. **The trump card turns over after a hold of about 0.7s.** Its face is the trump suit's King, or the Queen of hearts
+   for Hearts (`.trump-face`, painted from `--art-trump-<suit>`). Today the stage timers in `RoundStart.tsx` are
+   `[820, …]` and the flip runs 0.8s from the start. Add a `--reveal-hold` token (`700ms` in Emerald Gilt, `0ms`
+   everywhere else), read it once on mount, and add it to the flip's delay and the stage timers, so other themes keep
+   today's timing exactly.
+3. **Gold rays bloom behind the card** as it lands: a `repeating-conic-gradient` halo behind the card, masked to fade
+   out from the centre, scaling `0.6 → 1` and fading in.
+4. **One foil glint** sweeps across the face (translateX, about 650ms) just after it lands.
+5. **Cards are dealt with the real back.** The small cards that fly from the dealer to each seat (`bg-card-deal`)
+   use `back-mini.webp` in this theme.
+
+- Reduced motion: no fan, no hold, no glint, no flight. The face fades in with the rays already showing.
+- One tap still skips everything, as today.
 - Check the large-screen layout too (`src/screens/desk/`), wherever it shows the round intro.
+
+### 1b. The trump card elsewhere — next round and upcoming rounds
+
+Wherever a later round's trump is shown as a big suit symbol, Emerald Gilt shows a small version of that round's trump
+card (same rule: the King, or the Queen of hearts) with the symbol kept beside it for reading at a glance:
+
+- `src/screens/round/Summary.tsx`: the "Next up" panel after a round.
+- `src/sheets/UpcomingBody.tsx` (phone) and `src/screens/desk/UpcomingDrawer.tsx`, `src/screens/desk/ComingUp.tsx`
+  (large screen): one small card per row.
+
+Small means about 34×48px in a list row, 56×78px in the Next-up panel. These are decorations: `aria-hidden`, the
+suit's name stays in text, and nothing changes size in any theme (the slot exists in every theme; others leave it
+empty or show the glyph as today).
+
+### 1c. Empty states
+
+Where a list can be empty (Boards with no rounds in range, History with no games, a player with no games), Emerald
+Gilt shows a single face-down card back, slightly tilted, above the existing empty message. Decorative and
+`aria-hidden`; other themes unchanged.
 
 ### 2. The table — `.felt` in `themes.css`, `src/components/ui/Table.tsx`, `src/components/ui/SuitCenter.tsx`
 
@@ -167,6 +202,8 @@ A repeating gold dash strip (a `repeating-linear-gradient`, 3px tall) used in on
   of the players' colours; when they're not (the other three themes), nothing changes. Read them with `colorValue` as
   the canvas needs real values.
 - The podium medals already use the gold tokens.
+- Optional, only once the Joker file exists: the Joker card (the Emerald City "OZ") turns over behind the winner's
+  frame, once, like the trump reveal. Skip it rather than use a photo crop.
 
 ### 7. Badges and streaks — `src/components/BadgePop.tsx`, `src/components/StreakCelebration.tsx`
 
@@ -175,7 +212,7 @@ only; motion unchanged.
 
 ### 8. Loader — `src/components/ui/Loader.tsx`
 
-In Emerald Gilt a small card back (the mini art) flips on Y in place of the ball. Both shapes are in the DOM, CSS
+In Emerald Gilt a small real card back (`back-mini.webp`) flips on Y in place of the ball. Both shapes are in the DOM, CSS
 shows one per theme. Reduced motion: the card stands still. The 300ms invisible start stays.
 
 ### 9. Appearance preview — `src/screens/pages/AppearancePanel.tsx`
@@ -183,7 +220,7 @@ shows one per theme. Reduced motion: the card stands still. The 300ms invisible 
 - Add the `--m-*` preview tokens for Emerald Gilt (`--m-felt`, `--m-felt-shadow`, `--m-key`, `--m-key-shadow`,
   `--m-on`, `--m-btn`, `--m-btn-shadow`, `--m-av-shadow`, `--m-r`).
 - Add a small card back in each preview tile's corner, painted from tokens (`--m-back`), so all four previews show
-  their own back. Previews must not use the material classes (nested themes leak them); that's why it's a token.
+  their own back (Emerald Gilt's is the real one). Previews must not use the material classes (nested themes leak them); that's why it's a token.
 
 ## Registry, tests and tools
 
@@ -191,13 +228,16 @@ shows one per theme. Reduced motion: the card stands still. The 300ms invisible 
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `src/theme/themes.ts`                                           | Add `'emerald-gilt'` to `ThemeId` and to `THEMES` (`label: 'Emerald Gilt'`, `scheme: 'dark'`, `themeColor: '#0C1A12'`, fonts above) |
 | `src/styles/themes.css`                                         | `@font-face` for Cinzel; the token block; preview tokens; every material rule; update the header comment       |
-| `src/styles/index.css`                                          | `.turn-rim`; the reveal's rays and glint keyframes; the reduced-motion block                                  |
-| `src/theme/colors.ts`                                           | `card-back` reads the art when a theme sets it (or `.card-art` replaces `bg-card-back`); the edge token      |
-| `vite.config.ts`                                                | `cinzel` in `globIgnores`. The boot script picks up the new theme by itself                                   |
+| `src/styles/index.css`                                          | `.turn-rim`; the reveal's fan, halo and glint keyframes; `.card-art`, `.trump-face`; the reduced-motion block |
+| `src/theme/colors.ts`                                           | `card-back` / `card-deal` paint the art when a theme sets it; the edge token                                 |
+| `src/assets/themes/emerald-gilt/`                               | The deck art and `SOURCE.md` (see Deck art)                                                                    |
+| `src/screens/round/RoundStart.tsx`                              | Read `--reveal-hold`; the trump face; the halo and glint layers                                               |
+| `src/screens/round/Summary.tsx`, `src/sheets/UpcomingBody.tsx`, `src/screens/desk/UpcomingDrawer.tsx`, `src/screens/desk/ComingUp.tsx` | The small trump-card slot (1b) |
+| `vite.config.ts`                                                | `cinzel` in `globIgnores`; a cache-first runtime rule for the `.webp` art. The boot script picks up the new theme by itself |
 | `e2e/themes.spec.ts`                                            | Add it to `THEMES` and `'emerald-gilt': ['cinzel', 'instrument-sans']` to the font map                        |
 | `src/theme/themes.test.ts`, `src/state/theme.test.ts`           | One case each: the new id resolves and applies                                                                |
 | `tools/mock-api/server.ts`, `tools/screens/quick.spec.ts`, `tools/screens/admin.spec.ts` | Add the id to their theme lists                                                       |
-| `docs/codebase/DESIGN-SYSTEM.md`                                | "three" → "four"; an Emerald Gilt bullet; Cinzel under fonts; the mask-art rule; the new motion entries      |
+| `docs/codebase/DESIGN-SYSTEM.md`                                | "three" → "four"; an Emerald Gilt bullet; Cinzel under fonts; the deck-art rule (images only through `themes.css` tokens); the new motion entries |
 
 `contrast.test.ts` reads every theme from `THEME_IDS`, so it covers the new one by itself. Add the felt pairs (light
 red and ivory on `--felt-hi`) if they aren't already measured.
@@ -205,7 +245,10 @@ red and ivory on `--felt-hi`) if they aren't already measured.
 ## Rules this work must keep
 
 - Paint, never geometry: no size, padding or position changes in any theme. `e2e/themes.spec.ts` proves it.
-- Colours only in `themes.css` (lint rejects hex in components); the SVGs are masks with no colour.
+- Colours only in `themes.css` (lint rejects hex in components). The deck images are referenced only from
+  `themes.css` too, so no component knows which theme has art.
+- Other themes look and time exactly as before: every new hook (`--reveal-hold`, `--card-back-edge`, the trump-card
+  slot) has a neutral value in all four themes.
 - Every control at least 44px, focus rings visible (gold on dark), real buttons and labels.
 - Saved data untouched: the stored keys are `kf.theme`, `kf.theme.user` and `kf.theme.appearance`, and an unknown id
   already falls back.
@@ -216,20 +259,23 @@ red and ivory on `--felt-hi`) if they aren't already measured.
 
 | #  | Step                                                                                         | Done when                                                     | Overall |
 | -- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------- |
-| 0  | Branch `feat/emerald-gilt-theme`; run typecheck, lint and unit tests; note anything already failing | baseline recorded                                     | 3%      |
-| 1  | Registry, Cinzel, token block, preview tokens, seat colours, `globIgnores`                  | the admin can preview and apply it; contrast test passes      | 20%     |
-| 2  | Every material rule, type roles, numbers in Instrument Sans, gold text, ambient, turn light  | every screen reads well; themes e2e geometry test passes      | 40%     |
-| 3  | Card art: mask SVGs, `.card-art`, edge token, mini back                                     | backs show on the reveal, deal, and in other themes unchanged | 52%     |
-| 4  | Trump reveal: rays, glint, reduced motion                                                    | checked on phone and large screen, with and without motion    | 62%     |
-| 5  | Table: felt rim, rays, dotted trump ring, gold glow                                          | bidding, playing and results look right on 4–10 seats         | 70%     |
-| 6  | Piano-key strip; Winner frame; gold confetti tokens                                         | winner on phone and desk; other themes' confetti unchanged    | 80%     |
-| 7  | Badges, streaks, loader                                                                      | each shown once by hand                                       | 86%     |
-| 8  | Appearance preview card back for all four themes                                             | four tiles, no leaking between them                           | 89%     |
-| 9  | Tests and tools lists; full e2e (rerun failures alone, per CLAUDE.md); screenshots of every screen | green; screenshots looked at                           | 95%     |
-| 10 | `DESIGN-SYSTEM.md`                                                                           | doc matches the code                                          | 97%     |
-| 11 | Backend: the request in `backend-requests.md`, in the backend repo                          | backend tests pass; signed-in apply reaches everyone          | 100%    |
+| 0  | On `main`: run typecheck, lint and unit tests; note anything already failing               | baseline recorded                                             | 3%      |
+| 1  | Registry, Cinzel, token block, preview tokens, seat colours, `globIgnores`                  | the admin can preview and apply it; contrast test passes      | 18%     |
+| 2  | Every material rule, type roles, numbers in Instrument Sans, gold text, ambient, turn light  | every screen reads well; themes e2e geometry test passes      | 35%     |
+| 3  | Deck art: the files you have, `SOURCE.md`, tokens, `.card-art`, `.trump-face`, edge token, mini back, offline cache | backs and faces show; other themes unchanged | 45% |
+| 4  | Trump reveal: hold, wider fan, King / Queen of hearts face, halo, glint, real-back deal, reduced motion | matches the prototype on phone and large screen | 56% |
+| 5  | Table: felt rim, rays, dotted trump ring, gold glow                                          | bidding, playing and results look right on 4–10 seats         | 63%     |
+| 6  | Small trump card in Next up and the upcoming lists (1b); empty-state card back (1c)         | each shown by hand on phone and large screen                  | 70%     |
+| 7  | Piano-key strip; Winner frame; gold confetti tokens (Joker only if its file exists)         | winner on phone and desk; other themes' confetti unchanged    | 78%     |
+| 8  | Badges, streaks, loader                                                                      | each shown once by hand                                       | 83%     |
+| 9  | Appearance preview card back for all four themes                                             | four tiles, no leaking between them                           | 86%     |
+| 10 | Tests and tools lists; full e2e (rerun failures alone, per CLAUDE.md); screenshots of every screen | green; screenshots looked at                           | 93%     |
+| 11 | `DESIGN-SYSTEM.md`                                                                           | doc matches the code                                          | 95%     |
+| 12 | Backend: the request in `backend-requests.md`, in the backend repo                          | backend tests pass; signed-in apply reaches everyone          | 98%     |
+| 13 | Cleanup: delete this plan, the prompt, `backend-requests.md` and the prototype HTML         | one commit, pushed                                            | 100%    |
 
-One Conventional Commit per step (from step 1), no co-author trailer. Never commit the three working docs.
+One Conventional Commit per step (from step 1) on `main`, no co-author trailer. Push when Jay asks. Missing art (the
+King of spades and diamonds, until their files arrive) doesn't block a step: the fallback is today's suit glyph.
 
 ## Checks before calling it done
 
@@ -239,5 +285,8 @@ One Conventional Commit per step (from step 1), no co-author trailer. Never comm
   produced.
 - By hand: reduced motion on, reduced transparency on, forced colours (Windows high contrast) still readable.
 - Switch to Emerald Gilt mid-round and back: the game is untouched.
-- Signed out: no network request apart from the font. Signed in, before the backend change: applying it says "saved on
-  this device only". After it: it reaches everyone.
+- Signed out: no network request apart from the font and the deck art, both from our own origin. Signed in, before
+  the backend change: applying it says "saved on this device only". After it: it reaches everyone.
+- In another theme, the network panel shows no request for any Emerald Gilt image or font.
+- Offline after one visit in Emerald Gilt: the reveal still shows the real back and faces.
+- Timing: in the other three themes the round intro takes exactly as long as before.
