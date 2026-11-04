@@ -267,6 +267,8 @@ export const hub = {
     },
   },
   people: {
+    sort: 'Sort players',
+    sorts: { recent: 'Recent', games: 'Most games', az: 'A–Z' },
     title: 'Players',
     search: 'Search players',
     none: 'No players yet',

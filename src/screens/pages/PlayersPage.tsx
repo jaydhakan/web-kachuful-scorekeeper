@@ -7,12 +7,19 @@ import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
 import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
 import { stagger } from '@/components/ui/stagger';
+import { Seg } from '@/components/ui/Seg';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icons';
 import { EditPlayerSheet } from '@/sheets/EditPlayerSheet';
 
 const pp = t.hub.people;
+type Sort = 'recent' | 'games' | 'az';
+const ORDER: Record<Sort, (a: Person, b: Person) => number> = {
+  recent: (a, b) => (b.lastPlayedAt ?? 0) - (a.lastPlayedAt ?? 0),
+  games: (a, b) => b.games - a.games || a.displayName.localeCompare(b.displayName),
+  az: (a, b) => a.displayName.localeCompare(b.displayName),
+};
 
 /** Everyone in the registry, searchable; a row opens the player. `list` replaces this device's registry. */
 export function PlayersPage({ list }: { list?: Person[] }) {
@@ -23,27 +30,46 @@ export function PlayersPage({ list }: { list?: Person[] }) {
   const loaded = useArchive((a) => a.loaded);
   const all = list ?? local;
   const [q, setQ] = useState('');
+  const [sort, setSort] = useState<Sort>('recent');
   const k = nameKey(q);
-  const shown = k
-    ? all.filter(
-        (p) =>
-          p.nameKey.includes(k) || nameKey(`${p.firstName ?? ''} ${p.lastName ?? ''}`).includes(k),
-      )
-    : all;
+  const shown = (
+    k
+      ? all.filter(
+          (p) =>
+            p.nameKey.includes(k) ||
+            nameKey(`${p.firstName ?? ''} ${p.lastName ?? ''}`).includes(k),
+        )
+      : [...all]
+  ).sort(ORDER[sort]);
   return (
     <Page
       title={pp.title}
       sub={
-        <input
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          aria-label={pp.search}
-          placeholder={pp.search}
-          autoComplete="off"
-          spellCheck={false}
-          className="h-12 w-full rounded-2xl mat-inp px-4 text-17 outline-none placeholder:text-[var(--ph)]"
-        />
+        <div className="flex flex-col gap-3">
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            aria-label={pp.search}
+            placeholder={pp.search}
+            autoComplete="off"
+            spellCheck={false}
+            className="h-12 w-full rounded-2xl mat-inp px-4 text-17 outline-none placeholder:text-[var(--ph)]"
+          />
+          {all.length > 1 && (
+            <Seg<Sort>
+              uid="players-sort"
+              size="sm"
+              label={pp.sort}
+              value={sort}
+              onChange={setSort}
+              options={(['recent', 'games', 'az'] as Sort[]).map((v) => ({
+                v,
+                label: pp.sorts[v],
+              }))}
+            />
+          )}
+        </div>
       }
     >
       {!loaded && !list ? (

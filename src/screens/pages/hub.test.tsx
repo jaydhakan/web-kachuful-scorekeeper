@@ -86,6 +86,11 @@ describe('boards, players and awards on this device', () => {
     await waitFor(() => expect(screen.queryByText('Player of the day')).not.toBeInTheDocument());
     await open(u, /Players/);
     expect(await screen.findByRole('button', { name: /^Asha/ })).toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'A–Z' }));
+    const names = screen
+      .getAllByRole('button', { name: /^(Asha|Bo|Cy)/ })
+      .map((b) => b.textContent?.match(/Asha|Bo|Cy/)?.[0]);
+    expect(names).toEqual(['Asha', 'Bo', 'Cy']);
     await u.type(screen.getByRole('searchbox'), 'zz');
     expect(await screen.findByText('No player by that name')).toBeInTheDocument();
   });
