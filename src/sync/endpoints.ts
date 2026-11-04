@@ -139,8 +139,20 @@ export const ep = {
   revokeLink: (id: string, kind: 'live' | 'recap') => del(`/games/${id}/links/${kind}`),
 
   // §6.6 boards
-  leaderboard: (from: number, to: number, metric: Metric, o?: CallOpts) =>
-    call<Leaderboard>('GET', `/leaderboard?from=${from}&to=${to}&metric=${metric}`, undefined, o),
+  leaderboard: (
+    from: number,
+    to: number,
+    metric: Metric,
+    o?: CallOpts,
+    trim?: { minGames: number; limit: number },
+  ) =>
+    call<Leaderboard>(
+      'GET',
+      `/leaderboard?from=${from}&to=${to}&metric=${metric}` +
+        (trim ? `&minGames=${trim.minGames}&limit=${trim.limit}` : ''),
+      undefined,
+      o,
+    ),
   daily: (date: string, o?: CallOpts) =>
     call<Daily>('GET', `/awards/daily?date=${date}`, undefined, o),
   season: (month: string, o?: CallOpts) =>

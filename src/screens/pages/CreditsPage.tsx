@@ -5,8 +5,12 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { icon } from '@/components/ui/IconsMore';
 import { canShareLink, shareLink } from '@/lib/clip';
+import { useApp } from '@/state/store';
+import { ep } from '@/sync/endpoints';
+import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 import { credits, initials, instagramUrl, type Person } from './credits.config';
+import { ALL_TIME_TO, pickRegulars } from './regulars';
 // Imported here, not from index.css, so its styles load with this lazy page instead of on every first load.
 import '@/styles/credits.css';
 
@@ -94,6 +98,51 @@ function PersonRow({ p, alt }: { p: Person; alt?: boolean }) {
         {p.instagram}
       </a>
     </div>
+  );
+}
+
+const PILL =
+  'cr-pill inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-14 font-semibold';
+
+/** The players with the most rounds, signed in only. Hidden signed out and when the board can't be had. */
+function Regulars() {
+  const signedIn = !!useApp().state.session;
+  const { top, minGames } = credits.regulars;
+  const r = useRemote(signedIn ? `lb:0:${ALL_TIME_TO}:rounds:${minGames}:${top}` : null, (o) =>
+    ep.leaderboard(0, ALL_TIME_TO, 'rounds', o, { minGames, limit: top }),
+  );
+  if (!signedIn || (!r.data && !r.loading)) return null;
+  const rows = r.data && pickRegulars(r.data.rows, top, minGames);
+  return (
+    <Box d="0.5s" icon={Icon.heart} title={t.hub.credits.regulars}>
+      <p className="px-3 text-13 text-[var(--text-2)]">{t.hub.credits.regularsRule(minGames)}</p>
+      {!rows ? (
+        <div aria-busy className="flex gap-2 px-2.5 pb-3 pt-2.5">
+          {[0, 1, 2].map((i) => (
+            <span key={i} aria-hidden className="h-9 w-24 rounded-full bg-[var(--hairline-2)]" />
+          ))}
+        </div>
+      ) : rows.length === 0 ? (
+        <p className="px-3 pb-3 pt-1.5 text-14">{t.hub.credits.regularsEmpty(minGames)}</p>
+      ) : (
+        <ol className="flex flex-wrap gap-2 px-2.5 pb-3 pt-2.5">
+          {rows.map((row, i) => (
+            <li key={row.player.id} className={PILL} style={{ '--i': i } as CSSProperties}>
+              <span aria-hidden className="font-mono text-12 text-[var(--text-2)]">
+                {i + 1}
+              </span>
+              <Suit s="heart" className="cr-red size-3" />
+              {row.player.displayName}
+              <span className="font-mono text-12 text-[var(--text-2)]">
+                <span className="sr-only">, </span>
+                {row.rounds}
+                <span className="sr-only"> {t.hub.credits.rounds}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Box>
   );
 }
 
@@ -219,22 +268,7 @@ export function CreditsPage() {
               <PersonRow key={i} p={p} alt={i % 2 === 1} />
             ))}
           </Box>
-          {credits.thanks.length > 0 && (
-            <Box d="0.5s" icon={Icon.heart} title={t.hub.credits.thanks}>
-              <ul className="flex flex-wrap gap-2 px-2.5 pb-3 pt-1.5">
-                {credits.thanks.map((n, i) => (
-                  <li
-                    key={i}
-                    className="cr-pill inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-14 font-semibold"
-                    style={{ '--i': i } as CSSProperties}
-                  >
-                    <Suit s="heart" className="cr-red size-3" />
-                    {n}
-                  </li>
-                ))}
-              </ul>
-            </Box>
-          )}
+          <Regulars />
         </div>
 
         <footer className="px-5 pb-6 pt-10 text-center">

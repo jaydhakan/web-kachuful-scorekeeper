@@ -14,8 +14,8 @@ export const credits = {
     { name: 'Rahil', instagram: '_ex_calibur__' },
     { name: 'Akshesh', instagram: 'aksheshpithwa' },
   ] as Person[],
-  /** The people who play the most; the section is hidden while this is empty. */
-  thanks: [] as string[],
+  /** Who the "regulars" section thanks: the most rounds played all time, among players with enough games. */
+  regulars: { top: 10, minGames: 50 },
 };
 
 export const instagramUrl = (handle: string) => `https://instagram.com/${handle}`;

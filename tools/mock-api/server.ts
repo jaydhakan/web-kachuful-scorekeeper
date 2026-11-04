@@ -1197,10 +1197,15 @@ on('GET', '/api/leaderboard', ({ url, req, res }) => {
     metric,
     minRounds: min ? Number(min) : minRoundsFor(from, to),
   });
+  const minGames = Number(url.searchParams.get('minGames')) || 0,
+    limit = Number(url.searchParams.get('limit')) || undefined;
   return {
     minRounds: b.minRounds,
     generatedAt: Date.now(),
-    rows: b.rows.map((r) => ({ ...r, player: summaryOf(r.playerId, f) })),
+    rows: b.rows
+      .filter((r) => r.games >= minGames)
+      .slice(0, limit)
+      .map((r) => ({ ...r, player: summaryOf(r.playerId, f) })),
   };
 });
 const awardsOut = (
