@@ -215,6 +215,8 @@ export interface Bar {
   /** 0–1 */
   share: number;
   note?: string;
+  /** Too few rounds behind it to mean much: drawn faded. */
+  low?: boolean;
 }
 
 /** Horizontal bars that grow in. */
@@ -225,7 +227,7 @@ export function Bars({ bars, label }: { bars: Bar[]; label: string }) {
       {bars.map((b, i) => (
         <li
           key={i}
-          className="grid grid-cols-[6rem_minmax(0,1fr)_3.5rem] items-center gap-2 text-14"
+          className={`grid grid-cols-[6rem_minmax(0,1fr)_5.5rem] items-center gap-2 text-14 ${b.low ? 'opacity-50' : ''}`}
         >
           <span className="whitespace-nowrap font-bold">{b.label}</span>
           <span className="relative h-3 overflow-hidden rounded-full bg-ov/[.07]">

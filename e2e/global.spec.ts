@@ -26,8 +26,9 @@ test('the global board ranks everyone, and a row opens the server player page', 
   const row = page.getByRole('button', { name: /^#1 / });
   await expect(row).toBeVisible();
   await row.click();
-  await expect(page.getByText(/of \d+ all time/)).toBeVisible();
-  await expect(page.getByText('Accuracy by trump')).toBeVisible();
+  // The page's own rank, not Home's "You're #1…" card underneath.
+  await expect(page.getByText(/(^|· )#\d+ of \d+ all time/)).toBeVisible();
+  await expect(page.getByText('Breakdown', { exact: true })).toBeVisible();
 });
 
 test('awards, seasons and the activity feed come from the server', async ({ page }) => {

@@ -33,6 +33,8 @@ import {
   TileGrid,
 } from '@/components/ui/Stats';
 import { Modal } from '@/components/ui/Modal';
+import { Seg } from '@/components/ui/Seg';
+import { Icon } from '@/components/ui/Icons';
 import { Sheet } from '@/components/ui/Sheet';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { stagger } from '@/components/ui/stagger';
@@ -43,6 +45,10 @@ import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
 
 const p = t.hub.player;
+// Fewer rounds than this behind a bar and its percentage is mostly luck.
+const FEW = 5;
+type Tab = 'cards' | 'bids' | 'trump' | 'calendar';
+const BAR_LABEL = { cards: p.byCards, bids: p.bids, trump: p.byTrump };
 
 /** Per-code count and latest date of what a player earned, newest first. */
 export function shelf(earned: Earned[]) {
@@ -111,6 +117,8 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   );
   const rank = rProfile.data?.rank;
   const [merge, setMerge] = useState(false);
+  const [more, setMore] = useState(false);
+  const [tab, setTab] = useState<Tab>('cards');
   const [into, setInto] = useState<string | null>(null);
   const local = archive.get('players', id)?.local && !signedIn;
   // Signed in, the admin, the player's creator and the player may change the photo.
@@ -126,8 +134,21 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
         label: label(k),
         value: v.made,
         share: v.made / v.total,
-        note: `${pct(v.made / v.total)}`,
+        note: `${pct(v.made / v.total)} · ${v.made}/${v.total}`,
+        low: v.total < FEW,
       }));
+  const bars =
+    tab === 'cards'
+      ? accBars(s.byCards, (k) => p.cardsN(k))
+      : tab === 'bids'
+        ? accBars(s.bidHistogram, (k) => p.bidN(k))
+        : tab === 'trump'
+          ? accBars(s.byTrump as Record<string, { made: number; total: number }>, (k) => (
+              <>
+                <SuitGlyph trump={k as Trump} /> {TR[k as Trump].name}
+              </>
+            ))
+          : [];
   return (
     <Page
       wide
@@ -169,7 +190,6 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                 value={Math.round(s.avgPerRound)}
                 sub={`${s.rounds} ${p.rounds.toLowerCase()}`}
               />
-              <StatTile label={p.points} value={fmt(s.points)} />
               <StatTile
                 label={p.accuracy}
                 value={pct(s.accuracy)}
@@ -185,18 +205,54 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                 value={s.wins}
                 sub={s.gamesEnded ? `${p.winRate} ${pct(s.winRate)}` : undefined}
               />
-              <StatTile
-                label={p.best}
-                value={s.bestRound == null ? '–' : sgnN(s.bestRound)}
-                sub={s.worstRound == null ? undefined : `${p.worst} ${sgnN(s.worstRound)}`}
-              />
-              <StatTile label={p.hot} value={s.longestHot} sub={`${p.cold} ${s.longestCold}`} />
-              <StatTile
-                label={p.dealer}
-                value={s.asDealer.rounds ? pct(s.asDealer.made / s.asDealer.rounds) : '–'}
-                sub={`${p.hooked} ${s.hookHits}`}
-              />
             </TileGrid>
+            <AnimatePresence initial={false}>
+              {more && (
+                <m.div
+                  key="more"
+                  id="more-stats"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-2"
+                >
+                  <TileGrid>
+                    <StatTile label={p.points} value={fmt(s.points)} />
+                    <StatTile
+                      label={p.best}
+                      value={s.bestRound == null ? '–' : sgnN(s.bestRound)}
+                      sub={s.worstRound == null ? undefined : `${p.worst} ${sgnN(s.worstRound)}`}
+                    />
+                    <StatTile
+                      label={p.hot}
+                      value={s.longestHot}
+                      sub={`${p.cold} ${s.longestCold}`}
+                    />
+                    <StatTile
+                      label={p.dealer}
+                      value={s.asDealer.rounds ? pct(s.asDealer.made / s.asDealer.rounds) : '–'}
+                      sub={`${p.hooked} ${s.hookHits}`}
+                    />
+                  </TileGrid>
+                </m.div>
+              )}
+            </AnimatePresence>
+            <button
+              type="button"
+              aria-expanded={more}
+              aria-controls="more-stats"
+              onClick={() => setMore(!more)}
+              className="press mt-1 flex min-h-11 items-center gap-1.5 px-1 text-14 font-bold text-[var(--accent)]"
+            >
+              {more ? p.fewerStats : p.moreStats}
+              <span
+                aria-hidden
+                className={`transition-transform ${more ? '-rotate-90' : 'rotate-90'}`}
+              >
+                {Icon.chev}
+              </span>
+            </button>
           </Section>
           {line.length > 1 && (
             <Section title={p.overTime}>
@@ -205,38 +261,30 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
               </div>
             </Section>
           )}
-          <div className="grid grid-cols-1 gap-x-6 [[data-desk]_&]:grid-cols-2">
-            <Section title={p.byCards}>
-              <div className="glass p-4">
-                <Bars label={p.byCards} bars={accBars(s.byCards, (k) => p.cardsN(k))} />
+          <Section title={p.breakdown}>
+            <div className="glass flex flex-col gap-4 p-4">
+              <Seg<Tab>
+                uid="breakdown"
+                label={p.breakdown}
+                value={tab}
+                onChange={setTab}
+                options={(['cards', 'bids', 'trump', 'calendar'] as Tab[]).map((v) => ({
+                  v,
+                  label: p.tabs[v],
+                }))}
+              />
+              <div role="tabpanel" aria-label={p.tabs[tab]}>
+                {tab === 'calendar' ? (
+                  <Heatmap days={cal} year={year} />
+                ) : (
+                  <Bars label={BAR_LABEL[tab]} bars={bars} />
+                )}
               </div>
-            </Section>
-            <Section title={p.byTrump}>
-              <div className="glass p-4">
-                <Bars
-                  label={p.byTrump}
-                  bars={accBars(
-                    s.byTrump as Record<string, { made: number; total: number }>,
-                    (k) => (
-                      <>
-                        <SuitGlyph trump={k as Trump} /> {TR[k as Trump].name}
-                      </>
-                    ),
-                  )}
-                />
-              </div>
-            </Section>
-            <Section title={p.bids}>
-              <div className="glass p-4">
-                <Bars label={p.bids} bars={accBars(s.bidHistogram, (k) => p.bidN(k))} />
-              </div>
-            </Section>
-            <Section title={`${p.calendar} · ${year}`}>
-              <div className="glass p-4">
-                <Heatmap days={cal} year={year} />
-              </div>
-            </Section>
-          </div>
+              {tab !== 'calendar' && bars.some((b) => b.low) && (
+                <p className="text-13 text-[var(--tx2)]">{p.fewRounds(FEW)}</p>
+              )}
+            </div>
+          </Section>
           <Section
             title={p.shelf}
             aside={

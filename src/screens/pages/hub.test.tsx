@@ -43,8 +43,14 @@ describe('boards, players and awards on this device', () => {
     await u.click(await screen.findByRole('button', { name: 'Today' }));
     const first = await screen.findByRole('button', { name: /^#1 Asha/ });
     await u.click(first);
-    expect(await screen.findByText('Accuracy by cards')).toBeInTheDocument();
-    expect(screen.getAllByText('100%').length).toBeGreaterThan(0);
+    const cards = await screen.findByRole('list', { name: 'Accuracy by cards' });
+    // Every bar says how many rounds it stands on.
+    expect(within(cards).getAllByText(/^100% · \d+\/\d+$/).length).toBeGreaterThan(0);
+    expect(screen.queryByText('Points')).not.toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'More stats' }));
+    expect(await screen.findByText('Points')).toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'Bids' }));
+    expect(await screen.findByRole('list', { name: 'Bids made, by bid' })).toBeInTheDocument();
   });
 
   it('lists everyone unranked with their progress on a longer range', async () => {
