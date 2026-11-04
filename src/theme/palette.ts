@@ -30,6 +30,12 @@ export function seatColorValue(hex: string, el: Element = document.documentEleme
   return (k && getComputedStyle(el).getPropertyValue(`--seat-${k}`).trim()) || hex;
 }
 
+/** A theme's own confetti colours (--confetti-1…4), or null so the caller uses the players' colours. */
+export function themeConfetti(el: Element = document.documentElement): string[] | null {
+  if (!getComputedStyle(el).getPropertyValue('--confetti-1').trim()) return null;
+  return [1, 2, 3, 4].map((i) => `var(--confetti-${i})`);
+}
+
 /** Any colour the app passes around (a saved hex or a `var(--…)` from `palette`) as a concrete value, for canvas. */
 export function colorValue(c: string, el: Element = document.documentElement): string {
   const v = /^var\((--[\w-]+)/.exec(c);

@@ -177,7 +177,7 @@ export default function Winner() {
             >
               {icon('trophy', 'h-full w-full')}
             </m.span>
-            <h2 className="disp mt-1 text-center text-28 font-extrabold leading-tight [overflow-wrap:anywhere] land:hidden">
+            <h2 className="framed disp mt-1 text-center text-28 font-extrabold leading-tight [overflow-wrap:anywhere] land:hidden">
               <InkFill
                 text={t.winner.headline(st.filter((x) => x.rank === 1).map((x) => x.p.name))}
               />

@@ -515,6 +515,24 @@ input {
     clip-path: inset(0 0 0 0);
   }
 }
+/* 4b. A theme can frame the winner's name where there's room (.framed: the phone's Winner headline). Emerald Gilt draws
+   --piano strips and stepped gold corners that settle in with the fill; elsewhere --name-frame is none. */
+.framed > .ink-fill::after {
+  content: '';
+  position: absolute;
+  inset: -0.15em -0.3em;
+  background: var(--name-frame, none);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.8);
+  animation: name-frame 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+}
+@keyframes name-frame {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 /* Home's suit orbit: X and Y run one sine-shaped loop a quarter lap apart, which traces the ellipse on the compositor.
    z-index can't animate there, so each suit is drawn behind and in front of the wordmark and opacity picks the copy. */
@@ -619,6 +637,11 @@ input {
   .ink-fill::before {
     animation: none;
     clip-path: none;
+  }
+  .framed > .ink-fill::after {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
   .turn-rim > i {
     transition: none;

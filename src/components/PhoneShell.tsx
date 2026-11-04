@@ -5,7 +5,7 @@ import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { routeKey } from '@/lib/route';
-import { palette } from '@/theme/palette';
+import { palette, themeConfetti } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
 import { Home } from '@/screens/Home';
 import { Bidding } from '@/screens/round/Bidding';
@@ -142,7 +142,7 @@ export default function PhoneShell() {
       {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>
           <Confetti
-            colors={[...game.players.map((p) => p.color), palette['gold-light']]}
+            colors={themeConfetti() ?? [...game.players.map((p) => p.color), palette['gold-light']]}
             onDone={() => actions.setFresh(false)}
           />
         </Suspense>
