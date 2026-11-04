@@ -2,7 +2,7 @@
  * The theme registry: the client's single list of themes (docs/codebase/DESIGN-SYSTEM.md, Switching themes). The look
  * of each lives in src/styles/themes.css; the boot script in index.html is generated from this list.
  */
-export type ThemeId = 'sunset-glass' | 'yerba-sun' | 'editorial-paper';
+export type ThemeId = 'sunset-glass' | 'yerba-sun' | 'editorial-paper' | 'emerald-gilt';
 
 export interface ThemeInfo {
   label: string;
@@ -31,6 +31,12 @@ export const THEMES: Record<ThemeId, ThemeInfo> = {
     scheme: 'light',
     themeColor: '#F3EFE6',
     fonts: ['italic 400 1em "Instrument Serif"', '400 1em "Instrument Sans"', '500 1em "DM Mono"'],
+  },
+  'emerald-gilt': {
+    label: 'Emerald Gilt',
+    scheme: 'dark',
+    themeColor: '#0C1A12',
+    fonts: ['700 1em "Cinzel"', '400 1em "Instrument Sans"', '700 1em "Instrument Sans"'],
   },
 };
 

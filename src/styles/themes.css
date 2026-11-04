@@ -57,6 +57,13 @@
   src: url('../assets/fonts/dm-mono-latin-500.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'Cinzel';
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../assets/fonts/cinzel-latin-wght.woff2') format('woff2');
+}
+
 /* ---------- THEME 1: SUNSET GLASS (dark, default). Also the fallback before the bootstrap script runs. ---------- */
 :root,
 [data-theme='sunset-glass'] {
@@ -380,6 +387,116 @@
   font-synthesis: none;
 }
 
+/* ---------- THEME 4: EMERALD GILT (dark, from the emerald-and-gold deck: bottle green, gold foil lines, ivory cards) ----------
+   Gold is for lines, frames and the main action, never a large fill. */
+[data-theme='emerald-gilt'] {
+  color-scheme: dark;
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'Cinzel', Georgia, serif;
+  --display-weight: 700;
+  /* Cinzel is all caps, which read better spaced out, not tightened. */
+  --display-track: 0.02em;
+  --mono-track: 0.16em;
+
+  --bg: #0c1a12;
+  --surface-1: #102419;
+  --surface-2: #163021;
+  --surface-3: #1d3b29;
+  --panel: #163021;
+  --hairline: rgba(216, 201, 166, 0.14);
+  --hairline-2: rgba(216, 201, 166, 0.26);
+  --text-1: #f5eedc;
+  --text-2: #d8c9a6;
+  --text-3: #93ae96;
+  --brand: #c9a24e;
+  --brand-press: #b08a3e;
+  --on-brand: #0c1a12;
+  --brand-soft: rgba(201, 162, 78, 0.16);
+  --emerald: #2e9e58;
+  --felt: #123d26;
+  --felt-hi: #1e6b3a;
+  --felt-lo: #0a2616;
+  --felt-rim: var(--brand);
+  --suit-red: #e8606e;
+  --suit-black: #f5eedc;
+  --suit-red-ui: var(--suit-red);
+  --suit-red-felt: #f07a86;
+  --success: #7bd69c;
+  --success-soft: rgba(123, 214, 156, 0.16);
+  --danger: #f07a86;
+  --danger-soft: rgba(240, 122, 134, 0.16);
+  --warning: #f0a860;
+  --on-success: #0c1a12;
+  --on-danger: #0c1a12;
+  --scrim: rgba(4, 10, 6, 0.6);
+  --sheet-shadow: rgba(0, 0, 0, 0.5);
+  --ga: #ebd08c;
+  --gb: #a8853a;
+  --glow: rgba(201, 162, 78, 0.38);
+  --glass: var(--surface-2);
+  --glass-b: rgba(201, 162, 78, 0.38);
+  --hl: rgba(235, 208, 140, 0.22);
+  --drop: rgba(0, 0, 0, 0.4);
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --big-size: 64px;
+  --big-track: -0.03em;
+  --big-weight: 700;
+  --big-style: normal;
+  --tally-fg: var(--brand);
+  --tick-bg: transparent;
+  --tick-fg: var(--text-2);
+  --tick-dot: var(--brand);
+  --tick-rule: rgba(201, 162, 78, 0.3);
+  --ctr-fg: rgba(245, 238, 220, 0.86);
+  --card-bg: #faf7f0;
+  --card-fg: #123d26;
+  --card-red: #c21a2e;
+  --ov: #f5eedc;
+  --shade: #000;
+  --ink: #f5eedc;
+  --arc: var(--brand);
+  --vignette: rgba(0, 0, 0, 0.42);
+  --sheet-bg: #102419;
+  --toast-bg: #1d3b29;
+  --toast-fg: var(--text-1);
+  --medal-gold: #d4af5f;
+  --medal-gold-hi: #f0d995;
+  --medal-gold-lo: #8a6a2e;
+  --medal-silver: #c9d3dd;
+  --medal-silver-hi: #dde5ec;
+  --medal-silver-lo: #8793a0;
+  --medal-bronze: #d08a5b;
+  --medal-bronze-hi: #e3a57e;
+  --medal-bronze-lo: #8f5a38;
+  --on-gold: #0c1a12;
+  --trump-spades: var(--brand);
+  --trump-diamonds: var(--brand);
+  --trump-clubs: var(--brand);
+  --trump-hearts: var(--brand);
+  --trump-glow-amt: 18%;
+  --pulse-blur: 14px;
+  /* The court cards' colours, in src/domain/avatars.ts COLORS order: mane, gingham, brick road, emerald, violet,
+     Glinda, teal, tin-man steel, witch red, straw. */
+  --seat-1: #d99a6c;
+  --seat-2: #8ec1e3;
+  --seat-3: #e3c25a;
+  --seat-4: #6fcf95;
+  --seat-5: #a88bd0;
+  --seat-6: #e89bb4;
+  --seat-7: #7dbfb0;
+  --seat-8: #afc0d6;
+  --seat-9: #e07a6e;
+  --seat-10: #d4b27c;
+  --share-ink: #1a1a1a;
+  --fill-primary: linear-gradient(135deg, var(--ga), var(--brand) 55%, var(--gb));
+  --card-back-a: #0f3b24;
+  --card-back-b: #1e7a3c;
+}
+
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */
 :root,
 [data-theme] {
@@ -407,6 +524,12 @@
 }
 [data-theme='editorial-paper'] {
   --focus: var(--ink);
+}
+/* A little lamplight from above and baize below, as on the deck's box; kept faint so text never sits on a bright patch. */
+[data-theme='emerald-gilt'] {
+  --wallpaper:
+    radial-gradient(70% 34% at 50% 6%, rgba(201, 162, 78, 0.13), transparent 70%),
+    radial-gradient(120% 60% at 50% 110%, rgba(30, 107, 58, 0.22), transparent 70%);
 }
 
 /* =====================================================================================================================
@@ -1131,6 +1254,17 @@
   --m-btn-shadow: none;
   --m-av-shadow: 0 0 0 1px var(--ink);
   --m-r: 0;
+}
+[data-theme='emerald-gilt'] {
+  --m-felt: radial-gradient(90% 90% at 50% 32%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
+  --m-felt-shadow: inset 0 0 0 1px var(--brand), 0 0 0 3px var(--bg), 0 0 0 4px var(--brand);
+  --m-key: var(--surface-2);
+  --m-key-shadow: inset 0 0 0 1px var(--glass-b);
+  --m-on: var(--fill-primary);
+  --m-btn: var(--fill-primary);
+  --m-btn-shadow: 0 6px 14px -6px var(--glow);
+  --m-av-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--brand);
+  --m-r: 4px;
 }
 
 /* Small square buttons (Add) drop the arrow and centre the label (reference audit fix, .addrow / .btn.sq). */

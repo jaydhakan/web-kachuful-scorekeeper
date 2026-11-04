@@ -91,6 +91,7 @@ const cases = THEME_IDS.flatMap((id) => {
     ['card red on card', parse(t['--card-red']), parse(t['--card-bg']), 4.5],
     // A large glyph, so the 3:1 large-text bar (DESIGN-SYSTEM.md, Contrast lists Yerba Sun's heart at 3.9).
     ['heart on the table', parse(t['--suit-red-felt']), parse(t['--felt']), 3],
+    ['card count on the table', fg('--ctr-fg', parse(t['--felt'])), parse(t['--felt']), 4.5],
   ];
   return pairs.map(([name, a, b, min]) => [`${id}: ${name}`, a, b, min] as const);
 });

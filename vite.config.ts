@@ -176,7 +176,7 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,woff2,webmanifest}'],
         // Only the default theme's face is installed up front; other themes' fonts are cached the first time a theme
         // uses them (runtime rule below), so the install stays light (DESIGN-SYSTEM.md, Switching themes).
-        globIgnores: ['**/{bricolage,space-mono,dm-mono,instrument-serif}-*.woff2'],
+        globIgnores: ['**/{bricolage,space-mono,dm-mono,instrument-serif,cinzel}-*.woff2'],
         navigateFallback: 'index.html',
         // The API and the link-preview pages are the server's, never the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/r\//, /^\/l\//],
