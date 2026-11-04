@@ -186,7 +186,7 @@ export function DeskSummary() {
               dir={g.direction}
               dealer={stage >= 5 ? nr.dealerIndex : r.dealerIndex}
               first={nr.firstPlayerIndex}
-              center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
+              center={<SuitCenter trump={nr.trump} cards={nr.cards} card />}
             />
           </div>
           <div className="flex min-w-0 flex-col gap-3.5 rail:contents">

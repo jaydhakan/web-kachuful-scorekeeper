@@ -121,7 +121,7 @@ export function Summary() {
                   dealer={stage >= 5 ? nr.dealerIndex : r.dealerIndex}
                   first={nr.firstPlayerIndex}
                   noSeatAnim
-                  center={<SuitCenter trump={nr.trump} cards={nr.cards} />}
+                  center={<SuitCenter trump={nr.trump} cards={nr.cards} card />}
                 />
               </div>
             </div>

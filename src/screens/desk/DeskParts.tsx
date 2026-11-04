@@ -195,6 +195,7 @@ export const TableCenter = ({ trump, cards }: { trump: Trump; cards: number }) =
         fontSize: `max(2rem, ${dpx(72)})`,
       }}
     >
+      <span aria-hidden className="suit-ring" />
       {TR[trump].sym}
       <span
         aria-hidden

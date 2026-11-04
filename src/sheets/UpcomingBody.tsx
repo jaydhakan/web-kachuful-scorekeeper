@@ -1,10 +1,10 @@
 import { m } from 'framer-motion';
 import { curRound, roundAt } from '@/domain';
 import { useApp } from '@/state/store';
-import { TR } from '@/theme/trumps';
 import { Glass } from '@/components/ui/Glass';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
+import { TrumpMark } from '@/components/ui/TrumpMark';
 
 export function UpcomingBody() {
   const { state } = useApp();
@@ -30,8 +30,8 @@ export function UpcomingBody() {
               <div className="disp min-w-12 text-center text-40 font-extrabold leading-none tracking-[-0.04em]">
                 {r.cards}
               </div>
-              <div className="w-[34px] text-center text-30" style={{ color: TR[r.trump].col }}>
-                {TR[r.trump].sym}
+              <div className="w-[34px] text-center text-30">
+                <TrumpMark trump={r.trump} />
               </div>
               <div className="min-w-0 flex-1 text-16 leading-[1.3]">
                 <div className="text-13 font-bold text-[var(--tx2)]">

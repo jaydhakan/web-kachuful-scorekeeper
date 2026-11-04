@@ -75,7 +75,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
       {!loaded && !list ? (
         <Skeleton rows={6} h={60} />
       ) : !all.length ? (
-        <EmptyState icon="players" title={pp.none} body={pp.noneBody} />
+        <EmptyState card icon="players" title={pp.none} body={pp.noneBody} />
       ) : !shown.length ? (
         <EmptyState icon="search" title={pp.noMatch} />
       ) : (

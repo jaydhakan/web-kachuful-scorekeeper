@@ -188,6 +188,7 @@ export function BoardList({
   if (!data.rows.length)
     return (
       <EmptyState
+        card
         icon="cards"
         title={b.emptyTitle}
         body={b.emptyBody}

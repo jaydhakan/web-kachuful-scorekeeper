@@ -7,6 +7,7 @@ import { stagger } from '@/components/ui/stagger';
 import { Drawer } from './Drawer';
 import { GhostButton, Kbd } from './DeskParts';
 import { t } from '@/strings';
+import { TrumpMark } from '@/components/ui/TrumpMark';
 
 export function UpcomingDrawer() {
   const { state, actions } = useApp();
@@ -58,8 +59,8 @@ export function UpcomingDrawer() {
               </span>
               <span className="disp text-30 font-extrabold leading-none tracking-[-0.03em]">
                 {r.cards}{' '}
-                <span className="text-26" style={{ color: TR[r.trump].col }}>
-                  {TR[r.trump].sym}
+                <span className="text-26">
+                  <TrumpMark trump={r.trump} />
                 </span>
               </span>
               <span className="min-w-0 text-17 font-bold leading-tight [overflow-wrap:anywhere]">

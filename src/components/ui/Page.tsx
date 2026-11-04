@@ -110,11 +110,14 @@ export function EmptyState({
   title,
   body,
   action,
+  card,
 }: {
   icon: MoreIcon;
   title: ReactNode;
   body?: ReactNode;
   action?: ReactNode;
+  /** An empty list (not an error): a theme with deck art shows a face-down card in place of the icon. */
+  card?: boolean;
 }) {
   return (
     <m.div
@@ -124,8 +127,9 @@ export function EmptyState({
       className="flex flex-col items-center gap-2 px-4 py-12 text-center"
     >
       {/* One 32px icon in the quiet text colour (design spec, empty states). */}
-      <div aria-hidden className="mb-1 text-[var(--dis)]">
+      <div aria-hidden className={`relative mb-1 text-[var(--dis)] ${card ? 'empty-card' : ''}`}>
         {moreIcon(icon, 'h-8 w-8')}
+        {card && <i className="card-art bg-card-back" />}
       </div>
       <h2 className="disp text-22 font-bold tracking-[-0.02em]">{title}</h2>
       {body && (

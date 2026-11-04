@@ -83,6 +83,7 @@ export function HistoryPage() {
   else if (!recs.length)
     body = (
       <EmptyState
+        card
         icon="folder"
         title={h.emptyTitle}
         body={h.emptyBody}

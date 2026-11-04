@@ -709,7 +709,8 @@
   mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
   pointer-events: none;
 }
-/* The trump sits in a dotted gold ring, like the deck's medallion. */
+/* The trump sits in a dotted gold ring, like the deck's medallion; it hugs the symbol so a card count below or beside
+   it stays clear. */
 .suit-ring {
   display: none;
 }
@@ -717,20 +718,13 @@
   display: block;
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 1.45em;
-  height: 1.45em;
-  translate: -50% -50%;
-  border-radius: 50%;
-  border: max(2px, 0.07em) dotted var(--brand);
-  pointer-events: none;
-}
-/* The big table puts the card count right under the symbol, so its ring hugs the glyph. */
-[data-theme='emerald-gilt'] .suit-ring.is-big {
   top: 46%;
   width: 1.18em;
   height: 1.18em;
-  border-width: 0.045em;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: max(2px, 0.045em) dotted var(--brand);
+  pointer-events: none;
 }
 
 /* Flat themes have no light to glow with: the breathing trump glow and the screen vignette step aside. */
@@ -1224,6 +1218,70 @@
   .trump-face:is([data-suit='hearts'], [data-suit='clubs'])
   > .trump-glyph {
   opacity: 0;
+}
+/* A later round's small trump card (TrumpMark), only for a suit with art; the symbol becomes a badge on its corner. */
+.trump-mini {
+  display: none;
+}
+[data-theme='emerald-gilt']
+  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-mini {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.15em;
+  aspect-ratio: 600 / 840;
+  translate: -50% -50%;
+  border-radius: max(2px, 0.08em);
+  background-size: cover;
+  box-shadow:
+    0 0 0 1px var(--glass-b),
+    0 4px 10px -4px var(--drop);
+}
+[data-theme='emerald-gilt']
+  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-glyph {
+  position: relative;
+  z-index: 1;
+  translate: 0.45em 0.55em;
+  scale: 0.5;
+  text-shadow:
+    0 0 0.12em var(--bg),
+    0 0 0.3em var(--bg);
+}
+[data-theme='emerald-gilt']
+  :has(> .trump-mark:is([data-suit='hearts'], [data-suit='clubs']))
+  > .suit-ring {
+  display: none;
+}
+/* Beside a number in one line (the desk's Coming up), the card stays within the line. */
+[data-theme='emerald-gilt'] .trump-mark.is-inline > .trump-mini {
+  width: 0.72em;
+}
+[data-theme='emerald-gilt']
+  .trump-mark.is-inline:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-glyph {
+  translate: 0.32em 0.22em;
+}
+/* An empty list shows one face-down card, slightly tilted, in place of its icon. */
+.empty-card > i {
+  display: none;
+}
+[data-theme='emerald-gilt'] .empty-card > svg {
+  opacity: 0;
+}
+[data-theme='emerald-gilt'] .empty-card > i {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  aspect-ratio: 600 / 840;
+  translate: -50% -50%;
+  rotate: -8deg;
+  border-radius: 4px;
+  box-shadow: 0 8px 18px -8px var(--shade);
 }
 [data-theme='emerald-gilt'] .mat-dealer {
   background: var(--fill-primary);

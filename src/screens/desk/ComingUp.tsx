@@ -1,7 +1,7 @@
 import { roundAt, totalRounds, type Game } from '@/domain';
-import { TR } from '@/theme/trumps';
 import { Eyebrow } from './DeskParts';
 import { t } from '@/strings';
+import { TrumpMark } from '@/components/ui/TrumpMark';
 
 /** The next few rounds after `from` (exclusive): cards, trump and who deals. Stops at the last round of a set game. */
 export function ComingUp({
@@ -43,8 +43,8 @@ export function ComingUp({
                 </div>
                 <div className="disp text-30 font-extrabold leading-[1.1] tracking-[-0.03em]">
                   {r.cards}{' '}
-                  <span className="text-26" style={{ color: TR[r.trump].col }}>
-                    {TR[r.trump].sym}
+                  <span className="text-26">
+                    <TrumpMark trump={r.trump} inline />
                   </span>
                 </div>
                 <div className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
