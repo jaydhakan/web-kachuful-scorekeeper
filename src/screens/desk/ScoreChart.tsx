@@ -194,3 +194,15 @@ export const ChartLegend = ({ g }: { g: Game }) => (
     ))}
   </ul>
 );
+
+/** The chart and its key in one block, for the phone screens that load it lazily. */
+export default function ChartBlock({ g, rounds }: { g: Game; rounds: Round[] }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="h-56">
+        <ScoreChart g={g} rounds={rounds} />
+      </div>
+      <ChartLegend g={g} />
+    </div>
+  );
+}

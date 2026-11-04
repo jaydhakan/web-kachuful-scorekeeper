@@ -4,16 +4,23 @@ import { useApp } from '@/state/store';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { LazyChart } from '@/components/LazyChart';
 
 export function BoardBody() {
   const { state, actions } = useApp();
-  const g = state.game;
-  if (!doneRounds(g).length)
-    return <p className="py-5 text-16 text-[var(--tx2)]">{t.sheets.boardEmpty}</p>;
+  const g = state.game,
+    done = doneRounds(g);
+  if (!done.length) return <p className="py-5 text-16 text-[var(--tx2)]">{t.sheets.boardEmpty}</p>;
   return (
     <>
       <div className="mb-2 text-13 text-[var(--tx2)]">{t.sheets.boardHint}</div>
       <BoardTable g={g} onRow={(i) => actions.openSheet({ type: 'edit', i })} />
+      {done.length > 1 && (
+        <section aria-label={t.hub.game.chart} className="mt-5">
+          <h3 className="mb-2 text-15 font-bold">{t.hub.game.chart}</h3>
+          <LazyChart g={g} rounds={done} />
+        </section>
+      )}
     </>
   );
 }
