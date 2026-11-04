@@ -162,7 +162,10 @@ export function MetricPick({ value, onChange }: { value: Metric; onChange: (m: M
     <>
       <PickButton
         label={s.metric}
-        value={shortened(s.metrics[value], (s.metricShort as Partial<Record<Metric, string>>)[value])}
+        value={shortened(
+          s.metrics[value],
+          (s.metricShort as Partial<Record<Metric, string>>)[value],
+        )}
         onClick={() => setOpen(true)}
       />
       <AnimatePresence>
