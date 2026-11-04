@@ -15,6 +15,11 @@ preview tokens), `src/screens/round/RoundStart.tsx`, the `.deal-fan` and reduced
 and timing. Use Editorial Paper's blocks as the model for structure and Sunset Glass's for how a dark theme handles
 glow and gold text.
 
+**Then load the skills** in the plan's "Skills to load first" section with the Skill tool: `apple-design`,
+`ui-ux-pro-max`, `ios-design`, `animate`, `animation-performance`, `review-animations`. If one is missing, stop and
+ask Jay to install it (the commands are in the plan). Don't run `npx skills` yourself. Where a skill disagrees with
+`CLAUDE.md`, `DESIGN-SYSTEM.md` or the plan, the project's documents win.
+
 **What the theme is:** a dark theme built from an emerald-and-gold playing-card deck: a bottle-green field, gold foil
 linework, Art Deco frames, ivory card faces. It uses the **deck's real artwork** (the card back, and the King of each
 suit plus the Queen of hearts) under permission Jay has from the rights holder. It should feel rich but calm: gold is
@@ -77,7 +82,8 @@ large screen, and open the images. Check:
 
 Say plainly what you looked at and what you didn't.
 
-**At the end of step 10:** run `npm run test:e2e`. It fails a few tests under load that pass alone (CLAUDE.md lists
+**At step 10:** run `ui-ux-pro-max`'s pre-delivery checklist and a `review-animations` pass over the new motion,
+and fix what they find. Then run `npm run test:e2e`. It fails a few tests under load that pass alone (CLAUDE.md lists
 them), so rerun failures with `npx playwright test --last-failed --workers=1`, and treat only failures that repeat
 alone as real. Report the result with the output.
 

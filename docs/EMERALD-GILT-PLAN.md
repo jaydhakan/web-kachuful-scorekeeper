@@ -10,6 +10,34 @@ cleanup commit together with `docs/EMERALD-GILT-PROMPT.md`, `backend-requests.md
 
 The prototype is the reference for the trump reveal: open it in a browser for the look, the timing and the card art.
 
+## Skills to load first
+
+Before step 1, load these with the Skill tool and keep their rules in mind for the whole build. All are installed for
+Jay's user (`~/.claude-personal/skills`), so a new session on this machine already has them.
+
+| Skill                 | Why here                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| `apple-design`        | Springs, materials, reduced motion and transparency, type tracking for Cinzel's caps      |
+| `ui-ux-pro-max`       | Contrast, touch targets, dark-theme rules; run its pre-delivery checklist before step 10 |
+| `ios-design`          | Phone layout: safe areas, long labels, checks at the smallest size                         |
+| `animate`             | Building the reveal's hold, flip, halo and glint, and the deal                              |
+| `animation-performance` | Keeping the reveal and the felt rays smooth on a mid-range phone                         |
+| `review-animations`   | Reviewing all new motion once, at step 10                                                   |
+
+If any is missing from the session's skill list, **stop and ask Jay** rather than carry on without it. Don't install
+anything on your own: `npx skills use` downloads and runs code from the internet. Jay installs them with these
+commands (or gives you the command for one not listed):
+
+```
+npx skills use "https://github.com/emilkowalski/skills" --skill "apple-design"
+npx skills use "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" --skill "ui-ux-pro-max"
+npx skills use "https://uizze.sh/" --skill "ios-design"
+```
+
+When Jay runs one, read its complete output (redirect it to a temporary file first if it's long), follow the
+instructions it generates, and resolve relative paths from the supporting-files directory it names. The skills are
+guidance: where one disagrees with `CLAUDE.md`, `DESIGN-SYSTEM.md` or this plan, the project's documents win.
+
 ## Decisions (agreed with Jay, 2026-11-04)
 
 | Question            | Answer                                                                                                                |
