@@ -223,6 +223,12 @@ export const hub = {
     noChampion: 'No champion',
     live: 'Live · the month is not over',
     wrapped: (y: number) => `Your ${y} Wrapped`,
+    explore: 'Explore',
+    exploreAch: 'Achievements',
+    exploreAchMine: 'What you’ve earned, and what’s left to earn',
+    exploreAchAll: 'Everything there is to earn',
+    exploreWrapped: 'Your year at the table, in numbers',
+    exploreActivity: 'What everyone has been up to',
     pickPlayer: 'Wrapped for',
   },
   wrapped: {

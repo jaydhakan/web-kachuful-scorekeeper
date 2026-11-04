@@ -41,7 +41,7 @@ test('awards, seasons and the activity feed come from the server', async ({ page
   await expect(page.getByText('Standings')).toBeVisible();
   // Early in a month its few rounds rank nobody yet; either way the standings list players.
   await expect(page.getByRole('button', { name: /^(#1|Not ranked) / }).first()).toBeVisible();
-  await btn(page, 'Activity').click();
+  await page.getByRole('button', { name: /^Activity/ }).click();
   await expect(page.getByRole('heading', { name: 'Activity' })).toBeVisible();
   await expect(page.getByText(/won a game|earned|joined/).first()).toBeVisible();
   // System Back walks back to Awards.

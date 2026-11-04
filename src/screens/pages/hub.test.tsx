@@ -78,6 +78,10 @@ describe('boards, players and awards on this device', () => {
     render(<App />);
     await open(u, /Awards/);
     expect(await screen.findByText('Player of the day')).toBeInTheDocument();
+    // Day and Season are the tabs; what opens elsewhere is a link under Explore.
+    const explore = screen.getByRole('navigation', { name: 'Explore' });
+    expect(within(explore).getByRole('button', { name: /^Achievements/ })).toBeInTheDocument();
+    expect(within(explore).queryByRole('button', { name: /^Activity/ })).not.toBeInTheDocument();
     await u.click(screen.getByRole('button', { name: 'Back' }));
     await waitFor(() => expect(screen.queryByText('Player of the day')).not.toBeInTheDocument());
     await open(u, /Players/);

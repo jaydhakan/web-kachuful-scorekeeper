@@ -17,6 +17,7 @@ import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { Chip, ChipRow, EmptyState, Page, Section } from '@/components/ui/Page';
 import { Icon } from '@/components/ui/Icons';
 import { IconButton } from '@/components/ui/IconButton';
+import { Seg } from '@/components/ui/Seg';
 import { pct } from '@/components/ui/Stats';
 import { SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
@@ -80,7 +81,6 @@ export interface AwardsSource {
 
 export function AwardsPage({ source }: { source?: AwardsSource }) {
   const f = useDeviceFacts();
-  const { actions } = useApp();
   const local: AwardsSource = useMemo(
     () => ({
       daily: (day) => ({ awards: dailyAwards(f, day), final: day < dayOf(Date.now()) }),
@@ -143,22 +143,30 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
     <Page
       title={aw.title}
       sub={
-        <ChipRow label={aw.tabs}>
-          <Chip on={tab === 'day'} onClick={() => setTab('day')}>
-            {icon('star')} {aw.today}
-          </Chip>
-          <Chip on={tab === 'season'} onClick={() => setTab('season')}>
-            {icon('crown')} {aw.season}
-          </Chip>
-          {signedIn && (
-            <Chip onClick={() => actions.open({ screen: 'activity' })}>
-              {icon('news')} {t.hub.nav.activity}
-            </Chip>
-          )}
-          <Chip onClick={() => actions.open({ screen: 'wrapped', params: { year: String(year) } })}>
-            {icon('gift')} {aw.wrapped(year)}
-          </Chip>
-        </ChipRow>
+        <Seg<'day' | 'season'>
+          uid="awards-tab"
+          label={aw.tabs}
+          value={tab}
+          onChange={setTab}
+          options={[
+            {
+              v: 'day',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  {icon('star')} {aw.today}
+                </span>
+              ),
+            },
+            {
+              v: 'season',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  {icon('crown')} {aw.season}
+                </span>
+              ),
+            },
+          ]}
+        />
       }
     >
       {tab === 'day' ? (
@@ -234,7 +242,70 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
           )}
         </>
       )}
+      <Explore year={year} />
     </Page>
+  );
+}
+
+/** The screens that grew out of awards, as plain links: they open somewhere else, so they don't pose as tabs. */
+function Explore({ year }: { year: number }) {
+  const { state, actions } = useApp();
+  const me = state.session?.player?.id;
+  const links = [
+    {
+      key: 'ach',
+      ic: icon('trophy'),
+      title: aw.exploreAch,
+      sub: me ? aw.exploreAchMine : aw.exploreAchAll,
+      go: () => actions.open({ screen: 'achievements', params: me ? { id: me } : undefined }),
+    },
+    {
+      key: 'wrapped',
+      ic: icon('gift'),
+      title: aw.wrapped(year),
+      sub: aw.exploreWrapped,
+      go: () => actions.open({ screen: 'wrapped', params: { year: String(year) } }),
+    },
+    ...(state.session
+      ? [
+          {
+            key: 'activity',
+            ic: icon('news'),
+            title: t.hub.nav.activity,
+            sub: aw.exploreActivity,
+            go: () => actions.open({ screen: 'activity' }),
+          },
+        ]
+      : []),
+  ];
+  return (
+    <Section title={aw.explore}>
+      <nav aria-label={aw.explore} className="glass overflow-hidden">
+        {links.map((l, k) => (
+          <button
+            key={l.key}
+            type="button"
+            onClick={l.go}
+            className="press relative flex min-h-16 w-full items-center gap-3.5 px-4 py-2 text-left"
+          >
+            {k > 0 && <span aria-hidden className="absolute left-14 right-0 top-0 h-px bg-ov/10" />}
+            <span
+              aria-hidden
+              className="grid h-6 w-6 shrink-0 place-items-center text-[var(--accent)]"
+            >
+              {l.ic}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-16 font-bold">{l.title}</span>
+              <span className="block text-13 text-[var(--tx2)]">{l.sub}</span>
+            </span>
+            <span aria-hidden className="text-[var(--dis)]">
+              {Icon.chev}
+            </span>
+          </button>
+        ))}
+      </nav>
+    </Section>
   );
 }
 
