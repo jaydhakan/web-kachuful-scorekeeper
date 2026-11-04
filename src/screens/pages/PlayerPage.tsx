@@ -187,6 +187,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             <TileGrid>
               <StatTile
                 label={p.avg}
+                short={p.avgShort}
                 value={Math.round(s.avgPerRound)}
                 sub={`${s.rounds} ${p.rounds.toLowerCase()}`}
               />

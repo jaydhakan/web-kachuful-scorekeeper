@@ -160,7 +160,11 @@ export function MetricPick({ value, onChange }: { value: Metric; onChange: (m: M
   const [open, setOpen] = useState(false);
   return (
     <>
-      <PickButton label={s.metric} value={s.metrics[value]} onClick={() => setOpen(true)} />
+      <PickButton
+        label={s.metric}
+        value={shortened(s.metrics[value], (s.metricShort as Partial<Record<Metric, string>>)[value])}
+        onClick={() => setOpen(true)}
+      />
       <AnimatePresence>
         {open && (
           <OptionSheet
@@ -184,19 +188,34 @@ export function MetricPick({ value, onChange }: { value: Metric; onChange: (m: M
   );
 }
 
+/** A short label on screen where the full one would wrap; screen readers still hear the full one. */
+const shortened = (full: string, short?: string): ReactNode =>
+  short ? (
+    <>
+      <span aria-hidden>{short}</span>
+      <span className="sr-only">{full}</span>
+    </>
+  ) : (
+    full
+  );
+
 /** A number with what it is. */
 export function StatTile({
   label,
+  short,
   value,
   sub,
 }: {
   label: string;
+  short?: string;
   value: ReactNode;
   sub?: ReactNode;
 }) {
   return (
     <div className="glass flex min-h-[5.5rem] flex-col justify-between gap-1 p-3.5">
-      <div className="text-13 font-bold uppercase tracking-[0.08em] text-[var(--tx2)]">{label}</div>
+      <div className="text-13 font-bold uppercase tracking-[0.08em] text-[var(--tx2)]">
+        {shortened(label, short)}
+      </div>
       <div className="disp text-28 font-extrabold leading-none tracking-[-0.02em]">{value}</div>
       {sub && <div className="text-13 text-[var(--tx2)]">{sub}</div>}
     </div>

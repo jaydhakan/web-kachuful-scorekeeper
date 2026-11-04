@@ -43,7 +43,7 @@ describe('boards, players and awards on this device', () => {
     await u.click(await screen.findByRole('button', { name: 'Today' }));
     const first = await screen.findByRole('button', { name: /^#1 Asha/ });
     await u.click(first);
-    const cards = await screen.findByRole('list', { name: 'Accuracy by cards' });
+    const cards = await screen.findByRole('list', { name: 'Bid accuracy by cards' });
     // Every bar says how many rounds it stands on.
     expect(within(cards).getAllByText(/^100% · \d+\/\d+$/).length).toBeGreaterThan(0);
     expect(screen.queryByText('Points')).not.toBeInTheDocument();
