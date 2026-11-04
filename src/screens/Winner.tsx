@@ -227,16 +227,6 @@ export default function Winner() {
             ))}
           </div>
           <div className="wide:[grid-area:2/1/3/3]">
-            {done.length > 1 && (
-              <>
-                <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
-                  {t.hub.game.chart}
-                </h2>
-                <Glass spot={false} className="p-4">
-                  <LazyChart g={g} rounds={done} />
-                </Glass>
-              </>
-            )}
             <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
               {t.winner.highlights}
             </h2>
@@ -285,6 +275,16 @@ export default function Winner() {
                   {t.hub.game.achievements}
                 </h2>
                 <AchievementReel g={g} />
+              </>
+            )}
+            {done.length > 1 && (
+              <>
+                <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
+                  {t.hub.game.chart}
+                </h2>
+                <Glass spot={false} className="p-4">
+                  <LazyChart g={g} rounds={done} />
+                </Glass>
               </>
             )}
           </div>
