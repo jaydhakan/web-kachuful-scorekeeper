@@ -19,6 +19,8 @@ export const SuitCenter = ({ trump, cards, big }: SuitCenterProps) => (
       className={`relative leading-none ${big ? 'text-52 @[17rem]:text-64 @[19rem]:text-72 @[21rem]:text-96' : 'text-19 @[17rem]:text-22 @[18rem]:text-26 @[19.5rem]:text-34 @[26rem]:text-40 @[38rem]:text-52'}`}
       style={{ color: onFelt(trump), textShadow: `0 0 ${big ? 20 : 18}px ${HALO}` }}
     >
+      {/* A medallion ring around the trump, drawn only by themes that paint .suit-ring. */}
+      <span aria-hidden className={`suit-ring ${big ? 'is-big' : ''}`} />
       {TR[trump].sym}
       {big && (
         // The wide glow is painted once on a copy of the glyph and only its opacity pulses.

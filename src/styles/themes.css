@@ -683,6 +683,8 @@
     0 0 0 6px var(--bg),
     0 0 0 7.5px var(--ink);
 }
+/* A double gold rim with a gap of background, like the deck's frames. The lit patch stays near the top edge, away
+   from the trump in the centre (contrast.test.ts measures the suit on --felt). */
 [data-theme='emerald-gilt'] .felt {
   background: radial-gradient(
     110% 120% at 50% 6%,
@@ -692,7 +694,43 @@
   );
   box-shadow:
     inset 0 0 0 1.5px var(--felt-rim),
+    0 0 0 6px var(--bg),
+    0 0 0 7.5px var(--felt-rim),
     0 26px 50px -18px var(--shade);
+}
+/* Faint gold rays through the baize, like the back's sunburst; masked so they fade at the centre and the rim. */
+[data-theme='emerald-gilt'] .felt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(235, 208, 140, 0.08) 0 1.6deg, transparent 1.6deg 9deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
+  pointer-events: none;
+}
+/* The trump sits in a dotted gold ring, like the deck's medallion. */
+.suit-ring {
+  display: none;
+}
+[data-theme='emerald-gilt'] .suit-ring {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.45em;
+  height: 1.45em;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: max(2px, 0.07em) dotted var(--brand);
+  pointer-events: none;
+}
+/* The big table puts the card count right under the symbol, so its ring hugs the glyph. */
+[data-theme='emerald-gilt'] .suit-ring.is-big {
+  top: 46%;
+  width: 1.18em;
+  height: 1.18em;
+  border-width: 0.045em;
 }
 
 /* Flat themes have no light to glow with: the breathing trump glow and the screen vignette step aside. */
