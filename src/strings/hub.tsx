@@ -512,7 +512,7 @@ export const hub = {
     more: 'Show more',
     loadingMore: 'Loading…',
     earned: (name: string, ach: string) => `${name} earned ${ach}`,
-    finished: (name: string, pts: string) => `${name} won a game · ${pts}`,
+    finished: (name: string, pts: string) => `${name} won a game${pts ? ` · ${pts}` : ''}`,
     joined: (name: string) => `${name} joined`,
     season: (m: string) => `Season ${m} closed`,
   },
@@ -557,6 +557,8 @@ export const hub = {
     more: (n: number) => `+${n} more ${n === 1 ? 'streak' : 'streaks'}`,
   },
   home: {
+    yourRank: (r: number, of: number) => `You’re #${r} of ${of} all time`,
+    notRanked: 'Not on the board yet',
     awardsToday: "Today's awards",
     seeAwards: 'All awards',
   },
