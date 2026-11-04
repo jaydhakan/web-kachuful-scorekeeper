@@ -140,8 +140,6 @@ export type Action =
   | { type: 'pickSeat'; k: number }
   | { type: 'phase'; phase: Phase; dir?: Dir }
   | { type: 'setResult'; id: string; v: Outcome }
-  | { type: 'setTricks'; id: string; d: number }
-  | { type: 'toggleExact' }
   | { type: 'confirmRound' }
   | { type: 'nextRound' }
   | { type: 'finishGame' }

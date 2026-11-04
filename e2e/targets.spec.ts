@@ -77,9 +77,6 @@ for (const [w, h, names] of [
     await check('play');
     await btn(page, 'Enter results').click();
     await check('results');
-    await page.getByRole('switch').click();
-    await check('results exact');
-    await page.getByRole('switch').click();
     // A real set of results: the first player made their 1, everyone else missed (the tricks can be shared out).
     await page.getByRole('button', { name: /Made/ }).first().click();
     const missed = page.getByRole('button', { name: /Missed/ });

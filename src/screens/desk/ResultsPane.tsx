@@ -4,13 +4,12 @@ import { useApp } from '@/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
-import { PRESS_SM, SPRING } from '@/components/ui/motion';
+import { SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { resultsView } from '@/screens/round/roundView';
 import { Delta, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
-import { ToggleTrack } from '@/components/ui/Toggle';
 
 /** A tick or cross, with its word once the row has room; the word always names the button for assistive tech. */
 const mark = (icon: string, word: string) => (
@@ -22,7 +21,7 @@ const mark = (icon: string, word: string) => (
 
 export function ResultsPane({ g }: { g: Game }) {
   const { state, actions } = useApp();
-  const { r, st, od, tricks, left, blocked, why } = resultsView(g);
+  const { r, st, od, left, blocked, why } = resultsView(g);
   const open = g.players.filter((p) => !r.results[p.id]).length;
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 rail:gap-3.5">
@@ -30,46 +29,25 @@ export function ResultsPane({ g }: { g: Game }) {
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <h2 className="disp text-28 font-extrabold tracking-[-0.03em]">{t.results.title}</h2>
         <div className="flex min-h-12 min-w-[17rem] flex-1 items-center gap-3">
-          {tricks ? (
-            <p className="flex-1 text-14 text-[var(--tx2)]">
-              {t.results.totalTricks(
-                Object.values(tricks).reduce((a, b) => a + b, 0),
-                r.cards,
-              )}
-            </p>
-          ) : (
-            <div role="status" aria-live="polite" className="flex flex-1 items-center gap-3">
-              <span className="shrink-0 text-14 font-medium text-[var(--tx2)]">
-                {t.results.tricksLeft}
-              </span>
-              <div className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-ov/[.08]">
-                <m.div
-                  className="h-full origin-left rounded-full bg-[var(--accent)]"
-                  initial={false}
-                  animate={{ scaleX: r.cards ? left / r.cards : 0 }}
-                  transition={SPRING}
-                />
-              </div>
-              <span className="disp tick shrink-0 text-22 font-extrabold leading-none">
-                {left}
-                <span className="text-14 font-medium text-[var(--tx2)]">
-                  {t.results.tricksOf(r.cards)}
-                </span>
-              </span>
+          <div role="status" aria-live="polite" className="flex flex-1 items-center gap-3">
+            <span className="shrink-0 text-14 font-medium text-[var(--tx2)]">
+              {t.results.tricksLeft}
+            </span>
+            <div className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-ov/[.08]">
+              <m.div
+                className="h-full origin-left rounded-full bg-[var(--accent)]"
+                initial={false}
+                animate={{ scaleX: r.cards ? left / r.cards : 0 }}
+                transition={SPRING}
+              />
             </div>
-          )}
-          <m.button
-            type="button"
-            role="switch"
-            aria-checked={st.exact}
-            aria-label={t.results.exactSwitch}
-            onClick={actions.toggleExact}
-            whileTap="press"
-            className="flex min-h-12 shrink-0 items-center gap-2 rounded-xl pl-2"
-          >
-            <span className="text-14 text-[var(--tx2)]">{t.desk.results.exactShort}</span>
-            <ToggleTrack on={st.exact} />
-          </m.button>
+            <span className="disp tick shrink-0 text-22 font-extrabold leading-none">
+              {left}
+              <span className="text-14 font-medium text-[var(--tx2)]">
+                {t.results.tricksOf(r.cards)}
+              </span>
+            </span>
+          </div>
         </div>
       </div>
       <ol className="scroll-thin -mr-1.5 flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1.5 rail:gap-2">
@@ -78,9 +56,8 @@ export function ResultsPane({ g }: { g: Game }) {
             b = r.bids[p.id],
             res = r.results[p.id],
             pv = pts(r, p.id),
-            forced = state.autoResult === p.id && !!res && !tricks,
-            note =
-              !res && !tricks ? why(blocked(p.id, 'made') ?? blocked(p.id, 'missed')) : undefined;
+            forced = state.autoResult === p.id && !!res,
+            note = !res ? why(blocked(p.id, 'made') ?? blocked(p.id, 'missed')) : undefined;
           return (
             <m.li key={p.id} {...stagger(i)} className="@container shrink-0 rounded-2xl bg-ov/5">
               <div className="flex min-h-14 flex-wrap items-center gap-x-2.5 gap-y-1.5 px-3 py-1 @[24rem]:gap-x-3 rail:min-h-16 rail:py-2">
@@ -100,55 +77,29 @@ export function ResultsPane({ g }: { g: Game }) {
                   </div>
                 </div>
                 <div className="ml-auto flex items-center gap-2.5 @[24rem]:gap-3">
-                  {tricks ? (
-                    <div className="flex items-center">
-                      <m.button
-                        type="button"
-                        whileTap={PRESS_SM}
-                        aria-label={t.results.fewer(p.name)}
-                        onClick={() => actions.setTricks(p.id, -1)}
-                        className="h-12 w-12 rounded-xl bg-ov/[.08] text-24 font-bold"
-                      >
-                        −
-                      </m.button>
-                      <output className="disp w-9 text-center text-24 font-extrabold">
-                        {tricks[p.id]}
-                      </output>
-                      <m.button
-                        type="button"
-                        whileTap={PRESS_SM}
-                        aria-label={t.results.more(p.name)}
-                        onClick={() => actions.setTricks(p.id, 1)}
-                        className="h-12 w-12 rounded-xl bg-ov/[.08] text-24 font-bold"
-                      >
-                        +
-                      </m.button>
-                    </div>
-                  ) : (
-                    <Seg<Outcome>
-                      uid={'wsr' + p.id}
-                      label={t.results.resultFor(p.name)}
-                      value={res}
-                      onChange={(v) => actions.setResult(p.id, v)}
-                      className="[&_button]:h-12 [&_button]:min-w-12 [&_button]:px-3 [&_button]:text-18 @[28rem]:[&_button]:px-4 @[28rem]:[&_button]:text-16"
-                      options={[
-                        {
-                          v: 'made',
-                          label: mark(t.table.made, t.results.made),
-                          tone: 'pos',
-                          disabled: !!blocked(p.id, 'made'),
-                          why: why(blocked(p.id, 'made')),
-                        },
-                        {
-                          v: 'missed',
-                          label: mark(t.table.missed, t.results.missed),
-                          tone: 'neg',
-                          disabled: !!blocked(p.id, 'missed'),
-                          why: why(blocked(p.id, 'missed')),
-                        },
-                      ]}
-                    />
-                  )}
+                  <Seg<Outcome>
+                    uid={'wsr' + p.id}
+                    label={t.results.resultFor(p.name)}
+                    value={res}
+                    onChange={(v) => actions.setResult(p.id, v)}
+                    className="[&_button]:h-12 [&_button]:min-w-12 [&_button]:px-3 [&_button]:text-18 @[28rem]:[&_button]:px-4 @[28rem]:[&_button]:text-16"
+                    options={[
+                      {
+                        v: 'made',
+                        label: mark(t.table.made, t.results.made),
+                        tone: 'pos',
+                        disabled: !!blocked(p.id, 'made'),
+                        why: why(blocked(p.id, 'made')),
+                      },
+                      {
+                        v: 'missed',
+                        label: mark(t.table.missed, t.results.missed),
+                        tone: 'neg',
+                        disabled: !!blocked(p.id, 'missed'),
+                        why: why(blocked(p.id, 'missed')),
+                      },
+                    ]}
+                  />
                   <span className="w-[52px]">{pv != null && <Delta v={pv} />}</span>
                 </div>
               </div>

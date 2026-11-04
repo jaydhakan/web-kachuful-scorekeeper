@@ -322,12 +322,12 @@ function step(s: AppState, a: Action): AppState {
       const r = curRound(s.game),
         ids = s.game.players.map((p) => p.id);
       // The screen greys these out; the rule is the domain's, so it holds whatever calls this.
-      if (!r.tricks && blockedReason(r.cards, ids, r.bids, r.results, a.id, a.v)) return s;
+      if (blockedReason(r.cards, ids, r.bids, r.results, a.id, a.v)) return s;
       const next = { ...r.results, [a.id]: a.v };
       // The last player left has nothing to decide when only one result can work, so it is filled in.
       const open = ids.filter((id) => !next[id]);
       let auto: string | null = null;
-      if (!r.tricks && open.length === 1) {
+      if (open.length === 1) {
         const v = onlyResult(r.cards, ids, r.bids, next, open[0]);
         if (v) {
           next[open[0]] = v;
@@ -336,32 +336,14 @@ function step(s: AppState, a: Action): AppState {
       }
       return {
         ...commit(s, (g) => {
-          curRound(g).results = { ...next };
+          const cur = curRound(g);
+          cur.results = { ...next };
+          // Counts from the retired exact-tricks mode (another device on an older version) give way to the marks.
+          cur.tricks = null;
         }),
         autoResult: auto,
       };
     }
-    case 'setTricks':
-      return commit(s, (g) => {
-        const r = curRound(g);
-        if (!r.tricks) return;
-        const v = Math.max(0, Math.min(r.cards, (r.tricks[a.id] || 0) + a.d));
-        r.tricks[a.id] = v;
-        r.results[a.id] = v === r.bids[a.id] ? 'made' : 'missed';
-      });
-    case 'toggleExact':
-      return commit(s, (g) => {
-        const r = curRound(g);
-        if (r.tricks) r.tricks = null;
-        else {
-          const tricks: Record<string, number> = {};
-          g.players.forEach((p) => {
-            tricks[p.id] = r.results[p.id] === 'made' ? r.bids[p.id] : 0;
-            r.results[p.id] = tricks[p.id] === r.bids[p.id] ? 'made' : 'missed';
-          });
-          r.tricks = tricks;
-        }
-      });
     case 'confirmRound': {
       if (!resultsState(s.game, curRound(s.game)).ok) return s;
       const c = {

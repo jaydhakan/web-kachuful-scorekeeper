@@ -7,18 +7,17 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { Table } from '@/components/ui/Table';
-import { PRESS_SM, SPRING } from '@/components/ui/motion';
+import { SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { resultsView } from './roundView';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
-import { ToggleTrack } from '@/components/ui/Toggle';
 
 export function Results() {
   const { state, actions } = useApp();
   const g = state.game;
-  const { r, st, od, tricks, left, blocked, why } = resultsView(g);
+  const { r, st, od, left, blocked, why } = resultsView(g);
   return (
     <RoundFrame
       r={r}
@@ -33,7 +32,7 @@ export function Results() {
       }
       aside={
         <>
-          {!tricks && <TricksLeft left={left} cards={r.cards} />}
+          <TricksLeft left={left} cards={r.cards} />
           {/* Marks and bids already exist in the round; only a pane with room shows them on a table. */}
           <div className="mb-4 hidden aspect-[34/30] w-full flex-col wide:flex">
             <Table
@@ -47,30 +46,6 @@ export function Results() {
               res={r.results}
             />
           </div>
-          <m.button
-            type="button"
-            role="switch"
-            aria-checked={st.exact}
-            onClick={actions.toggleExact}
-            whileTap="press"
-            className="mb-1 flex min-h-12 w-full items-center justify-between rounded-2xl px-1 text-left"
-          >
-            <span className="flex flex-col">
-              <span className="text-16 font-medium">{t.results.exactSwitch}</span>
-              <span className="text-13 text-[var(--tx2)] @h-short:hidden">
-                {t.results.exactHint}
-              </span>
-            </span>
-            <ToggleTrack on={st.exact} />
-          </m.button>
-          {tricks && (
-            <div className="mb-3 px-1 text-13 text-[var(--tx2)]">
-              {t.results.totalTricks(
-                Object.values(tricks).reduce((a, b) => a + b, 0),
-                r.cards,
-              )}
-            </div>
-          )}
         </>
       }
       barNote={st.msg}
@@ -92,7 +67,7 @@ export function Results() {
               res = r.results[p.id],
               pv = pts(r, p.id);
             // The one result the app filled in because nothing else could work.
-            const forced = state.autoResult === p.id && !!res && !tricks;
+            const forced = state.autoResult === p.id && !!res;
             return (
               <m.div key={p.id} {...stagger(k)}>
                 {/* The controls wrap under the name when the pane is too narrow for both. */}
@@ -135,7 +110,7 @@ export function Results() {
                       <div className="text-13 font-medium leading-4 text-[var(--tx2)] [text-wrap:balance]">
                         {t.results.bid(b)}
                         {i === r.dealerIndex && ` · ${t.results.dealer}`}
-                        {!res && !tricks && (blocked(p.id, 'made') || blocked(p.id, 'missed')) && (
+                        {!res && (blocked(p.id, 'made') || blocked(p.id, 'missed')) && (
                           <>
                             {' '}
                             ·{' '}
@@ -158,56 +133,30 @@ export function Results() {
                       {pv == null ? '—' : sgnN(pv)}
                     </b>
                   </div>
-                  {tricks ? (
-                    <div className="ml-auto flex items-center">
-                      <m.button
-                        type="button"
-                        whileTap={PRESS_SM}
-                        aria-label={t.results.fewer(p.name)}
-                        onClick={() => actions.setTricks(p.id, -1)}
-                        className="h-11 w-11 rounded-xl bg-ov/[.07] text-24 font-bold"
-                      >
-                        −
-                      </m.button>
-                      <output className="disp w-[34px] text-center text-24 font-extrabold">
-                        {tricks[p.id]}
-                      </output>
-                      <m.button
-                        type="button"
-                        whileTap={PRESS_SM}
-                        aria-label={t.results.more(p.name)}
-                        onClick={() => actions.setTricks(p.id, 1)}
-                        className="h-11 w-11 rounded-xl bg-ov/[.07] text-24 font-bold"
-                      >
-                        +
-                      </m.button>
-                    </div>
-                  ) : (
-                    <Seg<Outcome>
-                      uid={'seg' + p.id}
-                      label={t.results.resultFor(p.name)}
-                      size="sm"
-                      value={res}
-                      onChange={(v) => actions.setResult(p.id, v)}
-                      className="ml-auto [&_button]:px-2 [&_button]:text-18 @[26rem]:[&_button]:px-3.5 @[26rem]:[&_button]:text-15"
-                      options={[
-                        {
-                          v: 'made',
-                          label: result(t.table.made, t.results.made),
-                          tone: 'pos',
-                          disabled: !!blocked(p.id, 'made'),
-                          why: why(blocked(p.id, 'made')),
-                        },
-                        {
-                          v: 'missed',
-                          label: result(t.table.missed, t.results.missed),
-                          tone: 'neg',
-                          disabled: !!blocked(p.id, 'missed'),
-                          why: why(blocked(p.id, 'missed')),
-                        },
-                      ]}
-                    />
-                  )}
+                  <Seg<Outcome>
+                    uid={'seg' + p.id}
+                    label={t.results.resultFor(p.name)}
+                    size="sm"
+                    value={res}
+                    onChange={(v) => actions.setResult(p.id, v)}
+                    className="ml-auto [&_button]:px-2 [&_button]:text-18 @[26rem]:[&_button]:px-3.5 @[26rem]:[&_button]:text-15"
+                    options={[
+                      {
+                        v: 'made',
+                        label: result(t.table.made, t.results.made),
+                        tone: 'pos',
+                        disabled: !!blocked(p.id, 'made'),
+                        why: why(blocked(p.id, 'made')),
+                      },
+                      {
+                        v: 'missed',
+                        label: result(t.table.missed, t.results.missed),
+                        tone: 'neg',
+                        disabled: !!blocked(p.id, 'missed'),
+                        why: why(blocked(p.id, 'missed')),
+                      },
+                    ]}
+                  />
                 </div>
               </m.div>
             );

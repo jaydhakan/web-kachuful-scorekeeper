@@ -60,8 +60,6 @@ export interface Actions {
   pickSeat(k: number): void;
   phase(phase: Phase, dir?: Dir): void;
   setResult(id: string, v: Outcome): void;
-  setTricks(id: string, d: number): void;
-  toggleExact(): void;
   confirmRound(): void;
   nextRound(): void;
   finishGame(): void;
@@ -302,11 +300,6 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         dispatch({ type: 'setResult', id, v });
         vib();
       },
-      setTricks: (id, d) => {
-        dispatch({ type: 'setTricks', id, d });
-        vib();
-      },
-      toggleExact: () => dispatch({ type: 'toggleExact' }),
       confirmRound: () => {
         const g = ref.current.game;
         if (!resultsState(g, curRound(g)).ok) return;

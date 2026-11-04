@@ -263,19 +263,11 @@ describe('results and rounds', () => {
     expect(curRound(same.game).phase).toBe('results');
   });
 
-  it('exact tricks: stepper sets made/missed from the bid and clamps at 0 and the cards', () => {
-    let st = run(bidAll(demo()), { type: 'phase', phase: 'results' }, { type: 'toggleExact' });
-    const id = 'p2',
-      bid = curRound(st.game).bids[id];
-    expect(curRound(st.game).tricks![id]).toBe(0);
-    st = run(st, { type: 'setTricks', id, d: -1 });
-    expect(curRound(st.game).tricks![id]).toBe(0);
-    for (let i = 0; i < bid; i++) st = run(st, { type: 'setTricks', id, d: 1 });
-    expect(curRound(st.game).results[id]).toBe('made');
-    for (let i = 0; i < 20; i++) st = run(st, { type: 'setTricks', id, d: 1 });
-    expect(curRound(st.game).tricks![id]).toBe(9);
-    st = run(st, { type: 'toggleExact' });
-    expect(curRound(st.game).tricks).toBeNull();
+  it('a mark clears trick counts left by the retired exact-tricks mode', () => {
+    const st = run(bidAll(demo()), { type: 'phase', phase: 'results' });
+    curRound(st.game).tricks = Object.fromEntries(st.game.players.map((p) => [p.id, 0]));
+    const next = run(st, { type: 'setResult', id: st.game.players[0].id, v: 'missed' });
+    expect(curRound(next.game).tricks).toBeNull();
   });
 
   it('confirming a round shows the summary with an undoable toast', () => {

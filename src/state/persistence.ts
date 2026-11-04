@@ -96,7 +96,13 @@ export function deviceId(): string {
   return id;
 }
 
-export const migrateGame = (raw: unknown): Game | null => migrateRaw(raw, { deviceId: deviceId() });
+export const migrateGame = (raw: unknown): Game | null => {
+  const g = migrateRaw(raw, { deviceId: deviceId() });
+  // Exact-tricks entry is gone: a round still being scored drops its counts; its Made/Missed marks already agree.
+  const live = g?.rounds.at(-1);
+  if (live && live.phase !== 'done' && live.tricks) live.tricks = null;
+  return g;
+};
 
 /** Snapshots are kept as JSON strings, exactly as the prototype stored them. */
 export const parseSnapshot = (s: string): Game | null => {

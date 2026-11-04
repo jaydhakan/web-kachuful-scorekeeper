@@ -109,6 +109,18 @@ describe('loadInitial', () => {
     expect(curRound(l.game).bids.p4).toBe(1);
   });
 
+  it('drops trick counts from the round being scored, and keeps them on finished rounds', () => {
+    const g = demoGame();
+    const done = g.rounds.find((r) => r.phase === 'done')!;
+    const counts = (r: typeof done) =>
+      Object.fromEntries(g.players.map((p) => [p.id, r.bids[p.id] ?? 0]));
+    done.tricks = counts(done);
+    curRound(g).tricks = counts(curRound(g));
+    const back = parsed(JSON.stringify({ ...g, schemaVersion: CURRENT_SCHEMA }));
+    expect(curRound(back).tricks).toBeNull();
+    expect(back.rounds.find((r) => r.phase === 'done')!.tricks).toEqual(done.tricks);
+  });
+
   it('seeds only the demo game on first run, never its names', () => {
     const l = loadInitial();
     expect(l.game.id).toBe('demo');

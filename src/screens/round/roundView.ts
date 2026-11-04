@@ -44,18 +44,14 @@ export function bidView(g: Game) {
 /** The results screens' view of the current round: the check, tricks left and why a choice is greyed out. */
 export function resultsView(g: Game) {
   const r = curRound(g),
-    tricks = r.tricks,
     ids = g.players.map((p) => p.id);
-  // Only in the Made/Missed mode: with exact tricks the results follow from the counts.
-  const blocked = (id: string, c: Outcome) =>
-    tricks ? null : blockedReason(r.cards, ids, r.bids, r.results, id, c);
+  const blocked = (id: string, c: Outcome) => blockedReason(r.cards, ids, r.bids, r.results, id, c);
   const why = (b: Blocked | null) =>
     b ? (b.kind === 'left' ? t.results.onlyLeft(b.left) : t.results.noFit) : undefined;
   return {
     r,
     st: resultsState(g, r),
     od: bidOrder(g, r),
-    tricks,
     ids,
     left: Math.max(0, tricksLeft(r.cards, r.bids, r.results)),
     blocked,

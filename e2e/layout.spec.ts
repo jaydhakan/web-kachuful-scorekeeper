@@ -31,9 +31,17 @@ test('the reason Confirm is disabled stays visible above it with 7 players at 36
   await bidEveryone(page);
   await btn(page, 'Start playing').click();
   await btn(page, 'Enter results').click();
-  // Exact tricks with nothing entered yet: the total is 0, which gives the bar a reason to show.
-  await page.getByRole('switch').click();
-  const note = page.getByRole('status').filter({ hasText: 'Tricks add up to' });
+  // The screen never lets everyone make it, but a saved round can say so, and that gives the bar a reason to show.
+  // Edited before the app loads: the page saves its own copy on the way out.
+  await page.addInitScript(() => {
+    const g = JSON.parse(localStorage.getItem('kachuful.v1')!);
+    const r = g.rounds.at(-1);
+    r.phase = 'results';
+    for (const p of g.players) r.results[p.id] = 'made';
+    localStorage.setItem('kachuful.v1', JSON.stringify(g));
+  });
+  await page.reload();
+  const note = page.getByRole('status').filter({ hasText: 'Someone has to miss' });
   await expect(note).toBeVisible();
   const n = (await note.boundingBox())!;
   const confirm = (await btn(page, 'Confirm round').boundingBox())!;
