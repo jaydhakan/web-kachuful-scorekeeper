@@ -7,11 +7,12 @@ export interface Person {
 
 export const credits = {
   /** An empty handle hides the Instagram link. */
-  developer: { name: 'Jay Dhakan', instagram: '', site: 'jay.vectanix.com' },
+  developer: { name: 'Jay Dhakan', instagram: 'jaydhakan_11', site: 'jay.vectanix.com' },
   design: [{ name: 'Nirav', instagram: 'wxtermelonsugxrhigh' }] as Person[],
   testers: [
     { name: 'Priyank', instagram: 'priiyyankkk' },
     { name: 'Rahil', instagram: '_ex_calibur__' },
+    { name: 'Akshesh', instagram: 'aksheshpithwa' },
   ] as Person[],
   /** The people who play the most; the section is hidden while this is empty. */
   thanks: [] as string[],
