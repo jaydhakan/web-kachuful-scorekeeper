@@ -242,6 +242,26 @@ shows one per theme. Reduced motion: the card stands still. The 300ms invisible 
 `contrast.test.ts` reads every theme from `THEME_IDS`, so it covers the new one by itself. Add the felt pairs (light
 red and ivory on `--felt-hi`) if they aren't already measured.
 
+## Leaderboard names (decided 2026-11-04, separate from the theme)
+
+| Was           | Now                  | Meaning                                                                 |
+| ------------- | -------------------- | ----------------------------------------------------------------------- |
+| Avg / round   | **Points per round** | Points ÷ rounds finished in the chosen date range (All time = every round) |
+| Accuracy      | **Bid accuracy**     | Share of rounds where the bid was made exactly                          |
+| Longest run   | **Best streak**      | Most bids made in a row                                                 |
+
+**A rename reaches every place the word appears, not only the leaderboard:** the metric names and hints, the
+player page tiles and "More stats", chart titles ("Bid accuracy by cards", "Bid accuracy by trump"), Wrapped ("Your
+best streak"), achievement descriptions ("Best bid accuracy that day"), and the tests that look for the text. Before
+committing a rename, grep `src`, `e2e` and `tools` for the old words in any case (`avg`, `accuracy`, `longest run`)
+and check each hit. All copy lives in `src/strings`; the internal keys (`avgPerRound`, `accuracy`, `longestHot`) don't
+change, since filters and saved state may use them.
+
+Check the longer names at 360px wide: a label must not wrap where its neighbour doesn't. "Points per round" wrapped
+in the "Sort by" button and the player page's first stat tile, so those two show **"Pts / round"** (`metricShort`,
+`avgShort` in `src/strings/hub.tsx`) while screen readers still hear the full name. "Longest miss run" stays as it is
+(Jay's call).
+
 ## Rules this work must keep
 
 - Paint, never geometry: no size, padding or position changes in any theme. `e2e/themes.spec.ts` proves it.
