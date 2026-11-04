@@ -111,6 +111,8 @@ export function StreakCelebration() {
           className="relative flex w-full max-w-[34rem] flex-col items-center text-center"
         >
           <div className="relative grid aspect-square w-[min(68cqw,22rem,40cqh)] place-items-center">
+            {/* A medallion frame, painted only by themes that draw .streak-ring. */}
+            <span aria-hidden className="streak-ring absolute inset-[14%] rounded-full" />
             {!rm && (
               <>
                 <m.div

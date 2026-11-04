@@ -462,6 +462,14 @@ input {
 .sq-shadow {
   animation: sq-shadow 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
+.sq-card {
+  animation: sq-flip 1.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes sq-flip {
+  to {
+    transform: rotateY(360deg);
+  }
+}
 @keyframes sq-show {
   to {
     opacity: 1;
@@ -619,7 +627,8 @@ input {
 @media (prefers-reduced-motion: reduce) {
   .deal-fan,
   .sq-ball,
-  .sq-shadow {
+  .sq-shadow,
+  .sq-card {
     animation: none;
   }
   .deal-fan,

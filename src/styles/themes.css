@@ -1288,6 +1288,34 @@
   > .trump-glyph {
   translate: 0.32em 0.22em;
 }
+/* The loader: a card back turning in place of the ball, where the theme has deck art. */
+.sq-card {
+  display: none;
+}
+[data-theme='emerald-gilt'] .sq-card {
+  display: block;
+  box-shadow: 0 6px 14px -6px var(--shade);
+}
+[data-theme='emerald-gilt'] :is(.sq-ball, .sq-shadow) {
+  display: none;
+}
+/* A new badge and the streak medallion get a gold frame: the piano strip on the badge, a dotted ring on the medal. */
+[data-theme='emerald-gilt'] .badge-pop {
+  background:
+    var(--piano) top / 100% 3px no-repeat,
+    var(--toast-bg);
+  border-color: var(--glass-b);
+}
+.streak-ring {
+  display: none;
+}
+[data-theme='emerald-gilt'] .streak-ring {
+  display: block;
+  border: 3px dotted var(--brand);
+  box-shadow:
+    0 0 0 6px transparent,
+    0 0 0 7.5px var(--glass-b);
+}
 /* An empty list shows one face-down card, slightly tilted, in place of its icon. */
 .empty-card > i {
   display: none;

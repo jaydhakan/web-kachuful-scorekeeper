@@ -14,6 +14,8 @@ export function Loader() {
       <div aria-hidden className="relative h-20 w-10">
         <span className="sq-shadow absolute bottom-0 left-0 h-2 w-10 rounded-[50%] bg-shade/40" />
         <span className="sq-ball absolute left-[3px] top-0 h-[34px] w-[34px] rounded-full bg-[var(--fill-primary)] shadow-[inset_-5px_-5px_0_color-mix(in_srgb,var(--shade)_18%,transparent)]" />
+        {/* A theme with deck art turns a small card back here instead of bouncing the ball (themes.css). */}
+        <span className="sq-card card-art bg-card-deal absolute left-[3px] top-4 h-12 w-[34px] rounded-[3px]" />
       </div>
       <span className="mono-label text-13 text-[var(--tx2)]">{t.common.loading}</span>
     </div>
