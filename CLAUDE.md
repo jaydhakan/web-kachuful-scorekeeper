@@ -52,6 +52,7 @@ Data quirks: avatar colours are stored as hex in saved players; totals are deriv
 - **Saved data is sacred:** keep keys and shapes; add a migration instead of editing a shape.
 - **Comments: 1–3 lines**, non-obvious _why_ only.
 - Touching more than ~3 files: outline the plan first.
+- **Working docs are temporary:** a task's plan (`docs/<TASK>-PLAN.md`) and asks for the backend (`backend-requests.md` at the root, saying what is needed and why) are written for the task. Delete them once the task is done, including the backend work and the commits. Never commit them.
 - Every screen needs loading, empty, no-results and error states where data can be missing.
 - Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings, 44px targets.
 - Animate only `transform` and `opacity`; every animation has a reduced-motion fallback.
