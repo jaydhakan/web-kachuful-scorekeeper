@@ -1635,6 +1635,7 @@
   --m-btn-shadow: 0 6px 14px -6px var(--glow);
   --m-av-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   --m-r: 999px;
+  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
 }
 [data-theme='yerba-sun'] {
   --m-felt: var(--felt);
@@ -1646,6 +1647,7 @@
   --m-btn-shadow: inset 0 0 0 1.5px var(--ink), 2px 2px 0 var(--ink);
   --m-av-shadow: 0 0 0 1.5px var(--ink);
   --m-r: 6px;
+  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
 }
 [data-theme='editorial-paper'] {
   --m-felt: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
@@ -1657,6 +1659,7 @@
   --m-btn-shadow: none;
   --m-av-shadow: 0 0 0 1px var(--ink);
   --m-r: 0;
+  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
 }
 [data-theme='emerald-gilt'] {
   --m-felt: radial-gradient(90% 90% at 50% 32%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
@@ -1668,6 +1671,7 @@
   --m-btn-shadow: 0 6px 14px -6px var(--glow);
   --m-av-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--brand);
   --m-r: 4px;
+  --m-back: var(--art-back-mini) center / cover no-repeat;
 }
 
 /* Small square buttons (Add) drop the arrow and centre the label (reference audit fix, .addrow / .btn.sq). */

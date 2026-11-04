@@ -67,6 +67,11 @@ function ThemePreview({ id }: { id: ThemeId }) {
           </span>
         ))}
       </div>
+      {/* Each theme's own card back, from its --m-back token (nested themes can't use the material classes). */}
+      <span
+        className="absolute right-[4px] top-[4px] h-[20px] w-[14px] rotate-[8deg] rounded-[2px] shadow-[0_2px_4px_color-mix(in_srgb,var(--shade)_40%,transparent)]"
+        style={{ background: 'var(--m-back)' }}
+      />
       <div
         className="absolute bottom-[8px] left-[12px] right-[12px] h-[14px]"
         style={{
