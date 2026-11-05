@@ -101,7 +101,7 @@ const withBanner = (s: AppState, text: string | null): AppState =>
 function freshGame(
   base: Pick<
     Game,
-    'players' | 'direction' | 'firstDealerIndex' | 'decks' | 'maxCards' | 'lengthMode'
+    'players' | 'direction' | 'firstDealerIndex' | 'decks' | 'maxCards' | 'order' | 'lengthMode'
   >,
   id: string,
   syncId: string,
@@ -280,6 +280,7 @@ function step(s: AppState, a: Action): AppState {
           firstDealerIndex: S.dealer,
           decks: S.decks,
           maxCards: maxFor(S.n, S.decks),
+          order: S.order ?? 'up',
           lengthMode: S.length,
         },
         a.id,
@@ -407,6 +408,7 @@ function step(s: AppState, a: Action): AppState {
           firstDealerIndex: (old.firstDealerIndex + 1) % n,
           decks: old.decks,
           maxCards: old.maxCards,
+          order: old.order ?? 'up',
           lengthMode: old.lengthMode,
         },
         a.id,

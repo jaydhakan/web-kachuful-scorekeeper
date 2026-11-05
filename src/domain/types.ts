@@ -3,6 +3,8 @@ import type { Decks } from './cards';
 export type Trump = 'spades' | 'diamonds' | 'clubs' | 'hearts';
 export type Direction = 'cw' | 'ccw';
 export type LengthMode = 'endless' | '1cycle' | '2cycles';
+/** Whether the cards go up first (3 → max → 3) or down first (max → 3 → max). */
+export type RoundOrder = 'up' | 'down';
 export type Phase = 'bidding' | 'playing' | 'results' | 'done';
 export type Outcome = 'made' | 'missed';
 export type GameStatus = 'active' | 'finished';
@@ -54,6 +56,8 @@ export interface Game {
   firstDealerIndex: number;
   decks: Decks;
   maxCards: number;
+  /** Schema 4; older games went up first. */
+  order: RoundOrder;
   lengthMode: LengthMode;
   rounds: Round[];
   status: GameStatus;

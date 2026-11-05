@@ -24,6 +24,7 @@ export function demoGame(): Game {
     firstDealerIndex: 0,
     decks: 1,
     maxCards: 10,
+    order: 'up',
     lengthMode: 'endless',
     rounds: [],
     status: 'active',

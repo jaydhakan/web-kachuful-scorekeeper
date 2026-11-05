@@ -1,6 +1,6 @@
 import { maxFor } from '../cards';
 import { newRound } from '../rounds';
-import type { Game, LengthMode, Outcome } from '../types';
+import type { Game, LengthMode, Outcome, RoundOrder } from '../types';
 
 /** Builds valid games for tests and the backend's golden fixtures. Not used by the app. */
 
@@ -24,6 +24,7 @@ export interface KitGame {
   finishAfter?: number;
   firstDealer?: number;
   lengthMode?: LengthMode;
+  order?: RoundOrder;
   decks?: 1 | 2;
 }
 
@@ -40,7 +41,7 @@ export function kitGame(k: KitGame): Game {
     id: 'g-' + k.id,
     syncId: k.id,
     rev: 1,
-    schemaVersion: 3,
+    schemaVersion: 4,
     createdAt: k.start,
     updatedAt: k.start,
     players: k.players.map((pid, i) => ({
@@ -54,6 +55,7 @@ export function kitGame(k: KitGame): Game {
     firstDealerIndex: k.firstDealer ?? 0,
     decks,
     maxCards: maxFor(n, decks),
+    order: k.order ?? 'up',
     lengthMode: k.lengthMode ?? 'endless',
     rounds: [],
     status: 'active',

@@ -1,7 +1,7 @@
 import type { Game } from '@/domain';
 import { hashUuid } from '@/lib/ids';
 
-export const CURRENT_SCHEMA = 3;
+export const CURRENT_SCHEMA = 4;
 
 type Raw = Record<string, unknown>;
 /** What a migration may know about the device; the same device always migrates a game the same way. */
@@ -23,6 +23,8 @@ const migrations: Record<number, Migration> = {
     ...(g.status === 'finished' && { finishedAt: g.updatedAt }),
     schemaVersion: 3,
   }),
+  // Every game before the round order choice went up first.
+  3: (g) => ({ ...g, order: 'up', schemaVersion: 4 }),
 };
 
 const isObj = (v: unknown): v is Raw => typeof v === 'object' && v !== null && !Array.isArray(v);

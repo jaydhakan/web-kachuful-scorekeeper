@@ -6,7 +6,7 @@ const derive = (g: Game, i: number): RoundPlan => {
     d = (g.firstDealerIndex + i) % n;
   return {
     index: i,
-    cards: cardsFor(i, g.maxCards),
+    cards: cardsFor(i, g.maxCards, g.order),
     trump: TRUMPS[i % 4],
     dealerIndex: d,
     firstPlayerIndex: (d + 1) % n,

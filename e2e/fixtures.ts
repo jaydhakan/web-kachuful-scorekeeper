@@ -45,6 +45,7 @@ export function seedGame(
     firstDealerIndex: 0,
     decks,
     maxCards: maxFor(n, decks),
+    order: 'up',
     lengthMode: 'endless',
     rounds: [],
     status: view === 'winner' ? 'finished' : 'active',

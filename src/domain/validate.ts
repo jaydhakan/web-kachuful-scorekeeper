@@ -36,7 +36,7 @@ export function validate(g: Game, now: number = Date.now()): Validity {
     const d = (g.firstDealerIndex + i) % n;
     if (
       r.index !== i ||
-      r.cards !== cardsFor(i, g.maxCards) ||
+      r.cards !== cardsFor(i, g.maxCards, g.order) ||
       r.trump !== TRUMPS[i % 4] ||
       r.dealerIndex !== d ||
       r.firstPlayerIndex !== (d + 1) % n

@@ -18,6 +18,7 @@ const mkGame = (n: number): Game => ({
   firstDealerIndex: 0,
   decks: 1,
   maxCards: maxFor(n, 1),
+  order: 'up',
   lengthMode: 'endless',
   rounds: [],
   status: 'active',

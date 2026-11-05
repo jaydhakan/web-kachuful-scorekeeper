@@ -178,6 +178,20 @@ function build() {
       }),
     ),
   );
+  add(
+    'game-down-first',
+    gameFixture(
+      'down first: max → 3 → max (round order)',
+      g({
+        id: '10000000-0000-4000-8000-000000000008',
+        players: ['a', 'b', 'c', 'd'],
+        order: 'down',
+        lengthMode: '1cycle',
+        rounds: rows(4, 14, [2]),
+        finished: true,
+      }),
+    ),
+  );
   const bad = (id: string, why: string, spoil: (x: Game) => void) => {
     const x = g({ id, players: ['a', 'b', 'c'], rounds: rows(3, 3, [0]), finished: true });
     spoil(x);

@@ -39,8 +39,15 @@ describe('migrations', () => {
       decks: 1,
       syncId: expect.stringMatching(UUID_RE),
       rev: 1,
+      order: 'up',
       schemaVersion: CURRENT_SCHEMA,
     });
+  });
+
+  it('a save from before the round order choice went up first', () => {
+    const old: Record<string, unknown> = { ...demoGame(), schemaVersion: 3 };
+    delete old.order;
+    expect(migrateGame(old)).toMatchObject({ order: 'up', schemaVersion: 4 });
   });
 
   it('plays a save from before the deck question with one deck, and leaves a two-deck save alone', () => {
@@ -78,7 +85,7 @@ describe('migrations', () => {
     delete raw.syncId;
     delete raw.rev;
     const a = migrateGame(raw, { deviceId: 'dev-a' })!;
-    expect(a).toMatchObject({ rev: 1, finishedAt: raw.updatedAt, schemaVersion: 3 });
+    expect(a).toMatchObject({ rev: 1, finishedAt: raw.updatedAt, schemaVersion: CURRENT_SCHEMA });
     expect(a.syncId).toMatch(UUID_RE);
     expect(migrateGame(raw, { deviceId: 'dev-a' })!.syncId).toBe(a.syncId);
     expect(migrateGame(raw, { deviceId: 'dev-b' })!.syncId).not.toBe(a.syncId);

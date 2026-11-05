@@ -3,6 +3,7 @@ import type {
   Direction,
   Game,
   LengthMode,
+  RoundOrder,
   Outcome,
   Phase,
   Round,
@@ -61,6 +62,8 @@ export interface SetupState {
   seats: (Seat | null)[];
   dealer: number;
   length: LengthMode;
+  /** Missing in a setup saved before the choice existed: up first. */
+  order?: RoundOrder;
   lg: LastGroup | null;
 }
 
