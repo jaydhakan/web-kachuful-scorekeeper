@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { freshBackend, signIn } from './backend';
-import { btn, giveEmail, nameField } from './helpers';
+import { btn, giveEmail, nameField, playRound } from './helpers';
 
 // Live and recap links (mock API, or a real backend with E2E_API=local).
 freshBackend();
@@ -22,8 +22,11 @@ async function signedInGame(page: Page) {
   await btn(page, 'Next').click();
   await btn(page, 'Deal!').click();
   await btn(page, 'Skip the deal animation').click();
+  // A game reaches the server once a round is done.
+  await playRound(page);
+  await btn(page, 'Next round').click();
+  await btn(page, 'Skip the deal animation').click();
   await btn(page, 'Bid 1').click();
-  // Wait for the game to reach the server.
   const id = await page.evaluate(
     () => JSON.parse(localStorage.getItem('kachuful.v1')!).syncId as string,
   );

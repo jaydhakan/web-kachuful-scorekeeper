@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { addPlayer, apiAs, freshBackend, signIn } from './backend';
 import { openSeeded, seedGame } from './fixtures';
-import { bidEveryone, btn, giveEmail, nameField } from './helpers';
+import { btn, giveEmail, nameField, playRound } from './helpers';
 
 // Signed-in play against the mock API, or a real backend with E2E_API=local (e2e/backend.ts).
 freshBackend();
@@ -35,11 +35,13 @@ test('a game scored offline uploads when the connection comes back', async ({ pa
     await page.waitForTimeout(150);
   }
   await btn(page, 'Next').click();
-  await expect(page.getByText('Signed in: this game counts on the global leaderboard.')).toBeVisible();
+  await expect(
+    page.getByText('Signed in: this game counts on the global leaderboard.'),
+  ).toBeVisible();
   await btn(page, 'Deal!').click();
   await btn(page, 'Skip the deal animation').click();
   await context.setOffline(true);
-  await bidEveryone(page);
+  await playRound(page);
   const id = await syncIdOf(page);
   await page.waitForTimeout(2500);
   await context.setOffline(false);
@@ -50,7 +52,7 @@ test('a game scored offline uploads when the connection comes back', async ({ pa
   const body = await (await page.request.get(`/api/games/${id}`)).json();
   expect(body.game.syncId).toBe(id);
   expect(body.game.players.map((p: { name: string }) => p.name)).toContain('Kabir');
-  expect(Object.keys(body.game.rounds[0].bids).length).toBeGreaterThan(0);
+  expect(body.game.rounds[0].phase).toBe('done');
 });
 
 test('first sign-in offers to add the games already on this phone', async ({ page }) => {

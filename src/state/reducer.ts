@@ -3,6 +3,8 @@ import {
   clone,
   curRound,
   blockedReason,
+  demoGame,
+  doneRounds,
   forbiddenFor,
   onlyResult,
   maxFor,
@@ -127,8 +129,8 @@ function freshGame(
 
 function begin(s: AppState, g: Game): AppState {
   const old = s.game;
-  // A real game in progress (or just finished) stays one Undo away instead of being confirmed away.
-  const keep = old.id !== 'demo' && old.rounds.some((r) => Object.keys(r.bids).length > 0);
+  // A real game in progress (or just finished) stays one Undo away; one with no round done leaves no trace.
+  const keep = old.id !== 'demo' && doneRounds(old).length > 0;
   const next: AppState = {
     ...s,
     game: g,
@@ -492,5 +494,26 @@ function step(s: AppState, a: Action): AppState {
       };
     case 'replaceGame':
       return { ...s, game: a.game, undo: [], corrupt: false, screen: 'home' };
+    case 'discardGame':
+      return {
+        ...s,
+        game: demoGame(),
+        undo: [],
+        dir: -1,
+        screen: 'home',
+        sheet: null,
+        seq: null,
+        advance: null,
+        streakFx: null,
+      };
+    case 'renewSyncId': {
+      const old = s.game.syncId;
+      // Undo snapshots carry the id too; a uuid never appears anywhere else in them.
+      return {
+        ...s,
+        game: { ...s.game, syncId: a.syncId },
+        undo: s.undo.map((u) => u.split(old).join(a.syncId)),
+      };
+    }
   }
 }

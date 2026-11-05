@@ -67,6 +67,25 @@ export async function bidEveryone(page: Page) {
   }
 }
 
+/** Bids, plays and confirms the round on the table, with the first set of Made results that adds up. */
+export async function playRound(page: Page) {
+  await bidEveryone(page);
+  await btn(page, 'Start playing').click();
+  await btn(page, 'Enter results').click();
+  const rows = page.getByRole('group', { name: /^Result for / });
+  await rows.first().waitFor();
+  const groups = await rows.all();
+  for (let mask = 0; mask < 2 ** groups.length; mask++) {
+    for (const [i, g] of groups.entries()) {
+      // A pressed mark toggles off when tapped again, so only tap the one that isn't set.
+      const b = g.getByRole('button', { name: mask & (1 << i) ? /Made/ : /Missed/ });
+      if ((await b.getAttribute('aria-pressed')) !== 'true') await b.click();
+    }
+    if (await btn(page, 'Confirm round').isEnabled()) break;
+  }
+  await btn(page, 'Confirm round').click();
+}
+
 /** A new player, signed in, needs an email before taking the seat. */
 export async function giveEmail(
   page: Page,

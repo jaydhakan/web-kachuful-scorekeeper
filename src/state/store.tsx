@@ -8,7 +8,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import { curRound, resultsState, type Outcome, type Phase } from '@/domain';
+import { curRound, doneRounds, resultsState, type Outcome, type Phase } from '@/domain';
 import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -27,7 +27,7 @@ import {
   type Loaded,
 } from './persistence';
 import { initialState, reducer } from './reducer';
-import { archive, archiveGame } from './archive';
+import { archive, archiveGame, forgetEmpty, sweepEmpty } from './archive';
 import { backfillRegistry, ensurePlayer } from './registry';
 import { cachedPrefs, setupDefaults } from './prefs';
 import type {
@@ -63,6 +63,8 @@ export interface Actions {
   confirmRound(): void;
   nextRound(): void;
   finishGame(): void;
+  /** Ends a game with no round done without a trace. */
+  discardGame(): void;
   rematch(): void;
   editRound(i: number, bids: Record<string, number>, results: Record<string, Outcome>): void;
   undo(): void;
@@ -137,6 +139,12 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   // Every real game is also kept in the archive, so finishing or replacing it never loses it.
   useEffect(() => {
     if (state.corrupt) return;
+    // Until a round is done a game exists nowhere but the table; undo back to that removes the copies.
+    if (!doneRounds(state.game).length) {
+      if (state.game.id !== 'demo' && forgetEmpty(state.game.syncId))
+        dispatch({ type: 'renewSyncId', syncId: uuid() });
+      return;
+    }
     // A game scored signed in syncs to that account; one begun signed out waits for the import.
     const acct = ref.current.session?.user.id;
     const prev = archive.get('games', state.game.syncId);
@@ -225,7 +233,10 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
 
   // Names seen before the registry existed become registry players once the archive is read.
   useEffect(() => {
-    void archive.ready.then(backfillRegistry);
+    void archive.ready.then(() => {
+      backfillRegistry();
+      sweepEmpty(ref.current.game.syncId);
+    });
   }, []);
 
   // System Back closes a sheet first, then the top screen.
@@ -316,6 +327,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       undo: () => dispatch({ type: 'undo' }),
       openSheet: (sheet) => nav({ type: 'sheet', sheet }),
       ask: (modal) => dispatch({ type: 'modal', modal }),
+      discardGame: () => dispatch({ type: 'discardGame' }),
       seqDone: () => dispatch({ type: 'seqDone' }),
       setSumAnim: (v) => dispatch({ type: 'setSumAnim', v }),
       streakDone: () => dispatch({ type: 'streakDone' }),

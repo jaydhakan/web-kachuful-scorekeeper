@@ -1,5 +1,14 @@
 import { demoGame, type Game } from '@/domain';
-import { archive, archiveGame, Archive, resetArchive, type Backend, type GameRec } from './archive';
+import {
+  archive,
+  archiveGame,
+  Archive,
+  forgetEmpty,
+  resetArchive,
+  sweepEmpty,
+  type Backend,
+  type GameRec,
+} from './archive';
 
 /** A backend that keeps rows between Archive instances, standing in for IndexedDB. */
 function diskBackend(fail = false): Backend & { rows: Record<string, Map<string, unknown>> } {
@@ -36,11 +45,12 @@ describe('archive', () => {
   // A fresh archive bumps its version once loading settles; every test starts after that.
   beforeEach(() => archive.ready);
 
-  it('keeps a real game, and not the demo or a game nobody has bid in', async () => {
+  it('keeps a real game, and not the demo or a game with no round done', async () => {
     await archive.ready;
     archiveGame(demoGame());
     const fresh = real();
-    fresh.rounds = [{ ...fresh.rounds[0], bids: {} }];
+    // Bids typed, nothing confirmed: still nothing to keep.
+    fresh.rounds = [{ ...fresh.rounds[0], phase: 'bidding', results: {} }];
     archiveGame(fresh);
     expect(archive.games()).toHaveLength(0);
     archiveGame(real());
@@ -114,5 +124,52 @@ describe('archive', () => {
     archive.del('inbox', 'missing');
     off();
     expect(f).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('games with no round done', () => {
+  beforeEach(() => archive.ready);
+  const empty = (syncId: string): Game => {
+    const g = real({ syncId });
+    g.rounds = [{ ...g.rounds[0], phase: 'bidding', results: {} }];
+    return g;
+  };
+  const rec = (g: Game, more: Partial<GameRec> = {}): GameRec => ({
+    syncId: g.syncId,
+    game: g,
+    updatedAt: g.updatedAt,
+    endedAt: null,
+    origin: 'local',
+    ...more,
+  });
+
+  it('forgets a copy only this device has, and deletes one the server has through the outbox', () => {
+    archive.put('games', rec(empty('here')), rec(empty('there'), { account: 'u1', syncedRev: 3 }));
+    expect(forgetEmpty('here')).toBe(false);
+    expect(archive.get('games', 'here')).toBeUndefined();
+    expect(forgetEmpty('there')).toBe(true);
+    expect(archive.get('games', 'there')?.deleted).toBe(true);
+    expect(archive.get('outbox', 'del:there')).toMatchObject({ kind: 'deleteGame', key: 'there' });
+  });
+
+  it('sweeps old empty games once, never the one on the table or an unreadable one', () => {
+    const broken = { ...rec(real({ syncId: 'broken' })), game: {} as Game };
+    archive.put(
+      'games',
+      rec(empty('old')),
+      rec(empty('table')),
+      rec(real({ syncId: 'kept' })),
+      broken,
+    );
+    sweepEmpty('table');
+    expect(
+      archive
+        .all('games')
+        .map((r) => r.syncId)
+        .sort(),
+    ).toEqual(['broken', 'kept', 'table']);
+    archive.put('games', rec(empty('later')));
+    sweepEmpty('table');
+    expect(archive.get('games', 'later')).toBeDefined();
   });
 });

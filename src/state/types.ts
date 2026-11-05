@@ -164,6 +164,10 @@ export type Action =
   | { type: 'streakDone' }
   | { type: 'popsDone' }
   | { type: 'replaceGame'; game: Game }
+  /** The game on the table with no round done: it goes, and Home shows the demo. */
+  | { type: 'discardGame' }
+  /** A new identity for the game on the table, once the server deleted its old one. */
+  | { type: 'renewSyncId'; syncId: string }
   /** Makes a saved game the current one (the current one is already in History). */
   | { type: 'openGame'; game: Game }
   /** The same game, changed by sync (a merge remap or the other device's copy); `fresh` also clears Undo. */

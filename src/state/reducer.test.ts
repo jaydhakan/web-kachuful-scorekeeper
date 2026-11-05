@@ -9,6 +9,7 @@ import {
   totalRounds,
   type Game,
 } from '@/domain';
+import { CURRENT_SCHEMA } from './migrations';
 import { initialState, reducer, roundBanner } from './reducer';
 import type { Action, AppState } from './types';
 import { UNDO_LIMIT, pushSnapshot } from './undo';
@@ -162,10 +163,11 @@ describe('setup and starting a game', () => {
     expect(run(st, { type: 'undo' }).game.syncId).toBe(st.game.syncId);
   });
 
-  it('dealing over the demo, or over a game with no bids, keeps nothing', () => {
+  it('dealing over the demo, or over a game with no round done, keeps nothing', () => {
     expect(setup(3).undo).toEqual([]);
     expect(setup(3).toast).toBeNull();
-    const fresh = run(setup(3), { type: 'go', screen: 'home' }, { type: 'startSetup', lg: null });
+    const bidOnly = run(setup(3), { type: 'bid', v: 1 }, { type: 'go', screen: 'home' });
+    const fresh = run(bidOnly, { type: 'startSetup', lg: null });
     const again = run(
       fresh,
       { type: 'setupPatch', patch: { n: 3, step: 3, seats: setup(3).setup!.seats } },
@@ -615,5 +617,26 @@ describe('achievement pop-ups after a round', () => {
     const codes = st.pops?.items.map((x) => x.code);
     expect(codes).toContain('cold_3');
     expect(codes).not.toContain('odd_one_out');
+  });
+});
+
+describe('a game with no round done', () => {
+  it('is discarded to Home, with the demo on the table and no undo', () => {
+    const s = run(demo(), { type: 'bid', v: 1 }, { type: 'discardGame' });
+    expect(s.screen).toBe('home');
+    expect(s.game.id).toBe('demo');
+    expect(s.undo).toEqual([]);
+  });
+
+  it('takes a new sync id, in its undo snapshots too', () => {
+    // A real game carries its schema; the demo doesn't, so its snapshots would migrate to a hashed id.
+    const g = { ...demoGame(), id: 'g1', schemaVersion: CURRENT_SCHEMA };
+    const s0 = run(initialState(g, 'round', []), { type: 'bid', v: 1 });
+    const old = s0.game.syncId;
+    const s = run(s0, { type: 'renewSyncId', syncId: 'fresh-id' });
+    expect(s.game.syncId).toBe('fresh-id');
+    expect(s.undo.length).toBe(s0.undo.length);
+    expect(s.undo.some((u) => u.includes(old))).toBe(false);
+    expect(run(s, { type: 'undo' }).game.syncId).toBe('fresh-id');
   });
 });

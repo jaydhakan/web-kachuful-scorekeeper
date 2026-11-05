@@ -1,4 +1,4 @@
-import type { Game } from '@/domain';
+import { doneRounds, type Game } from '@/domain';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,
@@ -310,9 +310,9 @@ export function resetArchive(backend: Backend = memoryBackend()): Archive {
 export const endedAtOf = (g: Game): number | null =>
   g.status === 'finished' ? (g.finishedAt ?? g.updatedAt) : null;
 
-/** Copies a game this device scored into the archive; the demo and untouched games are not kept. */
+/** Copies a game this device scored into the archive; the demo and games with no round done are not kept. */
 export function archiveGame(g: Game, rec: Partial<GameRec> = {}) {
-  if (g.id === 'demo' || !g.rounds.some((r) => Object.keys(r.bids).length > 0)) return;
+  if (g.id === 'demo' || !doneRounds(g).length) return;
   const prev = archive.get('games', g.syncId);
   if (prev && prev.game.rev === g.rev && prev.game.updatedAt === g.updatedAt && !rec.deleted)
     return;
@@ -325,4 +325,40 @@ export function archiveGame(g: Game, rec: Partial<GameRec> = {}) {
     updatedAt: g.updatedAt,
     endedAt: endedAtOf(g),
   });
+}
+
+/**
+ * A game with no round done leaves no trace: its archive copy goes, and a copy the server has is deleted there
+ * through the outbox. True when the server had it, so its id can't be used again.
+ */
+export function forgetEmpty(syncId: string): boolean {
+  const r = archive.get('games', syncId);
+  if (!r || r.deleted) return false;
+  const onServer = !!r.account && r.syncedRev !== undefined;
+  archive.del('outbox', 'put:' + syncId);
+  if (!onServer) {
+    archive.del('games', syncId);
+    return false;
+  }
+  archive.put('games', { ...r, deleted: true, updatedAt: Date.now() });
+  archive.put('outbox', {
+    id: 'del:' + syncId,
+    kind: 'deleteGame',
+    key: syncId,
+    attempts: 0,
+    nextAt: 0,
+    createdAt: Date.now(),
+  });
+  return true;
+}
+
+const SWEPT = 'sweep:empty';
+
+/** Once per device: games kept before that rule (a bid was enough then) leave too. Unreadable ones stay. */
+export function sweepEmpty(current: string) {
+  if (archive.get('cache', SWEPT)) return;
+  for (const r of archive.all('games'))
+    if (r.syncId !== current && Array.isArray(r.game?.rounds) && !doneRounds(r.game).length)
+      forgetEmpty(r.syncId);
+  archive.put('cache', { key: SWEPT, value: true, fetchedAt: Date.now() });
 }

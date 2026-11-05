@@ -525,6 +525,7 @@ export const hub = {
     qr: (kind: string) => `QR code for the ${kind}`,
     offline: 'Links need a connection',
     notSynced: 'Links work once the game has synced',
+    noRound: 'Links work once the first round is confirmed',
     signedOut: 'Sign in to share links',
   },
   live: {

@@ -1,5 +1,6 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
+import { doneRounds } from '@/domain';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
 import { archive } from '@/state/archive';
 import { useApp } from '@/state/store';
@@ -56,7 +57,9 @@ export function ShareLinks() {
         {x.links}
       </h3>
       {!synced ? (
-        <p className="text-14 text-[var(--tx2)]">{navigator.onLine ? x.notSynced : x.offline}</p>
+        <p className="text-14 text-[var(--tx2)]">
+          {!doneRounds(g).length ? x.noRound : navigator.onLine ? x.notSynced : x.offline}
+        </p>
       ) : (
         (['recap', 'live'] as Kind[]).map((k) => {
           const l = links[k];
