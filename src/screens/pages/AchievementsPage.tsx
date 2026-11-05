@@ -1,37 +1,34 @@
-import { m, useReducedMotion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ACH,
   ACHIEVEMENTS,
   allAchievements,
   LADDER_OF,
-  ladderCounts,
   type AchievementDef,
   type AchievementGroup,
   type Earned,
   type Facts,
   type Ladder,
-  type LadderId,
 } from '@/domain';
 import { dayLabel } from '@/lib/dates';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { Chip, ChipRow, Page, Section } from '@/components/ui/Page';
-import { Progress } from '@/components/ui/Stats';
+import { Progress, ProgressRing } from '@/components/ui/Stats';
+import { GoldEdge, Medal } from '@/components/ui/Medal';
 import { stagger } from '@/components/ui/stagger';
-import { EASE } from '@/components/ui/motion';
 import { achievements as names } from '@/strings/achievements';
 import { useApp } from '@/state/store';
 import { loadAchSeen, saveAchSeen } from '@/state/persistence';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
+import { useLadderCounts } from '@/components/useLadderCounts';
 import { t } from '@/strings';
 import { Icon } from '@/components/ui/Icons';
-import { icon } from '@/components/ui/IconsMore';
 
 const a = t.hub.ach;
 const GROUPS: AchievementGroup[] = ['round', 'game', 'career', 'daily', 'season'];
 const TOTAL = ACHIEVEMENTS.length;
-type Counts = Partial<Record<LadderId, number>>;
 
 type Item = { x: AchievementDef; l?: never } | { l: Ladder; x?: never };
 /** A group's cards: each ladder of levels takes the place of its first level. */
@@ -71,9 +68,8 @@ export function AchievementsPage({
     [f, extra, remote.data],
   );
   const players = useMemo(() => [...new Set(all.map((e) => e.playerId))], [all]);
-  // Signed in, the device holds only some games, so counts come from the server's totals; the ones it has no
-  // total for (crew, points gained, winning run) show their levels without a bar rather than a wrong number.
-  const profile = useRemote(signedIn && who ? `p:${who}` : null, (o) => ep.player(who!, o));
+  // Unknown counts (crew, points gained, winning run when signed in) show their levels without a bar.
+  const { counts, profile } = useLadderCounts(who, f);
   const mine = !who ? all : (profile.data?.achievements ?? all.filter((e) => e.playerId === who));
   const by = new Map<string, Earned[]>();
   for (const e of mine) by.set(e.code, [...(by.get(e.code) ?? []), e]);
@@ -95,21 +91,6 @@ export function AchievementsPage({
   }, [all]);
   const rarity = (code: string) =>
     who && players.length > 1 ? { n: holders.get(code)?.size ?? 0, of: players.length } : null;
-  const local = useMemo(() => (who && !signedIn ? ladderCounts(f, who) : null), [f, who, signedIn]);
-  const tot = profile.data?.totals;
-  const counts: Counts | null = !who
-    ? null
-    : signedIn
-      ? tot
-        ? {
-            games: tot.gamesEnded,
-            rounds: tot.rounds,
-            made: tot.made,
-            hot: tot.longestHot,
-            cold: tot.longestCold,
-          }
-        : {}
-      : local;
   return (
     <Page
       wide
@@ -170,27 +151,13 @@ export function AchievementsPage({
 function Summary({ have, everyone }: { have: Set<string>; everyone: boolean }) {
   const n = have.size;
   const share = n / TOTAL;
-  const R = 26,
-    C = 2 * Math.PI * R;
   return (
     <section
       aria-label={a.summary}
       className="glass mb-6 flex flex-col gap-4 p-4 md:flex-row md:items-center md:gap-8"
     >
       <div className="flex items-center gap-4">
-        <svg aria-hidden viewBox="0 0 64 64" className="h-16 w-16 shrink-0 -rotate-90">
-          <circle cx="32" cy="32" r={R} fill="none" strokeWidth="6" className="stroke-ov/[.1]" />
-          <circle
-            cx="32"
-            cy="32"
-            r={R}
-            fill="none"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={`${C * share} ${C}`}
-            className="stroke-gold"
-          />
-        </svg>
+        <ProgressRing share={share} />
         <p className="flex flex-col">
           <span className="disp text-28 font-extrabold leading-none">
             {n} <span className="text-[var(--tx2)]">/ {TOTAL}</span>
@@ -243,19 +210,12 @@ function Shell({
   beside?: ReactNode;
   children: ReactNode;
 }) {
-  const rm = useReducedMotion();
   return (
     <m.li
       {...stagger(Math.min(i, 10))}
       className="glass relative flex min-h-[7.5rem] flex-col gap-1 p-3"
     >
-      {/* Its own layer: each theme's .glass sets the card's box-shadow. */}
-      {earned && (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1.5px_var(--gold)]"
-        />
-      )}
+      {earned && <GoldEdge />}
       {earned && (
         <span
           aria-hidden
@@ -265,25 +225,8 @@ function Shell({
         </span>
       )}
       <span className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className={`relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full text-28 leading-none ${
-            earned
-              ? 'bg-gold/[.16] shadow-[0_0_0_1.5px_var(--gold),0_0_18px_color-mix(in_srgb,var(--medal-gold)_45%,transparent)]'
-              : 'border border-dashed border-ov/25'
-          }`}
-        >
-          {earned ? emoji : icon('locked', 'h-5 w-5 text-[var(--dis)]')}
-          {/* One pass of light across a medal earned since the last visit. */}
-          {fresh && earned && !rm && (
-            <m.span
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,color-mix(in_srgb,var(--medal-gold-hi)_75%,transparent)_50%,transparent_70%)]"
-              initial={{ x: '-110%' }}
-              animate={{ x: '110%' }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.35 + Math.min(i, 10) * 0.04 }}
-            />
-          )}
-        </span>
+        {/* One pass of light across a medal earned since the last visit. */}
+        <Medal emoji={emoji} won={earned} shine={fresh} delay={0.35 + Math.min(i, 10) * 0.04} />
         {beside}
       </span>
       <span className="mt-1 flex flex-wrap items-center gap-x-1.5 text-15 font-bold leading-tight">

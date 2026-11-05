@@ -361,6 +361,34 @@ export function ladderCounts(f: Facts, playerId: string): Record<LadderId, numbe
   };
 }
 
+export interface NextLevel {
+  ladder: Ladder;
+  code: string;
+  step: number;
+  count: number;
+}
+
+/** The level a count reaches next, or null once every level is reached. */
+export function nextLevel(ladder: Ladder, count: number): NextLevel | null {
+  const k = ladder.steps.findIndex((s) => count < s);
+  return k < 0 ? null : { ladder, code: ladder.codes[k], step: ladder.steps[k], count };
+}
+
+/** The next level closest to being reached, at least `min` of the way there; a cold streak is never a goal. */
+export function nearestLevel(
+  counts: Partial<Record<LadderId, number>>,
+  min = 0.5,
+): NextLevel | null {
+  let best: NextLevel | null = null;
+  for (const l of LADDERS) {
+    const c = counts[l.id];
+    const n = l.id === 'cold' || c == null ? null : nextLevel(l, c);
+    if (n && n.count / n.step >= min && (!best || n.count / n.step > best.count / best.step))
+      best = n;
+  }
+  return best;
+}
+
 /** Everything earned from a set of games (round, game and career), oldest first. */
 export function allAchievements(f: Facts, tz?: string): Earned[] {
   return [...roundMoments(f.rounds), ...gameFinishes(f, tz), ...careerAchievements(f)].sort(

@@ -381,4 +381,31 @@ export const Progress = ({
   </span>
 );
 
+/** A share of a whole as a gold ring (0 to 1); the number it stands for goes beside or inside it. */
+export function ProgressRing({
+  share,
+  className = 'h-16 w-16',
+}: {
+  share: number;
+  className?: string;
+}) {
+  const R = 26,
+    C = 2 * Math.PI * R;
+  return (
+    <svg aria-hidden viewBox="0 0 64 64" className={`shrink-0 -rotate-90 ${className}`}>
+      <circle cx="32" cy="32" r={R} fill="none" strokeWidth="6" className="stroke-ov/[.1]" />
+      <circle
+        cx="32"
+        cy="32"
+        r={R}
+        fill="none"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeDasharray={`${C * Math.min(1, share)} ${C}`}
+        className="stroke-gold"
+      />
+    </svg>
+  );
+}
+
 export const pct = (x: number) => `${Math.round(x * 100)}%`;

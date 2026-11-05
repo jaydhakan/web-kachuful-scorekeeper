@@ -1,4 +1,4 @@
-import { allAchievements, LADDERS, ladderCounts } from './achievements';
+import { allAchievements, LADDERS, ladderCounts, nearestLevel, nextLevel } from './achievements';
 import { buildFacts } from './timeline';
 import { kitGame, rows } from './__fixtures__/kit';
 
@@ -37,5 +37,24 @@ describe('ladder counts', () => {
     expect(n.wins).toBe(7);
     expect(n.crew).toBe(3);
     expect(n.hot).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('the next level', () => {
+  const games = LADDERS.find((l) => l.id === 'games')!;
+
+  it('is the first step the count has not reached', () => {
+    expect(nextLevel(games, 0)).toMatchObject({ code: 'games_10', step: 10 });
+    expect(nextLevel(games, 10)).toMatchObject({ code: 'games_50', step: 50 });
+    expect(nextLevel(games, 500)).toBeNull();
+  });
+
+  it('nearest picks the closest ladder at least half way, and never a cold streak', () => {
+    expect(nearestLevel({ games: 48, rounds: 60, cold: 11 })).toMatchObject({
+      code: 'games_50',
+      count: 48,
+    });
+    expect(nearestLevel({ games: 3, rounds: 20 })).toBeNull();
+    expect(nearestLevel({ cold: 11 })).toBeNull();
   });
 });
