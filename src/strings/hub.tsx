@@ -26,7 +26,7 @@ export const hub = {
     awards: 'Awards',
     activity: 'Activity',
     credits: 'Credits',
-    account: 'Account',
+    account: 'Me',
     signIn: 'Sign in',
     admin: 'Admin',
     fresh: 'Start fresh',
@@ -382,18 +382,20 @@ export const hub = {
     games: (n: number, by: string) => `${plural(n, 'game')} · added by ${by}`,
   },
   account: {
-    title: 'Account',
-    // The eyebrow is set in capitals; an email address keeps its own case.
-    signedInAs: (email: string) => (
-      <>
-        Signed in as <span className="normal-case tracking-normal">{email}</span>
-      </>
-    ),
+    title: 'Me',
     stale: 'Sign in again to keep syncing',
-    myPlayer: 'My player',
     edit: 'Edit',
+    editMe: 'Edit my player',
     save: 'Save',
     saved: 'Saved',
+    photo: 'Photo',
+    photoOf: (name: string) => `Photo of ${name}. Change photo`,
+    rank: 'Rank',
+    rankOf: (outOf: number) => `of ${outOf}`,
+    unranked: 'Not ranked',
+    games: 'Games',
+    achievements: 'Achievements',
+    viewPlayer: 'View my player page',
     changePassword: 'Change password',
     current: 'Current password',
     newPassword: 'New password',
@@ -402,9 +404,9 @@ export const hub = {
     syncNow: 'Sync now',
     lastSync: (when: string) => `Last synced ${when}`,
     neverSynced: 'Not synced yet',
-    upload: 'Upload games from this phone',
-    inbox: 'Needs you',
-    inboxEmpty: 'Nothing needs you',
+    upload: 'Upload this phone’s games',
+    inbox: (n: number) => `Needs you (${n})`,
+    settings: 'Settings',
     signOut: 'Sign out',
     signOutOf: (email: string) => `Sign out of ${email}?`,
     pending: (n: number) =>

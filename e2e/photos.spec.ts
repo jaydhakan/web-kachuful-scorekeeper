@@ -46,7 +46,8 @@ test('a player adds a photo, it shows instead of the emoji, and can be removed',
 }) => {
   await signIn(page, 'riya');
   await expect(page.getByText(/Signed in as/)).toBeVisible();
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
+  await page.getByRole('button', { name: /Photo of Riya/ }).click();
   await page
     .getByLabel('Choose a photo for Riya')
     .setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: png(640, 480) });
@@ -79,7 +80,8 @@ test('the service worker keeps photos for offline, and no other API answer', asy
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
   await signIn(page, 'riya');
   await expect(page.getByText(/Signed in as/)).toBeVisible();
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
+  await page.getByRole('button', { name: /Photo of Riya/ }).click();
   await page
     .getByLabel('Choose a photo for Riya')
     .setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: png(64, 64) });

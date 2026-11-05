@@ -20,8 +20,9 @@ test('a wrong password says so; the right one signs in and shows the account', a
   await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Signed in as Jay')).toBeVisible();
-  await btn(page, 'Account').click();
-  await expect(page.getByText(/Signed in as admin@kachuful.test/i)).toBeVisible();
+  await btn(page, 'Me').click();
+  await expect(page.getByRole('heading', { name: 'Me' })).toBeVisible();
+  await expect(page.getByText(/admin@kachuful\.test/)).toBeVisible();
   await expect(btn(page, 'Admin')).toBeVisible();
 });
 
@@ -32,7 +33,7 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
   const email = `${uniq()}@example.com`;
   const name = uniq().slice(0, 10);
   await signIn(page, 'admin');
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
   await btn(page, 'Admin').click();
   await adminTab(page, 'People');
   await btn(page, 'Invite someone').click();
@@ -70,7 +71,7 @@ test('a reset link sets a new password', async ({ page }) => {
   await page.getByLabel('Password again').fill('first');
   await btn(page, 'Set password and start').click();
   // The account chip stays on screen; the toast saying so may be gone under load.
-  await expect(page.getByLabel('Account', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Me', { exact: true })).toBeVisible();
   await page.goto(`/?reset=${await makeResetLink(page, email)}`);
   await page.getByLabel('Password', { exact: true }).fill('second');
   await page.getByLabel('Password again').fill('second');
@@ -81,7 +82,7 @@ test('a reset link sets a new password', async ({ page }) => {
 test('signing out asks what to keep, then shows Sign in again', async ({ page }) => {
   await signIn(page, 'riya');
   await expect(page.getByText(/Signed in as/)).toBeVisible();
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
   await btn(page, 'Sign out').click();
   await btn(page, 'Keep games on this phone').click();
   await expect(page.getByText('Signed out')).toBeVisible();
@@ -107,7 +108,7 @@ test("an invite to a player's email offers that player, who claims their history
 
 test('the admin list shows a pending invite, and a new link replaces it', async ({ page }) => {
   await signIn(page, 'admin');
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
   await btn(page, 'Admin').click();
   await adminTab(page, 'People');
   // seed-demo leaves an invite for new.player@kachuful.test pending; the row opens its actions.
@@ -123,7 +124,7 @@ test("the admin edits a player's email, and players who sat at one table are nev
 }) => {
   const email = `zoya.${uniq()}@kachuful.test`;
   await signIn(page, 'admin');
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
   await btn(page, 'Admin').click();
   await adminTab(page, 'Players');
   const zoya = page.getByRole('button', { name: /^Open Zoya/ }).first();
@@ -149,7 +150,7 @@ test('the admin opens on what needs attention, and compares a likely duplicate s
   await addPlayer('riya', base, `${base.toLowerCase()}@example.com`);
   await addPlayer('kabir', base + 'a', `${base.toLowerCase()}a@example.com`);
   await signIn(page, 'admin');
-  await btn(page, 'Account').click();
+  await btn(page, 'Me').click();
   await btn(page, 'Admin').click();
   await expect(page.getByRole('heading', { name: 'Needs attention' })).toBeVisible();
   // Either order: the real backend sorts the pair its own way.

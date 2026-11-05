@@ -11,8 +11,7 @@ import { t } from '@/strings';
 export function InboxList() {
   const { actions } = useApp();
   const items = useArchive((a) => a.all('inbox').sort((x, y) => y.createdAt - x.createdAt));
-  if (!items.length)
-    return <p className="glass p-4 text-15 text-[var(--tx2)]">{t.hub.account.inboxEmpty}</p>;
+  if (!items.length) return null;
   return (
     <ul className="flex flex-col gap-2">
       {items.map((i) => (

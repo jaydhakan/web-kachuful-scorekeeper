@@ -13,7 +13,7 @@ for (const theme of ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gi
   test(`signed in: ${theme}`, async ({ page, context }) => {
     await context.addInitScript((t) => localStorage.setItem('kf.theme', t), theme);
     await signIn(page, ACCOUNTS.admin);
-    await page.getByText('Signed in as Jay').waitFor();
+    await page.getByRole('button', { name: 'Me', exact: true }).waitFor();
     await page.waitForTimeout(4500);
     const dir = `${OUT}/${theme}/p360`;
     await page.screenshot({ path: `${dir}/3-01-home-signed-in.png` });

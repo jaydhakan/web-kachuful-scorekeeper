@@ -206,7 +206,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email').fill(ACCOUNTS.admin.email);
   await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
-  await page.getByText(/Signed in as/).waitFor();
+  await page.getByRole('button', { name: 'Me', exact: true }).waitFor();
 }
 
 /** Back to Home: a reload drops the page stack. */
@@ -472,11 +472,7 @@ for (const device of RUN) {
       await home(page);
       await step(
         'account',
-        () =>
-          page
-            .getByRole('button', { name: /Signed in as|Account/ })
-            .first()
-            .click(),
+        () => page.getByRole('button', { name: 'Me', exact: true }).first().click(),
         1500,
       );
       await step('admin', () => btn(page, /Admin/).click(), 1500);
