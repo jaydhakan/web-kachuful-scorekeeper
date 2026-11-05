@@ -58,9 +58,11 @@ describe('archive', () => {
   });
 
   it('skips writing an unchanged game', () => {
-    archiveGame(real());
+    // One game, twice: the demo game is stamped with the clock, so two builds can differ by a millisecond.
+    const g = real();
+    archiveGame(g);
     const v = archive.version;
-    archiveGame(real());
+    archiveGame(g);
     expect(archive.version).toBe(v);
   });
 
