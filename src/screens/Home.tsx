@@ -13,6 +13,7 @@ import { destRoute, destsFor } from '@/components/hubNav';
 import { TodayStrip } from '@/components/TodayStrip';
 import { AccountChip } from '@/components/AccountChip';
 import { HomeOnlineStrip } from '@/components/HomeOnline';
+import { AlmostThere } from '@/components/AlmostThere';
 import { ContinueCard } from '@/components/ContinueCard';
 import { t } from '@/strings';
 import { Icon } from '@/components/ui/Icons';
@@ -154,6 +155,7 @@ export function Home() {
             <ContinueCard className="md:max-w-[26rem]" />
             {/* Short and sideways screens skip it, so Home still fits without scrolling. */}
             <HomeOnlineStrip className="md:max-w-[26rem] @h-short:hidden land:hidden" />
+            <AlmostThere className="md:max-w-[26rem] @h-short:hidden land:hidden" />
             <TodayStrip className="md:max-w-[26rem] @h-short:hidden land:hidden" />
             {/* Short screens keep one row of tiles, so Home still fits without scrolling (e2e/responsive.spec.ts). */}
             {/* Where to go, and the rules, as one grouped list. The column scrolls; New Game stays put. */}

@@ -547,6 +547,7 @@ export const hub = {
     notRanked: 'Not on the board yet',
     awardsToday: "Today's awards",
     seeAwards: 'All awards',
+    almost: 'Almost there',
   },
   game: {
     title: 'Game',

@@ -11,6 +11,7 @@ import { stagger } from '@/components/ui/stagger';
 import { DeskPage, Eyebrow, Kbd } from './DeskParts';
 import { TodayStrip } from '@/components/TodayStrip';
 import { HomeOnline } from '@/components/HomeOnline';
+import { AlmostThere } from '@/components/AlmostThere';
 import { ContinueCard } from '@/components/ContinueCard';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
@@ -92,6 +93,7 @@ export function DeskHome() {
           <ContinueCard className="max-w-[32.5rem]" />
           <TodayStrip className="max-w-[32.5rem]" />
           <HomeOnline className="max-w-[32.5rem]" />
+          <AlmostThere className="max-w-[32.5rem]" />
         </section>
         <m.section
           initial={{ opacity: 0, y: 30, scale: 0.97 }}
