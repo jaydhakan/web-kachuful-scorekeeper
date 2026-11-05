@@ -16,17 +16,17 @@ const row = (name: string, games: number, rounds: number): LeaderboardRow => ({
 });
 
 describe('pickRegulars', () => {
-  it('keeps only players with at least the minimum games, in board order', () => {
-    const rows = [row('A', 49, 900), row('B', 50, 800), row('C', 120, 700)];
-    expect(pickRegulars(rows, 10, 50).map((r) => r.player.id)).toEqual(['B', 'C']);
+  it('keeps only players with at least the minimum rounds, in board order', () => {
+    const rows = [row('A', 49, 900), row('B', 50, 500), row('C', 120, 499)];
+    expect(pickRegulars(rows, 10, 500).map((r) => r.player.id)).toEqual(['A', 'B']);
   });
 
   it('stops at top', () => {
     const rows = Array.from({ length: 15 }, (_, i) => row(`P${i}`, 60, 1000 - i));
-    expect(pickRegulars(rows, 10, 50)).toHaveLength(10);
+    expect(pickRegulars(rows, 10, 500)).toHaveLength(10);
   });
 
   it('is empty when nobody qualifies', () => {
-    expect(pickRegulars([row('A', 3, 30)], 10, 50)).toEqual([]);
+    expect(pickRegulars([row('A', 3, 30)], 10, 500)).toEqual([]);
   });
 });

@@ -107,15 +107,16 @@ const PILL =
 /** The players with the most rounds, signed in only. Hidden signed out and when the board can't be had. */
 function Regulars() {
   const signedIn = !!useApp().state.session;
-  const { top, minGames } = credits.regulars;
-  const r = useRemote(signedIn ? `lb:0:${ALL_TIME_TO}:rounds:${minGames}:${top}` : null, (o) =>
-    ep.leaderboard(0, ALL_TIME_TO, 'rounds', o, { minGames, limit: top }),
+  const { top, minRounds } = credits.regulars;
+  // Sorted by rounds, the top rows are the only ones that can pass the bar; the app trims the rest.
+  const r = useRemote(signedIn ? `lb:0:${ALL_TIME_TO}:rounds:${top}` : null, (o) =>
+    ep.leaderboard(0, ALL_TIME_TO, 'rounds', o, { limit: top }),
   );
   if (!signedIn || (!r.data && !r.loading)) return null;
-  const rows = r.data && pickRegulars(r.data.rows, top, minGames);
+  const rows = r.data && pickRegulars(r.data.rows, top, minRounds);
   return (
     <Box d="0.5s" icon={Icon.heart} title={t.hub.credits.regulars}>
-      <p className="px-3 text-13 text-[var(--text-2)]">{t.hub.credits.regularsRule(minGames)}</p>
+      <p className="px-3 text-13 text-[var(--text-2)]">{t.hub.credits.regularsRule(minRounds)}</p>
       {!rows ? (
         <div aria-busy className="flex gap-2 px-2.5 pb-3 pt-2.5">
           {[0, 1, 2].map((i) => (
@@ -123,7 +124,7 @@ function Regulars() {
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <p className="px-3 pb-3 pt-1.5 text-14">{t.hub.credits.regularsEmpty(minGames)}</p>
+        <p className="px-3 pb-3 pt-1.5 text-14">{t.hub.credits.regularsEmpty(minRounds)}</p>
       ) : (
         <ol className="flex flex-wrap gap-2 px-2.5 pb-3 pt-2.5">
           {rows.map((row, i) => (

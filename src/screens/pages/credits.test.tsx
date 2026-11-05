@@ -38,10 +38,10 @@ describe('the regulars on Credits', () => {
     expect(lb).not.toHaveBeenCalled();
   });
 
-  it('lists the most rounds among players with 50+ games, signed in', async () => {
+  it('lists the most rounds among players with 500+ rounds, signed in', async () => {
     signIn();
     const lb = vi.spyOn(ep, 'leaderboard').mockResolvedValue({
-      data: { rows: [row('Asha', 49, 900), row('Bo', 80, 700)], minRounds: 0, generatedAt: 0 },
+      data: { rows: [row('Bo', 80, 700), row('Asha', 49, 400)], minRounds: 0, generatedAt: 0 },
       status: 200,
       etag: null,
     });
@@ -50,11 +50,10 @@ describe('the regulars on Credits', () => {
     expect(item).toHaveTextContent('Bo');
     expect(item).toHaveTextContent('700 rounds');
     expect(screen.queryByText('Asha')).not.toBeInTheDocument();
-    // The server trims too; the app's own filter stays as the guard for one that doesn't.
-    expect(lb.mock.calls[0][4]).toEqual({ minGames: 50, limit: 10 });
+    expect(lb.mock.calls[0][4]).toEqual({ limit: 10 });
   });
 
-  it('says how to join when nobody has 50 games yet', async () => {
+  it('says how to join when nobody has 500 rounds yet', async () => {
     signIn();
     vi.spyOn(ep, 'leaderboard').mockResolvedValue({
       data: { rows: [row('Asha', 3, 30)], minRounds: 0, generatedAt: 0 },
@@ -62,6 +61,6 @@ describe('the regulars on Credits', () => {
       etag: null,
     });
     await show();
-    expect(await screen.findByText('Play 50 games to join the regulars.')).toBeInTheDocument();
+    expect(await screen.findByText('Play 500 rounds to join the regulars.')).toBeInTheDocument();
   });
 });
