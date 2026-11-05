@@ -12,7 +12,6 @@ import {
   ChipRow,
   EmptyState,
   Page,
-  Section,
   Skeleton,
 } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -21,6 +20,7 @@ import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';
 import { Icon } from '@/components/ui/Icons';
+import { Avatar } from '@/components/ui/Avatar';
 
 const h = t.hub.history;
 
@@ -112,7 +112,13 @@ export function HistoryPage() {
     );
   else
     body = groups.map((grp) => (
-      <Section key={grp.key} title={grp.label}>
+      <section key={grp.key} className="mb-6">
+        {/* The day stays in view while its games scroll under it; the next day pushes it away. */}
+        <h2 className="pointer-events-none sticky top-0 z-[1] mb-2.5">
+          <span className="glass inline-block !rounded-full px-3 py-1 text-13 font-bold uppercase tracking-[0.12em] text-[var(--tx2)]">
+            {grp.label}
+          </span>
+        </h2>
         <ul className="flex flex-col gap-2">
           {grp.rows.map((r, i) => (
             <m.li key={r.syncId} {...stagger(Math.min(i, 8))}>
@@ -120,7 +126,7 @@ export function HistoryPage() {
             </m.li>
           ))}
         </ul>
-      </Section>
+      </section>
     ));
 
   return (
@@ -167,6 +173,8 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
   else if (signedIn && rec.origin === 'local' && rec.syncedRev !== g.rev)
     badges.push(h.badge.unsynced);
   const line = gameLine(g);
+  const top = standings(g).filter((s) => s.rank === 1);
+  const winner = g.status === 'finished' && top.length === 1 ? top[0].p : null;
   return (
     <m.button
       type="button"
@@ -175,8 +183,14 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
       aria-label={h.rowLabel(`${dayLabel(at)} ${timeLabel(at)}`, line)}
       className="glass flex min-h-[4.5rem] w-full flex-col gap-1.5 px-4 py-3 text-left"
     >
-      <span className="block w-full text-16 font-bold leading-tight [overflow-wrap:anywhere]">
-        {line}
+      <span className="flex w-full items-center gap-2 text-16 font-bold leading-tight [overflow-wrap:anywhere]">
+        {winner && (
+          <Avatar
+            p={winner}
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-16"
+          />
+        )}
+        <span className="min-w-0">{line}</span>
       </span>
       <span className="flex w-full flex-wrap items-center gap-x-3 gap-y-1.5">
         <AvatarStack players={g.players} s={24} max={6} />
