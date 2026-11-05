@@ -99,7 +99,7 @@ function MergePick({
     <Sheet title={ad.mergePick(from.displayName)} onClose={onClose}>
       <Field label={t.hub.people.search} type="search" value={q} onChange={setQ} />
       {shown.length === 0 ? (
-        <p className="text-15 text-[var(--tx2)]">{ad.noMatch(q)}</p>
+        <EmptyState icon="search" title={ad.noMatch(q)} />
       ) : (
         <ul className="flex flex-col gap-1">
           {shown.map((p) => (
@@ -161,7 +161,7 @@ export function Players({ onCompare }: { onCompare: (a: string, b: string) => vo
         }
       >
         {shown.length === 0 ? (
-          <p className="text-15 text-[var(--tx2)]">{ad.noMatch(q)}</p>
+          <EmptyState icon="search" title={ad.noMatch(q)} />
         ) : (
           <ul className="flex flex-col gap-2">
             {shown.map((p, i) => (
