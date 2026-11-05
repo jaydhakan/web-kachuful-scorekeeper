@@ -302,6 +302,65 @@ export function careerAchievements(f: Facts): Earned[] {
   return out;
 }
 
+export type LadderId = 'hot' | 'cold' | 'wins' | 'games' | 'rounds' | 'made' | 'points' | 'crew';
+
+/** Achievements that are levels of one count, shown as one card; `steps[i]` is the count `codes[i]` needs. */
+export interface Ladder {
+  id: LadderId;
+  codes: string[];
+  steps: number[];
+}
+
+const ladder = (id: LadderId, prefix: string, steps: number[]): Ladder => ({
+  id,
+  codes: steps.map((n) => `${prefix}_${n}`),
+  steps,
+});
+
+export const LADDERS: Ladder[] = [
+  ladder('hot', 'hot', STEPS),
+  ladder('cold', 'cold', STEPS),
+  { id: 'wins', codes: ['first_win', 'back_to_back', 'hat_trick', 'dynasty'], steps: [1, 2, 3, 5] },
+  ladder('games', 'games', CAREER_GAMES),
+  ladder('rounds', 'rounds', CAREER_ROUNDS),
+  ladder('made', 'made', CAREER_MADE),
+  ladder('points', 'points', CAREER_POINTS),
+  ladder('crew', 'crew', [10, 25]),
+];
+
+export const LADDER_OF = new Map(LADDERS.flatMap((l) => l.codes.map((c) => [c, l] as const)));
+
+/**
+ * Each ladder's count for one player, counted the way the achievements above are earned: longest made and
+ * missed runs, longest run of wins, ended games, done rounds, bids made, points gained in rounds, opponents.
+ */
+export function ladderCounts(f: Facts, playerId: string): Record<LadderId, number> {
+  const rounds = f.rounds.filter((r) => r.playerId === playerId);
+  const ended = f.players
+    .filter((p) => p.endedAt != null && p.place != null)
+    .sort((a, b) => a.endedAt! - b.endedAt! || (a.gameId < b.gameId ? -1 : 1));
+  const mine = ended.filter((p) => p.playerId === playerId);
+  const games = new Set(mine.map((p) => p.gameId));
+  let run = 0,
+    wins = 0;
+  for (const p of mine) {
+    run = p.won ? run + 1 : 0;
+    wins = Math.max(wins, run);
+  }
+  return {
+    hot: Math.max(0, ...rounds.filter((r) => r.outcome === 'made').map((r) => r.runHot)),
+    cold: Math.max(0, ...rounds.filter((r) => r.outcome !== 'made').map((r) => r.runCold)),
+    wins,
+    games: mine.length,
+    rounds: rounds.length,
+    made: rounds.filter((r) => r.outcome === 'made').length,
+    points: rounds.reduce((s, r) => s + Math.max(0, r.points), 0),
+    crew: new Set(
+      ended.filter((p) => games.has(p.gameId) && p.playerId !== playerId).map((p) => p.playerId),
+    ).size,
+  };
+}
+
 /** Everything earned from a set of games (round, game and career), oldest first. */
 export function allAchievements(f: Facts, tz?: string): Earned[] {
   return [...roundMoments(f.rounds), ...gameFinishes(f, tz), ...careerAchievements(f)].sort(

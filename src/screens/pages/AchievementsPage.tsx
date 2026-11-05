@@ -1,12 +1,17 @@
 import { m } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
+  ACH,
   ACHIEVEMENTS,
   allAchievements,
+  LADDER_OF,
+  ladderCounts,
   type AchievementDef,
   type AchievementGroup,
   type Earned,
   type Facts,
+  type Ladder,
+  type LadderId,
 } from '@/domain';
 import { dayLabel } from '@/lib/dates';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
@@ -24,6 +29,15 @@ import { icon } from '@/components/ui/IconsMore';
 const a = t.hub.ach;
 const GROUPS: AchievementGroup[] = ['round', 'game', 'career', 'daily', 'season'];
 const TOTAL = ACHIEVEMENTS.length;
+type Counts = Partial<Record<LadderId, number>>;
+
+type Item = { x: AchievementDef; l?: never } | { l: Ladder; x?: never };
+/** A group's cards: each ladder of levels takes the place of its first level. */
+const cardsOf = (g: AchievementGroup) =>
+  ACHIEVEMENTS.filter((x) => x.group === g).flatMap((x): Item[] => {
+    const l = LADDER_OF.get(x.code);
+    return !l ? [{ x }] : l.codes[0] === x.code ? [{ l }] : [];
+  });
 
 /** The whole catalogue: earned ones lit with when and how often, locked ones saying how to earn them. */
 export function AchievementsPage({
@@ -48,6 +62,24 @@ export function AchievementsPage({
   const mine = who ? all.filter((e) => e.playerId === who) : all;
   const by = new Map<string, Earned[]>();
   for (const e of mine) by.set(e.code, [...(by.get(e.code) ?? []), e]);
+  // Signed in, the device holds only some games, so counts come from the server's totals; the ones it has no
+  // total for (crew, points gained, winning run) show their levels without a bar rather than a wrong number.
+  const profile = useRemote(signedIn && who ? `p:${who}` : null, (o) => ep.player(who!, o));
+  const local = useMemo(() => (who && !signedIn ? ladderCounts(f, who) : null), [f, who, signedIn]);
+  const tot = profile.data?.totals;
+  const counts: Counts | null = !who
+    ? null
+    : signedIn
+      ? tot
+        ? {
+            games: tot.gamesEnded,
+            rounds: tot.rounds,
+            made: tot.made,
+            hot: tot.longestHot,
+            cold: tot.longestCold,
+          }
+        : {}
+      : local;
   return (
     <Page
       wide
@@ -71,9 +103,28 @@ export function AchievementsPage({
       {GROUPS.map((g) => (
         <Section key={g} title={a.groups[g]}>
           <ul className="grid grid-cols-2 gap-2 md:grid-cols-3 land:grid-cols-3 wide:grid-cols-4 [[data-desk]_&]:grid-cols-4">
-            {ACHIEVEMENTS.filter((x) => x.group === g).map((x, i) => (
-              <Card key={x.code} x={x} i={i} got={by.get(x.code) ?? []} f={f} everyone={!who} />
-            ))}
+            {cardsOf(g).map((c, i) =>
+              c.l ? (
+                <LadderCard
+                  key={c.l.id}
+                  l={c.l}
+                  i={i}
+                  by={by}
+                  f={f}
+                  count={counts?.[c.l.id]}
+                  everyone={!who}
+                />
+              ) : (
+                <Card
+                  key={c.x.code}
+                  x={c.x}
+                  i={i}
+                  got={by.get(c.x.code) ?? []}
+                  f={f}
+                  everyone={!who}
+                />
+              ),
+            )}
           </ul>
         </Section>
       ))}
@@ -140,23 +191,20 @@ function Summary({ have, everyone }: { have: Set<string>; everyone: boolean }) {
   );
 }
 
-function Card({
-  x,
+/** The card every achievement sits in: gold outline, ✓ badge and a lit medallion once earned. */
+function Shell({
   i,
-  got,
-  f,
-  everyone,
+  earned,
+  emoji,
+  beside,
+  children,
 }: {
-  x: AchievementDef;
   i: number;
-  got: Earned[];
-  f: Facts;
-  everyone: boolean;
+  earned: boolean;
+  emoji: string;
+  beside?: ReactNode;
+  children: ReactNode;
 }) {
-  const earned = got.length > 0;
-  const last = got.reduce((m, e) => Math.max(m, e.earnedAt), 0);
-  const holders = [...new Set(got.map((e) => whoIs(f, e.playerId).name))];
-  const name = names[x.code].name;
   return (
     <m.li
       {...stagger(Math.min(i, 10))}
@@ -186,24 +234,121 @@ function Card({
               : 'border border-dashed border-ov/25'
           }`}
         >
-          {earned ? x.emoji : icon('locked', 'h-5 w-5 text-[var(--dis)]')}
+          {earned ? emoji : icon('locked', 'h-5 w-5 text-[var(--dis)]')}
         </span>
-        {got.length > 1 && (
-          <span className="disp text-17 font-extrabold text-[var(--accent)]">×{got.length}</span>
-        )}
+        {beside}
       </span>
-      <span className="mt-1 text-15 font-bold leading-tight">{name}</span>
-      <span className="text-13 leading-snug text-[var(--tx2)]">{names[x.code].how}</span>
+      {children}
+    </m.li>
+  );
+}
+
+const lastOf = (got: Earned[]) => got.reduce((m, e) => Math.max(m, e.earnedAt), 0);
+
+function Footer({ got, f, everyone }: { got: Earned[]; f: Facts; everyone: boolean }) {
+  const holders = [...new Set(got.map((e) => whoIs(f, e.playerId).name))];
+  return (
+    <>
       <span
-        className={`mt-auto pt-1 text-13 ${earned ? 'font-bold text-[var(--accent)]' : 'text-[var(--tx2)]'}`}
+        className={`mt-auto pt-1 text-13 ${got.length ? 'font-bold text-[var(--accent)]' : 'text-[var(--tx2)]'}`}
       >
-        {earned ? a.earned(dayLabel(last)) : a.locked}
+        {got.length ? a.earned(dayLabel(lastOf(got))) : a.locked}
       </span>
       {everyone && holders.length > 0 && (
         <span className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
           {a.by(holders.slice(0, 3).join(', ') + (holders.length > 3 ? '…' : ''))}
         </span>
       )}
-    </m.li>
+    </>
+  );
+}
+
+function Card({
+  x,
+  i,
+  got,
+  f,
+  everyone,
+}: {
+  x: AchievementDef;
+  i: number;
+  got: Earned[];
+  f: Facts;
+  everyone: boolean;
+}) {
+  return (
+    <Shell
+      i={i}
+      earned={got.length > 0}
+      emoji={x.emoji}
+      beside={
+        got.length > 1 && (
+          <span className="disp text-17 font-extrabold text-[var(--accent)]">×{got.length}</span>
+        )
+      }
+    >
+      <span className="mt-1 text-15 font-bold leading-tight">{names[x.code].name}</span>
+      <span className="text-13 leading-snug text-[var(--tx2)]">{names[x.code].how}</span>
+      <Footer got={got} f={f} everyone={everyone} />
+    </Shell>
+  );
+}
+
+/** Levels of one count as one card: a pip per level, and the way to the next one when the count is known. */
+function LadderCard({
+  l,
+  i,
+  by,
+  f,
+  count,
+  everyone,
+}: {
+  l: Ladder;
+  i: number;
+  by: Map<string, Earned[]>;
+  f: Facts;
+  count?: number;
+  everyone: boolean;
+}) {
+  const reached = l.codes.map((c) => (by.get(c)?.length ?? 0) > 0);
+  const top = reached.lastIndexOf(true);
+  const next = top + 1 < l.codes.length ? top + 1 : -1;
+  const s = a.ladders[l.id];
+  // The footer speaks for the highest level reached: when it was last earned, and by whom.
+  const got = top >= 0 ? (by.get(l.codes[top]) ?? []) : [];
+  return (
+    <Shell
+      i={i}
+      earned={top >= 0}
+      emoji={ACH.get(l.codes[Math.max(top, 0)])!.emoji}
+      beside={
+        <span
+          role="img"
+          aria-label={a.levels(reached.filter(Boolean).length, l.codes.length)}
+          className="flex gap-1"
+        >
+          {reached.map((r, k) => (
+            <span
+              key={k}
+              className={`h-2 w-2 rounded-full ${r ? 'bg-gold' : 'border border-ov/30'}`}
+            />
+          ))}
+        </span>
+      }
+    >
+      <span className="mt-1 text-15 font-bold leading-tight">{s.name}</span>
+      <span className="text-13 leading-snug text-[var(--tx2)]">
+        {next < 0 ? a.allLevels : a.next(names[l.codes[next]].name, names[l.codes[next]].how)}
+      </span>
+      {next >= 0 && count != null && (
+        <span className="mt-1 flex flex-col gap-1 text-13 text-[var(--tx2)]">
+          <Progress v={count} of={l.steps[next]} fill="bg-gold" />
+          <span className="tabular-nums">
+            {s.count} {Math.min(count, l.steps[next])} / {l.steps[next]}
+          </span>
+        </span>
+      )}
+      <Footer got={got} f={f} everyone={everyone} />
+    </Shell>
   );
 }

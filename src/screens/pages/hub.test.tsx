@@ -130,10 +130,14 @@ describe('boards, players and awards on this device', () => {
     expect(screen.getAllByText('Not earned yet').length).toBeGreaterThan(10);
     // The header counts each code once, out of the whole catalogue.
     const summary = screen.getByRole('region', { name: 'Achievements unlocked' });
-    const earned = screen.getAllByText(/^Earned · /).length;
     expect(within(summary).getByText(/% unlocked$/)).toBeInTheDocument();
-    expect(summary.textContent).toContain(`${earned} / 67`);
+    expect(summary.textContent).toMatch(/\d+ \/ 67/);
     expect(within(summary).getByLabelText(/^Round moments: \d+ of 16$/)).toBeInTheDocument();
+    // Levels of one count share a card, with the way to the next level (12 rounds played, 100 needed).
+    expect(screen.queryByText('Unstoppable')).not.toBeInTheDocument();
+    const rounds = screen.getByText('Rounds played').closest('li')!;
+    expect(within(rounds).getByRole('img', { name: '0 of 4 levels' })).toBeInTheDocument();
+    expect(within(rounds).getByText('Rounds 12 / 100')).toBeInTheDocument();
   });
 });
 
