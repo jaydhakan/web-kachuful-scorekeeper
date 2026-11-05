@@ -1,5 +1,6 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState, type CSSProperties } from 'react';
+import { whenIdle } from '@/lib/idle';
 import { useApp } from '@/state/store';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { palette, themeConfetti } from '@/theme/palette';
@@ -17,17 +18,19 @@ import { Toast } from '@/components/ui/Toast';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 import { DeskHome } from './DeskHome';
 import { DeskScoreboard } from './DeskScoreboard';
-import { DeskSetup } from './DeskSetup';
 import { DeskSummary } from './DeskSummary';
 import { DeskWinner } from './DeskWinner';
 import { KeysModal } from './Drawer';
 import { Rail, TopBar } from './Nav';
-import { RulesDrawer } from './RulesDrawer';
 import { UpcomingDrawer } from './UpcomingDrawer';
 import { Workspace } from './Workspace';
 import { Loader } from '@/components/ui/Loader';
 
 const Pages = lazy(() => import('@/screens/pages/Pages'));
+// Not needed for the first paint; fetched once the page is idle, so New Game still opens at once.
+const loadSetup = () => import('./DeskSetup');
+const DeskSetup = lazy(() => loadSetup().then((m) => ({ default: m.DeskSetup })));
+const RulesDrawer = lazy(() => import('./RulesDrawer').then((m) => ({ default: m.RulesDrawer })));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((m) => ({ default: m.Confetti })),
 );
@@ -54,6 +57,7 @@ export default function DeskShell() {
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
   }, [rm, fresh, actions]);
+  useEffect(() => whenIdle(() => void loadSetup()), []);
   useShortcuts(
     {
       '?': () => setKeys(true),
@@ -76,7 +80,9 @@ export default function DeskShell() {
   ) : screen === 'home' ? (
     <DeskHome />
   ) : screen === 'setup' ? (
-    <DeskSetup />
+    <Suspense fallback={<Loader />}>
+      <DeskSetup />
+    </Suspense>
   ) : screen === 'winner' ? (
     <DeskWinner />
   ) : game.ui.view === 'summary' ? (
@@ -143,7 +149,9 @@ export default function DeskShell() {
       <AnimatePresence>
         {overlay &&
           (sheet.type === 'rules' ? (
-            <RulesDrawer key="rules" />
+            <Suspense key="rules" fallback={null}>
+              <RulesDrawer />
+            </Suspense>
           ) : sheet.type === 'upcoming' ? (
             <UpcomingDrawer key="upcoming" />
           ) : (

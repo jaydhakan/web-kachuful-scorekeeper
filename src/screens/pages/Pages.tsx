@@ -1,8 +1,9 @@
+import { lazy, Suspense } from 'react';
 import type { Route } from '@/state/types';
+import { Page, Skeleton } from '@/components/ui/Page';
 import { AccountPage } from './AccountPage';
 import { ActivityPage } from './ActivityPage';
 import { AchievementsPage } from './AchievementsPage';
-import { AdminPage } from './AdminPage';
 import { InvitePage, ResetPage, SignInPage } from './AuthPages';
 import { FreshPage } from './FreshPage';
 import { CreditsPage } from './CreditsPage';
@@ -16,6 +17,10 @@ import { PlayerPage } from './PlayerPage';
 import { PlayersPage } from './PlayersPage';
 import { LivePage, RecapPage } from './ViewerPages';
 import { WrappedPage } from './WrappedPage';
+import { t } from '@/strings';
+
+// Only admins open it, so its screens and strings stay out of everyone else's download.
+const AdminPage = lazy(() => import('./AdminPage').then((m) => ({ default: m.AdminPage })));
 
 /** The screen for a route on the nav stack. Its own chunk: the game screens never wait for it. */
 export default function Pages({ route }: { route: Route }) {
@@ -48,7 +53,17 @@ export default function Pages({ route }: { route: Route }) {
     case 'account':
       return <AccountPage />;
     case 'admin':
-      return <AdminPage />;
+      return (
+        <Suspense
+          fallback={
+            <Page title={t.hub.nav.admin}>
+              <Skeleton rows={4} />
+            </Page>
+          }
+        >
+          <AdminPage />
+        </Suspense>
+      );
     case 'activity':
       return <ActivityPage />;
     case 'live':

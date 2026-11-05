@@ -6,12 +6,13 @@ import { AvatarBody, RenameBody, SeatBody } from './SeatBodies';
 import { BoardBody } from './BoardBody';
 import { EditBody } from './EditBody';
 import { MenuBody } from './MenuBody';
-import { RulesBody } from './RulesBody';
 import { UpcomingBody } from './UpcomingBody';
 import { t } from '@/strings';
 
 const ThemeBody = lazy(() => import('./ThemeBody').then((m) => ({ default: m.ThemeBody })));
 const ShareBody = lazy(() => import('./ShareBody'));
+// The rules are long text read now and then: not part of the first download.
+const RulesBody = lazy(() => import('./RulesBody').then((m) => ({ default: m.RulesBody })));
 const AddPlayerBody = lazy(() =>
   import('./AddPlayerBody').then((m) => ({ default: m.AddPlayerBody })),
 );
@@ -33,7 +34,15 @@ function specFor(
     case 'menu':
       return { title: t.sheets.menu.title, body: <MenuBody /> };
     case 'rules':
-      return { title: t.sheets.rulesTitle, body: <RulesBody game={game} />, roomy: 'panel' };
+      return {
+        title: t.sheets.rulesTitle,
+        body: (
+          <Suspense fallback={null}>
+            <RulesBody game={game} />
+          </Suspense>
+        ),
+        roomy: 'panel',
+      };
     case 'board':
       return { title: t.sheets.boardTitle, body: <BoardBody />, full: true, roomy: 'board' };
     case 'edit':

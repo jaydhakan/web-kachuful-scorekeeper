@@ -6,9 +6,9 @@ import { ep } from '@/sync/endpoints';
 import type { Player } from '@/sync/types';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { authError } from '../AuthPages';
-import { t } from '@/strings';
+import { admin } from '@/strings/admin';
 
-export const ad = t.hub.admin;
+export const ad = admin;
 
 export const adminError = (e: unknown) =>
   e instanceof ApiError && ad.errors[e.code] ? ad.errors[e.code] : authError(e);
