@@ -29,6 +29,7 @@ import { useRemote } from '@/sync/useRemote';
 import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { PODIUM_BG } from '@/components/ui/podium';
 import { icon } from '@/components/ui/IconsMore';
 
 const aw = t.hub.awards;
@@ -329,8 +330,10 @@ function Podium({ s, f }: { s: ReturnType<typeof season>; f: Facts | null }) {
               initial={rm ? false : { scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ ...SPRING_POP, delay: 0.15 * (2 - k) }}
-              className={`w-full origin-bottom rounded-t-xl bg-ov/[.08] ${['h-20', 'h-14', 'h-10'][k]}`}
-            />
+              className={`disp grid w-full origin-bottom place-items-start justify-center rounded-t-xl pt-1 text-24 font-extrabold text-ink-podium ${PODIUM_BG[r.rank as 1 | 2 | 3]} ${['h-20', 'h-14', 'h-10'][k]}`}
+            >
+              {r.rank}
+            </m.span>
           </div>
         );
       })}
