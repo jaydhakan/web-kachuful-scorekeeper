@@ -15,7 +15,8 @@ import { dayLabel } from '@/lib/dates';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { Chip, ChipRow, Page, Section } from '@/components/ui/Page';
 import { Progress, ProgressRing } from '@/components/ui/Stats';
-import { GoldEdge, Medal } from '@/components/ui/Medal';
+import { Medal } from '@/components/ui/Medal';
+import { Edge } from '@/components/ui/Edge';
 import { stagger } from '@/components/ui/stagger';
 import { achievements as names } from '@/strings/achievements';
 import { useApp } from '@/state/store';
@@ -215,7 +216,7 @@ function Shell({
       {...stagger(Math.min(i, 10))}
       className="glass relative flex min-h-[7.5rem] flex-col gap-1 p-3"
     >
-      {earned && <GoldEdge />}
+      {earned && <Edge />}
       {earned && (
         <span
           aria-hidden

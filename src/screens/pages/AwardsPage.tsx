@@ -32,7 +32,8 @@ import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { PODIUM_BG } from '@/components/ui/podium';
-import { GoldEdge, Medal } from '@/components/ui/Medal';
+import { Medal } from '@/components/ui/Medal';
+import { Edge } from '@/components/ui/Edge';
 import { icon } from '@/components/ui/IconsMore';
 
 const aw = t.hub.awards;
@@ -59,7 +60,7 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
         onClick={() => actions.open({ screen: 'player', params: { id: a.playerId } })}
         className="press glass relative flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left"
       >
-        <GoldEdge />
+        <Edge />
         <Medal emoji={ACH.get(a.code)?.emoji ?? ''} size="sm" />
         <span className="min-w-0 flex-1">
           <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--accent)]">
@@ -313,7 +314,7 @@ function PastChampions({
                   onClick={() => onPick(c.season)}
                   className="press glass relative flex min-h-[8.5rem] w-full flex-col items-center gap-1.5 px-2 py-3 text-center"
                 >
-                  {w && <GoldEdge />}
+                  {w && <Edge />}
                   <span className="text-13 font-bold uppercase tracking-[0.08em] text-[var(--tx2)]">
                     {label}
                   </span>

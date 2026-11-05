@@ -13,7 +13,8 @@ import {
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { achievements as names } from '@/strings/achievements';
 import { t } from '@/strings';
-import { GoldEdge, Medal } from './ui/Medal';
+import { Medal } from './ui/Medal';
+import { Edge } from './ui/Edge';
 
 // Both hooks read every achievement on the device; worked out once per set of facts.
 const cache = new WeakMap<Facts, Earned[]>();
@@ -141,7 +142,7 @@ export function LevelUps({ g, heading }: { g: Game; heading: string }) {
               transition={{ type: 'spring', stiffness: 260, damping: 26, delay: 0.2 + i * 0.06 }}
               className="glass relative flex min-h-16 items-center gap-3 px-3 py-2"
             >
-              <GoldEdge />
+              <Edge />
               <Medal emoji={ACH.get(u.ladder.codes[top])?.emoji ?? ''} size="sm" />
               <span className="min-w-0 flex-1">
                 <span className="block text-15 font-bold leading-tight [overflow-wrap:anywhere]">

@@ -19,6 +19,7 @@ import { THEME_IDS, type Appearance, type ThemeId } from '@/theme/themes';
 import { seatColor } from '@/theme/palette';
 import { COLORS } from '@/domain';
 import { admin } from '@/strings/admin';
+import { Edge } from '@/components/ui/Edge';
 
 const ap = admin.appearance;
 
@@ -144,8 +145,9 @@ export function AppearancePanel() {
               whileTap={PRESS}
               transition={SPRING}
               onClick={() => setPick(id)}
-              className={`glass flex items-center gap-3 p-2 text-left ${pick === id ? 'shadow-[inset_0_0_0_2px_var(--brand)]' : ''}`}
+              className="glass relative flex items-center gap-3 p-2 text-left"
             >
+              {pick === id && <Edge tone="brand" />}
               <ThemePreview id={id} />
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="text-17 font-bold">{themeLabel(id)}</span>

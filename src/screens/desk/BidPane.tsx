@@ -11,6 +11,7 @@ import type { bidView } from '@/screens/round/roundView';
 import { KeyHints, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { Edge } from '@/components/ui/Edge';
 
 export type BidPrimary = 'lock' | 'start' | 'wait';
 
@@ -112,8 +113,9 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
               whileHover={lock ? undefined : { y: -3 }}
               whileTap={PRESS_SM}
               onClick={(e) => onKey(k, e.currentTarget)}
-              className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'} ${saved ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
+              className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
             >
+              {saved && <Edge tone="saved" />}
               {sel && (
                 <m.span
                   layoutId="ws-key"

@@ -25,6 +25,7 @@ import { RemoteGate } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
+import { Edge } from '@/components/ui/Edge';
 
 const b = t.hub.boards;
 /** Unranked rows shown before "Show all"; ranked rows are never folded. */
@@ -284,15 +285,21 @@ function Row({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING, delay: rm ? 0 : Math.min(i, 12) * 0.02 }}
-      className={you ? 'sticky bottom-2 top-2 z-10' : ''}
+      // The pinned row floats over the list, so it needs a shadow to not read as the row beneath it.
+      className={
+        you
+          ? 'sticky bottom-2 top-2 z-10 rounded-[var(--r-card,22px)] shadow-[0_10px_28px_-6px_var(--drop)]'
+          : ''
+      }
     >
       <m.button
         type="button"
         whileTap={PRESS}
         onClick={() => actions.open({ screen: 'player', params: { id: r.playerId } })}
         aria-label={b.row(r.rank ? `#${r.rank}` : b.unrankedShort, w.name, value)}
-        className={`glass flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left ${you ? 'shadow-[inset_0_0_0_1.5px_var(--accent)]' : ''}`}
+        className="glass relative flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left"
       >
+        {you && <Edge tone="accent" />}
         {/* The movement sits under the rank, so rows without one don't leave a gap before the avatar. */}
         <span className="flex w-8 shrink-0 flex-col items-center">
           <span
