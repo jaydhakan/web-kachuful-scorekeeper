@@ -175,23 +175,27 @@ export function AccountPage() {
             </div>
           </form>
         ) : (
-          <div className="glass flex flex-wrap items-center gap-3 p-4">
+          <div className="glass flex flex-wrap items-center gap-x-4 gap-y-4 p-4">
             <Avatar p={p} className="grid h-14 w-14 place-items-center rounded-full text-30" />
-            <span className="min-w-0 flex-1">
-              <span className="disp block text-22 font-extrabold [overflow-wrap:anywhere]">
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="disp block text-22 font-extrabold leading-tight [overflow-wrap:anywhere]">
                 {p.displayName}
               </span>
-              <span className="block text-14 text-[var(--tx2)]">
-                {[p.firstName, p.lastName].filter(Boolean).join(' ')}
-              </span>
+              {(p.firstName || p.lastName) && (
+                <span className="block text-14 text-[var(--tx2)]">
+                  {[p.firstName, p.lastName].filter(Boolean).join(' ')}
+                </span>
+              )}
               {'email' in p && p.email && (
-                <span className="block text-13 text-[var(--tx2)]">{p.email}</span>
+                <span className="block text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
+                  {p.email}
+                </span>
               )}
             </span>
             <button
               type="button"
               onClick={startEdit}
-              className="press min-h-12 rounded-xl px-3 font-bold text-[var(--accent)]"
+              className="press min-h-12 self-start rounded-xl px-3 font-bold text-[var(--accent)]"
             >
               {ac.edit}
             </button>
@@ -204,13 +208,13 @@ export function AccountPage() {
           <p className="text-15 text-[var(--tx2)]">
             {status.lastSyncAt ? ac.lastSync(agoTxt(status.lastSyncAt)) : ac.neverSynced}
           </p>
-          <div className="flex flex-wrap gap-2">
-            <PrimaryButton className="px-5" onClick={() => void syncNow()}>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <PrimaryButton className="w-full px-5" onClick={() => void syncNow()}>
               {ac.syncNow}
             </PrimaryButton>
             <PrimaryButton
               tone="glass"
-              className="px-5"
+              className="w-full px-5"
               onClick={() => actions.open({ screen: 'import' })}
             >
               {ac.upload}
@@ -242,17 +246,17 @@ export function AccountPage() {
           </PrimaryButton>
         </form>
       </Section>
-      <div className="flex flex-wrap gap-3">
+      <div className={`mt-2 grid gap-3 ${s.user.role === 'admin' ? 'grid-cols-2' : ''}`}>
         {s.user.role === 'admin' && (
           <PrimaryButton
             tone="glass"
-            className="px-6"
+            className="w-full gap-2 px-4"
             onClick={() => actions.open({ screen: 'admin' })}
           >
             {icon('shield')} {ac.admin}
           </PrimaryButton>
         )}
-        <PrimaryButton tone="danger" className="px-6" onClick={() => setAsk(true)}>
+        <PrimaryButton tone="danger" className="w-full px-4" onClick={() => setAsk(true)}>
           {ac.signOut}
         </PrimaryButton>
       </div>

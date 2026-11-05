@@ -34,14 +34,14 @@ export function Page({ title, label, eyebrow, actions, wide, sub, children }: Pa
     <div className="absolute inset-0 flex flex-col">
       <header className="shrink-0 pl-[max(0.5rem,var(--sal))] pr-[max(1rem,var(--sar))] pt-[calc(var(--sat)+0.5rem)] [[data-desk]_&]:px-6 [[data-desk]_&]:pt-4 rail:[[data-desk]_&]:pt-[calc(1.5rem+var(--sat))] tl:[[data-desk]_&]:px-7 dt:[[data-desk]_&]:px-8">
         <div
-          className={`mx-auto flex w-full items-center gap-1 [[data-desk]_&]:gap-3 ${wide ? 'max-w-[64rem]' : 'max-w-[44rem]'}`}
+          className={`mx-auto flex w-full items-center gap-3 ${wide ? 'max-w-[64rem]' : 'max-w-[44rem]'}`}
         >
           <IconButton chrome label={t.common.back} onClick={a.back} className="shrink-0">
             {Icon.back}
           </IconButton>
           <div className="min-w-0 flex-1">
             {eyebrow && (
-              <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+              <div className="mb-1 text-13 font-bold uppercase leading-tight tracking-[0.12em] text-[var(--accent)] [overflow-wrap:anywhere]">
                 {eyebrow}
               </div>
             )}

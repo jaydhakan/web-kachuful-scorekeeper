@@ -401,7 +401,7 @@ function Explore({ year }: { year: number }) {
       : []),
   ];
   return (
-    <Section title={aw.explore}>
+    <Section title={aw.explore} className="mt-8">
       <nav aria-label={aw.explore} className="glass overflow-hidden">
         {links.map((l, k) => (
           <button
