@@ -26,6 +26,9 @@ Source of truth: `src/styles/themes.css`. Four themes share one set of component
   `--art-trump-<suit>`), which the other themes set to `none`. Components paint it through classes (`.card-art`,
   `.trump-face`, `TrumpMark`), so none knows which theme has art and other themes never download it. A trump with no
   file keeps its suit symbol; never show another suit's card. It never leaves the app (share image, icons, manifest).
+  Backgrounds only download once something on screen uses them, so `src/theme/art.ts` imports the same files and
+  fetches and decodes them when the theme is shown, then sets `<html data-art-ready>`. The suit symbol is hidden only
+  under that flag, so a face is never blank (offline included), and `RoundStart` waits up to 300ms for the art.
 - **Theme hooks** have a neutral value in every theme: `--card-back-edge`, `--reveal-hold` (ms the round intro holds
   the fanned backs; read once by `RoundStart`), `--fan-*`, `--reveal-rays`, `--reveal-glint`, `--name-frame`, the
   `--m-back` preview token, and slots that only one theme paints (`.suit-ring`, `.trump-mini`, `.empty-card`,
@@ -121,3 +124,5 @@ Glass's wallpaper is checked by screenshot, since the wallpaper is a gradient.
 - **Touch targets** are at least 44px (`max(44px, 2.75rem)`), hover styles apply only on devices that can hover (`future.hoverOnlyWhenSupported`), and every control has a visible focus ring.
 - **The table has its own unit.** Inside a table, sizes are `calc(N * var(--s))` where `--s` is one design pixel at the table's current size, so an avatar, a bubble or a chip scales with the seats; text stays on the type scale and never shrinks below `text-13`.
 - **Scrollbars** are hidden on touch and thin and themed on devices with a fine pointer (`.scroll-thin`); a hidden scrollbar on a laptop hides the fact that content scrolls.
+- **Lists that open something** (Admin's People and Players, the Overview's attention items) are full-width `glass` rows, at least 64px tall, with a trailing chevron. The row is the one button, and its actions live in the sheet it opens, so a list never carries rows of equal-weight buttons.
+- **A tall sheet opened from a page renders beside the `Page`, not inside it.** The page's scroll area fades its top edge (`edge-fade-top`), which would fade out the sheet's title (see `AdminPage` and `MergeCompare`).
