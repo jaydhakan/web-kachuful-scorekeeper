@@ -57,6 +57,8 @@ export function Home() {
     r = curRound(g),
     ld = standings(g)[0];
   const fin = g.status === 'finished';
+  // Signed in, the rank and level cards below matter more than the logo: a phone shows it smaller.
+  const compact = !!state.session;
   const demo = g.id === 'demo';
   return (
     <div className={ROOT}>
@@ -83,14 +85,18 @@ export function Home() {
               initial={{ opacity: 0, scale: 0.94, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1, ease: EASE }}
-              className="relative aspect-[8/5] w-[min(100%,20rem)] @h-short:w-[min(100%,17.5rem)] md:w-[min(100%,28rem)] land:w-[min(100cqw,160cqh,26rem)] wide:w-[min(100cqw,160cqh,32rem)]"
+              className={`relative aspect-[8/5] ${compact ? 'w-[min(100%,14rem)]' : 'w-[min(100%,20rem)] @h-short:w-[min(100%,17.5rem)]'} md:w-[min(100%,28rem)] land:w-[min(100cqw,160cqh,26rem)] wide:w-[min(100cqw,160cqh,32rem)]`}
             >
               <Orbit />
               <div className="absolute inset-0 grid place-content-center text-center">
-                <h1 className="disp gold-text wordmark text-72 font-extrabold leading-none tracking-[-0.055em] @h-short:text-64 md:text-96 land:text-52 land:@[24rem]:text-72 wide:text-96">
+                <h1
+                  className={`disp gold-text wordmark font-extrabold leading-none tracking-[-0.055em] ${compact ? 'text-52' : 'text-72 @h-short:text-64'} md:text-96 land:text-52 land:@[24rem]:text-72 wide:text-96`}
+                >
                   {t.appName}
                 </h1>
-                <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)] md:text-18 wide:text-18">
+                <p
+                  className={`tracking-[0.02em] text-[var(--tx2)] md:text-18 wide:text-18 ${compact ? 'mt-1 text-14' : 'mt-2 text-16'}`}
+                >
                   {t.tagline}
                 </p>
               </div>
