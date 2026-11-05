@@ -408,10 +408,14 @@ export function Table({
                   style={
                     lead && size !== 'mini'
                       ? { left: '50%', top: dpx(wide ? -24 : -22), translate: '-50% 0' }
-                      : {
-                          left: `calc(50% + ${dpx(size === 'mini' ? 6 : 10)})`,
-                          top: dpx(size === 'mini' ? -9 : -8),
-                        }
+                      : size === 'mini' && !named
+                        ? // Without names the space above is free; off to one side, the closer seats of a crowded
+                          // table would put it on the neighbour's avatar.
+                          { left: '50%', top: `calc(${dpx(7)} - 18px)`, translate: '-50% 0' }
+                        : {
+                            left: `calc(50% + ${dpx(size === 'mini' ? 6 : 10)})`,
+                            top: dpx(size === 'mini' ? -9 : -8),
+                          }
                   }
                 >
                   {lead && size !== 'mini' ? (
