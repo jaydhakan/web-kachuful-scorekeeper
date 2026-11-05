@@ -98,7 +98,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
   const today = dayOf(Date.now());
   // Signed in, the awards are the server's (Kolkata days and months); signed out, this device's.
   const signedIn = !!useApp().state.session;
-  // Closed days and seasons never change (HANDOFF §5.5): a cached one is never asked for again.
+  // Closed days and seasons never change: a cached one is never asked for again.
   const rDay = useRemote(signedIn ? `daily:${day}` : null, (o) => ep.daily(day, o), isFinal);
   const rSeasons = useRemote(signedIn ? 'seasons' : null, (o) => ep.seasons(o));
   const months = signedIn && rSeasons.data ? rSeasons.data.map((x) => x.season) : src.months;

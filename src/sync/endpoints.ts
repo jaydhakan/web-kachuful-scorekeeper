@@ -48,7 +48,7 @@ export interface AppearanceDto {
 /** `PATCH /api/me/preferences`: fields sent replace the stored ones, `null` clears one, fields left out stay. */
 export type PrefsPatch = Partial<Pick<Preferences, 'theme' | 'setup'>>;
 
-/** One function per endpoint in the backend's HANDOFF.md §6, typed as built. */
+/** One function per API endpoint, typed as built. */
 export const ep = {
   // §6.3 auth
   login: (email: string, password: string) => post<AuthResp>('/auth/login', { email, password }),

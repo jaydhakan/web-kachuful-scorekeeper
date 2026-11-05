@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { freshBackend, signIn } from './backend';
 import { btn } from './helpers';
 
-// Player photos (HANDOFF §5.7): mock API, or a real backend with E2E_API=local.
+// Player photos: mock API, or a real backend with E2E_API=local.
 freshBackend();
 
 /** A plain RGB PNG, so the test needs no image file: the app squares and shrinks it, the server re-encodes it. */

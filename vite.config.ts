@@ -131,7 +131,7 @@ const shellCommon = (id: string, g: Graph) => {
   return !by.includes('entry') && SHELLS.every((s) => by.includes(s)) ? 'shell-common' : null;
 };
 
-// The real backend (HANDOFF §2) behind the dev and preview servers, so the app and the API share one origin.
+// The real backend behind the dev and preview servers, so the app and the API share one origin.
 const API_TARGET = process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000';
 const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
 
@@ -181,7 +181,7 @@ export default defineConfig(({ mode }) => ({
         // The API and the link-preview pages are the server's, never the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/r\//, /^\/l\//],
         cleanupOutdatedCaches: true,
-        // Player photos only (HANDOFF §5.7): public, versioned and immutable, so a cached copy is never stale and
+        // Player photos only: public, versioned and immutable, so a cached copy is never stale and
         // holds nothing private. Every other /api/ answer stays out of the worker: it is private and ETag-checked.
         runtimeCaching: [
           {

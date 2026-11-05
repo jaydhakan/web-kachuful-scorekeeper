@@ -1,6 +1,6 @@
 /**
  * The app's only network code (with the rest of src/sync): fetch with the session cookie, the CSRF header on writes,
- * and errors mapped to the codes in the backend's HANDOFF.md §6.1. A signed-out app never calls any of this.
+ * and errors mapped to the API's error codes. A signed-out app never calls any of this.
  */
 
 export const API = '/api';

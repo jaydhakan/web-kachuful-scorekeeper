@@ -1,6 +1,6 @@
 /**
  * Picking a profile photo: decoded upright, framed with a square crop the person can move and zoom, then drawn
- * 256×256 as WebP (JPEG where the browser can't write WebP). HANDOFF §5.7 allows 2 MB and the server re-encodes.
+ * 256×256 as WebP (JPEG where the browser can't write WebP). The API allows 2 MB and the server re-encodes.
  */
 export type Photo = ImageBitmap | HTMLCanvasElement;
 

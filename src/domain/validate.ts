@@ -4,7 +4,7 @@ import { standings } from './standings';
 import { fits } from './tricks';
 import type { Game } from './types';
 
-/** The server's `invalid_game` reasons (the backend's HANDOFF.md §5.1). */
+/** The server's `invalid_game` reasons. */
 export type InvalidReason =
   'players' | 'max_cards' | 'round_plan' | 'round_order' | 'bids' | 'results' | 'tricks' | 'times';
 

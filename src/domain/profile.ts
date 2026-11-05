@@ -8,7 +8,7 @@ export interface MadeOf {
   total: number;
 }
 
-/** The contract's PlayerStats (the backend's HANDOFF.md §6.2) for one player over [from, to). */
+/** The contract's PlayerStats for one player over [from, to). */
 export interface ProfileStats {
   points: number;
   rounds: number;

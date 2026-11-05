@@ -1,6 +1,6 @@
 /**
- * The API as built (the backend's HANDOFF.md §6) in memory, for building and testing the app without the backend.
- * Dev and e2e only; its seed has the backend's demo accounts and players (HANDOFF §3), so the same tests run against
+ * The API as built, in memory, for building and testing the app without the backend.
+ * Dev and e2e only; its seed has the backend's demo accounts and players, so the same tests run against
  * either. It reuses the app's domain for every number. Not covered: OG images, real QR codes, photo re-encoding,
  * rate limits other than login, persistence across restarts.
  */
@@ -140,7 +140,7 @@ const account = (email: string, password: string, role: User['role'], at: number
 });
 
 /**
- * The backend's demo seed (HANDOFF §3): three accounts, nine players with `<name>@kachuful.test` emails, a pending
+ * The backend's demo seed: three accounts, nine players with `<name>@kachuful.test` emails, a pending
  * invite for new.player@kachuful.test, and a week of games so every screen has something to show.
  */
 export function seed(now = Date.now()) {
@@ -1128,7 +1128,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const sum = gameSummary(rec);
   if (!wasEnded && sum.endedAt)
     feed({ kind: 'game_finished', player: null, game: sum, data: {}, createdAt: Date.now() });
-  // The server feeds every achievement, round moments included (HANDOFF §10).
+  // The server feeds every achievement, round moments included.
   for (const e of earned)
     feed({
       kind: 'achievement',

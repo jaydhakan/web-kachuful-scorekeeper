@@ -3,7 +3,7 @@ import { ep } from './endpoints';
 import { isTombstone } from './types';
 
 /**
- * The client against responses copied from the backend's HANDOFF.md (§5.7 checks, §6 reference): the paths and
+ * The client against responses copied from the API as built: the paths and
  * queries it builds, the shapes it gets back, and every error code a call can answer.
  */
 type Call = [string, RequestInit];
@@ -45,7 +45,7 @@ const ASHA = {
   createdByName: 'Riya',
 };
 
-describe('players: the same-player rule (HANDOFF §5.7)', () => {
+describe('players: the same-player rule', () => {
   it('check sends name and email, and only a match names a player', async () => {
     const calls = serve(200, { status: 'match', player: ASHA });
     const r = await ep.checkPlayer('asha', 'ASHA@kachuful.test');
@@ -124,7 +124,7 @@ describe('players: the same-player rule (HANDOFF §5.7)', () => {
   });
 });
 
-describe('players: photos (HANDOFF §5.7)', () => {
+describe('players: photos', () => {
   it('uploads the raw image with its own type and gets the versioned URL back', async () => {
     const calls = serve(200, { photoUrl: `/api/players/${ASHA.id}/photo?v=1` });
     const img = new Blob([new Uint8Array(10)], { type: 'image/webp' });
@@ -157,7 +157,7 @@ describe('players: photos (HANDOFF §5.7)', () => {
   });
 });
 
-describe('auth and invites (HANDOFF §6.3)', () => {
+describe('auth and invites', () => {
   it('login returns the player too', async () => {
     serve(200, {
       user: { id: 'u', email: 'riya@kachuful.test', role: 'member', playerId: 'p', createdAt: 1 },
@@ -192,7 +192,7 @@ describe('auth and invites (HANDOFF §6.3)', () => {
   });
 });
 
-describe('games (HANDOFF §5.1, §6.5)', () => {
+describe('games', () => {
   it('uploads to the syncId and sends the game as it is', async () => {
     const calls = serve(200, { rev: 1, earned: [] });
     const g = { id: 'g-5c0ffee0', syncId: '5c0ffee0-0000-4000-8000-000000000001', rev: 1 };
@@ -232,7 +232,7 @@ describe('games (HANDOFF §5.1, §6.5)', () => {
   });
 });
 
-describe('admin (HANDOFF §6.4)', () => {
+describe('admin', () => {
   it('lists invite-only rows with a null user and no link', async () => {
     serve(200, [
       {
@@ -256,7 +256,7 @@ describe('admin (HANDOFF §6.4)', () => {
   });
 });
 
-describe('boards and ETags (HANDOFF §5.5)', () => {
+describe('boards and ETags', () => {
   it('passes If-None-Match and resolves a 304 without a body', async () => {
     const f = vi.fn(async () => new Response(null, { status: 304, headers: { ETag: 'W/"7"' } }));
     vi.stubGlobal('fetch', f);

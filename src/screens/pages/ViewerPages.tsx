@@ -32,7 +32,7 @@ type LiveState =
   | { k: 'offline' }
   | { k: 'on'; game: Game; updatedAt: number; scorerSeenAt: number | null };
 
-/** HANDOFF §6.7: 404 is an unknown link, 410 one turned off (or its game deleted). */
+/** 404 is an unknown link, 410 one turned off (or its game deleted). */
 const goneOrMissing = (e: unknown): { k: 'revoked' | 'missing' | 'offline' } =>
   e instanceof ApiError && e.offline
     ? { k: 'offline' }

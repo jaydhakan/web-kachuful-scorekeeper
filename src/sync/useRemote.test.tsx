@@ -15,7 +15,7 @@ const reply = (status: number, body?: unknown, etag?: string) =>
 beforeEach(() => archive.ready);
 afterEach(() => vi.unstubAllGlobals());
 
-describe('useRemote (cache first, HANDOFF §5.5 ETags)', () => {
+describe('useRemote (cache first, ETags)', () => {
   it('shows the cached copy, revalidates with its ETag, and keeps it on a 304', async () => {
     archive.put('cache', { key: 'r:lb', value: { n: 1 }, etag: 'W/"7"', fetchedAt: 1 });
     const f = reply(304, undefined, 'W/"7"');

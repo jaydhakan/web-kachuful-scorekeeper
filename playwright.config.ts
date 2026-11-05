@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 // Parallel runs (separate worktrees) each need their own server; set E2E_PORT to keep them apart.
 const port = Number(process.env.E2E_PORT ?? 4173);
 /**
- * E2E_API=local runs the online specs against a real backend on 127.0.0.1:8000 (HANDOFF §2): the app is served on
+ * E2E_API=local runs the online specs against a real backend on 127.0.0.1:8000: the app is served on
  * localhost:5173, the backend's APP_ORIGIN, and proxies /api to it. Each test resets the demo data, so one at a time.
  */
 const real = !!process.env.E2E_API;

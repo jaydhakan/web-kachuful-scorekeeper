@@ -31,7 +31,7 @@ const server = (id: string, name: string, createdBy: string | null = null) => ({
   createdBy,
 });
 
-describe("an account's circle (setup suggestions, HANDOFF §5.7)", () => {
+describe("an account's circle (setup suggestions)", () => {
   it('is the players it added, people it played with, ones it confirmed, its own and local ones', async () => {
     await archive.ready;
     archive.put(

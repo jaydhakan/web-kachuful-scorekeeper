@@ -3,7 +3,7 @@ import path from 'node:path';
 import { request, test, type Page } from '@playwright/test';
 
 /**
- * The online specs run against the mock API by default, or against a real backend with E2E_API=local (HANDOFF §3
+ * The online specs run against the mock API by default, or against a real backend with E2E_API=local (the demo
  * accounts on both). Against the real one each test starts from `seed-demo --reset`, which also clears the rate
  * limits, so those runs are serial (playwright.config.ts).
  */

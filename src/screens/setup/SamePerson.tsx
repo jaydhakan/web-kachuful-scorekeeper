@@ -92,7 +92,7 @@ export type NewPlayerCheck =
   | { kind: 'emailErr' | 'nameTaken'; msg: string };
 
 /**
- * A new player's name and email, checked with the server (HANDOFF §5.7). Offline, `ok`: the player is created
+ * A new player's name and email, checked with the server. Offline, `ok`: the player is created
  * later and a clash lands in the inbox.
  */
 export async function checkNewPlayer(

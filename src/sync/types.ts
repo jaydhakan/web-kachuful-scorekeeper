@@ -117,7 +117,7 @@ export const isTombstone = (g: GameSummary | Tombstone): g is Tombstone =>
   'deleted' in g && g.deleted;
 
 /**
- * The server feeds every achievement, round moments included (HANDOFF §10); the smallest hot streak and cold
+ * The server feeds every achievement, round moments included; the smallest hot streak and cold
  * streaks would bury everything else, so the feed leaves them out.
  */
 export const newsworthy = (a: Activity) =>
@@ -298,4 +298,6 @@ export interface AdminOverview {
 }
 
 /** Which player's details survive a merge, field by field (`from` is the one merged away). */
-export type MergeKeep = Partial<Record<'displayName' | 'email' | 'names' | 'photo', 'from' | 'into'>>;
+export type MergeKeep = Partial<
+  Record<'displayName' | 'email' | 'names' | 'photo', 'from' | 'into'>
+>;

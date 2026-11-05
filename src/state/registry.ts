@@ -191,7 +191,7 @@ export function people(): Person[] {
 const cached = (k: string): string[] => (archive.get('cache', k)?.value as string[]) ?? [];
 
 /**
- * Signed in, setup suggests only this account's circle (HANDOFF §5.7): players it created, people it has shared a
+ * Signed in, setup suggests only this account's circle: players it created, people it has shared a
  * game with, players confirmed at setup, its own player, and this device's own players. Anyone else is added by
  * name and email.
  */
@@ -216,7 +216,7 @@ export const rememberSame = (id: string) =>
     fetchedAt: Date.now(),
   });
 
-/** Who may change a player's email or photo (HANDOFF §5.7): the admin, its creator and its linked user. */
+/** Who may change a player's email or photo: the admin, its creator and its linked user. */
 export const mayEdit = (
   p: Pick<PlayerRec, 'createdBy' | 'linkedUserId'>,
   user: { id: string; role: string } | null | undefined,

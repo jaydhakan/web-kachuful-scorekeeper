@@ -43,7 +43,7 @@ let failures = 0;
 let lastPull = 0;
 /** No requests before this time (after a 429). */
 let waitUntil = 0;
-/** A write can commit with a time a little before our last read: ask again from a bit earlier (HANDOFF §5.1). */
+/** A write can commit with a time a little before our last read: ask again from a bit earlier. */
 const OVERLAP = 5000;
 
 /** The game as it is, every seat with its registry id; the server keys it by `syncId`. */
