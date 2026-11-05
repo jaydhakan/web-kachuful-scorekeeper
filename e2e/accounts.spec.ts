@@ -1,9 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { ACCOUNTS, addPlayer, freshBackend, makeInvite, makeResetLink, signIn } from './backend';
 import { btn } from './helpers';
 
 // Accounts against the mock API, or a real backend with E2E_API=local (e2e/backend.ts).
 freshBackend();
+/** A tab of the Admin page; scoped, as Home's own Players tile can still be on screen while the page slides in. */
+const adminTab = (page: Page, name: string) =>
+  page
+    .getByRole('group', { name: 'Admin section' })
+    .getByRole('button', { name, exact: true })
+    .click();
+
 const uniq = () => `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 const path = (url: string) => url.replace(/^https?:\/\/[^/]+/, '');
 
@@ -27,6 +34,7 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
   await btn(page, 'Admin').click();
+  await adminTab(page, 'People');
   await btn(page, 'Invite someone').click();
   await page.getByLabel('Their email').fill(email);
   await btn(page, 'Create invite link').click();
@@ -101,10 +109,12 @@ test('the admin list shows a pending invite, and a new link replaces it', async 
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
   await btn(page, 'Admin').click();
-  // seed-demo leaves an invite for new.player@kachuful.test pending.
-  const row = page.locator('li').filter({ hasText: 'new.player@kachuful.test' });
+  await adminTab(page, 'People');
+  // seed-demo leaves an invite for new.player@kachuful.test pending; the row opens its actions.
+  const row = page.getByRole('button', { name: /new\.player@kachuful\.test/ });
   await expect(row).toBeVisible();
-  await row.getByRole('button', { name: 'New link' }).click();
+  await row.click();
+  await btn(page, 'New link').click();
   await expect(page.locator('code')).toContainText('?invite=');
 });
 
@@ -115,24 +125,50 @@ test("the admin edits a player's email, and players who sat at one table are nev
   await signIn(page, 'admin');
   await btn(page, 'Account').click();
   await btn(page, 'Admin').click();
-  // Scoped to the admin tabs: Home's Players tile is still on screen while the page slides in.
-  await page
-    .getByRole('group', { name: 'Admin section' })
-    .getByRole('button', { name: 'Players', exact: true })
-    .click();
-  const zoya = page
-    .locator('li')
-    .filter({ hasText: /^.*Zoya/ })
-    .first();
-  await zoya.getByRole('button', { name: 'Edit' }).click();
-  await page.getByLabel('Email').fill(email);
+  await adminTab(page, 'Players');
+  const zoya = page.getByRole('button', { name: /^Open Zoya/ }).first();
+  await zoya.click();
+  await page.getByRole('dialog').getByLabel('Email', { exact: true }).fill(email);
   await btn(page, 'Save').click();
   await expect(zoya).toContainText(email);
   // Zoya and Ishan have played together in the demo games.
-  await zoya.getByRole('button', { name: 'Merge into…' }).click();
+  await zoya.click();
+  await btn(page, 'Merge with another player…').click();
   await page.getByRole('button', { name: 'Ishan', exact: true }).click();
-  await btn(page, 'Merge into').click();
+  await expect(page.getByRole('group', { name: 'Main name' })).toBeVisible();
+  await btn(page, 'Merge').click();
   await expect(
     page.getByText('They played at the same table, so they are two people. Not merged.'),
   ).toBeVisible();
+});
+
+test('the admin opens on what needs attention, and compares a likely duplicate side by side', async ({
+  page,
+}) => {
+  const base = 'Lena' + uniq().slice(-4);
+  await addPlayer('riya', base, `${base.toLowerCase()}@example.com`);
+  await addPlayer('kabir', base + 'a', `${base.toLowerCase()}a@example.com`);
+  await signIn(page, 'admin');
+  await btn(page, 'Account').click();
+  await btn(page, 'Admin').click();
+  await expect(page.getByRole('heading', { name: 'Needs attention' })).toBeVisible();
+  const pair = page.getByRole('button', {
+    name: new RegExp(`${base} and ${base}a might be one person`),
+  });
+  await pair.click();
+  // Keep the second name; the first becomes one of theirs.
+  await page
+    .getByRole('group', { name: 'Main name' })
+    .getByRole('button', { name: `Keep Main name: ${base}a` })
+    .click();
+  await expect(
+    page.getByText(`One player, ${base}a, with 0 games. ${base} becomes another name for them.`),
+  ).toBeVisible();
+  await btn(page, 'Merge').click();
+  await expect(page.getByText('Players merged')).toBeVisible();
+  await adminTab(page, 'Players');
+  await page.getByLabel('Search names and emails').fill(base);
+  await expect(page.getByRole('button', { name: new RegExp(`^Open ${base}a`) })).toContainText(
+    `also ${base}`,
+  );
 });
