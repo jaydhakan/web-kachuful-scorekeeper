@@ -261,6 +261,7 @@ export const hub = {
     noSeason: 'No season rounds yet',
     champions: 'Past champions',
     noChampion: 'No champion',
+    mostTitles: (name: string, n: number) => `Most titles: ${name} ×${n}`,
     live: 'Live · the month is not over',
     wrapped: (y: number) => `Your ${y} Wrapped`,
     explore: 'Explore',

@@ -144,6 +144,25 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
             }
           : 'loading';
   const year = new Date().getFullYear();
+  // Closed months only: this month's leader isn't a champion yet.
+  const champions: Champ[] = useMemo(() => {
+    if (signedIn)
+      return (rSeasons.data ?? [])
+        .filter((x) => x.season < thisMonth)
+        .map((x) => ({ season: x.season, playerId: x.champion?.id ?? null }));
+    return src.months
+      .filter((m) => m < thisMonth)
+      .flatMap((m) => {
+        const r = src.season(m);
+        return r === 'loading'
+          ? []
+          : [{ season: m, playerId: r.standings.find((x) => x.rank === 1)?.playerId ?? null }];
+      });
+  }, [signedIn, rSeasons.data, src, thisMonth]);
+  const pick = (m: string) => {
+    setMonth(m);
+    document.getElementById('season-top')?.scrollIntoView({ block: 'start' });
+  };
   return (
     <Page
       title={aw.title}
@@ -210,6 +229,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
         </>
       ) : (
         <>
+          <span id="season-top" className="block scroll-mt-4" />
           <ChipRow label={aw.season}>
             {[...new Set([thisMonth, ...months])].slice(0, 12).map((m) => (
               <Chip key={m} on={m === month} onClick={() => setMonth(m)}>
@@ -246,10 +266,79 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
               </Section>
             </div>
           )}
+          <PastChampions items={champions} f={src.facts} onPick={pick} />
         </>
       )}
       <Explore year={year} />
     </Page>
+  );
+}
+
+type Champ = { season: string; playerId: string | null };
+
+/** Every closed month's champion as a wall of gold medals, newest first; a tap opens that month. */
+function PastChampions({
+  items,
+  f,
+  onPick,
+}: {
+  items: Champ[];
+  f: Facts | null;
+  onPick: (month: string) => void;
+}) {
+  if (!items.length) return null;
+  const titles = new Map<string, number>();
+  for (const c of items) if (c.playerId) titles.set(c.playerId, (titles.get(c.playerId) ?? 0) + 1);
+  const [lead, n] = [...titles].sort((a, b) => b[1] - a[1])[0] ?? [null, 0];
+  return (
+    <Section title={aw.champions} className="mt-2">
+      {lead && n >= 2 && (
+        <p className="mb-3 flex items-center gap-2 text-15 font-bold">
+          <span aria-hidden className="text-gold">
+            {icon('crown', 'h-5 w-5')}
+          </span>
+          {aw.mostTitles(whoIs(f, lead).name, n)}
+        </p>
+      )}
+      <ul className="grid grid-cols-3 gap-2 md:grid-cols-4">
+        {[...items]
+          .sort((a, b) => (a.season < b.season ? 1 : -1))
+          .map((c, i) => {
+            const w = c.playerId ? whoIs(f, c.playerId) : null;
+            const label = monthLabel(parseDay(c.season + '-01'));
+            return (
+              <m.li key={c.season} {...stagger(Math.min(i, 10))}>
+                <button
+                  type="button"
+                  onClick={() => onPick(c.season)}
+                  className="press glass relative flex min-h-[8.5rem] w-full flex-col items-center gap-1.5 px-2 py-3 text-center"
+                >
+                  {w && <GoldEdge />}
+                  <span className="text-13 font-bold uppercase tracking-[0.08em] text-[var(--tx2)]">
+                    {label}
+                  </span>
+                  {w ? (
+                    <Avatar
+                      p={w}
+                      className="grid h-12 w-12 place-items-center rounded-full text-26 shadow-[0_0_0_2px_var(--gold),0_0_18px_color-mix(in_srgb,var(--medal-gold)_45%,transparent)]"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden
+                      className="h-12 w-12 rounded-full border border-dashed border-ov/25"
+                    />
+                  )}
+                  <span
+                    className={`text-14 font-bold leading-tight [overflow-wrap:anywhere] ${w ? '' : 'text-[var(--tx2)]'}`}
+                  >
+                    {w ? w.name : aw.noChampion}
+                  </span>
+                </button>
+              </m.li>
+            );
+          })}
+      </ul>
+    </Section>
   );
 }
 

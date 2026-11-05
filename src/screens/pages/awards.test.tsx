@@ -27,9 +27,17 @@ const signIn = (playerId: string) =>
     }),
   );
 
-const openSeason = async (standings: LeaderboardRow[]) => {
+const champ = (season: string, id: string | null) => ({
+  season,
+  champion: id ? { id, displayName: id } : null,
+});
+
+const openSeason = async (
+  standings: LeaderboardRow[],
+  seasons: ReturnType<typeof champ>[] = [],
+) => {
   vi.spyOn(ep, 'daily').mockResolvedValue(ok({ awards: [], final: false }) as never);
-  vi.spyOn(ep, 'seasons').mockResolvedValue(ok([]) as never);
+  vi.spyOn(ep, 'seasons').mockResolvedValue(ok(seasons) as never);
   vi.spyOn(ep, 'season').mockResolvedValue(
     ok({ season: monthOf(Date.now()), final: false, standings, awards: [] }) as never,
   );
@@ -57,5 +65,23 @@ describe('the season tab, signed in', () => {
     signIn('me');
     await openSeason([row('a', 1, 9.4), row('me', null, 12, 32)]);
     expect(await screen.findByText('19 more rounds to get ranked')).toBeInTheDocument();
+  });
+
+  it('hangs past champions on a wall, with the most titles named, and skips this month', async () => {
+    signIn('me');
+    const now = monthOf(Date.now());
+    await openSeason(
+      [row('Juhi', 1, 9)],
+      [
+        champ('2026-08', 'Juhi'),
+        champ('2026-09', 'Juhi'),
+        champ('2026-10', null),
+        champ(now, 'Bo'),
+      ],
+    );
+    expect(await screen.findByText('Past champions')).toBeInTheDocument();
+    expect(screen.getByText('Most titles: Juhi ×2')).toBeInTheDocument();
+    expect(screen.getByText('No champion')).toBeInTheDocument();
+    expect(screen.queryByText('Bo')).not.toBeInTheDocument();
   });
 });
