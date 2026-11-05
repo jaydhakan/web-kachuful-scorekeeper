@@ -2,6 +2,7 @@ import { AnimatePresence, m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
   ACH,
+  ACHIEVEMENTS,
   allAchievements,
   calendar,
   opponents,
@@ -27,6 +28,7 @@ import {
   Bars,
   Heatmap,
   pct,
+  ProgressRing,
   RangePick,
   Sparkline,
   StatTile,
@@ -83,6 +85,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const line = useMemo(() => pointsOverTime(f, id, range.from, range.to), [f, id, range]);
   const localEarned = useMemo(() => allAchievements(f).filter((e) => e.playerId === id), [f, id]);
   const earned: Earned[] = rProfile.data?.achievements ?? localEarned;
+  const unlocked = useMemo(() => new Set(earned.map((e) => e.code)).size, [earned]);
   const localCal = useMemo(() => calendar(f, id), [f, id]);
   const cal = rCal.data?.days ?? localCal;
   // Signed in, who they play with comes from the server's list of their games, not just this device's.
@@ -295,13 +298,20 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
           <Section
             title={p.shelf}
             aside={
-              <button
-                type="button"
-                onClick={() => actions.open({ screen: 'achievements', params: { id } })}
-                className="press min-h-11 px-2 text-14 font-bold text-[var(--accent)]"
-              >
-                {t.hub.common.see}
-              </button>
+              <span className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 text-13 font-bold tabular-nums text-[var(--tx2)]">
+                  <ProgressRing share={unlocked / ACHIEVEMENTS.length} className="h-6 w-6" />
+                  <span className="sr-only">{t.hub.ach.summary}: </span>
+                  {unlocked} / {ACHIEVEMENTS.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => actions.open({ screen: 'achievements', params: { id } })}
+                  className="press min-h-11 px-2 text-14 font-bold text-[var(--accent)]"
+                >
+                  {t.hub.common.see}
+                </button>
+              </span>
             }
           >
             {earned.length ? (

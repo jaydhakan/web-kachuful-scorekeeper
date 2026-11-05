@@ -125,7 +125,10 @@ describe('boards, players and awards on this device', () => {
     render(<App />);
     await open(u, /Boards/);
     await u.click(await screen.findByRole('button', { name: /Asha/ }));
-    await u.click(await screen.findByRole('button', { name: 'See all' }));
+    const seeAll = await screen.findByRole('button', { name: 'See all' });
+    // The shelf says how much of the catalogue this player has.
+    expect(seeAll.parentElement!.textContent).toMatch(/^Achievements unlocked: [1-9]\d* \/ 67/);
+    await u.click(seeAll);
     expect(await screen.findByText('Perfect game')).toBeInTheDocument();
     expect(screen.getAllByText('Not earned yet').length).toBeGreaterThan(10);
     // The header counts each code once, out of the whole catalogue.
