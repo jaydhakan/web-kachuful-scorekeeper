@@ -137,11 +137,18 @@ describe('loadInitial', () => {
     expect(localStorage.getItem(KEYS.recentNames)).toBeNull();
   });
 
-  it('only resumes the round or winner screen, otherwise goes home', () => {
+  it('only resumes the round screen of an unfinished game, otherwise goes home', () => {
     seed({ ...fixture, [KEYS.screen]: 'setup' });
     expect(loadInitial().screen).toBe('home');
-    seed({ [KEYS.screen]: 'winner' });
-    expect(loadInitial().screen).toBe('winner');
+    seed({ ...fixture, [KEYS.screen]: 'round' });
+    expect(loadInitial().screen).toBe('round');
+    seed({ ...fixture, [KEYS.screen]: 'winner' });
+    expect(loadInitial().screen).toBe('home');
+    seed({
+      [KEYS.game]: { ...fixture['kachuful.v1'], status: 'finished' },
+      [KEYS.screen]: 'round',
+    });
+    expect(loadInitial().screen).toBe('home');
   });
 
   it('ignores a malformed undo stack', () => {

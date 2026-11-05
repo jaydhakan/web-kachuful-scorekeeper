@@ -3,7 +3,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { test, type BrowserContext, type Page } from '@playwright/test';
 import type { Game } from '@/domain';
-import { seedGame, type SeedView } from '../../e2e/fixtures';
+import { openPodium, seedGame, type SeedView } from '../../e2e/fixtures';
 import { ACCOUNTS, makeInvite, makeResetLink } from '../../e2e/backend';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
@@ -158,6 +158,7 @@ async function seed(page: Page, game: Game | null, screen = 'round') {
     [game, screen] as const,
   );
   await page.reload();
+  if (screen === 'winner') await openPodium(page);
 }
 
 /** Six finished games in the archive (IndexedDB), through the app's own module so boards and history fill. */

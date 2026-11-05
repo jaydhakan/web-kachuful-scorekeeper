@@ -77,7 +77,7 @@ export function seedGame(
   return g;
 }
 
-/** Replaces whatever the app saved with `game`, on `screen`, and reloads into it. */
+/** Replaces whatever the app saved with `game`, on `screen`, and reloads into it (the podium by way of Home). */
 export async function openSeeded(page: Page, game: Game, screen: 'home' | 'round' | 'winner') {
   await page.evaluate(
     ([g, s, names]) => {
@@ -98,4 +98,12 @@ export async function openSeeded(page: Page, game: Game, screen: 'home' | 'round
     [game, screen, LONG_NAMES] as const,
   );
   await page.reload();
+  if (screen === 'winner') await openPodium(page);
 }
+
+/** A finished game reopens on Home: its card (phone) or its See results button (large screens) leads to the podium. */
+export const openPodium = (page: Page) =>
+  page
+    .getByRole('button', { name: /^Game finished/ })
+    .or(page.getByRole('button', { name: /^See results/ }))
+    .click();

@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { seedGame, type SeedView } from '../../e2e/fixtures';
+import { openPodium, seedGame, type SeedView } from '../../e2e/fixtures';
 
 // One seeded view per theme at 360×780, for a quick look: OUT=<dir> VIEWS=home,bidding,... (SHOT_PORT as screens).
 const OUT = process.env.OUT!;
@@ -38,6 +38,7 @@ for (const theme of THEMES)
         ] as const,
       );
       await page.reload();
+      if (view === 'winner') await openPodium(page);
       await page.waitForTimeout(1600);
       await page.screenshot({ path: `${OUT}/${theme}-${view}.png` });
     });

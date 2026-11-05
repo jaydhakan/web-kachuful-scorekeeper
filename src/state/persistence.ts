@@ -183,8 +183,10 @@ export function loadInitial(): Loaded {
   const undo = Array.isArray(savedUndo)
     ? savedUndo.filter((s): s is string => typeof s === 'string')
     : [];
+  // A finished game reopens on Home (its card leads to the result), never on the podium.
   const s = storage.get<string>(KEYS.screen, 'home');
-  return { game, screen: s === 'round' || s === 'winner' ? s : 'home', undo, corrupt };
+  const screen = s === 'round' && game.status !== 'finished' ? 'round' : 'home';
+  return { game, screen, undo, corrupt };
 }
 
 /** 'reset' discards the unreadable save and its backup; 'keep' starts fresh but leaves the backup. */
