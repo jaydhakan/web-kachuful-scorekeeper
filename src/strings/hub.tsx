@@ -134,6 +134,7 @@ export const hub = {
     sub: (games: number, rounds: number) => `${plural(games, 'game')} · ${plural(rounds, 'round')}`,
     unranked: (n: number) => `Not ranked yet · more than ${n} rounds needed`,
     progress: (n: number, of: number) => `${n} / ${of} rounds`,
+    showAllUnranked: (n: number) => `Show all ${n}`,
     nobodyRanked: (n: number) =>
       `Nobody has played more than ${n} rounds in this range yet, so nobody is ranked. Everyone is listed below.`,
     emptyTitle: 'No rounds in this range',

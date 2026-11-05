@@ -27,6 +27,8 @@ import { Avatar } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
 
 const b = t.hub.boards;
+/** Unranked rows shown before "Show all"; ranked rows are never folded. */
+const UNRANKED_FOLD = 10;
 
 /** A board value as people read it: a whole-number average, a percentage, or a count. */
 export function fmtValue(m: Metric, v: number): string {
@@ -183,8 +185,12 @@ export function BoardList({
   onShowAll?: () => void;
 }) {
   const rate = RATE_METRICS.includes(metric);
+  const [unfolded, setUnfolded] = useState(false);
   const ranked = data.rows.filter((r) => r.qualified),
     rest = data.rows.filter((r) => !r.qualified);
+  const folded = !unfolded && rest.length > UNRANKED_FOLD;
+  // Your own row stays in view when folded, so the pinned "You" row still has something to pin.
+  const shown = folded ? rest.filter((r, i) => i < UNRANKED_FOLD || r.playerId === you) : rest;
   if (!data.rows.length)
     return (
       <EmptyState
@@ -225,7 +231,7 @@ export function BoardList({
       {rest.length > 0 && (
         <Section title={b.unranked(data.minRounds)} className="mt-6">
           <ol className="flex flex-col gap-2">
-            {rest.map((r, i) => (
+            {shown.map((r, i) => (
               <Row
                 key={r.playerId}
                 r={r}
@@ -237,6 +243,15 @@ export function BoardList({
               />
             ))}
           </ol>
+          {folded && (
+            <button
+              type="button"
+              onClick={() => setUnfolded(true)}
+              className="press glass mt-4 min-h-12 w-full rounded-2xl font-bold"
+            >
+              {b.showAllUnranked(rest.length)}
+            </button>
+          )}
         </Section>
       )}
     </>

@@ -64,6 +64,30 @@ describe('boards, players and awards on this device', () => {
     expect(screen.getAllByText('12 / 51 rounds')).toHaveLength(3);
   });
 
+  it('folds the unranked list after 10 players behind a "Show all" button', async () => {
+    await archive.ready;
+    const names = Array.from({ length: 12 }, (_, i) => `P${String(i + 1).padStart(2, '0')}`);
+    const ids = names.map((n) => ensurePlayer({ name: n, emoji: '🙂', color: 'c' }).id);
+    for (let g = 0; g < 4; g++)
+      archiveGame(
+        kitGame({
+          id: `f${g}`,
+          players: ids.slice(g * 3, g * 3 + 3),
+          names: names.slice(g * 3, g * 3 + 3),
+          start: now - 3600e3,
+          rounds: rows(3, 5, [0]),
+          finished: true,
+        }),
+      );
+    const u = setup();
+    render(<App />);
+    await open(u, /Boards/);
+    expect(await screen.findAllByRole('button', { name: /^Not ranked / })).toHaveLength(10);
+    await u.click(screen.getByRole('button', { name: 'Show all 12' }));
+    expect(await screen.findAllByRole('button', { name: /^Not ranked / })).toHaveLength(12);
+    expect(screen.queryByRole('button', { name: /^Show all \d/ })).not.toBeInTheDocument();
+  });
+
   it('shows the global board as a sign-in prompt when signed out', async () => {
     const u = setup();
     render(<App />);
