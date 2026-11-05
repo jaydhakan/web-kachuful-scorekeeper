@@ -2,12 +2,14 @@ import { m, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
   ACH,
+  chase,
   dailyAwards,
   dayOf,
   monthOf,
   playedMonths,
   season,
   type Award,
+  type Chase,
   type Facts,
 } from '@/domain';
 import { dayLabel, monthLabel, parseDay } from '@/lib/dates';
@@ -98,7 +100,9 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
   const [picked, setMonth] = useState<string | null>(null);
   const today = dayOf(Date.now());
   // Signed in, the awards are the server's (Kolkata days and months); signed out, this device's.
-  const signedIn = !!useApp().state.session;
+  const { state } = useApp();
+  const signedIn = !!state.session;
+  const me = state.session?.player?.id ?? null;
   // Closed days and seasons never change: a cached one is never asked for again.
   const rDay = useRemote(signedIn ? `daily:${day}` : null, (o) => ep.daily(day, o), isFinal);
   const rSeasons = useRemote(signedIn ? 'seasons' : null, (o) => ep.seasons(o));
@@ -221,6 +225,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
           {s && s !== 'loading' && (
             <div className="mt-4">
               {month === thisMonth && <p className="mb-3 text-13 text-[var(--tx2)]">{aw.live}</p>}
+              {month === thisMonth && me && <ChaseLine c={chase(s.standings, me)} />}
               <Podium s={s} f={src.facts} />
               {s.awards.length > 0 && (
                 <ul className="mb-6 flex flex-col gap-2">
@@ -245,6 +250,33 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
       )}
       <Explore year={year} />
     </Page>
+  );
+}
+
+/** Where I stand this month, and the next thing to chase. */
+function ChaseLine({ c }: { c: Chase }) {
+  const ch = aw.chase;
+  const g = (n: number) => n.toFixed(1);
+  const text =
+    c.kind === 'top'
+      ? ch.top(g(c.ahead))
+      : c.kind === 'tied'
+        ? ch.tied(c.rank)
+        : c.kind === 'behind'
+          ? ch.behind(c.rank, c.target, g(c.gap))
+          : c.kind === 'unranked'
+            ? ch.unranked(c.need)
+            : ch.absent;
+  return (
+    <p className="glass mb-4 flex items-center gap-3 px-4 py-3 text-15 font-bold">
+      <span aria-hidden className="grid h-6 w-6 shrink-0 text-gold">
+        {c.kind === 'top' ? icon('crown', 'h-6 w-6') : icon('target', 'h-6 w-6')}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="sr-only">{ch.label}: </span>
+        {text}
+      </span>
+    </p>
   );
 }
 

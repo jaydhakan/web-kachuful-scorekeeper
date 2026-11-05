@@ -254,3 +254,34 @@ export function wrapped(f: Facts, playerId: string, year: number, tz?: string): 
     rank: { rank: me?.rank ?? null, outOf: board.rows.filter((r) => r.qualified).length },
   };
 }
+
+export type Chase =
+  | { kind: 'top'; ahead: number }
+  | { kind: 'tied'; rank: number }
+  | { kind: 'behind'; rank: number; target: number; gap: number }
+  | { kind: 'unranked'; need: number }
+  | { kind: 'absent' };
+
+type ChaseRow = Pick<BoardRow, 'playerId' | 'rank' | 'qualified' | 'value' | 'rounds'>;
+
+/** Where one player stands in a season's standings and what is next: the rank above, or the rounds to qualify. */
+export function chase(
+  standings: ChaseRow[],
+  playerId: string,
+  minRounds = SEASON_MIN_ROUNDS,
+): Chase {
+  const me = standings.find((r) => r.playerId === playerId);
+  if (!me) return { kind: 'absent' };
+  if (!me.qualified || me.rank == null)
+    return { kind: 'unranked', need: minRounds + 1 - me.rounds };
+  const ranked = standings.filter((r) => r.qualified && r.rank != null);
+  if (ranked.some((r) => r.playerId !== playerId && r.rank === me.rank))
+    return { kind: 'tied', rank: me.rank };
+  if (me.rank === 1) {
+    const second = ranked.find((r) => r.rank! > 1);
+    return { kind: 'top', ahead: second ? me.value - second.value : 0 };
+  }
+  // The nearest rank above (ranks skip after a tie, so it is the highest rank still below mine).
+  const above = ranked.filter((r) => r.rank! < me.rank!).at(-1)!;
+  return { kind: 'behind', rank: me.rank, target: above.rank!, gap: above.value - me.value };
+}

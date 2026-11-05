@@ -2,6 +2,9 @@ import type { ReactNode } from 'react';
 import { Icon } from '@/components/ui/Icons';
 /** Strings for the screens opened over the game: history, boards, players, accounts and sharing. */
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+/** 1st, 2nd, 3rd, 4th … 11th, 12th, 13th, 21st. */
+const nth = (n: number) =>
+  n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'));
 
 export const hub = {
   plural,
@@ -267,6 +270,15 @@ export const hub = {
     exploreWrapped: 'Your year at the table, in numbers',
     exploreActivity: 'What everyone has been up to',
     pickPlayer: 'Wrapped for',
+    chase: {
+      label: 'Where you stand',
+      top: (ahead: string) => `You're top of the month · ${ahead} pts/round ahead`,
+      tied: (rank: number) => `You're tied for ${nth(rank)}`,
+      behind: (rank: number, target: number, gap: string) =>
+        `You're ${nth(rank)} · ${gap} pts/round behind ${nth(target)}`,
+      unranked: (n: number) => `${plural(n, 'more round')} to get ranked`,
+      absent: 'Play a round to join this season',
+    },
   },
   wrapped: {
     title: (y: number) => `${y} Wrapped`,
