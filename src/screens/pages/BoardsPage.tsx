@@ -13,7 +13,7 @@ import {
 import { useApp } from '@/state/store';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { EmptyState, Page, Section } from '@/components/ui/Page';
-import { MetricPick, pct, Progress, RangePick, RankDelta } from '@/components/ui/Stats';
+import { DeltaIntro, MetricPick, pct, Progress, RangePick, RankDelta } from '@/components/ui/Stats';
 import { Seg } from '@/components/ui/Seg';
 import { StreakBadge } from '@/components/ui/StreakBadge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -57,6 +57,7 @@ export function BoardsPage() {
   const [scope, setScope] = useState<'global' | 'device'>(signedIn ? 'global' : 'device');
   const [range, setRange] = useState<Range>(() => rangeFor('month', Date.now()));
   const [metric, setMetric] = useState<Metric>('avgPerRound');
+  const [intro] = useState(() => ({ done: false }));
   const f = useDeviceFacts();
   // An empty range offers the whole history in one tap (on the 1st of a month "This month" is empty).
   const showAll = range.kind === 'all' ? undefined : () => setRange(rangeFor('all', Date.now()));
@@ -65,63 +66,65 @@ export function BoardsPage() {
     [f, range, metric],
   );
   return (
-    <Page
-      title={b.title}
-      sub={
-        <div className="flex flex-col gap-2">
-          <Seg
-            uid="board-scope"
-            label={b.scope}
-            value={scope}
-            onChange={setScope}
-            className="self-start"
-            options={[
-              {
-                v: 'global',
-                label: (
-                  <span className="flex items-center gap-1.5">
-                    {icon('globe')}
-                    {b.global}
-                  </span>
-                ),
-              },
-              {
-                v: 'device',
-                label: (
-                  <span className="flex items-center gap-1.5">
-                    {icon('phone')}
-                    {b.device}
-                  </span>
-                ),
-              },
-            ]}
-          />
-          <div className="flex gap-2">
-            <RangePick value={range} onChange={setRange} />
-            <MetricPick value={metric} onChange={setMetric} />
+    <DeltaIntro.Provider value={intro}>
+      <Page
+        title={b.title}
+        sub={
+          <div className="flex flex-col gap-2">
+            <Seg
+              uid="board-scope"
+              label={b.scope}
+              value={scope}
+              onChange={setScope}
+              className="self-start"
+              options={[
+                {
+                  v: 'global',
+                  label: (
+                    <span className="flex items-center gap-1.5">
+                      {icon('globe')}
+                      {b.global}
+                    </span>
+                  ),
+                },
+                {
+                  v: 'device',
+                  label: (
+                    <span className="flex items-center gap-1.5">
+                      {icon('phone')}
+                      {b.device}
+                    </span>
+                  ),
+                },
+              ]}
+            />
+            <div className="flex gap-2">
+              <RangePick value={range} onChange={setRange} />
+              <MetricPick value={metric} onChange={setMetric} />
+            </div>
           </div>
-        </div>
-      }
-    >
-      {scope === 'device' ? (
-        <BoardList
-          data={device}
-          metric={metric}
-          key={`d-${range.from}-${range.to}-${metric}`}
-          you={state.session?.player?.id}
-          onShowAll={showAll}
-        />
-      ) : !signedIn ? (
-        <SignedOut />
-      ) : (
-        <GlobalBoard
-          range={range}
-          metric={metric}
-          you={state.session?.player?.id}
-          onShowAll={showAll}
-        />
-      )}
-    </Page>
+        }
+      >
+        {scope === 'device' ? (
+          <BoardList
+            data={device}
+            metric={metric}
+            key={`d-${range.from}-${range.to}-${metric}`}
+            you={state.session?.player?.id}
+            onShowAll={showAll}
+          />
+        ) : !signedIn ? (
+          <SignedOut />
+        ) : (
+          <GlobalBoard
+            range={range}
+            metric={metric}
+            you={state.session?.player?.id}
+            onShowAll={showAll}
+          />
+        )}
+      </Page>
+    </DeltaIntro.Provider>
   );
 }
 
@@ -307,7 +310,7 @@ function Row({
           >
             {r.rank ?? '–'}
           </span>
-          <RankDelta d={r.rankDelta} />
+          <RankDelta d={r.rankDelta} i={i} />
         </span>
         <Avatar
           p={w}

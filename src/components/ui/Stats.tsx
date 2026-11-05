@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { customRange, rangeFor, type Metric, type Range, type RangeKind } from '@/domain';
 import { shortDay } from '@/lib/dates';
 import { Icon } from './Icons';
@@ -347,13 +347,26 @@ export function Heatmap({ days, year }: { days: Record<string, number>; year: nu
 }
 
 /** Up or down since the previous window. */
-export function RankDelta({ d }: { d: number | null }) {
+/**
+ * Lets a page play the rank arrows' entrance once per visit: the first list shown animates, a list shown after a
+ * filter change appears still. Without a provider the arrows always animate.
+ */
+export const DeltaIntro = createContext<{ done: boolean } | null>(null);
+
+/** A rank's movement since the period before; it springs in from its direction after the row lands. */
+export function RankDelta({ d, i = 0 }: { d: number | null; i?: number }) {
+  const intro = useContext(DeltaIntro);
+  // Read at mount: every row of the first list mounts in one render, before the effect below marks it done.
+  const [play] = useState(() => !intro?.done);
+  useEffect(() => {
+    if (intro) intro.done = true;
+  }, [intro]);
   if (!d) return null;
   return (
     <m.span
-      initial={{ opacity: 0, y: d > 0 ? 6 : -6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={SPRING}
+      initial={play ? { opacity: 0, y: d > 0 ? 8 : -8, scale: 0.6 } : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ ...SPRING, delay: 0.3 + Math.min(i, 12) * 0.04 }}
       aria-label={d > 0 ? s.up(d) : s.down(-d)}
       className={`mt-0.5 text-center text-13 font-extrabold leading-none ${d > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}`}
     >
