@@ -87,14 +87,15 @@ test('is installable once the service worker controls the page', async ({ page }
   await page.reload();
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
   const cdp = await page.context().newCDPSession(page);
-  const { errors } = await cdp.send('Page.getAppManifest');
+  const { errors, manifest } = await cdp.send('Page.getAppManifest');
   expect(errors).toEqual([]);
+  // The id Chrome installs under; read here, as CI's headless shell leaves Page.getAppId empty.
+  expect(manifest?.id).toMatch(/^http:\/\/[^/]+\/$/);
   // Playwright's contexts are incognito, which Chrome never installs from; anything else is a real problem.
   const { installabilityErrors } = await cdp.send('Page.getInstallabilityErrors');
   expect(installabilityErrors.map((e) => e.errorId).filter((id) => id !== 'in-incognito')).toEqual(
     [],
   );
-  expect((await cdp.send('Page.getAppId')).appId).toMatch(/^http:\/\/[^/]+\/$/);
 });
 
 test.describe('accessibility (axe)', () => {
