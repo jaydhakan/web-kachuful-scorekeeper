@@ -10,6 +10,7 @@ const FRESH_KEYS = [
   KEYS.undo,
   KEYS.screen,
   KEYS.backup,
+  KEYS.achSeen,
 ] as const;
 
 /**

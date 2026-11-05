@@ -1,5 +1,5 @@
-import { m } from 'framer-motion';
-import { useMemo, useState, type ReactNode } from 'react';
+import { m, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ACH,
   ACHIEVEMENTS,
@@ -18,8 +18,10 @@ import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { Chip, ChipRow, Page, Section } from '@/components/ui/Page';
 import { Progress } from '@/components/ui/Stats';
 import { stagger } from '@/components/ui/stagger';
+import { EASE } from '@/components/ui/motion';
 import { achievements as names } from '@/strings/achievements';
 import { useApp } from '@/state/store';
+import { loadAchSeen, saveAchSeen } from '@/state/persistence';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
@@ -75,6 +77,24 @@ export function AchievementsPage({
   const mine = !who ? all : (profile.data?.achievements ?? all.filter((e) => e.playerId === who));
   const by = new Map<string, Earned[]>();
   for (const e of mine) by.set(e.code, [...(by.get(e.code) ?? []), e]);
+  // When this screen was last opened for each player, read once per visit: what came after it is "new".
+  const seen = useRef(new Map<string, number | null>());
+  if (who && !seen.current.has(who)) seen.current.set(who, loadAchSeen(who));
+  const since = who ? seen.current.get(who) : null;
+  const fresh = new Set(
+    since == null ? [] : mine.filter((e) => e.earnedAt > since).map((e) => e.code),
+  );
+  useEffect(() => {
+    if (who) saveAchSeen(who, Date.now());
+  }, [who]);
+  // Who holds each code, for rarity.
+  const holders = useMemo(() => {
+    const h = new Map<string, Set<string>>();
+    for (const e of all) h.set(e.code, (h.get(e.code) ?? new Set()).add(e.playerId));
+    return h;
+  }, [all]);
+  const rarity = (code: string) =>
+    who && players.length > 1 ? { n: holders.get(code)?.size ?? 0, of: players.length } : null;
   const local = useMemo(() => (who && !signedIn ? ladderCounts(f, who) : null), [f, who, signedIn]);
   const tot = profile.data?.totals;
   const counts: Counts | null = !who
@@ -123,6 +143,8 @@ export function AchievementsPage({
                   f={f}
                   count={counts?.[c.l.id]}
                   everyone={!who}
+                  fresh={c.l.codes.some((x) => fresh.has(x))}
+                  rarity={rarity}
                 />
               ) : (
                 <Card
@@ -132,6 +154,8 @@ export function AchievementsPage({
                   got={by.get(c.x.code) ?? []}
                   f={f}
                   everyone={!who}
+                  fresh={fresh.has(c.x.code)}
+                  rare={rarity(c.x.code)}
                 />
               ),
             )}
@@ -206,15 +230,20 @@ function Shell({
   i,
   earned,
   emoji,
+  fresh,
+  title,
   beside,
   children,
 }: {
   i: number;
   earned: boolean;
   emoji: string;
+  fresh: boolean;
+  title: string;
   beside?: ReactNode;
   children: ReactNode;
 }) {
+  const rm = useReducedMotion();
   return (
     <m.li
       {...stagger(Math.min(i, 10))}
@@ -238,15 +267,32 @@ function Shell({
       <span className="flex items-center gap-2">
         <span
           aria-hidden
-          className={`grid h-12 w-12 shrink-0 place-items-center rounded-full text-28 leading-none ${
+          className={`relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full text-28 leading-none ${
             earned
               ? 'bg-gold/[.16] shadow-[0_0_0_1.5px_var(--gold),0_0_18px_color-mix(in_srgb,var(--medal-gold)_45%,transparent)]'
               : 'border border-dashed border-ov/25'
           }`}
         >
           {earned ? emoji : icon('locked', 'h-5 w-5 text-[var(--dis)]')}
+          {/* One pass of light across a medal earned since the last visit. */}
+          {fresh && earned && !rm && (
+            <m.span
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,transparent_30%,color-mix(in_srgb,var(--medal-gold-hi)_75%,transparent)_50%,transparent_70%)]"
+              initial={{ x: '-110%' }}
+              animate={{ x: '110%' }}
+              transition={{ duration: 0.9, ease: EASE, delay: 0.35 + Math.min(i, 10) * 0.04 }}
+            />
+          )}
         </span>
         {beside}
+      </span>
+      <span className="mt-1 flex flex-wrap items-center gap-x-1.5 text-15 font-bold leading-tight">
+        {title}
+        {fresh && (
+          <span className="rounded-full bg-gold px-1.5 text-13 leading-5 text-ink-gold">
+            {a.fresh}
+          </span>
+        )}
       </span>
       {children}
     </m.li>
@@ -255,10 +301,32 @@ function Shell({
 
 const lastOf = (got: Earned[]) => got.reduce((m, e) => Math.max(m, e.earnedAt), 0);
 
-function Footer({ got, f, everyone }: { got: Earned[]; f: Facts; everyone: boolean }) {
+type Rarity = { n: number; of: number } | null;
+
+function Footer({
+  got,
+  f,
+  everyone,
+  rare,
+}: {
+  got: Earned[];
+  f: Facts;
+  everyone: boolean;
+  rare?: Rarity;
+}) {
   const holders = [...new Set(got.map((e) => whoIs(f, e.playerId).name))];
   return (
     <>
+      {got.length > 0 && rare && rare.n > 0 && (
+        <span className="flex items-center gap-1.5 pt-1 text-13 text-[var(--tx2)]">
+          {rare.of >= 4 && rare.n / rare.of <= 0.25 && (
+            <span className="rounded-full bg-gold px-1.5 font-bold leading-5 text-ink-gold">
+              {a.rare}
+            </span>
+          )}
+          {a.holders(rare.n, rare.of)}
+        </span>
+      )}
       <span
         className={`mt-auto pt-1 text-13 ${got.length ? 'font-bold text-[var(--accent)]' : 'text-[var(--tx2)]'}`}
       >
@@ -279,27 +347,32 @@ function Card({
   got,
   f,
   everyone,
+  fresh,
+  rare,
 }: {
   x: AchievementDef;
   i: number;
   got: Earned[];
   f: Facts;
   everyone: boolean;
+  fresh: boolean;
+  rare: Rarity;
 }) {
   return (
     <Shell
       i={i}
       earned={got.length > 0}
       emoji={x.emoji}
+      fresh={fresh}
+      title={names[x.code].name}
       beside={
         got.length > 1 && (
           <span className="disp text-17 font-extrabold text-[var(--accent)]">×{got.length}</span>
         )
       }
     >
-      <span className="mt-1 text-15 font-bold leading-tight">{names[x.code].name}</span>
       <span className="text-13 leading-snug text-[var(--tx2)]">{names[x.code].how}</span>
-      <Footer got={got} f={f} everyone={everyone} />
+      <Footer got={got} f={f} everyone={everyone} rare={rare} />
     </Shell>
   );
 }
@@ -312,6 +385,8 @@ function LadderCard({
   f,
   count,
   everyone,
+  fresh,
+  rarity,
 }: {
   l: Ladder;
   i: number;
@@ -319,6 +394,8 @@ function LadderCard({
   f: Facts;
   count?: number;
   everyone: boolean;
+  fresh: boolean;
+  rarity: (code: string) => Rarity;
 }) {
   const reached = l.codes.map((c) => (by.get(c)?.length ?? 0) > 0);
   const top = reached.lastIndexOf(true);
@@ -331,6 +408,8 @@ function LadderCard({
       i={i}
       earned={top >= 0}
       emoji={ACH.get(l.codes[Math.max(top, 0)])!.emoji}
+      fresh={fresh}
+      title={s.name}
       beside={
         <span
           role="img"
@@ -346,7 +425,6 @@ function LadderCard({
         </span>
       }
     >
-      <span className="mt-1 text-15 font-bold leading-tight">{s.name}</span>
       <span className="text-13 leading-snug text-[var(--tx2)]">
         {next < 0 ? a.allLevels : a.next(names[l.codes[next]].name, names[l.codes[next]].how)}
       </span>
@@ -358,7 +436,7 @@ function LadderCard({
           </span>
         </span>
       )}
-      <Footer got={got} f={f} everyone={everyone} />
+      <Footer got={got} f={f} everyone={everyone} rare={top >= 0 ? rarity(l.codes[top]) : null} />
     </Shell>
   );
 }

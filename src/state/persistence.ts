@@ -19,6 +19,8 @@ export const KEYS = {
   themeUser: 'kf.theme.user',
   /** Set while a signed-in player's own pick hasn't reached the server; it is sent before the server's is taken. */
   themeUserUnsent: 'kf.theme.user.unsent',
+  /** When each player's achievements were last opened (epoch ms by player id), for the "new" dots. */
+  achSeen: 'kachuful.achSeen',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -237,3 +239,13 @@ export function saveUserTheme(id: string | null, unsent = false) {
 }
 
 export const userThemeUnsent = () => storage.get<boolean>(KEYS.themeUserUnsent, false) === true;
+
+/** When this player's achievements were last opened here, or null the first time. */
+export const loadAchSeen = (playerId: string): number | null =>
+  storage.get<Record<string, number>>(KEYS.achSeen, {})[playerId] ?? null;
+
+export const saveAchSeen = (playerId: string, at: number) =>
+  storage.set(KEYS.achSeen, {
+    ...storage.get<Record<string, number>>(KEYS.achSeen, {}),
+    [playerId]: at,
+  });
