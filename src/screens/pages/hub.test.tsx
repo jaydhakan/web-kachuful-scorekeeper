@@ -128,6 +128,12 @@ describe('boards, players and awards on this device', () => {
     await u.click(await screen.findByRole('button', { name: 'See all' }));
     expect(await screen.findByText('Perfect game')).toBeInTheDocument();
     expect(screen.getAllByText('Not earned yet').length).toBeGreaterThan(10);
+    // The header counts each code once, out of the whole catalogue.
+    const summary = screen.getByRole('region', { name: 'Achievements unlocked' });
+    const earned = screen.getAllByText(/^Earned · /).length;
+    expect(within(summary).getByText(/% unlocked$/)).toBeInTheDocument();
+    expect(summary.textContent).toContain(`${earned} / 67`);
+    expect(within(summary).getByLabelText(/^Round moments: \d+ of 16$/)).toBeInTheDocument();
   });
 });
 

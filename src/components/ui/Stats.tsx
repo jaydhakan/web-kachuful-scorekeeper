@@ -364,10 +364,18 @@ export function RankDelta({ d }: { d: number | null }) {
 }
 
 /** How far along a count is. */
-export const Progress = ({ v, of }: { v: number; of: number }) => (
+export const Progress = ({
+  v,
+  of,
+  fill = 'bg-[var(--tx2)]',
+}: {
+  v: number;
+  of: number;
+  fill?: string;
+}) => (
   <span className="relative block h-1.5 w-full overflow-hidden rounded-full bg-ov/[.08]">
     <span
-      className="absolute inset-0 origin-left rounded-full bg-[var(--tx2)]"
+      className={`absolute inset-0 origin-left rounded-full ${fill}`}
       style={{ transform: `scaleX(${Math.min(1, v / of)})` }}
     />
   </span>
