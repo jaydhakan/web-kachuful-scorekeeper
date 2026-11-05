@@ -140,14 +140,7 @@ export const Delta = ({ v, className = '' }: { v: number; className?: string }) 
   </m.span>
 );
 
-export const rankTone = (rank: number) =>
-  rank === 1
-    ? 'text-gold'
-    : rank === 2
-      ? 'text-rank-silver'
-      : rank === 3
-        ? 'text-rank-bronze'
-        : 'text-[var(--tx)]';
+export { rankTone } from '@/components/ui/podium';
 
 export const totalTone = (v: number) => (v < 0 ? 'text-[var(--neg-tx)]' : '');
 

@@ -14,7 +14,7 @@ import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { SPRING } from '@/components/ui/motion';
 import { BoardTable } from '@/sheets/BoardBody';
 import { ChartLegend, ScoreChart } from '@/screens/desk/ScoreChart';
-import { rankTone } from '@/screens/desk/DeskParts';
+import { RankMark } from '@/components/ui/RankMark';
 import { achName } from '@/strings/achievements';
 import { ACH } from '@/domain';
 import { gameLine } from './HistoryPage';
@@ -70,9 +70,7 @@ function LiveStandings({ g }: { g: Game }) {
           transition={SPRING}
           className="glass flex min-h-14 items-center gap-3 px-4"
         >
-          <span className={`disp w-6 text-center text-20 font-extrabold ${rankTone(s.rank)}`}>
-            {s.rank}
-          </span>
+          <RankMark rank={s.rank} final={g.status === 'finished'} />
           <Avatar p={s.p} className="grid h-9 w-9 place-items-center rounded-full text-20" />
           <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
             {s.p.name}

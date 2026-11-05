@@ -9,6 +9,7 @@ import { useApp } from '@/state/store';
 import { BoardTable } from '@/sheets/BoardBody';
 import { ChartLegend, ScoreChart } from '@/screens/desk/ScoreChart';
 import { rankTone } from '@/screens/desk/DeskParts';
+import { RankMark } from '@/components/ui/RankMark';
 import { PODIUM_BG } from '@/components/ui/podium';
 import { EmptyState, Page, Section, Skeleton } from '@/components/ui/Page';
 import { fetchGame, queueDelete, resolveConflict } from '@/sync/engine';
@@ -211,9 +212,7 @@ function Standings({ g }: { g: Game }) {
     <ol className="glass flex flex-col divide-y divide-ov/[.06] px-4">
       {st.map((s) => (
         <li key={s.p.id} className="flex min-h-14 items-center gap-3 py-2">
-          <span className={`disp w-6 text-center text-20 font-extrabold ${rankTone(s.rank)}`}>
-            {s.rank}
-          </span>
+          <RankMark rank={s.rank} final={g.status === 'finished'} />
           <Avatar
             p={s.p}
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-20"

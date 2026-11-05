@@ -4,3 +4,13 @@ export const PODIUM_BG = {
   2: 'bg-silver-gradient-v',
   3: 'bg-bronze-gradient-v',
 } as const;
+
+/** A place's colour: gold, silver and bronze for the top three, the text colour after. */
+export const rankTone = (rank: number) =>
+  rank === 1
+    ? 'text-gold'
+    : rank === 2
+      ? 'text-rank-silver'
+      : rank === 3
+        ? 'text-rank-bronze'
+        : 'text-[var(--tx)]';
