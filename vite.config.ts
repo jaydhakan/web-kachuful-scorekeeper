@@ -66,6 +66,8 @@ const themeCssBoot = (): Plugin => ({
  */
 const preloadShell = (): Plugin => ({
   name: 'preload-shell',
+  // Reads the production bundle; the dev server has none and needs no preloads.
+  apply: 'build',
   transformIndexHtml: {
     order: 'post',
     handler: (_html, ctx) => {
