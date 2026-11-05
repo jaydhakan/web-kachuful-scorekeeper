@@ -152,8 +152,9 @@ test('the admin opens on what needs attention, and compares a likely duplicate s
   await btn(page, 'Account').click();
   await btn(page, 'Admin').click();
   await expect(page.getByRole('heading', { name: 'Needs attention' })).toBeVisible();
+  // Either order: the real backend sorts the pair its own way.
   const pair = page.getByRole('button', {
-    name: new RegExp(`${base} and ${base}a might be one person`),
+    name: new RegExp(`(${base} and ${base}a|${base}a and ${base}) might be one person`),
   });
   await pair.click();
   // Keep the second name; the first becomes one of theirs.
