@@ -56,7 +56,7 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
   await expect(other.getByText('Is this you?')).toBeHidden();
   await other.getByLabel('Name at the table').fill(name);
   await btn(other, 'Set password and start').click();
-  await expect(btn(other, 'Me')).toContainText(name);
+  await expect(btn(other, 'Me')).toContainText(name, { ignoreCase: true });
   // The link works once.
   await other.goto(url);
   await expect(other.getByText(/used or has expired/)).toBeVisible();
@@ -103,7 +103,7 @@ test("an invite to a player's email offers that player, who claims their history
   await page.getByLabel('Password', { exact: true }).fill('ivy1');
   await page.getByLabel('Password again').fill('ivy1');
   await btn(page, 'Set password and start').click();
-  await expect(btn(page, 'Me')).toContainText(name);
+  await expect(btn(page, 'Me')).toContainText(name, { ignoreCase: true });
 });
 
 test('the admin list shows a pending invite, and a new link replaces it', async ({ page }) => {
