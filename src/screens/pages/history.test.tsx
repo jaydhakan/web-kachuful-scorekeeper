@@ -105,3 +105,55 @@ describe('History and the game view', () => {
     expect(archive.get('games', 'x')!.deleted).toBe(true);
   });
 });
+
+describe('History badges, signed in', () => {
+  it('marks only the exceptions: a game only on this phone, or not synced yet', async () => {
+    const { AppProvider } = await import('@/state/store');
+    const { HistoryPage } = await import('./HistoryPage');
+    localStorage.setItem(
+      KEYS.session,
+      JSON.stringify({
+        user: { id: 'u1', email: 'me@test.dev', role: 'member', playerId: null },
+        player: null,
+      }),
+    );
+    await archive.ready;
+    const fin = (id: string, at: number) => {
+      const g = game(id, { status: 'finished', finishedAt: at });
+      g.rounds = g.rounds.filter((r) => r.phase === 'done');
+      return g;
+    };
+    const base = { updatedAt: 1, endedAt: 1 };
+    const pulled = fin('pulled', 3);
+    const synced = fin('synced', 2);
+    const behind = fin('behind', 1);
+    const here = fin('here', 0);
+    archive.put('games', { ...base, syncId: 'pulled', game: pulled, origin: 'remote' });
+    archive.put('games', {
+      ...base,
+      syncId: 'synced',
+      game: synced,
+      origin: 'local',
+      account: 'u1',
+      syncedRev: synced.rev,
+    });
+    archive.put('games', {
+      ...base,
+      syncId: 'behind',
+      game: behind,
+      origin: 'local',
+      account: 'u1',
+      syncedRev: behind.rev - 1,
+    });
+    archive.put('games', { ...base, syncId: 'here', game: here, origin: 'local' });
+    render(
+      <AppProvider>
+        <HistoryPage />
+      </AppProvider>,
+    );
+    expect(await screen.findAllByRole('button', { name: /^Game on/ })).toHaveLength(4);
+    expect(screen.queryByText('From the server')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Not synced yet')).toHaveLength(1);
+    expect(screen.getAllByText('Only on this phone')).toHaveLength(1);
+  });
+});

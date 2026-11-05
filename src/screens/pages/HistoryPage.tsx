@@ -154,14 +154,18 @@ export function HistoryPage() {
 }
 
 function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
-  const { actions } = useApp();
+  const { state, actions } = useApp();
+  const signedIn = !!state.session;
   const g = rec.game,
     at = rec.endedAt ?? rec.updatedAt;
   const badges: string[] = [];
   if (current) badges.push(h.badge.current);
   else if (g.status !== 'finished') badges.push(h.badge.unfinished);
   if (rec.conflictOf) badges.push(h.badge.conflict);
-  if (rec.origin === 'remote') badges.push(h.badge.remote);
+  // Only the exceptions: a synced game is the normal case and needs no badge.
+  if (signedIn && rec.origin === 'local' && !rec.account) badges.push(h.badge.onlyHere);
+  else if (signedIn && rec.origin === 'local' && rec.syncedRev !== g.rev)
+    badges.push(h.badge.unsynced);
   const line = gameLine(g);
   return (
     <m.button
