@@ -35,7 +35,7 @@ test('a game scored offline uploads when the connection comes back', async ({ pa
     await page.waitForTimeout(150);
   }
   await btn(page, 'Next').click();
-  await expect(page.getByText('Signed in: this game counts on the global board.')).toBeVisible();
+  await expect(page.getByText('Signed in: this game counts on the global leaderboard.')).toBeVisible();
   await btn(page, 'Deal!').click();
   await btn(page, 'Skip the deal animation').click();
   await context.setOffline(true);

@@ -9,12 +9,12 @@ async function signIn(page: Page) {
   await expect(btn(page, 'Me')).toBeVisible();
 }
 
-test('the global board ranks everyone, and a row opens the server player page', async ({
+test('the global leaderboard ranks everyone, and a row opens the server player page', async ({
   page,
 }) => {
   await signIn(page);
   await page
-    .getByRole('button', { name: /Boards/ })
+    .getByRole('button', { name: /Leaderboard/ })
     .first()
     .click();
   await expect(page.getByRole('button', { name: 'Global' })).toHaveAttribute(
@@ -52,7 +52,7 @@ test('awards, seasons and the activity feed come from the server', async ({ page
 test('a player page leads to head-to-head, and Wrapped comes from the server', async ({ page }) => {
   await signIn(page);
   await page
-    .getByRole('button', { name: /Boards/ })
+    .getByRole('button', { name: /Leaderboard/ })
     .first()
     .click();
   await page.getByRole('button', { name: /^Date range/ }).click();

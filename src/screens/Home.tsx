@@ -219,12 +219,14 @@ export function Home() {
                     key: d.screen,
                     icon: d.icon,
                     label: d.label,
+                    tile: d.tile,
                     go: () => actions.open(destRoute(d)),
                   })),
                   {
                     key: 'rules',
                     icon: Icon.rules,
                     label: t.home.howToPlay,
+                    tile: undefined,
                     go: () => actions.openSheet({ type: 'rules' }),
                   },
                 ].map((d) => (
@@ -233,12 +235,13 @@ export function Home() {
                     type="button"
                     whileTap={PRESS}
                     onClick={d.go}
+                    aria-label={d.tile && d.label}
                     className="glass flex min-h-[3.75rem] flex-col items-center justify-start gap-1 !rounded-2xl px-1 pt-2.5 pb-2 text-center text-13 font-bold leading-tight"
                   >
                     <span aria-hidden className="grid h-5 place-items-center text-[var(--tx2)]">
                       {d.icon}
                     </span>
-                    {d.label}
+                    {d.tile ?? d.label}
                   </m.button>
                 ))}
               </m.nav>

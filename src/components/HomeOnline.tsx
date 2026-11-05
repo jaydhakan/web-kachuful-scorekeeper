@@ -31,7 +31,7 @@ export function HomeOnline({ className = '' }: { className?: string }) {
             {Icon.trophy}
           </span>
           <span className="flex-1 text-16 font-bold">
-            {rank.global ? t.hub.player.rank(rank.global, rank.outOf) : t.hub.boards.unrankedShort}
+            {rank.global ? t.hub.player.rank(rank.global, rank.outOf) : t.hub.leaderboard.unrankedShort}
           </span>
         </button>
       )}

@@ -8,7 +8,7 @@ import { InvitePage, ResetPage, SignInPage } from './AuthPages';
 import { FreshPage } from './FreshPage';
 import { CreditsPage } from './CreditsPage';
 import { AwardsPage } from './AwardsPage';
-import { BoardsPage } from './BoardsPage';
+import { LeaderboardPage } from './LeaderboardPage';
 import { GamePage } from './GamePage';
 import { H2HPage } from './H2HPage';
 import { HistoryPage } from './HistoryPage';
@@ -31,7 +31,7 @@ export default function Pages({ route }: { route: Route }) {
     case 'game':
       return <GamePage id={p.id ?? ''} />;
     case 'leaderboard':
-      return <BoardsPage />;
+      return <LeaderboardPage />;
     case 'player':
       return <PlayerPage id={p.id ?? ''} />;
     case 'h2h':

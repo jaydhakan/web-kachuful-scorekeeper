@@ -33,12 +33,12 @@ const open = async (u: ReturnType<typeof setup>, name: RegExp) => {
   await u.click((await screen.findAllByRole('button', { name }))[0]);
 };
 
-describe('boards, players and awards on this device', () => {
+describe('leaderboard, players and awards on this device', () => {
   it('ranks players with more than 10 rounds today, and opens a player page', async () => {
     await seed();
     const u = setup();
     render(<App />);
-    await open(u, /Boards/);
+    await open(u, /Leaderboard/);
     await u.click(await screen.findByRole('button', { name: /^Date range/ }));
     await u.click(await screen.findByRole('button', { name: 'Today' }));
     const first = await screen.findByRole('button', { name: /^#1 Asha/ });
@@ -57,7 +57,7 @@ describe('boards, players and awards on this device', () => {
     await seed();
     const u = setup();
     render(<App />);
-    await open(u, /Boards/);
+    await open(u, /Leaderboard/);
     expect(
       await screen.findByText(/Not ranked yet · more than 50 rounds needed/),
     ).toBeInTheDocument();
@@ -81,19 +81,19 @@ describe('boards, players and awards on this device', () => {
       );
     const u = setup();
     render(<App />);
-    await open(u, /Boards/);
+    await open(u, /Leaderboard/);
     expect(await screen.findAllByRole('button', { name: /^Not ranked / })).toHaveLength(10);
     await u.click(screen.getByRole('button', { name: 'Show all 12' }));
     expect(await screen.findAllByRole('button', { name: /^Not ranked / })).toHaveLength(12);
     expect(screen.queryByRole('button', { name: /^Show all \d/ })).not.toBeInTheDocument();
   });
 
-  it('shows the global board as a sign-in prompt when signed out', async () => {
+  it('shows the global leaderboard as a sign-in prompt when signed out', async () => {
     const u = setup();
     render(<App />);
-    await open(u, /Boards/);
+    await open(u, /Leaderboard/);
     await u.click(await screen.findByRole('button', { name: /Global/ }));
-    expect(await screen.findByText('Sign in for the global board')).toBeInTheDocument();
+    expect(await screen.findByText('Sign in for the global leaderboard')).toBeInTheDocument();
   });
 
   it("awards today's best and lists players", async () => {
@@ -123,7 +123,7 @@ describe('boards, players and awards on this device', () => {
     await seed();
     const u = setup();
     render(<App />);
-    await open(u, /Boards/);
+    await open(u, /Leaderboard/);
     await u.click(await screen.findByRole('button', { name: /Asha/ }));
     const seeAll = await screen.findByRole('button', { name: 'See all' });
     // The shelf says how much of the catalogue this player has.

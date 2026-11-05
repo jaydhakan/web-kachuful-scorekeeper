@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { AppProvider } from '@/state/store';
 import type { BoardRow } from '@/domain';
 import { DeltaIntro } from '@/components/ui/Stats';
-import { BoardList } from './BoardsPage';
+import { BoardList } from './LeaderboardPage';
 
 const row = (playerId: string, rank: number): BoardRow => ({
   rank,

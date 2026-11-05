@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Icon } from '@/components/ui/Icons';
-/** Strings for the screens opened over the game: history, boards, players, accounts and sharing. */
+/** Strings for the screens opened over the game: history, leaderboards, players, accounts and sharing. */
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 /** 1st, 2nd, 3rd, 4th … 11th, 12th, 13th, 21st. */
 const nth = (n: number) =>
@@ -20,7 +20,9 @@ export const hub = {
   nav: {
     label: 'Browse',
     history: 'History',
-    boards: 'Boards',
+    leaderboard: 'Leaderboard',
+    /** Home's narrow tiles: a soft hyphen lets the one long word break like "How to play". */
+    leaderboardTile: 'Leader\u00ADboard',
     achievements: 'Achievements',
     players: 'Players',
     awards: 'Awards',
@@ -128,9 +130,9 @@ export const hub = {
     down: (n: number) => `Down ${n}`,
     heatmap: (y: number, n: number) => `${n} rounds played in ${y}`,
   },
-  boards: {
-    title: 'Boards',
-    scope: 'Which board',
+  leaderboard: {
+    title: 'Leaderboard',
+    scope: 'Which leaderboard',
     global: 'Global',
     device: 'This device',
     you: 'You',
@@ -143,7 +145,7 @@ export const hub = {
     emptyTitle: 'No rounds in this range',
     emptyBody: 'Pick a longer range, or play a round.',
     showAll: 'Show all time',
-    signedOutTitle: 'Sign in for the global board',
+    signedOutTitle: 'Sign in for the global leaderboard',
     signedOutBody:
       'Everyone your friends have played with, ranked. Your games on this device still count here.',
     signIn: 'Sign in',
@@ -318,7 +320,7 @@ export const hub = {
     editTitle: (name: string) => `Edit ${name}`,
     otherNames: 'Other names',
     otherNamesHint:
-      'Names this person was added under. Tap one to make it the main name, which boards show.',
+      'Names this person was added under. Tap one to make it the main name, which leaderboards show.',
     makeMain: (name: string) => `Make “${name}” the main name`,
     madeMain: (name: string) => `${name} is now the main name.`,
     nameTaken: 'Another player already has that name.',
@@ -333,7 +335,7 @@ export const hub = {
     signIn: 'Sign in',
     signInTitle: 'Sign in to sync',
     signInBody:
-      'Your games sync and count on the global board. No account yet? Jay sends invite links.',
+      'Your games sync and count on the global leaderboard. No account yet? Jay sends invite links.',
     email: 'Email',
     password: 'Password',
     show: 'Show password',
@@ -445,7 +447,7 @@ export const hub = {
     keepOther: 'Keep the other',
     conflictNote:
       'This game was changed on two devices. This is the copy that lost; choose which to keep.',
-    countOnline: 'Signed in: this game counts on the global board.',
+    countOnline: 'Signed in: this game counts on the global leaderboard.',
     isThis: (name: string) => `Is this ${name}?`,
     savedAsAlias: (alias: string) => `“${alias}” is saved as another name for them.`,
     aliasFailed: (alias: string, name: string) =>
@@ -549,7 +551,7 @@ export const hub = {
   },
   home: {
     yourRank: (r: number, of: number) => `You’re #${r} of ${of} all time`,
-    notRanked: 'Not on the board yet',
+    notRanked: 'Not on the leaderboard yet',
     awardsToday: "Today's awards",
     seeAwards: 'All awards',
     almost: 'Almost there',

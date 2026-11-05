@@ -23,7 +23,7 @@ import { Seg } from '@/components/ui/Seg';
 import { pct } from '@/components/ui/Stats';
 import { SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
-import { BoardList } from './BoardsPage';
+import { BoardList } from './LeaderboardPage';
 import { achName } from '@/strings/achievements';
 import { ep } from '@/sync/endpoints';
 import type { AwardRow } from '@/sync/types';

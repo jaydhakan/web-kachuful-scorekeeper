@@ -387,7 +387,7 @@ for (const device of RUN) {
       await clearAll(page);
       await step('history-empty', () => go(page, /History/));
       await back(page);
-      await step('boards-empty', () => go(page, /Boards/));
+      await step('boards-empty', () => go(page, /Leaderboard/));
       await back(page);
       await seed(page, gameFor(NAMES.slice(0, 5), 'bidding', 20), 'home');
       await seedArchive(page);
@@ -401,7 +401,7 @@ for (const device of RUN) {
           .click(),
       );
       await home(page);
-      await step('boards-this-month', () => go(page, /Boards/));
+      await step('boards-this-month', () => go(page, /Leaderboard/));
       await step('boards-all-time', () => btn(page, 'All time').click());
       await step('player-page', () => page.locator('ol button').first().click(), 1400);
       await step('head-to-head', () =>
@@ -434,7 +434,7 @@ for (const device of RUN) {
       await step(
         'boards-global',
         async () => {
-          await go(page, /Boards/);
+          await go(page, /Leaderboard/);
           await btn(page, 'All time').click();
         },
         1500,

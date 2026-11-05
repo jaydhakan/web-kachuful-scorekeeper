@@ -38,7 +38,7 @@ export function ActivityPage() {
   if (!state.session)
     return (
       <Page title={ac.title}>
-        <EmptyState icon="news" title={t.hub.boards.signedOutTitle} />
+        <EmptyState icon="news" title={t.hub.leaderboard.signedOutTitle} />
       </Page>
     );
   return (

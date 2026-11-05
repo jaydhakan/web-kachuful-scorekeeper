@@ -155,9 +155,9 @@ try {
   await page.waitForTimeout(1200);
   await page.goBack();
   await page.waitForTimeout(1000);
-  await phase('Boards page in and out');
+  await phase('Leaderboard page in and out');
   await page
-    .getByRole('button', { name: /Boards/ })
+    .getByRole('button', { name: /Leaderboard/ })
     .first()
     .click();
   await page.waitForTimeout(1200);
@@ -189,7 +189,7 @@ const forced = layouts.filter((e) => e.args?.beginData?.stackTrace?.length);
 const md = [
   `# Trace at ${RATE}x CPU throttle`,
   '',
-  'Flow: resume → 3 bids → menu and scoreboard sheets → play → results → confirm round (summary count-up) → next round (deal sequence) → Home → History and Boards pages.',
+  'Flow: resume → 3 bids → menu and scoreboard sheets → play → results → confirm round (summary count-up) → next round (deal sequence) → Home → History and Leaderboard pages.',
   '',
   `Main-thread tasks: ${tasks.length}. Longest: ${tasks.length ? (Math.max(...tasks.map((t) => t.dur)) / 1000).toFixed(1) : 0} ms.`,
   `Long tasks over 50 ms: ${long.length}${

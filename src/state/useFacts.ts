@@ -20,7 +20,7 @@ export function deviceGames(current: Game): Game[] {
   return identify(list);
 }
 
-/** Boards, stats and achievements for this device, recomputed when a game or the archive changes. */
+/** Leaderboards, stats and achievements for this device, recomputed when a game or the archive changes. */
 export function useDeviceFacts(): Facts {
   const { state } = useApp();
   const v = useArchiveVersion();

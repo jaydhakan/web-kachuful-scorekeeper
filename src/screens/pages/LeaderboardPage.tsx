@@ -27,7 +27,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
 import { Edge } from '@/components/ui/Edge';
 
-const b = t.hub.boards;
+const b = t.hub.leaderboard;
 /** Unranked rows shown before "Show all"; ranked rows are never folded. */
 const UNRANKED_FOLD = 10;
 
@@ -51,7 +51,7 @@ export interface BoardData {
   facts: Facts | null;
 }
 
-export function BoardsPage() {
+export function LeaderboardPage() {
   const { state } = useApp();
   const signedIn = !!state.session;
   const [scope, setScope] = useState<'global' | 'device'>(signedIn ? 'global' : 'device');
