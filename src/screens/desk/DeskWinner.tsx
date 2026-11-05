@@ -9,7 +9,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { DeskPage, GhostButton, Kbd, PageHead, rankTone } from './DeskParts';
 import { ChartLegend, ScoreChart } from './ScoreChart';
-import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
+import { AchievementReel, LevelUps, useGameAchievements } from '@/components/AchievementReel';
 import { Sheet } from '@/components/ui/Sheet';
 import { t } from '@/strings';
 import { Avatar, AvatarFill } from '@/components/ui/Avatar';
@@ -256,6 +256,7 @@ export function DeskWinner() {
           onClose={() => setShowReel(false)}
         >
           <AchievementReel g={g} max={40} />
+          <LevelUps g={g} heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]" />
         </Sheet>
       )}
     </DeskPage>

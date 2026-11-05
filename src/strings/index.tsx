@@ -346,6 +346,8 @@ export const t = {
     headline: (names: string[]) =>
       names.length > 1 ? `${names.join(' & ')} share it` : `${names[0]} wins`,
     finalScores: 'Final scores',
+    levelUp: 'Level up',
+    levels: (from: number, to: number, of: number) => `Level ${from} to ${to} of ${of}`,
     share: 'Share',
     rematch: 'Rematch',
     first: '1st',

@@ -1,7 +1,7 @@
 import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { doneRounds, gameStats, standings, type Player } from '@/domain';
-import { AchievementReel, useGameAchievements } from '@/components/AchievementReel';
+import { AchievementReel, LevelUps, useGameAchievements } from '@/components/AchievementReel';
 import { LazyChart } from '@/components/LazyChart';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { useApp } from '@/state/store';
@@ -277,6 +277,7 @@ export default function Winner() {
                 <AchievementReel g={g} />
               </>
             )}
+            <LevelUps g={g} heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]" />
             {done.length > 1 && (
               <>
                 <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
