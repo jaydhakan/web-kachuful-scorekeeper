@@ -1,8 +1,9 @@
 import { demoGame } from '@/domain';
-import { lookFor } from '@/screens/setup/seatLook';
+import { findPerson, isSeated, lookFor } from '@/screens/setup/seatLook';
 import { archive, archiveGame } from './archive';
 import { KEYS, storage } from './persistence';
 import {
+  answersTo,
   backfillRegistry,
   circle,
   ensurePlayer,
@@ -11,6 +12,7 @@ import {
   findByName,
   identify,
   mergeLocal,
+  namesOf,
   patchLocal,
   people,
   resolveId,
@@ -152,5 +154,28 @@ describe('local player registry', () => {
     st = reducer(st, { type: 'setupPatch', patch: { n: 3, seats } });
     st = reducer(st, { type: 'beginGame', id: 'g', syncId: 's', now: 1, playerIds: ids });
     expect(st.game.players.map((p) => p.playerId)).toEqual(ids);
+  });
+});
+
+describe('aliases: one person, several names', () => {
+  it('finds a player by an alias, after any main name, and lists the main name first', async () => {
+    await archive.ready;
+    archive.put('players', { ...server('aki', 'Akishesh'), aliases: ['Aki', 'akishesh'] });
+    expect(namesOf(archive.get('players', 'aki')!)).toEqual(['Akishesh', 'Aki']);
+    expect(answersTo(archive.get('players', 'aki')!, 'aki')).toBe(true);
+    expect(findByName('AKI')?.id).toBe('aki');
+    // Someone whose main name is "Aki" wins over an alias.
+    archive.put('players', server('aki2', 'Aki'));
+    expect(findByName('Aki')?.id).toBe('aki2');
+  });
+
+  it('a seated person leaves the suggestions under every name', async () => {
+    await archive.ready;
+    const p = { ...server('k1', 'Kavya'), aliases: ['Kav'], games: 0, lastPlayedAt: null };
+    const seat = { name: 'Kav', emoji: '🙂', color: 'c' };
+    expect(isSeated(p, [seat, null])).toBe(true);
+    expect(isSeated(p, [{ ...seat, name: 'Other', playerId: 'k1' }])).toBe(true);
+    expect(isSeated(p, [{ ...seat, name: 'Other' }])).toBe(false);
+    expect(findPerson([p], 'kav')?.id).toBe('k1');
   });
 });

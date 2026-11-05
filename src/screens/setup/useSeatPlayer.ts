@@ -1,10 +1,9 @@
-import { nameKey } from '@/domain';
 import { circle, people, type Person } from '@/state/registry';
 import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
 import { t } from '@/strings';
 import type { FullName } from './SamePerson';
-import { findPerson, lookFor } from './seatLook';
+import { findPerson, isSeated, lookFor } from './seatLook';
 import { useSetup } from './useSetup';
 
 /** The next empty seat and who can take it; shared by step 2's one-tap chips and the Add player sheet. */
@@ -30,7 +29,8 @@ export function useSeatPlayer() {
   const known = useArchive(() =>
     session ? circle(session.user.id, session.player?.id ?? null) : people(),
   );
-  const free = known.filter((x) => !seats.some((s) => s && nameKey(s.name) === x.nameKey));
+  // Seated under one name, a person leaves the list under all of them.
+  const free = known.filter((x) => !isSeated(x, seats));
   const seat = (raw: string, person?: Person, extra: { email?: string } & FullName = {}) => {
     const look = lookFor(person ?? findPerson(known, raw), seats, tgt);
     actions.setupSeat(tgt, { name: raw.charAt(0).toUpperCase() + raw.slice(1), ...look, ...extra });

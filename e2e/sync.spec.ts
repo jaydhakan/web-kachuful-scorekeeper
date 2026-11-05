@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { addPlayer, freshBackend, signIn } from './backend';
+import { addPlayer, apiAs, freshBackend, signIn } from './backend';
 import { openSeeded, seedGame } from './fixtures';
 import { bidEveryone, btn, giveEmail, nameField } from './helpers';
 
@@ -67,7 +67,7 @@ test('first sign-in offers to add the games already on this phone', async ({ pag
   await expect(page.getByText(/Add them to your account/)).toBeHidden();
 });
 
-test('someone outside your circle: name and email together find them, and nothing less does', async ({
+test('someone outside your circle: their email finds them, under their name or a new one', async ({
   page,
 }) => {
   // Riya adds Pia; Kabir has never played with her, so she is not suggested to him.
@@ -84,23 +84,65 @@ test('someone outside your circle: name and email together find them, and nothin
   await giveEmail(page, pia, `someone.${uniq()}@example.com`);
   await expect(page.getByText(`“${pia}” is someone else’s name. Pick another.`)).toBeVisible();
   await expect(page.getByText(`Is this ${pia}?`)).toBeHidden();
-  // Another name with her email: taken too.
+  // Another name with her email: it's her, and the new name becomes one of hers.
   await page.getByLabel('Player name').fill('');
   const other = 'Qu' + uniq();
   await typeName(page, other);
   await giveEmail(page, other, email);
-  await expect(
-    page.getByText('That email belongs to another player. Check it and try again.'),
-  ).toBeVisible();
-  // Both: that's her.
-  await typeName(page, pia);
-  await giveEmail(page, pia, email);
   await expect(page.getByText(`Is this ${pia}?`)).toBeVisible();
+  await expect(page.getByText(`“${other}” is saved as another name for them.`)).toBeVisible();
   await btn(page, 'Yes, same person').click();
   await expect(page.getByText('1 of 3 seated')).toBeVisible();
+  // Seated under one name, she can't take a second seat under the other.
+  await typeName(page, pia);
+  await expect(page.getByText(`${other} is already at the table.`)).toBeVisible();
+  await page.getByLabel('Player name').fill('');
   // A bad email is caught before asking the server.
   const zz = 'Zz' + uniq();
   await typeName(page, zz);
   await giveEmail(page, zz, 'not-an-email');
   await expect(page.getByText('That doesn’t look like an email.')).toBeVisible();
+});
+
+async function withAlias() {
+  const pia = 'Pia' + uniq();
+  const p = await addPlayer('riya', pia, `${pia.toLowerCase()}@example.com`);
+  const alias = 'Pe' + uniq();
+  const api = await apiAs('riya');
+  const r = await api.post(`/api/players/${p.id}/aliases`, { data: { displayName: alias } });
+  if (r.status() !== 201) throw new Error(`alias: ${r.status()} ${await r.text()}`);
+  await api.dispose();
+  return { pia, alias };
+}
+
+test('someone with two names is one row: either name finds them, and you pick which sits down', async ({
+  page,
+}) => {
+  const { pia, alias } = await withAlias();
+  await signIn(page, 'riya');
+  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await newGameStep2(page, 3);
+  const input = await nameField(page);
+  await input.fill(alias.slice(0, 4));
+  const row = page.getByRole('button', { name: new RegExp(`^${pia} · also ${alias}`) });
+  await expect(row).toBeVisible();
+  await row.click();
+  await page
+    .getByRole('group', { name: `Seat ${pia} as` })
+    .getByRole('button', { name: alias })
+    .click();
+  await expect(page.getByText('1 of 3 seated')).toBeVisible();
+  // Seated as one name, they're gone from the list under both.
+  await input.fill(pia.slice(0, 3));
+  await expect(row).toBeHidden();
+});
+
+test('an alias can become the main name', async ({ page }) => {
+  const { pia, alias } = await withAlias();
+  await signIn(page, 'riya');
+  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await btn(page, 'Players').first().click();
+  await page.getByRole('button', { name: `Edit ${pia}` }).click();
+  await btn(page, `Make “${alias}” the main name`).click();
+  await expect(page.getByText(`${alias} is now the main name.`)).toBeVisible();
 });

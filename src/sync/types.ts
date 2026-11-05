@@ -1,4 +1,4 @@
-/** The API's shapes as built (the backend's HANDOFF.md §6.2). Times are epoch ms, ids UUID strings. */
+/** The API's shapes as built. Times are epoch ms, ids UUID strings. */
 import type { Decks, Direction, Game, Trump, Wrapped } from '@/domain';
 
 export type Role = 'admin' | 'member';
@@ -46,8 +46,16 @@ export interface Player {
   createdBy: string | null;
   linkedUserId: string | null;
   mergedInto: string | null;
+  /** Other names the same person plays under (one email, one person); missing from an older server. */
+  aliases?: PlayerAlias[];
   createdAt: number;
   updatedAt: number;
+}
+
+export interface PlayerAlias {
+  displayName: string;
+  firstName?: string | null;
+  lastName?: string | null;
 }
 
 /** A player as everyone may see it: `email` is always null. */
@@ -67,9 +75,12 @@ export interface NewPlayer {
   color: string;
 }
 
-/** GET /api/players/check: only a full name + email match names a player. */
+/**
+ * GET /api/players/check. `match`: the name (or one of their aliases) and the email are one player; `email_match`:
+ * the email is theirs under another name. `email_taken` only comes from a server without aliases.
+ */
 export type PlayerCheck =
-  | { status: 'match'; player: PlayerSummary }
+  | { status: 'match' | 'email_match'; player: PlayerSummary }
   | { status: 'email_taken' | 'name_taken' | 'new'; player: null };
 
 export interface GameSummary {
@@ -279,4 +290,12 @@ export interface AdminOverview {
   games: number;
   rounds: number;
   lastBackupAt: number | null;
+  /** What the admin should look at; missing from an older server. */
+  attention?: {
+    invitesExpiringSoon: number;
+    possibleDuplicates: { a: PlayerSummary; b: PlayerSummary; reason: 'email' | 'name' }[];
+  };
 }
+
+/** Which player's details survive a merge, field by field (`from` is the one merged away). */
+export type MergeKeep = Partial<Record<'displayName' | 'email' | 'names' | 'photo', 'from' | 'into'>>;

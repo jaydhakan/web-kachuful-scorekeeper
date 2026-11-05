@@ -2,7 +2,7 @@ import { m } from 'framer-motion';
 import { useState } from 'react';
 import { nameKey } from '@/domain';
 import { dayLabel } from '@/lib/dates';
-import { mayEdit, people, type Person } from '@/state/registry';
+import { mayEdit, namesOf, people, type Person } from '@/state/registry';
 import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
 import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
@@ -36,7 +36,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
     k
       ? all.filter(
           (p) =>
-            p.nameKey.includes(k) ||
+            namesOf(p).some((x) => nameKey(x).includes(k)) ||
             nameKey(`${p.firstName ?? ''} ${p.lastName ?? ''}`).includes(k),
         )
       : [...all]

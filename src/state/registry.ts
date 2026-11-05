@@ -3,11 +3,36 @@ import { uuid } from '@/lib/ids';
 import { archive, type PlayerRec } from './archive';
 import { KEYS, storage } from './persistence';
 import type { Seat } from './types';
+import type { Player as ServerPlayer } from '@/sync/types';
 
 /**
  * The people this device knows: one row per player, unique by name key. Signed out these are local rows; signed
  * in they mirror the server's registry. Games refer to them by `Player.playerId`.
  */
+
+/** The registry copy of a server player, keeping what only this device knew. */
+export const recFromServer = (p: ServerPlayer, prev?: PlayerRec): PlayerRec => ({
+  ...prev,
+  id: p.id,
+  displayName: p.displayName,
+  nameKey: nameKey(p.displayName),
+  // The server hides other people's emails; keep one this device already had.
+  email: p.email ?? prev?.email ?? null,
+  photoUrl: p.photoUrl,
+  firstName: p.firstName,
+  lastName: p.lastName,
+  emoji: p.emoji,
+  color: p.color,
+  createdBy: p.createdBy,
+  linkedUserId: p.linkedUserId,
+  mergedInto: p.mergedInto,
+  // An older server sends none: keep what this device already knew.
+  aliases: p.aliases ? p.aliases.map((a) => a.displayName) : prev?.aliases,
+  createdAt: p.createdAt,
+  updatedAt: p.updatedAt,
+  local: false,
+  pendingCreate: false,
+});
 
 /** Follows merges to the player an id ended up as. */
 export function resolveId(id: string): string {
@@ -23,11 +48,25 @@ export function resolveId(id: string): string {
 /** Live (not merged) players. */
 export const livePlayers = (): PlayerRec[] => archive.all('players').filter((p) => !p.mergedInto);
 
-/** The live player with this name; the server's copy wins over a same-named one made on this device. */
+/** Every name a player answers to: the main one first, then their aliases. */
+export const namesOf = (p: Pick<PlayerRec, 'displayName' | 'aliases'>): string[] => [
+  p.displayName,
+  ...(p.aliases ?? []).filter((a) => nameKey(a) !== nameKey(p.displayName)),
+];
+
+/** Whether a player is called this, by their main name or an alias. */
+export const answersTo = (p: Pick<PlayerRec, 'displayName' | 'aliases'>, key: string): boolean =>
+  !!key && namesOf(p).some((n) => nameKey(n) === key);
+
+/**
+ * The live player with this name, main names before aliases; the server's copy wins over a same-named one made on
+ * this device.
+ */
 export const findByName = (name: string): PlayerRec | undefined => {
   const k = nameKey(name);
-  const all = livePlayers().filter((p) => p.nameKey === k);
-  return all.find((p) => !p.local) ?? all[0];
+  const live = livePlayers();
+  const all = live.filter((p) => p.nameKey === k);
+  return all.find((p) => !p.local) ?? all[0] ?? live.find((p) => answersTo(p, k));
 };
 
 type SeatLike = Pick<

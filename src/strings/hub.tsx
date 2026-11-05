@@ -149,6 +149,7 @@ export const hub = {
   player: {
     title: 'Player',
     rank: (r: number, of: number) => `#${r} of ${of} all time`,
+    alsoPlaysAs: (names: string[]) => `Also plays as ${names.join(', ')}`,
     notFound: 'No games for this player',
     stats: 'Stats',
     points: 'Points',
@@ -281,6 +282,11 @@ export const hub = {
     never: 'never played',
     edit: (name: string) => `Edit ${name}`,
     editTitle: (name: string) => `Edit ${name}`,
+    otherNames: 'Other names',
+    otherNamesHint:
+      'Names this person was added under. Tap one to make it the main name, which boards show.',
+    makeMain: (name: string) => `Make “${name}” the main name`,
+    madeMain: (name: string) => `${name} is now the main name.`,
     nameTaken: 'Another player already has that name.',
   },
   sync: {
@@ -476,6 +482,9 @@ export const hub = {
       'This game was changed on two devices. This is the copy that lost; choose which to keep.',
     countOnline: 'Signed in: this game counts on the global board.',
     isThis: (name: string) => `Is this ${name}?`,
+    savedAsAlias: (alias: string) => `“${alias}” is saved as another name for them.`,
+    aliasFailed: (alias: string, name: string) =>
+      `Seated. “${alias}” couldn’t be saved as another name for ${name}; you’ll be asked again next time.`,
     recheck: 'No, recheck the email',
     emailTaken: 'That email belongs to another player. Check it and try again.',
     nameTaken: (name: string) => `“${name}” is someone else’s name. Pick another.`,

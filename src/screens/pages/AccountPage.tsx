@@ -4,6 +4,7 @@ import { emailKey, emailOk, NAME_MAX, tidyName } from '@/domain';
 import { agoTxt } from '@/lib/format';
 import { passwordOk } from '@/lib/password';
 import { archive } from '@/state/archive';
+import { recFromServer } from '@/state/registry';
 import { useApp } from '@/state/store';
 import { useArchive } from '@/state/useArchive';
 import { ep } from '@/sync/endpoints';
@@ -80,14 +81,7 @@ export function AccountPage() {
         color: form.color,
       });
       const prev = archive.get('players', out.id);
-      if (prev)
-        archive.put('players', {
-          ...prev,
-          ...out,
-          email: out.email ?? prev.email,
-          nameKey: prev.nameKey,
-          local: false,
-        });
+      if (prev) archive.put('players', recFromServer(out, prev));
       actions.setSession({
         ...s,
         player: { id: out.id, displayName: out.displayName, emoji: out.emoji, color: out.color },

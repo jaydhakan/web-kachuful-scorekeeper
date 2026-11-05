@@ -1,9 +1,15 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { emailKey, nameKey, suggestName } from '@/domain';
-import { livePlayers, rememberSame, type Person } from '@/state/registry';
+import { livePlayers, namesOf, type Person } from '@/state/registry';
 import type { PlayerSummary } from '@/sync/types';
-import { checkNewPlayer, personFor, SameCard, type FullName } from '@/screens/setup/SamePerson';
+import {
+  checkNewPlayer,
+  confirmSame,
+  personFor,
+  SameCard,
+  type FullName,
+} from '@/screens/setup/SamePerson';
 import { findPerson, lacksEmail } from '@/screens/setup/seatLook';
 import { useSeatPlayer } from '@/screens/setup/useSeatPlayer';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -42,7 +48,9 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
     [full, setFull] = useState(false),
     [err, setErr] = useState<{ msg: string; on: 'name' | 'email' } | null>(null),
     [rename, setRename] = useState(''),
-    [match, setMatch] = useState<PlayerSummary | null>(null),
+    [match, setMatch] = useState<{ player: PlayerSummary; alias: boolean } | null>(null),
+    // A person with more than one name, picked from the list: which name sits at the table.
+    [choose, setChoose] = useState<string | null>(null),
     [busy, setBusy] = useState(false);
   const inp = useRef<HTMLInputElement>(null),
     mail = useRef<HTMLInputElement>(null),
@@ -57,10 +65,16 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
   const askEmail = signedIn && lacksEmail(who);
   const ready = !!nm && (!askEmail || !!email.trim());
   const q = nameKey(nm);
+  // Found by any of their names; one row per person.
+  const keys = (p: Person) => namesOf(p).map(nameKey);
   const shown = q
     ? free
-        .filter((p) => p.nameKey.includes(q))
-        .sort((a, b) => Number(b.nameKey.startsWith(q)) - Number(a.nameKey.startsWith(q)))
+        .filter((p) => keys(p).some((k) => k.includes(q)))
+        .sort(
+          (a, b) =>
+            Number(keys(b).some((k) => k.startsWith(q))) -
+            Number(keys(a).some((k) => k.startsWith(q))),
+        )
     : free;
   useEffect(() => {
     if (tgt < 0) actions.openSheet(null);
@@ -74,6 +88,7 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
     setErr(null);
     setRename('');
     setMatch(null);
+    setChoose(null);
   };
   const place = (raw: string, person?: Person, extra: { email?: string } & FullName = {}) => {
     seat(raw, person, extra);
@@ -88,7 +103,10 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
   };
   const add = async () => {
     if (busy || tgt < 0 || !nm) return;
-    const ex = seats.find((s) => s && s.name.toLowerCase() === nm.toLowerCase());
+    // Seated already, under this name or another of theirs.
+    const ex = seats.find(
+      (s) => s && (s.name.toLowerCase() === nm.toLowerCase() || (who && s.playerId === who.id)),
+    );
     if (ex) return fail(t.setup.alreadySeated(ex.name), 'name');
     if (!askEmail) return place(nm, who);
     if (!email.trim()) return mail.current?.focus();
@@ -99,7 +117,7 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
       seats.flatMap((s) => (s?.email ? [s.email] : [])),
     );
     setBusy(false);
-    if (r.kind === 'match') return setMatch(r.player);
+    if (r.kind === 'match') return setMatch(r);
     if (r.kind === 'emailErr') return fail(r.msg, 'email');
     if (r.kind === 'nameTaken') {
       setRename(suggestName(nm, new Set(livePlayers().map((p) => p.nameKey))));
@@ -123,7 +141,13 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
       setName(r.displayName);
       edited();
       setTimeout(() => mail.current?.focus(), 0);
-    } else place(r.displayName, r);
+      return;
+    }
+    // Typed one of their names: that one. Otherwise someone with several names picks which sits at the table.
+    const names = namesOf(r);
+    const typed = names.find((x) => nameKey(x) === q);
+    if (names.length > 1 && !typed) return setChoose(choose === r.id ? null : r.id);
+    place(typed ?? r.displayName, r);
   };
   const reveal = rm ? { opacity: 0 } : { opacity: 0, y: -6 };
 
@@ -329,10 +353,19 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
             (match ? (
               <SameCard
                 className="mt-3"
-                match={match}
+                match={match.player}
+                alias={match.alias ? nm : undefined}
                 onYes={() => {
-                  rememberSame(match.id);
-                  place(match.displayName, personFor(match));
+                  void confirmSame(
+                    match.player,
+                    nm,
+                    {
+                      ...(first.trim() && { firstName: first.trim() }),
+                      ...(last.trim() && { lastName: last.trim() }),
+                    },
+                    actions.say,
+                  );
+                  place(nm, personFor(match.player));
                 }}
                 onNo={() => {
                   setMatch(null);
@@ -359,29 +392,64 @@ export function AddPlayerBody({ name: start = '' }: { name?: string }) {
             <h3 id={`${listId}-h`} className="mono-label mb-1 px-2 text-13 text-[var(--tx2)]">
               {t.setup.peopleYouKnow}
             </h3>
-            {shown.map((r) => (
-              <m.button
-                key={r.id}
-                type="button"
-                whileTap={PRESS}
-                onMouseDown={keepFocus}
-                onClick={() => pick(r)}
-                className="flex min-h-14 w-full items-center gap-3 rounded-2xl px-2 text-left"
-              >
-                <Avatar
-                  p={r}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-17 font-semibold leading-tight [overflow-wrap:anywhere]">
-                    {r.displayName}
-                  </span>
-                  {signedIn && lacksEmail(r) && (
-                    <span className="block text-13 text-[var(--tx2)]">{t.setup.needsEmail}</span>
+            {shown.map((r) => {
+              const names = namesOf(r);
+              return (
+                <div key={r.id}>
+                  <m.button
+                    type="button"
+                    whileTap={PRESS}
+                    onMouseDown={keepFocus}
+                    onClick={() => pick(r)}
+                    aria-expanded={names.length > 1 ? choose === r.id : undefined}
+                    className="flex min-h-14 w-full items-center gap-3 rounded-2xl px-2 text-left"
+                  >
+                    <Avatar
+                      p={r}
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-17 font-semibold leading-tight [overflow-wrap:anywhere]">
+                        {r.displayName}
+                        {names.length > 1 && (
+                          <span className="font-medium text-[var(--tx2)]">
+                            {' · '}
+                            {t.setup.alsoAs(names.slice(1))}
+                          </span>
+                        )}
+                      </span>
+                      {signedIn && lacksEmail(r) && (
+                        <span className="block text-13 text-[var(--tx2)]">
+                          {t.setup.needsEmail}
+                        </span>
+                      )}
+                    </span>
+                  </m.button>
+                  {choose === r.id && (
+                    <m.div
+                      role="group"
+                      aria-label={t.setup.seatAs(r.displayName)}
+                      initial={reveal}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, ease: EASE }}
+                      className="flex flex-wrap gap-2 pb-2 pl-[3.75rem] pr-2"
+                    >
+                      {names.map((x) => (
+                        <button
+                          key={x}
+                          type="button"
+                          onMouseDown={keepFocus}
+                          onClick={() => place(x, r)}
+                          className="press glass min-h-11 rounded-xl px-3 text-15 font-bold"
+                        >
+                          {x}
+                        </button>
+                      ))}
+                    </m.div>
                   )}
-                </span>
-              </m.button>
-            ))}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p id={listId} className="mt-5 text-14 leading-[1.35] text-[var(--tx2)]">

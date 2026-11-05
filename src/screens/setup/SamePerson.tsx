@@ -1,10 +1,18 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useState, type FormEvent } from 'react';
-import { emailKey, emailOk, nameKey, suggestName } from '@/domain';
+import { emailKey, emailOk, nameKey, suggestName, tidyName } from '@/domain';
+import { archive } from '@/state/archive';
 import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
 import type { PlayerSummary } from '@/sync/types';
-import { livePlayers, people, rememberSame, type Person } from '@/state/registry';
+import {
+  answersTo,
+  livePlayers,
+  people,
+  recFromServer,
+  rememberSame,
+  type Person,
+} from '@/state/registry';
 import { useApp } from '@/state/store';
 import { Avatar } from '@/components/ui/Avatar';
 import { EASE } from '@/components/ui/motion';
@@ -15,13 +23,18 @@ const x = t.hub.sync2;
 /** The optional first and last name a new player can be given at setup. */
 export type FullName = { firstName?: string; lastName?: string };
 
-/** "Is this Riya?": only ever shown when name and email both belong to that player. */
+/**
+ * "Is this Riya?": shown when the email belongs to that player. Under another name (`alias`), that name is saved as
+ * one of theirs on Yes.
+ */
 export function SameCard({
   match,
+  alias,
   onYes,
   onNo,
   className = '',
 }: {
+  alias?: string;
   match: Pick<
     PlayerSummary,
     'displayName' | 'emoji' | 'color' | 'photoUrl' | 'games' | 'createdByName'
@@ -50,6 +63,7 @@ export function SameCard({
         <span className="block text-13 text-[var(--tx2)]">
           {t.hub.auth.games(match.games, match.createdByName || '—')}
         </span>
+        {alias && <span className="block text-13 text-[var(--tx2)]">{x.savedAsAlias(alias)}</span>}
       </span>
       <span className="flex flex-wrap gap-2">
         <button
@@ -73,7 +87,8 @@ export function SameCard({
 
 export type NewPlayerCheck =
   | { kind: 'ok' }
-  | { kind: 'match'; player: PlayerSummary }
+  /** `alias`: the email is theirs but the name isn't one of theirs yet. */
+  | { kind: 'match'; player: PlayerSummary; alias: boolean }
   | { kind: 'emailErr' | 'nameTaken'; msg: string };
 
 /**
@@ -89,7 +104,8 @@ export async function checkNewPlayer(
   if (taken.includes(emailKey(email))) return { kind: 'emailErr', msg: x.emailAtTable };
   try {
     const r = await ep.checkPlayer(name, emailKey(email));
-    if (r.status === 'match') return { kind: 'match', player: r.player };
+    if (r.status === 'match' || r.status === 'email_match')
+      return { kind: 'match', player: r.player, alias: r.status === 'email_match' };
     if (r.status === 'email_taken') return { kind: 'emailErr', msg: x.emailTaken };
     if (r.status === 'name_taken') return { kind: 'nameTaken', msg: x.nameTaken(name) };
     return { kind: 'ok' };
@@ -102,9 +118,30 @@ export async function checkNewPlayer(
 }
 
 /**
- * Signed in, someone outside this account's circle is added by name and email, checked with the server
- * (HANDOFF §5.7). Both matching one player asks "Is this Riya?"; a taken name or email reveals nobody and asks for
- * another; offline, the player is created later and a clash lands in the inbox.
+ * Yes on "Is this Riya?": they join this account's circle, and a name they weren't known by yet is saved as one of
+ * theirs. The seat keeps the typed name either way; failing to save it only means asking again next time.
+ */
+export async function confirmSame(
+  p: PlayerSummary,
+  typed: string,
+  names: FullName,
+  say: (msg: string) => void,
+) {
+  rememberSame(p.id);
+  const known = archive.get('players', p.id) ?? recFromServer(p);
+  if (answersTo(known, nameKey(typed))) return;
+  try {
+    const out = await ep.addAlias(p.id, { displayName: tidyName(typed), ...names });
+    archive.put('players', recFromServer(out, archive.get('players', out.id)));
+  } catch {
+    say(x.aliasFailed(tidyName(typed), p.displayName));
+  }
+}
+
+/**
+ * Signed in, someone outside this account's circle is added by name and email, checked with the server. The email
+ * being someone's asks "Is this Riya?"; a taken name asks for another; offline, the player is created later and a
+ * clash lands in the inbox.
  */
 export function EmailStep({
   name,
@@ -129,7 +166,7 @@ export function EmailStep({
 }) {
   const [email, setEmail] = useState(initialEmail);
   const [err, setErr] = useState('');
-  const [match, setMatch] = useState<PlayerSummary | null>(null);
+  const [match, setMatch] = useState<{ player: PlayerSummary; alias: boolean } | null>(null);
   const [nameTaken, setNameTaken] = useState(false);
   const [busy, setBusy] = useState(false);
   const [full, setFull] = useState(false);
@@ -148,7 +185,7 @@ export function EmailStep({
     setNameTaken(false);
     const r = await checkNewPlayer(name, email, taken);
     setBusy(false);
-    if (r.kind === 'match') setMatch(r.player);
+    if (r.kind === 'match') setMatch(r);
     else if (r.kind === 'ok') onDone(emailKey(email), names);
     else {
       setNameTaken(r.kind === 'nameTaken');
@@ -159,11 +196,12 @@ export function EmailStep({
     return (
       <SameCard
         className={className}
-        match={match}
+        match={match.player}
+        alias={match.alias ? name : undefined}
         onYes={() => {
-          rememberSame(match.id);
+          void confirmSame(match.player, name, names, actions.say);
           actions.vib();
-          onSame(match);
+          onSame(match.player);
         }}
         onNo={() => (setMatch(null), setErr(x.recheckHint))}
       />
@@ -254,9 +292,8 @@ export function EmailStep({
 /** The registry row for a player the server matched, so the seat takes their id and look. */
 export const personFor = (p: PlayerSummary): Person =>
   people().find((k) => k.id === p.id) ?? {
-    ...p,
-    nameKey: nameKey(p.displayName),
-    local: false,
+    ...recFromServer(p),
+    createdByName: p.createdByName,
     games: p.games,
     lastPlayedAt: p.lastPlayedAt,
   };

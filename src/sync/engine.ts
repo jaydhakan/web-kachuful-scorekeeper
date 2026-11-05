@@ -5,9 +5,9 @@
  */
 import { doneRounds, emailKey, nameKey, type Game } from '@/domain';
 import { uuid } from '@/lib/ids';
-import { archive, type GameRec, type InboxItem, type PlayerRec } from '@/state/archive';
+import { archive, type GameRec, type InboxItem } from '@/state/archive';
 import type { Session } from '@/state/persistence';
-import { idOf } from '@/state/registry';
+import { idOf, recFromServer } from '@/state/registry';
 import type { Route } from '@/state/types';
 import { ApiError } from './api';
 import { sessionOf } from './account';
@@ -146,26 +146,7 @@ async function run(full: boolean) {
 
 // ——— pull ———
 
-const toRec = (p: Player, prev?: PlayerRec): PlayerRec => ({
-  ...prev,
-  id: p.id,
-  displayName: p.displayName,
-  nameKey: nameKey(p.displayName),
-  // The server hides other people's emails; keep one this device already had.
-  email: p.email ?? prev?.email ?? null,
-  photoUrl: p.photoUrl,
-  firstName: p.firstName,
-  lastName: p.lastName,
-  emoji: p.emoji,
-  color: p.color,
-  createdBy: p.createdBy,
-  linkedUserId: p.linkedUserId,
-  mergedInto: p.mergedInto,
-  createdAt: p.createdAt,
-  updatedAt: p.updatedAt,
-  local: false,
-  pendingCreate: false,
-});
+const toRec = recFromServer;
 
 function upsertPlayers(list: Player[]) {
   archive.put('players', ...list.map((p) => toRec(p, archive.get('players', p.id))));

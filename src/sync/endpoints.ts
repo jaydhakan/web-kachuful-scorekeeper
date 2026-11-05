@@ -12,8 +12,10 @@ import type {
   Leaderboard,
   LiveResp,
   NewPlayer,
+  MergeKeep,
   Page,
   Player,
+  PlayerAlias,
   PlayerCheck,
   PlayerStats,
   PlayerSummary,
@@ -30,7 +32,10 @@ import type { Metric } from '@/domain';
 
 export type PlayerEdit = Partial<
   Pick<Player, 'displayName' | 'email' | 'firstName' | 'lastName' | 'emoji' | 'color'>
->;
+> & {
+  /** Swaps this alias with the main name; the old main name becomes an alias. */
+  mainAlias?: string;
+};
 
 /** The appearance setting as the server stores it; `updatedAt` is epoch ms. */
 export interface AppearanceDto {
@@ -79,8 +84,8 @@ export const ep = {
     post<{ resetUrl: string; expiresAt: number }>(`/admin/users/${userId}/reset-link`),
   setActive: (userId: string, active: boolean) =>
     patch<{ user: User }>(`/admin/users/${userId}`, { active }),
-  merge: (id: string, intoId: string) =>
-    post<{ player: Player }>(`/admin/players/${id}/merge`, { intoId }),
+  merge: (id: string, intoId: string, keep?: MergeKeep) =>
+    post<{ player: Player }>(`/admin/players/${id}/merge`, { intoId, ...(keep && { keep }) }),
   overview: () => get<AdminOverview>('/admin/overview'),
 
   // §6.5 players and games
@@ -90,6 +95,7 @@ export const ep = {
     get<PlayerCheck>('/players/check', { name, email }, o),
   createPlayer: (p: NewPlayer) => post<Player>('/players', p),
   patchPlayer: (id: string, p: PlayerEdit) => patch<Player>(`/players/${id}`, p),
+  addAlias: (id: string, a: PlayerAlias) => post<Player>(`/players/${id}/aliases`, a),
   setPhoto: (id: string, image: Blob) =>
     put<{ photoUrl: string }>(`/players/${id}/photo`, new Bytes(image, image.type)),
   deletePhoto: (id: string) => del(`/players/${id}/photo`),

@@ -13,7 +13,7 @@ import {
 } from '@/domain';
 import { circle, people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
-import { findPerson, lacksEmail, lookFor } from '@/screens/setup/seatLook';
+import { findPerson, isSeated, lacksEmail, lookFor } from '@/screens/setup/seatLook';
 import { EmailStep, personFor } from '@/screens/setup/SamePerson';
 import { useApp } from '@/state/store';
 import type { Seat } from '@/state/types';
@@ -83,14 +83,21 @@ export function DeskSetup() {
   const n = su?.n ?? 0,
     seats = su ? resize(su.seats, n) : [],
     filled = seats.filter((s) => s && s.name.trim()).length;
-  const names = seats.map((s) => (s ? nameKey(s.name) : ''));
   const session = state.session;
   const signedIn = !!session;
   // Signed in, only this account's circle is suggested (and matched by name); anyone else needs an email.
   const known = useArchive(() =>
     session ? circle(session.user.id, session.player?.id ?? null) : people(),
   );
-  const dupe = names.find((x, i) => x && names.indexOf(x) !== i);
+  // One person twice is a duplicate too, even under two of their names.
+  const who = seats.map((s) =>
+    s && s.name.trim()
+      ? (s.playerId ?? findPerson(known, s.name)?.id ?? 'name:' + nameKey(s.name))
+      : '',
+  );
+  const dupeAt = who.findIndex((x, i) => x && who.indexOf(x) !== i);
+  const dupeWho = dupeAt >= 0 ? who[dupeAt] : '';
+  const dupe = dupeAt >= 0 ? seats[dupeAt]!.name : '';
   const noEmail = signedIn
     ? seats.findIndex(
         (x) =>
@@ -110,7 +117,7 @@ export function DeskSetup() {
   const lg = su.lg,
     lgDecks = lg?.decks ?? 1,
     lgFits = !!lg && playerCounts(lgDecks).includes(lg.names.length);
-  const recent = known.filter((x) => !names.includes(x.nameKey)).slice(0, 6);
+  const recent = known.filter((x) => !isSeated(x, seats)).slice(0, 6);
   const dealer = Math.min(su.dealer, Math.max(0, n - 1)),
     shown = spin ?? dealer,
     first = n ? (shown + 1) % n : 0;
@@ -374,7 +381,7 @@ export function DeskSetup() {
                           inputs.current[k] = el;
                         }}
                         aria-label={t.desk.setup.seatName(k + 1)}
-                        aria-invalid={!!dupe && names[k] === dupe}
+                        aria-invalid={!!dupe && who[k] === dupeWho}
                         value={s?.name ?? ''}
                         maxLength={14}
                         autoComplete="off"
@@ -392,7 +399,7 @@ export function DeskSetup() {
                             nextField(k);
                           }
                         }}
-                        className={`h-12 min-w-0 flex-1 rounded-xl mat-inp px-3.5 text-17 outline-none placeholder:text-[var(--ph)] ${dupe && names[k] === dupe ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
+                        className={`h-12 min-w-0 flex-1 rounded-xl mat-inp px-3.5 text-17 outline-none placeholder:text-[var(--ph)] ${dupe && who[k] === dupeWho ? 'shadow-[inset_0_0_0_1px_var(--neg)]' : ''}`}
                       />
                       <span className="w-[4.5rem] shrink-0 text-center">
                         {k === shown ? (
@@ -549,10 +556,8 @@ export function DeskSetup() {
                 )}
                 onSame={(p) => {
                   setEmailDraft('');
-                  actions.setupSeatPatch(noEmail, {
-                    name: p.displayName,
-                    ...lookFor(personFor(p), seats, noEmail),
-                  });
+                  // The seat keeps the name typed for it, which may be an alias of theirs.
+                  actions.setupSeatPatch(noEmail, lookFor(personFor(p), seats, noEmail));
                 }}
                 onRename={(name, email) => {
                   setEmailDraft(email);

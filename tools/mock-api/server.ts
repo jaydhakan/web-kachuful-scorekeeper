@@ -122,6 +122,7 @@ function newPlayer(
     createdBy: by,
     linkedUserId: p.linkedUserId ?? null,
     mergedInto: null,
+    aliases: [],
     createdAt: at,
     updatedAt: at,
   };
@@ -428,13 +429,19 @@ function page<T>(items: T[], cursor: unknown, limit = 50) {
 const livePlayers = (exceptId?: string) =>
   [...db.players.values()].filter((p) => !p.mergedInto && p.id !== exceptId);
 
-/** HANDOFF §5.7: the same player is name AND email of one live player; a partial match names nobody. */
-function identify(name: string, email: string): 'match' | 'email_taken' | 'name_taken' | 'new' {
+/** Every name a player answers to: the main name and its aliases. */
+const keysOf = (p: Player) =>
+  [p.displayName, ...(p.aliases ?? []).map((a) => a.displayName)].map(nameKey);
+const holderOf = (name: string, exceptId?: string) =>
+  livePlayers(exceptId).find((p) => keysOf(p).includes(nameKey(name)));
+
+/** `match`: name (or alias) and email are one player; `email_match`: the email is theirs under another name. */
+function identify(name: string, email: string): 'match' | 'email_match' | 'name_taken' | 'new' {
   const live = livePlayers();
   const byEmail = email ? live.find((p) => p.email === emailKey(email)) : undefined;
-  const byName = live.find((p) => nameKey(p.displayName) === nameKey(name));
+  const byName = holderOf(name);
   if (byEmail && byEmail === byName) return 'match';
-  if (byEmail) return 'email_taken';
+  if (byEmail) return 'email_match';
   if (byName) return 'name_taken';
   return 'new';
 }
@@ -456,7 +463,7 @@ function checkPlayer(
     const name = String(body.displayName ?? '').trim();
     if (!name || name.length > 14)
       throw err(422, 'invalid', { fields: { displayName: 'must be 1-14 characters' } });
-    if (live.some((p) => nameKey(p.displayName) === nameKey(name))) throw err(409, 'name_taken');
+    if (holderOf(name, exceptId)) throw err(409, 'name_taken');
   }
 }
 
@@ -814,9 +821,25 @@ on(
         g.payload.players.some((p) => p.playerId === b.id),
     );
     if (together) throw err(422, 'invalid', { fields: { intoId: 'they played at one table' } });
+    const keep = (body.keep ?? {}) as Record<string, 'from' | 'into' | undefined>;
     a.mergedInto = b.id;
-    b.email ??= a.email;
-    if (!db.photos.has(b.id) && db.photos.has(a.id)) db.photos.set(b.id, db.photos.get(a.id)!);
+    // Every name the merged-away player had stays one of the kept player's.
+    const names = [
+      { displayName: a.displayName, firstName: a.firstName, lastName: a.lastName },
+      ...(a.aliases ?? []),
+    ];
+    if (keep.displayName === 'from') {
+      names[0] = { displayName: b.displayName, firstName: b.firstName, lastName: b.lastName };
+      b.displayName = a.displayName;
+    }
+    b.aliases = [...(b.aliases ?? []), ...names];
+    a.aliases = [];
+    if (keep.names === 'from' && (a.firstName || a.lastName))
+      [b.firstName, b.lastName] = [a.firstName, a.lastName];
+    if (keep.email === 'from' && a.email) b.email = a.email;
+    else b.email ??= a.email;
+    if (db.photos.has(a.id) && (keep.photo === 'from' || !db.photos.has(b.id)))
+      db.photos.set(b.id, db.photos.get(a.id)!);
     a.email = null;
     a.updatedAt = b.updatedAt = Date.now();
     if (a.linkedUserId) {
@@ -841,6 +864,23 @@ on(
     games: liveGames().length,
     rounds: facts().games.reduce((a, g) => a + g.rounds, 0),
     lastBackupAt: null,
+    attention: {
+      invitesExpiringSoon: [...db.invites.values()].filter(
+        (i) => !i.done && i.expiresAt - Date.now() < 48 * 3600e3,
+      ).length,
+      // The real server compares names by trigram similarity; one name starting with the other stands in here.
+      possibleDuplicates: livePlayers()
+        .flatMap((a, i) =>
+          livePlayers()
+            .slice(i + 1)
+            .filter((b) => {
+              const [x, y] = [nameKey(a.displayName), nameKey(b.displayName)];
+              return x.length >= 3 && y.length >= 3 && (x.startsWith(y) || y.startsWith(x));
+            })
+            .map((b) => ({ a: summaryOf(a.id), b: summaryOf(b.id), reason: 'name' as const })),
+        )
+        .slice(0, 20),
+    },
   }),
   'admin',
 );
@@ -864,7 +904,7 @@ on('GET', '/api/players/check', ({ url }) => {
   if (email && !emailOk(email))
     throw err(422, 'invalid', { fields: { email: 'must look like x@y.z' } });
   const status = identify(name, email);
-  if (status !== 'match') return { status, player: null };
+  if (status !== 'match' && status !== 'email_match') return { status, player: null };
   const p = livePlayers().find((x) => x.email === emailKey(email))!;
   return { status, player: summaryOf(p.id) };
 });
@@ -902,6 +942,13 @@ on('PATCH', '/api/players/:id', ({ m, body, me }) => {
   if (body.displayName !== undefined && !admin && !linked) throw err(403, 'forbidden');
   if (!admin && !linked && !creator) throw err(403, 'forbidden');
   if (body.email === null) throw err(422, 'invalid', { fields: { email: "can't be cleared" } });
+  if (typeof body.mainAlias === 'string') {
+    const a = (p.aliases ?? []).find(
+      (x) => nameKey(x.displayName) === nameKey(String(body.mainAlias)),
+    );
+    if (!a) throw err(422, 'invalid', { fields: { mainAlias: 'not one of their names' } });
+    [a.displayName, p.displayName] = [p.displayName, a.displayName];
+  }
   checkPlayer(body, p.id, {
     name: body.displayName !== undefined,
     email: body.email !== undefined,
@@ -913,6 +960,26 @@ on('PATCH', '/api/players/:id', ({ m, body, me }) => {
   p.updatedAt = Date.now();
   db.version++;
   return view(p, me);
+});
+on('POST', '/api/players/:id/aliases', ({ m, body, me }) => {
+  const p = db.players.get(m[0]);
+  if (!p || p.mergedInto) throw err(404, 'not_found');
+  const name = String(body.displayName ?? '').trim();
+  if (!name || name.length > 14)
+    throw err(422, 'invalid', { fields: { displayName: 'must be 1-14 characters' } });
+  if (keysOf(p).includes(nameKey(name))) return view(p, me);
+  if (holderOf(name)) throw err(409, 'name_taken');
+  p.aliases = [
+    ...(p.aliases ?? []),
+    {
+      displayName: name,
+      firstName: (body.firstName as string | undefined) ?? null,
+      lastName: (body.lastName as string | undefined) ?? null,
+    },
+  ];
+  p.updatedAt = Date.now();
+  db.version++;
+  return [201, view(p, me)];
 });
 /** Who may change a player's photo or email: the admin, its creator and its linked user. */
 function mayEdit(p: Player | undefined, me: UserRec) {

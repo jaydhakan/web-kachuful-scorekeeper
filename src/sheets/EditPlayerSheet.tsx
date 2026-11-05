@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { emailKey, emailOk, NAME_MAX, tidyName } from '@/domain';
-import { keepPlayer, patchLocal, type Person } from '@/state/registry';
+import { keepPlayer, namesOf, patchLocal, recFromServer, type Person } from '@/state/registry';
+import { archive } from '@/state/archive';
 import { useApp } from '@/state/store';
 import { ep } from '@/sync/endpoints';
 import { authError } from '@/screens/pages/AuthPages';
@@ -23,6 +24,21 @@ export function EditPlayerSheet({ p, onClose }: { p: Person; onClose: () => void
   });
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const others = remote ? namesOf(p).slice(1) : [];
+
+  // The alias and the main name swap on the server; boards then show the new main name.
+  const makeMain = async (alias: string) => {
+    setBusy(true);
+    try {
+      const out = await ep.patchPlayer(p.id, { mainAlias: alias });
+      keepPlayer(p.id, recFromServer(out, archive.get('players', p.id)));
+      actions.say(pp.madeMain(out.displayName));
+      onClose();
+    } catch (x) {
+      setErr(authError(x));
+      setBusy(false);
+    }
+  };
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,7 +61,7 @@ export function EditPlayerSheet({ p, onClose }: { p: Person; onClose: () => void
         ...(email && email !== p.email && { email }),
         ...names,
       });
-      keepPlayer(p.id, { ...out, email: out.email ?? p.email, nameKey: p.nameKey, local: false });
+      keepPlayer(p.id, recFromServer(out, archive.get('players', p.id)));
       actions.say(t.hub.account.saved);
       onClose();
     } catch (x) {
@@ -76,6 +92,31 @@ export function EditPlayerSheet({ p, onClose }: { p: Person; onClose: () => void
             onChange={(v) => setForm({ ...form, last: v })}
           />
         </div>
+        {others.length > 0 && (
+          <div role="group" aria-labelledby="other-names" className="mb-5">
+            <h3 id="other-names" className="mono-label text-12 text-[var(--tx2)]">
+              {pp.otherNames}
+            </h3>
+            <p className="mb-2 mt-1 text-13 text-[var(--tx2)]">{pp.otherNamesHint}</p>
+            <div className="flex flex-wrap gap-2">
+              {others.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  disabled={busy}
+                  aria-label={pp.makeMain(a)}
+                  onClick={() => void makeMain(a)}
+                  className="press glass inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-15 font-bold disabled:opacity-50"
+                >
+                  {a}
+                  <span aria-hidden className="text-13 font-medium text-[var(--accent)]">
+                    ↑
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {remote && (
           <Field
             label={t.hub.auth.yourEmail}

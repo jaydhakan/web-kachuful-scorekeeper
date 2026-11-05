@@ -48,6 +48,8 @@ export interface PlayerRec {
   createdByName?: string | null;
   linkedUserId?: string | null;
   mergedInto?: string | null;
+  /** Other names this person plays under (server aliases); found by any of them. */
+  aliases?: string[];
   /** Made signed in (or chosen at import): to be created on the server. */
   pendingCreate?: boolean;
   /** Server counts, when known. */

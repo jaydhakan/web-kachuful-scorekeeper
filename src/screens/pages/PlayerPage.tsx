@@ -123,6 +123,11 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const local = archive.get('players', id)?.local && !signedIn;
   // Signed in, the admin, the player's creator and the player may change the photo.
   const reg = useArchive((a) => (signedIn ? a.get('players', resolveId(id)) : undefined));
+  const aliases = (
+    rProfile.data?.player.aliases?.map((x) => x.displayName) ??
+    reg?.aliases ??
+    []
+  ).filter((x) => x !== w.name);
   const played = s.rounds > 0 || f.rounds.some((r) => r.playerId === id);
   const accBars = (
     o: Record<string, { made: number; total: number }>,
@@ -157,6 +162,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
         [
           [w.firstName, w.lastName].filter(Boolean).join(' '),
           rank?.global ? p.rank(rank.global, rank.outOf) : '',
+          aliases.length ? p.alsoPlaysAs(aliases) : '',
         ]
           .filter(Boolean)
           .join(' · ') || p.title

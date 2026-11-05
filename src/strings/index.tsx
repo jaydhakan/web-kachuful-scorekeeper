@@ -124,6 +124,8 @@ export const t = {
     seatOf: (k: number, n: number) => `Seat ${k} of ${n}`,
     peopleYouKnow: 'People you know',
     needsEmail: 'Needs an email',
+    alsoAs: (names: string[]) => `also ${names.join(', ')}`,
+    seatAs: (name: string) => `Seat ${name} as`,
     noMatch: (name: string) => `Nobody called “${name}” yet. Add seats them as a new player.`,
     recentNames: 'Recent names',
     recentHint: 'Names you add are remembered for next time.',
