@@ -1,4 +1,5 @@
 import { saveShownTheme } from '@/state/persistence';
+import { loadThemeCss } from './themeCss';
 import { THEMES, type ThemeId } from './themes';
 
 /** The theme on screen right now (the boot script set it before the app ran). */
@@ -19,7 +20,9 @@ export function loadThemeFonts(id: ThemeId, ms = 600): Promise<void> {
 export async function applyTheme(id: ThemeId, { animate = true, persist = true } = {}) {
   if (persist) saveShownTheme(id);
   if (shownTheme() === id) return;
-  await loadThemeFonts(id);
+  // Its stylesheet first: switching before it loads would show the theme without its colours.
+  const [ready] = await Promise.all([loadThemeCss(id), loadThemeFonts(id)]);
+  if (!ready) return;
   const run = () => {
     const root = document.documentElement;
     root.setAttribute('data-theme', id);

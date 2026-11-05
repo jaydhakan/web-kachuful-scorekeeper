@@ -1,0 +1,306 @@
+/* The yerba-sun theme's rules, split out of themes.css: loaded only while this theme is shown or previewed (src/theme/themeCss.ts). */
+/* ---------- THEME 2: YERBA SUN (light, butter, tomato, ink outlines, hard offset shadows) ---------- */
+[data-theme='yerba-sun'] {
+  color-scheme: light;
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --display-weight: 800;
+  --display-track: -0.035em;
+  --mono-track: 0.08em;
+
+  --ink: #2b1a0e;
+  --bg: #fbe7b5;
+  --surface-1: #fff0cb;
+  --surface-2: #f2d690;
+  --surface-3: #e8c97a;
+  --panel: #fff8e6;
+  --hairline: rgba(43, 26, 14, 0.2);
+  --hairline-2: rgba(43, 26, 14, 0.36);
+  --text-1: #2b1a0e;
+  --text-2: #5b4128;
+  --text-3: #6e5232;
+  --brand: #ee6a4b;
+  --brand-press: #da5a3c;
+  --on-brand: #2b1a0e;
+  --brand-soft: rgba(238, 106, 75, 0.2);
+  --felt: #ee6a4b;
+  --felt-hi: #ee6a4b;
+  --felt-lo: #ee6a4b;
+  --felt-rim: #2b1a0e;
+  --suit-red: #6e0f1c;
+  --suit-black: #2b1a0e;
+  --suit-red-ui: var(--suit-red);
+  --suit-red-felt: #6e0f1c;
+  --success: #1e6b45;
+  --success-soft: rgba(30, 107, 69, 0.18);
+  --danger: #a3202f;
+  --danger-soft: rgba(163, 32, 47, 0.16);
+  --warning: #8a2a0e;
+  --on-success: #fff8e6;
+  --on-danger: #fff8e6;
+  --scrim: rgba(43, 26, 14, 0.45);
+  --sheet-shadow: rgba(43, 26, 14, 0.25);
+  --ga: var(--brand);
+  --gb: var(--brand);
+  --glow: rgba(238, 106, 75, 0.3);
+  --glass: var(--panel);
+  --glass-b: var(--ink);
+  --hl: transparent;
+  --drop: var(--ink);
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+  --big-size: 60px;
+  --big-track: -0.035em;
+  --big-weight: 800;
+  --big-style: normal;
+  --tally-fg: var(--ink);
+  --tick-bg: var(--brand);
+  --tick-fg: var(--ink);
+  --tick-dot: var(--ink);
+  --tick-rule: var(--ink);
+  --ctr-fg: var(--ink);
+  --card-bg: #fffbf0;
+  --card-fg: #2b1a0e;
+  --card-red: #b4002f;
+  --ov: #2b1a0e;
+  --shade: #2b1a0e;
+  --arc: var(--ink);
+  --vignette: transparent;
+  --sheet-bg: var(--panel);
+  --toast-bg: var(--ink);
+  --toast-fg: var(--panel);
+  --medal-gold: #ffc93c;
+  --medal-gold-hi: #ffe08a;
+  --medal-gold-lo: #e0a21b;
+  --medal-silver: #d5d9de;
+  --medal-silver-hi: #eef0f2;
+  --medal-silver-lo: #a9afb6;
+  --medal-bronze: #e8a56a;
+  --medal-bronze-hi: #f4c49a;
+  --medal-bronze-lo: #b8723a;
+  --on-gold: #2b1a0e;
+  --trump-spades: var(--brand);
+  --trump-diamonds: var(--brand);
+  --trump-clubs: var(--brand);
+  --trump-hearts: var(--brand);
+  --trump-glow-amt: 0%;
+  --pulse-blur: 0px;
+  --seat-1: #ffb347;
+  --seat-2: #8cc8f0;
+  --seat-3: #fff3d6;
+  --seat-4: #7fd6a8;
+  --seat-5: #c9a6ff;
+  --seat-6: #ff9bb5;
+  --seat-7: #7fdad0;
+  --seat-8: #a9b4ff;
+  --seat-9: #ff8a80;
+  --seat-10: #e8a56a;
+  --fill-primary: var(--brand);
+  --card-back-a: #2b1a0e;
+  --card-back-b: #ee6a4b;
+  --card-back-edge: var(--card-bg);
+  --art-back: none;
+  --art-back-mini: none;
+  --art-trump-hearts: none;
+  --art-trump-clubs: none;
+  --reveal-hold: 0ms;
+  --name-frame: none;
+  --fan-anim: deal-fan;
+  --fan-dur: 1.5s;
+  --fan-step: 140ms;
+  --reveal-rays: none;
+  --reveal-glint: none;
+}
+[data-theme='yerba-sun'] .glass {
+  --r-card: var(--r-lg);
+  background: var(--panel);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    4px 4px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .felt {
+  background: var(--felt);
+  box-shadow:
+    inset 0 0 0 3px var(--ink),
+    6px 6px 0 var(--ink);
+}
+
+/* Flat themes have no light to glow with: the breathing trump glow and the screen vignette step aside. */
+[data-theme='yerba-sun'] .ambient {
+  display: none;
+}
+[data-theme='yerba-sun'] .mono-label {
+  font-weight: 700;
+}
+[data-theme='yerba-sun'] .mat-cta {
+  border-radius: var(--r-lg);
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+[data-theme='yerba-sun'] .mat-fill {
+  box-shadow:
+    inset 0 0 0 3px var(--ink),
+    5px 5px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-fill-s,
+[data-theme='yerba-sun'] .mat-fill-d {
+  background: var(--panel);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    3px 3px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-fill-off {
+  background: transparent;
+  box-shadow: inset 0 0 0 2.5px var(--text-3);
+}
+/* The sticker lifts off the page; pressing pushes it back down onto its shadow. `translate` composes with motion's transform. */
+[data-theme='yerba-sun'] .mat-cta-on {
+  translate: -2px -2px;
+}
+[data-theme='yerba-sun'] .mat-cta-on:active {
+  translate: 1px 1px;
+}
+[data-theme='yerba-sun'] .mat-ibtn {
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    2px 2px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-seg {
+  background: var(--panel);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-thumb {
+  background: var(--brand);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-key {
+  border-radius: var(--r-md);
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    3px 3px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-key[aria-pressed='true'] {
+  translate: 2px 2px;
+  box-shadow: none;
+}
+[data-theme='yerba-sun'] .mat-key-on {
+  border-radius: var(--r-md);
+  background: var(--brand);
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    1px 1px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-key-no {
+  border-radius: var(--r-md);
+  box-shadow: inset 0 0 0 2.5px var(--text-3);
+}
+[data-theme='yerba-sun'] .mat-av {
+  box-shadow: 0 0 0 2.5px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-name {
+  background: var(--ink);
+  color: var(--panel);
+  padding-inline: 7px;
+  border-radius: 7px;
+}
+[data-theme='yerba-sun'] .mat-bid {
+  background: var(--ink);
+  color: var(--panel);
+}
+[data-theme='yerba-sun'] .mat-bid {
+  box-shadow: 0 0 0 2px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-first {
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 6px;
+}
+[data-theme='yerba-sun'] .mat-sheet {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow:
+    inset 0 3px 0 var(--ink),
+    0 -6px 0 var(--ink);
+}
+[data-theme='yerba-sun'] .mat-grabber {
+  background: var(--ink);
+}
+[data-theme='yerba-sun'] .mat-toast {
+  box-shadow: none;
+}
+[data-theme='yerba-sun'] .mat-toast .mat-toast-act {
+  color: var(--bg);
+}
+[data-theme='yerba-sun'] .mat-inp {
+  border-radius: var(--r-md);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-inp:focus {
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    0 0 0 3px var(--brand);
+}
+[data-theme='yerba-sun'] .ticker {
+  transform: rotate(-1.6deg) scale(1.08);
+  border: 2.5px solid var(--ink);
+}
+[data-theme='yerba-sun'] .hero-name {
+  color: var(--ink);
+  text-shadow: 3px 3px 0 var(--panel);
+}
+[data-theme='yerba-sun'] .mat-meter {
+  background: rgba(42, 20, 9, 0.16);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+
+/* Gold lettering (wordmark, winners): metallic on the dark theme; on paper and butter a gradient washes out, so ink. */
+[data-theme='yerba-sun'] .gold-text {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--ink);
+}
+[data-theme='yerba-sun'] .gold-text {
+  text-shadow: 3px 3px 0 var(--brand);
+}
+[data-theme='yerba-sun'] .mat-tog {
+  background: var(--panel);
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-tog-on {
+  box-shadow: inset 0 0 0 2.5px var(--ink);
+}
+[data-theme='yerba-sun'] .mat-knob {
+  background: var(--ink);
+  box-shadow: none;
+}
+
+/* Yerba Sun keys press into their shadow the moment they're touched (DESIGN-SYSTEM.md, Themes). */
+[data-theme='yerba-sun'] .mat-key:active:not([aria-disabled='true']) {
+  translate: 2px 2px;
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    1px 1px 0 var(--ink);
+}
+[data-theme='yerba-sun'] {
+  --m-felt: var(--felt);
+  --m-felt-shadow: inset 0 0 0 2px var(--ink), 3px 3px 0 var(--ink);
+  --m-key: var(--panel);
+  --m-key-shadow: inset 0 0 0 1.5px var(--ink), 1.5px 1.5px 0 var(--ink);
+  --m-on: var(--brand);
+  --m-btn: var(--brand);
+  --m-btn-shadow: inset 0 0 0 1.5px var(--ink), 2px 2px 0 var(--ink);
+  --m-av-shadow: 0 0 0 1.5px var(--ink);
+  --m-r: 6px;
+  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
+}

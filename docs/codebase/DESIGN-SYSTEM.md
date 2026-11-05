@@ -1,6 +1,6 @@
 # Design system: four runtime themes
 
-Source of truth: `src/styles/themes.css`. Four themes share one set of components: `sunset-glass` (dark, default),
+Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id>.css`. Four themes share one set of components: `sunset-glass` (dark, default),
 `yerba-sun`, `editorial-paper` and `emerald-gilt` (dark). `<html data-theme>` picks one; switching changes that attribute and nothing else.
 
 ## How tokens reach the code
@@ -19,6 +19,7 @@ Source of truth: `src/styles/themes.css`. Four themes share one set of component
 - Saved player colours stay hex in storage; `seatColor(hex)` draws each in the theme's avatar palette, matched by hue.
 - The trump tints only the glow and the table's suit halo (`--trump`, `--trump-glow`, set by the shells); flat themes
   switch that off with `--trump-glow-amt: 0%`.
+- **Each theme but the default has its own stylesheet** (`src/styles/themes/<id>.css`): its tokens and every `[data-theme='<id>']` rule. `themes.css` keeps the shared rules and Sunset Glass, so a device downloads one theme, not four, and the CSS budget counts only the main sheet. The build's boot script writes the shown theme's `<link>` right after the main stylesheet (`themeCssBoot`, `vite.config.ts`), so it blocks the first paint and keeps its place in the cascade. Switching or previewing loads it first and stays on the current theme if it can't load (`src/theme/themeCss.ts`). Admin's previews load all of them. A new theme's rules go in its own file, never in `themes.css`.
 - The theme registry is `src/theme/themes.ts`; the boot script that sets `data-theme` before the first paint is
   generated from it (`vite.config.ts`, `themeBoot`). The runtime store is `src/state/theme.ts`.
 - **Deck art** (Emerald Gilt's card back and court cards, `src/assets/themes/emerald-gilt/`, used with permission,

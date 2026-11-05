@@ -1,0 +1,465 @@
+/* The emerald-gilt theme's rules, split out of themes.css: loaded only while this theme is shown or previewed (src/theme/themeCss.ts). */
+/* ---------- THEME 4: EMERALD GILT (dark, from the emerald-and-gold deck: bottle green, gold foil lines, ivory cards) ----------
+   Gold is for lines, frames and the main action, never a large fill. */
+[data-theme='emerald-gilt'] {
+  color-scheme: dark;
+  --font-display: 'Cinzel', 'Instrument Sans', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'Cinzel', 'Instrument Sans', Georgia, serif;
+  --display-weight: 700;
+  /* Cinzel is all caps, which read better spaced out, not tightened. */
+  --display-track: 0.02em;
+  --mono-track: 0.16em;
+
+  --bg: #0c1a12;
+  --surface-1: #102419;
+  --surface-2: #163021;
+  --surface-3: #1d3b29;
+  --panel: #163021;
+  --hairline: rgba(216, 201, 166, 0.14);
+  --hairline-2: rgba(216, 201, 166, 0.26);
+  --text-1: #f5eedc;
+  --text-2: #d8c9a6;
+  --text-3: #93ae96;
+  --brand: #c9a24e;
+  --brand-press: #b08a3e;
+  --on-brand: #0c1a12;
+  --brand-soft: rgba(201, 162, 78, 0.16);
+  --emerald: #2e9e58;
+  --felt: #123d26;
+  --felt-hi: #1e6b3a;
+  --felt-lo: #0a2616;
+  --felt-rim: var(--brand);
+  --suit-red: #e8606e;
+  --suit-black: #f5eedc;
+  --suit-red-ui: var(--suit-red);
+  --suit-red-felt: #f07a86;
+  --success: #7bd69c;
+  --success-soft: rgba(123, 214, 156, 0.16);
+  --danger: #f07a86;
+  --danger-soft: rgba(240, 122, 134, 0.16);
+  --warning: #f0a860;
+  --on-success: #0c1a12;
+  --on-danger: #0c1a12;
+  --scrim: rgba(4, 10, 6, 0.6);
+  --sheet-shadow: rgba(0, 0, 0, 0.5);
+  --ga: #ebd08c;
+  --gb: #a8853a;
+  --glow: rgba(201, 162, 78, 0.38);
+  --glass: var(--surface-2);
+  --glass-b: rgba(201, 162, 78, 0.38);
+  --hl: rgba(235, 208, 140, 0.22);
+  --drop: rgba(0, 0, 0, 0.4);
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --big-size: 64px;
+  --big-track: -0.03em;
+  --big-weight: 700;
+  --big-style: normal;
+  --tally-fg: var(--brand);
+  --tick-bg: transparent;
+  --tick-fg: var(--text-2);
+  --tick-dot: var(--brand);
+  --tick-rule: rgba(201, 162, 78, 0.3);
+  --ctr-fg: rgba(245, 238, 220, 0.86);
+  --card-bg: #faf7f0;
+  --card-fg: #123d26;
+  --card-red: #c21a2e;
+  --ov: #f5eedc;
+  --shade: #000;
+  --ink: #f5eedc;
+  --arc: var(--brand);
+  --vignette: rgba(0, 0, 0, 0.42);
+  --sheet-bg: #102419;
+  --toast-bg: #1d3b29;
+  --toast-fg: var(--text-1);
+  --medal-gold: #d4af5f;
+  --medal-gold-hi: #f0d995;
+  --medal-gold-lo: #8a6a2e;
+  --medal-silver: #c9d3dd;
+  --medal-silver-hi: #dde5ec;
+  --medal-silver-lo: #8793a0;
+  --medal-bronze: #d08a5b;
+  --medal-bronze-hi: #e3a57e;
+  --medal-bronze-lo: #8f5a38;
+  --on-gold: #0c1a12;
+  --trump-spades: var(--brand);
+  --trump-diamonds: var(--brand);
+  --trump-clubs: var(--brand);
+  --trump-hearts: var(--brand);
+  --trump-glow-amt: 18%;
+  --pulse-blur: 14px;
+  /* The court cards' colours, in src/domain/avatars.ts COLORS order: mane, gingham, brick road, emerald, violet,
+     Glinda, teal, tin-man steel, witch red, straw. */
+  --seat-1: #d99a6c;
+  --seat-2: #8ec1e3;
+  --seat-3: #e3c25a;
+  --seat-4: #6fcf95;
+  --seat-5: #a88bd0;
+  --seat-6: #e89bb4;
+  --seat-7: #7dbfb0;
+  --seat-8: #afc0d6;
+  --seat-9: #e07a6e;
+  --seat-10: #d4b27c;
+  --share-ink: #1a1a1a;
+  --fill-primary: linear-gradient(135deg, var(--ga), var(--brand) 55%, var(--gb));
+  --card-back-a: #0f3b24;
+  --card-back-b: #1e7a3c;
+  /* The deck's real art (src/assets/themes/emerald-gilt/SOURCE.md). Referenced only here, so other themes never
+     download it. A trump with no file (spades, diamonds) keeps its suit symbol. */
+  --card-back-edge: var(--felt-lo);
+  --art-back: url('../../assets/themes/emerald-gilt/back.webp');
+  --art-back-mini: url('../../assets/themes/emerald-gilt/back-mini.webp');
+  --art-trump-hearts: url('../../assets/themes/emerald-gilt/queen-hearts.webp');
+  --art-trump-clubs: url('../../assets/themes/emerald-gilt/king-clubs.webp');
+  /* Three golds and the emerald: the winner's confetti in place of the players' colours (themeConfetti). */
+  --confetti-1: #ebd08c;
+  --confetti-2: #c9a24e;
+  --confetti-3: #a8853a;
+  --confetti-4: #2e9e58;
+  /* The gold piano-key strip: only the sheet's top edge, the winner's frame and a new badge, so it stays special. */
+  --piano: repeating-linear-gradient(90deg, var(--brand) 0 6px, transparent 6px 9px);
+  --gl: linear-gradient(var(--brand), var(--brand));
+  /* A Deco frame for the winner's name: piano strips top and bottom, stepped corners (.ink-fill::after). */
+  --name-frame:
+    var(--piano) center top / calc(100% - 40px) 3px no-repeat,
+    var(--piano) center bottom / calc(100% - 40px) 3px no-repeat,
+    var(--gl) left top / 14px 2px no-repeat, var(--gl) left top / 2px 14px no-repeat,
+    var(--gl) left 5px top 5px / 8px 2px no-repeat, var(--gl) left 5px top 5px / 2px 8px no-repeat,
+    var(--gl) right top / 14px 2px no-repeat, var(--gl) right top / 2px 14px no-repeat,
+    var(--gl) right 5px top 5px / 8px 2px no-repeat,
+    var(--gl) right 5px top 5px / 2px 8px no-repeat, var(--gl) left bottom / 14px 2px no-repeat,
+    var(--gl) left bottom / 2px 14px no-repeat, var(--gl) left 5px bottom 5px / 8px 2px no-repeat,
+    var(--gl) left 5px bottom 5px / 2px 8px no-repeat, var(--gl) right bottom / 14px 2px no-repeat,
+    var(--gl) right bottom / 2px 14px no-repeat, var(--gl) right 5px bottom 5px / 8px 2px no-repeat,
+    var(--gl) right 5px bottom 5px / 2px 8px no-repeat;
+  /* The backs fan out and hold so the art is seen before the trump card turns (RoundStart reads --reveal-hold). */
+  --reveal-hold: 700ms;
+  --fan-anim: deal-fan-hold;
+  --fan-dur: 1.9s;
+  --fan-step: 90ms;
+  --reveal-rays: repeating-conic-gradient(
+    rgba(235, 208, 140, 0.5) 0 1.2deg,
+    transparent 1.2deg 7.5deg
+  );
+  --reveal-glint: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 248, 225, 0.8) 50%,
+    transparent 58%
+  );
+}
+/* A little lamplight from above and baize below, as on the deck's box; kept faint so text never sits on a bright patch. */
+[data-theme='emerald-gilt'] {
+  --wallpaper:
+    radial-gradient(70% 34% at 50% 6%, rgba(201, 162, 78, 0.13), transparent 70%),
+    radial-gradient(120% 60% at 50% 110%, rgba(30, 107, 58, 0.22), transparent 70%);
+}
+[data-theme='emerald-gilt'] .glass {
+  --r-card: var(--r-lg);
+  background: var(--glass);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-b),
+    0 10px 24px -12px var(--drop);
+}
+[data-theme='emerald-gilt'] .glass-glow {
+  box-shadow:
+    inset 0 0 0 1px var(--glass-b),
+    0 0 48px -12px var(--glow),
+    0 18px 40px -14px var(--drop);
+}
+/* A double gold rim with a gap of background, like the deck's frames. The lit patch stays near the top edge, away
+   from the trump in the centre (contrast.test.ts measures the suit on --felt). */
+[data-theme='emerald-gilt'] .felt {
+  background: radial-gradient(
+    110% 120% at 50% 6%,
+    var(--felt-hi) 0,
+    var(--felt) 48%,
+    var(--felt-lo) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1.5px var(--felt-rim),
+    0 0 0 6px var(--bg),
+    0 0 0 7.5px var(--felt-rim),
+    0 26px 50px -18px var(--shade);
+}
+/* Faint gold rays through the baize, like the back's sunburst; masked so they fade at the centre and the rim. */
+[data-theme='emerald-gilt'] .felt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(235, 208, 140, 0.08) 0 1.6deg, transparent 1.6deg 9deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
+  pointer-events: none;
+}
+[data-theme='emerald-gilt'] .suit-ring {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 1.18em;
+  height: 1.18em;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: max(2px, 0.045em) dotted var(--brand);
+  pointer-events: none;
+}
+/* Cinzel is caps-only and a sixth wider: names (read across a table) and sentences that would wrap where other faces
+   don't (.face-body) stay in the body face. */
+[data-theme='emerald-gilt'] :is(.hero-name, .face-body) {
+  font-family: var(--font-body);
+}
+[data-theme='emerald-gilt'] .mat-fill {
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 225, 0.55),
+    0 12px 30px -12px var(--glow);
+}
+/* One sheen crosses the foil while it's pressed; it returns unseen, with no transition, once released. */
+[data-theme='emerald-gilt'] .mat-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 248, 225, 0.55) 50%,
+    transparent 65%
+  );
+  opacity: 0;
+  transform: translateX(-100%);
+}
+[data-theme='emerald-gilt'] .mat-cta-on:active .mat-fill::before {
+  opacity: 1;
+  transform: translateX(100%);
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+[data-theme='emerald-gilt'] .mat-fill-s {
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--glass-b);
+}
+[data-theme='emerald-gilt'] .mat-fill-off {
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--hairline-2);
+}
+[data-theme='emerald-gilt'] .mat-fill-d {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 45%, transparent);
+}
+[data-theme='emerald-gilt'] .mat-cta {
+  border-radius: var(--r-lg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+[data-theme='emerald-gilt'] .mat-cta.mat-sm {
+  letter-spacing: 0.02em;
+}
+[data-theme='emerald-gilt'] .mat-ibtn {
+  border-radius: var(--r-md);
+  background: var(--glass);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-b),
+    0 8px 20px -10px var(--drop);
+}
+[data-theme='emerald-gilt'] .mat-seg {
+  border-radius: var(--r-md);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--glass-b);
+}
+[data-theme='emerald-gilt'] .mat-seg > *,
+[data-theme='emerald-gilt'] .mat-thumb {
+  border-radius: var(--r-sm);
+}
+[data-theme='emerald-gilt'] .mat-thumb {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 225, 0.5),
+    0 6px 14px -6px var(--glow);
+}
+[data-theme='emerald-gilt'] .mat-key {
+  border-radius: var(--r-md);
+  background: var(--glass);
+  font-weight: 600;
+  box-shadow:
+    inset 0 0 0 1px var(--glass-b),
+    0 8px 18px -10px var(--drop);
+}
+[data-theme='emerald-gilt'] .mat-key-on {
+  border-radius: var(--r-md);
+  background: var(--fill-primary);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 225, 0.6),
+    0 10px 24px -8px var(--glow);
+}
+[data-theme='emerald-gilt'] .mat-key-no {
+  border-radius: var(--r-md);
+}
+/* A thin gold ring with a gap of background, like the deck's framed portraits. */
+[data-theme='emerald-gilt'] .mat-av {
+  box-shadow:
+    0 0 0 1.5px var(--bg),
+    0 0 0 2.5px var(--brand),
+    0 6px 14px -4px var(--drop);
+}
+[data-theme='emerald-gilt'] .mat-name {
+  color: var(--text-2);
+  text-shadow: 0 1px 6px var(--shade);
+}
+[data-theme='emerald-gilt'] .mat-bid {
+  box-shadow:
+    0 0 0 1px var(--brand),
+    0 2px 8px var(--drop);
+}
+[data-theme='emerald-gilt'] .mat-first {
+  border-radius: var(--r-sm);
+}
+/* Only once the art is decoded (src/theme/art.ts): until then, or offline, the symbol shows instead of a blank face. */
+[data-theme='emerald-gilt'][data-art-ready~='emerald-gilt']
+  .trump-face:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-glyph {
+  opacity: 0;
+}
+[data-theme='emerald-gilt']
+  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-mini {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.15em;
+  aspect-ratio: 600 / 840;
+  translate: -50% -50%;
+  border-radius: max(2px, 0.08em);
+  background-size: cover;
+  box-shadow:
+    0 0 0 1px var(--glass-b),
+    0 4px 10px -4px var(--drop);
+}
+[data-theme='emerald-gilt']
+  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-glyph {
+  position: relative;
+  z-index: 1;
+  translate: 0.45em 0.55em;
+  scale: 0.5;
+  text-shadow:
+    0 0 0.12em var(--bg),
+    0 0 0.3em var(--bg);
+}
+[data-theme='emerald-gilt']
+  :has(> .trump-mark:is([data-suit='hearts'], [data-suit='clubs']))
+  > .suit-ring {
+  display: none;
+}
+/* Beside a number in one line (the desk's Coming up), the card stays within the line. */
+[data-theme='emerald-gilt'] .trump-mark.is-inline > .trump-mini {
+  width: 0.72em;
+}
+[data-theme='emerald-gilt']
+  .trump-mark.is-inline:is([data-suit='hearts'], [data-suit='clubs'])
+  > .trump-glyph {
+  translate: 0.32em 0.22em;
+}
+[data-theme='emerald-gilt'] .sq-card {
+  display: block;
+  box-shadow: 0 6px 14px -6px var(--shade);
+}
+[data-theme='emerald-gilt'] :is(.sq-ball, .sq-shadow) {
+  display: none;
+}
+/* A new badge and the streak medallion get a gold frame: the piano strip on the badge, a dotted ring on the medal. */
+[data-theme='emerald-gilt'] .badge-pop {
+  background:
+    var(--piano) top / 100% 3px no-repeat,
+    var(--toast-bg);
+  border-color: var(--glass-b);
+}
+[data-theme='emerald-gilt'] .streak-ring {
+  display: block;
+  border: 3px dotted var(--brand);
+  box-shadow:
+    0 0 0 6px transparent,
+    0 0 0 7.5px var(--glass-b);
+}
+[data-theme='emerald-gilt'] .empty-card > svg {
+  opacity: 0;
+}
+[data-theme='emerald-gilt'] .empty-card > i {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  aspect-ratio: 600 / 840;
+  translate: -50% -50%;
+  rotate: -8deg;
+  border-radius: 4px;
+  box-shadow: 0 8px 18px -8px var(--shade);
+}
+[data-theme='emerald-gilt'] .mat-dealer {
+  background: var(--fill-primary);
+  color: var(--on-brand);
+  box-shadow: 0 2px 8px var(--drop);
+}
+[data-theme='emerald-gilt'] .mat-sheet {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background:
+    var(--piano) top / 100% 3px no-repeat,
+    var(--sheet-bg);
+  box-shadow:
+    0 -12px 40px var(--sheet-shadow),
+    inset 0 1px 0 var(--glass-b);
+}
+[data-theme='emerald-gilt'] .mat-grabber {
+  background: color-mix(in srgb, var(--brand) 60%, transparent);
+}
+[data-theme='emerald-gilt'] .mat-toast {
+  box-shadow:
+    inset 0 0 0 1px var(--glass-b),
+    0 10px 28px -8px var(--drop);
+}
+[data-theme='emerald-gilt'] .mat-inp {
+  border-radius: var(--r-md);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--hairline-2);
+}
+[data-theme='emerald-gilt'] .mat-meter {
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--glass-b);
+}
+[data-theme='emerald-gilt'] .mat-meter-fill {
+  box-shadow: 0 0 12px var(--glow);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='emerald-gilt'] .mat-cta-on:active .mat-fill::before {
+    transition: none;
+    opacity: 0;
+  }
+}
+/* Cinzel's caps run a quarter wider than the other faces; drawn smaller (paint, not layout) so the wordmark keeps
+   clear of a 360px screen's edges. */
+[data-theme='emerald-gilt'] .wordmark {
+  scale: 0.84;
+}
+[data-theme='emerald-gilt'] .mat-tog {
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--hairline-2);
+}
+[data-theme='emerald-gilt'] .mat-tog-on {
+  box-shadow: inset 0 1px 0 rgba(255, 248, 225, 0.5);
+}
+[data-theme='emerald-gilt'] {
+  --m-felt: radial-gradient(90% 90% at 50% 32%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
+  --m-felt-shadow: inset 0 0 0 1px var(--brand), 0 0 0 3px var(--bg), 0 0 0 4px var(--brand);
+  --m-key: var(--surface-2);
+  --m-key-shadow: inset 0 0 0 1px var(--glass-b);
+  --m-on: var(--fill-primary);
+  --m-btn: var(--fill-primary);
+  --m-btn-shadow: 0 6px 14px -6px var(--glow);
+  --m-av-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--brand);
+  --m-r: 4px;
+  --m-back: var(--art-back-mini) center / cover no-repeat;
+}

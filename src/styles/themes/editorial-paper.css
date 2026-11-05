@@ -1,0 +1,304 @@
+/* The editorial-paper theme's rules, split out of themes.css: loaded only while this theme is shown or previewed (src/theme/themeCss.ts). */
+/* ---------- THEME 3: EDITORIAL PAPER (light, newsprint, ink, tomato, serif display, mono labels, green table) ---------- */
+[data-theme='editorial-paper'] {
+  color-scheme: light;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --display-weight: 400;
+  --display-track: -0.01em;
+  --mono-track: 0.06em;
+
+  --ink: #151412;
+  --bg: #f3efe6;
+  --surface-1: #ebe6da;
+  --surface-2: #e8e2d4;
+  --surface-3: #dad3c2;
+  --panel: #fbf8f0;
+  --paper-hi: #fbf8f0;
+  --hairline: rgba(21, 20, 18, 0.16);
+  --hairline-2: rgba(21, 20, 18, 0.32);
+  --text-1: #151412;
+  --text-2: #46433c;
+  --text-3: #615d54;
+  --brand: #ff4b1f;
+  --brand-press: #e63d12;
+  --on-brand: #151412;
+  --brand-soft: rgba(255, 75, 31, 0.14);
+  --felt: #16352a;
+  --felt-hi: #1f4a39;
+  --felt-lo: #143127;
+  --felt-rim: #151412;
+  --suit-red: #d7261e;
+  --suit-black: #151412;
+  --suit-red-ui: #d7261e;
+  --suit-red-felt: #ff7a66;
+  --success: #2f6b45;
+  --success-soft: rgba(47, 107, 69, 0.14);
+  --danger: #b3261e;
+  --danger-soft: rgba(179, 38, 30, 0.12);
+  --warning: #b3380e;
+  --on-success: #fbf8f0;
+  --on-danger: #fbf8f0;
+  --scrim: rgba(21, 20, 18, 0.45);
+  --sheet-shadow: rgba(21, 20, 18, 0.22);
+  --ga: var(--brand);
+  --gb: var(--brand);
+  --glow: rgba(255, 75, 31, 0.22);
+  --glass: var(--panel);
+  --glass-b: var(--ink);
+  --hl: transparent;
+  --drop: transparent;
+  --r-sm: 2px;
+  --r-md: 2px;
+  --r-lg: 4px;
+  --r-xl: 6px;
+  --big-size: 84px;
+  --big-track: -0.025em;
+  --big-weight: 400;
+  --big-style: italic;
+  --tally-fg: var(--ink);
+  --tick-bg: var(--ink);
+  --tick-fg: var(--paper-hi);
+  --tick-dot: var(--brand);
+  --tick-rule: var(--ink);
+  --ctr-fg: #e9e2d0;
+  --card-bg: #fbf8f0;
+  --card-fg: #151412;
+  --card-red: #d7261e;
+  --ov: #151412;
+  --shade: #151412;
+  --arc: var(--ctr-fg);
+  --vignette: transparent;
+  --sheet-bg: var(--bg);
+  --toast-bg: var(--ink);
+  --toast-fg: var(--paper-hi);
+  --medal-gold: #c99a2e;
+  --medal-gold-hi: #e3c56e;
+  --medal-gold-lo: #9c7418;
+  --medal-silver: #a7abb0;
+  --medal-silver-hi: #cdd0d4;
+  --medal-silver-lo: #7d8288;
+  --medal-bronze: #b5703f;
+  --medal-bronze-hi: #d09468;
+  --medal-bronze-lo: #8a5129;
+  --on-gold: #151412;
+  --trump-spades: var(--brand);
+  --trump-diamonds: var(--brand);
+  --trump-clubs: var(--brand);
+  --trump-hearts: var(--brand);
+  --trump-glow-amt: 0%;
+  --pulse-blur: 0px;
+  --seat-1: #e8a87c;
+  --seat-2: #7fb3d5;
+  --seat-3: #e3c766;
+  --seat-4: #8fc9a3;
+  --seat-5: #b49fdc;
+  --seat-6: #e39ab3;
+  --seat-7: #9bc4c0;
+  --seat-8: #a3aee6;
+  --seat-9: #e8978f;
+  --seat-10: #d4a373;
+  --fill-primary: var(--brand);
+  --card-back-a: #16352a;
+  --card-back-b: #1f4a39;
+  font-synthesis: none;
+  --card-back-edge: var(--card-bg);
+  --art-back: none;
+  --art-back-mini: none;
+  --art-trump-hearts: none;
+  --art-trump-clubs: none;
+  --reveal-hold: 0ms;
+  --name-frame: none;
+  --fan-anim: deal-fan;
+  --fan-dur: 1.5s;
+  --fan-step: 140ms;
+  --reveal-rays: none;
+  --reveal-glint: none;
+}
+[data-theme='editorial-paper'] {
+  --focus: var(--ink);
+}
+[data-theme='editorial-paper'] .glass {
+  --r-card: var(--r-lg);
+  background: var(--paper-hi);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .felt {
+  background: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
+  box-shadow:
+    inset 0 0 0 1.5px var(--ink),
+    0 0 0 6px var(--bg),
+    0 0 0 7.5px var(--ink);
+}
+
+/* Flat themes have no light to glow with: the breathing trump glow and the screen vignette step aside. */
+[data-theme='editorial-paper'] .ambient {
+  display: none;
+}
+[data-theme='editorial-paper'] .mono-label {
+  font-weight: 500;
+}
+[data-theme='editorial-paper'] .mat-cta {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+[data-theme='editorial-paper'] .mat-fill {
+  background: var(--ink);
+}
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent {
+  color: var(--paper-hi);
+  justify-content: space-between;
+  padding-inline: 20px;
+}
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent::after {
+  /* Decorative: empty alt text keeps the arrow out of the button's accessible name. */
+  content: '\2192';
+  content: '\2192' / '';
+  color: var(--brand);
+  font-size: 1.5rem;
+  letter-spacing: 0;
+}
+[data-theme='editorial-paper'] .mat-fill-s,
+[data-theme='editorial-paper'] .mat-fill-d,
+[data-theme='editorial-paper'] .mat-fill-off {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-fill-off {
+  box-shadow: inset 0 0 0 1px var(--text-3);
+}
+/* Small editorial buttons lose tracking so labels never wrap (reference audit fix). */
+[data-theme='editorial-paper'] .mat-cta.mat-sm {
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+}
+[data-theme='editorial-paper'] .mat-ibtn {
+  border-radius: 0;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-seg {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-seg > *,
+[data-theme='editorial-paper'] .mat-thumb {
+  border-radius: 0;
+}
+[data-theme='editorial-paper'] .mat-thumb {
+  background: var(--ink);
+}
+[data-theme='editorial-paper'] .mat-seg [aria-pressed='true'] {
+  color: var(--paper-hi);
+}
+[data-theme='editorial-paper'] .mat-key {
+  border-radius: 0;
+  background: transparent;
+  font-weight: 400;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-key-on {
+  border-radius: 0;
+  background: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-key-no {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px var(--text-3);
+}
+[data-theme='editorial-paper'] .mat-av {
+  box-shadow: 0 0 0 1.5px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-name {
+  background: var(--paper-hi);
+  color: var(--ink);
+  padding-inline: 6px;
+  box-shadow: 0 0 0 1px var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+[data-theme='editorial-paper'] .mat-bid {
+  background: var(--ink);
+  color: var(--panel);
+}
+[data-theme='editorial-paper'] .mat-first {
+  border-radius: 0;
+}
+[data-theme='editorial-paper'] .mat-sheet {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: inset 0 1.5px 0 var(--ink);
+}
+[data-theme='editorial-paper'] .mat-grabber {
+  background: var(--ink);
+}
+[data-theme='editorial-paper'] .mat-toast {
+  box-shadow: none;
+}
+[data-theme='editorial-paper'] .mat-toast {
+  border-radius: 0;
+}
+[data-theme='editorial-paper'] .mat-toast .mat-toast-act {
+  color: #ff9a80;
+}
+[data-theme='editorial-paper'] .mat-inp {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-inp:focus {
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    0 0 0 3px var(--brand);
+}
+[data-theme='editorial-paper'] .mat-meter {
+  border-radius: 0;
+  background: rgba(30, 27, 24, 0.18);
+}
+
+/* Gold lettering (wordmark, winners): metallic on the dark theme; on paper and butter a gradient washes out, so ink. */
+[data-theme='editorial-paper'] .gold-text {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--ink);
+}
+[data-theme='editorial-paper'] .mat-tog {
+  background: var(--surface-3);
+}
+[data-theme='editorial-paper'] .mat-knob {
+  background: var(--paper-hi);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+[data-theme='editorial-paper'] .mat-knob.is-on {
+  background: var(--on-brand);
+  box-shadow: none;
+}
+[data-theme='editorial-paper'] {
+  --m-felt: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
+  --m-felt-shadow: inset 0 0 0 1px var(--ink), 0 0 0 3px var(--bg), 0 0 0 4px var(--ink);
+  --m-key: transparent;
+  --m-key-shadow: inset 0 0 0 1px var(--ink);
+  --m-on: var(--brand);
+  --m-btn: var(--ink);
+  --m-btn-shadow: none;
+  --m-av-shadow: 0 0 0 1px var(--ink);
+  --m-r: 0;
+  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
+}
+
+/* Small square buttons (Add) drop the arrow and centre the label (reference audit fix, .addrow / .btn.sq). */
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent.mat-sq {
+  justify-content: center;
+  padding-inline: 0;
+}
+[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent.mat-sq::after {
+  content: none;
+}

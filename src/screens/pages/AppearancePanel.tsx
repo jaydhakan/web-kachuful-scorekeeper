@@ -14,12 +14,13 @@ import { Section } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ToggleTrack } from '@/components/ui/Toggle';
 import { PRESS, SPRING } from '@/components/ui/motion';
+import { loadAllThemeCss } from '@/theme/themeCss';
 import { THEME_IDS, type Appearance, type ThemeId } from '@/theme/themes';
 import { seatColor } from '@/theme/palette';
 import { COLORS } from '@/domain';
-import { t } from '@/strings';
+import { admin } from '@/strings/admin';
 
-const ap = t.hub.admin.appearance;
+const ap = admin.appearance;
 
 /**
  * A theme drawn small with its own real tokens and materials: the box carries `data-theme`, so nothing here can drift
@@ -97,6 +98,8 @@ export function AppearancePanel() {
   const roving = useRovingFocus({ selected: THEME_IDS.indexOf(pick) });
   // A preview never outlives the Admin page.
   useEffect(() => () => previewTheme(null), []);
+  // The previews draw every theme side by side, so each needs its own stylesheet.
+  useEffect(() => void loadAllThemeCss(), []);
   // Undo stays on screen for 8 seconds (DESIGN-SYSTEM.md, Switching themes).
   useEffect(() => {
     if (!done) return;

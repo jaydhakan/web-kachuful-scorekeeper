@@ -1,14 +1,23 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { THEME_IDS, type ThemeId } from './themes';
 
-// The theme file is the source of truth, so the tokens are read from it rather than restated here.
-const css = readFileSync(path.resolve(import.meta.dirname, '../styles/themes.css'), 'utf8');
+// The theme files are the source of truth, so the tokens are read from them rather than restated here: themes.css
+// (shared and the default) and each other theme's own sheet.
+const styles = path.resolve(import.meta.dirname, '../styles');
+const css = [
+  readFileSync(path.join(styles, 'themes.css'), 'utf8'),
+  ...readdirSync(path.join(styles, 'themes')).map((f) =>
+    readFileSync(path.join(styles, 'themes', f), 'utf8'),
+  ),
+].join('\n');
 
 /** One theme's colour tokens: its own block over Sunset Glass (which is also `:root`), with var() references followed. */
 function tokens(id: ThemeId): Record<string, string> {
   const block = (sel: string) => {
     const at = css.indexOf(sel);
+    // A missing block would quietly test another theme's tokens.
+    if (at < 0) throw new Error(`no token block ${sel}`);
     const body = css.slice(css.indexOf('{', at) + 1, css.indexOf('\n}', at));
     return Object.fromEntries(
       [...body.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]),

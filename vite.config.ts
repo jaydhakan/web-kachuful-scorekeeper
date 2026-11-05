@@ -34,6 +34,33 @@ const themeBoot = (): Plugin => {
 };
 
 /**
+ * Links the shown theme's own stylesheet (src/theme/themeCss.ts) right after the main one, so its rules keep their
+ * place in the cascade. Written by the parser, it blocks the first paint like the main stylesheet: no flash of another
+ * theme. The default theme has none. The dev server injects its CSS by script, so main.tsx links it there.
+ */
+const themeCssBoot = (): Plugin => ({
+  name: 'theme-css-boot',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'post',
+    handler: (html, ctx) => {
+      const hrefs: Record<string, string> = {};
+      for (const a of Object.values(ctx.bundle ?? {}))
+        if (a.type === 'asset')
+          for (const src of a.originalFileNames) {
+            const m = /src\/styles\/themes\/([a-z-]+)\.css$/.exec(src);
+            if (m) hrefs[m[1]] = '/' + a.fileName;
+          }
+      const main = /<link rel="stylesheet"[^>]*href="\/assets\/index-[^"]+\.css"[^>]*>/.exec(html);
+      if (!main || Object.keys(hrefs).length !== Object.keys(THEMES).length - 1)
+        throw new Error('theme-css-boot: main stylesheet or a theme stylesheet is missing');
+      const script = `<script>(function(){var h=${JSON.stringify(hrefs)},t=document.documentElement.getAttribute('data-theme');if(Object.prototype.hasOwnProperty.call(h,t))document.write('<link rel="stylesheet" data-theme-css="'+t+'" href="'+h[t]+'">')})()</script>`;
+      return html.replace(main[0], main[0] + script);
+    },
+  },
+});
+
+/**
  * Starts the chunks of whichever UI fits this screen (phone or large-screen) downloading while the entry is still
  * parsing. Without this they are only requested once the entry has run, a whole extra round trip before first paint.
  */
@@ -144,6 +171,7 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),
     themeBoot(),
+    themeCssBoot(),
     preloadShell(),
     precompress(),
     VitePWA({

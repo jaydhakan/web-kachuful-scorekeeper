@@ -146,3 +146,27 @@ test('emerald-gilt without its art: the trump face keeps its symbol and the deal
   await btn(page, 'Deal!').click();
   await expect(btn(page, 'Skip the deal animation')).toBeHidden({ timeout: 10_000 });
 });
+
+test('only the shown theme’s stylesheet is downloaded, linked before the first paint', async ({
+  page,
+}) => {
+  const css: string[] = [];
+  page.on('request', (r) => r.resourceType() === 'stylesheet' && css.push(r.url()));
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  // The default theme's rules are in the main stylesheet.
+  expect(css.filter((u) => /yerba-sun|editorial-paper|emerald-gilt/.test(u))).toEqual([]);
+  await page.evaluate(() => localStorage.setItem('kf.theme', 'yerba-sun'));
+  css.length = 0;
+  await page.reload();
+  await page.waitForLoadState('networkidle');
+  expect(css.filter((u) => /yerba-sun|editorial-paper|emerald-gilt/.test(u)).length).toBe(1);
+  expect(css.some((u) => u.includes('yerba-sun'))).toBe(true);
+  // Parser-inserted right after the main stylesheet, so its rules keep their place in the cascade.
+  const order = await page.evaluate(() =>
+    [...document.querySelectorAll('link[rel="stylesheet"]')].map(
+      (l) => l.getAttribute('data-theme-css') ?? 'main',
+    ),
+  );
+  expect(order.slice(0, 2)).toEqual(['main', 'yerba-sun']);
+});

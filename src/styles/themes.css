@@ -195,393 +195,6 @@
   --reveal-glint: none;
 }
 
-/* ---------- THEME 2: YERBA SUN (light, butter, tomato, ink outlines, hard offset shadows) ---------- */
-[data-theme='yerba-sun'] {
-  color-scheme: light;
-  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
-  --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, monospace;
-  --display-weight: 800;
-  --display-track: -0.035em;
-  --mono-track: 0.08em;
-
-  --ink: #2b1a0e;
-  --bg: #fbe7b5;
-  --surface-1: #fff0cb;
-  --surface-2: #f2d690;
-  --surface-3: #e8c97a;
-  --panel: #fff8e6;
-  --hairline: rgba(43, 26, 14, 0.2);
-  --hairline-2: rgba(43, 26, 14, 0.36);
-  --text-1: #2b1a0e;
-  --text-2: #5b4128;
-  --text-3: #6e5232;
-  --brand: #ee6a4b;
-  --brand-press: #da5a3c;
-  --on-brand: #2b1a0e;
-  --brand-soft: rgba(238, 106, 75, 0.2);
-  --felt: #ee6a4b;
-  --felt-hi: #ee6a4b;
-  --felt-lo: #ee6a4b;
-  --felt-rim: #2b1a0e;
-  --suit-red: #6e0f1c;
-  --suit-black: #2b1a0e;
-  --suit-red-ui: var(--suit-red);
-  --suit-red-felt: #6e0f1c;
-  --success: #1e6b45;
-  --success-soft: rgba(30, 107, 69, 0.18);
-  --danger: #a3202f;
-  --danger-soft: rgba(163, 32, 47, 0.16);
-  --warning: #8a2a0e;
-  --on-success: #fff8e6;
-  --on-danger: #fff8e6;
-  --scrim: rgba(43, 26, 14, 0.45);
-  --sheet-shadow: rgba(43, 26, 14, 0.25);
-  --ga: var(--brand);
-  --gb: var(--brand);
-  --glow: rgba(238, 106, 75, 0.3);
-  --glass: var(--panel);
-  --glass-b: var(--ink);
-  --hl: transparent;
-  --drop: var(--ink);
-  --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 18px;
-  --r-xl: 26px;
-  --big-size: 60px;
-  --big-track: -0.035em;
-  --big-weight: 800;
-  --big-style: normal;
-  --tally-fg: var(--ink);
-  --tick-bg: var(--brand);
-  --tick-fg: var(--ink);
-  --tick-dot: var(--ink);
-  --tick-rule: var(--ink);
-  --ctr-fg: var(--ink);
-  --card-bg: #fffbf0;
-  --card-fg: #2b1a0e;
-  --card-red: #b4002f;
-  --ov: #2b1a0e;
-  --shade: #2b1a0e;
-  --arc: var(--ink);
-  --vignette: transparent;
-  --sheet-bg: var(--panel);
-  --toast-bg: var(--ink);
-  --toast-fg: var(--panel);
-  --medal-gold: #ffc93c;
-  --medal-gold-hi: #ffe08a;
-  --medal-gold-lo: #e0a21b;
-  --medal-silver: #d5d9de;
-  --medal-silver-hi: #eef0f2;
-  --medal-silver-lo: #a9afb6;
-  --medal-bronze: #e8a56a;
-  --medal-bronze-hi: #f4c49a;
-  --medal-bronze-lo: #b8723a;
-  --on-gold: #2b1a0e;
-  --trump-spades: var(--brand);
-  --trump-diamonds: var(--brand);
-  --trump-clubs: var(--brand);
-  --trump-hearts: var(--brand);
-  --trump-glow-amt: 0%;
-  --pulse-blur: 0px;
-  --seat-1: #ffb347;
-  --seat-2: #8cc8f0;
-  --seat-3: #fff3d6;
-  --seat-4: #7fd6a8;
-  --seat-5: #c9a6ff;
-  --seat-6: #ff9bb5;
-  --seat-7: #7fdad0;
-  --seat-8: #a9b4ff;
-  --seat-9: #ff8a80;
-  --seat-10: #e8a56a;
-  --fill-primary: var(--brand);
-  --card-back-a: #2b1a0e;
-  --card-back-b: #ee6a4b;
-  --card-back-edge: var(--card-bg);
-  --art-back: none;
-  --art-back-mini: none;
-  --art-trump-hearts: none;
-  --art-trump-clubs: none;
-  --reveal-hold: 0ms;
-  --name-frame: none;
-  --fan-anim: deal-fan;
-  --fan-dur: 1.5s;
-  --fan-step: 140ms;
-  --reveal-rays: none;
-  --reveal-glint: none;
-}
-
-/* ---------- THEME 3: EDITORIAL PAPER (light, newsprint, ink, tomato, serif display, mono labels, green table) ---------- */
-[data-theme='editorial-paper'] {
-  color-scheme: light;
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-body: 'Instrument Sans', system-ui, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, monospace;
-  --display-weight: 400;
-  --display-track: -0.01em;
-  --mono-track: 0.06em;
-
-  --ink: #151412;
-  --bg: #f3efe6;
-  --surface-1: #ebe6da;
-  --surface-2: #e8e2d4;
-  --surface-3: #dad3c2;
-  --panel: #fbf8f0;
-  --paper-hi: #fbf8f0;
-  --hairline: rgba(21, 20, 18, 0.16);
-  --hairline-2: rgba(21, 20, 18, 0.32);
-  --text-1: #151412;
-  --text-2: #46433c;
-  --text-3: #615d54;
-  --brand: #ff4b1f;
-  --brand-press: #e63d12;
-  --on-brand: #151412;
-  --brand-soft: rgba(255, 75, 31, 0.14);
-  --felt: #16352a;
-  --felt-hi: #1f4a39;
-  --felt-lo: #143127;
-  --felt-rim: #151412;
-  --suit-red: #d7261e;
-  --suit-black: #151412;
-  --suit-red-ui: #d7261e;
-  --suit-red-felt: #ff7a66;
-  --success: #2f6b45;
-  --success-soft: rgba(47, 107, 69, 0.14);
-  --danger: #b3261e;
-  --danger-soft: rgba(179, 38, 30, 0.12);
-  --warning: #b3380e;
-  --on-success: #fbf8f0;
-  --on-danger: #fbf8f0;
-  --scrim: rgba(21, 20, 18, 0.45);
-  --sheet-shadow: rgba(21, 20, 18, 0.22);
-  --ga: var(--brand);
-  --gb: var(--brand);
-  --glow: rgba(255, 75, 31, 0.22);
-  --glass: var(--panel);
-  --glass-b: var(--ink);
-  --hl: transparent;
-  --drop: transparent;
-  --r-sm: 2px;
-  --r-md: 2px;
-  --r-lg: 4px;
-  --r-xl: 6px;
-  --big-size: 84px;
-  --big-track: -0.025em;
-  --big-weight: 400;
-  --big-style: italic;
-  --tally-fg: var(--ink);
-  --tick-bg: var(--ink);
-  --tick-fg: var(--paper-hi);
-  --tick-dot: var(--brand);
-  --tick-rule: var(--ink);
-  --ctr-fg: #e9e2d0;
-  --card-bg: #fbf8f0;
-  --card-fg: #151412;
-  --card-red: #d7261e;
-  --ov: #151412;
-  --shade: #151412;
-  --arc: var(--ctr-fg);
-  --vignette: transparent;
-  --sheet-bg: var(--bg);
-  --toast-bg: var(--ink);
-  --toast-fg: var(--paper-hi);
-  --medal-gold: #c99a2e;
-  --medal-gold-hi: #e3c56e;
-  --medal-gold-lo: #9c7418;
-  --medal-silver: #a7abb0;
-  --medal-silver-hi: #cdd0d4;
-  --medal-silver-lo: #7d8288;
-  --medal-bronze: #b5703f;
-  --medal-bronze-hi: #d09468;
-  --medal-bronze-lo: #8a5129;
-  --on-gold: #151412;
-  --trump-spades: var(--brand);
-  --trump-diamonds: var(--brand);
-  --trump-clubs: var(--brand);
-  --trump-hearts: var(--brand);
-  --trump-glow-amt: 0%;
-  --pulse-blur: 0px;
-  --seat-1: #e8a87c;
-  --seat-2: #7fb3d5;
-  --seat-3: #e3c766;
-  --seat-4: #8fc9a3;
-  --seat-5: #b49fdc;
-  --seat-6: #e39ab3;
-  --seat-7: #9bc4c0;
-  --seat-8: #a3aee6;
-  --seat-9: #e8978f;
-  --seat-10: #d4a373;
-  --fill-primary: var(--brand);
-  --card-back-a: #16352a;
-  --card-back-b: #1f4a39;
-  font-synthesis: none;
-  --card-back-edge: var(--card-bg);
-  --art-back: none;
-  --art-back-mini: none;
-  --art-trump-hearts: none;
-  --art-trump-clubs: none;
-  --reveal-hold: 0ms;
-  --name-frame: none;
-  --fan-anim: deal-fan;
-  --fan-dur: 1.5s;
-  --fan-step: 140ms;
-  --reveal-rays: none;
-  --reveal-glint: none;
-}
-
-/* ---------- THEME 4: EMERALD GILT (dark, from the emerald-and-gold deck: bottle green, gold foil lines, ivory cards) ----------
-   Gold is for lines, frames and the main action, never a large fill. */
-[data-theme='emerald-gilt'] {
-  color-scheme: dark;
-  --font-display: 'Cinzel', 'Instrument Sans', Georgia, serif;
-  --font-body: 'Instrument Sans', system-ui, sans-serif;
-  --font-mono: 'Cinzel', 'Instrument Sans', Georgia, serif;
-  --display-weight: 700;
-  /* Cinzel is all caps, which read better spaced out, not tightened. */
-  --display-track: 0.02em;
-  --mono-track: 0.16em;
-
-  --bg: #0c1a12;
-  --surface-1: #102419;
-  --surface-2: #163021;
-  --surface-3: #1d3b29;
-  --panel: #163021;
-  --hairline: rgba(216, 201, 166, 0.14);
-  --hairline-2: rgba(216, 201, 166, 0.26);
-  --text-1: #f5eedc;
-  --text-2: #d8c9a6;
-  --text-3: #93ae96;
-  --brand: #c9a24e;
-  --brand-press: #b08a3e;
-  --on-brand: #0c1a12;
-  --brand-soft: rgba(201, 162, 78, 0.16);
-  --emerald: #2e9e58;
-  --felt: #123d26;
-  --felt-hi: #1e6b3a;
-  --felt-lo: #0a2616;
-  --felt-rim: var(--brand);
-  --suit-red: #e8606e;
-  --suit-black: #f5eedc;
-  --suit-red-ui: var(--suit-red);
-  --suit-red-felt: #f07a86;
-  --success: #7bd69c;
-  --success-soft: rgba(123, 214, 156, 0.16);
-  --danger: #f07a86;
-  --danger-soft: rgba(240, 122, 134, 0.16);
-  --warning: #f0a860;
-  --on-success: #0c1a12;
-  --on-danger: #0c1a12;
-  --scrim: rgba(4, 10, 6, 0.6);
-  --sheet-shadow: rgba(0, 0, 0, 0.5);
-  --ga: #ebd08c;
-  --gb: #a8853a;
-  --glow: rgba(201, 162, 78, 0.38);
-  --glass: var(--surface-2);
-  --glass-b: rgba(201, 162, 78, 0.38);
-  --hl: rgba(235, 208, 140, 0.22);
-  --drop: rgba(0, 0, 0, 0.4);
-  --r-sm: 4px;
-  --r-md: 8px;
-  --r-lg: 10px;
-  --r-xl: 14px;
-  --big-size: 64px;
-  --big-track: -0.03em;
-  --big-weight: 700;
-  --big-style: normal;
-  --tally-fg: var(--brand);
-  --tick-bg: transparent;
-  --tick-fg: var(--text-2);
-  --tick-dot: var(--brand);
-  --tick-rule: rgba(201, 162, 78, 0.3);
-  --ctr-fg: rgba(245, 238, 220, 0.86);
-  --card-bg: #faf7f0;
-  --card-fg: #123d26;
-  --card-red: #c21a2e;
-  --ov: #f5eedc;
-  --shade: #000;
-  --ink: #f5eedc;
-  --arc: var(--brand);
-  --vignette: rgba(0, 0, 0, 0.42);
-  --sheet-bg: #102419;
-  --toast-bg: #1d3b29;
-  --toast-fg: var(--text-1);
-  --medal-gold: #d4af5f;
-  --medal-gold-hi: #f0d995;
-  --medal-gold-lo: #8a6a2e;
-  --medal-silver: #c9d3dd;
-  --medal-silver-hi: #dde5ec;
-  --medal-silver-lo: #8793a0;
-  --medal-bronze: #d08a5b;
-  --medal-bronze-hi: #e3a57e;
-  --medal-bronze-lo: #8f5a38;
-  --on-gold: #0c1a12;
-  --trump-spades: var(--brand);
-  --trump-diamonds: var(--brand);
-  --trump-clubs: var(--brand);
-  --trump-hearts: var(--brand);
-  --trump-glow-amt: 18%;
-  --pulse-blur: 14px;
-  /* The court cards' colours, in src/domain/avatars.ts COLORS order: mane, gingham, brick road, emerald, violet,
-     Glinda, teal, tin-man steel, witch red, straw. */
-  --seat-1: #d99a6c;
-  --seat-2: #8ec1e3;
-  --seat-3: #e3c25a;
-  --seat-4: #6fcf95;
-  --seat-5: #a88bd0;
-  --seat-6: #e89bb4;
-  --seat-7: #7dbfb0;
-  --seat-8: #afc0d6;
-  --seat-9: #e07a6e;
-  --seat-10: #d4b27c;
-  --share-ink: #1a1a1a;
-  --fill-primary: linear-gradient(135deg, var(--ga), var(--brand) 55%, var(--gb));
-  --card-back-a: #0f3b24;
-  --card-back-b: #1e7a3c;
-  /* The deck's real art (src/assets/themes/emerald-gilt/SOURCE.md). Referenced only here, so other themes never
-     download it. A trump with no file (spades, diamonds) keeps its suit symbol. */
-  --card-back-edge: var(--felt-lo);
-  --art-back: url('../assets/themes/emerald-gilt/back.webp');
-  --art-back-mini: url('../assets/themes/emerald-gilt/back-mini.webp');
-  --art-trump-hearts: url('../assets/themes/emerald-gilt/queen-hearts.webp');
-  --art-trump-clubs: url('../assets/themes/emerald-gilt/king-clubs.webp');
-  /* Three golds and the emerald: the winner's confetti in place of the players' colours (themeConfetti). */
-  --confetti-1: #ebd08c;
-  --confetti-2: #c9a24e;
-  --confetti-3: #a8853a;
-  --confetti-4: #2e9e58;
-  /* The gold piano-key strip: only the sheet's top edge, the winner's frame and a new badge, so it stays special. */
-  --piano: repeating-linear-gradient(90deg, var(--brand) 0 6px, transparent 6px 9px);
-  --gl: linear-gradient(var(--brand), var(--brand));
-  /* A Deco frame for the winner's name: piano strips top and bottom, stepped corners (.ink-fill::after). */
-  --name-frame:
-    var(--piano) center top / calc(100% - 40px) 3px no-repeat,
-    var(--piano) center bottom / calc(100% - 40px) 3px no-repeat,
-    var(--gl) left top / 14px 2px no-repeat, var(--gl) left top / 2px 14px no-repeat,
-    var(--gl) left 5px top 5px / 8px 2px no-repeat, var(--gl) left 5px top 5px / 2px 8px no-repeat,
-    var(--gl) right top / 14px 2px no-repeat, var(--gl) right top / 2px 14px no-repeat,
-    var(--gl) right 5px top 5px / 8px 2px no-repeat,
-    var(--gl) right 5px top 5px / 2px 8px no-repeat, var(--gl) left bottom / 14px 2px no-repeat,
-    var(--gl) left bottom / 2px 14px no-repeat, var(--gl) left 5px bottom 5px / 8px 2px no-repeat,
-    var(--gl) left 5px bottom 5px / 2px 8px no-repeat, var(--gl) right bottom / 14px 2px no-repeat,
-    var(--gl) right bottom / 2px 14px no-repeat, var(--gl) right 5px bottom 5px / 8px 2px no-repeat,
-    var(--gl) right 5px bottom 5px / 2px 8px no-repeat;
-  /* The backs fan out and hold so the art is seen before the trump card turns (RoundStart reads --reveal-hold). */
-  --reveal-hold: 700ms;
-  --fan-anim: deal-fan-hold;
-  --fan-dur: 1.9s;
-  --fan-step: 90ms;
-  --reveal-rays: repeating-conic-gradient(
-    rgba(235, 208, 140, 0.5) 0 1.2deg,
-    transparent 1.2deg 7.5deg
-  );
-  --reveal-glint: linear-gradient(
-    105deg,
-    transparent 42%,
-    rgba(255, 248, 225, 0.8) 50%,
-    transparent 58%
-  );
-}
-
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */
 :root,
 [data-theme] {
@@ -606,15 +219,6 @@
     radial-gradient(62% 38% at 12% 6%, var(--g1) 0, transparent 72%),
     radial-gradient(58% 40% at 98% 34%, var(--g2) 0, transparent 72%),
     radial-gradient(80% 46% at 18% 104%, var(--g3) 0, transparent 72%);
-}
-[data-theme='editorial-paper'] {
-  --focus: var(--ink);
-}
-/* A little lamplight from above and baize below, as on the deck's box; kept faint so text never sits on a bright patch. */
-[data-theme='emerald-gilt'] {
-  --wallpaper:
-    radial-gradient(70% 34% at 50% 6%, rgba(201, 162, 78, 0.13), transparent 70%),
-    radial-gradient(120% 60% at 50% 110%, rgba(30, 107, 58, 0.22), transparent 70%);
 }
 
 /* =====================================================================================================================
@@ -641,31 +245,6 @@
     inset 0 0 0 1px var(--glass-b),
     0 0 56px -8px var(--glow),
     0 18px 48px -12px var(--drop);
-}
-[data-theme='yerba-sun'] .glass {
-  --r-card: var(--r-lg);
-  background: var(--panel);
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    4px 4px 0 var(--ink);
-}
-[data-theme='editorial-paper'] .glass {
-  --r-card: var(--r-lg);
-  background: var(--paper-hi);
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='emerald-gilt'] .glass {
-  --r-card: var(--r-lg);
-  background: var(--glass);
-  box-shadow:
-    inset 0 0 0 1px var(--glass-b),
-    0 10px 24px -12px var(--drop);
-}
-[data-theme='emerald-gilt'] .glass-glow {
-  box-shadow:
-    inset 0 0 0 1px var(--glass-b),
-    0 0 48px -12px var(--glow),
-    0 18px 40px -14px var(--drop);
 }
 
 /* The table: a lit disc, a sticker with a hard shadow, a green baize with a double rule, or emerald baize in gold. */
@@ -694,66 +273,9 @@
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.22), transparent);
   pointer-events: none;
 }
-[data-theme='yerba-sun'] .felt {
-  background: var(--felt);
-  box-shadow:
-    inset 0 0 0 3px var(--ink),
-    6px 6px 0 var(--ink);
-}
-[data-theme='editorial-paper'] .felt {
-  background: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
-  box-shadow:
-    inset 0 0 0 1.5px var(--ink),
-    0 0 0 6px var(--bg),
-    0 0 0 7.5px var(--ink);
-}
-/* A double gold rim with a gap of background, like the deck's frames. The lit patch stays near the top edge, away
-   from the trump in the centre (contrast.test.ts measures the suit on --felt). */
-[data-theme='emerald-gilt'] .felt {
-  background: radial-gradient(
-    110% 120% at 50% 6%,
-    var(--felt-hi) 0,
-    var(--felt) 48%,
-    var(--felt-lo) 100%
-  );
-  box-shadow:
-    inset 0 0 0 1.5px var(--felt-rim),
-    0 0 0 6px var(--bg),
-    0 0 0 7.5px var(--felt-rim),
-    0 26px 50px -18px var(--shade);
-}
-/* Faint gold rays through the baize, like the back's sunburst; masked so they fade at the centre and the rim. */
-[data-theme='emerald-gilt'] .felt::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: repeating-conic-gradient(rgba(235, 208, 140, 0.08) 0 1.6deg, transparent 1.6deg 9deg);
-  -webkit-mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
-  mask-image: radial-gradient(closest-side, transparent 30%, #000 60%, transparent 100%);
-  pointer-events: none;
-}
 /* The trump sits in a dotted gold ring, like the deck's medallion; it hugs the symbol so a card count below or beside
    it stays clear. */
 .suit-ring {
-  display: none;
-}
-[data-theme='emerald-gilt'] .suit-ring {
-  display: block;
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  width: 1.18em;
-  height: 1.18em;
-  translate: -50% -50%;
-  border-radius: 50%;
-  border: max(2px, 0.045em) dotted var(--brand);
-  pointer-events: none;
-}
-
-/* Flat themes have no light to glow with: the breathing trump glow and the screen vignette step aside. */
-[data-theme='yerba-sun'] .ambient,
-[data-theme='editorial-paper'] .ambient {
   display: none;
 }
 
@@ -807,17 +329,6 @@
   letter-spacing: var(--mono-track);
   text-transform: uppercase;
 }
-[data-theme='yerba-sun'] .mono-label {
-  font-weight: 700;
-}
-[data-theme='editorial-paper'] .mono-label {
-  font-weight: 500;
-}
-/* Cinzel is caps-only and a sixth wider: names (read across a table) and sentences that would wrap where other faces
-   don't (.face-body) stay in the body face. */
-[data-theme='emerald-gilt'] :is(.hero-name, .face-body) {
-  font-family: var(--font-body);
-}
 
 /* ---------- primary and secondary buttons (PrimaryButton: a fill layer per state, so colours never animate) ---------- */
 .mat-fill {
@@ -845,117 +356,6 @@
 [data-theme='sunset-glass'] .mat-cta {
   border-radius: 28px;
 }
-[data-theme='yerba-sun'] .mat-cta {
-  border-radius: var(--r-lg);
-  font-family: var(--font-display);
-  font-weight: 800;
-}
-[data-theme='yerba-sun'] .mat-fill {
-  box-shadow:
-    inset 0 0 0 3px var(--ink),
-    5px 5px 0 var(--ink);
-}
-[data-theme='yerba-sun'] .mat-fill-s,
-[data-theme='yerba-sun'] .mat-fill-d {
-  background: var(--panel);
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    3px 3px 0 var(--ink);
-}
-[data-theme='yerba-sun'] .mat-fill-off {
-  background: transparent;
-  box-shadow: inset 0 0 0 2.5px var(--text-3);
-}
-/* The sticker lifts off the page; pressing pushes it back down onto its shadow. `translate` composes with motion's transform. */
-[data-theme='yerba-sun'] .mat-cta-on {
-  translate: -2px -2px;
-}
-[data-theme='yerba-sun'] .mat-cta-on:active {
-  translate: 1px 1px;
-}
-[data-theme='editorial-paper'] .mat-cta {
-  border-radius: 0;
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 0.875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-[data-theme='editorial-paper'] .mat-fill {
-  background: var(--ink);
-}
-[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent {
-  color: var(--paper-hi);
-  justify-content: space-between;
-  padding-inline: 20px;
-}
-[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent::after {
-  /* Decorative: empty alt text keeps the arrow out of the button's accessible name. */
-  content: '\2192';
-  content: '\2192' / '';
-  color: var(--brand);
-  font-size: 1.5rem;
-  letter-spacing: 0;
-}
-[data-theme='editorial-paper'] .mat-fill-s,
-[data-theme='editorial-paper'] .mat-fill-d,
-[data-theme='editorial-paper'] .mat-fill-off {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-fill-off {
-  box-shadow: inset 0 0 0 1px var(--text-3);
-}
-/* Small editorial buttons lose tracking so labels never wrap (reference audit fix). */
-[data-theme='editorial-paper'] .mat-cta.mat-sm {
-  letter-spacing: 0.06em;
-  font-size: 0.75rem;
-}
-[data-theme='emerald-gilt'] .mat-fill {
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 248, 225, 0.55),
-    0 12px 30px -12px var(--glow);
-}
-/* One sheen crosses the foil while it's pressed; it returns unseen, with no transition, once released. */
-[data-theme='emerald-gilt'] .mat-fill::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    rgba(255, 248, 225, 0.55) 50%,
-    transparent 65%
-  );
-  opacity: 0;
-  transform: translateX(-100%);
-}
-[data-theme='emerald-gilt'] .mat-cta-on:active .mat-fill::before {
-  opacity: 1;
-  transform: translateX(100%);
-  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-[data-theme='emerald-gilt'] .mat-fill-s {
-  background: var(--glass);
-  box-shadow: inset 0 0 0 1px var(--glass-b);
-}
-[data-theme='emerald-gilt'] .mat-fill-off {
-  background: var(--surface-1);
-  box-shadow: inset 0 0 0 1px var(--hairline-2);
-}
-[data-theme='emerald-gilt'] .mat-fill-d {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 45%, transparent);
-}
-[data-theme='emerald-gilt'] .mat-cta {
-  border-radius: var(--r-lg);
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-}
-[data-theme='emerald-gilt'] .mat-cta.mat-sm {
-  letter-spacing: 0.02em;
-}
 
 /* ---------- icon buttons in headers: round glass, an ink sticker, or an ink square ---------- */
 [data-theme='sunset-glass'] .mat-ibtn {
@@ -967,26 +367,6 @@
     inset 0 1px 0 var(--hl),
     inset 0 0 0 1px var(--glass-b),
     0 8px 20px -8px var(--drop);
-}
-[data-theme='yerba-sun'] .mat-ibtn {
-  border-radius: 12px;
-  background: var(--panel);
-  color: var(--ink);
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    2px 2px 0 var(--ink);
-}
-[data-theme='editorial-paper'] .mat-ibtn {
-  border-radius: 0;
-  color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='emerald-gilt'] .mat-ibtn {
-  border-radius: var(--r-md);
-  background: var(--glass);
-  box-shadow:
-    inset 0 0 0 1px var(--glass-b),
-    0 8px 20px -10px var(--drop);
 }
 
 /* ---------- segmented control ---------- */
@@ -1006,43 +386,6 @@
 }
 [data-theme='sunset-glass'] .mat-thumb {
   box-shadow: 0 6px 16px -4px var(--glow);
-}
-[data-theme='yerba-sun'] .mat-seg {
-  background: var(--panel);
-  box-shadow: inset 0 0 0 2.5px var(--ink);
-}
-[data-theme='yerba-sun'] .mat-thumb {
-  background: var(--brand);
-  box-shadow: inset 0 0 0 2px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-seg {
-  border-radius: 0;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-seg > *,
-[data-theme='editorial-paper'] .mat-thumb {
-  border-radius: 0;
-}
-[data-theme='editorial-paper'] .mat-thumb {
-  background: var(--ink);
-}
-[data-theme='editorial-paper'] .mat-seg [aria-pressed='true'] {
-  color: var(--paper-hi);
-}
-[data-theme='emerald-gilt'] .mat-seg {
-  border-radius: var(--r-md);
-  background: var(--surface-1);
-  box-shadow: inset 0 0 0 1px var(--glass-b);
-}
-[data-theme='emerald-gilt'] .mat-seg > *,
-[data-theme='emerald-gilt'] .mat-thumb {
-  border-radius: var(--r-sm);
-}
-[data-theme='emerald-gilt'] .mat-thumb {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 248, 225, 0.5),
-    0 6px 14px -6px var(--glow);
 }
 
 /* ---------- number keys (bids, tricks) ---------- */
@@ -1067,68 +410,11 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
     0 12px 28px -6px var(--glow);
 }
-[data-theme='yerba-sun'] .mat-key {
-  border-radius: var(--r-md);
-  background: var(--panel);
-  color: var(--ink);
-  font-weight: 800;
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    3px 3px 0 var(--ink);
-}
-[data-theme='yerba-sun'] .mat-key[aria-pressed='true'] {
-  translate: 2px 2px;
-  box-shadow: none;
-}
-[data-theme='yerba-sun'] .mat-key-on {
-  border-radius: var(--r-md);
-  background: var(--brand);
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    1px 1px 0 var(--ink);
-}
-[data-theme='editorial-paper'] .mat-key {
-  border-radius: 0;
-  background: transparent;
-  font-weight: 400;
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-key-on {
-  border-radius: 0;
-  background: var(--brand);
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='emerald-gilt'] .mat-key {
-  border-radius: var(--r-md);
-  background: var(--glass);
-  font-weight: 600;
-  box-shadow:
-    inset 0 0 0 1px var(--glass-b),
-    0 8px 18px -10px var(--drop);
-}
-[data-theme='emerald-gilt'] .mat-key-on {
-  border-radius: var(--r-md);
-  background: var(--fill-primary);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 248, 225, 0.6),
-    0 10px 24px -8px var(--glow);
-}
 /* The dealer's forbidden bid: a quiet outline with a diagonal strike, no lock, no dashes (reference fix). */
 .mat-key-no {
   color: var(--text-3);
   background: transparent;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ov) 16%, transparent);
-}
-[data-theme='yerba-sun'] .mat-key-no {
-  border-radius: var(--r-md);
-  box-shadow: inset 0 0 0 2.5px var(--text-3);
-}
-[data-theme='editorial-paper'] .mat-key-no {
-  border-radius: 0;
-  box-shadow: inset 0 0 0 1px var(--text-3);
-}
-[data-theme='emerald-gilt'] .mat-key-no {
-  border-radius: var(--r-md);
 }
 .mat-key-no::after {
   content: '';
@@ -1147,41 +433,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     0 6px 14px -2px rgba(0, 0, 0, 0.4);
 }
-[data-theme='yerba-sun'] .mat-av {
-  box-shadow: 0 0 0 2.5px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-av {
-  box-shadow: 0 0 0 1.5px var(--ink);
-}
-/* A thin gold ring with a gap of background, like the deck's framed portraits. */
-[data-theme='emerald-gilt'] .mat-av {
-  box-shadow:
-    0 0 0 1.5px var(--bg),
-    0 0 0 2.5px var(--brand),
-    0 6px 14px -4px var(--drop);
-}
 [data-theme='sunset-glass'] .mat-name {
   text-shadow: 0 1px 8px var(--drop);
-}
-[data-theme='emerald-gilt'] .mat-name {
-  color: var(--text-2);
-  text-shadow: 0 1px 6px var(--shade);
-}
-[data-theme='yerba-sun'] .mat-name {
-  background: var(--ink);
-  color: var(--panel);
-  padding-inline: 7px;
-  border-radius: 7px;
-}
-[data-theme='editorial-paper'] .mat-name {
-  background: var(--paper-hi);
-  color: var(--ink);
-  padding-inline: 6px;
-  box-shadow: 0 0 0 1px var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 .mat-bid {
   background: var(--text-1);
@@ -1192,33 +445,9 @@
   color: var(--on-brand);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
-[data-theme='yerba-sun'] .mat-bid,
-[data-theme='editorial-paper'] .mat-bid {
-  background: var(--ink);
-  color: var(--panel);
-}
-[data-theme='yerba-sun'] .mat-bid {
-  box-shadow: 0 0 0 2px var(--ink);
-}
-[data-theme='emerald-gilt'] .mat-bid {
-  box-shadow:
-    0 0 0 1px var(--brand),
-    0 2px 8px var(--drop);
-}
 .mat-first {
   background: var(--fill-primary);
   color: var(--on-brand);
-}
-[data-theme='yerba-sun'] .mat-first {
-  background: var(--ink);
-  color: var(--bg);
-  border-radius: 6px;
-}
-[data-theme='editorial-paper'] .mat-first {
-  border-radius: 0;
-}
-[data-theme='emerald-gilt'] .mat-first {
-  border-radius: var(--r-sm);
 }
 /* The dealer's "D" disc. */
 .mat-dealer {
@@ -1238,108 +467,20 @@
 .trump-face[data-suit='clubs'] {
   background-image: var(--art-trump-clubs);
 }
-/* Only once the art is decoded (src/theme/art.ts): until then, or offline, the symbol shows instead of a blank face. */
-[data-theme='emerald-gilt'][data-art-ready~='emerald-gilt']
-  .trump-face:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-glyph {
-  opacity: 0;
-}
 /* A later round's small trump card (TrumpMark), only for a suit with art; the symbol becomes a badge on its corner. */
 .trump-mini {
   display: none;
-}
-[data-theme='emerald-gilt']
-  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-mini {
-  display: block;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1.15em;
-  aspect-ratio: 600 / 840;
-  translate: -50% -50%;
-  border-radius: max(2px, 0.08em);
-  background-size: cover;
-  box-shadow:
-    0 0 0 1px var(--glass-b),
-    0 4px 10px -4px var(--drop);
-}
-[data-theme='emerald-gilt']
-  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-glyph {
-  position: relative;
-  z-index: 1;
-  translate: 0.45em 0.55em;
-  scale: 0.5;
-  text-shadow:
-    0 0 0.12em var(--bg),
-    0 0 0.3em var(--bg);
-}
-[data-theme='emerald-gilt']
-  :has(> .trump-mark:is([data-suit='hearts'], [data-suit='clubs']))
-  > .suit-ring {
-  display: none;
-}
-/* Beside a number in one line (the desk's Coming up), the card stays within the line. */
-[data-theme='emerald-gilt'] .trump-mark.is-inline > .trump-mini {
-  width: 0.72em;
-}
-[data-theme='emerald-gilt']
-  .trump-mark.is-inline:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-glyph {
-  translate: 0.32em 0.22em;
 }
 /* The loader: a card back turning in place of the ball, where the theme has deck art. */
 .sq-card {
   display: none;
 }
-[data-theme='emerald-gilt'] .sq-card {
-  display: block;
-  box-shadow: 0 6px 14px -6px var(--shade);
-}
-[data-theme='emerald-gilt'] :is(.sq-ball, .sq-shadow) {
-  display: none;
-}
-/* A new badge and the streak medallion get a gold frame: the piano strip on the badge, a dotted ring on the medal. */
-[data-theme='emerald-gilt'] .badge-pop {
-  background:
-    var(--piano) top / 100% 3px no-repeat,
-    var(--toast-bg);
-  border-color: var(--glass-b);
-}
 .streak-ring {
   display: none;
-}
-[data-theme='emerald-gilt'] .streak-ring {
-  display: block;
-  border: 3px dotted var(--brand);
-  box-shadow:
-    0 0 0 6px transparent,
-    0 0 0 7.5px var(--glass-b);
 }
 /* An empty list shows one face-down card, slightly tilted, in place of its icon. */
 .empty-card > i {
   display: none;
-}
-[data-theme='emerald-gilt'] .empty-card > svg {
-  opacity: 0;
-}
-[data-theme='emerald-gilt'] .empty-card > i {
-  display: block;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 40px;
-  aspect-ratio: 600 / 840;
-  translate: -50% -50%;
-  rotate: -8deg;
-  border-radius: 4px;
-  box-shadow: 0 8px 18px -8px var(--shade);
-}
-[data-theme='emerald-gilt'] .mat-dealer {
-  background: var(--fill-primary);
-  color: var(--on-brand);
-  box-shadow: 0 2px 8px var(--drop);
 }
 
 /* ---------- sheets, modals, toast, inputs, chips ---------- */
@@ -1352,34 +493,8 @@
 [data-theme='sunset-glass'] .mat-sheet {
   border-radius: var(--r-xl) var(--r-xl) 0 0;
 }
-[data-theme='yerba-sun'] .mat-sheet {
-  border-radius: var(--r-xl) var(--r-xl) 0 0;
-  box-shadow:
-    inset 0 3px 0 var(--ink),
-    0 -6px 0 var(--ink);
-}
-[data-theme='editorial-paper'] .mat-sheet {
-  border-radius: var(--r-xl) var(--r-xl) 0 0;
-  box-shadow: inset 0 1.5px 0 var(--ink);
-}
-[data-theme='emerald-gilt'] .mat-sheet {
-  border-radius: var(--r-xl) var(--r-xl) 0 0;
-  background:
-    var(--piano) top / 100% 3px no-repeat,
-    var(--sheet-bg);
-  box-shadow:
-    0 -12px 40px var(--sheet-shadow),
-    inset 0 1px 0 var(--glass-b);
-}
 .mat-grabber {
   background: color-mix(in srgb, var(--ov) 25%, transparent);
-}
-[data-theme='yerba-sun'] .mat-grabber,
-[data-theme='editorial-paper'] .mat-grabber {
-  background: var(--ink);
-}
-[data-theme='emerald-gilt'] .mat-grabber {
-  background: color-mix(in srgb, var(--brand) 60%, transparent);
 }
 .mat-toast {
   background: var(--toast-bg);
@@ -1392,26 +507,8 @@
   -webkit-backdrop-filter: blur(22px) saturate(180%);
   backdrop-filter: blur(22px) saturate(180%);
 }
-[data-theme='yerba-sun'] .mat-toast,
-[data-theme='editorial-paper'] .mat-toast {
-  box-shadow: none;
-}
-[data-theme='editorial-paper'] .mat-toast {
-  border-radius: 0;
-}
-[data-theme='emerald-gilt'] .mat-toast {
-  box-shadow:
-    inset 0 0 0 1px var(--glass-b),
-    0 10px 28px -8px var(--drop);
-}
 .mat-toast .mat-toast-act {
   color: var(--brand);
-}
-[data-theme='yerba-sun'] .mat-toast .mat-toast-act {
-  color: var(--bg);
-}
-[data-theme='editorial-paper'] .mat-toast .mat-toast-act {
-  color: #ff9a80;
 }
 .mat-inp {
   background: color-mix(in srgb, var(--ov) 7%, transparent);
@@ -1422,32 +519,10 @@
     inset 0 1px 0 var(--hl),
     inset 0 0 0 1px var(--glass-b);
 }
-[data-theme='yerba-sun'] .mat-inp {
-  border-radius: var(--r-md);
-  background: var(--panel);
-  color: var(--ink);
-  box-shadow: inset 0 0 0 2.5px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-inp {
-  border-radius: 0;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-[data-theme='emerald-gilt'] .mat-inp {
-  border-radius: var(--r-md);
-  background: var(--surface-1);
-  box-shadow: inset 0 0 0 1px var(--hairline-2);
-}
 .mat-inp:focus {
   box-shadow:
     0 0 0 3px var(--glow),
     inset 0 0 0 1px var(--brand);
-}
-[data-theme='yerba-sun'] .mat-inp:focus,
-[data-theme='editorial-paper'] .mat-inp:focus {
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    0 0 0 3px var(--brand);
 }
 
 /* ---------- the hero layout: ticker, big name, tally (DESIGN-SYSTEM.md, Hero layout) ---------- */
@@ -1483,10 +558,6 @@
   font-style: normal;
   color: var(--tick-dot);
 }
-[data-theme='yerba-sun'] .ticker {
-  transform: rotate(-1.6deg) scale(1.08);
-  border: 2.5px solid var(--ink);
-}
 .hero-name {
   font-family: var(--font-display);
   font-size: var(--big-size);
@@ -1494,10 +565,6 @@
   letter-spacing: var(--big-track);
   font-weight: var(--big-weight);
   font-style: var(--big-style);
-}
-[data-theme='yerba-sun'] .hero-name {
-  color: var(--ink);
-  text-shadow: 3px 3px 0 var(--panel);
 }
 .hero-tally {
   font-family: var(--font-display);
@@ -1521,21 +588,6 @@
 [data-theme='sunset-glass'] .mat-meter-fill {
   box-shadow: 0 0 14px var(--glow);
 }
-[data-theme='yerba-sun'] .mat-meter {
-  background: rgba(42, 20, 9, 0.16);
-  box-shadow: inset 0 0 0 2.5px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-meter {
-  border-radius: 0;
-  background: rgba(30, 27, 24, 0.18);
-}
-[data-theme='emerald-gilt'] .mat-meter {
-  background: var(--surface-1);
-  box-shadow: inset 0 0 0 1px var(--glass-b);
-}
-[data-theme='emerald-gilt'] .mat-meter-fill {
-  box-shadow: 0 0 12px var(--glow);
-}
 
 /* Theme switches cross-fade (applyTheme); the layout never moves, so a short fade is all it needs. */
 ::view-transition-old(root),
@@ -1546,27 +598,6 @@
   .ticker > div {
     animation: none;
   }
-  [data-theme='emerald-gilt'] .mat-cta-on:active .mat-fill::before {
-    transition: none;
-    opacity: 0;
-  }
-}
-
-/* Gold lettering (wordmark, winners): metallic on the dark theme; on paper and butter a gradient washes out, so ink. */
-[data-theme='yerba-sun'] .gold-text,
-[data-theme='editorial-paper'] .gold-text {
-  background: none;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
-  color: var(--ink);
-}
-[data-theme='yerba-sun'] .gold-text {
-  text-shadow: 3px 3px 0 var(--brand);
-}
-/* Cinzel's caps run a quarter wider than the other faces; drawn smaller (paint, not layout) so the wordmark keeps
-   clear of a 360px screen's edges. */
-[data-theme='emerald-gilt'] .wordmark {
-  scale: 0.84;
 }
 
 /* ---------- switch (ToggleTrack) ---------- */
@@ -1579,43 +610,6 @@
 .mat-knob {
   background: var(--text-1);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
-[data-theme='yerba-sun'] .mat-tog {
-  background: var(--panel);
-  box-shadow: inset 0 0 0 2.5px var(--ink);
-}
-[data-theme='yerba-sun'] .mat-tog-on {
-  box-shadow: inset 0 0 0 2.5px var(--ink);
-}
-[data-theme='yerba-sun'] .mat-knob {
-  background: var(--ink);
-  box-shadow: none;
-}
-[data-theme='editorial-paper'] .mat-tog {
-  background: var(--surface-3);
-}
-[data-theme='editorial-paper'] .mat-knob {
-  background: var(--paper-hi);
-  box-shadow: 0 0 0 1px var(--ink);
-}
-[data-theme='editorial-paper'] .mat-knob.is-on {
-  background: var(--on-brand);
-  box-shadow: none;
-}
-[data-theme='emerald-gilt'] .mat-tog {
-  background: var(--surface-1);
-  box-shadow: inset 0 0 0 1px var(--hairline-2);
-}
-[data-theme='emerald-gilt'] .mat-tog-on {
-  box-shadow: inset 0 1px 0 rgba(255, 248, 225, 0.5);
-}
-
-/* Yerba Sun keys press into their shadow the moment they're touched (DESIGN-SYSTEM.md, Themes). */
-[data-theme='yerba-sun'] .mat-key:active:not([aria-disabled='true']) {
-  translate: 2px 2px;
-  box-shadow:
-    inset 0 0 0 2.5px var(--ink),
-    1px 1px 0 var(--ink);
 }
 
 /* ---------- material tokens for the Appearance previews ----------
@@ -1637,49 +631,4 @@
   --m-av-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   --m-r: 999px;
   --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
-}
-[data-theme='yerba-sun'] {
-  --m-felt: var(--felt);
-  --m-felt-shadow: inset 0 0 0 2px var(--ink), 3px 3px 0 var(--ink);
-  --m-key: var(--panel);
-  --m-key-shadow: inset 0 0 0 1.5px var(--ink), 1.5px 1.5px 0 var(--ink);
-  --m-on: var(--brand);
-  --m-btn: var(--brand);
-  --m-btn-shadow: inset 0 0 0 1.5px var(--ink), 2px 2px 0 var(--ink);
-  --m-av-shadow: 0 0 0 1.5px var(--ink);
-  --m-r: 6px;
-  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
-}
-[data-theme='editorial-paper'] {
-  --m-felt: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
-  --m-felt-shadow: inset 0 0 0 1px var(--ink), 0 0 0 3px var(--bg), 0 0 0 4px var(--ink);
-  --m-key: transparent;
-  --m-key-shadow: inset 0 0 0 1px var(--ink);
-  --m-on: var(--brand);
-  --m-btn: var(--ink);
-  --m-btn-shadow: none;
-  --m-av-shadow: 0 0 0 1px var(--ink);
-  --m-r: 0;
-  --m-back: repeating-linear-gradient(45deg, var(--card-back-a) 0 3px, var(--card-back-b) 3px 6px);
-}
-[data-theme='emerald-gilt'] {
-  --m-felt: radial-gradient(90% 90% at 50% 32%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
-  --m-felt-shadow: inset 0 0 0 1px var(--brand), 0 0 0 3px var(--bg), 0 0 0 4px var(--brand);
-  --m-key: var(--surface-2);
-  --m-key-shadow: inset 0 0 0 1px var(--glass-b);
-  --m-on: var(--fill-primary);
-  --m-btn: var(--fill-primary);
-  --m-btn-shadow: 0 6px 14px -6px var(--glow);
-  --m-av-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--brand);
-  --m-r: 4px;
-  --m-back: var(--art-back-mini) center / cover no-repeat;
-}
-
-/* Small square buttons (Add) drop the arrow and centre the label (reference audit fix, .addrow / .btn.sq). */
-[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent.mat-sq {
-  justify-content: center;
-  padding-inline: 0;
-}
-[data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent.mat-sq::after {
-  content: none;
 }
