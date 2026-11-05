@@ -3,6 +3,9 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { useApp } from '@/state/store';
 import { TR } from '@/theme/trumps';
+import { artOrTimeout, artReady } from '@/theme/art';
+import { shownTheme } from '@/theme/applyTheme';
+import { isThemeId } from '@/theme/themes';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
@@ -27,6 +30,18 @@ export function RoundStart() {
     const n = parseFloat(v) || 0;
     return rm ? 0 : v.endsWith('ms') ? n : n * 1000;
   });
+  // The card waits for the theme's deck art (at most 300ms), so its back and face never arrive mid-turn.
+  const [theme] = useState(shownTheme);
+  const [ready, setReady] = useState(() => !isThemeId(theme) || artReady(theme));
+  useEffect(() => {
+    if (ready || !isThemeId(theme)) return;
+    let on = true;
+    void artOrTimeout(theme, 300).then(() => on && setReady(true));
+    return () => {
+      on = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
   const root = useRef<HTMLDivElement>(null);
   // The rest of the app is inert during the deal, so keys only reach the skip control if it holds focus.
   useEffect(() => root.current?.focus({ preventScroll: true }), []);
@@ -35,6 +50,7 @@ export function RoundStart() {
   const needPass = r !== undefined && prev != null && prev !== r.dealerIndex;
   const dealMs = (n - 1) * 60 + 520 + 150;
   useEffect(() => {
+    if (!ready) return;
     if (stage >= 4) {
       actions.seqDone();
       return;
@@ -43,7 +59,7 @@ export function RoundStart() {
     const t = setTimeout(() => setStage((s) => s + 1), T[stage]);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
-  }, [stage]);
+  }, [stage, ready]);
   if (!r) return null;
   const th = TR[r.trump];
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
@@ -73,45 +89,49 @@ export function RoundStart() {
         className="relative my-3 h-[132px] w-24 @h-short:my-2 @h-short:h-[6.25rem] @h-short:w-[4.5rem] @h-tiny:h-20 @h-tiny:w-14 pane:[grid-area:3/1]"
         style={{ perspective: 800 }}
       >
-        {/* Gold rays behind the card as it lands, painted only by a theme that sets --reveal-rays. */}
-        <div aria-hidden className="reveal-halo pointer-events-none absolute" />
-        {/* The deal fan (DESIGN-SYSTEM.md, Motion): backs leave the deck behind the card, once; reduced motion hides it. */}
-        <div aria-hidden className="deal-fan pointer-events-none absolute inset-0">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <i
-              key={i}
-              className="card-art bg-card-back shadow-[inset_0_0_0_3px_var(--card-back-edge),0_6px_14px_-4px_color-mix(in_srgb,var(--shade)_50%,transparent)]"
-              style={{ '--i': i } as CSSProperties}
-            />
-          ))}
-        </div>
-        <m.div
-          initial={{ rotateY: 0, scale: 0.9 }}
-          animate={{ rotateY: 180, scale: 1 }}
-          transition={{
-            duration: 0.8,
-            ease: EASE,
-            rotateY: { duration: 0.8, delay: hold / 1000, ease: EASE },
-          }}
-          className="relative h-full w-full"
-          style={{ transformStyle: 'preserve-3d' }}
-        >
-          <div className="card-art absolute inset-0 rounded-[14px] border-4 border-[var(--card-back-edge)] bg-card-back [backface-visibility:hidden]" />
-          <div
-            data-suit={r.trump}
-            className={`trump-face absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--glow)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
-            style={{ transform: 'rotateY(180deg)' }}
-          >
-            <span className="trump-glyph">{th.sym}</span>
-            <span aria-hidden className="reveal-glint">
-              <i />
-            </span>
-          </div>
-        </m.div>
+        {ready && (
+          <>
+            {/* Gold rays behind the card as it lands, painted only by a theme that sets --reveal-rays. */}
+            <div aria-hidden className="reveal-halo pointer-events-none absolute" />
+            {/* The deal fan (DESIGN-SYSTEM.md, Motion): backs leave the deck behind the card, once; reduced motion hides it. */}
+            <div aria-hidden className="deal-fan pointer-events-none absolute inset-0">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <i
+                  key={i}
+                  className="card-art bg-card-back shadow-[inset_0_0_0_3px_var(--card-back-edge),0_6px_14px_-4px_color-mix(in_srgb,var(--shade)_50%,transparent)]"
+                  style={{ '--i': i } as CSSProperties}
+                />
+              ))}
+            </div>
+            <m.div
+              initial={{ rotateY: 0, scale: 0.9 }}
+              animate={{ rotateY: 180, scale: 1 }}
+              transition={{
+                duration: 0.8,
+                ease: EASE,
+                rotateY: { duration: 0.8, delay: hold / 1000, ease: EASE },
+              }}
+              className="relative h-full w-full"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <div className="card-art absolute inset-0 rounded-[14px] border-4 border-[var(--card-back-edge)] bg-card-back [backface-visibility:hidden]" />
+              <div
+                data-suit={r.trump}
+                className={`trump-face absolute inset-0 grid place-items-center rounded-[14px] bg-card-face text-64 @h-short:text-52 @h-tiny:text-36 shadow-[0_0_44px_var(--glow)] [backface-visibility:hidden] ${r.trump === 'spades' || r.trump === 'clubs' ? 'text-card-ink' : 'text-card-red'}`}
+                style={{ transform: 'rotateY(180deg)' }}
+              >
+                <span className="trump-glyph">{th.sym}</span>
+                <span aria-hidden className="reveal-glint">
+                  <i />
+                </span>
+              </div>
+            </m.div>
+          </>
+        )}
       </div>
       <m.div
         initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
         transition={{ delay: 0.6 + hold / 1000 }}
         className="mb-2 px-7 text-center text-17 font-bold text-[var(--accent)] @h-short:mb-1 pane:[grid-area:4/1]"
       >

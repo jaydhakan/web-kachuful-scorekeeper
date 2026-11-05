@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { ApiError } from '@/sync/api';
 import { ep, type AppearanceDto } from '@/sync/endpoints';
 import { applyTheme, shownTheme } from '@/theme/applyTheme';
+import { warmArt } from '@/theme/art';
 import {
   DEFAULT_THEME,
   isThemeId,
@@ -75,6 +76,7 @@ export const resolved = (s = state()) =>
   resolveTheme({ user: s.user, appearance: s.appearance, cached: s.shown });
 
 async function show(id: ThemeId, o: { persist?: boolean; animate?: boolean } = {}) {
+  void warmArt(id);
   if (state().shown === id && shownTheme() === id) return;
   await applyTheme(id, o);
   set({ shown: id });

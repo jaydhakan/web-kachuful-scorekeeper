@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
+import { NAMES7, btn, toSetup3 } from './helpers';
 
 // DESIGN-SYSTEM.md, Switching themes: themes change paint, never geometry, and switching mid-game touches no state.
 const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gilt'] as const;
@@ -97,3 +98,51 @@ for (const id of THEMES)
       ).toBe(true);
     expect(fonts.length).toBeGreaterThan(0);
   });
+
+test('emerald-gilt: the deck art is fetched when the theme is shown, before any deal', async ({
+  page,
+}) => {
+  const art: string[] = [];
+  page.on('request', (r) => r.url().endsWith('.webp') && art.push(r.url()));
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('kf.theme', 'emerald-gilt'));
+  await page.reload();
+  await expect(page.locator('html[data-art-ready~="emerald-gilt"]')).toBeAttached();
+  expect(art.length).toBe(4);
+});
+
+test('other themes never fetch deck art', async ({ page }) => {
+  const art: string[] = [];
+  page.on('request', (r) => r.url().endsWith('.webp') && art.push(r.url()));
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500);
+  expect(art).toEqual([]);
+});
+
+test('emerald-gilt without its art: the trump face keeps its symbol and the deal still runs', async ({
+  page,
+}) => {
+  await page.route(/\.webp$/, (r) => r.abort());
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('kf.theme', 'emerald-gilt'));
+  await page.reload();
+  const glyphOpacity = () =>
+    page.evaluate(() => {
+      const face = document.createElement('div');
+      face.className = 'trump-face';
+      face.dataset.suit = 'hearts';
+      face.innerHTML = '<span class="trump-glyph">♥</span>';
+      document.body.append(face);
+      const o = getComputedStyle(face.firstElementChild!).opacity;
+      face.remove();
+      return o;
+    });
+  expect(await glyphOpacity()).toBe('1');
+  await page.evaluate(() => (document.documentElement.dataset.artReady = 'emerald-gilt'));
+  expect(await glyphOpacity()).toBe('0');
+  await page.evaluate(() => delete document.documentElement.dataset.artReady);
+  await toSetup3(page, NAMES7.slice(0, 4));
+  await btn(page, 'Deal!').click();
+  await expect(btn(page, 'Skip the deal animation')).toBeHidden({ timeout: 10_000 });
+});

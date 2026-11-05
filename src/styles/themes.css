@@ -1238,7 +1238,8 @@
 .trump-face[data-suit='clubs'] {
   background-image: var(--art-trump-clubs);
 }
-[data-theme='emerald-gilt']
+/* Only once the art is decoded (src/theme/art.ts): until then, or offline, the symbol shows instead of a blank face. */
+[data-theme='emerald-gilt'][data-art-ready~='emerald-gilt']
   .trump-face:is([data-suit='hearts'], [data-suit='clubs'])
   > .trump-glyph {
   opacity: 0;
