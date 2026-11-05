@@ -15,7 +15,7 @@ Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating,
 | `npm run test:e2e`                      | Playwright against a fresh build (uses installed Chrome locally) |
 | `npm run lint` · `typecheck` · `format` | ESLint, `tsc`, Prettier                                          |
 
-**Backend.** The API is the separate FastAPI backend; its `HANDOFF.md` describes it as built and is the contract. To run it locally: `cd ../backend-kachuful-scorekeeper && cp .env.example .env && make dev`, then `uv run python -m app.cli seed-demo --reset`. `npm run dev` proxies `/api`, `/r` and `/l` to it (`KACHUFUL_API` changes the target) and must run on `localhost:5173`, the backend's `APP_ORIGIN`.
+**Backend.** The API is the separate FastAPI backend; the API as built (its routes and schemas) is the contract. To run it locally: `cd ../backend-kachuful-scorekeeper && cp .env.example .env && make dev`, then `uv run python -m app.cli seed-demo --reset`. `npm run dev` proxies `/api`, `/r` and `/l` to it (`KACHUFUL_API` changes the target) and must run on `localhost:5173`, the backend's `APP_ORIGIN`.
 
 **Accounts.** The backend's demo seed and the mock API have the same accounts: `admin@kachuful.test` / `admin-demo` (Jay, admin), `riya@kachuful.test` / `riya-demo`, `kabir@kachuful.test` / `kabir-demo`, and players Asha, Om, Neha, Dev, Zoya and Ishan (`<name>@kachuful.test`).
 

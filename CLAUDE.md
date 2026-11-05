@@ -1,6 +1,6 @@
 # Kachuful — working notes
 
-Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to the separate FastAPI backend in `../backend-kachuful-scorekeeper`. Its `HANDOFF.md` is the API as built and is the contract; never change the API's behaviour to suit the app.
+Mobile-first scorekeeper for the Judgement / Kachuful card game, used by people at a card table. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to the separate FastAPI backend in `../backend-kachuful-scorekeeper`. The API as built (its routes and schemas, `/docs` when running) is the contract; never change the API's behaviour to suit the app.
 
 Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
 
@@ -52,7 +52,8 @@ Data quirks: avatar colours are stored as hex in saved players; totals are deriv
 - **Saved data is sacred:** keep keys and shapes; add a migration instead of editing a shape.
 - **Comments: 1–3 lines**, non-obvious _why_ only.
 - Touching more than ~3 files: outline the plan first.
-- **Working docs are temporary:** a task's plan (`docs/<TASK>-PLAN.md`) and asks for the backend (`backend-requests.md` at the root, saying what is needed and why) are written for the task. Delete them once the task is done, including the backend work and the commits. Never commit them.
+- **Backend changes go in `backend-requests.md`, always.** When a task needs the API to change, write what is needed and why in `backend-requests.md` at the root, and build the app against it. Edit `../backend-kachuful-scorekeeper` only when Jay says to do the backend too, and then only what `backend-requests.md` says.
+- **Working docs are temporary:** a task's plan (`docs/<TASK>-PLAN.md`) and `backend-requests.md` are written for the task. Delete them once the task is done, including the backend work and the commits. Never commit them.
 - Every screen needs loading, empty, no-results and error states where data can be missing.
 - Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings, 44px targets.
 - Animate only `transform` and `opacity`; every animation has a reduced-motion fallback.
