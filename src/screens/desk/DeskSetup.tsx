@@ -275,6 +275,14 @@ export function DeskSetup() {
                   { v: 'ccw', label: t.setup.ccw },
                 ]}
               />
+              <Seg
+                uid="dorder"
+                label={t.setup.orderLabel}
+                value={su.order ?? 'up'}
+                className="[&_button]:h-12"
+                onChange={(v) => actions.setupPatch({ order: v })}
+                options={t.setup.orderOptions(n ? maxFor(n, su.decks) : null)}
+              />
             </div>
             <div
               role="group"
@@ -306,7 +314,7 @@ export function DeskSetup() {
               ))}
             </div>
             <p className="text-13 text-[var(--tx2)]">
-              {t.setup.info(su.n, n ? maxFor(n, su.decks) : 0)}
+              {t.setup.info(su.n, n ? maxFor(n, su.decks) : 0, su.order)}
             </p>
           </Section>
           <Section title={t.desk.setup.seats} aside={n ? t.desk.setup.seatHint : undefined}>

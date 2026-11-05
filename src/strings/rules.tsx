@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Direction } from '@/domain';
+import type { Direction, RoundOrder } from '@/domain';
 import { Icon } from '@/components/ui/Icons';
 
 /** The How-to-play text. */
@@ -21,7 +21,7 @@ export const rulesItems = (dir: Direction): [ReactNode, string, ReactNode][] => 
       hand, so it is the deck size ÷ players, rounded down, and never more than <b>10</b>. With{' '}
       <b>one deck</b> that is 10 for 3–5 players, 8 for 6 and 7 for 7. With <b>two decks</b> it is
       10 for 3–10 players. Repeat the max once, come back down to 3, repeat 3 once, then climb
-      again.
+      again. Under <b>Advanced</b> a game can go <b>down first</b> instead: max → 3 → max.
       <div className="mt-1 text-13 text-[var(--tx2)]">
         10-card game: 3 4 5 6 7 8 9 10 10 9 8 7 6 5 4 3 3 4 …
       </div>
@@ -110,22 +110,35 @@ export const drawerRules = (
   dir: Direction,
   peak: number | null,
   endless: boolean,
+  order: RoundOrder = 'up',
 ): [string, ReactNode][] => {
   const s = dir === 'cw' ? 'left' : 'right';
   return [
     [
       'Deal',
       <>
-        Rounds start at <b>3 cards</b> and climb one at a time to the peak: the deck ÷ players,
-        rounded down, never more than <b>10</b>
+        {order === 'down' ? (
+          <>
+            This game goes <b>down first</b>: rounds start at the peak and drop one card at a time
+            to <b>3</b>. The peak is the deck ÷ players, rounded down, never more than <b>10</b>
+          </>
+        ) : (
+          <>
+            Rounds start at <b>3 cards</b> and climb one at a time to the peak: the deck ÷ players,
+            rounded down, never more than <b>10</b>
+          </>
+        )}
         {peak && peak < 10 ? (
           <>
             {' '}
             (<b>{peak}</b> at this table)
           </>
         ) : null}
-        , then back down to 3 and up again. The peak and 3 are each dealt twice in a row where the
-        count turns. The deal moves one seat every round.
+        {order === 'down'
+          ? ', then back up and down again.'
+          : ', then back down to 3 and up again.'}{' '}
+        The peak and 3 are each dealt twice in a row where the count turns. The deal moves one seat
+        every round.
       </>,
     ],
     [

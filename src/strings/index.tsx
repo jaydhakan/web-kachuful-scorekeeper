@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Direction, Trump } from '@/domain';
+import type { Direction, RoundOrder, Trump } from '@/domain';
 import { messages } from './messages';
 import { hub } from './hub';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
@@ -102,10 +102,16 @@ export const t = {
     tapNumber: 'Pick a player count',
     cw: '⟳ Clockwise',
     ccw: '⟲ Anticlockwise',
-    info: (n: number | null, max: number) =>
+    info: (n: number | null, max: number, order: RoundOrder = 'up') =>
       n
-        ? `Max ${max} cards · 3 → ${max} → 3, repeating`
+        ? `Max ${max} cards · ${order === 'down' ? `${max} → 3 → ${max}` : `3 → ${max} → 3`}, repeating`
         : 'Pick the number of players to see the table',
+    orderLabel: 'Round order',
+    orderDown: 'Down first',
+    orderOptions: (max: number | null): { v: RoundOrder; label: string }[] => [
+      { v: 'up', label: max ? `3 → ${max} → 3` : 'Up first' },
+      { v: 'down', label: max ? `${max} → 3 → ${max}` : 'Down first' },
+    ],
     step2Title: 'Seat the table',
     everyoneSeated: 'Everyone is seated',
     dealingFirst: "Who's dealing first?",

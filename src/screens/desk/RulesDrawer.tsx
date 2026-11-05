@@ -15,6 +15,7 @@ export function RulesDrawer() {
     own ? g.direction : (state.setup?.dir ?? 'cw'),
     own ? g.maxCards : null,
     g.lengthMode === 'endless',
+    own ? g.order : (state.setup?.order ?? 'up'),
   );
   return (
     <Drawer

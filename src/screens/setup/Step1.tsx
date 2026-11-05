@@ -110,6 +110,7 @@ export function Step1() {
               <span className="mono-label text-12 text-[var(--tx2)]">{t.setup.advanced}</span>
               <span className="flex items-center gap-2 text-13 font-medium text-[var(--tx2)]">
                 {t.setup.deck(su.decks)} · {su.dir === 'cw' ? t.setup.cw : t.setup.ccw}
+                {su.order === 'down' && ` · ${t.setup.orderDown}`}
                 <span aria-hidden className={`transition-transform ${more ? 'rotate-180' : ''}`}>
                   ▾
                 </span>
@@ -157,13 +158,25 @@ export function Step1() {
                     className="flex w-full [&>button]:flex-1"
                   />
                 </div>
+                <SectionLabel className="mt-2">{t.setup.orderLabel}</SectionLabel>
+                <div className="mt-1.5 flex">
+                  <Seg
+                    uid="orderseg"
+                    label={t.setup.orderLabel}
+                    size="sm"
+                    value={su.order ?? 'up'}
+                    onChange={(v) => actions.setupPatch({ order: v })}
+                    options={t.setup.orderOptions(su.n ? maxFor(su.n, su.decks) : null)}
+                    className="flex w-full [&>button]:flex-1"
+                  />
+                </div>
               </div>
             )}
           </div>
           <p
             className={`mt-2 text-14 tracking-[0.005em] text-[var(--tx2)] [text-wrap:balance] @h-[45rem]:mt-1.5 ${lg ? '@h-short:hidden' : ''}`}
           >
-            {t.setup.info(su.n, su.n ? maxFor(su.n, su.decks) : 0)}
+            {t.setup.info(su.n, su.n ? maxFor(su.n, su.decks) : 0, su.order)}
           </p>
         </>
       }
