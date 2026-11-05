@@ -42,8 +42,8 @@ export function SignInPage() {
     try {
       const s = await signIn(email, pw);
       actions.setSession(s);
+      // No toast: the account chip on Home already says who is signed in.
       actions.back();
-      actions.say(a.signedIn(s.player?.displayName ?? s.user.email));
     } catch (x) {
       setErr(authError(x));
     } finally {
@@ -187,7 +187,6 @@ export function InvitePage({ token }: { token: string }) {
       actions.setSession(sessionOf(r.user, r.player));
       takePrefs(r.preferences);
       actions.navReset();
-      actions.say(a.signedIn(r.player.displayName));
     } catch (x) {
       setErr(authError(x));
     } finally {

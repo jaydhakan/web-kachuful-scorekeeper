@@ -24,7 +24,7 @@ const typeName = async (page: Page, n: string) => {
 
 test('a game scored offline uploads when the connection comes back', async ({ page, context }) => {
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await newGameStep2(page, 3);
   // Kabir is in Riya's circle (she added him): seated straight away. Newcomers need an email.
   await typeName(page, 'Kabir');
@@ -75,7 +75,7 @@ test('someone outside your circle: their email finds them, under their name or a
   const email = `${pia.toLowerCase()}@example.com`;
   await addPlayer('riya', pia, email);
   await signIn(page, 'kabir');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await newGameStep2(page, 3);
   await expect(page.getByRole('group', { name: 'Recent names' }).getByText(pia)).toBeHidden();
 
@@ -120,7 +120,7 @@ test('someone with two names is one row: either name finds them, and you pick wh
 }) => {
   const { pia, alias } = await withAlias();
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await newGameStep2(page, 3);
   const input = await nameField(page);
   await input.fill(alias.slice(0, 4));
@@ -140,7 +140,7 @@ test('someone with two names is one row: either name finds them, and you pick wh
 test('an alias can become the main name', async ({ page }) => {
   const { pia, alias } = await withAlias();
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await btn(page, 'Players').first().click();
   await page.getByRole('button', { name: `Edit ${pia}` }).click();
   await btn(page, `Make “${alias}” the main name`).click();

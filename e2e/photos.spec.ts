@@ -45,7 +45,7 @@ test('a player adds a photo, it shows instead of the emoji, and can be removed',
   page,
 }) => {
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await btn(page, 'Me').click();
   await page.getByRole('button', { name: /Photo of Riya/ }).click();
   await page
@@ -79,7 +79,7 @@ test('the service worker keeps photos for offline, and no other API answer', asy
   await page.reload();
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await btn(page, 'Me').click();
   await page.getByRole('button', { name: /Photo of Riya/ }).click();
   await page
@@ -108,7 +108,7 @@ test('the service worker keeps photos for offline, and no other API answer', asy
 test("only the admin, the creator and the player may change a player's photo", async ({ page }) => {
   // Riya is linked to her player; Kabir didn't create it.
   await signIn(page, 'kabir');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await page
     .getByRole('button', { name: /Players/ })
     .first()

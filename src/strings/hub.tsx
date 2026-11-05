@@ -340,7 +340,6 @@ export const hub = {
     hide: 'Hide password',
     forgot: 'Forgot your password? Ask Jay for a reset link.',
     busy: 'Signing in…',
-    signedIn: (name: string) => `Signed in as ${name}`,
     errors: {
       bad_credentials: "That email and password don't match.",
       inactive: 'This account is switched off. Ask Jay.',

@@ -19,7 +19,7 @@ test('a wrong password says so; the right one signs in and shows the account', a
   await expect(page.getByText("That email and password don't match.")).toBeVisible();
   await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByText('Signed in as Jay')).toBeVisible();
+  await expect(btn(page, 'Me')).toContainText('Jay');
   await btn(page, 'Me').click();
   await expect(page.getByRole('heading', { name: 'Me' })).toBeVisible();
   await expect(page.getByText(/admin@kachuful\.test/)).toBeVisible();
@@ -56,7 +56,7 @@ test('admin invites someone, who opens the link, makes a player and sets a passw
   await expect(other.getByText('Is this you?')).toBeHidden();
   await other.getByLabel('Name at the table').fill(name);
   await btn(other, 'Set password and start').click();
-  await expect(other.getByText(`Signed in as ${name}`)).toBeVisible();
+  await expect(btn(other, 'Me')).toContainText(name);
   // The link works once.
   await other.goto(url);
   await expect(other.getByText(/used or has expired/)).toBeVisible();
@@ -81,7 +81,7 @@ test('a reset link sets a new password', async ({ page }) => {
 
 test('signing out asks what to keep, then shows Sign in again', async ({ page }) => {
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await btn(page, 'Me').click();
   await btn(page, 'Sign out').click();
   await btn(page, 'Keep games on this phone').click();
@@ -103,7 +103,7 @@ test("an invite to a player's email offers that player, who claims their history
   await page.getByLabel('Password', { exact: true }).fill('ivy1');
   await page.getByLabel('Password again').fill('ivy1');
   await btn(page, 'Set password and start').click();
-  await expect(page.getByText(`Signed in as ${name}`)).toBeVisible();
+  await expect(btn(page, 'Me')).toContainText(name);
 });
 
 test('the admin list shows a pending invite, and a new link replaces it', async ({ page }) => {

@@ -6,7 +6,7 @@ import { btn } from './helpers';
 freshBackend();
 async function signIn(page: Page) {
   await signInAs(page, 'admin');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
 }
 
 test('the global board ranks everyone, and a row opens the server player page', async ({

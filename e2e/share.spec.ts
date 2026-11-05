@@ -8,7 +8,7 @@ const uniq = () => Math.random().toString(36).slice(2, 7);
 
 async function signedInGame(page: Page) {
   await signIn(page, 'riya');
-  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await expect(btn(page, 'Me')).toBeVisible();
   await btn(page, 'New Game').click();
   await btn(page, '3 players').click();
   await btn(page, 'Next').click();
