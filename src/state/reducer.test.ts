@@ -157,6 +157,11 @@ describe('setup and starting a game', () => {
     expect(back.seq).toBeNull();
   });
 
+  it('a game begun this session keeps its sync id through undo', () => {
+    const st = run(playRound(setup(3)), { type: 'bid', v: 1 });
+    expect(run(st, { type: 'undo' }).game.syncId).toBe(st.game.syncId);
+  });
+
   it('dealing over the demo, or over a game with no bids, keeps nothing', () => {
     expect(setup(3).undo).toEqual([]);
     expect(setup(3).toast).toBeNull();

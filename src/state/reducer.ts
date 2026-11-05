@@ -17,6 +17,7 @@ import {
 import { now } from '@/lib/clock';
 import { messages as m } from '@/strings/messages';
 import { parseSnapshot, type SavedScreen, type Session } from './persistence';
+import { CURRENT_SCHEMA } from './migrations';
 import { pushSnapshot } from './undo';
 import type { Action, AppState, SetupState, Toast } from './types';
 
@@ -107,9 +108,11 @@ function freshGame(
   syncId: string,
   t: number,
 ): Game {
+  // Stamped now, not on save: an undo snapshot without it would migrate as a prototype game and get a new id.
   const g: Game = {
     id,
     syncId,
+    schemaVersion: CURRENT_SCHEMA,
     rev: 1,
     createdAt: t,
     updatedAt: t,
