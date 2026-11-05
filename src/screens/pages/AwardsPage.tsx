@@ -30,6 +30,7 @@ import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { PODIUM_BG } from '@/components/ui/podium';
+import { GoldEdge, Medal } from '@/components/ui/Medal';
 import { icon } from '@/components/ui/IconsMore';
 
 const aw = t.hub.awards;
@@ -54,11 +55,10 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
       <button
         type="button"
         onClick={() => actions.open({ screen: 'player', params: { id: a.playerId } })}
-        className="press glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
+        className="press glass relative flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left"
       >
-        <span aria-hidden className="text-30">
-          {ACH.get(a.code)?.emoji}
-        </span>
+        <GoldEdge />
+        <Medal emoji={ACH.get(a.code)?.emoji ?? ''} size="sm" />
         <span className="min-w-0 flex-1">
           <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--accent)]">
             {achName(a.code)}
