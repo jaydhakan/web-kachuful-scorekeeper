@@ -53,18 +53,28 @@ export function AchievementsPage({
   const f = facts ?? device;
   const [who, setWho] = useState<string | null>(id ?? null);
   const signedIn = !!useApp().state.session;
-  const remote = useRemote(signedIn ? 'ach:all' : null, () => ep.achievements(undefined));
+  // Every page: one made-3-in-a-row is one achievement, so a busy month passes the server's 200 per page.
+  const remote = useRemote(signedIn ? 'ach:all' : null, async () => {
+    const items: Earned[] = [];
+    let cursor: string | null = null;
+    do {
+      const page = await ep.achievements(undefined, cursor);
+      items.push(...page.items);
+      cursor = page.nextCursor;
+    } while (cursor);
+    return { items, nextCursor: null };
+  });
   const all = useMemo(
     () => remote.data?.items ?? [...allAchievements(f), ...extra],
     [f, extra, remote.data],
   );
   const players = useMemo(() => [...new Set(all.map((e) => e.playerId))], [all]);
-  const mine = who ? all.filter((e) => e.playerId === who) : all;
-  const by = new Map<string, Earned[]>();
-  for (const e of mine) by.set(e.code, [...(by.get(e.code) ?? []), e]);
   // Signed in, the device holds only some games, so counts come from the server's totals; the ones it has no
   // total for (crew, points gained, winning run) show their levels without a bar rather than a wrong number.
   const profile = useRemote(signedIn && who ? `p:${who}` : null, (o) => ep.player(who!, o));
+  const mine = !who ? all : (profile.data?.achievements ?? all.filter((e) => e.playerId === who));
+  const by = new Map<string, Earned[]>();
+  for (const e of mine) by.set(e.code, [...(by.get(e.code) ?? []), e]);
   const local = useMemo(() => (who && !signedIn ? ladderCounts(f, who) : null), [f, who, signedIn]);
   const tot = profile.data?.totals;
   const counts: Counts | null = !who
