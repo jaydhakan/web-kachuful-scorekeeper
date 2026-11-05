@@ -27,7 +27,7 @@ test('the global board ranks everyone, and a row opens the server player page', 
   await expect(row).toBeVisible();
   await row.click();
   // The page's own rank, not Home's "You're #1…" card underneath.
-  await expect(page.getByText(/(^|· )#\d+ of \d+ all time/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Rank: #\d+ of \d+$/ })).toBeVisible();
   await expect(page.getByText('Breakdown', { exact: true })).toBeVisible();
 });
 

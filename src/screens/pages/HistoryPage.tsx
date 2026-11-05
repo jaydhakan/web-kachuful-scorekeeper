@@ -6,14 +6,7 @@ import { sgnN } from '@/lib/format';
 import type { GameRec } from '@/state/archive';
 import { useArchive } from '@/state/useArchive';
 import { useApp } from '@/state/store';
-import {
-  AvatarStack,
-  Chip,
-  ChipRow,
-  EmptyState,
-  Page,
-  Skeleton,
-} from '@/components/ui/Page';
+import { AvatarStack, Chip, ChipRow, EmptyState, Page, Skeleton } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { RangePick } from '@/components/ui/Stats';
 import { stagger } from '@/components/ui/stagger';

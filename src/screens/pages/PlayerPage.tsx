@@ -23,6 +23,7 @@ import { useApp } from '@/state/store';
 import { useDeviceFacts, whoIs } from '@/state/useFacts';
 import { PhotoPicker } from '@/components/PhotoPicker';
 import { Avatar } from '@/components/ui/Avatar';
+import { HeroStat, HeroStatsSkeleton } from '@/components/ui/HeroStat';
 import { EmptyState, Page, Section } from '@/components/ui/Page';
 import {
   Bars,
@@ -131,6 +132,8 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
     reg?.aliases ??
     []
   ).filter((x) => x !== w.name);
+  const fullName = [w.firstName, w.lastName].filter(Boolean).join(' ');
+  const allGames = f.players.filter((x) => x.playerId === id).length;
   const played = s.rounds > 0 || f.rounds.some((r) => r.playerId === id);
   const accBars = (
     o: Record<string, { made: number; total: number }>,
@@ -158,36 +161,58 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             ))
           : [];
   return (
-    <Page
-      wide
-      label={w.name}
-      eyebrow={
-        [
-          [w.firstName, w.lastName].filter(Boolean).join(' '),
-          rank?.global ? p.rank(rank.global, rank.outOf) : '',
-          aliases.length ? p.alsoPlaysAs(aliases) : '',
-        ]
-          .filter(Boolean)
-          .join(' · ') || p.title
-      }
-      title={
-        <span className="inline-flex items-center gap-3">
-          <Avatar
-            p={{ ...w, photoUrl: rProfile.data?.player.photoUrl }}
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-28"
-          />
-          {w.name}
-        </span>
-      }
-      sub={
-        <div className="flex">
-          <RangePick value={range} onChange={setRange} />
-        </div>
-      }
-    >
-      {reg && mayEdit(reg, state.session?.user) && (
-        <PhotoPicker p={{ ...w, displayName: w.name }} className="mb-5" />
-      )}
+    <Page wide eyebrow={p.title} title={w.name}>
+      {/* Who they are before the numbers: the face large, then where they stand. */}
+      <div className="mb-5 flex flex-col items-center gap-3 text-center">
+        <Avatar
+          p={{ ...w, photoUrl: rProfile.data?.player.photoUrl }}
+          className="grid h-24 w-24 place-items-center rounded-full text-52"
+        />
+        {(fullName || aliases.length > 0) && (
+          <p className="text-14 text-[var(--tx2)] [overflow-wrap:anywhere]">
+            {[fullName, aliases.length ? p.alsoPlaysAs(aliases) : ''].filter(Boolean).join(' · ')}
+          </p>
+        )}
+        {reg && mayEdit(reg, state.session?.user) && (
+          <PhotoPicker p={{ ...w, displayName: w.name }} className="items-center" />
+        )}
+        {signedIn && rProfile.data == null ? (
+          <div className="w-full max-w-[28rem]">
+            <HeroStatsSkeleton />
+          </div>
+        ) : (
+          <div className="grid w-full max-w-[28rem] grid-cols-3 gap-2">
+            <HeroStat
+              label={t.hub.account.rank}
+              said={t.hub.account.rankSaid(rank?.global ?? null, rank?.outOf ?? 0)}
+              value={rank?.global ? `#${rank.global}` : '–'}
+              sub={rank?.global ? t.hub.account.rankOf(rank.outOf) : t.hub.account.unranked}
+              onClick={() => actions.open({ screen: 'leaderboard' })}
+            />
+            <HeroStat
+              label={t.hub.account.games}
+              said={t.hub.account.gamesSaid(rProfile.data?.totals.games ?? allGames)}
+              value={rProfile.data?.totals.games ?? allGames}
+              onClick={() => actions.open({ screen: 'history' })}
+            />
+            <HeroStat
+              label={t.hub.account.achievements}
+              said={t.hub.account.achievementsSaid(unlocked, ACHIEVEMENTS.length)}
+              value={
+                <span className="inline-flex items-center gap-1.5">
+                  <ProgressRing share={unlocked / ACHIEVEMENTS.length} className="h-6 w-6" />
+                  {unlocked}
+                </span>
+              }
+              sub={`/ ${ACHIEVEMENTS.length}`}
+              onClick={() => actions.open({ screen: 'achievements', params: { id } })}
+            />
+          </div>
+        )}
+      </div>
+      <div className="mb-5 flex">
+        <RangePick value={range} onChange={setRange} />
+      </div>
       {!played ? (
         <EmptyState icon="cards" title={p.notFound} />
       ) : (

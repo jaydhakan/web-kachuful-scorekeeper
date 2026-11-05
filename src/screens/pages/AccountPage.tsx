@@ -24,6 +24,7 @@ import { ErrorState, Page, Section } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { ProgressRing } from '@/components/ui/Stats';
+import { HeroStat, HeroStatsSkeleton } from '@/components/ui/HeroStat';
 import { authError } from './AuthPages';
 import { InboxList } from './InboxList';
 import { t } from '@/strings';
@@ -249,14 +250,8 @@ function MeStats({ id }: { id: string }) {
   if (r.data == null) {
     if (r.error) return <ErrorState msg={authError(r.error)} onRetry={r.reload} />;
     return (
-      <div
-        aria-busy="true"
-        aria-label={t.hub.common.loading}
-        className="mb-3 grid grid-cols-3 gap-2"
-      >
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-[5.5rem] rounded-2xl bg-ov/[.05]" />
-        ))}
+      <div className="mb-3">
+        <HeroStatsSkeleton />
       </div>
     );
   }
@@ -270,19 +265,22 @@ function MeStats({ id }: { id: string }) {
         </p>
       )}
       <div className="grid grid-cols-3 gap-2">
-        <Stat
+        <HeroStat
           label={ac.rank}
+          said={ac.rankSaid(rank.global, rank.outOf)}
           value={rank.global ? `#${rank.global}` : '–'}
           sub={rank.global ? ac.rankOf(rank.outOf) : ac.unranked}
           onClick={() => actions.open({ screen: 'leaderboard' })}
         />
-        <Stat
+        <HeroStat
           label={ac.games}
+          said={ac.gamesSaid(totals.games)}
           value={totals.games}
           onClick={() => actions.open({ screen: 'history' })}
         />
-        <Stat
+        <HeroStat
           label={ac.achievements}
+          said={ac.achievementsSaid(unlocked, ACHIEVEMENTS.length)}
           value={
             <span className="inline-flex items-center gap-1.5">
               <ProgressRing share={unlocked / ACHIEVEMENTS.length} className="h-6 w-6" />
@@ -294,30 +292,6 @@ function MeStats({ id }: { id: string }) {
         />
       </div>
     </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  sub,
-  onClick,
-}: {
-  label: string;
-  value: ReactNode;
-  sub?: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="press glass flex min-h-[5.5rem] min-w-0 flex-col items-center justify-center gap-0.5 px-1 py-2 text-center"
-    >
-      <span className="disp text-24 font-extrabold leading-none tabular-nums">{value}</span>
-      {sub && <span className="text-13 text-[var(--tx2)]">{sub}</span>}
-      <span className="text-13 font-bold text-[var(--tx2)]">{label}</span>
-    </button>
   );
 }
 

@@ -394,6 +394,10 @@ export const hub = {
     unranked: 'Not ranked',
     games: 'Games',
     achievements: 'Achievements',
+    rankSaid: (rank: number | null, outOf: number) =>
+      rank ? `Rank: #${rank} of ${outOf}` : 'Rank: not ranked',
+    gamesSaid: (n: number) => `Games: ${n}`,
+    achievementsSaid: (n: number, of: number) => `Achievements: ${n} of ${of}`,
     viewPlayer: 'View my player page',
     changePassword: 'Change password',
     current: 'Current password',
