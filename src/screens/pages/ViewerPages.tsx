@@ -21,6 +21,7 @@ import { gameLine } from './HistoryPage';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
+import { Dot } from '@/components/ui/Dot';
 
 const lv = t.hub.live;
 const QUIET_MS = 2 * 60e3;
@@ -174,7 +175,9 @@ export function LivePage({ token }: { token: string }) {
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-15">
               {g.players.map((p, i) => (
                 <li key={p.id} className="flex items-center gap-2">
-                  <span aria-hidden>{p.emoji}</span>
+                  <span aria-hidden className="inline-flex">
+                    <Dot p={p} s={22} />
+                  </span>
                   <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
                     {p.name}
                     {i === r.dealerIndex && (

@@ -28,8 +28,11 @@ import { stagger } from '@/components/ui/stagger';
 import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { useDeskKeys } from './useDeskKeys';
 import { t } from '@/strings';
-import { Avatar } from '@/components/ui/Avatar';
+import { Avatar, AvatarFill } from '@/components/ui/Avatar';
 import { seatColor } from '@/theme/palette';
+
+// A seat's face fills its round button; the photo takes this layer's rounding.
+const FILL = 'absolute inset-0 grid place-items-center rounded-[inherit]';
 
 /** SPRING, typed for the imperative animate(). */
 const SWAP = { type: 'spring', stiffness: 420, damping: 38, mass: 0.9 } as const;
@@ -371,10 +374,12 @@ export function DeskSetup() {
                         disabled={!s}
                         whileTap={PRESS_SM}
                         onClick={() => actions.openSheet({ type: 'avatar', k })}
-                        className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 text-24 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'}`}
+                        className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 text-24 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'}`}
                         style={s ? { background: seatColor(s.color) } : undefined}
                       >
-                        <span aria-hidden>{s?.emoji ?? ''}</span>
+                        <span aria-hidden className={FILL}>
+                          {s && <AvatarFill p={s} />}
+                        </span>
                       </m.button>
                       <input
                         ref={(el) => {
@@ -460,10 +465,12 @@ export function DeskSetup() {
                     onClick={() => actions.setupPatch({ dealer: k })}
                     animate={{ scale: k === shown ? 1.08 : 1 }}
                     transition={SPRING_POP}
-                    className={`grid h-12 w-12 place-items-center rounded-full border-2 text-26 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'} ${k === shown ? 'shadow-[0_0_0_3px_var(--gold),0_0_22px_color-mix(in_srgb,var(--medal-gold)_55%,transparent)]' : s ? 'opacity-75' : ''}`}
+                    className={`relative grid h-12 w-12 place-items-center rounded-full border-2 text-26 disabled:cursor-default ${s ? 'border-ov/20' : 'border-dashed border-ov/30 bg-ov/[.04]'} ${k === shown ? 'shadow-[0_0_0_3px_var(--gold),0_0_22px_color-mix(in_srgb,var(--medal-gold)_55%,transparent)]' : s ? 'opacity-75' : ''}`}
                     style={s ? { background: seatColor(s.color) } : undefined}
                   >
-                    <span aria-hidden>{s?.emoji ?? k + 1}</span>
+                    <span aria-hidden className={FILL}>
+                      {s ? <AvatarFill p={s} /> : k + 1}
+                    </span>
                   </m.button>
                 ))}
               </div>

@@ -11,9 +11,10 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { stagger } from '@/components/ui/stagger';
 import { icon } from '@/components/ui/IconsMore';
-import { seatColor } from '@/theme/palette';
 import { authError } from '../AuthPages';
 import { ad, adminError, allPlayers, Chevron, LinkBox, useLoad } from './shared';
+import { PlayerTag } from '@/components/ui/PlayerTag';
+import { Avatar } from '@/components/ui/Avatar';
 
 const keyOf = (r: AdminUserRow) => r.user?.id ?? 'invite:' + r.invite?.email;
 const emailOf = (r: AdminUserRow) => r.user?.email ?? r.invite?.email ?? '';
@@ -35,13 +36,13 @@ function Row({ r, i, onOpen }: { r: AdminUserRow; i: number; onOpen: () => void 
         onClick={onOpen}
         className="press glass flex min-h-16 w-full items-center gap-3 px-4 py-2 text-left"
       >
-        <span
-          aria-hidden
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
-          style={{ background: r.player ? seatColor(r.player.color) : 'transparent' }}
-        >
-          {r.player?.emoji ?? icon('envelope')}
-        </span>
+        {r.player ? (
+          <Avatar p={r.player} />
+        ) : (
+          <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-full">
+            {icon('envelope')}
+          </span>
+        )}
         <span className="min-w-0 flex-1">
           <span className="block text-16 font-bold [overflow-wrap:anywhere]">{emailOf(r)}</span>
           <span className="block text-13 text-[var(--tx2)]">
@@ -212,7 +213,7 @@ export function People() {
                       .filter((p) => !p.linkedUserId)
                       .map((p) => (
                         <Chip key={p.id} on={pid === p.id} onClick={() => setPid(p.id)}>
-                          {p.emoji} {p.displayName}
+                          <PlayerTag p={p} name={p.displayName} />
                         </Chip>
                       ))}
                 </ChipRow>

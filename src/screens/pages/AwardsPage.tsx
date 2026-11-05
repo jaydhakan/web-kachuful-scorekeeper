@@ -35,6 +35,7 @@ import { PODIUM_BG } from '@/components/ui/podium';
 import { Medal } from '@/components/ui/Medal';
 import { Edge } from '@/components/ui/Edge';
 import { icon } from '@/components/ui/IconsMore';
+import { PlayerTag } from '@/components/ui/PlayerTag';
 
 const aw = t.hub.awards;
 const isFinal = (v: { final: boolean }) => v.final;
@@ -67,7 +68,7 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
             {achName(a.code)}
           </span>
           <span className="block text-17 font-bold [overflow-wrap:anywhere]">
-            {w.emoji} {w.name}
+            <PlayerTag p={w} name={w.name} />
           </span>
         </span>
         <span className="disp text-20 font-extrabold">{awardValue(a)}</span>

@@ -16,6 +16,8 @@ import { useRemote } from '@/sync/useRemote';
 import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
+import { PlayerTag } from '@/components/ui/PlayerTag';
+import { Avatar } from '@/components/ui/Avatar';
 
 const wr = t.hub.wrapped;
 
@@ -29,6 +31,8 @@ interface Slide {
 
 // Slide art: the size of the 72px emoji it replaced.
 const ART = 'h-[4.5rem] w-[4.5rem] text-[var(--accent)]';
+// The people slides show the player's own face at the same size.
+const FACE = 'grid h-24 w-24 place-items-center rounded-full text-52';
 
 function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
   const out: Slide[] = [
@@ -69,14 +73,14 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
       kicker: wr.slides.nemesis,
       big: whoIs(f, w.nemesis.playerId).name,
       sub: `${w.nemesis.losses}×`,
-      emoji: whoIs(f, w.nemesis.playerId).emoji,
+      emoji: <Avatar p={whoIs(f, w.nemesis.playerId)} className={FACE} />,
     });
   if (w.partner)
     out.push({
       kicker: wr.slides.partner,
       big: whoIs(f, w.partner.playerId).name,
       sub: t.hub.player.games_(w.partner.games),
-      emoji: whoIs(f, w.partner.playerId).emoji,
+      emoji: <Avatar p={whoIs(f, w.partner.playerId)} className={FACE} />,
     });
   if (w.biggestRound)
     out.push({
@@ -141,7 +145,7 @@ export function WrappedPage({
           <ChipRow label={t.hub.awards.pickPlayer}>
             {ids.map((id) => (
               <Chip key={id} on={who === id} onClick={() => (setWho(id), setI(0))}>
-                {whoIs(f, id).emoji} {whoIs(f, id).name}
+                <PlayerTag p={whoIs(f, id)} name={whoIs(f, id).name} />
               </Chip>
             ))}
           </ChipRow>

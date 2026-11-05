@@ -15,6 +15,7 @@ import { achievements as names } from '@/strings/achievements';
 import { t } from '@/strings';
 import { Medal } from './ui/Medal';
 import { Edge } from './ui/Edge';
+import { PlayerTag } from './ui/PlayerTag';
 
 // Both hooks read every achievement on the device; worked out once per set of facts.
 const cache = new WeakMap<Facts, Earned[]>();
@@ -82,7 +83,7 @@ export function AchievementReel({ g, max = 12 }: { g: Game; max?: number }) {
                 {names[e.code]?.name ?? e.code}
               </span>
               <span className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
-                {flipped ? names[e.code]?.how : `${who.emoji} ${who.name}`}
+                {flipped ? names[e.code]?.how : <PlayerTag p={who} name={who.name} s={18} />}
               </span>
             </button>
           </m.li>

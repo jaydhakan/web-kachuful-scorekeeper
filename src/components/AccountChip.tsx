@@ -3,7 +3,7 @@ import { useApp } from '@/state/store';
 import { SyncDot } from './SyncDot';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';
-import { seatColor } from '@/theme/palette';
+import { Avatar } from './ui/Avatar';
 import { Icon } from './ui/Icons';
 
 /** Top corner of Home: the account (with its sync state) or Sign in. Placed by `className` (absolute). */
@@ -20,13 +20,13 @@ export function AccountChip({ className = '' }: { className?: string }) {
     >
       {s ? (
         <>
-          <span
-            aria-hidden
-            className="grid h-8 w-8 place-items-center rounded-full text-18"
-            style={{ background: s.player ? seatColor(s.player.color) : 'transparent' }}
-          >
-            {s.player?.emoji ?? Icon.user}
-          </span>
+          {s.player ? (
+            <Avatar p={s.player} className="grid h-8 w-8 place-items-center rounded-full text-18" />
+          ) : (
+            <span aria-hidden className="grid h-8 w-8 place-items-center rounded-full text-18">
+              {Icon.user}
+            </span>
+          )}
           <span aria-hidden>{s.player?.displayName ?? t.hub.nav.account}</span>
           <SyncDot className="absolute -right-1 -top-1" />
         </>

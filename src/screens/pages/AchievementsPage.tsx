@@ -26,6 +26,7 @@ import { useRemote } from '@/sync/useRemote';
 import { useLadderCounts } from '@/components/useLadderCounts';
 import { t } from '@/strings';
 import { Icon } from '@/components/ui/Icons';
+import { PlayerTag } from '@/components/ui/PlayerTag';
 
 const a = t.hub.ach;
 const GROUPS: AchievementGroup[] = ['round', 'game', 'career', 'daily', 'season'];
@@ -104,7 +105,7 @@ export function AchievementsPage({
             </Chip>
             {players.slice(0, 16).map((p) => (
               <Chip key={p} on={who === p} onClick={() => setWho(p)}>
-                {whoIs(f, p).emoji} {whoIs(f, p).name}
+                <PlayerTag p={whoIs(f, p)} name={whoIs(f, p).name} />
               </Chip>
             ))}
           </ChipRow>
