@@ -81,11 +81,16 @@ export function PlayersPage({ list }: { list?: Person[] }) {
       ) : (
         <ul className="flex flex-col gap-2">
           {shown.slice(0, 200).map((p, i) => (
-            <m.li key={p.id} {...stagger(Math.min(i, 10))} className="flex items-stretch gap-2">
+            // One card: the row opens the player, and a small edit button sits inside it at the end.
+            <m.li
+              key={p.id}
+              {...stagger(Math.min(i, 10))}
+              className="glass flex items-center gap-1 pr-2"
+            >
               <button
                 type="button"
                 onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
-                className="press glass flex min-h-16 min-w-0 flex-1 items-center gap-3 px-4 py-2 text-left"
+                className="press flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-[inherit] py-2 pl-4 text-left"
               >
                 <Avatar
                   p={p}
@@ -110,7 +115,7 @@ export function PlayersPage({ list }: { list?: Person[] }) {
                   type="button"
                   onClick={() => setEditing(p)}
                   aria-label={pp.edit(p.displayName)}
-                  className="press glass grid min-h-16 w-12 shrink-0 place-items-center text-[var(--accent)]"
+                  className="press grid h-11 w-11 shrink-0 place-items-center rounded-full text-[var(--tx2)] [&_svg]:h-5 [&_svg]:w-5"
                 >
                   {Icon.edit}
                 </button>
