@@ -806,6 +806,84 @@ on(
   },
   'admin',
 );
+const ownedLive = (id: string) => liveGames().filter((g) => g.ownerId === id);
+on(
+  'GET',
+  '/api/admin/users/:id/deletion-preview',
+  ({ m }) => {
+    const u = db.users.get(m[0]);
+    if (!u) throw err(404, 'not_found');
+    const owned = ownedLive(u.id);
+    const others = new Set(
+      owned
+        .flatMap((g) => g.payload.players.map((p) => p.playerId!))
+        .filter((p) => p !== u.playerId),
+    );
+    return {
+      games: owned.length,
+      rounds: owned.reduce(
+        (a, g) => a + g.payload.rounds.filter((r) => r.phase === 'done').length,
+        0,
+      ),
+      otherPlayers: others.size,
+      sessions: [...db.sessions.values()].filter((id) => id === u.id).length,
+      invites: [...db.invites.values()].filter((i) => i.email === u.email).length,
+      hasPhoto: !!u.playerId && db.photos.has(u.playerId),
+      playerInOthersGames: liveGames().some(
+        (g) => g.ownerId !== u.id && g.payload.players.some((p) => p.playerId === u.playerId),
+      ),
+    };
+  },
+  'admin',
+);
+on(
+  'DELETE',
+  '/api/admin/users/:id/games',
+  ({ m }) => {
+    const u = db.users.get(m[0]);
+    if (!u) throw err(404, 'not_found');
+    const owned = ownedLive(u.id);
+    owned.forEach(dropGame);
+    recompute();
+    return { games: owned.length };
+  },
+  'admin',
+);
+on(
+  'DELETE',
+  '/api/admin/users/:id',
+  ({ m, me }) => {
+    const u = db.users.get(m[0]);
+    if (!u) throw err(404, 'not_found');
+    if (u.id === me!.id) throw err(409, 'cannot_delete_self');
+    if (u.role === 'admin') throw err(409, 'cannot_delete_admin');
+    ownedLive(u.id).forEach(dropGame);
+    for (const [t, id] of db.sessions) if (id === u.id) db.sessions.delete(t);
+    for (const [t, i] of db.invites) if (i.email === u.email) db.invites.delete(t);
+    const p = u.playerId ? db.players.get(u.playerId) : undefined;
+    if (p) {
+      const used = liveGames().some((g) => g.payload.players.some((s) => s.playerId === p.id));
+      if (used)
+        Object.assign(p, {
+          displayName: 'Deleted player',
+          email: null,
+          firstName: null,
+          lastName: null,
+          linkedUserId: null,
+          photoUrl: null,
+          anonymised: true,
+          updatedAt: Date.now(),
+        });
+      else db.players.delete(p.id);
+      db.photos.delete(p.id);
+    }
+    db.users.delete(u.id);
+    db.version++;
+    recompute();
+    return null;
+  },
+  'admin',
+);
 on(
   'POST',
   '/api/admin/players/:id/merge',
@@ -1107,6 +1185,14 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
     if (prev.hash === h) return { rev: prev.rev, earned: [] };
     if (w.rev <= prev.rev) throw err(409, 'stale', { server: prev.payload });
   }
+  // A game with no round done leaves no trace: nothing stored, and an older copy goes.
+  if (!w.rounds.some((r) => r.phase === 'done')) {
+    if (prev) {
+      dropGame(prev);
+      recompute();
+    }
+    return { rev: w.rev, earned: [] };
+  }
   if (w.players.some((p) => !p.playerId))
     throw err(422, 'invalid_game', { reason: 'players', roundIndex: null });
   const unknown = w.players.map((p) => p.playerId ?? '').filter((id) => !db.players.has(id));
@@ -1181,10 +1267,8 @@ on('GET', '/api/games/:id', ({ m }) => {
     achievements: [...db.achievements.values()].filter((a) => a.gameId === m[0]),
   };
 });
-on('DELETE', '/api/games/:id', ({ m, me }) => {
-  const r = db.games.get(m[0]);
-  if (!r || r.deletedAt) throw err(404, 'not_found');
-  if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
+/** Soft delete: links go, viewers are told, boards no longer count it. */
+function dropGame(r: GameRec) {
   r.deletedAt = r.updatedAt = Date.now();
   for (const k of ['live', 'recap'] as const)
     if (r.links[k]) {
@@ -1193,6 +1277,12 @@ on('DELETE', '/api/games/:id', ({ m, me }) => {
       delete r.links[k];
     }
   db.version++;
+}
+on('DELETE', '/api/games/:id', ({ m, me }) => {
+  const r = db.games.get(m[0]);
+  if (!r || r.deletedAt) throw err(404, 'not_found');
+  if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
+  dropGame(r);
   recompute();
   return null;
 });

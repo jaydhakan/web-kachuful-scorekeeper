@@ -46,6 +46,8 @@ export interface Player {
   createdBy: string | null;
   linkedUserId: string | null;
   mergedInto: string | null;
+  /** The account behind it was deleted; other people's games keep it, nameless. Missing from an older server. */
+  anonymised?: boolean;
   /** Other names the same person plays under (one email, one person); missing from an older server. */
   aliases?: PlayerAlias[];
   createdAt: number;
@@ -283,6 +285,18 @@ export type WrappedResp = Omit<Wrapped, 'totals' | 'nemesis' | 'partner'> & {
   nemesis: (NonNullable<Wrapped['nemesis']> & { player: PlayerSummary }) | null;
   partner: (NonNullable<Wrapped['partner']> & { player: PlayerSummary }) | null;
 };
+
+/** What deleting an account, or only its games, removes (`GET /api/admin/users/{id}/deletion-preview`). */
+export interface DeletionPreview {
+  games: number;
+  rounds: number;
+  otherPlayers: number;
+  sessions: number;
+  invites: number;
+  hasPhoto: boolean;
+  /** The account's player sits in games others scored: it stays, as "Deleted player". */
+  playerInOthersGames: boolean;
+}
 
 export interface AdminOverview {
   users: number;

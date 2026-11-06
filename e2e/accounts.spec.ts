@@ -174,3 +174,38 @@ test('the admin opens on what needs attention, and compares a likely duplicate s
     `also ${base}`,
   );
 });
+
+test('the admin deletes an account after seeing what goes and typing the email', async ({
+  page,
+  browser,
+}) => {
+  // A throwaway account, so the shared demo accounts stay.
+  const email = `${uniq()}@example.com`;
+  await page.goto('/');
+  const token = await makeInvite(page, email);
+  const other = await browser.newPage();
+  await other.goto(`/?invite=${token}`);
+  await other.getByLabel('Password', { exact: true }).fill('abc');
+  await other.getByLabel('Password again').fill('abc');
+  await other.getByLabel('Name at the table').fill(uniq().slice(0, 10));
+  await btn(other, 'Set password and start').click();
+  await expect(btn(other, 'Me')).toBeVisible();
+  await other.close();
+
+  await signIn(page, 'admin');
+  await btn(page, 'Me').click();
+  await btn(page, 'Admin').click();
+  await adminTab(page, 'People');
+  await page.getByRole('button', { name: new RegExp(email.replace('.', '\\.')) }).click();
+  await btn(page, 'Delete account').click();
+  await expect(page.getByText('This removes')).toBeVisible();
+  await expect(page.getByText('Their account, email, password and settings')).toBeVisible();
+  const go = page.getByRole('dialog').getByRole('button', { name: 'Delete account' });
+  await expect(go).toBeDisabled();
+  await page.getByLabel('Email, to confirm').fill(email);
+  await go.click();
+  await expect(page.getByText(`${email} was deleted`)).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: new RegExp(email.replace('.', '\\.')) }),
+  ).toHaveCount(0);
+});

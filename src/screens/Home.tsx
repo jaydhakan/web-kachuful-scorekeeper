@@ -62,7 +62,7 @@ export function Home() {
   const demo = g.id === 'demo';
   return (
     <div className={ROOT}>
-      {/* Opposite the account chip, so Account, Sign in and Start fresh are reachable from Home. */}
+      {/* Opposite the account chip, so the menu, Me and Sign in are reachable from Home. */}
       <IconButton
         chrome
         label={t.round.menu}

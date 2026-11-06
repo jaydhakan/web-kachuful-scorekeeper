@@ -1,8 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
-import { AppProvider } from '@/state/store';
-import { FreshPage } from './FreshPage';
 // The shell and the pages it opens are lazy chunks; loaded up front so transforming them can't outlast a findBy.
 import '@/components/PhoneShell';
 import '@/screens/pages/Pages';
@@ -168,35 +166,13 @@ describe('editing a player from the Players list (signed out)', () => {
   });
 });
 
-describe('Start fresh (signed out)', () => {
-  it('asks first, then clears this device and reloads', async () => {
-    await seed();
-    const assign = vi.fn();
-    vi.stubGlobal('location', { ...window.location, assign });
-    const u = setup();
-    render(
-      <AppProvider>
-        <FreshPage />
-      </AppProvider>,
-    );
-    await u.click(await screen.findByRole('button', { name: 'Delete everything' }));
-    expect(await screen.findByText('Delete everything and start fresh?')).toBeInTheDocument();
-    expect(archive.games().length).toBe(1);
-    await u.click(screen.getByRole('button', { name: 'Delete' }));
-    await waitFor(() => expect(assign).toHaveBeenCalledWith('/'));
-    expect(archive.all('games')).toEqual([]);
-    vi.unstubAllGlobals();
-  });
-});
-
 describe('the menu on Home', () => {
-  it('opens from the hamburger and leads to Start fresh', async () => {
+  it('opens from the hamburger; deleting everything is left to the admin', async () => {
     const u = setup();
     render(<App />);
     await u.click((await screen.findAllByRole('button', { name: 'Menu' }))[0]);
     const menu = await screen.findByRole('dialog', { name: 'Menu' });
     expect(within(menu).getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
-    await u.click(within(menu).getByRole('button', { name: 'Start fresh' }));
-    expect(await screen.findByRole('button', { name: 'Delete everything' })).toBeInTheDocument();
+    expect(within(menu).queryByRole('button', { name: 'Start fresh' })).toBeNull();
   });
 });

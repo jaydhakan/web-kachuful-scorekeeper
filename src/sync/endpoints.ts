@@ -5,6 +5,7 @@ import type {
   AdminOverview,
   AdminUserRow,
   AuthResp,
+  DeletionPreview,
   Bootstrap,
   Daily,
   GameSummary,
@@ -87,6 +88,11 @@ export const ep = {
   merge: (id: string, intoId: string, keep?: MergeKeep) =>
     post<{ player: Player }>(`/admin/players/${id}/merge`, { intoId, ...(keep && { keep }) }),
   overview: () => get<AdminOverview>('/admin/overview'),
+  deletionPreview: (userId: string) =>
+    get<DeletionPreview>(`/admin/users/${userId}/deletion-preview`),
+  clearUserGames: (userId: string) =>
+    call<{ games: number }>('DELETE', `/admin/users/${userId}/games`).then((r) => r.data),
+  deleteUser: (userId: string) => del(`/admin/users/${userId}`),
 
   // §6.5 players and games
   players: (updatedSince?: number, cursor?: string | null) =>
@@ -137,9 +143,6 @@ export const ep = {
   game: (id: string) =>
     get<{ game: WireGame; summary: GameSummary; achievements: Achievement[] }>(`/games/${id}`),
   deleteGame: (id: string) => del(`/games/${id}`),
-  /** A fresh start: deletes the games this account scored and the players it added that nobody else uses. */
-  deleteMyData: () =>
-    call<{ games: number; players: number }>('DELETE', '/me/data').then((r) => r.data),
   link: (id: string, kind: 'live' | 'recap') =>
     post<{ token: string; url: string; qrSvgUrl: string }>(`/games/${id}/links`, { kind }),
   revokeLink: (id: string, kind: 'live' | 'recap') => del(`/games/${id}/links/${kind}`),

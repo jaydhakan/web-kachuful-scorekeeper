@@ -15,6 +15,7 @@ import { authError } from '../AuthPages';
 import { ad, adminError, allPlayers, Chevron, LinkBox, useLoad } from './shared';
 import { PlayerTag } from '@/components/ui/PlayerTag';
 import { Avatar } from '@/components/ui/Avatar';
+import { DeleteUser, type DeleteKind } from './DeleteUser';
 
 const keyOf = (r: AdminUserRow) => r.user?.id ?? 'invite:' + r.invite?.email;
 const emailOf = (r: AdminUserRow) => r.user?.email ?? r.invite?.email ?? '';
@@ -73,6 +74,7 @@ export function People() {
   const [err, setErr] = useState('');
   const [open, setOpen] = useState<AdminUserRow | null>(null);
   const [off, setOff] = useState<AdminUserRow | null>(null);
+  const [kill, setKill] = useState<{ kind: DeleteKind; r: AdminUserRow } | null>(null);
   if (rows instanceof Error) return <ErrorState msg={authError(rows)} onRetry={reload} />;
   if (!rows) return <Skeleton rows={4} />;
   const send = async (e: FormEvent) => {
@@ -180,6 +182,25 @@ export function People() {
                 >
                   {open.active ? ad.deactivate : ad.activate}
                 </PrimaryButton>
+                {open.user.role !== 'admin' && (
+                  <section aria-label={ad.danger} className="mt-4 flex flex-col gap-2">
+                    <h3 className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--neg)]">
+                      {ad.danger}
+                    </h3>
+                    <PrimaryButton
+                      tone="glass"
+                      onClick={() => (setKill({ kind: 'games', r: open }), setOpen(null))}
+                    >
+                      {ad.clearGames}
+                    </PrimaryButton>
+                    <PrimaryButton
+                      tone="danger"
+                      onClick={() => (setKill({ kind: 'account', r: open }), setOpen(null))}
+                    >
+                      {ad.deleteUser}
+                    </PrimaryButton>
+                  </section>
+                )}
               </>
             )}
           </div>
@@ -232,6 +253,19 @@ export function People() {
         >
           <LinkBox {...link} />
         </Sheet>
+      )}
+      {kill?.r.user && (
+        <DeleteUser
+          kind={kill.kind}
+          userId={kill.r.user.id}
+          email={kill.r.user.email}
+          onClose={() => setKill(null)}
+          onDone={(msg) => {
+            setKill(null);
+            actions.say(msg);
+            reload();
+          }}
+        />
       )}
       <AnimatePresence>
         {off && (

@@ -212,11 +212,13 @@ describe('games', () => {
     expect(isTombstone(page.items[0])).toBe(true);
   });
 
-  it('starts fresh: deletes my games and the players I added, and says how many', async () => {
-    const calls = serve(200, { games: 3, players: 2 });
-    expect(await ep.deleteMyData()).toEqual({ games: 3, players: 2 });
-    const [url, init] = calls()[0];
-    expect([url, init.method]).toEqual(['/api/me/data', 'DELETE']);
+  it("admin: previews, clears a user's games and deletes the user", async () => {
+    let calls = serve(200, { games: 3 });
+    expect(await ep.clearUserGames('u1')).toEqual({ games: 3 });
+    expect([calls()[0][0], calls()[0][1].method]).toEqual(['/api/admin/users/u1/games', 'DELETE']);
+    calls = serve(204);
+    await ep.deleteUser('u1');
+    expect([calls()[0][0], calls()[0][1].method]).toEqual(['/api/admin/users/u1', 'DELETE']);
   });
 
   it('upload outcomes: stale with the server copy, gone, unknown players, invalid games', async () => {
