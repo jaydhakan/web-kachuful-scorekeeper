@@ -27,6 +27,7 @@ import { ProgressRing } from '@/components/ui/Stats';
 import { HeroStat, HeroStatsSkeleton } from '@/components/ui/HeroStat';
 import { authError } from './AuthPages';
 import { InboxList } from './InboxList';
+import { ClaimsList, useClaims } from './ClaimsList';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 
@@ -49,7 +50,10 @@ export function AccountPage() {
   const s = state.session;
   const status = useSyncStatus();
   const me = useArchive((a) => (s?.player ? a.get('players', s.player.id) : undefined));
-  const inbox = useArchive((a) => a.all('inbox').length);
+  const local = useArchive((a) => a.all('inbox').length);
+  const claims = useClaims(!!state.session);
+  const asks = claims.data?.items ?? [];
+  const inbox = local + asks.length;
   const th = useThemeState();
   const [open, setOpen] = useState<Open>(null);
   const [ask, setAsk] = useState(false);
@@ -138,6 +142,11 @@ export function AccountPage() {
       </Section>
       {inbox > 0 && (
         <Section title={ac.inbox(inbox)}>
+          {asks.length > 0 && (
+            <div className={local ? 'mb-2' : ''}>
+              <ClaimsList items={asks} onDone={claims.reload} />
+            </div>
+          )}
           <InboxList />
         </Section>
       )}
