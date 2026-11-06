@@ -114,6 +114,8 @@
   --art-back-mini: url('../../assets/themes/emerald-gilt/back-mini.webp');
   --art-trump-hearts: url('../../assets/themes/emerald-gilt/queen-hearts.webp');
   --art-trump-clubs: url('../../assets/themes/emerald-gilt/king-clubs.webp');
+  --art-trump-spades: url('../../assets/themes/emerald-gilt/king-spades.webp');
+  --art-trump-diamonds: url('../../assets/themes/emerald-gilt/king-diamonds.webp');
   /* Three golds and the emerald: the winner's confetti in place of the players' colours (themeConfetti). */
   --confetti-1: #ebd08c;
   --confetti-2: #c9a24e;
@@ -317,14 +319,10 @@
   border-radius: var(--r-sm);
 }
 /* Only once the art is decoded (src/theme/art.ts): until then, or offline, the symbol shows instead of a blank face. */
-[data-theme='emerald-gilt'][data-art-ready~='emerald-gilt']
-  .trump-face:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-glyph {
+[data-theme='emerald-gilt'][data-art-ready~='emerald-gilt'] .trump-face > .trump-glyph {
   opacity: 0;
 }
-[data-theme='emerald-gilt']
-  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-mini {
+[data-theme='emerald-gilt'] .trump-mark > .trump-mini {
   display: block;
   position: absolute;
   left: 50%;
@@ -338,9 +336,7 @@
     0 0 0 1px var(--glass-b),
     0 4px 10px -4px var(--drop);
 }
-[data-theme='emerald-gilt']
-  .trump-mark:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-glyph {
+[data-theme='emerald-gilt'] .trump-mark > .trump-glyph {
   position: relative;
   z-index: 1;
   translate: 0.45em 0.55em;
@@ -349,18 +345,14 @@
     0 0 0.12em var(--bg),
     0 0 0.3em var(--bg);
 }
-[data-theme='emerald-gilt']
-  :has(> .trump-mark:is([data-suit='hearts'], [data-suit='clubs']))
-  > .suit-ring {
+[data-theme='emerald-gilt'] :has(> .trump-mark) > .suit-ring {
   display: none;
 }
 /* Beside a number in one line (the desk's Coming up), the card stays within the line. */
 [data-theme='emerald-gilt'] .trump-mark.is-inline > .trump-mini {
   width: 0.72em;
 }
-[data-theme='emerald-gilt']
-  .trump-mark.is-inline:is([data-suit='hearts'], [data-suit='clubs'])
-  > .trump-glyph {
+[data-theme='emerald-gilt'] .trump-mark.is-inline > .trump-glyph {
   translate: 0.32em 0.22em;
 }
 [data-theme='emerald-gilt'] .sq-card {

@@ -106,6 +106,8 @@
   --art-back-mini: none;
   --art-trump-hearts: none;
   --art-trump-clubs: none;
+  --art-trump-spades: none;
+  --art-trump-diamonds: none;
   --reveal-hold: 0ms;
   --name-frame: none;
   --fan-anim: deal-fan;

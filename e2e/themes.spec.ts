@@ -108,7 +108,7 @@ test('emerald-gilt: the deck art is fetched when the theme is shown, before any 
   await page.evaluate(() => localStorage.setItem('kf.theme', 'emerald-gilt'));
   await page.reload();
   await expect(page.locator('html[data-art-ready~="emerald-gilt"]')).toBeAttached();
-  expect(art.length).toBe(4);
+  expect(art.length).toBe(6);
 });
 
 test('other themes never fetch deck art', async ({ page }) => {

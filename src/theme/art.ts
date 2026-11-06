@@ -1,6 +1,8 @@
 import back from '@/assets/themes/emerald-gilt/back.webp';
 import backMini from '@/assets/themes/emerald-gilt/back-mini.webp';
 import kingClubs from '@/assets/themes/emerald-gilt/king-clubs.webp';
+import kingDiamonds from '@/assets/themes/emerald-gilt/king-diamonds.webp';
+import kingSpades from '@/assets/themes/emerald-gilt/king-spades.webp';
 import queenHearts from '@/assets/themes/emerald-gilt/queen-hearts.webp';
 import type { ThemeId } from './themes';
 
@@ -9,7 +11,7 @@ import type { ThemeId } from './themes';
  * screen uses them, which is mid-deal, so the art is fetched and decoded as soon as the theme is shown.
  */
 const ART: Partial<Record<ThemeId, string[]>> = {
-  'emerald-gilt': [back, backMini, queenHearts, kingClubs],
+  'emerald-gilt': [back, backMini, queenHearts, kingClubs, kingSpades, kingDiamonds],
 };
 
 const loads = new Map<ThemeId, Promise<boolean>>();

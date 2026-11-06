@@ -186,6 +186,8 @@
   --art-back-mini: none;
   --art-trump-hearts: none;
   --art-trump-clubs: none;
+  --art-trump-spades: none;
+  --art-trump-diamonds: none;
   --reveal-hold: 0ms;
   --name-frame: none;
   --fan-anim: deal-fan;
@@ -466,6 +468,12 @@
 }
 .trump-face[data-suit='clubs'] {
   background-image: var(--art-trump-clubs);
+}
+.trump-face[data-suit='spades'] {
+  background-image: var(--art-trump-spades);
+}
+.trump-face[data-suit='diamonds'] {
+  background-image: var(--art-trump-diamonds);
 }
 /* A later round's small trump card (TrumpMark), only for a suit with art; the symbol becomes a badge on its corner. */
 .trump-mini {
