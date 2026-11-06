@@ -270,6 +270,34 @@ export interface LiveResp {
   summary: GameSummary;
   updatedAt: number;
   scorerSeenAt: number | null;
+  /** Spectators may react right now (on, and the game not over); missing from an older server. */
+  reactions?: boolean;
+  /** The game's recap link, for the hand-off once it ends. */
+  recapToken?: string | null;
+}
+
+/** The fixed reactions a spectator can send. */
+export type ReactionKind = 'clap' | 'fire' | 'laugh' | 'wow' | 'party';
+
+/** A live or recap link. The settings are for live links; missing from an older server. */
+export interface LinkResp {
+  token: string;
+  url: string;
+  qrSvgUrl: string;
+  reactions?: boolean;
+  membersOnly?: boolean;
+  /** Epoch ms a live link stops working: 2 h after the game ends. */
+  expiresAt?: number | null;
+}
+
+/** "That seat is me": a claim on a player with no account, decided by the scorer or the admin. */
+export interface Claim {
+  id: string;
+  gameId: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: number;
+  player: { id: string; displayName: string };
+  claimant: { userId: string; playerId: string | null; displayName: string };
 }
 
 export interface RecapResp {

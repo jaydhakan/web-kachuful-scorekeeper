@@ -16,6 +16,7 @@ import { Summary } from '@/screens/round/Summary';
 import { SheetHost } from '@/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
 import { RepairSaveModal } from './RepairSaveModal';
+import { HostLive } from './HostLive';
 import { BadgePop } from './BadgePop';
 import { Banner } from './ui/Banner';
 import { Loader } from './ui/Loader';
@@ -138,6 +139,7 @@ export default function PhoneShell() {
         )}
       </AnimatePresence>
       <BadgePop />
+      <HostLive />
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>
       {fresh && screen === 'winner' && !rm && (
         <Suspense fallback={null}>

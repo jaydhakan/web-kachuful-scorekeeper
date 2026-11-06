@@ -5,6 +5,9 @@ import type {
   AdminOverview,
   AdminUserRow,
   AuthResp,
+  Claim,
+  LinkResp,
+  ReactionKind,
   DeletionPreview,
   Bootstrap,
   Daily,
@@ -150,8 +153,14 @@ export const ep = {
   game: (id: string) =>
     get<{ game: WireGame; summary: GameSummary; achievements: Achievement[] }>(`/games/${id}`),
   deleteGame: (id: string) => del(`/games/${id}`),
-  link: (id: string, kind: 'live' | 'recap') =>
-    post<{ token: string; url: string; qrSvgUrl: string }>(`/games/${id}/links`, { kind }),
+  link: (id: string, kind: 'live' | 'recap') => post<LinkResp>(`/games/${id}/links`, { kind }),
+  updateLiveLink: (id: string, settings: { reactions?: boolean; membersOnly?: boolean }) =>
+    patch<LinkResp>(`/games/${id}/links/live`, settings),
+  claimSeat: (gameId: string, playerId: string) =>
+    post<Claim>(`/games/${gameId}/claims`, { playerId }),
+  claims: () => get<{ items: Claim[] }>('/claims'),
+  approveClaim: (id: string) => post<Claim>(`/claims/${id}/approve`),
+  rejectClaim: (id: string) => post<Claim>(`/claims/${id}/reject`),
   revokeLink: (id: string, kind: 'live' | 'recap') => del(`/games/${id}/links/${kind}`),
 
   // §6.6 boards
@@ -184,5 +193,7 @@ export const ep = {
 
   // §6.7 public
   live: (token: string) => get<LiveResp>(`/public/live/${token}`),
+  react: (token: string, kind: ReactionKind) =>
+    call<null>('POST', `/public/live/${token}/reactions`, { kind }).then(() => undefined),
   recap: (token: string) => get<RecapResp>(`/public/recap/${token}`),
 };

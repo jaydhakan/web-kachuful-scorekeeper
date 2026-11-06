@@ -1,6 +1,9 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { doneRounds } from '@/domain';
+import { dayLabel, timeLabel } from '@/lib/dates';
+import type { LinkResp } from '@/sync/types';
+import { ToggleTrack } from './ui/Toggle';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
 import { archive } from '@/state/archive';
 import { useApp } from '@/state/store';
@@ -11,6 +14,24 @@ import { t } from '@/strings';
 
 const x = t.hub.share;
 type Kind = 'live' | 'recap';
+/** A link as kept for this game: where it points, and a live link's settings. */
+export interface KeptLink {
+  url: string;
+  qr: string;
+  token?: string;
+  reactions?: boolean;
+  membersOnly?: boolean;
+  expiresAt?: number | null;
+}
+const kept = (r: LinkResp): KeptLink => ({
+  // The server's links point at the real site; the paths work on whichever origin serves this app.
+  url: location.origin + new URL(r.url).pathname,
+  qr: r.qrSvgUrl,
+  token: r.token,
+  reactions: r.reactions ?? true,
+  membersOnly: r.membersOnly ?? false,
+  expiresAt: r.expiresAt ?? null,
+});
 
 /** Recap and live links for the current game, with a QR code; they need the game on the server. */
 export function ShareLinks() {
@@ -18,7 +39,7 @@ export function ShareLinks() {
   const g = state.game;
   const rec = useArchive((a) => a.get('games', g.syncId));
   const rm = useReducedMotion();
-  const [links, setLinks] = useState<Partial<Record<Kind, { url: string; qr: string }>>>(
+  const [links, setLinks] = useState<Partial<Record<Kind, KeptLink>>>(
     () => (archive.get('cache', 'links:' + g.syncId)?.value as never) ?? {},
   );
   const [busy, setBusy] = useState<Kind | null>(null);
@@ -31,13 +52,18 @@ export function ShareLinks() {
   const make = async (k: Kind) => {
     setBusy(k);
     try {
-      const r = await ep.link(g.syncId, k);
-      // The server's links point at the real site; the paths work on whichever origin serves this app.
-      save({ ...links, [k]: { url: location.origin + new URL(r.url).pathname, qr: r.qrSvgUrl } });
+      save({ ...links, [k]: kept(await ep.link(g.syncId, k)) });
     } catch (e) {
       actions.say(authError(e));
     } finally {
       setBusy(null);
+    }
+  };
+  const setLive = async (patch: { reactions?: boolean; membersOnly?: boolean }) => {
+    try {
+      save({ ...links, live: kept(await ep.updateLiveLink(g.syncId, patch)) });
+    } catch (e) {
+      actions.say(authError(e));
     }
   };
   const revoke = async (k: Kind) => {
@@ -94,6 +120,37 @@ export function ShareLinks() {
                   <code className="mb-3 block select-all break-all rounded-xl bg-shade/30 p-2.5 text-13">
                     {l.url}
                   </code>
+                  {k === 'live' && (
+                    <div className="mb-3 flex flex-col">
+                      {(
+                        [
+                          ['reactions', x.reactionsToggle, x.reactionsHint, l.reactions ?? true],
+                          ['membersOnly', x.membersToggle, x.membersHint, l.membersOnly ?? false],
+                        ] as const
+                      ).map(([key, label, hint, on]) => (
+                        <m.button
+                          key={key}
+                          type="button"
+                          role="switch"
+                          aria-checked={on}
+                          whileTap="press"
+                          onClick={() => void setLive({ [key]: !on })}
+                          className="flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl text-left"
+                        >
+                          <span className="flex flex-col">
+                            <span className="text-15 font-medium">{label}</span>
+                            <span className="text-13 text-[var(--tx2)]">{hint}</span>
+                          </span>
+                          <ToggleTrack on={on} />
+                        </m.button>
+                      ))}
+                      <p className="mt-1 text-13 text-[var(--tx2)]">
+                        {l.expiresAt
+                          ? x.expires(`${dayLabel(l.expiresAt)} ${timeLabel(l.expiresAt)}`)
+                          : x.expiresSoon}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"

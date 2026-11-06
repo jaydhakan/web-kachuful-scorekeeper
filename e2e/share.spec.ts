@@ -84,3 +84,44 @@ test('a recap link opens the game for anyone, signed out', async ({ page, browse
   await expect(viewer.getByLabel('Sign in', { exact: true })).toBeVisible();
   await viewer.close();
 });
+
+test('spectators cheer the table, and the scorer controls reactions and who may watch', async ({
+  page,
+  browser,
+}) => {
+  await signedInGame(page);
+  await btn(page, 'Menu').click();
+  await btn(page, 'Links').click();
+  const live = page.locator('section[aria-label="Links"] .glass').filter({ hasText: 'Live link' });
+  await live.getByRole('button', { name: 'Make link' }).click();
+  const url = (await live.locator('code').innerText()).replace(/^https?:\/\/[^/]+/, '');
+  await page.keyboard.press('Escape');
+
+  const viewer = await browser.newPage();
+  await viewer.goto(url);
+  await expect(viewer.getByRole('heading', { name: 'Live table' })).toBeVisible();
+  // The scorer's phone shows the table is watched (its own stream isn't counted).
+  await expect(page.getByText('1 watching')).toBeVisible({ timeout: 15_000 });
+  await viewer.getByRole('button', { name: 'On fire' }).click();
+  await expect(viewer.getByText('On fire sent')).toBeVisible();
+
+  // Reactions off: the viewer's bar goes without a reload.
+  await btn(page, 'Menu').click();
+  await btn(page, 'Links').click();
+  await live.getByRole('switch', { name: /Spectator reactions/ }).click();
+  await expect(live.getByRole('switch', { name: /Spectator reactions/ })).toHaveAttribute(
+    'aria-checked',
+    'false',
+  );
+  await expect(viewer.getByRole('button', { name: 'On fire' })).toHaveCount(0, { timeout: 15_000 });
+
+  // Members only: a signed-out viewer is asked to sign in.
+  await live.getByRole('switch', { name: /Members only/ }).click();
+  await expect(live.getByRole('switch', { name: /Members only/ })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  );
+  await viewer.goto(url);
+  await expect(viewer.getByText('Sign in to watch this table')).toBeVisible();
+  await viewer.close();
+});

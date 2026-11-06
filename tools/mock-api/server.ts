@@ -34,6 +34,7 @@ import {
 } from '../../src/domain/index';
 import { kitGame, rows } from '../../src/domain/__fixtures__/kit';
 import type {
+  Claim,
   Achievement,
   Activity,
   GameSummary,
@@ -91,7 +92,17 @@ interface Db {
   achievements: Map<string, Achievement>;
   activity: Activity[];
   nextActivity: number;
-  links: Map<string, { gameId: string; kind: 'live' | 'recap'; revoked: boolean }>;
+  links: Map<
+    string,
+    {
+      gameId: string;
+      kind: 'live' | 'recap';
+      revoked: boolean;
+      reactions?: boolean;
+      membersOnly?: boolean;
+    }
+  >;
+  claims: Map<string, Claim>;
   failed: Map<string, number[]>;
   version: number;
   /** Appearance and preferences, as the backend built them on 2026-11-01. */
@@ -101,6 +112,10 @@ interface Db {
 
 let db: Db;
 const sse = new Map<string, Set<ServerResponse>>();
+/** The scorer's own streams (`?host=1`): they get every event but are not counted as watchers. */
+const hosts = new WeakSet<ServerResponse>();
+const watchers = (gameId: string) =>
+  [...(sse.get(gameId) ?? [])].filter((r) => !hosts.has(r)).length;
 
 const hash = (s: string) => createHash('sha256').update(s).digest('hex').slice(0, 16);
 const token = () => randomBytes(16).toString('base64url');
@@ -157,6 +172,7 @@ export function seed(now = Date.now()) {
     activity: [],
     nextActivity: 1,
     links: new Map(),
+    claims: new Map(),
     failed: new Map(),
     version: 1,
     appearance: {
@@ -1291,6 +1307,23 @@ on('DELETE', '/api/games/:id', ({ m, me }) => {
   recompute();
   return null;
 });
+const LIVE_GRACE = 2 * 3600e3;
+/** A live link stops working 2 hours after its game ends. */
+const liveEnd = (r: GameRec) => {
+  const ended = gameSummary(r).endedAt;
+  return ended == null ? null : ended + LIVE_GRACE;
+};
+const linkOut = (t: string, r: GameRec) => {
+  const l = db.links.get(t)!;
+  return {
+    token: t,
+    url: `${ORIGIN}/${l.kind === 'live' ? 'l' : 'r'}/${t}`,
+    qrSvgUrl: `/api/games/${r.key}/links/${l.kind}/qr.svg`,
+    reactions: l.reactions ?? true,
+    membersOnly: l.membersOnly ?? false,
+    expiresAt: l.kind === 'live' ? liveEnd(r) : null,
+  };
+};
 on('POST', '/api/games/:id/links', ({ m, body, me }) => {
   const r = db.games.get(m[0]);
   if (!r || r.deletedAt) throw err(404, 'not_found');
@@ -1302,14 +1335,19 @@ on('POST', '/api/games/:id/links', ({ m, body, me }) => {
     r.links[kind] = t;
     db.links.set(t, { gameId: m[0], kind, revoked: false });
   }
-  return [
-    201,
-    {
-      token: t,
-      url: `${ORIGIN}/${kind === 'live' ? 'l' : 'r'}/${t}`,
-      qrSvgUrl: `/api/games/${m[0]}/links/${kind}/qr.svg`,
-    },
-  ];
+  return [201, linkOut(t, r)];
+});
+on('PATCH', '/api/games/:id/links/live', ({ m, body, me }) => {
+  const r = db.games.get(m[0]);
+  if (!r || r.deletedAt) throw err(404, 'not_found');
+  if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
+  const t = r.links.live;
+  if (!t) throw err(404, 'not_found');
+  const l = db.links.get(t)!;
+  if (typeof body.reactions === 'boolean') l.reactions = body.reactions;
+  if (typeof body.membersOnly === 'boolean') l.membersOnly = body.membersOnly;
+  notify(r.key, 'game', liveBody(r), r.rev);
+  return linkOut(t, r);
 });
 on('DELETE', '/api/games/:id/links/:kind', ({ m }) => {
   const r = db.games.get(m[0]);
@@ -1431,35 +1469,123 @@ on('GET', '/api/achievements', ({ url }) => {
   return page(list, url.searchParams.get('cursor'), 200);
 });
 
+// ——— seat claims (2026-11-06) ———
+
+const claimOut = (c: Claim) => c;
+on('POST', '/api/games/:id/claims', ({ m, body, me }) => {
+  const r = db.games.get(m[0]);
+  if (!r || r.deletedAt) throw err(404, 'not_found');
+  const pid = String(body.playerId ?? '');
+  const seated = r.payload.players.map((p) => p.playerId);
+  if (!seated.includes(pid) || !me!.playerId || seated.includes(me!.playerId))
+    throw err(422, 'invalid', { fields: { playerId: 'not claimable' } });
+  const p = db.players.get(pid);
+  if (!p || p.mergedInto) throw err(422, 'invalid', { fields: { playerId: 'no such player' } });
+  if (p.linkedUserId) throw err(409, 'player_linked');
+  if (
+    [...db.claims.values()].some(
+      (c) => c.status === 'pending' && c.player.id === pid && c.claimant.userId === me!.id,
+    )
+  )
+    throw err(409, 'claim_pending');
+  const mine = db.players.get(me!.playerId)!;
+  const c: Claim = {
+    id: randomUUID(),
+    gameId: r.key,
+    status: 'pending',
+    createdAt: Date.now(),
+    player: { id: pid, displayName: p.displayName },
+    claimant: { userId: me!.id, playerId: me!.playerId, displayName: mine.displayName },
+  };
+  db.claims.set(c.id, c);
+  return [201, claimOut(c)];
+});
+on('GET', '/api/claims', ({ me }) => ({
+  items: [...db.claims.values()]
+    .filter((c) => {
+      const g = db.games.get(c.gameId);
+      return (
+        c.status === 'pending' &&
+        g &&
+        !g.deletedAt &&
+        (me!.role === 'admin' || g.ownerId === me!.id)
+      );
+    })
+    .sort((a, b) => b.createdAt - a.createdAt),
+}));
+for (const verdict of ['approve', 'reject'] as const)
+  on('POST', `/api/claims/:id/${verdict}`, ({ m, me }) => {
+    const c = db.claims.get(m[0]);
+    if (!c) throw err(404, 'not_found');
+    const g = db.games.get(c.gameId);
+    if (!g || g.deletedAt) throw err(404, 'not_found');
+    if (g.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
+    if (c.status !== 'pending') throw err(422, 'invalid');
+    if (verdict === 'approve') {
+      // The seat's player folds into the claimant's: every game it sat in now names them.
+      const from = db.players.get(c.player.id)!;
+      from.mergedInto = c.claimant.playerId;
+      for (const r of db.games.values())
+        for (const p of r.payload.players)
+          if (p.playerId === from.id) {
+            p.playerId = c.claimant.playerId!;
+            r.updatedAt = Date.now();
+          }
+      db.version++;
+      recompute();
+    }
+    c.status = verdict === 'approve' ? 'approved' : 'rejected';
+    return claimOut(c);
+  });
+
 // ——— §6.6 public ———
 
-function linkGame(t: string, kind: 'live' | 'recap') {
+function linkGame(t: string, kind: 'live' | 'recap', me: UserRec | null = null) {
   const l = db.links.get(t);
   if (!l || l.kind !== kind) throw err(404, 'not_found');
   const r = db.games.get(l.gameId);
   if (l.revoked || !r || r.deletedAt) throw err(410, 'gone');
+  if (kind === 'live' && (liveEnd(r) ?? Infinity) <= Date.now()) throw err(410, 'gone');
+  if (kind === 'live' && l.membersOnly && !me) throw err(401, 'members_only');
   return r;
 }
 const pub = (r: GameRec) => gameSummary(r, Date.now(), true);
+function liveBody(r: GameRec) {
+  const l = r.links.live ? db.links.get(r.links.live) : undefined;
+  return {
+    game: r.payload,
+    summary: pub(r),
+    updatedAt: r.updatedAt,
+    scorerSeenAt: r.scorerSeenAt,
+    reactions: (l?.reactions ?? true) && pub(r).endedAt == null,
+    recapToken: r.links.recap ?? null,
+  };
+}
+const reacted = new Map<string, number>();
+on('GET', '/api/public/live/:t', ({ m, me }) => liveBody(linkGame(m[0], 'live', me)), 'public');
 on(
-  'GET',
-  '/api/public/live/:t',
-  ({ m }) => {
-    const r = linkGame(m[0], 'live');
-    return {
-      game: r.payload,
-      summary: pub(r),
-      updatedAt: r.updatedAt,
-      scorerSeenAt: r.scorerSeenAt,
-    };
+  'POST',
+  '/api/public/live/:t/reactions',
+  ({ m, me, body, req }) => {
+    const r = linkGame(m[0], 'live', me);
+    const kinds = ['clap', 'fire', 'laugh', 'wow', 'party'];
+    if (!kinds.includes(String(body.kind)))
+      throw err(422, 'invalid', { fields: { kind: 'unknown' } });
+    if (!liveBody(r).reactions) throw err(409, 'reactions_off');
+    const who = `${m[0]}:${req.socket.remoteAddress}`;
+    if (Date.now() - (reacted.get(who) ?? 0) < 1000)
+      throw err(429, 'rate_limited', { retryAfter: 1 });
+    reacted.set(who, Date.now());
+    notify(r.key, 'reaction', { kind: body.kind });
+    return null;
   },
   'public',
 );
 on(
   'GET',
   '/api/public/live/:t/events',
-  ({ m, res, req }) => {
-    const r = linkGame(m[0], 'live');
+  ({ m, res, req, me, url }) => {
+    const r = linkGame(m[0], 'live', me);
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -1467,16 +1593,17 @@ on(
     });
     const id = r.key;
     const set = sse.get(id) ?? new Set();
+    if (url.searchParams.get('host') === '1') hosts.add(res);
     set.add(res);
     sse.set(id, set);
     if (req.headers['last-event-id'] !== String(r.rev))
-      res.write(
-        `event: game\nid: ${r.rev}\ndata: ${JSON.stringify({ game: r.payload, summary: pub(r), updatedAt: r.updatedAt, scorerSeenAt: r.scorerSeenAt })}\n\n`,
-      );
+      res.write(`event: game\nid: ${r.rev}\ndata: ${JSON.stringify(liveBody(r))}\n\n`);
+    notify(id, 'watchers', { n: watchers(id) });
     const ping = setInterval(() => res.write('event: ping\ndata: {}\n\n'), 25e3);
     req.on('close', () => {
       clearInterval(ping);
       set.delete(res);
+      notify(id, 'watchers', { n: watchers(id) });
     });
     return STREAM;
   },

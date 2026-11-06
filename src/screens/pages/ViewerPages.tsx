@@ -1,37 +1,25 @@
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import { curRound, doneRounds, gameStats, standings, type Game } from '@/domain';
-import { agoTxt, fmt, sgnN } from '@/lib/format';
+import { doneRounds, gameStats, type Game } from '@/domain';
+import { sgnN } from '@/lib/format';
 import { useApp } from '@/state/store';
 import { ApiError } from '@/sync/api';
 import { fromWire } from '@/sync/engine';
 import { ep } from '@/sync/endpoints';
-import { followLive } from '@/sync/live';
-import type { Achievement, GameSummary } from '@/sync/types';
+import type { Achievement } from '@/sync/types';
 import { EmptyState, Page, Section, Skeleton } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { SuitGlyph } from '@/components/ui/SuitGlyph';
-import { SPRING } from '@/components/ui/motion';
 import { BoardTable } from '@/sheets/BoardBody';
 import { ChartLegend, ScoreChart } from '@/screens/desk/ScoreChart';
-import { RankMark } from '@/components/ui/RankMark';
 import { achName } from '@/strings/achievements';
 import { ACH } from '@/domain';
-import { gameLine } from './HistoryPage';
 import { t } from '@/strings';
-import { Avatar } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
-import { Dot } from '@/components/ui/Dot';
+import { gameLine } from './HistoryPage';
+import { LiveStandings, withPhotos } from './LivePage';
+
+export { LivePage } from './LivePage';
 
 const lv = t.hub.live;
-const QUIET_MS = 2 * 60e3;
-
-type LiveState =
-  | { k: 'connecting' }
-  | { k: 'revoked' }
-  | { k: 'missing' }
-  | { k: 'offline' }
-  | { k: 'on'; game: Game; updatedAt: number; scorerSeenAt: number | null };
 
 /** 404 is an unknown link, 410 one turned off (or its game deleted). */
 const goneOrMissing = (e: unknown): { k: 'revoked' | 'missing' | 'offline' } =>
@@ -45,161 +33,6 @@ function OpenApp() {
     <PrimaryButton className="mt-6 w-full" onClick={() => actions.navReset()}>
       {lv.open}
     </PrimaryButton>
-  );
-}
-
-/** A viewer is signed out, so photos come with the public summary rather than from a registry. */
-const withPhotos = (g: Game, sum: GameSummary): Game => ({
-  ...g,
-  players: g.players.map((p) => ({
-    ...p,
-    photoUrl: sum.players.find((x) => x.playerId === p.playerId)?.photoUrl ?? null,
-  })),
-});
-
-/** Standings that move as rounds land: changed totals pulse, rows slide to their new place. */
-function LiveStandings({ g }: { g: Game }) {
-  const rm = useReducedMotion();
-  const st = standings(g);
-  return (
-    <ol className="flex flex-col gap-2">
-      {st.map((s) => (
-        <m.li
-          key={s.p.id}
-          layout={!rm}
-          transition={SPRING}
-          className="glass flex min-h-14 items-center gap-3 px-4"
-        >
-          <RankMark rank={s.rank} final={g.status === 'finished'} />
-          <Avatar p={s.p} className="grid h-9 w-9 place-items-center rounded-full text-20" />
-          <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
-            {s.p.name}
-          </span>
-          <m.span
-            key={s.t}
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: 1 }}
-            className="disp text-22 font-extrabold"
-          >
-            {fmt(s.t)}
-          </m.span>
-        </m.li>
-      ))}
-    </ol>
-  );
-}
-
-export function LivePage({ token }: { token: string }) {
-  const [st, setSt] = useState<LiveState>({ k: 'connecting' });
-  const [, tick] = useState(0);
-  useEffect(() => {
-    let live = true;
-    ep.live(token)
-      .then(
-        (r) =>
-          live &&
-          setSt({
-            k: 'on',
-            game: withPhotos(fromWire(r.game), r.summary),
-            updatedAt: r.updatedAt,
-            scorerSeenAt: r.scorerSeenAt,
-          }),
-      )
-      .catch((e: unknown) => live && setSt(goneOrMissing(e)));
-    const stop = followLive(token, (e) => {
-      if (!live) return;
-      if (e.type === 'game')
-        setSt({
-          k: 'on',
-          game: withPhotos(fromWire(e.data.game), e.data.summary),
-          updatedAt: e.data.updatedAt,
-          scorerSeenAt: e.data.scorerSeenAt,
-        });
-      else if (e.type === 'revoked') setSt({ k: 'revoked' });
-      // The stream was refused for good: the plain read says why.
-      else if (e.type === 'closed')
-        ep.live(token).then(
-          () => live && setSt({ k: 'missing' }),
-          (x: unknown) => live && setSt(goneOrMissing(x)),
-        );
-    });
-    const clock = setInterval(() => tick((n) => n + 1), 30e3);
-    return () => {
-      live = false;
-      stop();
-      clearInterval(clock);
-    };
-  }, [token]);
-  if (st.k !== 'on')
-    return (
-      <Page title={lv.title}>
-        {st.k === 'connecting' ? (
-          <>
-            <p className="mb-3 text-15 text-[var(--tx2)]">{lv.connecting}</p>
-            <Skeleton rows={4} />
-          </>
-        ) : (
-          <EmptyState
-            icon={st.k === 'revoked' ? 'locked' : st.k === 'offline' ? 'offline' : 'linkBreak'}
-            title={st.k === 'revoked' ? lv.revoked : st.k === 'offline' ? lv.offline : lv.notFound}
-            action={<OpenApp />}
-          />
-        )}
-      </Page>
-    );
-  const g = st.game,
-    r = curRound(g);
-  // No scorer time yet: the last upload is the last sign of the scorer.
-  const seen = st.scorerSeenAt ?? st.updatedAt;
-  const quiet = Date.now() - seen > QUIET_MS && g.status === 'active';
-  return (
-    <Page
-      title={lv.title}
-      eyebrow={
-        quiet ? lv.quiet(Math.round((Date.now() - seen) / 60e3)) : lv.updated(agoTxt(st.updatedAt))
-      }
-    >
-      {g.status === 'active' && (
-        <AnimatePresence mode="wait">
-          <m.div
-            key={r.index}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass mb-5 p-4"
-          >
-            <div className="disp mb-2 text-20 font-extrabold">
-              {lv.round(r.index + 1, r.cards)} · <SuitGlyph trump={r.trump} />
-            </div>
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-15">
-              {g.players.map((p, i) => (
-                <li key={p.id} className="flex items-center gap-2">
-                  <span aria-hidden className="inline-flex">
-                    <Dot p={p} s={22} />
-                  </span>
-                  <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
-                    {p.name}
-                    {i === r.dealerIndex && (
-                      <span className="ml-1 text-13 text-[var(--tx2)]">
-                        · {t.table.deals.toLowerCase()}
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-[var(--tx2)]">
-                    {r.bids[p.id] !== undefined ? lv.bid(r.bids[p.id]) : '…'}
-                    {r.results[p.id] &&
-                      (r.results[p.id] === 'made' ? ` ${t.table.made}` : ` ${t.table.missed}`)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </m.div>
-        </AnimatePresence>
-      )}
-      <Section title={g.status === 'finished' ? gameLine(g) : t.hub.game.standings}>
-        <LiveStandings g={g} />
-      </Section>
-      <OpenApp />
-    </Page>
   );
 }
 
