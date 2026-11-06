@@ -38,10 +38,10 @@ describe('the regulars on Credits', () => {
     expect(lb).not.toHaveBeenCalled();
   });
 
-  it('lists the most rounds among players with 500+ rounds, signed in', async () => {
+  it('lists the most rounds among players with 100+ rounds, signed in', async () => {
     signIn();
     const lb = vi.spyOn(ep, 'leaderboard').mockResolvedValue({
-      data: { rows: [row('Bo', 80, 700), row('Asha', 49, 400)], minRounds: 0, generatedAt: 0 },
+      data: { rows: [row('Bo', 80, 700), row('Asha', 49, 90)], minRounds: 0, generatedAt: 0 },
       status: 200,
       etag: null,
     });
@@ -53,7 +53,7 @@ describe('the regulars on Credits', () => {
     expect(lb.mock.calls[0][4]).toEqual({ limit: 10 });
   });
 
-  it('says how to join when nobody has 500 rounds yet', async () => {
+  it('says how to join when nobody has 100 rounds yet', async () => {
     signIn();
     vi.spyOn(ep, 'leaderboard').mockResolvedValue({
       data: { rows: [row('Asha', 3, 30)], minRounds: 0, generatedAt: 0 },
@@ -61,6 +61,6 @@ describe('the regulars on Credits', () => {
       etag: null,
     });
     await show();
-    expect(await screen.findByText('Play 500 rounds to join the regulars.')).toBeInTheDocument();
+    expect(await screen.findByText('Play 100 rounds to join the regulars.')).toBeInTheDocument();
   });
 });
