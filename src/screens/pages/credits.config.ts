@@ -12,7 +12,7 @@ export const credits = {
   testers: [
     { name: 'Priyank', instagram: 'priiyyankkk' },
     { name: 'Rahil', instagram: '_ex_calibur__' },
-    { name: 'Akshesh', instagram: 'aksheshpithwa' },
+    { name: 'Akshesh', instagram: 'aksheshpithva' },
   ] as Person[],
   /** Who the "regulars" section thanks: the most rounds played all time, among players with at least `minRounds`. */
   regulars: { top: 10, minRounds: 100 },
