@@ -166,7 +166,11 @@ const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
 
 export default defineConfig(({ mode }) => ({
   server: mode === 'mock' ? {} : { proxy: apiProxy },
-  build: { rolldownOptions: { output: { codeSplitting: { groups: [{ name: shellCommon }] } } } },
+  build: {
+    // Deck art stays a file even when small: inlined, it would land in the shared JS every theme downloads.
+    assetsInlineLimit: (file) => (file.includes('/assets/themes/') ? false : undefined),
+    rolldownOptions: { output: { codeSplitting: { groups: [{ name: shellCommon }] } } },
+  },
   preview: mode === 'mock' ? {} : { proxy: apiProxy },
   plugins: [
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
