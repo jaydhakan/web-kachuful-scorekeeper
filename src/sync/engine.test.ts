@@ -312,7 +312,7 @@ describe('sync engine', () => {
   });
 
   it('pulls from the newest server change minus 5 s, and tombstones remove games', async () => {
-    archive.put('cache', { key: 'games:since', value: 1_000_000, fetchedAt: 0 });
+    archive.put('cache', { key: 'games:involving:since', value: 1_000_000, fetchedAt: 0 });
     archive.put('games', {
       syncId: 'old',
       game: myGame('old'),
@@ -333,7 +333,43 @@ describe('sync engine', () => {
     await syncNow({ full: true });
     expect(urls.find((u) => u.startsWith('/api/games?'))).toContain('updatedSince=995000');
     expect(archive.get('games', 'old')).toBeUndefined();
-    expect(archive.get('cache', 'games:since')!.value).toBe(1_200_000);
+    expect(archive.get('cache', 'games:involving:since')!.value).toBe(1_200_000);
+  });
+
+  it('a game someone else scored with me at the table is kept to view, never synced from here', async () => {
+    const theirs = kitGame({
+      id: 'k1',
+      players: ['a', 'b', 'c'],
+      names: ['Ann', 'Ben', 'Cat'],
+      start: Date.now() - 3600e3,
+      rounds: rows(3, 3, [0]),
+    });
+    const summary = {
+      id: theirs.syncId,
+      owner: { id: 'kabir', name: 'Kabir' },
+      updatedAt: 1_300_000,
+      endedAt: null,
+      status: 'active',
+      rounds: 1,
+    };
+    server({
+      ...base,
+      'GET /games': () => [200, { items: [summary], nextCursor: null }],
+      [`GET /games/${theirs.syncId}`]: () => [
+        200,
+        { game: toWire(theirs), summary, achievements: [] },
+      ],
+    });
+    urls.length = 0;
+    await syncNow({ full: true });
+    expect(urls.find((u) => u.startsWith('/api/games?'))).toContain('involving=true');
+    const rec = archive.get('games', theirs.syncId)!;
+    expect(rec).toMatchObject({ owner: { id: 'kabir', name: 'Kabir' }, account: undefined });
+    expect(
+      urls.some(
+        (u) => u.startsWith(`/api/games/${theirs.syncId}`) && u !== `/api/games/${theirs.syncId}`,
+      ),
+    ).toBe(false);
   });
 
   it('a 429 waits retryAfter seconds before asking again', async () => {

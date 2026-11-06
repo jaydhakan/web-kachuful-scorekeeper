@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { doneRounds, rangeFor, standings, type Game, type Range } from '@/domain';
 import { dayKey, dayLabel, timeLabel } from '@/lib/dates';
 import { sgnN } from '@/lib/format';
-import type { GameRec } from '@/state/archive';
+import { inHistory, scoredHere, type GameRec } from '@/state/archive';
 import { useArchive } from '@/state/useArchive';
 import { useApp } from '@/state/store';
 import { AvatarStack, Chip, ChipRow, EmptyState, Page, Skeleton } from '@/components/ui/Page';
@@ -38,7 +38,11 @@ const nameKey = (s: string) => s.trim().replace(/\s+/g, ' ').toLowerCase();
 
 export function HistoryPage() {
   const { state, actions } = useApp();
-  const recs = useArchive((a) => a.games());
+  const user = state.session?.user ?? null;
+  const all = useArchive((a) => a.games());
+  const recs = useMemo(() => all.filter((r) => inHistory(r, user)), [all, user]);
+  const [scope, setScope] = useState<'all' | 'scored' | 'played'>('all');
+  const theirs = recs.some((r) => !scoredHere(r, user?.id ?? null));
   const loaded = useArchive((a) => a.loaded);
   const [who, setWho] = useState<string | null>(null);
   const allTime = () => rangeFor('all', Date.now());
@@ -58,6 +62,7 @@ export function HistoryPage() {
   const shown = recs.filter((r) => {
     const at = r.endedAt ?? r.updatedAt;
     if (range.kind !== 'all' && (at < range.from || at >= range.to)) return false;
+    if (scope !== 'all' && scoredHere(r, user?.id ?? null) !== (scope === 'scored')) return false;
     return !who || r.game.players.some((p) => nameKey(p.name) === who);
   });
   const groups = useMemo(() => {
@@ -95,7 +100,7 @@ export function HistoryPage() {
         action={
           <button
             type="button"
-            onClick={() => (setWho(null), setRange(allTime()))}
+            onClick={() => (setWho(null), setRange(allTime()), setScope('all'))}
             className="press min-h-12 px-3 text-16 font-bold text-[var(--accent)]"
           >
             {h.clear}
@@ -131,6 +136,15 @@ export function HistoryPage() {
             <div className="flex">
               <RangePick value={range} onChange={setRange} />
             </div>
+            {theirs && (
+              <ChipRow label={h.scope.label}>
+                {(['all', 'scored', 'played'] as const).map((k) => (
+                  <Chip key={k} on={scope === k} onClick={() => setScope(k)}>
+                    {h.scope[k]}
+                  </Chip>
+                ))}
+              </ChipRow>
+            )}
             {people.length > 1 && (
               <ChipRow label={h.filterPlayer}>
                 <Chip on={!who} onClick={() => setWho(null)}>
@@ -166,6 +180,7 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
   else if (signedIn && rec.origin === 'local' && rec.syncedRev !== g.rev)
     badges.push(h.badge.unsynced);
   const line = gameLine(g);
+  const by = !scoredHere(rec, state.session?.user.id ?? null) && rec.owner ? rec.owner.name : null;
   const top = standings(g).filter((s) => s.rank === 1);
   const winner = g.status === 'finished' && top.length === 1 ? top[0].p : null;
   return (
@@ -189,6 +204,7 @@ function GameRow({ rec, current }: { rec: GameRec; current: boolean }) {
         <AvatarStack players={g.players} s={24} max={6} />
         <span className="text-14 text-[var(--tx2)]">
           {timeLabel(at)} · {h.rounds(doneRounds(g).length)} · {g.players.length} {Icon.userInline}
+          {by && ` · ${h.scoredBy(by)}`}
         </span>
         {badges.length > 0 && (
           <span className="ml-auto flex flex-wrap justify-end gap-1.5">

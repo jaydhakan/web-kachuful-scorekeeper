@@ -164,7 +164,6 @@ async function pullAll() {
     cacheSet('myAchievements', b.myAchievements);
     cacheSet('myGames', b.myGames);
     cacheSet('players:since', Math.max(0, ...b.players.map((p) => p.updatedAt)));
-    if (!cacheGet<number>('games:since')) cacheSet('games:since', newest(b.myGames));
   } else {
     const since = cacheGet<number>('players:since') ?? 0;
     let cursor: string | null = null;
@@ -210,16 +209,17 @@ async function pullMet() {
 const newest = (xs: { updatedAt: number }[]) => Math.max(0, ...xs.map((x) => x.updatedAt));
 
 /**
- * This account's games from other devices: new ones are added, ones not changed here take the server's copy, and
- * games deleted on the server leave this device too.
+ * This account's games from other devices, and games others scored with this account's player at the table: new
+ * ones are added, ones not changed here take the server's copy, and games deleted on the server leave this device.
  */
 async function pullMyGames() {
-  const since = cacheGet<number>('games:since') ?? 0;
+  // A new key: the first pull after this change fetches the games sat in, not only the ones scored.
+  const since = cacheGet<number>('games:involving:since') ?? 0;
   let max = since;
   let cursor: string | null = null;
   do {
     const page = await ep.games({
-      mine: true,
+      involving: true,
       updatedSince: since ? Math.max(0, since - OVERLAP) : undefined,
       cursor,
     });
@@ -233,7 +233,7 @@ async function pullMyGames() {
     }
     cursor = page.nextCursor;
   } while (cursor);
-  cacheSet('games:since', max);
+  cacheSet('games:involving:since', max);
 }
 
 /**
@@ -248,6 +248,9 @@ export async function pullSummary(sum: GameSummary): Promise<GameRec | undefined
     return rec;
   const full = await ep.game(sum.id);
   const g = fromWire(full.game, sum.id);
+  const me = ctx!.session()!.user.id;
+  // Someone else's game, sat in: kept for viewing, never synced back from here.
+  const mine = !sum.owner.id || sum.owner.id === me;
   const next: GameRec = {
     ...rec,
     syncId: sum.id,
@@ -255,7 +258,8 @@ export async function pullSummary(sum: GameSummary): Promise<GameRec | undefined
     updatedAt: g.updatedAt,
     endedAt: sum.endedAt,
     origin: rec?.origin ?? 'remote',
-    account: ctx!.session()!.user.id,
+    owner: sum.owner,
+    account: mine ? me : undefined,
     syncedRev: g.rev,
     earned: full.achievements,
   };

@@ -1239,6 +1239,11 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
 on('GET', '/api/games', ({ url, me }) => {
   const since = Number(url.searchParams.get('updatedSince')) || 0;
   const mine = url.searchParams.get('mine') === 'true';
+  const involving = url.searchParams.get('involving') === 'true';
+  // Scored, or sat in: matched on the stored seats, so deleted games still come back as tombstones.
+  const mineOrSat = (g: GameRec) =>
+    g.ownerId === me!.id ||
+    (!!me!.playerId && g.payload.players.some((p) => p.playerId === me!.playerId));
   const status = url.searchParams.get('status');
   if (status !== null && status !== 'active')
     throw err(422, 'invalid', { fields: { status: 'must be active' } });
@@ -1246,7 +1251,7 @@ on('GET', '/api/games', ({ url, me }) => {
     .filter(
       (g) =>
         g.updatedAt > since &&
-        (!mine || g.ownerId === me!.id) &&
+        (involving ? mineOrSat(g) : !mine || g.ownerId === me!.id) &&
         (!g.deletedAt || since > 0) &&
         (!status ||
           (!g.deletedAt && gameSummary(g).status === 'active' && !gameSummary(g).endedAt)),

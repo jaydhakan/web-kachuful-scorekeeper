@@ -157,3 +157,53 @@ describe('History badges, signed in', () => {
     expect(screen.getAllByText('Only on this phone')).toHaveLength(1);
   });
 });
+
+describe('games played in, signed in', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('lists games others scored with me at the table, not games I only looked at', async () => {
+    await archive.ready;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 503 })),
+    );
+    localStorage.setItem(
+      KEYS.session,
+      JSON.stringify({
+        user: { id: 'u1', email: 'me@test.dev', role: 'member', playerId: 'me' },
+        player: { id: 'me', displayName: 'Me', emoji: '🙂', color: '#336699' },
+      }),
+    );
+    const done = (id: string, names: string, seatMe: boolean): Game => {
+      const g = game(id, { status: 'finished', finishedAt: Date.now() - 1000 });
+      g.rounds = g.rounds.filter((r) => r.phase === 'done');
+      g.players = g.players.map((p, i) => ({
+        ...p,
+        name: names + i,
+        playerId: seatMe && i === 0 ? 'me' : names + i,
+      }));
+      return g;
+    };
+    archiveGame(done('mine', 'Own', true), { account: 'u1' });
+    const remote = (g: Game) => ({
+      syncId: g.syncId,
+      game: g,
+      updatedAt: g.updatedAt,
+      endedAt: g.finishedAt!,
+      origin: 'remote' as const,
+      owner: { id: 'kabir', name: 'Kabir' },
+      syncedRev: g.rev,
+    });
+    archive.put('games', remote(done('sat', 'Sat', true)), remote(done('seen', 'Seen', false)));
+    const u = setup();
+    render(<App />);
+    await u.click(await screen.findByRole('button', { name: /History/ }));
+    expect(await screen.findAllByRole('button', { name: /^Game on/ })).toHaveLength(2);
+    expect(screen.getByText(/Scored by Kabir/)).toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'Played in' }));
+    expect(screen.getAllByRole('button', { name: /^Game on/ })).toHaveLength(1);
+    await u.click(screen.getByRole('button', { name: 'Scored by me' }));
+    expect(screen.getAllByRole('button', { name: /^Game on/ })).toHaveLength(1);
+    expect(screen.queryByText(/Scored by Kabir/)).toBeNull();
+  });
+});

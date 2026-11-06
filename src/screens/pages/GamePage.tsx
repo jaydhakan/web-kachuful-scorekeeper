@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { curRound, doneRounds, standings, type Game } from '@/domain';
 import { dayLabel, timeLabel } from '@/lib/dates';
 import { fmt } from '@/lib/format';
-import { archive } from '@/state/archive';
+import { archive, scoredHere } from '@/state/archive';
 import { useArchive } from '@/state/useArchive';
 import { useApp } from '@/state/store';
 import { BoardTable } from '@/sheets/BoardBody';
@@ -138,7 +138,7 @@ export function GamePage({ id }: { id: string }) {
           <p className="text-16 text-[var(--tx2)]">{gt.noRounds}</p>
         )}
       </Section>
-      {!current && rec && (
+      {!current && rec && scoredHere(rec, state.session?.user.id ?? null) && (
         <button
           type="button"
           onClick={() => setAsk(true)}

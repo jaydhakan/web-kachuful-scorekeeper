@@ -362,3 +362,13 @@ export function sweepEmpty(current: string) {
       forgetEmpty(r.syncId);
   archive.put('cache', { key: SWEPT, value: true, fetchedAt: Date.now() });
 }
+
+/** Scored on this device or by this account; anything else is someone else's game, kept to view. */
+export const scoredHere = (r: GameRec, userId: string | null) =>
+  r.origin === 'local' || !r.owner?.id || r.owner.id === userId || r.account === userId;
+
+/** History lists what this person scored or sat at; games opened from someone's page only stay cached. */
+export const inHistory = (r: GameRec, user: { id: string; playerId: string | null } | null) =>
+  !user ||
+  scoredHere(r, user.id) ||
+  (!!user.playerId && r.game.players.some((p) => p.playerId === user.playerId));

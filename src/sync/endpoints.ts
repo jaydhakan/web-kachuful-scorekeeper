@@ -132,10 +132,17 @@ export const ep = {
     ),
 
   putGame: (g: WireGame) => put<PutGameResp>(`/games/${g.syncId ?? g.id}`, g),
-  games: (p: { updatedSince?: number; cursor?: string | null; mine?: boolean }) =>
+  games: (p: {
+    updatedSince?: number;
+    cursor?: string | null;
+    mine?: boolean;
+    /** Games this account scored or sat in. */
+    involving?: boolean;
+  }) =>
     get<Page<GameSummary | Tombstone>>('/games', {
       ...p,
       mine: p.mine ? 'true' : undefined,
+      involving: p.involving ? 'true' : undefined,
       limit: 200,
     }),
   /** This account's newest unfinished game, if any. */

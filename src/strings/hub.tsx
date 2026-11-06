@@ -53,6 +53,13 @@ export const hub = {
     emptyTitle: 'No games yet',
     emptyBody: 'Every game you score is kept here, finished or not.',
     noResults: 'No games match these filters',
+    scoredBy: (name: string) => `Scored by ${name}`,
+    scope: {
+      label: 'Whose games',
+      all: 'All',
+      scored: 'Scored by me',
+      played: 'Played in',
+    },
     clear: 'Clear filters',
     newGame: 'New game',
     filterPlayer: 'Filter by player',
