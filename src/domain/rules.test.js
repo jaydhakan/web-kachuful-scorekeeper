@@ -91,7 +91,7 @@ describe('players and cards', () => {
 
   it.each([
     [1, [3, 4, 5, 6, 7]],
-    [2, [3, 4, 5, 6, 7, 8, 9, 10]],
+    [2, [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]],
   ])('%i deck(s) seat %j players', (decks, counts) => {
     expect(playerCounts(decks)).toEqual(counts);
   });

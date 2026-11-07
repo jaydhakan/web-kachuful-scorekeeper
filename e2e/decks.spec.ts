@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
+import { LONG_NAMES_14, openSeeded, seedGame } from './fixtures';
 import { btn, openAdvanced, startGame } from './helpers';
 
 test.beforeEach(async ({ page }) => {
@@ -16,15 +16,22 @@ test('setup defaults to one deck, which seats 3 to 7', async ({ page }) => {
   await expect(page.getByText('Max 7 cards')).toBeVisible();
 });
 
-test('two decks seat 8 to 10 and keep 10 cards up to 10 players', async ({ page }) => {
+test('two decks seat 8 to 14: 10 cards up to 10 players, then fewer', async ({ page }) => {
   await openAdvanced(page);
   await btn(page, '2 decks').click();
   await expect(btn(page, '2 decks')).toHaveAttribute('aria-pressed', 'true');
-  for (const n of [8, 9, 10]) await expect(btn(page, `${n} players`)).toBeVisible();
-  await btn(page, '7 players').click();
-  await expect(page.getByText('Max 10 cards')).toBeVisible();
-  await btn(page, '10 players').click();
-  await expect(page.getByText('Max 10 cards')).toBeVisible();
+  for (const n of [8, 9, 10, 11, 12, 13, 14]) await expect(btn(page, `${n} players`)).toBeVisible();
+  await expect(btn(page, '15 players')).toHaveCount(0);
+  for (const [n, max] of [
+    [7, 10],
+    [10, 10],
+    [11, 9],
+    [12, 8],
+    [14, 7],
+  ]) {
+    await btn(page, `${n} players`).click();
+    await expect(page.getByText(`Max ${max} cards`)).toBeVisible();
+  }
 });
 
 test('going back to one deck drops a count it cannot seat', async ({ page }) => {
@@ -40,14 +47,16 @@ test('going back to one deck drops a count it cannot seat', async ({ page }) => 
   await expect(btn(page, '5 players')).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('a ten-player two-deck game starts and its Rules explain the decks', async ({ page }) => {
+test('a fourteen-player two-deck game starts and its Rules explain the decks', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await startGame(page, LONG_NAMES_10);
+  await startGame(page, LONG_NAMES_14);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('kachuful.v1')!));
-  expect(saved).toMatchObject({ decks: 2, maxCards: 10, schemaVersion: 4 });
-  expect(saved.players).toHaveLength(10);
+  expect(saved).toMatchObject({ decks: 2, maxCards: 7, schemaVersion: 4 });
+  expect(saved.players).toHaveLength(14);
+  expect(new Set(saved.players.map((p: { color: string }) => p.color)).size).toBe(14);
+  expect(new Set(saved.players.map((p: { emoji: string }) => p.emoji)).size).toBe(14);
   await btn(page, 'Menu').click();
   await btn(page, 'Rules').click();
   await expect(page.getByText(/With two decks, two identical cards/)).toBeVisible();
@@ -64,7 +73,7 @@ test('a saved group of nine reopens as a two-deck game, and is hidden for one de
         JSON.stringify({ names, emojis: [], colors: [], direction: 'cw', decks: 2 }),
       );
     },
-    LONG_NAMES_10.slice(0, 9),
+    LONG_NAMES_14.slice(0, 9),
   );
   await page.reload();
   await btn(page, 'New Game').click();
@@ -78,7 +87,7 @@ test('a saved group of nine reopens as a two-deck game, and is hidden for one de
         JSON.stringify({ names, emojis: [], colors: [], direction: 'cw' }),
       );
     },
-    LONG_NAMES_10.slice(0, 9),
+    LONG_NAMES_14.slice(0, 9),
   );
   await page.reload();
   await btn(page, 'New Game').click();

@@ -103,6 +103,10 @@
   --seat-8: #afc0d6;
   --seat-9: #e07a6e;
   --seat-10: #d4b27c;
+  --seat-11: #c8d86a;
+  --seat-12: #9fb1bd;
+  --seat-13: #6fd0de;
+  --seat-14: #eab55a;
   --share-ink: #1a1a1a;
   --fill-primary: linear-gradient(135deg, var(--ga), var(--brand) 55%, var(--gb));
   --card-back-a: #0f3b24;

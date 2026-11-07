@@ -8,8 +8,8 @@ export const DECK_OPTIONS: readonly Decks[] = [1, 2];
 const DECK_SIZE = 52;
 const PEAK = 10;
 const MIN_PLAYERS = 3;
-/** The most a table can seat: what the seating layout holds, and (for two decks) the last count that still reaches PEAK. */
-const MAX_PLAYERS: Record<Decks, number> = { 1: 7, 2: 10 };
+/** The most a table can seat: what the seating layout holds. Two decks deal 14 a 7-card peak, as one deck deals 7. */
+const MAX_PLAYERS: Record<Decks, number> = { 1: 7, 2: 14 };
 
 /** Most cards a player holds in a game: what the decks allow, never more than PEAK. */
 export const maxFor = (n: number, decks: Decks): number =>

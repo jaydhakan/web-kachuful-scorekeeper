@@ -11,7 +11,9 @@ import { cycleLen, maxFor, type LengthMode } from '@/domain';
 import {
   DEALS_PILL,
   SMALL_CHIP,
-  TD,
+  seatR,
+  CROWDED_FROM,
+  inwardOffset,
   angOf,
   chipSide,
   dpx,
@@ -41,11 +43,17 @@ function SpinToken({
   a1,
   pill,
   right,
+  r,
+  inward,
   onDone,
 }: {
   a0: number;
   a1: number;
   pill: boolean;
+  /** The seats' avatar radius (design pixels), which places the chip. */
+  r: number;
+  /** A crowded table's chip spot on the target seat (`inwardOffset`); otherwise a corner. */
+  inward?: { x: number; y: number };
   /** Whether the target seat puts its small chip on the right corner. */
   right: boolean;
   onDone: () => void;
@@ -74,13 +82,20 @@ function SpinToken({
             ? {
                 ...DEALS_PILL,
                 left: dpx(3 - 36),
-                top: `calc(${dpx(-TD.full.R - 2)} - ${DEALS_PILL.height})`,
+                top: `calc(${dpx(-r - 2)} - ${DEALS_PILL.height})`,
               }
-            : {
-                ...SMALL_CHIP,
-                left: dpx(smallChipOffset(TD.full.R, right).x),
-                top: dpx(smallChipOffset(TD.full.R, right).y),
-              }
+            : inward
+              ? {
+                  ...SMALL_CHIP,
+                  left: dpx(inward.x),
+                  top: dpx(inward.y),
+                  translate: '-50% -50%',
+                }
+              : {
+                  ...SMALL_CHIP,
+                  left: dpx(smallChipOffset(r, right).x),
+                  top: dpx(smallChipOffset(r, right).y),
+                }
         }
       >
         {pill ? t.table.deals : t.table.dealerMark}
@@ -271,6 +286,12 @@ export function Step3() {
               a0={spin.a0}
               a1={spin.a1}
               pill={pillChip('full', n)}
+              r={seatR('full', n)}
+              inward={
+                n >= CROWDED_FROM
+                  ? inwardOffset('full', seatPos('full', n, spin.tgt, su.dir), seatR('full', n))
+                  : undefined
+              }
               right={chipSide(toPct('full', seatPos('full', n, spin.tgt, su.dir)), su.dir, n)}
               onDone={() => {
                 actions.setupPatch({ dealer: spin.tgt });

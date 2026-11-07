@@ -151,8 +151,8 @@ test.describe('pill groups and segmented controls', () => {
     await expect(emojis).toHaveCount(21);
     // The seat sheet it replaced keeps its own Tab trap until its exit animation ends.
     await expect(sheet).toHaveCount(1);
-    // One colour per seat: two decks seat ten (COLORS).
-    await expect(colours).toHaveCount(10);
+    // One colour per seat: two decks seat fourteen (COLORS).
+    await expect(colours).toHaveCount(14);
     await expect(emojis.and(page.locator('[tabindex="0"]'))).toHaveCount(1);
     await expect(colours.and(page.locator('[tabindex="0"]'))).toHaveCount(1);
 

@@ -15,9 +15,9 @@ describe('table geometry', () => {
   });
 
   it.each(['full', 'mini', 'wide'] as const)(
-    '%s table keeps every seat inside its box for 3–10 players',
+    '%s table keeps every seat inside its box for 3–14 players',
     (size) => {
-      for (let n = 3; n <= 10; n++)
+      for (let n = 3; n <= 14; n++)
         for (let k = 0; k < n; k++) {
           const { x, y } = posAt(size, angOf(n, k, 'cw'));
           expect(x - 36).toBeGreaterThanOrEqual(-4);
@@ -37,13 +37,15 @@ describe('table geometry', () => {
         );
   });
 
-  it.each(['full', 'mini', 'wide'] as const)('%s table: ten avatars never overlap', (size) => {
-    const pts = Array.from({ length: 10 }, (_, k) => seatPos(size, 10, k, 'cw'));
-    for (let i = 0; i < 10; i++)
-      for (let j = i + 1; j < 10; j++)
-        expect(Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y)).toBeGreaterThan(
-          TD[size].R * 2 + 8,
-        );
+  it.each(['full', 'mini', 'wide'] as const)('%s table: 8–14 avatars never overlap', (size) => {
+    for (let n = 8; n <= 14; n++) {
+      const pts = Array.from({ length: n }, (_, k) => seatPos(size, n, k, 'cw'));
+      for (let i = 0; i < n; i++)
+        for (let j = i + 1; j < n; j++)
+          expect(Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y)).toBeGreaterThan(
+            TD[size].R * 2 + 8,
+          );
+    }
   });
 
   it.each(['full', 'mini', 'wide'] as const)(

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
+import { LONG_NAMES_14, openSeeded, seedGame } from './fixtures';
 import { bidEveryone, btn, startGame, toSetup3 } from './helpers';
 
 /** Requested box widths; a table never goes below its own minimum, so 245 means "as small as it gets". */
@@ -64,12 +64,12 @@ const collisions = (page: Page, uid: string) =>
     return out;
   }, uid);
 
-for (const n of [3, 5, 7, 8, 9, 10]) {
+for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`nothing on a table overlaps at any size (${n} players)`, async ({ page }) => {
     // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
     await page.setViewportSize({ width: 740, height: 900 });
     await page.goto('/');
-    await startGame(page, LONG_NAMES_10.slice(0, n));
+    await startGame(page, LONG_NAMES_14.slice(0, n));
     await bidEveryone(page);
     const found: string[] = [];
     for (const w of WIDTHS) {
@@ -88,12 +88,12 @@ for (const n of [3, 5, 7, 8, 9, 10]) {
   });
 }
 
-for (const n of [3, 5, 7, 8, 9, 10]) {
+for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
     // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
     await page.setViewportSize({ width: 740, height: 900 });
     await page.goto('/');
-    await toSetup3(page, LONG_NAMES_10.slice(0, n));
+    await toSetup3(page, LONG_NAMES_14.slice(0, n));
     await btn(page, 'Deal!').click();
     await page.locator('[data-table="rs"]').waitFor();
     const found: string[] = [];
@@ -106,14 +106,17 @@ for (const n of [3, 5, 7, 8, 9, 10]) {
   });
 }
 
-for (const n of [3, 5, 7, 8, 9, 10]) {
+for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`the made and missed marks stay clear of the names (${n} players)`, async ({ page }) => {
     // The large-screen workspace keeps its table while results are entered, with the marks on it.
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await openSeeded(page, seedGame(n, 'results'), 'round');
-    const made = page.getByRole('button', { name: /Made/ });
-    for (let k = 2; k < n; k++) await made.nth(k).click();
+    const made = page.getByRole('button', { name: /Made/ }),
+      missed = page.getByRole('button', { name: /Missed/ });
+    // Past ten seats the tricks run out before everyone makes it, and the results rule locks Made.
+    for (let k = 2; k < n; k++)
+      await ((await made.nth(k).isEnabled()) ? made : missed).nth(k).click();
     await page.locator('[data-table="ws"]').waitFor();
     const found: string[] = [];
     for (const w of WIDE_WIDTHS) {
@@ -129,7 +132,7 @@ for (const [w, h, what] of [
   [390, 1100, 'flat'],
   [1280, 800, 'wide'],
 ] as const) {
-  for (const n of [3, 5, 7, 8, 9, 10]) {
+  for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
     test(`the Next-up table has no overlaps at any size (${n} players, ${what})`, async ({
       page,
     }) => {
@@ -150,7 +153,7 @@ for (const [w, h, what] of [
   }
 }
 
-for (const n of [3, 5, 7, 8, 9, 10]) {
+for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`the large-screen workspace table has no overlaps at any size (${n} players)`, async ({
     page,
   }) => {

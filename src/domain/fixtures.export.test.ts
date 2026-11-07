@@ -179,6 +179,19 @@ function build() {
     ),
   );
   add(
+    'game-two-decks-fourteen',
+    gameFixture(
+      'fourteen players, two decks: a 7-card peak',
+      g({
+        id: '10000000-0000-4000-8000-000000000011',
+        decks: 2,
+        players: 'abcdefghijklmn'.split(''),
+        rounds: rows(14, 6, (i) => [i % 14, 13]),
+        finished: true,
+      }),
+    ),
+  );
+  add(
     'game-down-first',
     gameFixture(
       'down first: max → 3 → max (round order)',

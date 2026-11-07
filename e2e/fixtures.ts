@@ -13,8 +13,17 @@ export const LONG_NAMES = [
   'Wilhelmina Fox',
 ];
 
-/** The same, for the 8–10 seats a two-deck table adds. */
-export const LONG_NAMES_10 = [...LONG_NAMES, 'Maximiliano Q', 'Bartolomeo Vi', 'Ferdinand Ode'];
+/** The same, for the 8–14 seats a two-deck table adds. */
+export const LONG_NAMES_14 = [
+  ...LONG_NAMES,
+  'Maximiliano Q',
+  'Bartolomeo Vi',
+  'Ferdinand Ode',
+  'Seraphina Lee',
+  'Theodoric Ash',
+  'Evangeline Po',
+  'Leopold Rhyss',
+];
 
 export type SeedView = 'bidding' | 'playing' | 'results' | 'summary' | 'winner';
 
@@ -25,7 +34,7 @@ export type SeedView = 'bidding' | 'playing' | 'results' | 'summary' | 'winner';
 export function seedGame(
   n: number,
   view: SeedView,
-  names = LONG_NAMES_10,
+  names = LONG_NAMES_14,
   decks: Decks = n > 7 ? 2 : 1,
 ): Game {
   const players = names.slice(0, n).map((name, i) => ({

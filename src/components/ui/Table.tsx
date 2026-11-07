@@ -10,6 +10,9 @@ import {
   minScale,
   pillChip,
   seatPos,
+  seatR,
+  CROWDED_FROM,
+  inwardOffset,
   showNames,
   smallChipOffset,
   toPct,
@@ -160,6 +163,16 @@ function TurnRim({
   );
 }
 
+/** A chip centred at a crowded seat's inward point (`inwardOffset`), inside the avatar's box. */
+const inward = (size: TableSize, seat: { x: number; y: number }, R: number) => {
+  const o = inwardOffset(size, seat, R);
+  return {
+    left: `calc(50% + ${dpx(o.x)})`,
+    top: dpx(R + o.y),
+    translate: '-50% -50%',
+  };
+};
+
 export function Table({
   uid,
   size = 'full',
@@ -193,7 +206,8 @@ export function Table({
     lead = named ? firstLabel : undefined,
     // The large-screen table has bigger seats, so its seat box, labels and emoji grow with them.
     wide = size === 'wide',
-    half = wide ? 40 : 36;
+    half = wide ? 40 : 36,
+    R = seatR(size, N);
   const chipPill = pillChip(size, N);
   const seats = useMemo(
     () => Array.from({ length: N }, (_, k) => seatPos(size, N, k, dir)),
@@ -279,7 +293,7 @@ export function Table({
         })()}
       {seats.map((seat, k) => {
         const at = toPct(size, seat),
-          av = dpx(d.R * 2);
+          av = dpx(R * 2);
         // Tappable seats keep a 44px box whatever the scale, with the avatar centred in it.
         const boxH = onSeat ? `max(44px, ${av})` : av;
         const p = players[k];
@@ -287,7 +301,9 @@ export function Table({
           cur === k ? 'ring-pulse' : warn === k ? 'warn-pulse' : hl === k ? 'ring-pulse' : '';
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
         const out = p?.id !== undefined ? res?.[p.id] : undefined;
-        const flip = size === 'mini' && at.x < 38;
+        // The bubble takes the outer edge on the left: a flat table's corners, and a crowded table's felt side, which
+        // the "1st" chip needs.
+        const flip = size === 'mini' ? at.x < 38 : N >= CROWDED_FROM && at.x < 50;
         return (
           <div
             key={k}
@@ -386,12 +402,14 @@ export function Table({
                           left: dpx(3),
                           top: `calc(-1 * ${DEALS_PILL.height} - ${dpx(2)})`,
                         }
-                      : {
-                          ...SMALL_CHIP,
-                          // The corner away from the seat above, whose name sits right there.
-                          left: `calc(50% + ${dpx(smallChipOffset(d.R, chipSide(at, dir, N)).x)})`,
-                          top: dpx(smallChipOffset(d.R, chipSide(at, dir, N)).y + d.R),
-                        }
+                      : N >= CROWDED_FROM
+                        ? { ...SMALL_CHIP, ...inward(size, seat, R) }
+                        : {
+                            ...SMALL_CHIP,
+                            // The corner away from the seat above, whose name sits right there.
+                            left: `calc(50% + ${dpx(smallChipOffset(R, chipSide(at, dir, N)).x)})`,
+                            top: dpx(smallChipOffset(R, chipSide(at, dir, N)).y + R),
+                          }
                   }
                 >
                   {/* The reference's "D" disc; the wide table's pill keeps its word. */}
@@ -412,10 +430,13 @@ export function Table({
                         ? // Without names the space above is free; off to one side, the closer seats of a crowded
                           // table would put it on the neighbour's avatar.
                           { left: '50%', top: `calc(${dpx(7)} - 18px)`, translate: '-50% 0' }
-                        : {
-                            left: `calc(50% + ${dpx(size === 'mini' ? 6 : 10)})`,
-                            top: dpx(size === 'mini' ? -9 : -8),
-                          }
+                        : N >= CROWDED_FROM
+                          ? // A crowded table has a neighbour on both shoulders; only the felt side is free.
+                            inward(size, seat, R)
+                          : {
+                              left: `calc(50% + ${dpx(size === 'mini' ? 6 : 10)})`,
+                              top: dpx(size === 'mini' ? -9 : -8),
+                            }
                   }
                 >
                   {lead && size !== 'mini' ? (
@@ -431,8 +452,8 @@ export function Table({
               )}
               <AnimatePresence>
                 {p && bid !== undefined && (
-                  // Centred on the avatar's right edge: clear of the name below and the dealer pill above. On a flat
-                  // table the left-hand seats put it on their left edge, away from their neighbours' names.
+                  // Centred on the avatar's right edge: clear of the name below and the dealer pill above. Some
+                  // left-hand seats use their left edge instead (see `flip`).
                   <m.div
                     key={'b' + bid}
                     data-seat-bid
@@ -450,8 +471,8 @@ export function Table({
                             borderRadius: dpx(16),
                             fontSize: `max(0.8125rem, ${dpx(22)})`,
                             lineHeight: dpx(29),
-                            left: `calc(50% + ${dpx(d.R - 16)})`,
-                            top: dpx(d.R - 16),
+                            left: `calc(50% + ${dpx(flip ? -R - 16 : R - 16)})`,
+                            top: dpx(R - 16),
                           }
                         : {
                             minWidth: dpx(22),
@@ -459,8 +480,8 @@ export function Table({
                             borderRadius: dpx(11),
                             fontSize: `max(0.8125rem, ${dpx(14)})`,
                             lineHeight: dpx(19),
-                            left: `calc(50% + ${dpx(flip ? -d.R - 11 : d.R - 11)})`,
-                            top: dpx(d.R - 11),
+                            left: `calc(50% + ${dpx(flip ? -R - 11 : R - 11)})`,
+                            top: dpx(R - 11),
                           }
                     }
                   >
@@ -477,8 +498,8 @@ export function Table({
                   className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
                   style={{
                     // On the avatar's upper-left corner: the name sits below it, the bubble on its other side.
-                    left: `calc(50% - ${dpx(d.R * 0.707)} - 10px)`,
-                    top: `calc(${dpx(d.R * 0.293)} - 6px)`,
+                    left: `calc(50% - ${dpx(R * 0.707)} - 10px)`,
+                    top: `calc(${dpx(R * 0.293)} - 6px)`,
                   }}
                 >
                   {out === 'made' ? t.table.made : t.table.missed}

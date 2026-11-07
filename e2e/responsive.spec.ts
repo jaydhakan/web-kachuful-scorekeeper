@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { auditScreen, type ScreenReport } from './audit';
 import { violations } from './audit-rules';
-import { LONG_NAMES_10, openSeeded, seedGame } from './fixtures';
+import { LONG_NAMES_14, openSeeded, seedGame } from './fixtures';
 import { btn, nameField, openAdvanced } from './helpers';
 
 /**
@@ -44,7 +44,7 @@ const SUBSET = [
   [740, 360],
 ] as const;
 const MATRIX = FULL ? VIEWPORTS : SUBSET;
-const PLAYERS = FULL ? [3, 5, 7, 10] : [7, 10];
+const PLAYERS = FULL ? [3, 5, 7, 10, 14] : [7, 14];
 
 const settle = (page: Page) => page.waitForTimeout(650);
 
@@ -109,7 +109,7 @@ for (const [w, h] of MATRIX) {
 
           await btn(page, 'Next').click();
           const input = await nameField(page);
-          for (const name of LONG_NAMES_10.slice(0, 2)) {
+          for (const name of LONG_NAMES_14.slice(0, 2)) {
             await input.fill(name);
             await input.press('Enter');
           }
@@ -131,7 +131,7 @@ for (const [w, h] of MATRIX) {
           await close();
           await settle(page);
           await nameField(page);
-          for (const name of LONG_NAMES_10.slice(2, n)) {
+          for (const name of LONG_NAMES_14.slice(2, n)) {
             await input.fill(name);
             await input.press('Enter');
           }

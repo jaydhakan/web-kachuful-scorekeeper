@@ -9,6 +9,24 @@ export const TD = {
   wide: { W: 560, H: 380, cy: 190, R: 34, rx: 224, ry: 130 },
 } as const;
 
+/** From this many seats (two decks only) avatars are drawn smaller, so bid bubbles and chips clear the next seat. */
+export const CROWDED_FROM = 11;
+/** A seat's avatar radius in design pixels for a table of `players`. */
+export const seatR = (sz: TableSize, players: number): number =>
+  TD[sz].R * (players >= CROWDED_FROM ? 0.8 : 1);
+
+/**
+ * Where a crowded table puts a seat's dealer or "1st" chip: just inside the avatar, towards the table's middle, as an
+ * offset from the avatar's centre (design pixels). A neighbour sits on both shoulders; only the felt side is free.
+ */
+export function inwardOffset(sz: TableSize, seat: { x: number; y: number }, r: number) {
+  const d = TD[sz],
+    dx = d.W / 2 - seat.x,
+    dy = d.cy - seat.y,
+    k = (r + 6) / (Math.hypot(dx, dy) || 1);
+  return { x: dx * k, y: dy * k };
+}
+
 /** Up to this many seats a table names each player; beyond it there is no room under an avatar, so only avatars show. */
 export const MAX_LABELLED = 7;
 export const showNames = (players: number): boolean => players <= MAX_LABELLED;
