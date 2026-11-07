@@ -32,3 +32,24 @@ for (const [vp, round] of [
     expect(s.overlap).toBeLessThanOrEqual(0);
     expect(s.scrolls).toBe(false);
   });
+
+// A Home Screen app on a 402×874 iPhone loses ~100px to the status bar and home indicator, which a page-height
+// threshold can't see: the table must still clear the deal line, names included.
+test('bidding on a notched phone keeps the table clear of the deal line', async ({ page }) => {
+  await page.setViewportSize({ width: 402, height: 874 });
+  await page.goto('/');
+  await openSeeded(page, seedGame(5, 'bidding'), 'round');
+  await page.addStyleTag({ content: ':root{--sat:86px !important;--sab:34px !important}' });
+  await page.waitForTimeout(600);
+  const gap = await page.evaluate(() => {
+    const table = document.querySelector('[data-table="bid"]')!;
+    const line = table.closest('.glass')!.querySelector('p span')!.getBoundingClientRect();
+    const lowest = Math.max(
+      ...[...table.querySelectorAll('[data-seat-avatar], [data-seat-name]')].map(
+        (e) => e.getBoundingClientRect().bottom,
+      ),
+    );
+    return line.top - lowest;
+  });
+  expect(gap).toBeGreaterThanOrEqual(8);
+});

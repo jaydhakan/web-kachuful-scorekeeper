@@ -3,7 +3,8 @@ import { useId, useState, type CSSProperties } from 'react';
 import { roundAt, type Game, type Round } from '@/domain';
 import { useApp } from '@/state/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { usePageHeight } from '@/hooks/usePageHeight';
+import { useBoxHeight } from '@/hooks/useBoxHeight';
+import { TD, minScale } from '@/lib/tableGeometry';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { MQ } from '@/theme/breakpoints';
 import { Glass } from '@/components/ui/Glass';
@@ -83,9 +84,6 @@ export function HeroWho({
   );
 }
 
-/** Measured on a 390px-wide phone: below this the round table overlaps the deal line with seven players. */
-const ROUND_TABLE_MIN = 870;
-
 /** One row up to six pills, else two rows, so the dock stays short; never more than six across. */
 const pillColumns = (pills: number) => Math.min(6, pills <= 6 ? pills : Math.ceil(pills / 2));
 
@@ -108,8 +106,10 @@ export function Bidding() {
   // Geometry cannot be switched in CSS, so it is chosen here. Only props change on rotation: the screen stays mounted
   // and keeps its bids, bidder and selection.
   const wide = useMediaQuery(MQ.wide);
-  // The round table only where it fits seven seats and two rows of pills with seats no smaller than the flat oval's.
-  const round = usePageHeight() >= ROUND_TABLE_MIN;
+  // The round table only where its slot holds it at its smallest scale (seats no smaller than the flat oval's).
+  // Measured, not the page height: a Home Screen app loses ~100px to the status bar and home indicator.
+  const [slot, slotH] = useBoxHeight<HTMLDivElement>();
+  const round = slotH >= TD.full.H * minScale(n);
   // The grid narrows to fewer columns on a tight pane, so the row length is read from the layout.
   const roving = useRovingFocus({
     selected: r.bids[p.id] ?? -1,
@@ -259,7 +259,7 @@ export function Bidding() {
         }
       >
         <Glass glow spot={false} className="flex min-h-0 flex-1 flex-col p-2 pb-2.5">
-          <div className="-mx-2 flex min-h-0 flex-1 flex-col">
+          <div ref={slot} className="-mx-2 flex min-h-0 flex-1 flex-col">
             <Table
               uid="bid"
               fit
