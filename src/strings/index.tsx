@@ -682,5 +682,28 @@ export const t = {
     offlineReady: 'Ready to work offline',
   },
 
-  update: { newVersion: 'New version', reload: 'Reload', notNow: 'Not now' },
+  /** The update gate: one of these lines at random, then one button. Every line promises the game is safe. */
+  update: {
+    kicker: 'New version',
+    lines: [
+      {
+        title: 'Fresh deck just landed 🃏',
+        body: 'Someone reshuffled the code while you weren’t looking. One tap and you’re back at the table, scores and all.',
+      },
+      {
+        title: 'Your app is bidding 0 on staying current',
+        body: 'Don’t let it make that bid. One tap to update; your game is saved right where you left it.',
+      },
+      {
+        title: 'The dealer says: new hand',
+        body: 'We fixed a few things and polished the felt. Tap to reload. Every score stays exactly where it was.',
+      },
+      {
+        title: 'Trump just changed to ♠ Update',
+        body: 'Sorry, house rules. One tap and you’re back, mid-round and all.',
+      },
+    ],
+    reload: 'Shuffle me in',
+    reloading: 'Shuffling…',
+  },
 } as const;

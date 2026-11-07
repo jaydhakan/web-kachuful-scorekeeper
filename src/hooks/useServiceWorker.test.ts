@@ -23,7 +23,7 @@ afterEach(() => {
   setVisibility('visible');
 });
 
-test('registers once however often the prompt remounts, and shows then hides a waiting update', async () => {
+test('registers once however often the shell remounts, and reports a waiting update', async () => {
   const { useServiceWorker } = await load();
   const a = renderHook(() => useServiceWorker());
   a.unmount();
@@ -32,8 +32,7 @@ test('registers once however often the prompt remounts, and shows then hides a w
   expect(b.result.current.needRefresh).toBe(false);
   act(() => registerSW.mock.calls[0][0].onNeedRefresh!());
   expect(b.result.current.needRefresh).toBe(true);
-  act(() => b.result.current.dismiss());
-  expect(b.result.current.needRefresh).toBe(false);
+  expect(b.result.current).not.toHaveProperty('dismiss');
 });
 
 test('reload only activates the waiting worker when asked', async () => {
@@ -47,26 +46,29 @@ test('reload only activates the waiting worker when asked', async () => {
   expect(apply).toHaveBeenCalledTimes(1);
 });
 
-test('an open app asks for updates on return and hourly, but not offline, hidden or twice in ten minutes', async () => {
+test('asks for updates at launch, on return, on coming online and hourly; never offline, hidden or twice a minute', async () => {
   vi.useFakeTimers();
   const { watchForUpdates, CHECK_EVERY, CHECK_GAP } = await load();
   const update = vi.fn(() => Promise.resolve());
   watchForUpdates({ update, installing: null } as unknown as ServiceWorkerRegistration);
+  expect(update).toHaveBeenCalledTimes(1); // at launch
 
   setVisibility('visible');
-  expect(update).not.toHaveBeenCalled(); // just registered: nothing to ask yet
+  expect(update).toHaveBeenCalledTimes(1); // too soon
   vi.advanceTimersByTime(CHECK_GAP);
   setVisibility('hidden');
-  expect(update).not.toHaveBeenCalled();
-  setVisibility('visible');
   expect(update).toHaveBeenCalledTimes(1);
   setVisibility('visible');
-  expect(update).toHaveBeenCalledTimes(1);
+  expect(update).toHaveBeenCalledTimes(2);
+
+  vi.advanceTimersByTime(CHECK_GAP);
+  window.dispatchEvent(new Event('online'));
+  expect(update).toHaveBeenCalledTimes(3);
 
   vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
   vi.advanceTimersByTime(CHECK_EVERY);
-  expect(update).toHaveBeenCalledTimes(1);
+  expect(update).toHaveBeenCalledTimes(3);
   vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
   vi.advanceTimersByTime(CHECK_EVERY);
-  expect(update).toHaveBeenCalledTimes(2);
+  expect(update).toHaveBeenCalledTimes(4);
 });

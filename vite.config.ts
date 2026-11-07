@@ -181,8 +181,8 @@ export default defineConfig(({ mode }) => ({
     preloadShell(),
     precompress(),
     VitePWA({
-      // A new version installs and takes over by itself; the round is saved on every change, so the reload is safe.
-      registerType: 'autoUpdate',
+      // A new version waits behind the update gate until the player taps it; every change is saved, so the reload is safe.
+      registerType: 'prompt',
       // The install icons are read by the OS once, at install, never by the app offline: no need to precache ~230 KB.
       includeAssets: ['icon.svg'],
       includeManifestIcons: false,

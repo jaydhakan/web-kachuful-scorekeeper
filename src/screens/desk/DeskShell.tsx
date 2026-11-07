@@ -15,6 +15,7 @@ import { BadgePop } from '@/components/BadgePop';
 import { HostLive } from '@/components/HostLive';
 import { Banner } from '@/components/ui/Banner';
 import { ServiceWorkerHost } from '@/components/ServiceWorkerHost';
+import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { Toast } from '@/components/ui/Toast';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 import { DeskHome } from './DeskHome';
@@ -53,7 +54,9 @@ export default function DeskShell() {
   const [keys, setKeys] = useState(false);
   const board = sheet?.type === 'board' || sheet?.type === 'edit';
   const overlay = !!sheet && !board;
-  const blocked = overlay || !!modal || !!seq || !!state.streakFx || state.corrupt || keys;
+  const updateDue = useServiceWorker().needRefresh;
+  const blocked =
+    overlay || !!modal || !!seq || !!state.streakFx || state.corrupt || keys || updateDue;
   const inGame = screen === 'round' || screen === 'winner';
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);

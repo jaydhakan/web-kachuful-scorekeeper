@@ -2,7 +2,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { registerSW } from 'virtual:pwa-register';
 
 interface SwState {
-  /** A new version is installed and waiting for the player to reload. */
+  /** A new version is installed and waiting; the app asks the player to reload into it, and won't go on until they do. */
   needRefresh: boolean;
   /** The first install finished: the app now works offline. Cleared once announced. */
   offlineReady: boolean;
@@ -10,7 +10,7 @@ interface SwState {
 
 /** How often an open app asks for a new version, and the least time between two asks. */
 export const CHECK_EVERY = 60 * 60e3;
-export const CHECK_GAP = 10 * 60e3;
+export const CHECK_GAP = 60e3;
 
 let state: SwState = { needRefresh: false, offlineReady: false };
 const subs = new Set<() => void>();
@@ -21,18 +21,20 @@ const set = (p: Partial<SwState>) => {
 let apply: (() => Promise<void>) | null = null;
 
 /**
- * Asks the server for a new service worker when the app comes back to the front and hourly while it stays open, so
- * an installed app left open for days still learns of a deploy. Only ever prompts; the player chooses when to reload.
+ * Asks the server for a new service worker at launch, on every return to the front, on coming back online and hourly.
+ * iOS resumes a Home Screen app without a navigation, and a navigation is the only time the browser checks by itself.
  */
 export function watchForUpdates(reg: ServiceWorkerRegistration): void {
-  let last = Date.now();
+  let last = -Infinity;
   const check = () => {
     if (document.visibilityState !== 'visible' || !navigator.onLine || reg.installing) return;
     if (Date.now() - last < CHECK_GAP) return;
     last = Date.now();
     reg.update().catch(() => {});
   };
+  check();
   document.addEventListener('visibilitychange', check);
+  window.addEventListener('online', check);
   setInterval(check, CHECK_EVERY);
 }
 
@@ -54,7 +56,6 @@ const subscribe = (f: () => void) => {
 const actions = {
   /** Activates the waiting version; the page reloads once it takes control. */
   reload: () => void apply?.(),
-  dismiss: () => set({ needRefresh: false }),
   announced: () => set({ offlineReady: false }),
 };
 

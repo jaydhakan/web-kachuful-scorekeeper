@@ -4,6 +4,7 @@ import { whenIdle } from '@/lib/idle';
 import { curRound } from '@/domain';
 import { useApp } from '@/state/store';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
+import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { routeKey } from '@/lib/route';
 import { palette, themeConfetti } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
@@ -58,7 +59,8 @@ export default function PhoneShell() {
       transition: { duration: 0.26, ease: EASE },
     }),
   };
-  const blocked = !!(sheet || modal || seq || state.corrupt || state.streakFx);
+  const updateDue = useServiceWorker().needRefresh;
+  const blocked = !!(sheet || modal || seq || state.corrupt || state.streakFx || updateDue);
   useEffect(() => whenIdle(() => void Promise.all([loadSetup(), loadStreak()])), []);
   // Confetti is skipped under reduced motion; the podium still marks the moment.
   useEffect(() => {

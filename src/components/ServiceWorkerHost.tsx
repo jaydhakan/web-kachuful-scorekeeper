@@ -1,12 +1,14 @@
+import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useApp } from '@/state/store';
 import { t } from '@/strings';
+import { UpdateGate } from './UpdateGate';
 
-/** Registers the service worker and announces the first offline-ready install. Updates apply silently. */
+/** Registers the service worker, announces the first offline-ready install and gates the app on a waiting update. */
 export function ServiceWorkerHost() {
   const { state, actions } = useApp();
-  const { offlineReady, announced } = useServiceWorker();
+  const { offlineReady, announced, needRefresh, reload } = useServiceWorker();
   // There is one toast slot, and this news can wait: it never displaces a toast the player just caused.
   const slotBusy = !!state.toast;
   useEffect(() => {
@@ -14,5 +16,9 @@ export function ServiceWorkerHost() {
     actions.say(t.toasts.offlineReady);
     announced();
   }, [offlineReady, slotBusy, actions, announced]);
-  return null;
+  return (
+    <AnimatePresence>
+      {needRefresh && <UpdateGate key="update" onReload={reload} />}
+    </AnimatePresence>
+  );
 }
