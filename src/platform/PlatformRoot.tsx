@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useState, type ComponentType, type ReactNode } from 'react';
+import { Component, createElement, lazy, Suspense, useState, type ComponentType, type ReactNode } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { platform } from '@/strings/platform';
@@ -58,7 +58,6 @@ export function PlatformRoot() {
       </Suspense>
     );
   }
-  const Root = rootOf(id, attempt);
   return (
     <LoadBoundary key={`${id}-${attempt}`} onRetry={() => setAttempt((a) => a + 1)}>
       <Suspense
@@ -68,7 +67,8 @@ export function PlatformRoot() {
           </div>
         }
       >
-        <Root />
+        {/* Cached per game and attempt (rootOf), so this never remounts a game on a re-render. */}
+        {createElement(rootOf(id, attempt))}
       </Suspense>
     </LoadBoundary>
   );
