@@ -10,7 +10,7 @@ import { BoardTable } from '@/games/kachuful/sheets/BoardBody';
 import { ChartLegend, ScoreChart } from '@/games/kachuful/screens/desk/ScoreChart';
 import { rankTone } from '@/games/kachuful/screens/desk/DeskParts';
 import { RankMark } from '@/components/ui/RankMark';
-import { PODIUM_BG } from '@/components/ui/podium';
+import { PODIUM_BG } from '@/components/ui/rankTones';
 import { EmptyState, Page, Section, Skeleton } from '@/components/ui/Page';
 import { fetchGame, queueDelete, resolveConflict } from '@/games/kachuful/sync/engine';
 import { Modal } from '@/components/ui/Modal';

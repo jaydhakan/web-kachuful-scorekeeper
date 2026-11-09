@@ -31,7 +31,7 @@ import { useRemote } from '@/sync/useRemote';
 import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
-import { PODIUM_BG } from '@/components/ui/podium';
+import { PODIUM_BG } from '@/components/ui/rankTones';
 import { Medal } from '@/components/ui/Medal';
 import { Edge } from '@/components/ui/Edge';
 import { icon } from '@/components/ui/IconsMore';

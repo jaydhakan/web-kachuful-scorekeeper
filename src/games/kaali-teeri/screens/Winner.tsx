@@ -14,7 +14,7 @@ import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Podium } from '@/components/ui/Podium';
-import { rankTone } from '@/components/ui/podium';
+import { rankTone } from '@/components/ui/rankTones';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { t } from '@/strings';

@@ -4,7 +4,7 @@ import { seatColor } from '@/theme/palette';
 import { t } from '@/strings';
 import { AvatarFill, type Face } from './Avatar';
 import { EASE, SPRING_POP } from './motion';
-import { PODIUM_BG } from './podium';
+import { PODIUM_BG } from './rankTones';
 
 /** One player in the final standings; tied players share a rank. */
 export interface PodiumStanding extends Face {

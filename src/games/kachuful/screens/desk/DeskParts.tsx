@@ -140,7 +140,7 @@ export const Delta = ({ v, className = '' }: { v: number; className?: string }) 
   </m.span>
 );
 
-export { rankTone } from '@/components/ui/podium';
+export { rankTone } from '@/components/ui/rankTones';
 
 export const totalTone = (v: number) => (v < 0 ? 'text-[var(--neg-tx)]' : '');
 
