@@ -9,6 +9,9 @@ import { DESTS, destRoute, destsFor, type Dest } from '@/games/kachuful/componen
 import { SyncDot } from '@/components/SyncDot';
 import type { RouteName } from '@/games/kachuful/state/types';
 import { t } from '@/strings';
+import { platform } from '@/strings/platform';
+import { go } from '@/platform/route';
+import { BaithakMark } from '@/components/ui/BaithakMark';
 
 type Where = 'home' | 'game' | 'scores' | 'rules' | 'rounds' | `dest:${RouteName}`;
 
@@ -106,15 +109,16 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
       aria-label={t.desk.nav.label}
       className="scroll-thin relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-ov/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
     >
-      <m.button
-        type="button"
-        onClick={n.home}
-        aria-label={t.desk.nav.home}
-        whileTap={PRESS_SM}
-        className="disp mb-5 grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-gradient [@media(max-height:900px)]:mb-2 text-26 font-extrabold text-ink-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold-hi)_35%,transparent)]"
-      >
-        <span aria-hidden>{t.desk.logo}</span>
-      </m.button>
+      {/* Baithak's mark leaves for the game picker; the game is saved on every change. */}
+      <RailItem
+        icon={<BaithakMark className="h-8 w-8" />}
+        label={platform.allGames}
+        onClick={() => go(null)}
+      />
+      <div
+        aria-hidden
+        className="mb-3 h-px w-10 shrink-0 bg-ov/10 [@media(max-height:900px)]:mb-1"
+      />
       <RailItem icon={Icon.home} label={t.desk.nav.home} on={n.where === 'home'} onClick={n.home} />
       <RailItem
         icon={Icon.cards}

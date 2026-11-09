@@ -6,6 +6,9 @@ import { destRoute, destsFor } from '@/games/kachuful/components/hubNav';
 import { t } from '@/strings';
 import { loadThemeState } from '@/state/persistence';
 import { Icon } from '@/components/ui/Icons';
+import { BaithakMark } from '@/components/ui/BaithakMark';
+import { go } from '@/platform/route';
+import { platform } from '@/strings/platform';
 
 type Row = [ReactElement, string, () => void, boolean?];
 
@@ -45,6 +48,23 @@ export function MenuBody() {
   let i = 0;
   return (
     <>
+      <m.button
+        type="button"
+        {...stagger(i++)}
+        whileTap={{ scale: 0.97 }}
+        // The game is saved on every change, so leaving mid-round loses nothing.
+        onClick={() => go(null)}
+        className="glass mb-3 flex min-h-16 w-full items-center gap-3 p-3 text-left"
+      >
+        <BaithakMark className="h-10 w-10 shrink-0" />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-18 font-bold">{platform.allGames}</span>
+          <span className="text-14 text-[var(--tx2)]">{platform.allGamesHint}</span>
+        </span>
+        <span aria-hidden className="text-[var(--tx2)]">
+          {Icon.chev}
+        </span>
+      </m.button>
       {groups.map(([title, rows]) => (
         <section key={title} aria-label={title} className="mb-3">
           <h3 className="mono-label px-2 pb-1 text-12 text-[var(--tx2)]">{title}</h3>
