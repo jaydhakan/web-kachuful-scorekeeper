@@ -8,6 +8,9 @@ import { promisify } from 'node:util';
 import { brotliCompress, constants, gzip } from 'node:zlib';
 import { MQ } from './src/theme/breakpoints';
 import { DEFAULT_THEME, THEMES } from './src/theme/themes';
+import { metaTags, PAGES } from './src/platform/meta';
+import { GAME_IDS } from './src/platform/route';
+import { platform } from './src/strings/platform';
 import { mockApiPlugin } from './tools/mock-api';
 
 const splash = THEMES[DEFAULT_THEME].themeColor;
@@ -60,6 +63,31 @@ const themeCssBoot = (): Plugin => ({
   },
 });
 
+const META_START = '<!-- meta:start -->',
+  META_END = '<!-- meta:end -->';
+/**
+ * One HTML file per page, each with its own title, description and link-preview tags (src/platform/meta.ts): preview
+ * bots don't run scripts, so `/kaali-teeri` must arrive with Kaali Teeri's tags. Every page loads the same app.
+ */
+const pageMeta = (): Plugin => ({
+  name: 'page-meta',
+  enforce: 'post',
+  transformIndexHtml: (html) =>
+    html.replace('<!-- page-meta -->', `${META_START}\n    ${metaTags(PAGES[0])}\n    ${META_END}`),
+  generateBundle(_o, bundle) {
+    const root = bundle['index.html'];
+    if (root?.type !== 'asset') throw new Error('page-meta: index.html is missing');
+    const html = String(root.source);
+    const at = html.indexOf(META_START),
+      end = html.indexOf(META_END) + META_END.length;
+    if (at < 0 || end < at) throw new Error('page-meta: the meta markers are missing');
+    const page = (i: number) => html.slice(0, at) + metaTags(PAGES[i]) + html.slice(end);
+    root.source = page(0);
+    for (let i = 1; i < PAGES.length; i++)
+      this.emitFile({ type: 'asset', fileName: PAGES[i].file, source: page(i) });
+  },
+});
+
 /**
  * Starts the chunks of whichever UI fits this screen (phone or large-screen) downloading while the entry is still
  * parsing. Without this they are only requested once the entry has run, a whole extra round trip before first paint.
@@ -87,12 +115,14 @@ const preloadShell = (): Plugin => ({
         if (!shell) throw new Error(`preload-shell: no chunk for ${src}`);
         return [...closure([shell.fileName])].filter((f) => !entry.has(f)).map((f) => `/${f}`);
       };
-      const desk = files('/src/games/kachuful/screens/desk/DeskShell.tsx');
-      const phone = files('/src/games/kachuful/components/PhoneShell.tsx');
+      const both = (...src: string[]) => [...new Set(src.flatMap(files))];
+      // Per path, [large screen, phone]: each page starts only its own game's chunks.
+      const sets: Record<string, [string[], string[]]> = {};
+      for (const [path, desk, phone] of PRELOADS) sets[path] = [both(...desk), both(...phone)];
       return [
         {
           tag: 'script',
-          children: `(matchMedia(${JSON.stringify(MQ.big)}).matches?${JSON.stringify(desk)}:${JSON.stringify(phone)}).forEach(function(h){var l=document.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=h;document.head.appendChild(l)})`,
+          children: `(function(){var s=${JSON.stringify(sets)},p=(location.pathname.split('/')[1]||'').toLowerCase(),f=s[p]||s[''];(matchMedia(${JSON.stringify(MQ.big)}).matches?f[0]:f[1]).forEach(function(h){var l=document.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=h;document.head.appendChild(l)})})()`,
           injectTo: 'head' as const,
         },
       ];
@@ -134,6 +164,20 @@ const precompress = (): Plugin => {
     },
   };
 };
+
+const LANDING = '/src/platform/landing/Landing.tsx';
+const KF = '/src/games/kachuful/index.tsx';
+const KT = '/src/games/kaali-teeri/index.tsx';
+// First path segment → the modules each UI needs first ([large screen], [phone]).
+const PRELOADS: [string, string[], string[]][] = [
+  ['', [LANDING], [LANDING]],
+  [
+    'kachuful',
+    [KF, '/src/games/kachuful/screens/desk/DeskShell.tsx'],
+    [KF, '/src/games/kachuful/components/PhoneShell.tsx'],
+  ],
+  ['kaali-teeri', [KT], [KT]],
+];
 
 const SHELLS = [
   '/src/games/kachuful/components/PhoneShell.tsx',
@@ -182,19 +226,20 @@ export default defineConfig(({ mode }) => ({
     themeBoot(),
     themeCssBoot(),
     preloadShell(),
+    pageMeta(),
     precompress(),
     VitePWA({
       // A new version waits behind the update gate until the player taps it; every change is saved, so the reload is safe.
       registerType: 'prompt',
       // The install icons are read by the OS once, at install, never by the app offline: no need to precache ~230 KB.
-      includeAssets: ['icon.svg'],
+      includeAssets: ['favicon.svg'],
       includeManifestIcons: false,
       manifest: {
         // Pinned to what browsers derived from start_url, so installs keep their identity if start_url ever moves.
         id: '/',
-        name: 'Kachuful',
-        short_name: 'Kachuful',
-        description: 'Scorekeeper for the Judgement / Kachuful card game.',
+        name: platform.name,
+        short_name: platform.name,
+        description: platform.description,
         lang: 'en',
         categories: ['games', 'utilities'],
         start_url: '/',
@@ -204,10 +249,21 @@ export default defineConfig(({ mode }) => ({
         background_color: splash,
         theme_color: splash,
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          {
+            src: 'icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
+        // One installed app; each live game is a long-press shortcut into its own path.
+        shortcuts: GAME_IDS.filter((id) => id !== 'ishaara').map((id) => ({
+          name: platform.games[id].name,
+          url: `/${id}`,
+          icons: [{ src: `games/${id}/icon-96.png`, sizes: '96x96', type: 'image/png' }],
+        })),
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,webmanifest}'],
