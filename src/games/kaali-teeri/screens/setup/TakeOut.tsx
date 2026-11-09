@@ -34,7 +34,7 @@ export function TakeOut({ n, className = '' }: { n: number; className?: string }
           groups.map((g, i) => (
             <span
               key={`${g.card.rank}${g.card.suit}`}
-              className={i > 0 ? '-ml-4' : ''}
+              className={i > 0 ? '-ml-3' : ''}
               style={{ transform: `rotate(${(i - (groups.length - 1) / 2) * 7}deg)` }}
             >
               <PlayingCard rank={g.card.rank} suit={g.card.suit} size="xs" />
