@@ -13,7 +13,7 @@ import { Toast } from '@/components/ui/Toast';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 import { t } from '@/strings';
 import Home from './Home';
-import HandView from './hand/HandView';
+import { handScreen } from './hand/HandView';
 import SheetHost from '@/games/kaali-teeri/sheets/SheetHost';
 import Confirm from '@/games/kaali-teeri/sheets/Confirm';
 import { KtServiceWorker as ServiceWorker } from './KtServiceWorker';
@@ -65,7 +65,7 @@ export default function KtShell() {
     const h = curHand(game);
     key =
       game.ui.view === 'summary' || h.phase === 'done' ? `sum-${h.index}` : `${h.phase}-${h.index}`;
-    content = <HandView />;
+    content = handScreen(game);
   } else {
     key = 'home';
     content = <Home />;
