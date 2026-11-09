@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { headToHead } from '@/games/kaali-teeri/domain';
+import { useKtHeadToHead } from '@/games/kaali-teeri/sync/boards';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import { kpg } from '@/games/kaali-teeri/strings/pages';
 import { Avatar } from '@/components/ui/Avatar';
@@ -15,7 +16,10 @@ export function H2HPage({ a, b }: { a: string; b: string }) {
   const who = useWho(src.games);
   const wa = who(a),
     wb = who(b);
-  const o = useMemo(() => headToHead(src.games, a, b), [src.games, a, b]);
+  const local = useMemo(() => headToHead(src.games, a, b), [src.games, a, b]);
+  const named = (k: string) => (k.startsWith('name:') ? null : k);
+  const remote = useKtHeadToHead(named(a), named(b));
+  const o = remote.online && remote.data ? remote.data : local;
   return (
     <KtPage eyebrow={x.title} title={`${wa.name} · ${wb.name}`}>
       <div className="mb-5 flex items-center justify-center gap-6">

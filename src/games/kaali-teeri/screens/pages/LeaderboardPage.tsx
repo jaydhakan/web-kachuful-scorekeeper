@@ -11,6 +11,8 @@ import {
   type KtSort,
 } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
+import { useKtLeaderboard } from '@/games/kaali-teeri/sync/boards';
+import type { KtLeaderboardRow } from '@/games/kaali-teeri/sync/types';
 import { kpg } from '@/games/kaali-teeri/strings/pages';
 import { Avatar } from '@/components/ui/Avatar';
 import { Chip, ChipRow, EmptyState, Section } from '@/components/ui/PageParts';
@@ -23,6 +25,31 @@ import { useKtGames } from './source';
 
 const b = kpg.board;
 
+/**
+ * The server's rows in the board's own shape. Made % keeps the device's rule (enough bids to rank), so a board reads
+ * the same signed in or out; ties on the value share a rank.
+ */
+function fromServer(rows: KtLeaderboardRow[], sort: KtSort): KtBoardRow[] {
+  const out = rows.map((r) => ({
+    playerId: r.player.id,
+    games: r.games,
+    wins: r.wins,
+    points: r.points,
+    handsBid: r.handsBid,
+    bidsMade: r.bidsMade,
+    madeRate: r.madeRate,
+    value: r.value,
+    qualified: sort !== 'made' || r.handsBid >= MIN_BIDS,
+    rank: null as number | null,
+  }));
+  const ranked = out.filter((r) => r.qualified);
+  ranked.forEach((r, i) => {
+    const prev = ranked[i - 1];
+    r.rank = prev && prev.value === r.value ? prev.rank : i + 1;
+  });
+  return [...ranked, ...out.filter((r) => !r.qualified)];
+}
+
 const shown = (sort: KtSort, r: KtBoardRow) =>
   sort === 'made' ? kpg.pct(r.madeRate) : String(sort === 'points' ? r.points : r.wins);
 
@@ -31,11 +58,24 @@ export function LeaderboardPage() {
   const src = useKtGames();
   const [period, setPeriod] = useState<KtPeriod>('season');
   const [sort, setSort] = useState<KtSort>('points');
-  const rows = useMemo(
+  const remote = useKtLeaderboard(period, sort);
+  const server = remote.online && remote.data ? remote.data : null;
+  const local = useMemo(
     () => ktLeaderboard(src.games, { ...periodRange(period, Date.now()), sort }),
     [src.games, period, sort],
   );
-  const who = useWho(src.games);
+  const rows = useMemo(
+    () => (server ? fromServer(server.rows, sort) : local),
+    [server, sort, local],
+  );
+  const seen = useWho(src.games);
+  // Signed in, a player may never have sat at this device's table: the server's row carries who they are.
+  const who = (id: string): Who => {
+    const p = server?.rows.find((r) => r.player.id === id)?.player;
+    return p
+      ? { id, playerId: p.id, name: p.displayName, emoji: p.emoji, color: p.color }
+      : seen(id);
+  };
   const ranked = rows.filter((r) => r.qualified),
     rest = rows.filter((r) => !r.qualified);
   return (
@@ -63,7 +103,7 @@ export function LeaderboardPage() {
     >
       <Gate src={src} rows={5}>
         {() =>
-          !src.games.length ? (
+          !src.games.length && !server ? (
             <NoGames title={b.emptyTitle} body={b.emptyBody} />
           ) : !rows.length ? (
             <EmptyState
@@ -107,7 +147,7 @@ export function LeaderboardPage() {
                   </ol>
                 </Section>
               )}
-              <p className="mt-4 text-13 text-[var(--tx2)]">{b.local}</p>
+              <p className="mt-4 text-13 text-[var(--tx2)]">{server ? b.online : b.local}</p>
             </>
           )
         }

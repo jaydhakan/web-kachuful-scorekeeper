@@ -84,6 +84,7 @@ export const kpg = {
     row: (rank: string, name: string, value: string) => `${rank}, ${name}, ${value}`,
     unrankedShort: 'Unranked',
     local: 'Games scored on this device.',
+    online: 'Every synced game, from the server.',
   },
   players: {
     title: 'Player stats',

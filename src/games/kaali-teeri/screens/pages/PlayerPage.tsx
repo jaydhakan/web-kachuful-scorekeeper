@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { opponents, playerGames, playerStats } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
+import { useKtPlayerStats } from '@/games/kaali-teeri/sync/boards';
 import { kpg } from '@/games/kaali-teeri/strings/pages';
 import { dayLabel } from '@/lib/dates';
 import { fmt } from '@/lib/format';
@@ -18,7 +19,10 @@ export function PlayerPage({ id }: { id: string }) {
   const { actions } = useKt();
   const who = useWho(src.games);
   const w = who(id);
-  const s = useMemo(() => playerStats(src.games, id), [src.games, id]);
+  const local = useMemo(() => playerStats(src.games, id), [src.games, id]);
+  // Signed in, a registered player's numbers cover every synced game; a name-only seat, or no answer, stays local.
+  const remote = useKtPlayerStats(id.startsWith('name:') ? null : id);
+  const s = remote.online && remote.data ? remote.data : local;
   const recent = useMemo(() => playerGames(src.games, id).slice(0, 6), [src.games, id]);
   const rivals = useMemo(() => opponents(src.games, id).slice(0, 5), [src.games, id]);
   const mate = s.mostPartner && who(s.mostPartner.playerId);
