@@ -21,7 +21,7 @@ export interface ShareCard {
 }
 
 /**
- * Draws a final-scores card (1080×1350) in the active theme: a podium for the top three places, then the first seven
+ * Draws a final-scores card (1080×1350) in the active theme: a podium for the top three places, then the first nine
  * lines. Fonts must be loaded first or the canvas falls back silently.
  */
 export async function drawShareCanvas({
@@ -64,14 +64,15 @@ export async function drawShareCanvas({
   x.fillText(subtitle, 540, 185);
   (
     [
-      [2, 150, 230],
-      [1, 420, 330],
-      [3, 690, 160],
+      [2, 150, 300],
+      [1, 420, 400],
+      [3, 690, 220],
     ] as const
   ).forEach(([k, px, hh]) => {
+    // Steps stand on y=880 so the names sit just under the title, with no empty band between.
     const m = st.filter((s) => s.rank === k),
       cx = px + 120,
-      top = 740 + 330 - hh;
+      top = 880 - hh;
     x.fillStyle =
       k === 1 ? palette['gold-mid'] : k === 2 ? palette['rank-silver'] : palette['rank-bronze'];
     x.beginPath();
@@ -95,8 +96,8 @@ export async function drawShareCanvas({
       x.fillText(s.name.slice(0, 9), ax, ay - 62);
     });
   });
-  st.slice(0, 7).forEach((s, i) => {
-    const yy = 1110 + i * 38;
+  st.slice(0, 9).forEach((s, i) => {
+    const yy = 950 + i * 42;
     x.textAlign = 'left';
     x.fillStyle = palette['text-primary'];
     x.font = '700 28px ' + SANS;
