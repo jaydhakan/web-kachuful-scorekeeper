@@ -15,9 +15,10 @@ import { useHistorySync } from '@/hooks/useHistorySync';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
 import type { Direction, Seat } from '@/people';
-import { archiveKtGame, forgetEmptyKt } from '@/state/archive';
+import { archive, archiveKtGame, forgetEmptyKt } from '@/state/archive';
 import { pushRecentNames } from '@/state/persistence';
-import { getSession } from '@/sync/session';
+import { getSession, signedInAs } from '@/sync/session';
+import { useKtSync } from '@/games/kaali-teeri/sync/useKtSync';
 import { ensurePlayer } from '@/state/registry';
 import {
   loadKt,
@@ -149,10 +150,19 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
   useEffect(() => {
     const g = state.game;
     if (state.corrupt || !g) return;
-    // Undone back to no hand done, it exists nowhere but the table.
-    if (!g.hands.some((h) => h.phase === 'done')) forgetEmptyKt(g.syncId);
-    else archiveKtGame(g);
+    // Undone back to no hand done, it exists nowhere but the table; an id the server deleted can't be reused.
+    if (!g.hands.some((h) => h.phase === 'done')) {
+      if (g.id !== 'demo' && forgetEmptyKt(g.syncId))
+        dispatch({ type: 'renewSyncId', syncId: uuid() });
+      return;
+    }
+    // A game scored signed in syncs to that account; one begun signed out stays on this device.
+    const acct = signedInAs()?.user.id;
+    const prev = archive.get('ktGames', g.syncId);
+    archiveKtGame(g, acct && (!prev || prev.account) ? { account: acct } : {});
   }, [state.game, state.corrupt]);
+
+  useKtSync(ref, dispatch);
 
   // System Back closes an open sheet, then the top page, then steps back through setup (step 3 → 2 → 1 → home).
   const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;

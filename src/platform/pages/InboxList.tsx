@@ -18,7 +18,8 @@ export function InboxList() {
         <li key={i.id} className="glass flex flex-wrap items-center gap-3 p-4">
           <span className="min-w-0 flex-1 basis-60 text-15">{describe(i)}</span>
           {i.kind === 'nameMatch' && <NameMatch i={i} />}
-          {i.kind === 'conflict' && (
+          {/* Kaali Teeri keeps its conflict copies in its own History, which this page can't open. */}
+          {i.kind === 'conflict' && i.data.game !== 'kaali-teeri' && (
             <button
               type="button"
               onClick={() => actions.open({ screen: 'game', params: { id: String(i.data.copy) } })}

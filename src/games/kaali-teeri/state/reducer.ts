@@ -745,5 +745,30 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
       };
     case 'repaired':
       return { ...s, game: null, undo: [], corrupt: false, screen: 'home' };
+    case 'syncGame':
+      if (!s.game || a.game.syncId !== s.game.syncId) return s;
+      if (!a.fresh) return { ...s, game: a.game };
+      return {
+        ...s,
+        game: a.game,
+        undo: [],
+        deal: null,
+        screen:
+          a.game.status === 'finished' && s.screen === 'game'
+            ? 'winner'
+            : a.game.status === 'active' && s.screen === 'winner'
+              ? 'game'
+              : s.screen,
+      };
+    case 'renewSyncId': {
+      if (!s.game) return s;
+      const old = s.game.syncId;
+      // Undo snapshots carry the id too; a uuid never appears anywhere else in them.
+      return {
+        ...s,
+        game: { ...s.game, syncId: a.syncId },
+        undo: s.undo.map((u) => u.split(old).join(a.syncId)),
+      };
+    }
   }
 }
