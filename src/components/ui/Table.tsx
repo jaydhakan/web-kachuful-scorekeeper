@@ -1,7 +1,6 @@
 import { AnimatePresence, m, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { useMemo, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import type { Direction } from '@/people';
-import type { Outcome } from '@/games/kachuful/domain';
 import {
   DEALS_PILL,
   SMALL_CHIP,
@@ -31,6 +30,9 @@ export interface TablePlayer {
   color: string;
 }
 
+/** A mark on a seat's avatar once the hand is settled: a tick for `pos`, a cross for `neg`. The game decides which. */
+export type SeatMark = 'pos' | 'neg';
+
 interface TableProps {
   uid: string;
   size?: TableSize;
@@ -44,7 +46,8 @@ interface TableProps {
   warn?: number;
   hl?: number;
   bids?: Record<string, number>;
-  res?: Record<string, Outcome>;
+  /** Marks keyed by player id. */
+  marks?: Record<string, SeatMark>;
   big?: boolean;
   /** Fill the slot it sits in (a definite-height parent) instead of keeping the fixed design size. */
   fit?: boolean;
@@ -187,7 +190,7 @@ export function Table({
   warn,
   hl,
   bids,
-  res,
+  marks,
   big,
   fit,
   minFit,
@@ -301,7 +304,7 @@ export function Table({
         const ring =
           cur === k ? 'ring-pulse' : warn === k ? 'warn-pulse' : hl === k ? 'ring-pulse' : '';
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
-        const out = p?.id !== undefined ? res?.[p.id] : undefined;
+        const out = p?.id !== undefined ? marks?.[p.id] : undefined;
         // The bubble takes the outer edge on the left: a flat table's corners, and a crowded table's felt side, which
         // the "1st" chip needs.
         const flip = size === 'mini' ? at.x < 38 : N >= CROWDED_FROM && at.x < 50;
@@ -496,14 +499,14 @@ export function Table({
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
-                  className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
+                  className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'pos' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
                   style={{
                     // On the avatar's upper-left corner: the name sits below it, the bubble on its other side.
                     left: `calc(50% - ${dpx(R * 0.707)} - 10px)`,
                     top: `calc(${dpx(R * 0.293)} - 6px)`,
                   }}
                 >
-                  {out === 'made' ? t.table.made : t.table.missed}
+                  {out === 'pos' ? t.table.made : t.table.missed}
                 </m.div>
               )}
             </m.div>

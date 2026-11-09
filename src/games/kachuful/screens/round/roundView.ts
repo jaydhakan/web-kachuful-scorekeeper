@@ -10,6 +10,7 @@ import {
   type Game,
   type Outcome,
 } from '@/games/kachuful/domain';
+import type { SeatMark } from '@/components/ui/Table';
 import { t } from '@/strings';
 
 /** Everything the bidding screens read off the current round; phone and large screen share it. */
@@ -58,3 +59,7 @@ export function resultsView(g: Game) {
     why,
   };
 }
+
+/** A round's results as the table's seat marks: made is a tick, missed a cross. */
+export const seatMarks = (res: Record<string, Outcome>): Record<string, SeatMark> =>
+  Object.fromEntries(Object.entries(res).map(([id, o]) => [id, o === 'made' ? 'pos' : 'neg']));

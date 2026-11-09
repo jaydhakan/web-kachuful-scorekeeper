@@ -6,7 +6,7 @@ import { useDeskKeys } from './useDeskKeys';
 import { Icon } from '@/components/ui/Icons';
 import { Table } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
-import { bidView } from '@/games/kachuful/screens/round/roundView';
+import { bidView, seatMarks } from '@/games/kachuful/screens/round/roundView';
 import { BidPane, type BidPrimary } from './BidPane';
 import { ComingUp } from './ComingUp';
 import { DeskPage, GhostButton, Kbd, PageHead, TableCenter } from './DeskParts';
@@ -157,7 +157,7 @@ export function Workspace() {
               first={phase === 'results' ? undefined : r.firstPlayerIndex}
               firstLabel={phase === 'playing' ? t.play.leadsFirst : undefined}
               bids={r.bids}
-              res={phase === 'results' ? r.results : undefined}
+              marks={phase === 'results' ? seatMarks(r.results) : undefined}
               cur={phase === 'bidding' ? pI : undefined}
               warn={
                 phase === 'bidding' && hookWarn && r.bids[v.dealer.id] === undefined

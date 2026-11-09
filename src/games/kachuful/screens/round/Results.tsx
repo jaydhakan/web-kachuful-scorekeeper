@@ -10,7 +10,7 @@ import { Table } from '@/components/ui/Table';
 import { SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
-import { resultsView } from './roundView';
+import { resultsView, seatMarks } from './roundView';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 
@@ -43,7 +43,7 @@ export function Results() {
               players={g.players}
               dir={g.direction}
               bids={r.bids}
-              res={r.results}
+              marks={seatMarks(r.results)}
             />
           </div>
         </>
