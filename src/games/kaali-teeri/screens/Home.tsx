@@ -140,7 +140,8 @@ export default function Home() {
         chrome
         label={s.menu}
         onClick={() => actions.openSheet({ type: 'menu' })}
-        className="!absolute left-[max(1rem,var(--sal))] top-[calc(var(--sat)+0.75rem)] z-10"
+        // The desk rail has its own Menu.
+        className="!absolute left-[max(1rem,var(--sal))] top-[calc(var(--sat)+0.75rem)] z-10 [[data-desk]_&]:!hidden"
       >
         {Icon.menu}
       </IconButton>
@@ -196,7 +197,7 @@ export default function Home() {
           </m.div>
         </div>
       </div>
-      <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,var(--sab))] pt-[18px]">
+      <div className="chrome-bot flex min-h-[96px] [[data-desk]_&]:bg-none items-center px-5 pb-[max(18px,var(--sab))] pt-[18px]">
         <PrimaryButton className="mx-auto w-full max-w-[26rem]" onClick={actions.startSetup}>
           {s.home.newGame}
         </PrimaryButton>

@@ -17,7 +17,7 @@ import { t } from '@/strings';
 import SheetHost from '@/games/kaali-teeri/sheets/SheetHost';
 import Confirm from '@/games/kaali-teeri/sheets/Confirm';
 import Home from '../Home';
-import Summary from '../hand/Summary';
+import { KtDeskSummary } from './KtDeskSummary';
 import { KtServiceWorker } from '../KtServiceWorker';
 import { KtRail, KtTopBar } from './KtNav';
 import { KtWorkspace } from './KtWorkspace';
@@ -99,7 +99,7 @@ export default function KtDeskShell() {
       content = (
         <>
           <ScreenKeys map={{ enter: actions.nextHand }} />
-          <Summary />
+          <KtDeskSummary />
         </>
       );
     } else {

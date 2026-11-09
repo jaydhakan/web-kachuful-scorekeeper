@@ -63,18 +63,8 @@ function SummaryEmpty() {
   );
 }
 
-function SummaryBody({
-  g,
-  h,
-  onNext,
-  onEnd,
-}: {
-  g: KtGame;
-  h: KtHand;
-  onNext: () => void;
-  onEnd: () => void;
-}) {
-  const { actions } = useKt();
+/** Everything both summaries show for the hand just scored, with the count-up's stages. */
+export function useSummaryData(g: KtGame, h: KtHand) {
   const rm = useReducedMotion();
   /* The board before this hand is frozen at mount so the count-up has somewhere to start. */
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -107,6 +97,116 @@ function SummaryBody({
           : kp.summary.missed(bidder.name, h.teamPoints!, h.bid!);
   const good = res.sweep === 'bidders' || (res.made && res.sweep === 'none');
   const final = standings(g);
+  return { stage, fresh, pt, ct, list, delta, res, line, good, final, next, nD, nF };
+}
+
+type Data = ReturnType<typeof useSummaryData>;
+
+/** "Made: Meera's team took 190 of 180 · ♥ trump", and the standings for assistive tech once they settle. */
+export function ResultLine({ d, h }: { d: Data; h: KtHand }) {
+  const { good, line, stage, final, delta } = d;
+  return (
+    <>
+      <p className="mb-3 flex flex-wrap items-center gap-x-1.5 text-15 text-[var(--tx2)]">
+        <span aria-hidden className={good ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}>
+          {good ? kp.board.made : kp.board.missed}
+        </span>
+        <span>{line}</span>
+        <span aria-hidden>·</span>
+        <span>
+          <SuitGlyph trump={h.trump!} /> {kp.summary.trump}
+        </span>
+      </p>
+      <p role="status" aria-live="polite" className="sr-only">
+        {stage >= 3 &&
+          kp.summary.announce(
+            final.map((x) => ({ name: x.p.name, d: sgnN(delta[x.p.id]), t: fmt(x.t) })),
+          )}
+      </p>
+    </>
+  );
+}
+
+/** The standings after the hand: this hand's change and the total counting up. */
+export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
+  const { list, delta, res, stage, fresh, pt, ct } = d;
+  return (
+    <div
+      role="region"
+      aria-label={kp.summary.standings}
+      tabIndex={0}
+      className="@container scroll-thin relative min-h-[8.5rem] flex-1 overflow-y-auto overflow-x-hidden"
+    >
+      {list.map((x) => {
+        const id = x.p.id,
+          d = delta[id],
+          role = roleOf(h, id);
+        return (
+          <m.div
+            layout="position"
+            key={id}
+            transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+            className="mb-1.5"
+          >
+            <Glass spot={false} className="relative flex min-h-16 items-center gap-2.5 px-3 py-2">
+              <div
+                className="disp w-6 shrink-0 text-center text-22 font-extrabold"
+                style={{ color: rankColor(x.rank) }}
+              >
+                {x.rank}
+              </div>
+              <Avatar
+                p={x.p}
+                className="mat-av grid h-11 w-11 shrink-0 place-items-center rounded-full text-24"
+              />
+              <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+                <span className="block max-w-full break-words text-17 font-bold leading-[1.2] tracking-[-0.015em] @[26rem]:text-18">
+                  {x.p.name}
+                </span>
+                {(role || res.sweep !== 'none') && (
+                  <span className="flex flex-wrap gap-1">
+                    {role && <RoleBadge kind={role} />}
+                    {res.sweep !== 'none' && d > 0 && <Pill>{kp.role.sweep}</Pill>}
+                  </span>
+                )}
+              </div>
+              <AnimatePresence>
+                {stage >= 1 && (
+                  <m.span
+                    initial={fresh ? { scale: 0.4, opacity: 0 } : false}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={SPRING_POP}
+                    className={`min-w-10 shrink-0 rounded-xl px-2 py-0.5 text-center text-15 font-extrabold ${d > 0 ? 'bg-[var(--success-soft)] text-[var(--pos)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
+                  >
+                    {sgnN(d)}
+                  </m.span>
+                )}
+              </AnimatePresence>
+              <div className="disp tick min-w-[3.25rem] shrink-0 text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:text-28">
+                <Counter from={fresh ? pt[id] : ct[id]} to={ct[id]} run={fresh && stage >= 2} />
+              </div>
+            </Glass>
+          </m.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SummaryBody({
+  g,
+  h,
+  onNext,
+  onEnd,
+}: {
+  g: KtGame;
+  h: KtHand;
+  onNext: () => void;
+  onEnd: () => void;
+}) {
+  const { actions } = useKt();
+  const d = useSummaryData(g, h);
+  const { next, nD, nF } = d;
   return (
     <Scaffold
       title={kp.summary.title(h.index + 1)}
@@ -142,81 +242,8 @@ function SummaryBody({
         </>
       }
     >
-      <p className="mb-3 flex flex-wrap items-center gap-x-1.5 text-15 text-[var(--tx2)]">
-        <span aria-hidden className={good ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}>
-          {good ? kp.board.made : kp.board.missed}
-        </span>
-        <span>{line}</span>
-        <span aria-hidden>·</span>
-        <span>
-          <SuitGlyph trump={h.trump!} /> {kp.summary.trump}
-        </span>
-      </p>
-      <p role="status" aria-live="polite" className="sr-only">
-        {stage >= 3 &&
-          kp.summary.announce(
-            final.map((x) => ({ name: x.p.name, d: sgnN(delta[x.p.id]), t: fmt(x.t) })),
-          )}
-      </p>
-      <div
-        role="region"
-        aria-label={kp.summary.standings}
-        tabIndex={0}
-        className="@container scroll-thin relative min-h-[8.5rem] flex-1 overflow-y-auto overflow-x-hidden"
-      >
-        {list.map((x) => {
-          const id = x.p.id,
-            d = delta[id],
-            role = roleOf(h, id);
-          return (
-            <m.div
-              layout="position"
-              key={id}
-              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              className="mb-1.5"
-            >
-              <Glass spot={false} className="relative flex min-h-16 items-center gap-2.5 px-3 py-2">
-                <div
-                  className="disp w-6 shrink-0 text-center text-22 font-extrabold"
-                  style={{ color: rankColor(x.rank) }}
-                >
-                  {x.rank}
-                </div>
-                <Avatar
-                  p={x.p}
-                  className="mat-av grid h-11 w-11 shrink-0 place-items-center rounded-full text-24"
-                />
-                <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
-                  <span className="block max-w-full break-words text-17 font-bold leading-[1.2] tracking-[-0.015em] @[26rem]:text-18">
-                    {x.p.name}
-                  </span>
-                  {(role || res.sweep !== 'none') && (
-                    <span className="flex flex-wrap gap-1">
-                      {role && <RoleBadge kind={role} />}
-                      {res.sweep !== 'none' && d > 0 && <Pill>{kp.role.sweep}</Pill>}
-                    </span>
-                  )}
-                </div>
-                <AnimatePresence>
-                  {stage >= 1 && (
-                    <m.span
-                      initial={fresh ? { scale: 0.4, opacity: 0 } : false}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={SPRING_POP}
-                      className={`min-w-10 shrink-0 rounded-xl px-2 py-0.5 text-center text-15 font-extrabold ${d > 0 ? 'bg-[var(--success-soft)] text-[var(--pos)]' : 'bg-ov/[.08] text-[var(--tx2)]'}`}
-                    >
-                      {sgnN(d)}
-                    </m.span>
-                  )}
-                </AnimatePresence>
-                <div className="disp tick min-w-[3.25rem] shrink-0 text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:text-28">
-                  <Counter from={fresh ? pt[id] : ct[id]} to={ct[id]} run={fresh && stage >= 2} />
-                </div>
-              </Glass>
-            </m.div>
-          );
-        })}
-      </div>
+      <ResultLine d={d} h={h} />
+      <StandingsList d={d} h={h} />
     </Scaffold>
   );
 }
