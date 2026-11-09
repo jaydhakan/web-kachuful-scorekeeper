@@ -8,10 +8,11 @@ import { canShareFiles, copySummary, shareScores } from '@/hooks/useShare';
 import { drawShareCanvas } from '@/lib/shareImage';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { t } from '@/strings';
+import { ShareLinks } from './ShareLinks';
 
 type Img = { url: string; blob: Blob } | 'failed' | null;
 
-/** The scores card and a text summary. Live and recap links (K8) go under the buttons, as in Kachuful's sheet. */
+/** The scores card and a text summary; live and recap links go under the buttons, as in Kachuful's sheet. */
 export default function Share() {
   const { state, actions } = useKt();
   const g = state.game;
@@ -79,6 +80,7 @@ export default function Share() {
           {direct ? t.sheets.shareDirect : t.sheets.shareSave}
         </PrimaryButton>
       </div>
+      <ShareLinks g={g} />
     </div>
   );
 }

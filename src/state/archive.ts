@@ -62,7 +62,14 @@ export interface PlayerRec {
   lastPlayedAt?: number | null;
 }
 
-export type OutboxKind = 'putGame' | 'createPlayer' | 'patchPlayer' | 'deleteGame';
+export type OutboxKind =
+  | 'putGame'
+  | 'createPlayer'
+  | 'patchPlayer'
+  | 'deleteGame'
+  // Kaali Teeri's own, so Kachuful's engine never sends them to /api/games.
+  | 'putKtGame'
+  | 'deleteKtGame';
 
 export interface OutboxItem {
   id: string;
@@ -423,5 +430,27 @@ export function archiveKtGame(g: KtGame, rec: Partial<KtGameRec> = {}) {
   });
 }
 
-/** A Kaali Teeri game undone back to no hand done leaves no trace here (it never syncs yet: phase K8). */
-export const forgetEmptyKt = (syncId: string) => archive.del('ktGames', syncId);
+/**
+ * A Kaali Teeri game undone back to no hand done leaves no trace, as forgetEmpty: a copy the server has is deleted
+ * there through the outbox. True when the server had it, so its id can't be used again.
+ */
+export function forgetEmptyKt(syncId: string): boolean {
+  const r = archive.get('ktGames', syncId);
+  if (!r || r.deleted) return false;
+  const onServer = !!r.account && r.syncedRev !== undefined;
+  archive.del('outbox', 'ktput:' + syncId);
+  if (!onServer) {
+    archive.del('ktGames', syncId);
+    return false;
+  }
+  archive.put('ktGames', { ...r, deleted: true, updatedAt: Date.now() });
+  archive.put('outbox', {
+    id: 'ktdel:' + syncId,
+    kind: 'deleteKtGame',
+    key: syncId,
+    attempts: 0,
+    nextAt: 0,
+    createdAt: Date.now(),
+  });
+  return true;
+}

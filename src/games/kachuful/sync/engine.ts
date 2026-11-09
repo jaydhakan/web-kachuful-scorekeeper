@@ -7,17 +7,17 @@ import { doneRounds, emailKey, nameKey, type Game } from '@/games/kachuful/domai
 import { uuid } from '@/lib/ids';
 import { archive, type GameRec, type InboxItem } from '@/state/archive';
 import type { Session } from '@/state/persistence';
-import { idOf, recFromServer } from '@/state/registry';
+import { idOf } from '@/state/registry';
 import type { Route } from '@/games/kachuful/state/types';
 import { ApiError } from '@/sync/api';
 import { sessionOf } from '@/sync/account';
 import { ep } from '@/sync/endpoints';
+import { playersWaiting, pullPlayers, pushPlayers, upsertPlayers } from '@/sync/players';
 import { setSyncStatus } from '@/sync/status';
 import {
   isTombstone,
   type Achievement,
   type GameSummary,
-  type Player,
   type WireGame,
 } from '@/sync/types';
 
@@ -124,7 +124,7 @@ async function run(full: boolean) {
   setSyncStatus({ phase: 'syncing' });
   try {
     if (full || Date.now() - lastPull > PULL_EVERY) await pullAll();
-    await pushPlayers();
+    await pushPlayers(remap);
     await pushDeletes();
     await pushGames(s.user.id);
     failures = 0;
@@ -146,12 +146,6 @@ async function run(full: boolean) {
 
 // ——— pull ———
 
-const toRec = recFromServer;
-
-function upsertPlayers(list: Player[]) {
-  archive.put('players', ...list.map((p) => toRec(p, archive.get('players', p.id))));
-}
-
 async function pullAll() {
   const prev = archive.get('cache', 'bootstrap');
   const r = await ep.bootstrap({ etag: prev?.etag });
@@ -164,18 +158,7 @@ async function pullAll() {
     cacheSet('myAchievements', b.myAchievements);
     cacheSet('myGames', b.myGames);
     cacheSet('players:since', Math.max(0, ...b.players.map((p) => p.updatedAt)));
-  } else {
-    const since = cacheGet<number>('players:since') ?? 0;
-    let cursor: string | null = null;
-    let max = since;
-    do {
-      const page = await ep.players(Math.max(0, since - OVERLAP), cursor);
-      upsertPlayers(page.items);
-      max = Math.max(max, ...page.items.map((p) => p.updatedAt));
-      cursor = page.nextCursor;
-    } while (cursor);
-    cacheSet('players:since', max);
-  }
+  } else await pullPlayers();
   await pullMyGames();
   await pullMet();
   lastPull = Date.now();
@@ -279,54 +262,6 @@ function dropDeleted(syncId: string) {
 }
 
 // ——— push ———
-
-async function pushPlayers() {
-  for (const p of archive.all('players').filter((x) => x.pendingCreate && !x.mergedInto)) {
-    // A player goes up with its email; one without waits for someone to add it (the inbox asks).
-    if (!p.email) {
-      inbox('nameMatch', p.id, {
-        name: p.displayName,
-        playerId: p.id,
-        field: 'email',
-        missing: true,
-      });
-      archive.put('players', { ...p, pendingCreate: false });
-      continue;
-    }
-    try {
-      const out = await ep.createPlayer({
-        id: p.id,
-        displayName: p.displayName,
-        email: p.email,
-        emoji: p.emoji,
-        color: p.color,
-        ...(p.firstName && { firstName: p.firstName }),
-        ...(p.lastName && { lastName: p.lastName }),
-      });
-      archive.put('players', toRec(out, p));
-    } catch (e) {
-      if (!(e instanceof ApiError) || e.status !== 409) throw e;
-      if (e.code === 'same_player') {
-        // Name and email are someone the server already has: that player it is.
-        const same = e.body.player as Player;
-        archive.put('players', toRec(same, archive.get('players', same.id)), {
-          ...p,
-          mergedInto: same.id,
-          pendingCreate: false,
-        });
-        remap({ [p.id]: same.id });
-        continue;
-      }
-      // The name or the email belongs to someone else, who isn't named: the person picks another (the games wait).
-      archive.put('players', { ...p, pendingCreate: false });
-      inbox('nameMatch', p.id, {
-        name: p.displayName,
-        playerId: p.id,
-        field: e.code === 'email_taken' ? 'email' : 'name',
-      });
-    }
-  }
-}
 
 async function pushDeletes() {
   for (const o of archive.all('outbox').filter((x) => x.kind === 'deleteGame' && !x.blocked)) {
@@ -485,7 +420,7 @@ export function resolveNameMatch(
 
 /** Whether anything is waiting to go up (the archive listener only wakes the engine for real work). */
 export const hasWork = (userId: string) =>
-  archive.all('players').some((p) => p.pendingCreate && !p.mergedInto) ||
+  playersWaiting() ||
   archive.all('outbox').some((o) => o.kind === 'deleteGame') ||
   pendingGames(userId).some((r) => !waitsForPlayers(r));
 

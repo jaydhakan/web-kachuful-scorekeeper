@@ -23,6 +23,11 @@ export async function signOutDevice(remove: boolean) {
       .filter((g) => g.origin === 'remote' || g.syncedRev === g.game.rev)
       .map((g) => g.syncId);
     archive.del('games', ...remote);
+    const ktRemote = archive
+      .all('ktGames')
+      .filter((g) => g.origin === 'remote' || g.syncedRev === g.game.rev)
+      .map((g) => g.syncId);
+    archive.del('ktGames', ...ktRemote);
   }
   // Server players used by games kept here become this device's own again.
   archive.put(

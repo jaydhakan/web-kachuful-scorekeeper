@@ -173,4 +173,9 @@ export type KtAction =
   | { type: 'undo' }
   | { type: 'openGame'; game: KtGame }
   /** The repair prompt's answer: the unreadable save is set aside and the table starts empty. */
-  | { type: 'repaired' };
+  | { type: 'repaired' }
+  // Sync (signed in)
+  /** The same game from the server or a settled conflict; `fresh` also clears Undo. */
+  | { type: 'syncGame'; game: KtGame; fresh: boolean }
+  /** The server deleted this id (undone to no hand done): the game goes on under a new one. */
+  | { type: 'renewSyncId'; syncId: string };
