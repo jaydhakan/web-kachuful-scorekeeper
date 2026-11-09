@@ -1,4 +1,5 @@
 import { doneRounds, type Game } from '@/games/kachuful/domain';
+import type { KtGame } from '@/games/kaali-teeri/domain';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,
@@ -7,9 +8,10 @@ import { doneRounds, type Game } from '@/games/kachuful/domain';
  * once and to IndexedDB in the background, so screens never wait on the database.
  */
 
-export interface GameRec {
+/** One game in a game's store; `G` is that game's saved shape. */
+export interface GameRecOf<G> {
   syncId: string;
-  game: Game;
+  game: G;
   updatedAt: number;
   /** When it ended (finished or ended early); null while it can still be played. */
   endedAt: number | null;
@@ -27,6 +29,9 @@ export interface GameRec {
   account?: string;
   deleted?: boolean;
 }
+
+export type GameRec = GameRecOf<Game>;
+export type KtGameRec = GameRecOf<KtGame>;
 
 export interface PlayerRec {
   id: string;
@@ -96,6 +101,7 @@ interface Stores {
   outbox: OutboxItem;
   cache: CacheRec;
   inbox: InboxItem;
+  ktGames: KtGameRec;
 }
 type StoreName = keyof Stores;
 
@@ -105,6 +111,7 @@ const KEY_PATH: { [K in StoreName]: keyof Stores[K] & string } = {
   outbox: 'id',
   cache: 'key',
   inbox: 'id',
+  ktGames: 'syncId',
 };
 const STORES = Object.keys(KEY_PATH) as StoreName[];
 
@@ -118,13 +125,38 @@ export interface Backend {
 
 /** Nothing outlives the page: tests, and browsers without IndexedDB (or with it blocked). */
 export const memoryBackend = (): Backend => ({
-  load: async () => ({ games: [], players: [], outbox: [], cache: [], inbox: [] }),
+  load: async () => ({ games: [], players: [], outbox: [], cache: [], inbox: [], ktGames: [] }),
   put: async () => {},
   del: async () => {},
   clear: async () => {},
 });
 
 const DB = 'kachuful';
+/** 2 added `ktGames`. Bump it with every new store; existing stores and their rows are never touched. */
+export const DB_VERSION = 2;
+/** Every game's store, each listed by when it ended and when it changed. */
+const GAME_STORES: readonly StoreName[] = ['games', 'ktGames'];
+
+/** What an upgrade needs of the database, so it can be tested without a browser. */
+export interface UpgradeDb {
+  objectStoreNames: { contains(name: string): boolean };
+  createObjectStore(
+    name: string,
+    o: { keyPath: string },
+  ): { createIndex(name: string, keyPath: string): unknown };
+}
+
+/** Creates whatever stores are missing; a database at any older version keeps its stores and rows. */
+export function upgradeDb(d: UpgradeDb) {
+  for (const s of STORES) {
+    if (d.objectStoreNames.contains(s)) continue;
+    const os = d.createObjectStore(s, { keyPath: KEY_PATH[s] });
+    if (GAME_STORES.includes(s)) {
+      os.createIndex('endedAt', 'endedAt');
+      os.createIndex('updatedAt', 'updatedAt');
+    }
+  }
+}
 const req = <T>(r: IDBRequest<T>) =>
   new Promise<T>((ok, no) => {
     r.onsuccess = () => ok(r.result);
@@ -140,18 +172,8 @@ export function idbBackend(idb: IDBFactory): Backend {
   let dbp: Promise<IDBDatabase> | null = null;
   const db = () =>
     (dbp ??= new Promise((ok, no) => {
-      const r = idb.open(DB, 1);
-      r.onupgradeneeded = () => {
-        const d = r.result;
-        for (const s of STORES) {
-          if (d.objectStoreNames.contains(s)) continue;
-          const os = d.createObjectStore(s, { keyPath: KEY_PATH[s] });
-          if (s === 'games') {
-            os.createIndex('endedAt', 'endedAt');
-            os.createIndex('updatedAt', 'updatedAt');
-          }
-        }
-      };
+      const r = idb.open(DB, DB_VERSION);
+      r.onupgradeneeded = () => upgradeDb(r.result);
       r.onsuccess = () => ok(r.result);
       r.onerror = () => no(r.error);
       r.onblocked = () => no(new Error('blocked'));
@@ -193,6 +215,7 @@ export class Archive {
     outbox: new Map(),
     cache: new Map(),
     inbox: new Map(),
+    ktGames: new Map(),
   };
   private listeners = new Set<Listener>();
   private errorListeners = new Set<(e: WriteError) => void>();
@@ -282,9 +305,16 @@ export class Archive {
     this.bump();
   }
 
-  /** Every game this device knows, newest first, without deleted ones. */
+  /** Every Kachuful game this device knows, newest first, without deleted ones. */
   games(): GameRec[] {
-    return this.all('games')
+    return this.listed('games');
+  }
+  /** Every Kaali Teeri game this device knows, newest first, without deleted ones. */
+  ktGames(): KtGameRec[] {
+    return this.listed('ktGames');
+  }
+  private listed<K extends 'games' | 'ktGames'>(s: K): Stores[K][] {
+    return this.all(s)
       .filter((r) => !r.deleted)
       .sort((a, b) => (b.endedAt ?? b.updatedAt) - (a.endedAt ?? a.updatedAt));
   }
@@ -372,3 +402,23 @@ export const inHistory = (r: GameRec, user: { id: string; playerId: string | nul
   !user ||
   scoredHere(r, user.id) ||
   (!!user.playerId && r.game.players.some((p) => p.playerId === user.playerId));
+
+/** Kaali Teeri's archive copy, kept by the same rule: the demo and games with no hand done are not kept. */
+export function archiveKtGame(g: KtGame, rec: Partial<KtGameRec> = {}) {
+  if (g.id === 'demo' || !g.hands.some((h) => h.phase === 'done')) return;
+  const prev = archive.get('ktGames', g.syncId);
+  if (prev && prev.game.rev === g.rev && prev.game.updatedAt === g.updatedAt && !rec.deleted)
+    return;
+  archive.put('ktGames', {
+    ...prev,
+    origin: prev?.origin ?? 'local',
+    ...rec,
+    syncId: g.syncId,
+    game: g,
+    updatedAt: g.updatedAt,
+    endedAt: g.status === 'finished' ? (g.finishedAt ?? g.updatedAt) : null,
+  });
+}
+
+/** A Kaali Teeri game undone back to no hand done leaves no trace here (it never syncs yet: phase K8). */
+export const forgetEmptyKt = (syncId: string) => archive.del('ktGames', syncId);

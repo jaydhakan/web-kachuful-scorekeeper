@@ -1,9 +1,17 @@
 import { demoGame, type Game } from '@/games/kachuful/domain';
+import type { KtGame } from '@/games/kaali-teeri/domain';
+import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
 import {
   archive,
   archiveGame,
+  archiveKtGame,
   Archive,
+  DB_VERSION,
   forgetEmpty,
+  forgetEmptyKt,
+  idbBackend,
+  upgradeDb,
+  type KtGameRec,
   resetArchive,
   sweepEmpty,
   type Backend,
@@ -18,9 +26,10 @@ function diskBackend(fail = false): Backend & { rows: Record<string, Map<string,
     outbox: new Map(),
     cache: new Map(),
     inbox: new Map(),
+    ktGames: new Map(),
   };
   const key = (s: string, r: Record<string, unknown>) =>
-    String(r[{ games: 'syncId', cache: 'key' }[s] ?? 'id']);
+    String(r[{ games: 'syncId', ktGames: 'syncId', cache: 'key' }[s] ?? 'id']);
   return {
     rows,
     load: async () =>
@@ -173,3 +182,152 @@ describe('games with no round done', () => {
     expect(archive.get('games', 'later')).toBeDefined();
   });
 });
+
+describe('Kaali Teeri games', () => {
+  beforeEach(() => archive.ready);
+  const kt = (patch: Partial<KtGame> = {}): KtGame => ({
+    ...kitGame({
+      id: 'kt-1',
+      players: ['a', 'b', 'c', 'd'],
+      start: T0,
+      hands: [{ bidder: 0, bid: 150, team: 200 }],
+    }),
+    ...patch,
+  });
+
+  it('keeps a game with a hand done in its own store, apart from Kachuful games', () => {
+    archiveKtGame(
+      kt({ hands: [{ ...kt().hands[0], phase: 'playing', teamPoints: null, countedBy: null }] }),
+    );
+    archiveKtGame(kt({ id: 'demo', syncId: 'demo' }));
+    expect(archive.ktGames()).toHaveLength(0);
+    archiveKtGame(kt());
+    archiveGame(real());
+    expect(archive.ktGames().map((r) => r.syncId)).toEqual(['kt-1']);
+    expect(archive.games().map((r) => r.syncId)).toEqual(['sync-1']);
+    expect(archive.get('ktGames', 'kt-1')).toMatchObject({ origin: 'local', endedAt: null });
+  });
+
+  it('records when it ended, skips an unchanged copy, lists newest first, forgets on request', () => {
+    archiveKtGame(kt());
+    const v = archive.version;
+    archiveKtGame(kt());
+    expect(archive.version).toBe(v);
+    archiveKtGame(kt({ rev: 2, status: 'finished', finishedAt: T0 + 9, updatedAt: T0 + 9 }));
+    expect(archive.get('ktGames', 'kt-1')!.endedAt).toBe(T0 + 9);
+    archiveKtGame(kt({ status: 'finished', rev: 3 }));
+    expect(archive.get('ktGames', 'kt-1')!.endedAt).toBe(kt().updatedAt);
+    archiveKtGame(kt({ syncId: 'kt-2', updatedAt: T0 + 1e9 }));
+    archive.put('ktGames', { ...archive.get('ktGames', 'kt-2')!, syncId: 'kt-3', deleted: true });
+    expect(archive.ktGames().map((r) => r.syncId)).toEqual(['kt-2', 'kt-1']);
+    forgetEmptyKt('kt-2');
+    expect(archive.ktGames().map((r) => r.syncId)).toEqual(['kt-1']);
+  });
+
+  it('reloads Kaali Teeri games from disk next to everything else', async () => {
+    const disk = diskBackend();
+    const a = new Archive(disk);
+    await a.ready;
+    const rec: KtGameRec = {
+      syncId: 'k',
+      game: kt({ syncId: 'k' }),
+      updatedAt: 1,
+      endedAt: null,
+      origin: 'local',
+    };
+    a.put('ktGames', rec);
+    a.put('games', {
+      syncId: 'x',
+      game: real({ syncId: 'x' }),
+      updatedAt: 1,
+      endedAt: null,
+      origin: 'local',
+    });
+    await a.flush();
+    const b = new Archive(disk);
+    await b.ready;
+    expect(b.get('ktGames', 'k')).toEqual(rec);
+    expect(b.get('games', 'x')).toBeDefined();
+  });
+});
+
+describe('database upgrade', () => {
+  /** A database as an older version left it: stores holding rows, which an upgrade must not touch. */
+  function oldDb(stores: string[]) {
+    const made: { name: string; keyPath: string; indexes: string[] }[] = [];
+    const rows = new Map(stores.map((s) => [s, ['row']]));
+    return {
+      made,
+      rows,
+      objectStoreNames: {
+        contains: (n: string) => rows.has(n) || made.some((m) => m.name === n),
+      },
+      createObjectStore(name: string, o: { keyPath: string }) {
+        const rec = { name, keyPath: o.keyPath, indexes: [] as string[] };
+        made.push(rec);
+        return { createIndex: (i: string) => void rec.indexes.push(i) };
+      },
+    };
+  }
+  const V1 = ['games', 'players', 'outbox', 'cache', 'inbox'];
+
+  it("version 1 to 2 adds only ktGames, with the games store's indexes, and keeps every row", () => {
+    expect(DB_VERSION).toBe(2);
+    const d = oldDb(V1);
+    upgradeDb(d);
+    expect(d.made).toEqual([
+      { name: 'ktGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
+    ]);
+    for (const s of V1) expect(d.rows.get(s)).toEqual(['row']);
+  });
+
+  it('a new database gets every store', () => {
+    const d = oldDb([]);
+    upgradeDb(d);
+    expect(d.made.map((m) => [m.name, m.keyPath, m.indexes.length])).toEqual([
+      ['games', 'syncId', 2],
+      ['players', 'id', 0],
+      ['outbox', 'id', 0],
+      ['cache', 'key', 0],
+      ['inbox', 'id', 0],
+      ['ktGames', 'syncId', 2],
+    ]);
+  });
+
+  it('opens the database at the new version and upgrades it through upgradeDb', async () => {
+    const d = oldDb(V1);
+    let asked: [string, number] | null = null;
+    const db = {
+      ...d,
+      transaction: () => ({ objectStore: () => ({ getAll: () => fakeReq([]) }) }),
+    };
+    const idb = {
+      open(name: string, v: number) {
+        asked = [name, v];
+        const r = { result: db } as unknown as IDBOpenDBRequest;
+        setTimeout(() => {
+          r.onupgradeneeded?.({} as IDBVersionChangeEvent);
+          r.onsuccess?.({} as Event);
+        });
+        return r;
+      },
+    } as unknown as IDBFactory;
+    const loaded = await idbBackend(idb).load();
+    expect(asked).toEqual(['kachuful', 2]);
+    expect(d.made.map((m) => m.name)).toEqual(['ktGames']);
+    expect(Object.keys(loaded).sort()).toEqual([
+      'cache',
+      'games',
+      'inbox',
+      'ktGames',
+      'outbox',
+      'players',
+    ]);
+  });
+});
+
+function fakeReq<T>(result: T): IDBRequest<T> {
+  const r = { result } as unknown as IDBRequest<T>;
+  setTimeout(() => r.onsuccess?.({} as Event));
+  return r;
+}
