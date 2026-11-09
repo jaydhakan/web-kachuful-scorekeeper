@@ -52,12 +52,17 @@ export interface KtSetup {
 
 export type KtSheet =
   | { type: 'menu' | 'rules' | 'board' | 'share' | 'theme' }
+  /** A hub page from Home (History, Leaderboard, Stats) until those pages exist (phase K6). */
+  | { type: 'hub'; page: KtHubPage }
   | { type: 'edit'; i: number }
   /** The card picker: a new called card (i null) or called card i. */
   | { type: 'card'; i: number | null }
   | { type: 'playedBy'; i: number }
   | { type: 'seat' | 'rename' | 'avatar'; k: number }
   | { type: 'addPlayer'; name?: string };
+
+/** Home's hub links. */
+export type KtHubPage = 'history' | 'leaderboard' | 'stats';
 
 export type KtModal = 'finish' | 'abandon';
 

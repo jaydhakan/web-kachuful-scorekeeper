@@ -148,8 +148,15 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
     else archiveKtGame(g);
   }, [state.game, state.corrupt]);
 
-  // System Back closes an open sheet.
-  useHistorySync(state.sheet ? 1 : 0, () => dispatch({ type: 'sheet', sheet: null }));
+  // System Back closes an open sheet, then steps back through setup (step 3 → 2 → 1 → home).
+  const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;
+  useHistorySync(setupDepth + (state.sheet ? 1 : 0), () => {
+    const s = ref.current;
+    if (s.sheet) dispatch({ type: 'sheet', sheet: null });
+    else if (s.screen === 'setup' && s.setup && s.setup.step > 1)
+      dispatch({ type: 'setupStep', step: (s.setup.step - 1) as 1 | 2 });
+    else if (s.screen === 'setup') dispatch({ type: 'go', screen: 'home', dir: -1 });
+  });
 
   const toastId = state.toast?.id;
   useEffect(() => {

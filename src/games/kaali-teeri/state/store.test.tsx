@@ -84,4 +84,19 @@ describe('KtProvider', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => renderHook(() => useKt())).toThrow(/KtProvider/);
   });
+
+  it('system Back closes a sheet, then steps back through setup to home', () => {
+    const r = renderHook(() => useKt(), { wrapper });
+    const back = () => act(() => void window.dispatchEvent(new PopStateEvent('popstate')));
+    act(() => r.result.current.actions.startSetup());
+    act(() => r.result.current.actions.setupStep(2));
+    act(() => r.result.current.actions.openSheet({ type: 'addPlayer' }));
+    back();
+    expect(r.result.current.state.sheet).toBeNull();
+    expect(r.result.current.state.setup!.step).toBe(2);
+    back();
+    expect(r.result.current.state.setup!.step).toBe(1);
+    back();
+    expect(r.result.current.state.screen).toBe('home');
+  });
 });
