@@ -31,7 +31,7 @@ export function entryPath(path: string, search: string): string | null {
 
 let current: GameId | null = null;
 const subs = new Set<() => void>();
-let pending: { id: GameId | null } | null = null;
+let pending: { id: GameId | null; search: string } | null = null;
 
 function set(id: GameId | null) {
   if (id === current) return;
@@ -39,16 +39,16 @@ function set(id: GameId | null) {
   subs.forEach((f) => f());
 }
 
-function push(id: GameId | null) {
-  history.pushState(null, '', pathOf(id));
+function push(id: GameId | null, search = '') {
+  history.pushState(null, '', pathOf(id) + search);
   set(id);
 }
 
 function onPop() {
   if (pending) {
-    const { id } = pending;
+    const { id, search } = pending;
     pending = null;
-    push(id);
+    push(id, search);
     return;
   }
   set(gameFromPath(location.pathname));
@@ -66,15 +66,16 @@ export function startRoute() {
 /**
  * Opens a game, or the landing page with null. A game keeps one history entry per open sheet (`{ kf: n }`, see
  * useHistorySync); those go first, so system Back from the new page never lands on a sheet of a game that's gone.
+ * `search` (`?open=account`) is read by the game when it mounts.
  */
-export function go(id: GameId | null) {
+export function go(id: GameId | null, search = '') {
   const open = (history.state as { kf?: unknown } | null)?.kf;
   if (typeof open === 'number' && open > 0) {
-    pending = { id };
+    pending = { id, search };
     history.go(-open);
     return;
   }
-  push(id);
+  push(id, search);
 }
 
 export const currentGame = () => current;

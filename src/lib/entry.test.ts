@@ -12,6 +12,8 @@ describe('readEntryLink', () => {
     expect(location.search).toBe('');
     history.replaceState(null, '', '/kachuful?open=signin');
     expect(readEntryLink()).toEqual({ screen: 'signin' });
+    history.replaceState(null, '', '/kachuful?open=credits');
+    expect(readEntryLink()).toEqual({ screen: 'credits' });
   });
   it('ignores anything else', () => {
     history.replaceState(null, '', '/kachuful?open=admin');

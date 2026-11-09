@@ -26,9 +26,9 @@ export function readEntryLink(): Route | null {
     taken = { href: location.href, route: { screen, params: { token } } };
     return taken.route;
   }
-  // The landing page's account chip: `/kachuful?open=account` (the account pages still live in Kachuful).
+  // The landing page's account chip and menu: `/kachuful?open=account` (these pages still live in Kachuful).
   const open = q.get('open');
-  if (open === 'account' || open === 'signin') {
+  if (open === 'account' || open === 'signin' || open === 'credits') {
     q.delete('open');
     const rest = q.toString();
     history.replaceState(
