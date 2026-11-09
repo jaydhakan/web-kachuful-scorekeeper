@@ -23,6 +23,7 @@ const loadSetup = () => import('./setup/Setup');
 const Setup = lazy(loadSetup);
 const Deal = lazy(() => import('./setup/Deal'));
 const Winner = lazy(() => import('./Winner'));
+const Pages = lazy(() => import('./pages/Pages'));
 
 /** Registers the service worker, announces offline readiness once, and gates the app on a waiting update. */
 function ServiceWorker() {
@@ -58,7 +59,15 @@ export default function KtShell() {
 
   let key: string = screen,
     content;
-  if (screen === 'setup')
+  const page = state.pages.at(-1);
+  if (page) {
+    key = `page-${state.pages.length}`;
+    content = (
+      <Suspense fallback={<Loader />}>
+        <Pages route={page} />
+      </Suspense>
+    );
+  } else if (screen === 'setup')
     content = (
       <Suspense fallback={<Loader />}>
         <Setup />

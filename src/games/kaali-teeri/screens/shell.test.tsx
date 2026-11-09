@@ -53,9 +53,14 @@ describe('Kaali Teeri shell, home and setup', () => {
     expect(await screen.findByText(/No games yet/)).toBeInTheDocument();
     expect(screen.queryByText('Resume game')).toBeNull();
     await u.click(screen.getByRole('button', { name: 'History' }));
-    expect(await screen.findByText(/History is on its way/)).toBeInTheDocument();
-    act(() => actions.openSheet(null));
-    await u.click(screen.getByRole('button', { name: 'New Game' }));
+    expect(await screen.findByRole('heading', { name: 'History' })).toBeInTheDocument();
+    expect(
+      await screen.findByText('Games show up here once a hand is scored.'),
+    ).toBeInTheDocument();
+    expect(st().pages).toEqual([{ page: 'history' }]);
+    await u.click(screen.getByRole('button', { name: 'Back' }));
+    await waitFor(() => expect(st().pages).toEqual([]));
+    await u.click(await screen.findByRole('button', { name: 'New Game' }));
     expect(
       (await screen.findAllByRole('heading', { name: 'Players and rules' }))[0],
     ).toBeInTheDocument();
