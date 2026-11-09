@@ -5,7 +5,7 @@ const SKIP = 'Skip the deal animation';
 
 test.describe('deal animation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await toSetup3(page, NAMES7.slice(0, 5));
     await btn(page, 'Deal!').click();
   });

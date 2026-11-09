@@ -7,7 +7,7 @@ test.use({ viewport: { width: 740, height: 900 } });
 test('the deal animation tells mouse users to click or press Space, and Space skips it', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await toSetup3(page, NAMES7.slice(0, 4));
   await btn(page, 'Deal!').click();
   await expect(page.getByText('Click or press Space to skip')).toBeVisible();

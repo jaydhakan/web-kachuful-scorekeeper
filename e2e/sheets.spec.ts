@@ -6,7 +6,7 @@ import { btn } from './helpers';
 test('on a phone the menu is a bottom sheet and the Scoreboard fills the height under the status bar', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(5, 'playing'), 'round');
   await btn(page, 'Menu').click();
   await page.waitForTimeout(700);
@@ -28,7 +28,7 @@ test('on a phone the menu is a bottom sheet and the Scoreboard fills the height 
 
 test('turning a tablet on its side keeps the open dialog and its state', async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1180 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(5, 'playing'), 'round');
   await btn(page, 'Menu').click();
   const dialog = page.getByRole('dialog');

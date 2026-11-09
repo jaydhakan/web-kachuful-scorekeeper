@@ -1,6 +1,18 @@
-import { Component, createElement, lazy, Suspense, useState, type ComponentType, type ReactNode } from 'react';
+import { m, useReducedMotion, type Target, type Transition } from 'framer-motion';
+import {
+  Component,
+  createElement,
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { EXIT } from '@/components/ui/motion';
 import { platform } from '@/strings/platform';
 import { gameById } from './catalog';
 import { go, useGame, type GameId } from './route';
@@ -47,11 +59,78 @@ class LoadBoundary extends Component<
   }
 }
 
+/**
+ * After moving between the landing page and a game, focus goes to the new page's main heading, so a screen reader
+ * starts there; it waits (up to ~2s) for a game's chunk to arrive.
+ */
+function useFocusHeading(key: string) {
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    let raf = 0,
+      n = 0;
+    const tryFocus = () => {
+      const h = document.querySelector<HTMLElement>('#root h1');
+      if (!h) {
+        if (++n < 120) raf = requestAnimationFrame(tryFocus);
+        return;
+      }
+      if (!h.hasAttribute('tabindex')) h.tabIndex = -1;
+      h.focus({ preventScroll: true });
+    };
+    raf = requestAnimationFrame(tryFocus);
+    return () => cancelAnimationFrame(raf);
+  }, [key]);
+}
+
+// Opening a game rises in (round 2 storyboard: 400ms ease-out); going back settles the landing page in (240ms).
+const OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+function enter(game: boolean, reduced: boolean): [Target, Transition] {
+  if (reduced) return [{ opacity: 0 }, { duration: 0.12 }];
+  return game
+    ? [
+        { opacity: 0, y: 16 },
+        { duration: 0.4, ease: OUT },
+      ]
+    : [
+        { opacity: 0, scale: 0.98 },
+        { duration: EXIT, ease: OUT },
+      ];
+}
+
+// The first page draws at once; only a move between pages animates.
+let drawn = false;
+
 /** The site: the landing page at `/`, else the game the path names, each loaded on demand. */
 export function PlatformRoot() {
   const id = useGame();
+  const live = !!id && gameById(id).status === 'live';
+  const key = live ? id : 'landing';
+  const reduced = !!useReducedMotion();
+  useEffect(() => {
+    drawn = true;
+  }, []);
+  useFocusHeading(key);
+  const [from, transition] = enter(live, reduced);
+  return (
+    <m.div
+      key={key}
+      className="relative h-full w-full"
+      initial={drawn ? from : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={transition}
+    >
+      <Page id={live ? id : null} />
+    </m.div>
+  );
+}
+
+function Page({ id }: { id: GameId | null }) {
   const [attempt, setAttempt] = useState(0);
-  if (!id || gameById(id).status !== 'live') {
+  if (!id) {
     return (
       <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
         <Landing />

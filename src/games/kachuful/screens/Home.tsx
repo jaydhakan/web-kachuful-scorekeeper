@@ -16,6 +16,9 @@ import { HomeOnlineStrip } from '@/games/kachuful/components/HomeOnline';
 import { AlmostThere } from '@/games/kachuful/components/AlmostThere';
 import { ContinueCard } from '@/games/kachuful/components/ContinueCard';
 import { t } from '@/strings';
+import { platform } from '@/strings/platform';
+import { go } from '@/platform/route';
+import { BaithakMark } from '@/components/ui/BaithakMark';
 import { Icon } from '@/components/ui/Icons';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
@@ -70,6 +73,15 @@ export function Home() {
         className="!absolute left-[max(1rem,var(--sal))] top-[calc(var(--sat)+0.75rem)] z-10 pane:left-auto pane:right-[max(1rem,var(--sar))]"
       >
         {Icon.menu}
+      </IconButton>
+      {/* Home only: mid-round a mis-tap would leave the table (the game is saved, but don't invite it). */}
+      <IconButton
+        chrome
+        label={platform.allGames}
+        onClick={() => go(null)}
+        className="!absolute left-[calc(max(1rem,var(--sal))+3.5rem)] top-[calc(var(--sat)+0.75rem)] z-10 pane:left-auto pane:right-[calc(max(1rem,var(--sar))+3.5rem)]"
+      >
+        <BaithakMark className="h-7 w-7" />
       </IconButton>
       <AccountChip className="absolute right-[max(1rem,var(--sar))] top-[calc(var(--sat)+0.75rem)] z-10 pane:left-[max(1rem,var(--sal))] pane:right-auto" />
       {/* The scroll fallback only matters on the smallest phones; in two panes the grid takes over (contents). */}

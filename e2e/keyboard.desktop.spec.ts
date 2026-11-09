@@ -18,7 +18,7 @@ const focusedIn = (group: Locator) => group.locator(':focus');
 
 test.describe('pill groups and segmented controls', () => {
   test('player-count pills: one Tab stop, arrows move focus, Enter picks', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await btn(page, 'New Game').click();
     const pills = page.getByRole('group', { name: 'Number of players' });
     await expect(pills.getByRole('button')).toHaveCount(5);
@@ -55,7 +55,7 @@ test.describe('pill groups and segmented controls', () => {
   });
 
   test('direction control follows the same rules and shows a focus ring', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await btn(page, 'New Game').click();
     await openAdvanced(page);
     const seg = page.getByRole('group', { name: 'Seating direction' });
@@ -84,7 +84,7 @@ test.describe('pill groups and segmented controls', () => {
   test('bid pills: arrows reach a locked pill, which keeps its reason and cannot be picked', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     const game = seedGame(5, 'bidding');
     const r = game.rounds[game.rounds.length - 1];
     expect(r.cards).toBeGreaterThanOrEqual(6);
@@ -133,7 +133,7 @@ test.describe('pill groups and segmented controls', () => {
   test('avatar sheet: emoji grid moves by row, colours by column, Tab stays in the sheet', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await btn(page, 'New Game').click();
     await btn(page, '3 players').click();
     await btn(page, 'Next').click();

@@ -12,7 +12,7 @@ const N = 5;
 /** Confirms the seeded round so the Summary opens with its count-up (a saved game never replays it). */
 async function openAnimatedSummary(page: Page, vp: { width: number; height: number }) {
   await page.setViewportSize(vp);
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(N, 'results'), 'round');
   for (const name of LONG_NAMES.slice(2, N)) {
     await page
@@ -80,7 +80,7 @@ test('turning a tablet keeps the large-screen Summary mounted, its rows and its 
   page,
 }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(N, 'results'), 'round');
   for (const name of LONG_NAMES.slice(2, N)) {
     await page

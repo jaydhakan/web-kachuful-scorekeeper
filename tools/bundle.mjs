@@ -1,6 +1,6 @@
 // Usage: node tools/bundle.mjs [--check]  → reports/lighthouse/bundle.md
 // Builds once and lists the biggest modules (minified, pre-gzip share of their chunk) and what the first load costs
-// on a phone and on a large screen. With --check it exits 1 when either first load or any lazy chunk is over the budget
+// on the landing page, and Kachuful on a phone and on a large screen. With --check it exits 1 when either first load or any lazy chunk is over the budget
 // in tools/budget.json.
 import { build } from 'vite';
 import { gzipSync } from 'node:zlib';
@@ -67,10 +67,15 @@ const closure = (from, seen = new Set()) => {
 const shell = (src) => chunks.find((c) => c.src.endsWith(src)).file;
 const base = closure(chunks.filter((c) => c.entry).map((c) => c.file));
 const loads = {
+  landing: closure([shell('/src/platform/landing/Landing.tsx')], new Set(base)),
   phone: closure([shell('/src/games/kachuful/components/PhoneShell.tsx')], new Set(base)),
   'large screen': closure([shell('/src/games/kachuful/screens/desk/DeskShell.tsx')], new Set(base)),
 };
-const jsBudget = { phone: budget.initialJsKb, 'large screen': budget.largeScreenJsKb };
+const jsBudget = {
+  landing: budget.landingJsKb,
+  phone: budget.initialJsKb,
+  'large screen': budget.largeScreenJsKb,
+};
 const eager = new Set(Object.values(loads).flatMap((l) => [...l]));
 const css = readFileSync(path.join(dist, 'index.html'), 'utf8').match(
   /href="\/(assets\/[^"]+\.css)"/,

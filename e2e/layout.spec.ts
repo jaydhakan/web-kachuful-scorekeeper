@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { NAMES7, bidEveryone, btn, startGame } from './helpers';
 
 test('controls clear the status bar and home indicator of a notched phone', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => {
     document.documentElement.style.setProperty('--sat', '47px');
     document.documentElement.style.setProperty('--sab', '34px');
@@ -26,7 +26,7 @@ test('the reason Confirm is disabled stays visible above it with 7 players at 36
   page,
 }) => {
   await page.setViewportSize({ width: 360, height: 740 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, NAMES7);
   await bidEveryone(page);
   await btn(page, 'Start playing').click();
@@ -51,7 +51,7 @@ test('the reason Confirm is disabled stays visible above it with 7 players at 36
 
 test('a scroll that starts on Made/Missed scrolls and never sets a result', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, NAMES7);
   await bidEveryone(page);
   await btn(page, 'Start playing').click();
@@ -90,7 +90,7 @@ for (const [w, h, n] of [
     page,
   }) => {
     await page.setViewportSize({ width: w, height: h });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await startGame(page, NAMES7.slice(0, n));
     await bidEveryone(page);
     const overlaps = (table: string) =>
@@ -122,7 +122,7 @@ for (const [w, h, n] of [
 
 test('the toast sits in the top bar, never over the table or the bid pad', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, NAMES7);
   await btn(page, 'Bid 1').click();
   const toast = page.getByRole('status').filter({ hasText: 'Bid saved' });

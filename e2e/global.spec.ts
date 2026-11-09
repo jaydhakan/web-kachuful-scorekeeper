@@ -62,7 +62,7 @@ test('a player page leads to head-to-head, and Wrapped comes from the server', a
   await expect(vs).toBeVisible();
   await vs.click();
   await expect(page.getByText('Games together')).toBeVisible();
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page
     .getByRole('button', { name: /Awards/ })
     .first()

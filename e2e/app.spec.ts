@@ -12,7 +12,7 @@ const noOverflow = (page: import('@playwright/test').Page) =>
 test('smoke: demo game opens, a bid is taken and the scoreboard shows the verified totals', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await expect(page.getByText('Try the demo')).toBeVisible();
   await page.getByText('Try the demo').click();
   await expect(page.getByText('Round 7', { exact: true })).toBeVisible();
@@ -29,7 +29,7 @@ test('smoke: demo game opens, a bid is taken and the scoreboard shows the verifi
 
 test('7 players fit at 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, NAMES7);
   await expect(page.getByText('Bids 1st · gets the first card')).toBeVisible();
   expect(await noOverflow(page)).toBe(true);
@@ -46,7 +46,7 @@ test('7 players fit at 360px', async ({ page }) => {
 });
 
 test('refreshing mid-round restores the game', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, ['Asha', 'Bo', 'Cy']);
   await btn(page, 'Bid 1').click();
   await expect(page.getByText('Bids 2 of 3')).toBeVisible();
@@ -57,7 +57,7 @@ test('refreshing mid-round restores the game', async ({ page }) => {
 });
 
 test('works offline after the first visit', async ({ page, context }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload(); // let the service worker take control of the page
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
@@ -73,16 +73,16 @@ test('works offline after the first visit', async ({ page, context }) => {
 });
 
 test('serves a web app manifest with icons', async ({ page, request }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   const href = await page.locator('link[rel=manifest]').getAttribute('href');
   const m = await (await request.get(href!)).json();
-  expect(m).toMatchObject({ display: 'standalone', start_url: '/', name: 'Kachuful' });
+  expect(m).toMatchObject({ display: 'standalone', start_url: '/', name: 'Baithak' });
   expect(m.icons.length).toBeGreaterThanOrEqual(3);
   expect(m.icons.some((i: { purpose?: string }) => i.purpose === 'maskable')).toBe(true);
 });
 
 test('is installable once the service worker controls the page', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload();
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
@@ -110,7 +110,7 @@ test.describe('accessibility (axe)', () => {
   };
 
   test('home, setup, a full round and the sheets have no serious violations', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await page.waitForTimeout(600);
     await scan(page, 'home');
     await btn(page, 'How to play').click();

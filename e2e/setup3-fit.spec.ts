@@ -22,7 +22,7 @@ test.describe('setup 3 fits the screen', () => {
   });
 
   test('game length is a labelled row that is visible without any tap', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await toSetup3(page, NAMES7.slice(0, 4));
     const group = page.getByRole('group', { name: 'Game length' });
     await expect(group).toBeVisible();
@@ -39,7 +39,7 @@ test.describe('setup 3 fits the screen', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await toSetup3(page, NAMES7);
     const table = page.locator('[data-table="su3"]');
     // Scaled down from the 340px design size.
