@@ -978,6 +978,27 @@ describe('screens and overlays', () => {
     ignored(empty(), { type: 'resume' });
   });
 
+  it('pages stack over the screen, close one at a time, and any screen change closes them all', () => {
+    const s = run(
+      { ...started(), sheet: { type: 'menu' } },
+      { type: 'openPage', route: { page: 'history' } },
+      { type: 'openPage', route: { page: 'game', id: 'x' } },
+    );
+    expect(s).toMatchObject({
+      dir: 1,
+      sheet: null,
+      pages: [{ page: 'history' }, { page: 'game', id: 'x' }],
+    });
+    const back = run(s, { type: 'closePage' });
+    expect(back).toMatchObject({ dir: -1, pages: [{ page: 'history' }] });
+    expect(run(back, { type: 'closePage' }).pages).toEqual([]);
+    ignored(started(), { type: 'closePage' });
+    expect(run(s, { type: 'resume' }).pages).toEqual([]);
+    expect(run(s, { type: 'go', screen: 'home' }).pages).toEqual([]);
+    expect(run(s, { type: 'startSetup', lg: null }).pages).toEqual([]);
+    expect(run(s, { type: 'openGame', game: g(s) }).pages).toEqual([]);
+  });
+
   it('opens a saved game; the repair answer clears the table', () => {
     const saved: KtGame = kitGame({
       id: 'z',

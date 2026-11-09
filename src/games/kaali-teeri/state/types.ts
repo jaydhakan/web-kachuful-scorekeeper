@@ -52,8 +52,6 @@ export interface KtSetup {
 
 export type KtSheet =
   | { type: 'menu' | 'rules' | 'board' | 'share' | 'theme' }
-  /** A hub page from Home (History, Leaderboard, Stats) until those pages exist (phase K6). */
-  | { type: 'hub'; page: KtHubPage }
   | { type: 'edit'; i: number }
   /** The card picker: a new called card (i null) or called card i. */
   | { type: 'card'; i: number | null }
@@ -63,6 +61,13 @@ export type KtSheet =
 
 /** Home's hub links. */
 export type KtHubPage = 'history' | 'leaderboard' | 'stats';
+
+/** A page opened over the game screens; ids are player keys (`playerKey`) and game sync ids. */
+export type KtRoute =
+  | { page: 'history' | 'leaderboard' | 'players' }
+  | { page: 'game'; id: string }
+  | { page: 'player'; id: string }
+  | { page: 'h2h'; a: string; b: string };
 
 export type KtModal = 'finish' | 'abandon';
 
@@ -83,6 +88,8 @@ export interface KtState {
   screen: KtScreen;
   dir: Dir;
   setup: KtSetup | null;
+  /** Pages open over the screen, top last; any screen change closes them all. */
+  pages: KtRoute[];
   undo: string[];
   prefs: KtPrefs;
   sheet: KtSheet | null;
@@ -118,6 +125,8 @@ export type KtAction =
   | { type: 'go'; screen: KtScreen; dir?: Dir }
   | { type: 'resume' }
   | { type: 'sheet'; sheet: KtSheet | null }
+  | { type: 'openPage'; route: KtRoute }
+  | { type: 'closePage' }
   | { type: 'modal'; modal: KtModal | null }
   | { type: 'say'; msg: string; undo?: boolean }
   | { type: 'toastDone' }

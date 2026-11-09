@@ -36,6 +36,7 @@ import type {
   KtCallWhat,
   KtHandEdit,
   KtModal,
+  KtRoute,
   KtScreen,
   KtSheet,
   KtState,
@@ -47,6 +48,10 @@ export interface KtActions {
   go(screen: KtScreen, dir?: Dir): void;
   resume(): void;
   openSheet(sheet: KtSheet | null): void;
+  /** Opens a page over the current screen (History, a game, Leaderboard, Players, a player, head-to-head). */
+  openPage(route: KtRoute): void;
+  /** Closes the top page. */
+  closePage(): void;
   ask(modal: KtModal | null): void;
   say(msg: string): void;
   dismissToast(): void;
@@ -149,11 +154,12 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
     else archiveKtGame(g);
   }, [state.game, state.corrupt]);
 
-  // System Back closes an open sheet, then steps back through setup (step 3 → 2 → 1 → home).
+  // System Back closes an open sheet, then the top page, then steps back through setup (step 3 → 2 → 1 → home).
   const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;
-  useHistorySync(setupDepth + (state.sheet ? 1 : 0), () => {
+  useHistorySync(setupDepth + state.pages.length + (state.sheet ? 1 : 0), () => {
     const s = ref.current;
     if (s.sheet) dispatch({ type: 'sheet', sheet: null });
+    else if (s.pages.length) dispatch({ type: 'closePage' });
     else if (s.screen === 'setup' && s.setup && s.setup.step > 1)
       dispatch({ type: 'setupStep', step: (s.setup.step - 1) as 1 | 2 });
     else if (s.screen === 'setup') dispatch({ type: 'go', screen: 'home', dir: -1 });
@@ -184,6 +190,8 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
       go: (screen, dir) => nav({ type: 'go', screen, dir }),
       resume: () => nav({ type: 'resume' }),
       openSheet: (sheet) => nav({ type: 'sheet', sheet }),
+      openPage: (route) => nav({ type: 'openPage', route }),
+      closePage: () => nav({ type: 'closePage' }),
       ask: (modal) => dispatch({ type: 'modal', modal }),
       say: (msg) => dispatch({ type: 'say', msg }),
       dismissToast: () => dispatch({ type: 'toastDone' }),

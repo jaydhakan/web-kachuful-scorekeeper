@@ -222,6 +222,8 @@ export class Archive {
   /** Goes up on every change; screens memoise derived data on it. */
   version = 0;
   loaded = false;
+  /** The last write or load failure, for screens that mount after it was announced. */
+  lastError: WriteError | null = null;
   readonly ready: Promise<void>;
 
   constructor(private backend: Backend) {
@@ -263,6 +265,7 @@ export class Archive {
     this.listeners.forEach((f) => f());
   }
   private fail(e: WriteError) {
+    this.lastError = e;
     this.errorListeners.forEach((f) => f(e));
   }
   private pending = new Set<Promise<void>>();

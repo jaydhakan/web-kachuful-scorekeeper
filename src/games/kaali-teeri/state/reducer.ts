@@ -49,6 +49,7 @@ export function initialKtState(
     screen: screen === 'game' && game?.status === 'active' ? 'game' : 'home',
     dir: 1,
     setup: null,
+    pages: [],
     undo,
     prefs,
     sheet: null,
@@ -567,13 +568,17 @@ function undoLast(s: KtState): KtState {
 export function ktReducer(s: KtState, a: KtAction): KtState {
   switch (a.type) {
     case 'go':
-      return { ...s, dir: a.dir ?? 1, screen: a.screen };
+      return { ...s, dir: a.dir ?? 1, screen: a.screen, pages: [] };
     case 'resume':
       return s.game
-        ? { ...s, dir: 1, screen: s.game.status === 'finished' ? 'winner' : 'game' }
+        ? { ...s, dir: 1, screen: s.game.status === 'finished' ? 'winner' : 'game', pages: [] }
         : s;
     case 'sheet':
       return { ...s, sheet: a.sheet };
+    case 'openPage':
+      return { ...s, dir: 1, sheet: null, pages: [...s.pages, a.route] };
+    case 'closePage':
+      return s.pages.length ? { ...s, dir: -1, pages: s.pages.slice(0, -1) } : s;
     case 'modal':
       return { ...s, modal: a.modal };
     case 'say':
@@ -588,7 +593,7 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
       return { ...s, fresh: a.v };
 
     case 'startSetup':
-      return startSetup(s, a.lg);
+      return { ...startSetup(s, a.lg), pages: [] };
     case 'setupStep':
     case 'setupCount':
     case 'setupDir':
@@ -735,6 +740,7 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
         sheet: null,
         modal: null,
         deal: null,
+        pages: [],
         screen: a.game.status === 'finished' ? 'winner' : 'game',
       };
     case 'repaired':

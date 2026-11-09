@@ -47,15 +47,6 @@ function specFor(s: KtSheet, setup: KtSetup | null): Spec {
       return { title: sh.playedBy, body: <PlayedBy /> };
     case 'theme':
       return { title: ktShell.theme.title, body: later(<ThemeBody />) };
-    case 'hub': {
-      const name = ktShell.hub[s.page];
-      return {
-        title: name,
-        body: (
-          <p className="pb-4 text-16 leading-[1.5] text-[var(--tx2)]">{ktShell.hub.soon(name)}</p>
-        ),
-      };
-    }
     case 'seat':
       return { title: setup?.seats[s.k]?.name ?? t.sheets.seatTitle, body: <SeatBody k={s.k} /> };
     case 'rename':

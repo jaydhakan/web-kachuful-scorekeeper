@@ -28,9 +28,7 @@ export const ktShell = {
     leaderboard: 'Leaderboard',
     stats: 'Player stats',
     rules: 'How to play',
-    soon: (page: string) =>
-      `${page} is on its way. Finished games are kept on this device until then.`,
-  } satisfies Record<KtHubPage | 'rules' | 'soon', unknown>,
+  } satisfies Record<KtHubPage | 'rules', unknown>,
   sheets: {
     board: 'Scoreboard',
     edit: (n: number) => `Edit hand ${n}`,

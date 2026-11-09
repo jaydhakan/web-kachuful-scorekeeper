@@ -60,6 +60,7 @@ function ResumeCard({ g }: { g: KtGame }) {
 
 /** Past games from the archive: loading, unavailable, empty, or the newest five. */
 function Recent({ current }: { current: string | null }) {
+  const { actions } = useKt();
   const [failed, setFailed] = useState(false);
   useEffect(() => archive.onError((e) => e === 'unavailable' && setFailed(true)), []);
   const { loaded, recs } = useArchive((a) => ({ loaded: a.loaded, recs: a.ktGames() }));
@@ -81,23 +82,29 @@ function Recent({ current }: { current: string | null }) {
           const g = r.game,
             top = standings(g)[0];
           return (
-            <li key={r.syncId} className="relative flex items-center gap-3 px-4 py-2.5">
+            <li key={r.syncId} className="relative">
               {k > 0 && (
                 <span aria-hidden className="absolute left-4 right-0 top-0 h-px bg-ov/10" />
               )}
-              <div className="min-w-0 flex-1">
-                <div className="text-16 font-medium">{dayLabel(r.endedAt ?? r.updatedAt)}</div>
-                <div className="text-13 text-[var(--tx2)]">
-                  {s.home.gameLine(g.players.length, doneHands(g).length)}
-                  {r.endedAt == null && ` · ${s.home.inProgress}`}
+              <button
+                type="button"
+                onClick={() => actions.openPage({ page: 'game', id: r.syncId })}
+                className="press flex min-h-14 w-full items-center gap-3 px-4 py-2.5 text-left"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-16 font-medium">{dayLabel(r.endedAt ?? r.updatedAt)}</div>
+                  <div className="text-13 text-[var(--tx2)]">
+                    {s.home.gameLine(g.players.length, doneHands(g).length)}
+                    {r.endedAt == null && ` · ${s.home.inProgress}`}
+                  </div>
                 </div>
-              </div>
-              {top && (
-                <div className="flex shrink-0 items-center gap-2 text-14 font-semibold">
-                  <Dot p={top.p} />
-                  {s.home.winner(top.p.name, top.t)}
-                </div>
-              )}
+                {top && (
+                  <div className="flex shrink-0 items-center gap-2 text-14 font-semibold">
+                    <Dot p={top.p} />
+                    {s.home.winner(top.p.name, top.t)}
+                  </div>
+                )}
+              </button>
             </li>
           );
         })}
@@ -118,21 +125,13 @@ export default function Home() {
   const { state, actions } = useKt();
   const g = state.game;
   const links: { key: KtHubPage | 'rules'; icon: ReactNode; go: () => void }[] = [
-    {
-      key: 'history',
-      icon: Icon.history,
-      go: () => actions.openSheet({ type: 'hub', page: 'history' }),
-    },
+    { key: 'history', icon: Icon.history, go: () => actions.openPage({ page: 'history' }) },
     {
       key: 'leaderboard',
       icon: Icon.trophy,
-      go: () => actions.openSheet({ type: 'hub', page: 'leaderboard' }),
+      go: () => actions.openPage({ page: 'leaderboard' }),
     },
-    {
-      key: 'stats',
-      icon: Icon.players,
-      go: () => actions.openSheet({ type: 'hub', page: 'stats' }),
-    },
+    { key: 'stats', icon: Icon.players, go: () => actions.openPage({ page: 'players' }) },
     { key: 'rules', icon: Icon.rules, go: () => actions.openSheet({ type: 'rules' }) },
   ];
   return (

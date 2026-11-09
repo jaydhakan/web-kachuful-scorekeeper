@@ -5,4 +5,5 @@ export * from './calls';
 export * from './scoring';
 export * from './validate';
 export * from './stats';
+export * from './boards';
 export * from './demo';
