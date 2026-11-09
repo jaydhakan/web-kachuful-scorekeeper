@@ -11,7 +11,7 @@ Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating,
 | `npm run build`                         | Typecheck, then production build with the service worker         |
 | `npm run preview`                       | Serve the build                                                  |
 | `npm test`                              | Vitest (domain, state, hooks, React flows)                       |
-| `npm run test:coverage`                 | Same, with coverage for `src/domain`                             |
+| `npm run test:coverage`                 | Same, with coverage for `src/games/kachuful/domain`              |
 | `npm run test:e2e`                      | Playwright against a fresh build (uses installed Chrome locally) |
 | `npm run lint` · `typecheck` · `format` | ESLint, `tsc`, Prettier                                          |
 

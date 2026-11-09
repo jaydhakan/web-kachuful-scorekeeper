@@ -30,13 +30,15 @@ Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `sr
 
 | Need                        | Use                                                                                               |
 | --------------------------- | ------------------------------------------------------------------------------------------------- |
-| Rules, scoring, ranking     | `src/domain` (pure; never import UI into it)                                                      |
+| Rules, scoring, ranking     | `src/games/kachuful/domain` (pure; never import UI into it)                                       |
 | Numbers and text formats    | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)                                            |
-| User-visible strings        | `src/strings`                                                                                     |
+| User-visible strings        | `src/strings` (shared) and `src/games/kachuful/strings` (the game's own)                          |
 | Storage                     | `src/state/persistence.ts` — never call `localStorage` elsewhere                                  |
 | Archive (IndexedDB)         | `src/state/archive.ts` — the only IndexedDB access                                                |
-| Network                     | `src/sync/` — the only `fetch`/`EventSource`, signed in only                                      |
-| Stats, boards, achievements | `src/domain` (timeline, leaderboard, achievements, awards)                                        |
+| Network                     | `src/sync/` (+ `src/games/kachuful/sync/`) — the only `fetch`/`EventSource`, signed in only       |
+| Stats, boards, achievements | `src/games/kachuful/domain` (timeline, leaderboard, achievements, awards)                         |
+| People (players, avatars)   | `src/people` (`Player`, `COLORS`, `nameKey`, `pidOf`) and `src/state/registry.ts`                 |
+| Account and admin pages     | `src/platform/pages`                                                                              |
 | UI primitives               | `src/components/ui/`                                                                              |
 | Colours, themes, materials  | `src/styles/themes.css` + `src/styles/themes/<id>.css` (the only colour files) via Tailwind names |
 

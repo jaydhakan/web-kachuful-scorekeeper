@@ -34,7 +34,7 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
   the fanned backs; read once by `RoundStart`), `--fan-*`, `--reveal-rays`, `--reveal-glint`, `--name-frame`, the
   `--m-back` preview token, and slots that only one theme paints (`.suit-ring`, `.trump-mini`, `.empty-card`,
   `.streak-ring`, `.sq-card`, `.badge-pop`). `--confetti-1…4` are set only by a theme that wants its own confetti.
-- ESLint rejects hex colour literals in `src/components`, `src/screens` and `src/sheets`;
+- ESLint rejects hex colour literals in `src/components`, `src/platform` and each game's `components`, `screens` and `sheets`;
   `src/theme/contrast.test.ts` checks every theme's text pairs against WCAG AA.
 
 ## Rules
