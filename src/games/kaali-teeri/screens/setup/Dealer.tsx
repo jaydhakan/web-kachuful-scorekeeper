@@ -1,4 +1,6 @@
 import { AnimatePresence, m } from 'framer-motion';
+import { useRef } from 'react';
+import { useSeatDrag } from '@/components/seating/useSeatDrag';
 import type { Seat } from '@/people';
 import { Glass } from '@/components/ui/Glass';
 import { PlayingCard } from '@/components/ui/PlayingCard';
@@ -29,11 +31,13 @@ export default function Dealer() {
   const { su, actions } = useSetup();
   const n = su.n,
     seats = su.seats as Seat[];
+  const wrap = useRef<HTMLDivElement>(null);
+  const drag = useSeatDrag(wrap, seats, actions.setupSwap, { vib: actions.vib });
   const dealer = seats[su.dealer],
     first = seats[(su.dealer + 1) % n];
   if (!dealer || !first) return null;
   const pick = (k: number) => {
-    if (k === su.dealer) return;
+    if (k === su.dealer || drag.justDragged()) return;
     actions.setupDealer(k);
     actions.vib();
   };
@@ -81,7 +85,12 @@ export default function Dealer() {
         </Glass>
       }
     >
-      <TableSlot players={n}>
+      <TableSlot
+        ref={wrap}
+        players={n}
+        className="relative touch-none select-none"
+        {...drag.handlers}
+      >
         <Table
           uid="kt-su3"
           fit
@@ -95,6 +104,7 @@ export default function Dealer() {
           onSeat={pick}
           center={<DeckStack />}
         />
+        {drag.ghost}
       </TableSlot>
     </SetupFrame>
   );

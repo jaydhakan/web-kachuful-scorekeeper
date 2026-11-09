@@ -6,7 +6,8 @@ import {
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSeatDrag } from '@/components/seating/useSeatDrag';
 import { cycleLen, maxFor, type LengthMode } from '@/games/kachuful/domain';
 import {
   DEALS_PILL,
@@ -34,8 +35,6 @@ import { SetupFrame, TableSlot } from './SetupFrame';
 import { useSetup } from './useSetup';
 import { useApp } from '@/games/kachuful/state/store';
 import { t } from '@/strings';
-import { AvatarFill } from '@/components/ui/Avatar';
-import { seatColor } from '@/theme/palette';
 import { Icon } from '@/components/ui/Icons';
 
 function SpinToken({
@@ -104,14 +103,6 @@ function SpinToken({
   );
 }
 
-interface DragState {
-  k: number;
-  x: number;
-  y: number;
-  on: boolean;
-  timer: ReturnType<typeof setTimeout>;
-}
-
 export function Step3() {
   const { su, actions } = useSetup();
   const signedIn = !!useApp().state.session;
@@ -119,11 +110,9 @@ export function Step3() {
     seats = su.seats as Seat[],
     max = maxFor(n, su.decks),
     L = cycleLen(max);
-  const [spin, setSpin] = useState<{ tgt: number; a0: number; a1: number } | null>(null),
-    [ghost, setGhost] = useState<{ x: number; y: number; p: Seat } | null>(null);
-  const wrap = useRef<HTMLDivElement>(null),
-    drag = useRef<DragState | null>(null),
-    suppress = useRef(0);
+  const [spin, setSpin] = useState<{ tgt: number; a0: number; a1: number } | null>(null);
+  const wrap = useRef<HTMLDivElement>(null);
+  const drag = useSeatDrag(wrap, seats, actions.setupSwap, { off: !!spin, vib: actions.vib });
   const dl = seats[su.dealer],
     fp = seats[(su.dealer + 1) % n];
   const sg = su.dir === 'cw' ? 1 : -1;
@@ -134,54 +123,6 @@ export function Step3() {
       turn = ((((angOf(n, tgt, su.dir) - a0) * sg) % 360) + 360) % 360;
     setSpin({ tgt, a0, a1: a0 + sg * (720 + turn) });
     actions.vib();
-  };
-  const down = (e: PointerEvent<HTMLDivElement>) => {
-    const s = (e.target as HTMLElement).closest<HTMLElement>('[data-seat]');
-    if (!s || spin) return;
-    const k = +(s.dataset.seat ?? -1);
-    if (!seats[k]) return;
-    const st: DragState = {
-      k,
-      x: e.clientX,
-      y: e.clientY,
-      on: false,
-      timer: setTimeout(() => {
-        st.on = true;
-        actions.vib();
-        const r = wrap.current?.getBoundingClientRect();
-        if (r) setGhost({ x: st.x - r.left, y: st.y - r.top, p: seats[k] });
-      }, 380),
-    };
-    drag.current = st;
-  };
-  const move = (e: PointerEvent<HTMLDivElement>) => {
-    const st = drag.current;
-    if (!st) return;
-    if (!st.on) {
-      if (Math.hypot(e.clientX - st.x, e.clientY - st.y) > 10) {
-        clearTimeout(st.timer);
-        drag.current = null;
-      }
-      return;
-    }
-    const r = wrap.current?.getBoundingClientRect();
-    if (r) setGhost((gh) => gh && { ...gh, x: e.clientX - r.left, y: e.clientY - r.top });
-  };
-  const up = (e: PointerEvent<HTMLDivElement>) => {
-    const st = drag.current;
-    if (!st) return;
-    clearTimeout(st.timer);
-    drag.current = null;
-    if (st.on) {
-      suppress.current = Date.now();
-      setGhost(null);
-      const el = document.elementFromPoint(e.clientX, e.clientY),
-        s = el?.closest<HTMLElement>('[data-seat]');
-      if (s && wrap.current?.contains(s) && +(s.dataset.seat ?? -1) !== st.k) {
-        actions.setupSwap(st.k, +(s.dataset.seat ?? -1));
-        actions.vib();
-      }
-    }
   };
   return (
     <SetupFrame
@@ -262,10 +203,7 @@ export function Step3() {
         ref={wrap}
         players={n}
         className="relative touch-none select-none"
-        onPointerDown={down}
-        onPointerMove={move}
-        onPointerUp={up}
-        onPointerCancel={up}
+        {...drag.handlers}
       >
         <Table
           uid="su3"
@@ -277,7 +215,7 @@ export function Step3() {
           first={spin ? undefined : (su.dealer + 1) % n}
           noSeatAnim={false}
           onSeat={(k) => {
-            if (Date.now() - suppress.current > 450 && !spin) actions.setupPatch({ dealer: k });
+            if (!drag.justDragged() && !spin) actions.setupPatch({ dealer: k });
           }}
           center={<SuitCenter trump="spades" cards={3} />}
         >
@@ -301,15 +239,7 @@ export function Step3() {
             />
           )}
         </Table>
-        {ghost && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute z-[9] grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 scale-110 place-items-center rounded-full border-2 border-ov/40 text-30 shadow-[0_18px_40px_color-mix(in_srgb,var(--shade)_60%,transparent)]"
-            style={{ left: ghost.x, top: ghost.y, background: seatColor(ghost.p.color) }}
-          >
-            <AvatarFill p={ghost.p} />
-          </div>
-        )}
+        {drag.ghost}
       </TableSlot>
     </SetupFrame>
   );

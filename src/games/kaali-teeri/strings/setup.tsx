@@ -83,7 +83,7 @@ export const ktSetup = {
   ),
   random: <>{Icon.dice} Random</>,
   randomLabel: 'Pick a random dealer',
-  tapHint: 'Tap a seat to make them the dealer.',
+  tapHint: 'Tap a seat to make them the dealer. Hold and drag to swap seats.',
   makeDealer: (name: string) => `${name} deals first`,
   deal: 'Deal!',
 
