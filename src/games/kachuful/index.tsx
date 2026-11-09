@@ -1,4 +1,3 @@
-import { ThemeSync } from '@/components/ThemeSync';
 import { AppShell } from './components/AppShell';
 import { AppProvider } from './state/store';
 
@@ -6,7 +5,6 @@ import { AppProvider } from './state/store';
 export default function Kachuful() {
   return (
     <AppProvider>
-      <ThemeSync />
       <AppShell />
     </AppProvider>
   );

@@ -1,12 +1,9 @@
-import { useEffect } from 'react';
-import { whenIdle } from '@/lib/idle';
 import { platform } from '@/strings/platform';
 import { GAMES } from '../catalog';
 import { go } from '../route';
 
 /** The site's front page: every game, with Play or Resume. */
 export default function Landing() {
-  useEffect(() => whenIdle(() => void import('@/state/theme').then((s) => s.initTheme())), []);
   return (
     <main className="app-root scr-bg h-full w-full overflow-y-auto px-4 pb-10 pt-[max(24px,env(safe-area-inset-top))]">
       <h1 className="text-32 font-bold">{platform.name}</h1>

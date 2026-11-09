@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useApp } from '@/games/kachuful/state/store';
+import { signedInAs, useSession } from '@/sync/session';
 import { whenIdle } from '@/lib/idle';
 import { t } from '@/strings';
 
@@ -15,8 +15,7 @@ const loadPrefs = () => import('@/sync/prefs');
  * at idle and on coming back. Announces each change to assistive tech. Signed out it never touches the network.
  */
 export function ThemeSync() {
-  const { state } = useApp();
-  const signedIn = !!state.session && !state.session.stale;
+  const signedIn = !!signedInAs(useSession());
   const [said, setSaid] = useState('');
   useEffect(() => {
     let off = () => {};

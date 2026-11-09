@@ -1,6 +1,6 @@
 import { m } from 'framer-motion';
 import { PRESS } from '@/components/ui/motion';
-import { loadSession } from '@/state/persistence';
+import { useSession } from '@/sync/session';
 import { chooseOwnTheme, themeLabel, useThemeState } from '@/state/theme';
 import { THEME_IDS, type ThemeId } from '@/theme/themes';
 import { ktShell } from '@/games/kaali-teeri/strings/shell';
@@ -8,7 +8,7 @@ import { ktShell } from '@/games/kaali-teeri/strings/shell';
 /** A player's own theme, as in Kachuful's theme sheet (it reads Kachuful's store, so it can't be reused here). */
 export default function ThemeBody() {
   const th = useThemeState();
-  const signedIn = !!loadSession();
+  const signedIn = !!useSession();
   const opts: [ThemeId | null, string][] = [
     [null, ktShell.theme.followAdmin],
     ...THEME_IDS.map((id): [ThemeId, string] => [id, themeLabel(id)]),

@@ -23,8 +23,6 @@ import { readEntryLink } from '@/lib/entry';
 import {
   KEYS,
   loadInitial,
-  loadSession,
-  saveSession,
   type Session,
   pushRecentNames,
   resolveCorrupt,
@@ -48,7 +46,7 @@ import type {
   SheetState,
 } from './types';
 import { useHistorySync } from '@/hooks/useHistorySync';
-import { onUnauthenticated } from '@/sync/api';
+import { getSession, onSession, setSession as setSharedSession } from '@/sync/session';
 import { setSyncStatus } from '@/sync/status';
 import { messages } from '@/strings/messages';
 import type { Game, Trump } from '@/games/kachuful/domain';
@@ -128,7 +126,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     const l = initial ?? loadInitial();
     const entry = readEntryLink();
     return {
-      ...initialState(l.game, l.screen, l.undo, l.corrupt, loadSession()),
+      ...initialState(l.game, l.screen, l.undo, l.corrupt, getSession()),
       nav: entry ? [entry] : [],
     };
   });
@@ -172,13 +170,14 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     [],
   );
 
-  useEffect(() => void saveSession(state.session), [state.session]);
-  // A 401 anywhere: keep the account on screen, but syncing waits for a fresh sign-in.
+  // Published for every game and the landing page (it saves it too).
+  useEffect(() => setSharedSession(state.session), [state.session]);
+  // Another game marking it stale (a 401 there) reaches this store too.
   useEffect(
     () =>
-      onUnauthenticated(() => {
-        const cur = ref.current.session;
-        if (cur && !cur.stale) dispatch({ type: 'session', session: { ...cur, stale: true } });
+      onSession(() => {
+        const s = getSession();
+        if (s !== ref.current.session) dispatch({ type: 'session', session: s });
       }),
     [],
   );

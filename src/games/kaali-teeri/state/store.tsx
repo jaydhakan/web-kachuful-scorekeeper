@@ -16,7 +16,8 @@ import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
 import type { Direction, Seat } from '@/people';
 import { archiveKtGame, forgetEmptyKt } from '@/state/archive';
-import { loadSession, pushRecentNames } from '@/state/persistence';
+import { pushRecentNames } from '@/state/persistence';
+import { getSession } from '@/sync/session';
 import { ensurePlayer } from '@/state/registry';
 import {
   loadKt,
@@ -209,7 +210,7 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
         const rules = su && setupRules(su);
         if (!su || !rules || su.seats.some((q) => !q || !q.name.trim())) return;
         const seats = su.seats as Seat[];
-        const online = !!loadSession();
+        const online = !!getSession();
         const playerIds = seats.map((q) => ensurePlayer(q, online).id);
         saveKtLastGroup({
           players: seats.map((q, i) => ({

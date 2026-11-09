@@ -5,6 +5,7 @@ import { afterEach, beforeEach } from 'vitest';
 import { storage } from '@/state/persistence';
 import { resetArchive } from '@/state/archive';
 import { startRoute } from '@/platform/route';
+import { resetSessionForTests } from '@/sync/session';
 
 class Observer {
   observe() {}
@@ -22,6 +23,7 @@ beforeEach(() => {
   // Most suites render <App/> to test Kachuful, which lives at /kachuful; platform tests set their own path.
   history.replaceState(null, '', '/kachuful');
   startRoute();
+  resetSessionForTests();
   window.matchMedia = (q: string) =>
     ({
       matches: q.includes('prefers-reduced-motion'),
