@@ -1,15 +1,6 @@
 import { useState } from 'react';
-import {
-  cardsEach,
-  deckTotal,
-  speakingOrder,
-  validCall,
-  type Call,
-  type KtGame,
-  type KtHand,
-} from '@/games/kaali-teeri/domain';
+import { cardsEach, type KtGame, type KtHand } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
-import { auctionOf, minNextBid } from '@/games/kaali-teeri/state/select';
 import { ktBidding } from '@/games/kaali-teeri/strings/bidding';
 import { Avatar } from '@/components/ui/Avatar';
 import { BidStepper } from '@/components/ui/BidKeypad';
@@ -19,29 +10,16 @@ import { BidTable, TableMiddle } from './BidTable';
 import { HandFrame } from '../parts/HandFrame';
 import { ModeSwitch } from './ModeSwitch';
 import { quickSteps } from './QuickBid';
-
-/** The log shows the latest calls only; the table already shows where everyone stands. */
-const LOG_SHOWN = 8;
-
-const callText = (c: Call, name: string) => {
-  const a = ktBidding.auction;
-  return 'pass' in c
-    ? a.logPass(name)
-    : 'bid' in c
-      ? a.logBid(name, c.bid)
-      : a.logForced(name, c.forced);
-};
+import { auctionView, callText } from './auctionView';
 
 /** The full auction, turn by turn: each seat's last call on the table, the high bid in the middle, the pad below. */
 export function Auction({ g, h }: { g: KtGame; h: KtHand }) {
   const { actions } = useKt();
   const s = ktBidding;
-  const st = auctionOf(g, h);
-  const min = minNextBid(g);
-  const max = deckTotal(g.rules.decks);
-  const order = speakingOrder(g, h.index);
-  const idx = (id: string | null) => g.players.findIndex((p) => p.id === id);
-  const nameOf = (id: string | null) => g.players[idx(id)]?.name ?? '';
+  const { st, min, max, order, idx, nameOf, bids, passed, speaker, canPass, shown } = auctionView(
+    g,
+    h,
+  );
 
   // The amount starts at the lowest legal bid after every call (and after an undo).
   const [amount, setAmount] = useState(min ?? g.rules.minBid);
@@ -50,20 +28,6 @@ export function Auction({ g, h }: { g: KtGame; h: KtHand }) {
     setSeen(h.calls.length);
     setAmount(min ?? g.rules.minBid);
   }
-
-  const last = new Map<string, Call>();
-  for (const c of h.calls) last.set(c.playerId, c);
-  const bids: Record<string, number> = {};
-  const passed: number[] = [];
-  for (const [id, c] of last) {
-    if ('pass' in c) passed.push(idx(id));
-    else bids[id] = 'bid' in c ? c.bid : c.forced;
-  }
-
-  const speaker = st.toSpeak ? g.players[idx(st.toSpeak)] : null;
-  const canPass =
-    !!st.toSpeak && validCall(h.calls, order, g.rules, { playerId: st.toSpeak, pass: true });
-  const shown = h.calls.slice(-LOG_SHOWN);
 
   return (
     <HandFrame

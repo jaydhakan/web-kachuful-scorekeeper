@@ -10,37 +10,19 @@ import { Banner } from '@/components/ui/Banner';
 import { Loader } from '@/components/ui/Loader';
 import { Modal } from '@/components/ui/Modal';
 import { Toast } from '@/components/ui/Toast';
-import { UpdateGate } from '@/components/UpdateGate';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 import { t } from '@/strings';
 import Home from './Home';
 import HandView from './hand/HandView';
 import SheetHost from '@/games/kaali-teeri/sheets/SheetHost';
 import Confirm from '@/games/kaali-teeri/sheets/Confirm';
+import { KtServiceWorker as ServiceWorker } from './KtServiceWorker';
 
 // Never the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
 const loadSetup = () => import('./setup/Setup');
 const Setup = lazy(loadSetup);
 const Deal = lazy(() => import('./setup/Deal'));
 const Winner = lazy(() => import('./Winner'));
-
-/** Registers the service worker, announces offline readiness once, and gates the app on a waiting update. */
-function ServiceWorker() {
-  const { state, actions } = useKt();
-  const { offlineReady, announced, needRefresh, reload } = useServiceWorker();
-  // One toast slot, and this news can wait: it never displaces a toast the player just caused.
-  const slotBusy = !!state.toast;
-  useEffect(() => {
-    if (!offlineReady || slotBusy) return;
-    actions.say(t.toasts.offlineReady);
-    announced();
-  }, [offlineReady, slotBusy, actions, announced]);
-  return (
-    <AnimatePresence>
-      {needRefresh && <UpdateGate key="update" onReload={reload} />}
-    </AnimatePresence>
-  );
-}
 
 /** Kaali Teeri's phone UI: one screen at a time, sheets and modals over it, toasts with Undo, the deal between hands. */
 export default function KtShell() {

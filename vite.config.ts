@@ -176,7 +176,7 @@ const PRELOADS: [string, string[], string[]][] = [
     [KF, '/src/games/kachuful/screens/desk/DeskShell.tsx'],
     [KF, '/src/games/kachuful/components/PhoneShell.tsx'],
   ],
-  ['kaali-teeri', [KT], [KT]],
+  ['kaali-teeri', [KT, '/src/games/kaali-teeri/screens/desk/KtDeskShell.tsx'], [KT]],
 ];
 
 const SHELLS = [

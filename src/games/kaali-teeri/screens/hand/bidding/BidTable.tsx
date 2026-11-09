@@ -79,7 +79,7 @@ export const SOLID = {
 };
 
 /** A "Pass" chip where the seat's bid bubble would sit: on the avatar's outer edge, so the name below stays clear. */
-function PassChip({ size, n, k, g }: { size: TableSize; n: number; k: number; g: KtGame }) {
+export function PassChip({ size, n, k, g }: { size: TableSize; n: number; k: number; g: KtGame }) {
   const at = toPct(size, seatPos(size, n, k, g.direction)),
     R = seatR(size, n),
     // Seats on the right edge put it on the felt side, so it never leaves the table's box.
@@ -106,7 +106,7 @@ function PassChip({ size, n, k, g }: { size: TableSize; n: number; k: number; g:
 }
 
 /** A veil over a seat whose last call was a pass, like a player sitting back; the log says it in words. */
-function PassVeil({ size, n, k, g }: { size: TableSize; n: number; k: number; g: KtGame }) {
+export function PassVeil({ size, n, k, g }: { size: TableSize; n: number; k: number; g: KtGame }) {
   const at = toPct(size, seatPos(size, n, k, g.direction)),
     R = seatR(size, n);
   return (
