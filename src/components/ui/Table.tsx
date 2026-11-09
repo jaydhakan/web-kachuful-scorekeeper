@@ -327,8 +327,10 @@ export function Table({
             {...(onSeat && {
               role: 'button',
               tabIndex: 0,
-              // With no name label the seat is named for assistive tech and on hover instead.
-              'aria-label': p ? (named ? undefined : p.name) : t.table.seat(k + 1),
+              // Named outright, so assistive tech hears "Riya, Bids 1st" rather than the avatar's emoji and chip text.
+              'aria-label': p
+                ? [p.name, badge?.label].filter(Boolean).join(', ')
+                : t.table.seat(k + 1),
               onClick: () => onSeat(k),
               onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
                 if (e.key === 'Enter' || e.key === ' ') {
