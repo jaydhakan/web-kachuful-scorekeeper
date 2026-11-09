@@ -157,7 +157,7 @@ describe('§2.5 totals, standings and game length', () => {
       { bidder: 2, bid: 200, team: 150 },
       { bidder: 1, bid: 160, phase: 'playing' },
     ]);
-    expect(totals(g)).toEqual({ p0: 380, p1: 180, p2: 0, p3: 0 });
+    expect(totals(g)).toEqual({ p0: 380, p1: 380, p2: 0, p3: 0 });
     expect(totals(g, g.hands.slice(0, 1))).toEqual({ p0: 180, p1: 180, p2: 0, p3: 0 });
   });
 

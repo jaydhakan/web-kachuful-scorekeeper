@@ -83,6 +83,11 @@ describe('§2.3 calling partners', () => {
     expect(canAdd(c('A', 'hearts', 1), [other], 8)).toBe(true);
   });
 
+  it('only real cards', () => {
+    expect(canAdd(c('1' as 'A', 'spades'), [], 4)).toBe(false);
+    expect(canAdd(c('A', 'stars' as 'spades'), [], 4)).toBe(false);
+  });
+
   it('no more cards once the partners are all called', () => {
     expect(canAdd(KH, [AS], 4)).toBe(false);
     expect(canAdd(KH, [AS], 6)).toBe(true);

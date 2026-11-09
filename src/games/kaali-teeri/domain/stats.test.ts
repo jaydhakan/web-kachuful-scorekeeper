@@ -169,7 +169,10 @@ describe('per-hand and per-game rows', () => {
         place: [2, 1, 3, 4][i],
       })),
     });
-    const s = summary({ ...live, players: live.players.map(({ playerId: _, ...p }) => p) });
+    const s = summary({
+      ...live,
+      players: live.players.map((p) => ({ ...p, playerId: undefined })),
+    });
     expect(s.players.map((p) => [p.playerId, p.place])).toEqual([
       [null, null],
       [null, null],
@@ -273,6 +276,7 @@ describe('§6 player stats', () => {
       bBidAgainstA: 2,
       bMadeAgainstA: 1,
     });
+    expect(headToHead(games, 'b', 'a')).toMatchObject({ aAhead: 2, bAhead: 0, aBidAgainstB: 2 });
     expect(headToHead(games, 'd', 'e')).toMatchObject({ games: 0, aAhead: 0, bAhead: 0 });
     const tie = kitGame({
       id: 'T',
