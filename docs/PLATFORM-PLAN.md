@@ -5,6 +5,16 @@
 Both game plans ([KAALI-TEERI-PLAN.md](KAALI-TEERI-PLAN.md), [ISHAARA-PLAN.md](ISHAARA-PLAN.md)) build on this, so this
 goes first, whichever game we start with.
 
+## 0. Build status (2026-11-10)
+
+Done on `baithak` (both repos): P0, P1a, P1 (paths, `src/platform/catalog.ts`), P2 (one HTML page per game with its
+preview tags, Baithak manifest with shortcuts), P3, P4 (landing page), P5 (All games in both games, transition), P6
+in part (shared session `src/sync/session.ts` and theme sync at the site level; the account pages still live in
+Kachuful's shell, reached with `/kachuful?open=account`), P8, and Kaali Teeri in full. Open: P7 (theme-aware tile art
+beyond the landing tiles, Kachuful OG redraw), P9 (bundle budgets: landing 152 KB and Kachuful phone 158 KB are over
+145; the shared chunk holds Kachuful's store next to `persistence.ts` and the API client), P10 (renames), Ishaara.
+nginx needs `location / { try_files $uri $uri/index.html /index.html; }` before the deploy (README, Hosting).
+
 ## 1. Goal
 
 play.vectanix.com becomes **Baithak**, a home for table games: a landing page listing the games, Kachuful at
