@@ -353,7 +353,7 @@ describe('quick / auction switch', () => {
     expect(back.prefs.quick).toBe(true);
     // The cleared call is said, with Undo; switching with no calls says nothing.
     expect(back.toast).toMatchObject({ msg: 'Quick mode: 1 auction call cleared', undo: true });
-    expect(a.toast?.msg).not.toMatch(/cleared/);
+    expect(a.toast?.msg ?? '').not.toMatch(/cleared/);
     // Same mode: only the preference is touched.
     const same = run(s, { type: 'setMode', mode: 'quick' });
     expect(same.game).toBe(s.game);

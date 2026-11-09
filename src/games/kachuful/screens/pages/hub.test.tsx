@@ -9,6 +9,10 @@ import { archive, archiveGame } from '@/state/archive';
 import { ensurePlayer } from '@/state/registry';
 
 const setup = () => userEvent.setup({ pointerEventsCheck: 0 });
+// Today at noon, so games that started an hour ago are today's even when the suite runs just after midnight.
+vi.useFakeTimers({ toFake: ['Date'] });
+vi.setSystemTime(new Date().setHours(12, 0, 0, 0));
+afterAll(() => vi.useRealTimers());
 const now = Date.now();
 
 async function seed() {
