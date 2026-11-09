@@ -5,6 +5,7 @@ export const ktMessages = {
     handSaved: (n: number) => `Hand ${n} saved`,
     handUpdated: (n: number) => `Hand ${n} updated`,
     undone: 'Undone',
+    auctionDropped: (n: number) => `Quick mode: ${n} auction ${n === 1 ? 'call' : 'calls'} cleared`,
     nothingToUndo: 'Nothing to undo',
     previousSaved: 'Previous game saved to History',
     gameEnded: 'Game ended and saved to History',

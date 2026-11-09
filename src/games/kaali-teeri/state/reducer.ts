@@ -334,6 +334,7 @@ function setMode(s: KtState, mode: KtMode): KtState {
   const prefs = { ...s.prefs, quick: mode === 'quick' };
   const t = prefs.quick === s.prefs.quick ? s : { ...s, prefs };
   if (!inPhase(t, 'bidding') || curHand(t.game).mode === mode) return t;
+  const lost = curHand(t.game).calls.length;
   return commit(
     t,
     (_, h) => {
@@ -341,7 +342,8 @@ function setMode(s: KtState, mode: KtMode): KtState {
       // Quick mode keeps no auction; switching back starts the auction over.
       h.calls = [];
     },
-    { undo: true },
+    // Calls thrown away are said out loud, with Undo to get them back.
+    { undo: true, ...(lost > 0 && { toast: m.toasts.auctionDropped(lost) }) },
   );
 }
 
