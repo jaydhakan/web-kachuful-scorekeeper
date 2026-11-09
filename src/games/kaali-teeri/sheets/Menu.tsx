@@ -6,11 +6,10 @@ import { end } from '@/games/kaali-teeri/strings/end';
 import { loadThemeState } from '@/state/persistence';
 import { Icon } from '@/components/ui/Icons';
 import { stagger } from '@/components/ui/stagger';
+import { go } from '@/platform/route';
 
-/** Leaves Kaali Teeri for the game picker; the one place to change when the platform router lands. */
-function toAllGames() {
-  location.assign('/');
-}
+/** Leaves Kaali Teeri for the game picker, without a reload; the game is saved on every change. */
+const toAllGames = () => go(null);
 
 type Row = [ReactElement, string, () => void];
 
