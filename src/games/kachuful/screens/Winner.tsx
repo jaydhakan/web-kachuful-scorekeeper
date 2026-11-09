@@ -7,19 +7,19 @@ import {
   useGameAchievements,
 } from '@/games/kachuful/components/AchievementReel';
 import { LazyChart } from '@/games/kachuful/components/LazyChart';
-import { fmt, sgnN, trunc } from '@/lib/format';
+import { fmt, sgnN } from '@/lib/format';
 import { useApp } from '@/games/kachuful/state/store';
-import { palette, seatColor } from '@/theme/palette';
+import { palette } from '@/theme/palette';
 import { Dot } from '@/components/ui/Dot';
 import { Glass } from '@/components/ui/Glass';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
-import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
-import { PODIUM_BG } from '@/components/ui/podium';
+import { SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
+import { Podium } from '@/components/ui/Podium';
+import { finalStandings } from '@/games/kachuful/lib/finalStandings';
 import { t } from '@/strings';
-import { AvatarFill } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
 
@@ -31,14 +31,6 @@ const rankColor = (rank: number) =>
       : rank === 3
         ? palette['rank-bronze']
         : 'var(--tx)';
-
-// Podium sizes in design pixels times --pu, which is 1px except on a short screen where the podium shrinks to fit.
-const AVATAR = {
-  1: { w: 'max(2rem, calc(64 * var(--pu)))' },
-  2: { w: 'max(1.75rem, calc(52 * var(--pu)))' },
-  3: { w: 'max(1.75rem, calc(52 * var(--pu)))' },
-} as const;
-const STEP_MIN = '3rem';
 
 interface StatCardProps {
   ic: ReactNode;
@@ -79,65 +71,6 @@ export default function Winner() {
     S = gameStats(g),
     done = doneRounds(g);
   const reel = useGameAchievements(g);
-  const col = (k: 1 | 2 | 3) => {
-    const tied = st.filter((x) => x.rank === k),
-      h = k === 1 ? 128 : k === 2 ? 96 : 76;
-    // Tied players share their step side by side, so their avatars shrink to fit the column.
-    const w = `calc(${AVATAR[k].w} * ${tied.length > 2 ? 0.56 : tied.length > 1 ? 0.82 : 1})`;
-    return (
-      <div
-        key={k}
-        className="flex max-w-[120px] flex-1 flex-col items-center justify-end wide:max-w-[9rem]"
-      >
-        <div className="mb-1.5 flex flex-wrap items-end justify-center gap-1.5">
-          {tied.map((x, i) => (
-            <m.div
-              key={x.p.id}
-              initial={{ y: -30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ ...SPRING_POP, delay: 0.9 + (3 - k) * 0.12 + i * 0.05 }}
-              // The name is shortened to fit the column; the full one is the accessible name and the tooltip.
-              role="group"
-              aria-label={x.p.name}
-              title={x.p.name}
-              className="flex min-w-0 max-w-[70px] flex-col items-center text-center text-13 font-bold leading-tight [overflow-wrap:anywhere] wide:max-w-[7rem]"
-              style={tied.length > 1 ? { maxWidth: `max(${w}, 3.5rem)` } : undefined}
-            >
-              <span
-                aria-hidden
-                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]' : 'border-ov/25'}`}
-                style={{
-                  background: seatColor(x.p.color),
-                  width: w,
-                  height: w,
-                  fontSize: `calc(${w} * 0.56)`,
-                }}
-              >
-                <AvatarFill p={x.p} />
-              </span>
-              <span aria-hidden>{trunc(x.p.name)}</span>
-            </m.div>
-          ))}
-        </div>
-        <m.div
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 0.8, ease: EASE, delay: (3 - k) * 0.15 }}
-          style={{
-            height: `max(${STEP_MIN}, calc(${h} * var(--pu)))`,
-            originY: 1,
-            opacity: tied.length ? 1 : 0.25,
-          }}
-          className={`disp flex w-full flex-col items-center rounded-t-2xl pt-2 text-32 land:text-22 land:leading-none font-extrabold text-ink-podium shadow-[0_20px_50px_-16px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${PODIUM_BG[k]}`}
-        >
-          {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
-          <small className="font-sans text-13 font-bold land:mt-1">
-            {tied.length ? sgnN(tied[0].t) : '—'}
-          </small>
-        </m.div>
-      </div>
-    );
-  };
   return (
     <Scaffold
       left={
@@ -186,12 +119,7 @@ export default function Winner() {
                 text={t.winner.headline(st.filter((x) => x.rank === 1).map((x) => x.p.name))}
               />
             </h2>
-            <div
-              data-podium
-              className="mb-4 mt-2 flex min-h-[240px] items-end justify-center gap-2 land:mb-0 land:mt-0 land:min-h-0"
-            >
-              {([2, 1, 3] as const).map(col)}
-            </div>
+            <Podium standings={finalStandings(g)} />
           </div>
         </div>
         <div

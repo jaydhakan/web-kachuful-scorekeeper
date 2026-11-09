@@ -15,7 +15,7 @@ src/games/kachuful/   everything that is Kachuful's own:
                 lazy; pages/ holds the screens opened over the game (one lazy chunk for phone and desk)
   sheets/       one file per sheet body; SheetHost chooses the body and captures it at mount
   components/   the shells (AppShell, PhoneShell) and Kachuful-only pieces (HomeOnline, TodayStrip, HostLive …)
-  hooks/ lib/ strings/   useRoundEdit, usePersistence; route, share image + text; rules and achievement names
+  hooks/ lib/ strings/   useRoundEdit, usePersistence; route, final standings + share card and text; rules and achievement names
 src/platform/   account, sign-in, admin and credits pages (pages/), shared by every game
 src/people/     Player, Direction, avatar colours and emoji, name and email keys, pidOf: one players registry for all games
 src/state       persistence.ts (the only localStorage access), archive.ts (IndexedDB), registry.ts (players),
@@ -29,7 +29,7 @@ src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, T
 src/strings     user-visible strings shared by the app (`t`, hub, admin; messages.ts is plain text used by domain/reducer);
                 a game's own strings sit in its strings/
 src/theme       theme registry, colour-name map, palette, trump themes (look: src/styles/themes.css)
-src/lib         format helpers, table geometry, clock, entry links
+src/lib         format helpers, table geometry, clock, entry links, the share image (any game's standings)
 ```
 
 Dependencies point downward only: `domain` imports nothing from the UI; `state` imports `domain`; components import `state` and `domain`. Shared code (`src/` outside `games/`) still reaches into Kachuful where the app is one game today (the store, `Game` in the archive and API types); those imports go as the platform shell takes over.

@@ -1,7 +1,8 @@
 import { m } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { canShareFiles, copySummary, shareScores } from '@/hooks/useShare';
-import { drawShareCanvas } from '@/games/kachuful/lib/shareImage';
+import { drawShareCanvas } from '@/lib/shareImage';
+import { shareCard } from '@/games/kachuful/lib/finalStandings';
 import { shareText } from '@/games/kachuful/lib/shareText';
 import { useApp } from '@/games/kachuful/state/store';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -14,7 +15,7 @@ export default function ShareBody() {
   const text = shareText(state.game);
   useEffect(() => {
     let live = true;
-    void drawShareCanvas(state.game).then((c) =>
+    void drawShareCanvas(shareCard(state.game)).then((c) =>
       c.toBlob((blob) => {
         if (live && blob) setImg({ url: c.toDataURL('image/png'), blob });
       }),

@@ -6,7 +6,7 @@ import { useApp } from '@/games/kachuful/state/store';
 import { useDeskKeys } from './useDeskKeys';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { EASE, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
+import { SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { DeskPage, GhostButton, Kbd, PageHead, rankTone } from './DeskParts';
 import { ChartLegend, ScoreChart } from './ScoreChart';
 import {
@@ -16,34 +16,11 @@ import {
 } from '@/games/kachuful/components/AchievementReel';
 import { Sheet } from '@/components/ui/Sheet';
 import { t } from '@/strings';
-import { Avatar, AvatarFill } from '@/components/ui/Avatar';
-import { seatColor } from '@/theme/palette';
+import { Avatar } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
-
-const STEP = {
-  1: {
-    h: 'h-[min(310px,42cqh)]',
-    bg: 'bg-gold-gradient-v',
-    text: 'text-64',
-    av: 104,
-    ring: 'border-gold shadow-[0_0_44px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]',
-  },
-  2: {
-    h: 'h-[min(230px,31cqh)]',
-    bg: 'bg-silver-gradient-v',
-    text: 'text-48',
-    av: 72,
-    ring: 'border-rank-silver',
-  },
-  3: {
-    h: 'h-[min(170px,23cqh)]',
-    bg: 'bg-bronze-gradient-v',
-    text: 'text-44',
-    av: 72,
-    ring: 'border-rank-bronze',
-  },
-} as const;
+import { Podium } from '@/components/ui/Podium';
+import { finalStandings } from '@/games/kachuful/lib/finalStandings';
 
 const Highlight = ({
   label,
@@ -89,55 +66,6 @@ export function DeskWinner() {
     top.length > 1
       ? t.desk.winner.tie(top.map((x) => x.p.name).join(', '), fmt(top[0].t))
       : t.desk.winner.title(top[0].p.name, fmt(top[0].t));
-  const col = (k: 1 | 2 | 3) => {
-    const tied = st.filter((x) => x.rank === k),
-      s = STEP[k];
-    return (
-      <div key={k} className="flex min-w-0 flex-1 flex-col items-center justify-end">
-        <div className="mb-2.5 flex flex-wrap justify-center gap-2">
-          {tied.map((x, i) => (
-            <m.div
-              key={x.p.id}
-              initial={rm ? false : { y: -40, opacity: 0, scale: 0.6 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              transition={{ ...SPRING_POP, delay: 0.7 + (3 - k) * 0.15 + i * 0.05 }}
-              className="flex min-w-0 flex-col items-center"
-            >
-              <span
-                aria-hidden
-                className={`relative grid place-items-center rounded-full border-[3px] ${s.ring}`}
-                style={{
-                  width: tied.length > 1 ? s.av * 0.7 : s.av,
-                  height: tied.length > 1 ? s.av * 0.7 : s.av,
-                  fontSize: (tied.length > 1 ? s.av * 0.7 : s.av) * 0.56,
-                  background: seatColor(x.p.color),
-                }}
-              >
-                <AvatarFill p={x.p} />
-              </span>
-              <span className="mt-2 max-w-[9rem] text-center text-20 font-bold leading-tight [overflow-wrap:anywhere]">
-                {x.p.name}
-              </span>
-            </m.div>
-          ))}
-        </div>
-        <m.div
-          initial={rm ? false : { scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 0.85, ease: EASE, delay: (3 - k) * 0.15 }}
-          style={{ originY: 1, opacity: tied.length ? 1 : 0.25 }}
-          className={`flex w-full flex-col items-center rounded-t-[20px] pt-3.5 text-ink-podium shadow-[0_20px_50px_-16px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${s.h} ${s.bg}`}
-        >
-          <span className={`disp font-extrabold leading-none ${s.text}`}>
-            {k === 1 ? t.winner.first : k === 2 ? t.winner.second : t.winner.third}
-          </span>
-          <span className="disp tick mt-1 text-30 font-extrabold">
-            {tied.length ? fmt(tied[0].t) : '—'}
-          </span>
-        </m.div>
-      </div>
-    );
-  };
   return (
     <DeskPage scroll label={t.winner.finalScores} className="dt:px-12 rail:overflow-hidden">
       <PageHead
@@ -179,9 +107,7 @@ export function DeskWinner() {
           >
             {Icon.trophy}
           </m.span>
-          <div className="flex w-full max-w-[40rem] items-end justify-center gap-4">
-            {([2, 1, 3] as const).map(col)}
-          </div>
+          <Podium look="desk" standings={finalStandings(g)} />
         </section>
         <aside className="flex min-h-0 flex-col gap-4">
           <ol
