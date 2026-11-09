@@ -19,16 +19,59 @@ export default function Play() {
   const { state, actions } = useKt();
   const g = state.game;
   const h = g && curHand(g);
-  const said = useReveal(g, h);
   if (!g || !h || h.bidder == null || h.trump == null) return null;
   const bi = g.players.findIndex((p) => p.id === h.bidder);
   const bidder = g.players[bi];
+  return (
+    <HandFrame
+      g={g}
+      h={h}
+      fit
+      // Beside the table in two panes; under it otherwise, in the same column as the table (see below).
+      aside={
+        <div className="hidden pane:block">
+          <CalledCards g={g} h={h} id="kt-called-p" />
+        </div>
+      }
+      bar={
+        <PrimaryButton className="flex-1" onClick={actions.toResult}>
+          {kp.play.handOver}
+        </PrimaryButton>
+      }
+    >
+      {/* No min-h-0: the table keeps its smallest size and the cards below push the page to scroll, never overlap. */}
+      <div className="-mx-5 mt-1 flex flex-1 flex-col pane:mx-0">
+        <Table
+          uid="kt-play"
+          fit
+          players={g.players}
+          dir={g.direction}
+          dealer={h.dealerIndex}
+          first={bi}
+          firstLabel={kp.play.leads}
+          badges={seatBadges(h)}
+          noSeatAnim
+          center={<TrumpCentre suit={h.trump} />}
+        />
+      </div>
+      <div className="pane:hidden">
+        <CalledCards g={g} h={h} id="kt-called" />
+      </div>
+      <p className="sr-only">{kp.play.leadsLine(bidder.name)}</p>
+    </HandFrame>
+  );
+}
+
+/** The called cards, face down until someone plays them, each with its "Played by…" button; phone and desk. */
+export function CalledCards({ g, h, id, className = 'mt-3 pane:mt-0' }: CalledCardsProps) {
+  const { actions } = useKt();
+  const said = useReveal(g, h);
   const shown = h.playedBy.filter((p) => p != null).length;
-  const called = (pane: boolean) => (
-    <section aria-labelledby={pane ? 'kt-called-p' : 'kt-called'} className="mt-3 pane:mt-0">
+  return (
+    <section aria-labelledby={id} className={className}>
       <div className="mb-2.5 flex items-baseline justify-between gap-3">
         <h2
-          id={pane ? 'kt-called-p' : 'kt-called'}
+          id={id}
           className="mono-label text-13 font-bold uppercase tracking-[0.14em] text-[var(--accent)]"
         >
           {kp.play.called}
@@ -60,38 +103,14 @@ export default function Play() {
       </div>
     </section>
   );
-  return (
-    <HandFrame
-      g={g}
-      h={h}
-      fit
-      // Beside the table in two panes; under it otherwise, in the same column as the table (see below).
-      aside={<div className="hidden pane:block">{called(true)}</div>}
-      bar={
-        <PrimaryButton className="flex-1" onClick={actions.toResult}>
-          {kp.play.handOver}
-        </PrimaryButton>
-      }
-    >
-      {/* No min-h-0: the table keeps its smallest size and the cards below push the page to scroll, never overlap. */}
-      <div className="-mx-5 mt-1 flex flex-1 flex-col pane:mx-0">
-        <Table
-          uid="kt-play"
-          fit
-          players={g.players}
-          dir={g.direction}
-          dealer={h.dealerIndex}
-          first={bi}
-          firstLabel={kp.play.leads}
-          badges={seatBadges(h)}
-          noSeatAnim
-          center={<TrumpCentre suit={h.trump} />}
-        />
-      </div>
-      <div className="pane:hidden">{called(false)}</div>
-      <p className="sr-only">{kp.play.leadsLine(bidder.name)}</p>
-    </HandFrame>
-  );
+}
+
+interface CalledCardsProps {
+  g: KtGame;
+  h: KtHand;
+  /** The heading's id; the phone renders two copies (one per layout), so each needs its own. */
+  id: string;
+  className?: string;
 }
 
 /** What the live region says when a called card is marked: who joined, and how many are still hidden. */
@@ -114,7 +133,7 @@ function useReveal(g: KtGame | null, h: KtHand | null): string {
   return said;
 }
 
-function TrumpCentre({ suit }: { suit: Suit }) {
+export function TrumpCentre({ suit }: { suit: Suit }) {
   return (
     <>
       <div
