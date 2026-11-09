@@ -1,3 +1,7 @@
+// One players registry for every game; relative, because the mock API loads the domain outside Vite.
+import type { Direction, Player } from '../../../people/types';
+export type { Direction, Player };
+
 export type Suit = 'spades' | 'hearts' | 'diamonds' | 'clubs';
 export type Rank = 'A' | 'K' | 'Q' | 'J' | '10' | '9' | '8' | '7' | '6' | '5' | '4' | '3' | '2';
 /** Two decks only: first played, second played, or the copy the bidder doesn't hold. */
@@ -9,16 +13,6 @@ export interface CardRef {
   /** Present only when both copies of the card are in play. */
   copy?: Copy;
 }
-
-// Structurally Kachuful's Player and Direction; swapped for the shared types when the games are joined.
-export interface KtPlayer {
-  id: string;
-  name: string;
-  emoji: string;
-  color: string;
-  playerId?: string;
-}
-export type Direction = 'cw' | 'ccw';
 
 export type KtLength = 'endless' | 'to1000';
 
@@ -71,7 +65,7 @@ export interface KtGame {
   createdAt: number;
   updatedAt: number;
   finishedAt?: number;
-  players: KtPlayer[];
+  players: Player[];
   firstDealerIndex: number;
   direction: Direction;
   rules: KtRules;
@@ -81,7 +75,7 @@ export interface KtGame {
 }
 
 export interface KtStanding {
-  p: KtPlayer;
+  p: Player;
   i: number;
   t: number;
   rank: number;

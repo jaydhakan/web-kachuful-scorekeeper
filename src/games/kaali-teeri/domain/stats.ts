@@ -1,9 +1,9 @@
 import { doneHands, result, slots, standings, team, totals } from './scoring';
-import type { KtGame, KtHand, KtLength, KtPlayer, Suit, Sweep } from './types';
+import { pidOf } from '../../../people/pid';
+import type { KtGame, KtHand, KtLength, Player, Suit, Sweep } from './types';
 
 /** A player across games: their registry id, else their name (as Kachuful keys them). */
-export const playerKey = (p: KtPlayer): string =>
-  p.playerId ?? `name:${p.name.trim().replace(/\s+/g, ' ').toLowerCase()}`;
+export const playerKey = (p: Player): string => pidOf(p);
 
 const ended = (g: KtGame) => g.status === 'finished';
 

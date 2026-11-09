@@ -1,6 +1,6 @@
 import { dealerFor } from './auction';
 import { defaultRules } from './cards';
-import type { Call, CardRef, KtGame, KtHand, KtPlayer, Suit } from './types';
+import type { Call, CardRef, KtGame, KtHand, Player, Suit } from './types';
 
 // Kachuful's first avatar colours (src/domain/avatars.ts); stored as hex like every saved player.
 const COLORS = ['#FF8A65', '#4FC3F7', '#FFD54F', '#81C784', '#BA68C8'];
@@ -10,7 +10,7 @@ const MIN = 60e3;
 export function demoGame(): KtGame {
   const now = Date.now(),
     start = now - 50 * MIN;
-  const players: KtPlayer[] = (
+  const players: Player[] = (
     [
       ['Aarav', '🦁'],
       ['Riya', '🐯'],
