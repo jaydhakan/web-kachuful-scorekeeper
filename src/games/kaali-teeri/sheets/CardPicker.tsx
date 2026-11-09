@@ -4,6 +4,7 @@ import { useKt } from '@/games/kaali-teeri/state/store';
 import { curHand } from '@/games/kaali-teeri/state/select';
 import { ktBidding } from '@/games/kaali-teeri/strings/bidding';
 import { PlayingCard } from '@/components/ui/PlayingCard';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { CardGrid, EMPTY_DRAFT, draftCard, type Draft } from '../screens/hand/call/CardGrid';
 
 const s = ktBidding;
@@ -27,9 +28,9 @@ export default function CardPicker() {
     return <p className="px-1 py-4 text-15 text-[var(--tx2)]">{s.picker.unavailable}</p>;
   const n = g.players.length;
   const others = i === null ? h.called : h.called.filter((_, k) => k !== i);
-  const onDraft = (d: Draft) => {
-    const card = draftCard(d, others, n);
-    if (!card) return setDraft(d);
+  const ready = draftCard(draft, others, n);
+  // Picking only fills the draft; the button calls it, so a mis-tap is changed before it counts.
+  const commit = (card: CardRef) => {
     if (i === null) actions.addCard(card);
     else if (cur && sameCard(card, cur)) {
       if (card.copy !== undefined && card.copy !== cur.copy) actions.setCopy(i, card.copy);
@@ -58,12 +59,15 @@ export default function CardPicker() {
         n={n}
         called={others}
         draft={draft}
-        onDraft={onDraft}
+        onDraft={setDraft}
         onWhy={setWhy}
       />
       <p role="status" aria-live="polite" className="min-h-5 px-1 text-14 text-[var(--warn)]">
         {why}
       </p>
+      <PrimaryButton disabled={!ready} onClick={() => ready && commit(ready)}>
+        {ready ? s.picker.use(ready.rank, ready.suit) : s.picker.pick}
+      </PrimaryButton>
     </div>
   );
 }

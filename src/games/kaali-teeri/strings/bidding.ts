@@ -94,5 +94,7 @@ export const ktBidding = {
   },
   picker: {
     unavailable: 'Nothing to change right now',
+    use: (rank: Rank, suit: Suit) => `Call ${cardText(rank, suit)}`,
+    pick: 'Pick a rank and a suit',
   },
 } as const;

@@ -90,12 +90,16 @@ describe('Call', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Change K♠' }));
     await userEvent.click(screen.getAllByRole('button', { name: '2nd played' }).at(-1)!);
+    // Nothing counts until the sheet's button calls the card.
+    expect(hand(r).called[0].copy).toBe(1);
+    await userEvent.click(screen.getByRole('button', { name: 'Call K♠' }));
     expect(hand(r).called[0]).toEqual({ rank: 'K', suit: 'spades', copy: 2 });
     expect(r.state().sheet).toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Change A♥' }));
     await userEvent.click(screen.getAllByRole('button', { name: 'Q' }).at(-1)!);
     await userEvent.click(screen.getAllByRole('button', { name: '1st played' }).at(-1)!);
+    await userEvent.click(screen.getByRole('button', { name: 'Call Q♥' }));
     expect(hand(r).called).toEqual([
       { rank: 'K', suit: 'spades', copy: 2 },
       { rank: 'Q', suit: 'hearts', copy: 1 },
