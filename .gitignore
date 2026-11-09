@@ -169,3 +169,5 @@ reports/lighthouse/*.html
 
 # Working material for the game builds; delete once Kaali Teeri and Ishaara ship
 prototype/
+# Agent worktrees
+.claude/worktrees/
