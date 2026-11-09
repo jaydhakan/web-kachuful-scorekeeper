@@ -44,11 +44,14 @@ export function TableMiddle({
   amount,
   who,
   flat,
+  word,
 }: {
   kicker: string;
   amount: ReactNode;
   who: ReactNode;
   flat: boolean;
+  /** The big line is a name, not a number: smaller, and allowed to wrap. */
+  word?: boolean;
 }) {
   return (
     <span
@@ -61,7 +64,7 @@ export function TableMiddle({
         initial={{ opacity: 0.4, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={SPRING_POP}
-        className={`disp tick font-extrabold leading-none tracking-[-0.03em] ${flat ? 'text-28' : 'text-52'}`}
+        className={`disp tick font-extrabold leading-none tracking-[-0.03em] ${word ? `max-w-[9rem] text-center [overflow-wrap:anywhere] ${flat ? 'text-22' : 'text-32'}` : flat ? 'text-28' : 'text-52'}`}
       >
         {amount}
       </m.span>

@@ -34,6 +34,9 @@ export const ktBidding = {
       `Minimum ${min} · steps of ${step} · up to ${max}`,
     confirm: (name: string, bid: number) => `${name} · ${bid}`,
     pickFirst: 'Pick the winner',
+    nobody: '?',
+    wonIt: 'won the bid',
+    tapWinner: 'Tap their seat',
   },
   auction: {
     highBid: 'High bid',

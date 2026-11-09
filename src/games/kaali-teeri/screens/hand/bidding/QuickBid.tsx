@@ -69,9 +69,10 @@ export function QuickBid({ g, h }: { g: KtGame; h: KtHand }) {
         center={(flat) => (
           <TableMiddle
             flat={flat}
+            word
             kicker={s.quick.winningBid}
-            amount={amount}
-            who={p ? p.name : s.quick.pickFirst}
+            amount={p ? p.name : s.quick.nobody}
+            who={p ? s.quick.wonIt : s.quick.tapWinner}
           />
         )}
       />

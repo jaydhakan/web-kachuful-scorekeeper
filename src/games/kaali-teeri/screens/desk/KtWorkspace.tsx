@@ -185,9 +185,10 @@ export function KtWorkspace({ g }: { g: KtGame }) {
   const center = quickMode ? (
     <TableMiddle
       flat={false}
+      word
       kicker={ktBidding.quick.winningBid}
-      amount={q.amount}
-      who={q.seat != null ? g.players[q.seat].name : ktBidding.quick.pickFirst}
+      amount={q.seat != null ? g.players[q.seat].name : ktBidding.quick.nobody}
+      who={q.seat != null ? ktBidding.quick.wonIt : ktBidding.quick.tapWinner}
     />
   ) : av ? (
     <TableMiddle
