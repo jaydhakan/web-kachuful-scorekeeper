@@ -14,12 +14,7 @@ import { sessionOf } from '@/sync/account';
 import { ep } from '@/sync/endpoints';
 import { playersWaiting, pullPlayers, pushPlayers, upsertPlayers } from '@/sync/players';
 import { setSyncStatus } from '@/sync/status';
-import {
-  isTombstone,
-  type Achievement,
-  type GameSummary,
-  type WireGame,
-} from '@/sync/types';
+import { isTombstone, type Achievement, type GameSummary, type WireGame } from '@/sync/types';
 
 /** What the engine needs from the app; bound by the provider. */
 export interface EngineCtx {
