@@ -271,7 +271,7 @@ export default defineConfig(({ mode }) => ({
     include: ['src/**/*.test.{js,ts,tsx}'],
     coverage: {
       provider: 'v8',
-      include: ['src/games/kachuful/domain/**', 'src/people/**'],
+      include: ['src/games/*/domain/**', 'src/people/**'],
       reporter: ['text', 'html'],
     },
   },
