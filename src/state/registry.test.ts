@@ -1,6 +1,7 @@
 import { demoGame } from '@/games/kachuful/domain';
 import { findPerson, isSeated, lookFor } from '@/components/seating/seatLook';
-import { archive, archiveGame } from './archive';
+import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
+import { archive, archiveGame, archiveKtGame } from './archive';
 import { KEYS, storage } from './persistence';
 import {
   answersTo,
@@ -65,6 +66,51 @@ describe("an account's circle (setup suggestions)", () => {
         .map((p) => p.id)
         .sort(),
     ).toEqual(['added', 'here', 'met', 'mine', 'ok', 'table']);
+  });
+
+  it('counts people met in every game: a Kaali Teeri table joins the circle too', async () => {
+    await archive.ready;
+    archive.put(
+      'players',
+      server('mine', 'Mine'),
+      server('kt-only', 'Ktonly'),
+      server('kt-other', 'Ktother'),
+      server('stranger', 'Stranger', 'u2'),
+    );
+    const kt = kitGame({
+      id: 'kt-sync',
+      players: ['mine', 'kt-only', 'x3', 'x4'],
+      start: T0,
+      hands: [{ bidder: 0, bid: 150, team: 200 }],
+    });
+    archiveKtGame(kt, { account: 'u1' });
+    // Someone else's game this account scored: the seats are still people it met.
+    archiveKtGame(
+      {
+        ...kt,
+        syncId: 'kt-2',
+        players: kt.players.map((p, i) => ({ ...p, playerId: ['a', 'kt-other', 'b', 'c'][i] })),
+      },
+      { account: 'u1' },
+    );
+    archiveKtGame(
+      {
+        ...kt,
+        syncId: 'kt-3',
+        players: kt.players.map((p, i) => ({ ...p, playerId: ['stranger', 'd', 'e', 'f'][i] })),
+      },
+      { account: 'u2', origin: 'remote' },
+    );
+    expect(
+      circle('u1', 'mine')
+        .map((p) => p.id)
+        .sort(),
+    ).toEqual(['kt-only', 'kt-other', 'mine']);
+    // people() counts Kaali Teeri games too, so setup suggests them by how recently they played.
+    expect(people().find((p) => p.id === 'kt-only')).toMatchObject({
+      games: 1,
+      lastPlayedAt: kt.updatedAt,
+    });
   });
 
   it('only the admin, the creator and the linked user may change a photo or email', () => {
