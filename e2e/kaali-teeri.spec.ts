@@ -21,7 +21,7 @@ test('a quick-mode hand from the deal to the summary, kept across a reload', asy
   await expect(page.getByRole('heading', { name: 'After hand 1' })).toBeVisible();
   await expect(page.getByText('Hand 2 · Aarav deals · Meera bids first')).toBeVisible();
   await ktBtn(page, 'Next hand').click();
-  await expect(page.getByText(/Aarav deals/)).toBeVisible();
+  await expect(page.getByText('Aarav deals · 13 each')).toBeVisible();
 });
 
 test('the full auction: a player who passed bids again, and the last bid standing wins', async ({
