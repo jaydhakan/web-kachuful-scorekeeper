@@ -279,7 +279,8 @@ describe('golden fixtures for the backend', () => {
       expect(existsSync(DIR)).toBe(true);
       expect(
         readdirSync(DIR)
-          .filter((f) => f.endsWith('.json'))
+          // kt-* are Kaali Teeri's, checked by its own export test.
+          .filter((f) => f.endsWith('.json') && !f.startsWith('kt-'))
           .sort(),
       ).toEqual(
         Object.keys(all)
