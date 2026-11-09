@@ -46,6 +46,18 @@ import type {
   WireGame,
 } from '../../src/sync/types';
 import type { AppearanceDto } from '../../src/sync/endpoints';
+import {
+  doneHands,
+  handScore,
+  headToHead as ktHeadToHead,
+  playerKey as ktKey,
+  playerStats as ktPlayerStats,
+  result as ktResult,
+  summary as ktSummaryOf,
+  validate as ktValidate,
+  type KtGame,
+} from '../../src/games/kaali-teeri/domain/index';
+import type { KtGameSummary } from '../../src/games/kaali-teeri/sync/types';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -71,6 +83,14 @@ interface GameRec {
   scorerSeenAt: number;
 }
 
+/** A Kaali Teeri game: the same row as Kachuful's, kept apart so Kachuful's routes never see it. */
+interface KtRec extends Omit<GameRec, 'payload'> {
+  kind: 'kaali-teeri';
+  payload: KtGame;
+}
+type AnyRec = GameRec | KtRec;
+const isKt = (r: AnyRec): r is KtRec => 'kind' in r && r.kind === 'kaali-teeri';
+
 interface Photo {
   bytes: Buffer;
   type: string;
@@ -89,6 +109,7 @@ interface Db {
   /** Bumped by every upload and delete, so each photo has its own URL. */
   photoRev: Map<string, number>;
   games: Map<string, GameRec>;
+  ktGames: Map<string, KtRec>;
   achievements: Map<string, Achievement>;
   activity: Activity[];
   nextActivity: number;
@@ -168,6 +189,7 @@ export function seed(now = Date.now()) {
     photos: new Map(),
     photoRev: new Map(),
     games: new Map(),
+    ktGames: new Map(),
     achievements: new Map(),
     activity: [],
     nextActivity: 1,
@@ -1193,6 +1215,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const w = body as unknown as WireGame;
   const key = keyOf(w);
   if (key !== m[0]) throw err(422, 'invalid_game', { reason: 'id', roundIndex: null });
+  if (db.ktGames.has(key)) throw err(409, 'kind_mismatch');
   const prev = db.games.get(key);
   if (prev?.deletedAt) throw err(410, 'gone');
   const h = hash(JSON.stringify(w));
@@ -1243,6 +1266,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
     key,
     'game',
     {
+      kind: 'kachuful',
       game: w,
       summary: gameSummary(rec, Date.now(), true),
       updatedAt: rec.updatedAt,
@@ -1288,8 +1312,231 @@ on('GET', '/api/games/:id', ({ m }) => {
     achievements: [...db.achievements.values()].filter((a) => a.gameId === m[0]),
   };
 });
+// ——— Kaali Teeri (/api/kaali-teeri/*), with Kachuful's upload semantics; numbers from the TS domain ———
+
+const liveKt = () => [...db.ktGames.values()].filter((g) => !g.deletedAt);
+/** Seats keyed by registry id, merged ids followed, as the server's derived rows are. */
+const ktResolved = (g: KtGame): KtGame => ({
+  ...g,
+  players: g.players.map((p) => ({ ...p, playerId: p.playerId && resolve(p.playerId) })),
+});
+
+function ktSummary(r: KtRec, pub = false): KtGameSummary {
+  const s = ktSummaryOf(r.payload);
+  return {
+    ...s,
+    id: r.key,
+    owner: { id: pub ? null : r.ownerId, name: userName(r.ownerId) },
+    createdAt: r.payload.createdAt,
+    finishedAt: r.payload.status === 'finished' ? (r.payload.finishedAt ?? r.updatedAt) : null,
+    updatedAt: r.updatedAt,
+    players: s.players.map((p) => ({ ...p, photoUrl: photoUrl(p.playerId) })),
+    live: !!r.links.live,
+  };
+}
+
+on('PUT', '/api/kaali-teeri/games/:id', ({ m, body, me }) => {
+  const w = body as unknown as KtGame;
+  if (w.kind !== 'kaali-teeri' || !Array.isArray(w.players) || !Array.isArray(w.hands))
+    throw err(422, 'invalid', { fields: { body: 'not a Kaali Teeri game' } });
+  if (w.syncId !== m[0]) throw err(422, 'invalid_game', { reason: 'id', handIndex: null });
+  if (db.games.has(m[0])) throw err(409, 'kind_mismatch');
+  const prev = db.ktGames.get(m[0]);
+  if (prev?.deletedAt) throw err(410, 'gone');
+  if (prev && prev.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
+  // A game with no hand done leaves no trace: nothing stored, and an older copy goes.
+  if (!doneHands(w).length) {
+    if (prev) dropGame(prev);
+    return { rev: w.rev, earned: [] };
+  }
+  const h = hash(JSON.stringify(w));
+  if (prev?.hash === h) return { rev: prev.rev, earned: [] };
+  if (prev && w.rev <= prev.rev) throw err(409, 'stale', { server: prev.payload });
+  if (w.players.some((p) => !p.playerId))
+    throw err(422, 'invalid_game', { reason: 'players', handIndex: null });
+  const unknown = w.players.map((p) => p.playerId!).filter((id) => !db.players.has(id));
+  if (unknown.length) throw err(422, 'unknown_player', { playerIds: unknown });
+  const remap: Record<string, string> = {};
+  for (const p of w.players) {
+    const r = resolve(p.playerId!);
+    if (r !== p.playerId) [remap[p.playerId!], p.playerId] = [r, r];
+  }
+  const bad = ktValidate(w, Date.now());
+  if (bad) throw err(422, 'invalid_game', { ...bad });
+  const now = Date.now();
+  db.ktGames.set(m[0], {
+    kind: 'kaali-teeri',
+    key: m[0],
+    payload: w,
+    ownerId: prev?.ownerId ?? me!.id,
+    rev: w.rev,
+    hash: h,
+    updatedAt: now,
+    deletedAt: null,
+    links: prev?.links ?? {},
+    scorerSeenAt: now,
+  });
+  db.version++;
+  notify(m[0], 'game', liveBody(db.ktGames.get(m[0])!), w.rev);
+  return { rev: w.rev, earned: [], ...(Object.keys(remap).length && { remap }) };
+});
+on('GET', '/api/kaali-teeri/games', ({ url, me }) => {
+  const since = Number(url.searchParams.get('updatedSince')) || 0;
+  const mine = url.searchParams.get('mine') === 'true';
+  const involving = url.searchParams.get('involving') === 'true';
+  const active = url.searchParams.get('status') === 'active';
+  const sat = (g: KtRec) =>
+    g.ownerId === me!.id ||
+    (!!me!.playerId && g.payload.players.some((p) => p.playerId === me!.playerId));
+  const list = [...db.ktGames.values()]
+    .filter(
+      (g) =>
+        g.updatedAt > since &&
+        (involving ? sat(g) : !mine || g.ownerId === me!.id) &&
+        (!g.deletedAt || since > 0) &&
+        (!active || (!g.deletedAt && g.payload.status === 'active')),
+    )
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .map((g) =>
+      g.deletedAt ? { id: g.key, deleted: true as const, updatedAt: g.updatedAt } : ktSummary(g),
+    );
+  return page(list, url.searchParams.get('cursor'), Number(url.searchParams.get('limit')) || 50);
+});
+on('GET', '/api/kaali-teeri/games/:id', ({ m }) => {
+  const r = db.ktGames.get(m[0]);
+  if (!r || r.deletedAt) throw err(404, 'not_found');
+  return { game: r.payload, summary: ktSummary(r) };
+});
+on('DELETE', '/api/kaali-teeri/games/:id', ({ m, me }) => {
+  const r = db.ktGames.get(m[0]);
+  if (!r || r.deletedAt) throw err(404, 'not_found');
+  if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
+  dropGame(r);
+  return null;
+});
+on('GET', '/api/kaali-teeri/bootstrap', ({ me }) => ({
+  myGames: liveKt()
+    .filter((g) => g.ownerId === me!.id)
+    .map((g) => ktSummary(g)),
+  dataVersion: db.version,
+}));
+
+/** [first, end) day keys in TZ for a board period; null means all time. */
+function ktPeriod(period: string, now = Date.now()): [string, string] | null {
+  const today = dayOf(now, TZ);
+  if (period === 'today') return [today, today + '~'];
+  if (period === 'week') return [dayOf(now - 6 * DAY, TZ), today + '~'];
+  if (period === 'season') return [today.slice(0, 7), today.slice(0, 7) + '~'];
+  return null;
+}
+interface KtTally {
+  games: number;
+  wins: number;
+  points: number;
+  bid: number;
+  made: number;
+}
+/** The server's kt_player_day, summed: a game counts on its first hand's day, a win on its end's day. */
+function ktTallies(period: string): Map<string, KtTally> {
+  const span = ktPeriod(period);
+  const inSpan = (t: number) => {
+    const d = dayOf(t, TZ);
+    return !span || (d >= span[0] && d < span[1]);
+  };
+  const out = new Map<string, KtTally>();
+  for (const r of liveKt()) {
+    const g = ktResolved(r.payload);
+    const hs = doneHands(g);
+    const at = (t?: number) => t ?? g.updatedAt;
+    const ids = g.players.map((p) => p.id);
+    const ended = g.status === 'finished' ? (g.finishedAt ?? g.updatedAt) : null;
+    const places = ktSummaryOf(g).players;
+    g.players.forEach((p, i) => {
+      const k = ktKey(p);
+      const t = out.get(k) ?? { games: 0, wins: 0, points: 0, bid: 0, made: 0 };
+      if (inSpan(Math.min(...hs.map((h) => at(h.doneAt))))) t.games++;
+      if (ended != null && inSpan(ended) && places[i].place === 1) t.wins++;
+      for (const h of hs) {
+        if (!inSpan(at(h.doneAt))) continue;
+        t.points += handScore(h, g.rules, ids)[p.id];
+        if (h.bidder !== p.id) continue;
+        t.bid++;
+        if (ktResult(h, g.rules)?.made) t.made++;
+      }
+      out.set(k, t);
+    });
+  }
+  return out;
+}
+on('GET', '/api/kaali-teeri/leaderboard', ({ url }) => {
+  const period = url.searchParams.get('period') ?? 'all';
+  const sort = url.searchParams.get('sort') ?? 'points';
+  if (!ktPeriod(period) && period !== 'all')
+    throw err(422, 'invalid', { fields: { period: 'unknown' } });
+  if (!['points', 'wins', 'made'].includes(sort))
+    throw err(422, 'invalid', { fields: { sort: 'unknown' } });
+  const rate = (t: KtTally) => (t.bid ? t.made / t.bid : null);
+  const value = (t: KtTally) => (sort === 'points' ? t.points : sort === 'wins' ? t.wins : rate(t));
+  // Best first; ties share a rank and are listed by points, then id; unranked (no bids) last.
+  const sorted = [...ktTallies(period)].sort(
+    ([ka, a], [kb, b]) =>
+      Number(value(a) === null) - Number(value(b) === null) ||
+      (value(b) ?? 0) - (value(a) ?? 0) ||
+      b.points - a.points ||
+      ka.localeCompare(kb),
+  );
+  let prev: { rank: number | null; value: number | null } | null = null;
+  const rows = sorted.map(([id, t], k) => {
+    const v = value(t);
+    const rank = v === null ? null : prev && prev.value === v ? prev.rank : k + 1;
+    prev = { rank, value: v };
+    return {
+      rank,
+      player: summaryOf(id),
+      value: v ?? 0,
+      points: t.points,
+      games: t.games,
+      wins: t.wins,
+      handsBid: t.bid,
+      bidsMade: t.made,
+      madeRate: rate(t),
+    };
+  });
+  return { period, sort, rows, generatedAt: Date.now() };
+});
+const ktPlayer = (id: string) => {
+  if (!db.players.has(id)) throw err(404, 'not_found');
+  return resolve(id);
+};
+on('GET', '/api/kaali-teeri/players/:id/stats', ({ m }) =>
+  ktPlayerStats(
+    liveKt().map((r) => ktResolved(r.payload)),
+    ktPlayer(m[0]),
+  ),
+);
+on('GET', '/api/kaali-teeri/players/:id/games', ({ m, url }) => {
+  const id = ktPlayer(m[0]);
+  const list = liveKt()
+    .filter((r) => ktResolved(r.payload).players.some((p) => p.playerId === id))
+    .sort((a, b) => b.payload.createdAt - a.payload.createdAt)
+    .map((r) => ktSummary(r));
+  return page(list, url.searchParams.get('cursor'), Number(url.searchParams.get('limit')) || 50);
+});
+on('GET', '/api/kaali-teeri/players/:a/vs/:b', ({ m }) => {
+  const [a, b] = [ktPlayer(m[0]), ktPlayer(m[1])];
+  return {
+    a: summaryOf(a),
+    b: summaryOf(b),
+    ...ktHeadToHead(
+      liveKt().map((r) => ktResolved(r.payload)),
+      a,
+      b,
+    ),
+  };
+});
+
 /** Soft delete: links go, viewers are told, boards no longer count it. */
-function dropGame(r: GameRec) {
+function dropGame(r: AnyRec) {
   r.deletedAt = r.updatedAt = Date.now();
   for (const k of ['live', 'recap'] as const)
     if (r.links[k]) {
@@ -1309,11 +1556,11 @@ on('DELETE', '/api/games/:id', ({ m, me }) => {
 });
 const LIVE_GRACE = 2 * 3600e3;
 /** A live link stops working 2 hours after its game ends. */
-const liveEnd = (r: GameRec) => {
-  const ended = gameSummary(r).endedAt;
+const liveEnd = (r: AnyRec) => {
+  const ended = isKt(r) ? ktSummary(r).finishedAt : gameSummary(r).endedAt;
   return ended == null ? null : ended + LIVE_GRACE;
 };
-const linkOut = (t: string, r: GameRec) => {
+const linkOut = (t: string, r: AnyRec) => {
   const l = db.links.get(t)!;
   return {
     token: t,
@@ -1324,8 +1571,10 @@ const linkOut = (t: string, r: GameRec) => {
     expiresAt: l.kind === 'live' ? liveEnd(r) : null,
   };
 };
+/** Share links are one API for every kind of game. */
+const anyGame = (id: string): AnyRec | undefined => db.games.get(id) ?? db.ktGames.get(id);
 on('POST', '/api/games/:id/links', ({ m, body, me }) => {
-  const r = db.games.get(m[0]);
+  const r = anyGame(m[0]);
   if (!r || r.deletedAt) throw err(404, 'not_found');
   if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
   const kind = body.kind === 'live' ? 'live' : 'recap';
@@ -1338,7 +1587,7 @@ on('POST', '/api/games/:id/links', ({ m, body, me }) => {
   return [201, linkOut(t, r)];
 });
 on('PATCH', '/api/games/:id/links/live', ({ m, body, me }) => {
-  const r = db.games.get(m[0]);
+  const r = anyGame(m[0]);
   if (!r || r.deletedAt) throw err(404, 'not_found');
   if (r.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
   const t = r.links.live;
@@ -1350,7 +1599,7 @@ on('PATCH', '/api/games/:id/links/live', ({ m, body, me }) => {
   return linkOut(t, r);
 });
 on('DELETE', '/api/games/:id/links/:kind', ({ m }) => {
-  const r = db.games.get(m[0]);
+  const r = anyGame(m[0]);
   const t = r?.links[m[1] as 'live' | 'recap'];
   if (r && t) {
     db.links.get(t)!.revoked = true;
@@ -1360,7 +1609,7 @@ on('DELETE', '/api/games/:id/links/:kind', ({ m }) => {
   return null;
 });
 on('GET', '/api/games/:id/links/:kind/qr.svg', ({ m, res }) => {
-  const t = db.games.get(m[0])?.links[m[1] as 'live' | 'recap'];
+  const t = anyGame(m[0])?.links[m[1] as 'live' | 'recap'];
   if (!t) throw err(404, 'not_found');
   return raw(res, 'image/svg+xml', fakeQr(t));
 });
@@ -1543,21 +1792,23 @@ for (const verdict of ['approve', 'reject'] as const)
 function linkGame(t: string, kind: 'live' | 'recap', me: UserRec | null = null) {
   const l = db.links.get(t);
   if (!l || l.kind !== kind) throw err(404, 'not_found');
-  const r = db.games.get(l.gameId);
+  const r = anyGame(l.gameId);
   if (l.revoked || !r || r.deletedAt) throw err(410, 'gone');
   if (kind === 'live' && (liveEnd(r) ?? Infinity) <= Date.now()) throw err(410, 'gone');
   if (kind === 'live' && l.membersOnly && !me) throw err(401, 'members_only');
   return r;
 }
-const pub = (r: GameRec) => gameSummary(r, Date.now(), true);
-function liveBody(r: GameRec) {
+const pub = (r: AnyRec) => (isKt(r) ? ktSummary(r, true) : gameSummary(r, Date.now(), true));
+const kindOf = (r: AnyRec) => (isKt(r) ? 'kaali-teeri' : 'kachuful');
+function liveBody(r: AnyRec) {
   const l = r.links.live ? db.links.get(r.links.live) : undefined;
   return {
+    kind: kindOf(r),
     game: r.payload,
     summary: pub(r),
     updatedAt: r.updatedAt,
     scorerSeenAt: r.scorerSeenAt,
-    reactions: (l?.reactions ?? true) && pub(r).endedAt == null,
+    reactions: (l?.reactions ?? true) && liveEnd(r) == null,
     recapToken: r.links.recap ?? null,
   };
 }
@@ -1615,6 +1866,7 @@ on(
   ({ m }) => {
     const r = linkGame(m[0], 'recap');
     return {
+      kind: kindOf(r),
       game: r.payload,
       summary: pub(r),
       achievements: [...db.achievements.values()].filter((a) => a.gameId === r.key),
@@ -1630,11 +1882,15 @@ for (const [p, kind] of [
     'GET',
     p,
     ({ m, res }) => {
-      const title = 'Kachuful';
+      // A Kaali Teeri link opens its own game's page; Kachuful's stay as they were.
+      const id = db.links.get(m[0])?.gameId;
+      const kt = !!id && db.ktGames.has(id);
+      const title = kt ? 'Kaali Teeri' : 'Kachuful';
+      const path = kt ? '/kaali-teeri' : '/';
       return raw(
         res,
         'text/html',
-        `<!doctype html><meta charset="utf-8"><title>${title}</title><meta property="og:title" content="${title}"><meta http-equiv="refresh" content="0;url=/?${kind}=${encodeURIComponent(m[0])}">`,
+        `<!doctype html><meta charset="utf-8"><title>${title}</title><meta property="og:title" content="${title}"><meta http-equiv="refresh" content="0;url=${path}?${kind}=${encodeURIComponent(m[0])}">`,
       );
     },
     'public',
