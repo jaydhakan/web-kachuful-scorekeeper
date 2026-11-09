@@ -40,7 +40,7 @@ export const kp = {
     playedBy: 'Played by…',
     by: (name: string) => name,
     change: (card: string, name: string) => `${card}: played by ${name}. Change`,
-    hidden: (card: string) => `${card}, not played yet`,
+    hidden: (card: string) => `${card}, not played yet. Played by…`,
     joined: (name: string, bidder: string) =>
       name === bidder ? `${bidder} played their own called card` : `${name} is ${bidder}’s partner`,
     stillHidden: (n: number) =>
@@ -118,7 +118,7 @@ export const kp = {
     empty: 'No hands yet. Scores show here once the first hand is confirmed.',
     hint: 'Tap a hand to edit it.',
     hand: 'Hand',
-    row: (n: number) => `Edit hand ${n}`,
+    edit: 'Edit',
     made: '✓',
     missed: '✗',
     madeWord: 'made',

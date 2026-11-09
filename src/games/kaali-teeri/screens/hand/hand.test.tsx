@@ -206,7 +206,7 @@ describe('Summary and the scoreboard', () => {
       ]),
     );
     fireEvent.click(screen.getAllByRole('button', { name: 'Scoreboard' })[0]);
-    fireEvent.click(screen.getByRole('button', { name: 'Edit hand 1' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Edit ?Hand 1 / }));
     const dialog = () => screen.getByRole('dialog');
     // The same card called twice is refused, with the reason beside it.
     fireEvent.change(within(dialog()).getAllByLabelText('Rank')[1], { target: { value: 'A' } });

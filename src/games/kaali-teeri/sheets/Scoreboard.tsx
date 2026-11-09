@@ -67,13 +67,14 @@ export function ScoreTable({ g, onRow }: { g: KtGame; onRow?: (i: number) => voi
                   {onRow ? (
                     <button
                       type="button"
-                      aria-label={kp.board.row(h.index + 1)}
                       onClick={(e) => {
                         e.stopPropagation();
                         onRow(h.index);
                       }}
                       className="flex min-h-12 w-full flex-col items-start justify-center rounded-xl px-2.5 py-1.5 text-left"
                     >
+                      {/* Named by what it shows, so the spoken name matches the visible one (WCAG 2.5.3). */}
+                      <span className="sr-only">{kp.board.edit} </span>
                       <RowHead
                         n={h.index + 1}
                         bid={h.bid!}

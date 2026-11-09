@@ -327,10 +327,8 @@ export function Table({
             {...(onSeat && {
               role: 'button',
               tabIndex: 0,
-              // Named outright, so assistive tech hears "Riya, Bids 1st" rather than the avatar's emoji and chip text.
-              'aria-label': p
-                ? [p.name, badge?.label].filter(Boolean).join(', ')
-                : t.table.seat(k + 1),
+              // Named by what it shows (name, Deals, 1st, badge), the avatar's emoji left out; with no name label, by name.
+              'aria-label': p ? (named ? undefined : p.name) : t.table.seat(k + 1),
               onClick: () => onSeat(k),
               onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -360,6 +358,7 @@ export function Table({
                 <m.div
                   key={p.emoji + p.color}
                   data-seat-avatar
+                  aria-hidden
                   title={named ? undefined : p.name}
                   initial={false}
                   // Bid pop (DESIGN-SYSTEM.md, Motion): a bid landing squashes the player, who stretches up and settles.
