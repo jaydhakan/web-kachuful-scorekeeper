@@ -14,7 +14,7 @@ vi.mock('../catalog', async (orig) => {
 describe('Landing, a game for signed-in players', () => {
   it('signed out, its card leads to sign in', () => {
     render(<Landing />);
-    expect(screen.getByRole('link', { name: 'Sign in to play Ishaara' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Ishaara.*Sign in to play$/ })).toHaveAttribute(
       'href',
       '/kachuful?open=signin',
     );
@@ -26,6 +26,9 @@ describe('Landing, a game for signed-in players', () => {
       player: null,
     });
     render(<Landing />);
-    expect(screen.getByRole('link', { name: 'Play Ishaara' })).toHaveAttribute('href', '/ishaara');
+    expect(screen.getByRole('link', { name: /^Ishaara.*Play$/ })).toHaveAttribute(
+      'href',
+      '/ishaara',
+    );
   });
 });

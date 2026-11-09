@@ -140,13 +140,10 @@ function GameCard({ g, signedIn }: { g: GameEntry; signedIn: boolean }) {
             {s.soon}
           </span>
         ) : (
-          <span
-            aria-hidden
-            className="mat-ibtn inline-flex min-h-11 items-center gap-2 !rounded-full px-4 text-17 font-bold"
-          >
-            {locked && Icon.lock}
+          <span className="mat-ibtn inline-flex min-h-11 items-center gap-2 !rounded-full px-4 text-17 font-bold">
+            {locked && <span aria-hidden>{Icon.lock}</span>}
             {locked ? s.signInToPlay : s.play}
-            {!locked && Icon.arrow}
+            {!locked && <span aria-hidden>{Icon.arrow}</span>}
           </span>
         )}
       </div>
@@ -161,10 +158,10 @@ function GameCard({ g, signedIn }: { g: GameEntry; signedIn: boolean }) {
         {body}
       </article>
     );
+  // Named by its own text (name, pitch, players, then Play), so what's read is what's shown.
   return (
     <a
       href={locked ? '/kachuful?open=signin' : g.path}
-      aria-label={locked ? s.signInAria(g.name) : s.playAria(g.name)}
       onClick={(e) => (locked ? openInKachuful(e, 'signin') : follow(e, g))}
       className={`${box} press`}
     >

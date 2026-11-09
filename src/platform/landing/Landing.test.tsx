@@ -28,11 +28,11 @@ describe('Landing', () => {
     render(<Landing />);
     expect(screen.getByRole('heading', { level: 1, name: 'Pick a game' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Pick up where you left off' })).toBeNull();
-    expect(screen.getByRole('link', { name: 'Play Kachuful' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Kachuful.*Play$/ })).toHaveAttribute(
       'href',
       '/kachuful',
     );
-    expect(screen.getByRole('link', { name: 'Play Kaali Teeri' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Kaali Teeri.*Play$/ })).toHaveAttribute(
       'href',
       '/kaali-teeri',
     );
@@ -71,7 +71,7 @@ describe('Landing', () => {
 
   it('a plain click opens the game in place; a modified click is left to the browser', () => {
     render(<Landing />);
-    const link = screen.getByRole('link', { name: 'Play Kachuful' });
+    const link = screen.getByRole('link', { name: /^Kachuful.*Play$/ });
     expect(fireEvent.click(link, { metaKey: true })).toBe(true);
     expect(go).not.toHaveBeenCalled();
     expect(fireEvent.click(link)).toBe(false);
