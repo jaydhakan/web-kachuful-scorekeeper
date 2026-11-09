@@ -8,6 +8,9 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
 - `themes.css` is the only file with colour values. Each `[data-theme]` block sets the same tokens (`--bg`,
   `--surface-1…3`, `--text-1…3`, `--brand`, `--on-brand`, `--felt*`, `--suit-*`, `--success`/`--danger`/`--warning`,
   medals, `--seat-1…10`, font roles `--font-display/body/mono`, radii) and then paints the materials.
+- Platform tokens, in every theme: `--game-<id>` (each game's accent), Ishaara's `--team-sun/-moon` (+ `-ink`) and
+  word cards `--word-card/-blank/-trap` (+ `-ink`) and `--word-edge`, Kaali Teeri's bidding team `--kt-bid` (+ `-ink`),
+  and the coming-soon badge `--soon-bg/-ink/-edge`. Offline and live use `--warning` (on its 10% tint) and `--success`.
 - **Materials** are classes the shared components carry: `.glass` (grouped surface), `.mat-fill` / `-s` / `-d` / `-off`
   (button fills), `.mat-cta`, `.mat-ibtn` (header buttons), `.mat-seg` / `.mat-thumb`, `.mat-key` / `-on` / `-no`,
   `.mat-av`, `.mat-name`, `.mat-bid`, `.mat-first`, `.mat-dealer`, `.mat-sheet`, `.mat-toast`, `.mat-inp`, `.mat-tog`,

@@ -8,6 +8,10 @@ export const SPRING_POP: Transition = { type: 'spring', stiffness: 520, damping:
 export const SPRING_SOFT: Transition = { type: 'spring', stiffness: 220, damping: 30 };
 /** Sheets and side panels sliding in from an edge. */
 export const SPRING_SHEET: Transition = { type: 'spring', stiffness: 360, damping: 38 };
+/** Durations in seconds (Framer Motion's unit): a screen or card coming in, going out, and the reduced-motion fade. */
+export const ENTER = 0.32;
+export const EXIT = 0.24;
+export const REDUCED = 0.15;
 /** Press feedback for wide controls: buttons, rows, cards, chips. CSS twin: `.press`. */
 export const PRESS = { scale: 0.97 };
 /** Compact controls (icon buttons, keys, steppers, avatars) need a deeper press to read. CSS twin: `.press-sm`. */

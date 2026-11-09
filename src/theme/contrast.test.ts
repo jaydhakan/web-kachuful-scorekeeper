@@ -37,6 +37,7 @@ function tokens(id: ThemeId): Record<string, string> {
 
 type RGBA = [number, number, number, number];
 const parse = (c: string): RGBA => {
+  if (c === 'transparent') return [0, 0, 0, 0];
   const h = /^#([0-9a-f]{3,8})$/i.exec(c);
   if (h) {
     const s = h[1].length === 3 ? [...h[1]].map((x) => x + x).join('') : h[1];
@@ -76,6 +77,13 @@ const cases = THEME_IDS.flatMap((id) => {
   const s2 = parse(t['--surface-2']);
   const sheet = over(t['--sheet-bg'], bg);
   const fg = (k: string, on: RGBA) => over(t[k], on);
+  const tint = (k: string, on: RGBA): RGBA => {
+    const [r, g, b] = parse(t[k]);
+    return over(`rgba(${r}, ${g}, ${b}, 0.1)`, on);
+  };
+  const soon = over(t['--soon-bg'], panel);
+  // Word cards' white stripes at their strongest (the round-2 kit's blank hatch), where ink is hardest to read.
+  const hatch = (k: string) => over('rgba(255, 255, 255, 0.16)', parse(t[k]));
   const pairs: [string, RGBA, RGBA, number][] = [
     ['text-1 on bg', fg('--text-1', bg), bg, 4.5],
     ['text-2 on bg', fg('--text-2', bg), bg, 4.5],
@@ -101,6 +109,22 @@ const cases = THEME_IDS.flatMap((id) => {
     // A large glyph, so the 3:1 large-text bar (DESIGN-SYSTEM.md, Contrast lists Yerba Sun's heart at 3.9).
     ['heart on the table', parse(t['--suit-red-felt']), parse(t['--felt']), 3],
     ['card count on the table', fg('--ctr-fg', parse(t['--felt'])), parse(t['--felt']), 4.5],
+    // The offline chip is warning text on its own 10% tint, so it needs no status token of its own.
+    ['warning on its tint', fg('--warning', tint('--warning', bg)), tint('--warning', bg), 4.5],
+    // Game accents may label a landing card, on the page or on the card.
+    ...(['kachuful', 'kaali-teeri', 'ishaara'] as const).flatMap(
+      (g): [string, RGBA, RGBA, number][] => [
+        [`${g} accent on bg`, fg(`--game-${g}`, bg), bg, 4.5],
+        [`${g} accent on panel`, fg(`--game-${g}`, panel), panel, 4.5],
+      ],
+    ),
+    ['soon badge', fg('--soon-ink', soon), soon, 4.5],
+    ['sun ink on sun', parse(t['--team-sun-ink']), parse(t['--team-sun']), 4.5],
+    ['moon ink on moon', parse(t['--team-moon-ink']), parse(t['--team-moon']), 4.5],
+    ['word ink on word card', parse(t['--word-card-ink']), parse(t['--word-card']), 4.5],
+    ['blank ink on its hatch', parse(t['--word-blank-ink']), hatch('--word-blank'), 4.5],
+    ['trap ink on its hatch', parse(t['--word-trap-ink']), hatch('--word-trap'), 4.5],
+    ['bid ink on the bidding team', parse(t['--kt-bid-ink']), parse(t['--kt-bid']), 4.5],
   ];
   return pairs.map(([name, a, b, min]) => [`${id}: ${name}`, a, b, min] as const);
 });

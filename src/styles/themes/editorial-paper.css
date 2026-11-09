@@ -121,6 +121,26 @@
   --fan-step: 140ms;
   --reveal-rays: none;
   --reveal-glint: none;
+  /* Platform tokens (themes.css, Sunset Glass, says what each is for). */
+  --game-kachuful: #7a560e;
+  --game-kaali-teeri: #c2330f;
+  --game-ishaara: #8f4f00;
+  --team-sun: #f5a524;
+  --team-sun-ink: var(--ink);
+  --team-moon: #3f4bc4;
+  --team-moon-ink: var(--paper-hi);
+  --word-card: var(--card-bg);
+  --word-card-ink: var(--card-fg);
+  --word-blank: #5a564f;
+  --word-blank-ink: var(--paper-hi);
+  --word-trap: var(--ink);
+  --word-trap-ink: var(--paper-hi);
+  --word-edge: var(--ink);
+  --kt-bid: var(--ink);
+  --kt-bid-ink: var(--paper-hi);
+  --soon-bg: transparent;
+  --soon-ink: var(--ink);
+  --soon-edge: var(--ink);
 }
 [data-theme='editorial-paper'] {
   --focus: var(--ink);

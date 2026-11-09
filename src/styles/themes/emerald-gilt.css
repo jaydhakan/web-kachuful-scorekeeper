@@ -156,6 +156,26 @@
     rgba(255, 248, 225, 0.8) 50%,
     transparent 58%
   );
+  /* Platform tokens (themes.css, Sunset Glass, says what each is for). */
+  --game-kachuful: #e0bf6a;
+  --game-kaali-teeri: #ff8a5c;
+  --game-ishaara: #f5a524;
+  --team-sun: #f5a524;
+  --team-sun-ink: #2a1600;
+  --team-moon: #4f5bd5;
+  --team-moon-ink: var(--text-1);
+  --word-card: var(--card-bg);
+  --word-card-ink: var(--card-fg);
+  --word-blank: #46544a;
+  --word-blank-ink: #fff;
+  --word-trap: #0b0b10;
+  --word-trap-ink: #f6efe3;
+  --word-edge: rgba(201, 162, 78, 0.6);
+  --kt-bid: var(--brand);
+  --kt-bid-ink: var(--on-brand);
+  --soon-bg: rgba(201, 162, 78, 0.14);
+  --soon-ink: #ecd9a6;
+  --soon-edge: rgba(201, 162, 78, 0.55);
 }
 /* A little lamplight from above and baize below, as on the deck's box; kept faint so text never sits on a bright patch. */
 [data-theme='emerald-gilt'] {

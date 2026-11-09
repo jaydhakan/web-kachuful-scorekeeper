@@ -199,6 +199,28 @@
   --fan-step: 140ms;
   --reveal-rays: none;
   --reveal-glint: none;
+  /* Platform: each game's accent, Ishaara's teams and word cards, Kaali Teeri's bidding team, the coming-soon badge.
+     Word blanks are dark enough for their ink over the lightest stripe of their hatch. */
+  --game-kachuful: #e9c46a;
+  --game-kaali-teeri: #ff7a4f;
+  --game-ishaara: #f5a524;
+  --team-sun: #f5a524;
+  --team-sun-ink: #2a1600;
+  --team-moon: #4f5bd5;
+  --team-moon-ink: var(--text-1);
+  --word-card: var(--card-bg);
+  --word-card-ink: var(--card-fg);
+  --word-blank: #55516e;
+  --word-blank-ink: #fff;
+  --word-trap: #0b0b10;
+  --word-trap-ink: #f6efe3;
+  --word-edge: transparent;
+  /* The theme's accent, not gold: gold is for first place. */
+  --kt-bid: var(--brand);
+  --kt-bid-ink: var(--on-brand);
+  --soon-bg: rgba(255, 236, 242, 0.1);
+  --soon-ink: var(--text-2);
+  --soon-edge: rgba(255, 226, 236, 0.34);
 }
 
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */
