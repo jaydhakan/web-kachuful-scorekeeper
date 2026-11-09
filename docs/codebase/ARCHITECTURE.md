@@ -1,6 +1,6 @@
 # Architecture
 
-Kachuful is an offline-first PWA: Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`../backend-kachuful-scorekeeper`; the API as built is the contract).
+Baithak is an offline-first PWA hosting several table games (Kachuful, Kaali Teeri; Ishaara to come): Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`../backend-kachuful-scorekeeper`; the API as built is the contract).
 
 ## Layers
 
@@ -16,23 +16,35 @@ src/games/kachuful/   everything that is Kachuful's own:
   sheets/       one file per sheet body; SheetHost chooses the body and captures it at mount
   components/   the shells (AppShell, PhoneShell) and Kachuful-only pieces (HomeOnline, TodayStrip, HostLive …)
   hooks/ lib/ strings/   useRoundEdit, usePersistence; route, final standings + share card and text; rules and achievement names
-src/platform/   account, sign-in, admin and credits pages (pages/), shared by every game
+src/games/kaali-teeri/   the same layout for Kaali Teeri: domain/ (cards, auction, calls, scoring, stats, boards, validate;
+                the backend's golden fixtures come from here), state/, screens/ (setup/, hand/, desk/, pages/, viewer/),
+                sheets/, strings/, sync/ (engine on /api/kaali-teeri, boards, share links); index.tsx is its lazy root
+src/platform/   route.ts (the first path segment names the game; go(), useGame), catalog.ts (GAMES: name, status, lazy
+                root, peek() for the resume line), PlatformRoot (landing or the game, a load error with Retry), meta.ts
+                (each page's preview tags), landing/; pages/ holds the account, sign-in, admin and credits pages
 src/people/     Player, Direction, avatar colours and emoji, name and email keys, pidOf: one players registry for all games
 src/state       persistence.ts (the only localStorage access), archive.ts (IndexedDB), registry.ts (players),
                 prefs, theme store, useArchive
-src/sync        api.ts (the only fetch), endpoints.ts + types.ts (the whole API), live.ts (SSE), useRemote
+src/sync        api.ts (the only fetch), session.ts (who is signed in, for every game and the landing page),
+                players.ts (pushing new players, shared by each game's engine), endpoints.ts + types.ts, live.ts (SSE), useRemote
                 (cache-first reads), account, signout, prefs, status
 src/hooks       useWakeLock, useHaptics, useDialog, useShare, useMediaQuery, useRovingFocus, useVisualViewport, useHistorySync
 src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and shared app pieces
                 (ServiceWorkerHost, UpdateGate, AccountChip, PhotoPicker, SyncDot, RemoteGate, ThemeSync); seating/ is
                 Setup 2 for any game (useSeating, SeatingPicker, SeatingTable, AddPlayerForm, seat sheets, same-person check)
+                plus SetupFrame and useSeatDrag; desk/ holds the large-screen parts both games use (DeskParts, Drawer,
+                StepTracker, RailItem)
 src/strings     user-visible strings shared by the app (`t`, hub, admin; messages.ts is plain text used by domain/reducer);
                 a game's own strings sit in its strings/
 src/theme       theme registry, colour-name map, palette, trump themes (look: src/styles/themes.css)
 src/lib         format helpers, table geometry, clock, entry links, the share image (any game's standings)
 ```
 
-Dependencies point downward only: `domain` imports nothing from the UI; `state` imports `domain`; components import `state` and `domain`. Shared code (`src/` outside `games/`) still reaches into Kachuful where the app is one game today (the store, `Game` in the archive and API types); those imports go as the platform shell takes over.
+Dependencies point downward only: `domain` imports nothing from the UI; `state` imports `domain`; components import `state` and `domain`. Games never import each other. Shared code (`src/` outside `games/`) still reaches into Kachuful in a few places (`Game` in the archive and API types, `persistence.ts`); the account pages also still live inside Kachuful's shell, and the landing page links to them with `/kachuful?open=account`.
+
+## Paths and games
+
+One app, one service worker, one manifest (`id: '/'`). `main.tsx` calls `startRoute()` before the first render: old links on `/` (`?live=`, `?recap=`, `?invite=`, `?reset=`) move to `/kachuful?…`, an unknown path goes to `/`. `PlatformRoot` shows the landing page or the game the path names, each a lazy chunk; a game's store, sync and archive mount only under its path. `go(id)` pushes the path (dropping a game's open-sheet history entries first), and system Back returns. Each game's `peek()` reads its saved game straight from storage for the landing page's resume line, without loading the game. The build writes one HTML file per page with its own preview tags (`page-meta` in `vite.config.ts`), and `preload-shell` modulepreloads the chunks of the path's game for the screen size.
 
 ## State
 
@@ -116,6 +128,8 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 **Players.** `state/registry.ts`: one row per player, unique by name key. Signed out these are local; signed in they mirror the server's registry, and a new player is created on the server on the next sync. Games point at players by `Player.playerId`; older games are matched by name when read. Signed in, setup suggests only the account's circle (`circle()`: players it created, people it played with on any device, ones it confirmed, its own); anyone else is added with an email and checked with `GET /api/players/check`. An email that belongs to a player asks "Is this Riya?" (a taken name alone reveals nobody). One email is one person: Yes seats them under the name typed, and if that name isn't one of theirs yet it is saved as an alias (`POST /api/players/{id}/aliases`, `confirmSame`). A player's aliases are kept in the registry row (`PlayerRec.aliases`). Setup finds a person by any of their names (`findPerson`, `answersTo`), shows one row per person with a picker for which name sits at the table, and never seats one person twice (`isSeated`). Boards show the main name. The admin, the creator or the player can make an alias the main name (`mainAlias`), and an admin merge turns every name the merged-away player had into an alias.
 
 **Photos.** `components/ui/Avatar.tsx` draws a player: their photo (`photoUrl`, versioned and cached forever) over the emoji, else the emoji. A seat finds its photo in the registry by `playerId`; the signed-out live and recap viewers take it from the public summary. `components/PhotoPicker.tsx` squares and shrinks a picked photo to 256×256 on the phone (`lib/photo.ts`) and uploads it; it shows only for the admin, the player's creator and the player.
+
+**Kaali Teeri sync.** `games/kaali-teeri/sync/engine.ts` follows Kachuful's rules on `/api/kaali-teeri/*` (uploads, stale copies, rejections in the shared inbox, tombstones) and pulls the games the account sat in into `ktGames`; its outbox ids start `ktput:` / `ktdel:`. Signed in, the leaderboard, player stats and head-to-head read the server (`sync/boards.ts`); signed out they compute from the device's games (`domain/boards.ts`, `stats.ts`). `/kaali-teeri?live=` and `?recap=` open the read-only viewer.
 
 **Sync.** `games/kachuful/sync/engine.ts` runs only while signed in: on start, coming online, becoming visible, 1.5 s after a change and every minute while work waits (backing off to 5 min, or the server's `retryAfter` after a 429). It pulls with one `bootstrap` call (then `updatedSince`, the newest server `updatedAt` seen minus 5 s), pushes new players, then games whose players the server knows. A game goes up as it is to `PUT /api/games/{syncId}`. A stale upload keeps the copy with more finished rounds and saves the other as a conflict copy; a rejected game stays local with the reason in the inbox; a deleted one (410 or a tombstone) leaves the device. `409 same_player` takes the server's player and rewrites the games. Server reads use `useRemote`: the cached answer renders first, then refreshes with `If-None-Match`; closed days and seasons are never asked for again.
 

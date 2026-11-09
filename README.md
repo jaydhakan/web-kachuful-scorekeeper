@@ -1,6 +1,15 @@
-# Kachuful
+# Baithak
 
-Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating, automatic dealer, trump and card-count rotation, the dealer's bid restriction, a live leaderboard, undo and winner stats, a history of every game, boards, player pages, achievements, daily awards, seasons and Wrapped. Signed in (invite only), games sync to the server and count on a global board, with live and recap links. React, TypeScript, Tailwind, Framer Motion. Works fully offline signed out; installs to the home screen.
+Scorekeepers for the games played around one table, at play.vectanix.com. One installable app: a landing page at `/`
+lists the games, each at its own path.
+
+- **Kachuful** (`/kachuful`): the Judgement card game.
+- **Kaali Teeri** (`/kaali-teeri`): 3 of Spades. 4–10 players with the deck taken out to deal evenly, the winning bid
+  recorded (quick mode) or the full auction, trump and called partner cards, either side's points, slots and sweeps,
+  First to 1000, history, leaderboard, player stats and head-to-head; phone and large-screen layouts.
+- **Ishaara** (`/ishaara`): coming soon.
+
+Kachuful: guided seating, automatic dealer, trump and card-count rotation, the dealer's bid restriction, a live leaderboard, undo and winner stats, a history of every game, boards, player pages, achievements, daily awards, seasons and Wrapped. Signed in (invite only), games sync to the server and count on a global board, with live and recap links. React, TypeScript, Tailwind, Framer Motion. Works fully offline signed out; installs to the home screen.
 
 ## Scripts
 
@@ -11,7 +20,7 @@ Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating,
 | `npm run build`                         | Typecheck, then production build with the service worker         |
 | `npm run preview`                       | Serve the build                                                  |
 | `npm test`                              | Vitest (domain, state, hooks, React flows)                       |
-| `npm run test:coverage`                 | Same, with coverage for `src/games/kachuful/domain`              |
+| `npm run test:coverage`                 | Same, with coverage for every game's `domain/` and `src/people`  |
 | `npm run test:e2e`                      | Playwright against a fresh build (uses installed Chrome locally) |
 | `npm run lint` · `typecheck` · `format` | ESLint, `tsc`, Prettier                                          |
 
@@ -22,6 +31,10 @@ Mobile-first scorekeeper for the Judgement / Kachuful card game. Guided seating,
 **e2e against the backend.** `npm run test:e2e` uses the mock. `E2E_API=local npx playwright test` runs the online specs (accounts, sync, global, share, photos) against the local backend, serving the app on `localhost:5173`, resetting the demo data before each test, one test at a time. The backend's golden fixtures live in [`contract/`](contract/README.md).
 
 Lighthouse: `node tools/lighthouse.mjs`.
+
+**Hosting.** The build writes one HTML file per page (`index.html`, `kachuful/index.html`, `kaali-teeri/index.html`,
+`ishaara/index.html`), each with its own title and link-preview tags; they all load the same app. nginx serves them with
+`location / { try_files $uri $uri/index.html /index.html; }` (the `/api`, `/r` and `/l` proxies are unchanged).
 
 **Screenshots of every screen** (phone, tablet, desktop; signed out and signed in) for design review: start the backend, then `npx playwright test -c tools/screens`. They land in `screenshots/` (not committed), with `screenshots/overflow.txt` listing anything wider than the screen. **Smoothness:** `npm run build && node tools/trace.mjs` reports long tasks and, per transition, frames that missed 60 Hz at 4× CPU throttle (`CPU=6` for a slower phone), in `reports/lighthouse/trace-summary.md`.
 
