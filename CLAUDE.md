@@ -52,10 +52,11 @@ Data quirks: avatar colours are stored as hex in saved players; totals are deriv
 - **Saved data is sacred:** keep keys and shapes; add a migration instead of editing a shape.
 - **Comments: 1–3 lines**, non-obvious _why_ only.
 - Touching more than ~3 files: outline the plan first.
-- **Backend changes go in `backend-requests.md`, always.** When a task needs the API to change, write what is needed and why in `backend-requests.md` at the root, and build the app against it. Edit `../backend-kachuful-scorekeeper` only when Jay says to do the backend too, and then only what `backend-requests.md` says.
-- **Working docs are temporary:** a task's plan (`docs/<TASK>-PLAN.md`) and `backend-requests.md` are written for the task. Delete them once the task is done, including the backend work and the commits. Never commit them.
+- **Backend changes go in `backend-requests.md`, always.** When a task needs the API to change, write what is needed and why in `backend-requests.md` at the root, and build the app against it. It is the only handoff file (no HANDOFF.md or changelog). Once it exists, build the backend side in `../backend-kachuful-scorekeeper` in the same task, following that repo's CLAUDE.md, and only what `backend-requests.md` says.
+- **Working docs are temporary:** a task's plan (`docs/<TASK>-PLAN.md`) and `backend-requests.md` are written for the task. Delete them once the feature is done in both repos (built, tested, committed). Never commit them.
 - Every screen needs loading, empty, no-results and error states where data can be missing.
 - Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings, 44px targets.
 - Animate only `transform` and `opacity`; every animation has a reduced-motion fallback.
 - Say plainly when something is stubbed, mocked or unverified.
-- **Progress:** when a step of a multi-step plan is done, tell Jay where the whole plan stands as a percentage (and what's next).
+- **Progress:** on a multi-step plan, report where the whole plan stands as a percentage at least every 5% (and what's next).
+- **Parallel agents:** whenever pieces of work don't conflict (different files, frontend vs backend, independent screens, research vs build), run them as parallel subagents (2, 4 or 6 at once) instead of one after another. Give each a narrow brief with the files it owns, and review what each returns before building on it.
