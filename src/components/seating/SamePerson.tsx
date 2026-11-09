@@ -1,6 +1,6 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useState, type FormEvent } from 'react';
-import { emailKey, emailOk, nameKey, suggestName, tidyName } from '@/games/kachuful/domain';
+import { emailKey, emailOk, nameKey, suggestName, tidyName } from '@/people';
 import { archive } from '@/state/archive';
 import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
@@ -13,7 +13,6 @@ import {
   rememberSame,
   type Person,
 } from '@/state/registry';
-import { useApp } from '@/games/kachuful/state/store';
 import { Avatar } from '@/components/ui/Avatar';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
@@ -151,6 +150,8 @@ export function EmailStep({
   onRename,
   initialEmail = '',
   className = '',
+  say,
+  vib,
 }: {
   name: string;
   /** Emails already at this table. */
@@ -163,6 +164,9 @@ export function EmailStep({
   onRename: (name: string, email: string) => void;
   initialEmail?: string;
   className?: string;
+  /** Tells the table something (a toast). */
+  say: (msg: string) => void;
+  vib: () => void;
 }) {
   const [email, setEmail] = useState(initialEmail);
   const [err, setErr] = useState('');
@@ -172,7 +176,6 @@ export function EmailStep({
   const [full, setFull] = useState(false);
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
-  const { actions } = useApp();
   const names: FullName = {
     ...(first.trim() && { firstName: first.trim() }),
     ...(last.trim() && { lastName: last.trim() }),
@@ -199,8 +202,8 @@ export function EmailStep({
         match={match.player}
         alias={match.alias ? name : undefined}
         onYes={() => {
-          void confirmSame(match.player, name, names, actions.say);
-          actions.vib();
+          void confirmSame(match.player, name, names, say);
+          vib();
           onSame(match.player);
         }}
         onNo={() => (setMatch(null), setErr(x.recheckHint))}

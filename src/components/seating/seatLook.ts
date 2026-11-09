@@ -1,6 +1,5 @@
-import { COLORS, EMOJIS, nameKey } from '@/games/kachuful/domain';
+import { COLORS, EMOJIS, nameKey, type Seat } from '@/people';
 import { answersTo, type Person } from '@/state/registry';
-import type { Seat } from '@/games/kachuful/state/types';
 
 /** The person with this name: a main name first, then an alias. */
 export const findPerson = (known: Person[], name: string): Person | undefined => {

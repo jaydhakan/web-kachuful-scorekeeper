@@ -24,7 +24,8 @@ src/sync        api.ts (the only fetch), endpoints.ts + types.ts (the whole API)
                 (cache-first reads), account, signout, prefs, status
 src/hooks       useWakeLock, useHaptics, useDialog, useShare, useMediaQuery, useRovingFocus, useVisualViewport, useHistorySync
 src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, Table …) and shared app pieces
-                (ServiceWorkerHost, UpdateGate, AccountChip, PhotoPicker, SyncDot, RemoteGate, ThemeSync)
+                (ServiceWorkerHost, UpdateGate, AccountChip, PhotoPicker, SyncDot, RemoteGate, ThemeSync); seating/ is
+                Setup 2 for any game (useSeating, SeatingPicker, SeatingTable, AddPlayerForm, seat sheets, same-person check)
 src/strings     user-visible strings shared by the app (`t`, hub, admin; messages.ts is plain text used by domain/reducer);
                 a game's own strings sit in its strings/
 src/theme       theme registry, colour-name map, palette, trump themes (look: src/styles/themes.css)

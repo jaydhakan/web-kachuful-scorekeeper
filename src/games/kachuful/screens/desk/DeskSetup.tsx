@@ -13,8 +13,8 @@ import {
 } from '@/games/kachuful/domain';
 import { circle, people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
-import { findPerson, isSeated, lacksEmail, lookFor } from '@/games/kachuful/screens/setup/seatLook';
-import { EmailStep, personFor } from '@/games/kachuful/screens/setup/SamePerson';
+import { findPerson, isSeated, lacksEmail, lookFor } from '@/components/seating/seatLook';
+import { EmailStep, personFor } from '@/components/seating/SamePerson';
 import { useApp } from '@/games/kachuful/state/store';
 import type { Seat } from '@/games/kachuful/state/types';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
@@ -557,6 +557,8 @@ export function DeskSetup() {
                 name={tidy(seats[noEmail]!.name)}
                 initialEmail={emailDraft}
                 taken={seats.flatMap((x) => (x?.email ? [x.email] : []))}
+                say={actions.say}
+                vib={actions.vib}
                 onDone={(email, names) => (
                   setEmailDraft(''),
                   actions.setupSeatPatch(noEmail, { email, ...names })

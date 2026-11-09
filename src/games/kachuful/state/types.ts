@@ -10,6 +10,7 @@ import type {
   StreakEvent,
 } from '@/games/kachuful/domain';
 import type { LastGroup, Session } from '@/state/persistence';
+import type { Seat } from '@/people';
 
 export type Screen = 'home' | 'setup' | 'round' | 'winner';
 
@@ -41,17 +42,7 @@ export interface Route {
 }
 export type Dir = 1 | -1;
 
-export interface Seat {
-  name: string;
-  emoji: string;
-  color: string;
-  /** The registry player picked for this seat, when picked from the list. */
-  playerId?: string;
-  /** A new player's email (signed in), which says who they are. */
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-}
+export type { Seat } from '@/people';
 
 export interface SetupState {
   step: 1 | 2 | 3;

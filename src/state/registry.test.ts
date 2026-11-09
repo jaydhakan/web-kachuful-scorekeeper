@@ -1,5 +1,5 @@
 import { demoGame } from '@/games/kachuful/domain';
-import { findPerson, isSeated, lookFor } from '@/games/kachuful/screens/setup/seatLook';
+import { findPerson, isSeated, lookFor } from '@/components/seating/seatLook';
 import { archive, archiveGame } from './archive';
 import { KEYS, storage } from './persistence';
 import {
