@@ -120,6 +120,60 @@
   --art-trump-clubs: url('../../assets/themes/emerald-gilt/king-clubs.webp');
   --art-trump-spades: url('../../assets/themes/emerald-gilt/king-spades.webp');
   --art-trump-diamonds: url('../../assets/themes/emerald-gilt/king-diamonds.webp');
+  /* One token per card for its photo art (PlayingCard), none until a real file exists; a card without one shows its
+     stand-in. Adding art = one file here + its line. */
+  --art-card-a-spades: none;
+  --art-card-k-spades: url('../../assets/themes/emerald-gilt/king-spades.webp');
+  --art-card-q-spades: none;
+  --art-card-j-spades: none;
+  --art-card-10-spades: none;
+  --art-card-9-spades: none;
+  --art-card-8-spades: none;
+  --art-card-7-spades: none;
+  --art-card-6-spades: none;
+  --art-card-5-spades: none;
+  --art-card-4-spades: none;
+  --art-card-3-spades: none;
+  --art-card-2-spades: none;
+  --art-card-a-hearts: none;
+  --art-card-k-hearts: none;
+  --art-card-q-hearts: url('../../assets/themes/emerald-gilt/queen-hearts.webp');
+  --art-card-j-hearts: none;
+  --art-card-10-hearts: none;
+  --art-card-9-hearts: none;
+  --art-card-8-hearts: none;
+  --art-card-7-hearts: none;
+  --art-card-6-hearts: none;
+  --art-card-5-hearts: none;
+  --art-card-4-hearts: none;
+  --art-card-3-hearts: none;
+  --art-card-2-hearts: none;
+  --art-card-a-diamonds: none;
+  --art-card-k-diamonds: url('../../assets/themes/emerald-gilt/king-diamonds.webp');
+  --art-card-q-diamonds: none;
+  --art-card-j-diamonds: none;
+  --art-card-10-diamonds: none;
+  --art-card-9-diamonds: none;
+  --art-card-8-diamonds: none;
+  --art-card-7-diamonds: none;
+  --art-card-6-diamonds: none;
+  --art-card-5-diamonds: none;
+  --art-card-4-diamonds: none;
+  --art-card-3-diamonds: none;
+  --art-card-2-diamonds: none;
+  --art-card-a-clubs: none;
+  --art-card-k-clubs: url('../../assets/themes/emerald-gilt/king-clubs.webp');
+  --art-card-q-clubs: none;
+  --art-card-j-clubs: none;
+  --art-card-10-clubs: none;
+  --art-card-9-clubs: none;
+  --art-card-8-clubs: none;
+  --art-card-7-clubs: none;
+  --art-card-6-clubs: none;
+  --art-card-5-clubs: none;
+  --art-card-4-clubs: none;
+  --art-card-3-clubs: none;
+  --art-card-2-clubs: none;
   /* Three golds and the emerald: the winner's confetti in place of the players' colours (themeConfetti). */
   --confetti-1: #ebd08c;
   --confetti-2: #c9a24e;
@@ -478,4 +532,150 @@
   --m-av-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--brand);
   --m-r: 4px;
   --m-back: var(--art-back-mini) center / cover no-repeat;
+}
+/* Our own stand-in faces (standins/, not deck art) for every card without photo art. A background only downloads
+   once a card on screen uses it, so a device fetches just the cards it shows. */
+[data-theme='emerald-gilt'] .card-standin[data-card='10c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-10c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='10d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-10d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='10h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-10h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='10s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-10s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='2c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-2c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='2d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-2d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='2h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-2h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='2s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-2s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='3c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-3c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='3d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-3d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='3h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-3h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='3s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-3s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='4c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-4c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='4d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-4d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='4h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-4h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='4s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-4s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='5c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-5c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='5d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-5d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='5h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-5h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='5s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-5s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='6c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-6c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='6d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-6d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='6h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-6h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='6s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-6s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='7c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-7c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='7d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-7d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='7h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-7h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='7s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-7s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='8c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-8c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='8d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-8d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='8h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-8h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='8s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-8s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='9c'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-9c.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='9d'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-9d.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='9h'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-9h.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='9s'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-9s.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='ac'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-ac.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='ad'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-ad.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='ah'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-ah.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='as'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-as.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='jc'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-jc.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='jd'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-jd.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='jh'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-jh.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='js'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-js.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='kh'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-kh.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='qc'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-qc.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='qd'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-qd.svg');
+}
+[data-theme='emerald-gilt'] .card-standin[data-card='qs'] {
+  background-image: url('../../assets/themes/emerald-gilt/standins/card-qs.svg');
 }

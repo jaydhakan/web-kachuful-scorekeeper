@@ -33,6 +33,11 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
   Backgrounds only download once something on screen uses them, so `src/theme/art.ts` imports the same files and
   fetches and decodes them when the theme is shown, then sets `<html data-art-ready>`. The suit symbol is hidden only
   under that flag, so a face is never blank (offline included), and `RoundStart` waits up to 300ms for the art.
+- **Cards** (`components/ui/PlayingCard`, any card game) stack three layers: the theme's flat face (rank and pip),
+  the theme's stand-in for that card (`.card-standin[data-card]`, only Emerald Gilt paints them, from `standins/`:
+  our own drawings, the 3♠ marked as special) and the card's photo art (`--art-card-<rank>-<suit>`, `none` until a
+  real file exists; adding one is a file plus that token's line). Each covers the one below once loaded, and a
+  stand-in downloads only when a card on screen uses it. A card never shows another card's art.
 - **Theme hooks** have a neutral value in every theme: `--card-back-edge`, `--reveal-hold` (ms the round intro holds
   the fanned backs; read once by `RoundStart`), `--fan-*`, `--reveal-rays`, `--reveal-glint`, `--name-frame`, the
   `--m-back` preview token, and slots that only one theme paints (`.suit-ring`, `.trump-mini`, `.empty-card`,
