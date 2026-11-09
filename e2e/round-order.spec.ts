@@ -10,7 +10,7 @@ const firstCards = (page: import('@playwright/test').Page) =>
 test('round order: up first by default, down first from Advanced with the tableâ€™s own max', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, NAMES7.slice(0, 6), async (step) => {
     if (step !== 'setup 1') return;
     await openAdvanced(page);
@@ -24,7 +24,7 @@ test('round order: up first by default, down first from Advanced with the tableâ
 });
 
 test('round order: a game left on the default goes up first', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, NAMES7.slice(0, 4));
   await expect.poll(() => firstCards(page)).toEqual({ order: 'up', cards: 3 });
 });

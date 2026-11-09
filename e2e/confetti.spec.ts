@@ -6,7 +6,7 @@ import { btn } from './helpers';
 test.use({ reducedMotion: 'no-preference' });
 
 test('the confetti canvas follows the viewport when it is resized mid-burst', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(5, 'summary'), 'round');
   await btn(page, 'End game').click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'End game' }).click();

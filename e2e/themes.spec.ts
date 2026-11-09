@@ -29,7 +29,7 @@ test.use({ viewport: { width: 360, height: 780 } });
 test('every theme lays the bidding screen out identically, and switching keeps the game', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(5, 'bidding', NAMES), 'round');
   await page.getByRole('button', { name: 'Bid 1' }).first().click();
   await page.waitForTimeout(600);
@@ -64,7 +64,7 @@ test('every theme lays the bidding screen out identically, and switching keeps t
 test('a cold start shows the cached theme before the app runs, and an unknown one falls back', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => localStorage.setItem('kf.theme', 'yerba-sun'));
   await page.reload();
   expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe('yerba-sun');
@@ -78,7 +78,7 @@ for (const id of THEMES)
   test(`${id}: only this theme's fonts are downloaded`, async ({ page }) => {
     const fonts: string[] = [];
     page.on('request', (r) => r.resourceType() === 'font' && fonts.push(r.url()));
-    await page.goto('/');
+    await page.goto('/kachuful');
     // The default theme's own fonts can still be arriving; they aren't this theme's.
     await page.waitForLoadState('networkidle');
     await page.evaluate((t) => localStorage.setItem('kf.theme', t), id);
@@ -104,7 +104,7 @@ test('emerald-gilt: the deck art is fetched when the theme is shown, before any 
 }) => {
   const art: string[] = [];
   page.on('request', (r) => r.url().endsWith('.webp') && art.push(r.url()));
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => localStorage.setItem('kf.theme', 'emerald-gilt'));
   await page.reload();
   await expect(page.locator('html[data-art-ready~="emerald-gilt"]')).toBeAttached();
@@ -114,7 +114,7 @@ test('emerald-gilt: the deck art is fetched when the theme is shown, before any 
 test('other themes never fetch deck art', async ({ page }) => {
   const art: string[] = [];
   page.on('request', (r) => r.url().endsWith('.webp') && art.push(r.url()));
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500);
   expect(art).toEqual([]);
@@ -124,7 +124,7 @@ test('emerald-gilt without its art: the trump face keeps its symbol and the deal
   page,
 }) => {
   await page.route(/\.webp$/, (r) => r.abort());
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => localStorage.setItem('kf.theme', 'emerald-gilt'));
   await page.reload();
   const glyphOpacity = () =>
@@ -152,7 +152,7 @@ test('only the shown theme’s stylesheet is downloaded, linked before the first
 }) => {
   const css: string[] = [];
   page.on('request', (r) => r.resourceType() === 'stylesheet' && css.push(r.url()));
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.waitForLoadState('networkidle');
   // The default theme's rules are in the main stylesheet.
   expect(css.filter((u) => /yerba-sun|editorial-paper|emerald-gilt/.test(u))).toEqual([]);

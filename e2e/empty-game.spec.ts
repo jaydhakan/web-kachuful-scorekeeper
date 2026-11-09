@@ -3,7 +3,7 @@ import { bidEveryone, btn, startGame } from './helpers';
 
 // A game with no round done leaves no trace: ending it discards it, and History never lists it.
 test('ending a game before any round is confirmed discards it', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await startGame(page, ['Aarav', 'Riya', 'Kabir', 'Meera']);
   await bidEveryone(page);
   await btn(page, 'Menu').click();

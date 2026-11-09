@@ -41,7 +41,7 @@ test.describe('large-screen layouts', () => {
       page,
     }) => {
       await page.setViewportSize(vp);
-      await page.goto('/');
+      await page.goto('/kachuful');
       for (const view of ['bidding', 'playing', 'results', 'summary'] as const) {
         await openSeeded(page, seedGame(7, view, LONG_NAMES), 'round');
         await reachable(page, PRIMARY[view]);
@@ -62,7 +62,7 @@ test.describe('large-screen layouts', () => {
       { width: 844, height: 390 },
     ]) {
       await page.setViewportSize(vp);
-      await page.goto('/');
+      await page.goto('/kachuful');
       await expect(page.getByRole('button', { name: 'New Game', exact: true })).toBeVisible();
       await expect(page.locator('[data-desk]')).toHaveCount(0);
     }
@@ -73,7 +73,7 @@ test.describe('the round workspace', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test('Bid, Play and Results never remount the table or the scores', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     await openSeeded(page, seedGame(5, 'bidding', NAMES7), 'round');
     const mark = () =>
       page.evaluate(() => {
@@ -126,7 +126,7 @@ test.describe('the round workspace', () => {
   test('keyboard: pick, lock in, undo, shortcuts sheet, and a drawer that returns focus', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     // The large-screen UI is its own chunk: wait for Home before typing.
     await expect(page.getByRole('button', { name: /Resume/ })).toBeVisible();
     await page.keyboard.press('Enter');
@@ -164,7 +164,7 @@ test.describe('the round workspace', () => {
   });
 
   test('targets are at least 48px and focus is visible', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/kachuful');
     // The large-screen UI is its own chunk: wait for Home before typing.
     await expect(page.getByRole('button', { name: /Resume/ })).toBeVisible();
     await page.keyboard.press('Enter');

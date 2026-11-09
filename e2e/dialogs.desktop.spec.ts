@@ -9,7 +9,7 @@ const VW = 1280,
   RULES = 'Rules';
 
 async function open(page: Page, n = 7) {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(n, 'playing'), 'round');
   await expect(btn(page, 'Menu')).toBeVisible();
 }

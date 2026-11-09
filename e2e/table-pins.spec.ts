@@ -18,7 +18,7 @@ const centre = (b: { x: number; y: number; width: number; height: number }) => (
 for (const width of [240, 340, 510]) {
   test.describe(`table drawn ${width}px wide`, () => {
     test('the deal cards land on the seats', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/kachuful');
       await toSetup3(page, NAMES);
       await btn(page, 'Deal!').click();
       const table = page.locator('[data-table="rs"]');
@@ -46,7 +46,7 @@ for (const width of [240, 340, 510]) {
       test(`the spin token settles on the new dealer chip (${players} players)`, async ({
         page,
       }) => {
-        await page.goto('/');
+        await page.goto('/kachuful');
         await toSetup3(page, NAMES7.slice(0, players));
         await scaleTable(page, 'su3', width);
         await page.evaluate(() => {

@@ -14,7 +14,7 @@ const VIEWPORTS = [
 for (const [w, h] of VIEWPORTS) {
   test(`${w}×${h}: the toast sits in the top bar, between its buttons`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await openSeeded(page, seedGame(5, 'playing'), 'round');
     await btn(page, 'Menu').click();
     await page.getByRole('button', { name: /Undo last action/ }).click();

@@ -92,7 +92,7 @@ for (const [w, h] of MATRIX) {
           }
         };
 
-        await page.goto('/');
+        await page.goto('/kachuful');
         await section('setup', async () => {
           await openSeeded(page, seedGame(n, 'bidding'), 'home');
           await shot('01-home', { primary: btn(page, 'New Game') });

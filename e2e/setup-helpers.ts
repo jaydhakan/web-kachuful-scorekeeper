@@ -4,7 +4,7 @@ import { btn } from './helpers';
 
 /** Seeds a saved group and recent names (as a returning player has), then opens Setup 1. */
 export async function toSetup1(page: Page, n: number) {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(n, 'bidding'), 'home');
   await btn(page, 'New Game').click();
 }

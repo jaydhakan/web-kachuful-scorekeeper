@@ -10,7 +10,7 @@ async function fiveCardResults(page: Page) {
   r.cards = 5;
   r.bids = { p0: 4, p1: 2, p2: 2, p3: 2, p4: 1 };
   r.results = {};
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, g, 'round');
   await left(page, 5);
 }

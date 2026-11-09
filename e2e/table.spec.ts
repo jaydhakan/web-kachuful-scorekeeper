@@ -13,7 +13,7 @@ for (const { what, uid, vp, W, H, MIN } of CASES) {
     page,
   }) => {
     await page.setViewportSize(vp);
-    await page.goto('/');
+    await page.goto('/kachuful');
     await openSeeded(page, seedGame(7, 'playing'), 'round');
     const table = page.locator(`[data-table="${uid}"]`);
     await table.waitFor();
@@ -62,7 +62,7 @@ for (const { what, uid, vp, W, H, MIN } of CASES) {
 test('a table that does not opt in keeps its fixed design size', async ({ page }) => {
   // Tall enough that the Summary shows its Next-up table rather than the one-line version.
   await page.setViewportSize({ width: 390, height: 1100 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(5, 'summary'), 'round');
   const table = page.locator('[data-table="sum"]');
   await table.waitFor();

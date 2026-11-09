@@ -28,7 +28,7 @@ const quiet = (page: Page) =>
 test('Add player: the field and Add stay at the top with the keyboard open, seat after seat', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await btn(page, 'New Game').click();
   await btn(page, '5 players').click();
   await btn(page, 'Next').click();
@@ -58,7 +58,7 @@ test('Add player: the field and Add stay at the top with the keyboard open, seat
 });
 
 test('Rename: the field and Save stay visible with the keyboard open', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await btn(page, 'New Game').click();
   await btn(page, '3 players').click();
   await btn(page, 'Next').click();
