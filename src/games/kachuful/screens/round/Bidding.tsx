@@ -1,18 +1,17 @@
 import { AnimatePresence, m } from 'framer-motion';
-import { useId, useState, type CSSProperties } from 'react';
+import { useId, useState } from 'react';
 import { roundAt, type Game, type Round } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useBoxHeight } from '@/hooks/useBoxHeight';
 import { TD, minScale } from '@/lib/tableGeometry';
-import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { MQ } from '@/theme/breakpoints';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
-import { EASE, PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
-import { shakeKF } from '@/components/ui/stagger';
+import { EASE, SPRING } from '@/components/ui/motion';
+import { BidKeys } from '@/components/ui/BidKeypad';
 import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
 import { t } from '@/strings';
@@ -84,9 +83,6 @@ export function HeroWho({
   );
 }
 
-/** One row up to six pills, else two rows, so the dock stays short; never more than six across. */
-const pillColumns = (pills: number) => Math.min(6, pills <= 6 ? pills : Math.ceil(pills / 2));
-
 export function Bidding() {
   const { state, actions } = useApp();
   const g = state.game;
@@ -110,13 +106,6 @@ export function Bidding() {
   // Measured, not the page height: a Home Screen app loses ~100px to the status bar and home indicator.
   const [slot, slotH] = useBoxHeight<HTMLDivElement>();
   const round = slotH >= TD.full.H * minScale(n);
-  // The grid narrows to fewer columns on a tight pane, so the row length is read from the layout.
-  const roving = useRovingFocus({
-    selected: r.bids[p.id] ?? -1,
-    columns: 'auto',
-    orientation: 'grid',
-  });
-  const cols = pillColumns(r.cards + 1);
   const flight = useBidFlight('bid');
   const pick = (v: number, key: HTMLElement) => {
     const locked = isD && v === forb;
@@ -196,50 +185,15 @@ export function Bidding() {
             >
               {reason}
             </div>
-            <div
-              role="group"
-              aria-label={t.bidding.bidFor(p.name)}
-              {...roving.group}
-              // At most `cols` across and each at least 44px: the gap gives way before a pill gets smaller.
-              style={
-                {
-                  '--g': `max(0px, min(0.5rem, calc((100% - ${cols} * 2.75rem) / ${cols - 1})))`,
-                  columnGap: 'var(--g)',
-                  gridTemplateColumns: `repeat(auto-fill, minmax(max(2.75rem, calc((100% - ${cols - 1} * var(--g)) / ${cols})), 1fr))`,
-                } as CSSProperties
-              }
-              className="grid justify-items-center gap-y-2 @h-short:gap-y-1.5 @h-tiny:gap-y-1"
-            >
-              {Array.from({ length: r.cards + 1 }, (_, v) => {
-                const lock = isD && forb === v,
-                  sel = r.bids[p.id] === v;
-                return (
-                  <m.button
-                    key={v}
-                    type="button"
-                    aria-label={lock ? t.bidding.locked(v) : t.bidding.bid(v)}
-                    aria-pressed={sel}
-                    aria-disabled={lock || undefined}
-                    aria-describedby={lock ? reasonId : undefined}
-                    {...roving.item(v)}
-                    animate={shake === v ? shakeKF : { x: 0 }}
-                    whileTap={PRESS_SM}
-                    onClick={(e) => pick(v, e.currentTarget)}
-                    className={`disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'mat-key-no' : sel ? 'mat-key text-ink-on-accent' : 'mat-key'}`}
-                  >
-                    {sel && (
-                      <m.span
-                        layoutId="pillsel"
-                        transition={SPRING_POP}
-                        className="mat-key-on absolute inset-0 rounded-[18px]"
-                      />
-                    )}
-                    {/* The forbidden bid is struck through by its material, not a lock (reference audit fix). */}
-                    <span className="relative">{v}</span>
-                  </m.button>
-                );
-              })}
-            </div>
+            <BidKeys
+              max={r.cards}
+              label={t.bidding.bidFor(p.name)}
+              selected={r.bids[p.id]}
+              locked={isD && forb != null ? [forb] : []}
+              describedBy={reasonId}
+              shake={shake}
+              onPick={pick}
+            />
             {allBid && !hookWarn ? (
               <PrimaryButton
                 className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"

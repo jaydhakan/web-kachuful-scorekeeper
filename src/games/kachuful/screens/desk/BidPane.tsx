@@ -1,17 +1,15 @@
 import { AnimatePresence, m } from 'framer-motion';
-import { useId, type CSSProperties } from 'react';
+import { useId } from 'react';
 import type { Game } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
-import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { EASE, PRESS_SM, SPRING, SPRING_POP } from '@/components/ui/motion';
-import { shakeKF } from '@/components/ui/stagger';
+import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { BidKeys } from '@/components/ui/BidKeypad';
 import type { bidView } from '@/games/kachuful/screens/round/roundView';
 import { KeyHints, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
-import { Edge } from '@/components/ui/Edge';
 
 export type BidPrimary = 'lock' | 'start' | 'wait';
 
@@ -27,19 +25,10 @@ interface BidPaneProps {
   onPrimary: () => void;
 }
 
-/** Rows of keys: 0–9 is two rows of five (as on the boards), 0–10 two rows of six; a tablet held upright uses one row. */
-const keyCols = (keys: number) => (keys <= 5 ? keys : keys <= 10 ? 5 : 6);
-
 export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: BidPaneProps) {
   const { actions } = useApp();
   const { r, n, od, bi, pI, p, isD, forb, hookWarn, sum, diff, cap } = v;
   const reasonId = useId();
-  const roving = useRovingFocus({
-    selected: pending ?? r.bids[p.id] ?? -1,
-    columns: 'auto',
-    orientation: 'grid',
-  });
-  const keys = r.cards + 1;
   const reason =
     hookWarn && isD
       ? t.bidding.earlierBidInvalid
@@ -88,50 +77,17 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
           </>
         )}
       </div>
-      <div
-        role="group"
-        aria-label={t.bidding.bidFor(p.name)}
-        {...roving.group}
-        style={{ '--kc': keyCols(keys), '--kt': keys } as CSSProperties}
-        className="grid gap-2.5 [grid-template-columns:repeat(var(--kt),minmax(0,1fr))] tp:gap-1.5 rail:[grid-template-columns:repeat(var(--kc),minmax(0,1fr))]"
-      >
-        {Array.from({ length: keys }, (_, k) => {
-          const lock = isD && forb === k,
-            sel = pending === k,
-            saved = r.bids[p.id] === k && !sel;
-          return (
-            <m.button
-              key={k}
-              type="button"
-              data-bid-key={k}
-              aria-label={lock ? t.bidding.locked(k) : t.bidding.bid(k)}
-              aria-pressed={sel}
-              aria-disabled={lock || undefined}
-              aria-describedby={lock ? reasonId : undefined}
-              {...roving.item(k)}
-              animate={shake === k ? shakeKF : { x: 0 }}
-              whileHover={lock ? undefined : { y: -3 }}
-              whileTap={PRESS_SM}
-              onClick={(e) => onKey(k, e.currentTarget)}
-              className={`disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'}`}
-            >
-              {saved && <Edge tone="saved" />}
-              {sel && (
-                <m.span
-                  layoutId="ws-key"
-                  transition={SPRING_POP}
-                  aria-hidden
-                  className="absolute inset-0 rounded-2xl bg-accent-gradient shadow-[0_0_0_3px_var(--glow),0_10px_26px_-6px_var(--accent)]"
-                />
-              )}
-              <span className={`relative ${lock ? 'line-through' : ''}`}>{k}</span>
-              {lock && (
-                <span className="absolute right-1.5 top-1.5 text-[var(--warn)]">{Icon.lock}</span>
-              )}
-            </m.button>
-          );
-        })}
-      </div>
+      <BidKeys
+        look="pane"
+        max={r.cards}
+        label={t.bidding.bidFor(p.name)}
+        selected={pending}
+        saved={r.bids[p.id]}
+        locked={isD && forb != null ? [forb] : []}
+        describedBy={reasonId}
+        shake={shake}
+        onPick={onKey}
+      />
       <div className="flex flex-col gap-2">
         <div className="flex justify-between gap-3 text-16 font-bold">
           <span>{t.bidding.total(sum, r.cards)}</span>

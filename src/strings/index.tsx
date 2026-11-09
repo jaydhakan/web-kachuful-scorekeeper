@@ -54,6 +54,11 @@ export const t = {
     undo: 'Undo',
   },
 
+  keypad: {
+    amount: 'Bid amount',
+    quick: 'Change the bid',
+    change: (d: number) => (d > 0 ? `Up ${d}` : `Down ${-d}`),
+  },
   table: {
     dealerMark: 'D',
     deals: 'DEALS',
