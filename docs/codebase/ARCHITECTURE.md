@@ -48,6 +48,8 @@ One `useReducer` in `AppProvider`. Actions are a discriminated union (`games/kac
 
 Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.lastGroup`, `kachuful.recentNames`, `kachuful.undo`, `kachuful.screen`, plus `kachuful.v1.backup` for an unreadable save.
 
+Kaali Teeri (`games/kaali-teeri/state/persistence.ts`, through the same `storage`): `kaaliteeri.v1`, `kaaliteeri.undo`, `kaaliteeri.screen`, `kaaliteeri.lastGroup`, `kaaliteeri.prefs` (`{quick, countedBy}`, this device's) and `kaaliteeri.v1.backup`. Its saves start at schema 1 (`games/kaali-teeri/state/migrations.ts`, no steps yet); a save without a version is unreadable, since none was ever written. `peek()` reads `kaaliteeri.v1` for the landing card without the domain.
+
 `schemaVersion` is written into the saved game. A save without it is the prototype's shape (version 0). `migrations[n]` upgrades version n to n + 1 (`games/kachuful/state/migrations.ts`); add one when the saved shape changes. A save from a newer app, or one that fails the shape check, is treated as unreadable: the raw text is backed up, saving pauses, and the player chooses Reset or Keep backup. Quota errors drop the oldest undo snapshots first, then warn.
 
 ## Data quirks
@@ -107,7 +109,7 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 
 ## Online
 
-**Archive.** `state/archive.ts` is the only IndexedDB access: games (every game this device knows, never replaced), players (the registry), outbox, cache and inbox. It loads once and is read synchronously from memory; writes land in memory at once and on disk in the background, falling back to memory when IndexedDB is missing. The current game is copied in after every change, so starting a new game saves the old one to History. Schema 3 added `syncId` (old games: a hash of a per-device id, the game id and its creation time, so a game, its undo snapshots and its backup are one remote game), `rev`, `finishedAt` and `Round.doneAt`.
+**Archive.** `state/archive.ts` is the only IndexedDB access: games (every Kachuful game this device knows, never replaced), ktGames (Kaali Teeri's, by the same rules; database version 2), players (the registry, shared by every game), outbox, cache and inbox. A version bump only adds missing stores (`upgradeDb`). Setup's suggestions (`people()`, `circle()`) count co-players from every game's store. It loads once and is read synchronously from memory; writes land in memory at once and on disk in the background, falling back to memory when IndexedDB is missing. The current game is copied in after every change, so starting a new game saves the old one to History. Schema 3 added `syncId` (old games: a hash of a per-device id, the game id and its creation time, so a game, its undo snapshots and its backup are one remote game), `rev`, `finishedAt` and `Round.doneAt`.
 
 **Navigation.** `state.nav` is a stack of routes opened over the game screens (`games/kachuful/screens/pages/Pages.tsx`, one lazy chunk). `useHistorySync` keeps one browser history entry per open screen and sheet, so system Back closes the top one. `?invite=`, `?reset=`, `?live=` and `?recap=` open their screen once at start and are removed from the address bar.
 

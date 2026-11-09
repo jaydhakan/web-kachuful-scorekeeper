@@ -1,0 +1,157 @@
+{
+  "kaaliteeri.v1": {
+    "kind": "kaali-teeri",
+    "schemaVersion": 1,
+    "id": "kt-7f0c2a52-3b1e-4c55-9a43-0d6f1c9e2b10",
+    "syncId": "7f0c2a52-3b1e-4c55-9a43-0d6f1c9e2b10",
+    "rev": 1,
+    "createdAt": 1793539800000,
+    "updatedAt": 1793540100000,
+    "players": [
+      {
+        "id": "p0",
+        "playerId": "riya",
+        "name": "riya",
+        "emoji": "🙂",
+        "color": "#f87171"
+      },
+      {
+        "id": "p1",
+        "playerId": "aarav",
+        "name": "aarav",
+        "emoji": "🙂",
+        "color": "#60a5fa"
+      },
+      {
+        "id": "p2",
+        "playerId": "kabir",
+        "name": "kabir",
+        "emoji": "🙂",
+        "color": "#34d399"
+      },
+      {
+        "id": "p3",
+        "playerId": "meera",
+        "name": "meera",
+        "emoji": "🙂",
+        "color": "#fbbf24"
+      },
+      {
+        "id": "p4",
+        "playerId": "dev",
+        "name": "dev",
+        "emoji": "🙂",
+        "color": "#a78bfa"
+      },
+      {
+        "id": "p5",
+        "playerId": "isha",
+        "name": "isha",
+        "emoji": "🙂",
+        "color": "#f472b6"
+      },
+      {
+        "id": "p6",
+        "playerId": "neel",
+        "name": "neel",
+        "emoji": "🙂",
+        "color": "#22d3ee"
+      }
+    ],
+    "firstDealerIndex": 0,
+    "direction": "cw",
+    "rules": {
+      "decks": 2,
+      "partners": 2,
+      "minBid": 350,
+      "step": 5,
+      "length": "endless"
+    },
+    "hands": [
+      {
+        "index": 0,
+        "dealerIndex": 0,
+        "phase": "done",
+        "mode": "auction",
+        "calls": [
+          {
+            "playerId": "p1",
+            "bid": 360
+          },
+          {
+            "playerId": "p2",
+            "pass": true
+          },
+          {
+            "playerId": "p3",
+            "pass": true
+          },
+          {
+            "playerId": "p4",
+            "pass": true
+          },
+          {
+            "playerId": "p5",
+            "pass": true
+          },
+          {
+            "playerId": "p6",
+            "pass": true
+          },
+          {
+            "playerId": "p0",
+            "pass": true
+          }
+        ],
+        "bidder": "p1",
+        "bid": 360,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "spades",
+            "copy": 1
+          },
+          {
+            "rank": "K",
+            "suit": "spades",
+            "copy": 1
+          }
+        ],
+        "playedBy": ["p2", "p3"],
+        "teamPoints": 120,
+        "countedBy": "defenders",
+        "doneAt": 1793540100000
+      },
+      {
+        "index": 1,
+        "dealerIndex": 1,
+        "phase": "playing",
+        "mode": "quick",
+        "calls": [],
+        "bidder": "p3",
+        "bid": 400,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "hearts",
+            "copy": "other"
+          },
+          {
+            "rank": "K",
+            "suit": "spades",
+            "copy": 1
+          }
+        ],
+        "playedBy": ["p1", null],
+        "teamPoints": null,
+        "countedBy": null
+      }
+    ],
+    "status": "active",
+    "ui": {
+      "view": "hand"
+    }
+  }
+}
