@@ -31,7 +31,13 @@ export default tseslint.config(
   },
   {
     // Design tokens only: colours come from the Tailwind theme / CSS variables, never literals.
-    files: ['src/components/**/*.tsx', 'src/screens/**/*.tsx', 'src/sheets/**/*.tsx'],
+    files: [
+      'src/components/**/*.tsx',
+      'src/platform/**/*.tsx',
+      'src/games/*/components/**/*.tsx',
+      'src/games/*/screens/**/*.tsx',
+      'src/games/*/sheets/**/*.tsx',
+    ],
     rules: {
       'no-restricted-syntax': [
         'error',

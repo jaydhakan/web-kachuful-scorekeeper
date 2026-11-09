@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { standings, totals, type Game } from '@/domain';
+import { standings, totals, type Game } from '@/games/kachuful/domain';
 import { fmt } from '@/lib/format';
 import { LONG_NAMES, openSeeded, seedGame } from './fixtures';
 import { btn } from './helpers';

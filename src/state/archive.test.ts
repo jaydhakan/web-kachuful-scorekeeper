@@ -1,4 +1,4 @@
-import { demoGame, type Game } from '@/domain';
+import { demoGame, type Game } from '@/games/kachuful/domain';
 import {
   archive,
   archiveGame,

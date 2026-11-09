@@ -1,4 +1,4 @@
-import type { Route } from '@/state/types';
+import type { Route } from '@/games/kachuful/state/types';
 
 const KINDS = { invite: 'invite', reset: 'reset', live: 'live', recap: 'recap' } as const;
 

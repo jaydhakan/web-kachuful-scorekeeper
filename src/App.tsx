@@ -1,9 +1,9 @@
 import { domAnimation, LazyMotion, MotionConfig, type FeatureBundle } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { AppShell } from '@/components/AppShell';
+import { AppShell } from '@/games/kachuful/components/AppShell';
 import { ThemeSync } from '@/components/ThemeSync';
 import { SPRING } from '@/components/ui/motion';
-import { AppProvider } from '@/state/store';
+import { AppProvider } from '@/games/kachuful/state/store';
 import { whenIdle } from '@/lib/idle';
 
 export function App() {

@@ -1,5 +1,5 @@
 import { COLOR_VARS, GRADIENTS, type ColorName } from './colors';
-import { COLORS } from '@/domain/avatars';
+import { COLORS } from '@/people/avatars';
 
 /** Every colour by name, as a CSS value that follows the active theme. For DOM styles; a canvas needs `cssColor`. */
 export const palette = Object.fromEntries(

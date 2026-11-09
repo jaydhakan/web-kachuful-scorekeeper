@@ -1,4 +1,4 @@
-import { doneRounds, type Game } from '@/domain';
+import { doneRounds, type Game } from '@/games/kachuful/domain';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,

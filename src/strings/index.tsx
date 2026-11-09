@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import type { Direction, RoundOrder, Trump } from '@/domain';
+import type { Direction } from '@/people';
+import type { RoundOrder, Trump } from '@/games/kachuful/domain';
 import { messages } from './messages';
 import { hub } from './hub';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';

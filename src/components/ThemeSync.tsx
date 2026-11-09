@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useApp } from '@/state/store';
+import { useApp } from '@/games/kachuful/state/store';
 import { whenIdle } from '@/lib/idle';
 import { t } from '@/strings';
 

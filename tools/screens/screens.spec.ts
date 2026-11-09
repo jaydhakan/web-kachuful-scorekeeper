@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { test, type BrowserContext, type Page } from '@playwright/test';
-import type { Game } from '@/domain';
+import type { Game } from '@/games/kachuful/domain';
 import { openPodium, seedGame, type SeedView } from '../../e2e/fixtures';
 import { ACCOUNTS, makeInvite, makeResetLink } from '../../e2e/backend';
 

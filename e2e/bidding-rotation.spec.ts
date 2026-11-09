@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { bidOrder, curRound } from '@/domain';
+import { bidOrder, curRound } from '@/games/kachuful/domain';
 import { openSeeded, seedGame } from './fixtures';
 
 const PHONE = { width: 390, height: 844 },

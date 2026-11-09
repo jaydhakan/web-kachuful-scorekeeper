@@ -1,5 +1,5 @@
-import { demoGame } from '@/domain';
-import { findPerson, isSeated, lookFor } from '@/screens/setup/seatLook';
+import { demoGame } from '@/games/kachuful/domain';
+import { findPerson, isSeated, lookFor } from '@/games/kachuful/screens/setup/seatLook';
 import { archive, archiveGame } from './archive';
 import { KEYS, storage } from './persistence';
 import {
@@ -17,7 +17,7 @@ import {
   people,
   resolveId,
 } from './registry';
-import { initialState, reducer } from './reducer';
+import { initialState, reducer } from '@/games/kachuful/state/reducer';
 
 const server = (id: string, name: string, createdBy: string | null = null) => ({
   id,

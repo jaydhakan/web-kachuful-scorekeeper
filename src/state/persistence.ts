@@ -1,6 +1,6 @@
-import { demoGame, type Decks, type Game } from '@/domain';
+import { demoGame, type Decks, type Game } from '@/games/kachuful/domain';
 import { uuid } from '@/lib/ids';
-import { CURRENT_SCHEMA, migrateGame as migrateRaw } from './migrations';
+import { CURRENT_SCHEMA, migrateGame as migrateRaw } from '@/games/kachuful/state/migrations';
 import type { Appearance } from '@/theme/themes';
 
 export const KEYS = {

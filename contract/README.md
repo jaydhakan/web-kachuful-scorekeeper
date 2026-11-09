@@ -1,9 +1,9 @@
 # Golden fixtures (app → backend)
 
-Generated from the app's TypeScript rules (`src/domain`) by:
+Generated from the app's TypeScript rules (`src/games/kachuful/domain`) by:
 
 ```sh
-EXPORT_FIXTURES=1 npx vitest run src/domain/fixtures.export.test.ts
+EXPORT_FIXTURES=1 npx vitest run src/games/kachuful/domain/fixtures.export.test.ts
 ```
 
 Without `EXPORT_FIXTURES`, the same test fails if these files no longer match the rules, so they cannot drift from

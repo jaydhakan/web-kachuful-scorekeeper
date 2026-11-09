@@ -1,4 +1,4 @@
-import type { Trump } from '@/domain';
+import type { Trump } from '@/games/kachuful/domain';
 import { palette } from './palette';
 
 // A theme with no glow sets --trump-glow-amt to 0%, which makes this transparent.

@@ -1,5 +1,6 @@
 /** The API's shapes as built. Times are epoch ms, ids UUID strings. */
-import type { Decks, Direction, Game, Trump, Wrapped } from '@/domain';
+import type { Direction } from '@/people';
+import type { Decks, Game, Trump, Wrapped } from '@/games/kachuful/domain';
 
 export type Role = 'admin' | 'member';
 

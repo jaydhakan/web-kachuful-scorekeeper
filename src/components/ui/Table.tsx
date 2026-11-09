@@ -1,6 +1,7 @@
 import { AnimatePresence, m, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { useMemo, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import type { Direction, Outcome } from '@/domain';
+import type { Direction } from '@/people';
+import type { Outcome } from '@/games/kachuful/domain';
 import {
   DEALS_PILL,
   SMALL_CHIP,

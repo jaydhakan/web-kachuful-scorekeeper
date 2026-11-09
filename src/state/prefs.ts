@@ -1,4 +1,5 @@
-import { playerCounts, type Decks, type Direction } from '@/domain';
+import type { Direction } from '@/people';
+import { playerCounts, type Decks } from '@/games/kachuful/domain';
 import type { Preferences, SetupPrefs } from '@/sync/types';
 import { archive } from './archive';
 import type { LastGroup } from './persistence';

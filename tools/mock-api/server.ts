@@ -31,8 +31,8 @@ import {
   type Facts,
   type Game,
   type Metric,
-} from '../../src/domain/index';
-import { kitGame, rows } from '../../src/domain/__fixtures__/kit';
+} from '../../src/games/kachuful/domain/index';
+import { kitGame, rows } from '../../src/games/kachuful/domain/__fixtures__/kit';
 import type {
   Claim,
   Achievement,

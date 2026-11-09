@@ -87,8 +87,8 @@ const preloadShell = (): Plugin => ({
         if (!shell) throw new Error(`preload-shell: no chunk for ${src}`);
         return [...closure([shell.fileName])].filter((f) => !entry.has(f)).map((f) => `/${f}`);
       };
-      const desk = files('/src/screens/desk/DeskShell.tsx');
-      const phone = files('/src/components/PhoneShell.tsx');
+      const desk = files('/src/games/kachuful/screens/desk/DeskShell.tsx');
+      const phone = files('/src/games/kachuful/components/PhoneShell.tsx');
       return [
         {
           tag: 'script',
@@ -135,7 +135,10 @@ const precompress = (): Plugin => {
   };
 };
 
-const SHELLS = ['/src/components/PhoneShell.tsx', '/src/screens/desk/DeskShell.tsx'];
+const SHELLS = [
+  '/src/games/kachuful/components/PhoneShell.tsx',
+  '/src/games/kachuful/screens/desk/DeskShell.tsx',
+];
 type Graph = {
   getModuleInfo(id: string): { isEntry: boolean; importers: readonly string[] } | null;
 };
@@ -266,6 +269,10 @@ export default defineConfig(({ mode }) => ({
     environment: 'jsdom',
     setupFiles: ['src/test/setup.ts'],
     include: ['src/**/*.test.{js,ts,tsx}'],
-    coverage: { provider: 'v8', include: ['src/domain/**'], reporter: ['text', 'html'] },
+    coverage: {
+      provider: 'v8',
+      include: ['src/games/kachuful/domain/**', 'src/people/**'],
+      reporter: ['text', 'html'],
+    },
   },
 }));

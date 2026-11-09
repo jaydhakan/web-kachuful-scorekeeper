@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useApp } from '@/state/store';
+import { useApp } from '@/games/kachuful/state/store';
 import { SyncDot } from './SyncDot';
 import { t } from '@/strings';
 import { PRESS } from '@/components/ui/motion';

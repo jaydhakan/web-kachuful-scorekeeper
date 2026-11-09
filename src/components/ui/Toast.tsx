@@ -1,5 +1,5 @@
 import { AnimatePresence, m } from 'framer-motion';
-import type { Route, Toast as ToastData } from '@/state/types';
+import type { Route, Toast as ToastData } from '@/games/kachuful/state/types';
 import { SPRING } from './motion';
 import { t } from '@/strings';
 

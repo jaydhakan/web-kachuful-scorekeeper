@@ -1,6 +1,12 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { customRange, rangeFor, type Metric, type Range, type RangeKind } from '@/domain';
+import {
+  customRange,
+  rangeFor,
+  type Metric,
+  type Range,
+  type RangeKind,
+} from '@/games/kachuful/domain';
 import { shortDay } from '@/lib/dates';
 import { Icon } from './Icons';
 import { Sheet } from './Sheet';

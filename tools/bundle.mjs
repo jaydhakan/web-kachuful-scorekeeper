@@ -67,8 +67,8 @@ const closure = (from, seen = new Set()) => {
 const shell = (src) => chunks.find((c) => c.src.endsWith(src)).file;
 const base = closure(chunks.filter((c) => c.entry).map((c) => c.file));
 const loads = {
-  phone: closure([shell('/src/components/PhoneShell.tsx')], new Set(base)),
-  'large screen': closure([shell('/src/screens/desk/DeskShell.tsx')], new Set(base)),
+  phone: closure([shell('/src/games/kachuful/components/PhoneShell.tsx')], new Set(base)),
+  'large screen': closure([shell('/src/games/kachuful/screens/desk/DeskShell.tsx')], new Set(base)),
 };
 const jsBudget = { phone: budget.initialJsKb, 'large screen': budget.largeScreenJsKb };
 const eager = new Set(Object.values(loads).flatMap((l) => [...l]));

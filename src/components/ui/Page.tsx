@@ -1,6 +1,6 @@
 import { m } from 'framer-motion';
 import { useEffect, useId, useState, type ReactNode } from 'react';
-import { useApp } from '@/state/store';
+import { useApp } from '@/games/kachuful/state/store';
 import { AvatarFill, type Face } from './Avatar';
 import { Icon } from './Icons';
 import { IconButton } from './IconButton';

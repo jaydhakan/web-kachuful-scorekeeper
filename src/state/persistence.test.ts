@@ -1,7 +1,7 @@
-import { demoGame, standings, curRound, doneRounds } from '@/domain';
-import fixture from './__fixtures__/prototype-save.json';
+import { demoGame, standings, curRound, doneRounds } from '@/games/kachuful/domain';
+import fixture from '@/games/kachuful/state/__fixtures__/prototype-save.json';
 import { UUID_RE } from '@/lib/ids';
-import { CURRENT_SCHEMA, isGameShape, migrateGame } from './migrations';
+import { CURRENT_SCHEMA, isGameShape, migrateGame } from '@/games/kachuful/state/migrations';
 import {
   KEYS,
   loadInitial,

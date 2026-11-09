@@ -1,4 +1,4 @@
-import type { Trump } from '@/domain';
+import type { Trump } from '@/games/kachuful/domain';
 import { TR } from '@/theme/trumps';
 import { t } from '@/strings';
 import { TrumpMark } from './TrumpMark';
