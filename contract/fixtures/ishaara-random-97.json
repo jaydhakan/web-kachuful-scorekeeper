@@ -1145,6 +1145,7 @@
         "blank",
         "moon"
       ],
+      "next": null,
       "finishedAt": 1793540609516
     },
     "rows": [

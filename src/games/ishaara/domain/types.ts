@@ -87,6 +87,8 @@ export interface IshaaraPublic {
   winner: Team | null;
   endedBy: EndedBy | null;
   solution: Identity[] | null;
+  /** The rematch's id once the host starts one, so the clue phones follow the table into it. */
+  next: string | null;
 }
 
 export type Action =

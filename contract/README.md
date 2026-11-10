@@ -74,5 +74,8 @@ way. Unlike the other games the server runs Ishaara's rules, so each fixture is 
   step the state is what `applyAction` returned, including on an error (an overdue timer still ends the turn).
 - `expect.state` is the final public state, `expect.rows` the ishaara_game_players rows (null unless finished) and
   `expect.revealedCount` the server's `round_count`.
+- `ishaara-set-boards.json`: `{kind: 'ishaara-set', rows, expect}`: the board rows of the finished replays (seats
+  rotated per game) with `leaderboard` for each sort (`wins`, `rate`, `found`), every player's `tallies` and every
+  pair's `headToHead`. Averages are floats: compare with a tolerance.
 - Clue checks compare lower-cased NFC text; lengths count UTF-16 units in the app, which equal code points for every
   word the packs and a phone keyboard produce outside emoji (letters only are allowed, so emoji never pass).

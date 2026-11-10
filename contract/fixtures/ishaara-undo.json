@@ -376,7 +376,8 @@
       "status": "active",
       "winner": null,
       "endedBy": null,
-      "solution": null
+      "solution": null,
+      "next": null
     },
     "rows": null,
     "revealedCount": 1

@@ -72,6 +72,7 @@ export function newGame(g: NewGame): IshaaraPublic {
     winner: null,
     endedBy: null,
     solution: null,
+    next: null,
   };
 }
 

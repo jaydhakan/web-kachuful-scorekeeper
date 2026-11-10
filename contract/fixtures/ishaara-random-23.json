@@ -1522,6 +1522,7 @@
         "moon",
         "sun"
       ],
+      "next": null,
       "finishedAt": 1793541145386
     },
     "rows": [

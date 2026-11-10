@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { seeded, dealKey } from './deal';
 import { applyAction, join, newGame } from './rules';
 import { playerRows, revealedCount } from './stats';
+import { headToHead, ISHAARA_SORTS, leaderboard, tallies, type BoardRow } from './boards';
 import { PLAYERS, RULES, T0, WORDS, giver, plainKey } from './__fixtures__/kit';
 import type { Action, Actor, Identity, IshaaraPublic, IshaaraRules, Team } from './types';
 
@@ -276,4 +277,39 @@ describe('Ishaara golden fixtures', () => {
       expect(JSON.parse(readFileSync(file, 'utf8'))).toEqual(JSON.parse(text));
     });
   }
+});
+
+/** Boards over the finished replays above (abandoned excluded): every sort, every player's tally, every pair. */
+describe('Ishaara boards fixture', () => {
+  it('set-boards', () => {
+    const rows: BoardRow[] = SCENARIOS.map(replay).flatMap((f, i) =>
+      f.expect.rows && f.expect.state.endedBy !== 'abandoned'
+        ? f.expect.rows.map((r, j) => ({
+            ...r,
+            // Rotate seats per game so the boards differ by player.
+            playerId: PLAYERS[(j + i) % PLAYERS.length].playerId as string,
+            gameId: `${f.name}`,
+            finishedAt: f.expect.state.finishedAt as number,
+          }))
+        : [],
+    );
+    const ids = [...new Set(rows.map((r) => r.playerId))].sort();
+    const out = {
+      kind: 'ishaara-set',
+      rows,
+      expect: {
+        leaderboard: Object.fromEntries(
+          ISHAARA_SORTS.map((sort) => [sort, leaderboard(rows, sort)]),
+        ),
+        tallies: tallies(rows),
+        headToHead: ids.flatMap((a) =>
+          ids.filter((b) => b > a).map((b) => ({ a, b, ...headToHead(rows, a, b) })),
+        ),
+      },
+    };
+    const file = path.join(DIR, 'ishaara-set-boards.json');
+    const text = JSON.stringify(out, null, 2) + '\n';
+    if (process.env.EXPORT_FIXTURES) writeFileSync(file, text);
+    expect(JSON.parse(readFileSync(file, 'utf8'))).toEqual(JSON.parse(text));
+  });
 });

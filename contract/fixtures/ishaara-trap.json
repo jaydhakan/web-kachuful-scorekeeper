@@ -362,6 +362,7 @@
         "blank",
         "trap"
       ],
+      "next": null,
       "finishedAt": 1793539805000
     },
     "rows": [
