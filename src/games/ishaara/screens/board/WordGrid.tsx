@@ -17,10 +17,12 @@ export interface WordGridProps {
   /** Read-only (the win screen's key): plain cells, no buttons. */
   readOnly?: boolean;
   className?: string;
+  /** Extra props per card button (the desk's roving tab stop). */
+  cellProps?: (card: number) => { tabIndex: number; 'data-roving': string };
 }
 
 const CELL =
-  'relative flex min-h-11 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[14px] px-1 text-center font-bold uppercase leading-[1.1] tracking-[0.01em] [overflow-wrap:anywhere] @[26rem]:text-15 @[40rem]:text-18 @[40rem]:rounded-[18px] text-13';
+  'relative flex min-h-11 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[14px] px-1 text-center font-bold uppercase leading-[1.1] tracking-[0.01em] [overflow-wrap:anywhere] @[26rem]:text-15 @[40rem]:text-18 @[40rem]:rounded-[18px] @[48rem]:text-22 text-13';
 
 /**
  * The 5 × 5 board as real buttons ("RIVER, face down"), sized by its container so the phone, a phone on its side and
@@ -35,6 +37,7 @@ export function WordGrid({
   onPick,
   readOnly,
   className = '',
+  cellProps,
 }: WordGridProps) {
   const rm = useReducedMotion();
   return (
@@ -65,6 +68,7 @@ export function WordGrid({
           return (
             <li key={i} className="relative min-h-0 min-w-0">
               <m.button
+                {...cellProps?.(i)}
                 type="button"
                 // Turned cards stay in the grid as buttons, so the order reads the same, but they can't be picked.
                 aria-disabled={disabled || id !== null || undefined}
