@@ -223,6 +223,29 @@
   --soon-edge: rgba(255, 226, 236, 0.34);
 }
 
+/* ---------- Ishaara's clue phone: plain and dark in every theme, so its tokens sit outside the theme blocks ---------- */
+:root,
+[data-theme] {
+  --key-bg: #0f0f12;
+  --key-surface: #1b1b20;
+  --key-edge: #6a6a73;
+  --key-text: #eeebe6;
+  --key-text-2: #a6a4a1;
+  --key-cta: #ebe8e2;
+  --key-cta-ink: #121214;
+  --key-sun: #44300c;
+  --key-sun-ink: #f9c75e;
+  --key-moon: #222a80;
+  --key-moon-ink: #d0d3ff;
+  --key-blank: #2b2b31;
+  --key-blank-ink: #c9c7c4;
+  --key-blank-stripe: rgba(255, 255, 255, 0.08);
+  --key-trap: #000000;
+  --key-trap-ink: #ff927f;
+  --key-alert: #ff927f;
+  --key-ok: #8fdcaa;
+}
+
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */
 :root,
 [data-theme] {

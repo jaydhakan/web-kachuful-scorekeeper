@@ -15,6 +15,28 @@ const colors = Object.fromEntries(
   ]),
   // Tailwind accepts colour functions at runtime; its config types only list strings.
 ) as unknown as Record<string, string>;
+// Ishaara's clue phone looks the same in every theme (themes.css, its own block): `bg-key-sun`, `text-key-text-2`.
+const KEY_TOKENS = [
+  'bg',
+  'surface',
+  'edge',
+  'text',
+  'text-2',
+  'cta',
+  'cta-ink',
+  'sun',
+  'sun-ink',
+  'moon',
+  'moon-ink',
+  'blank',
+  'blank-ink',
+  'blank-stripe',
+  'trap',
+  'trap-ink',
+  'alert',
+  'ok',
+];
+const keyColors = Object.fromEntries(KEY_TOKENS.map((k) => [`key-${k}`, `var(--key-${k})`]));
 // 44 to 148 are the large-screen display sizes (design boards: page titles, bidder name, keys, the Home hero).
 const sizes = [
   13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 48, 52, 56, 64, 72,
@@ -37,7 +59,7 @@ export default {
     // Layouts are chosen by orientation and height as well as width, so every screen is a raw query.
     screens: Object.fromEntries(Object.entries(MQ).map(([k, raw]) => [k, { raw }])),
     extend: {
-      colors,
+      colors: { ...colors, ...keyColors },
       // rem, so browser and OS text-size settings scale type; 16px is 1rem, so nothing moves by default.
       fontSize: Object.fromEntries(sizes.map((s) => [s, `${s / 16}rem`])),
       // Each theme names its own faces (src/styles/themes.css); only the active theme's are downloaded.
