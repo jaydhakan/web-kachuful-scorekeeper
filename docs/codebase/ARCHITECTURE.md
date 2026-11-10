@@ -22,7 +22,8 @@ src/games/kaali-teeri/   the same layout for Kaali Teeri: domain/ (cards, auctio
 src/games/ishaara/   the word game the server runs: domain/ (rules engine applyAction, clue check, deal, validate,
                 stats, boards, packs/*.json; the backend mirrors it and the golden fixtures come from here), state/
                 (store.tsx nav, useTable / useClue over link.ts, lists, words), sync/ (endpoints, events), screens/
-                (setup/, Waiting, board/, Win, clue/, pages/, desk/), strings/
+                (setup/, Waiting, board/, Win, clue/, pages/; desk/ is the lazy large-screen
+                shell at `MQ.big`: the same board logic (`board/useBoard`) in a desk layout with arrow-key focus), strings/
 src/platform/   route.ts (the first path segment names the game; go(), useGame), catalog.ts (GAMES: name, status, lazy
                 root, peek() for the resume line), PlatformRoot (landing or the game, a load error with Retry), meta.ts
                 (each page's preview tags), landing/; pages/ holds the account, sign-in, admin and credits pages

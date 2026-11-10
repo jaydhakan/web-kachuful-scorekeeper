@@ -18,7 +18,7 @@ only finished Ishaara games). Ishaara links to sign-in at `/kachuful?open=signin
 
 Open: P7 (theme-aware tile art beyond the landing tiles, Kachuful OG redraw), P9 (bundle budgets: landing 152 KB and
 Kachuful phone 158 KB are over 145; the shared chunk holds Kachuful's store next to `persistence.ts` and the API
-client), P10 (renames), Ishaara in the manifest's shortcuts. nginx needs `location / { try_files $uri $uri/index.html
+client), P10 (renames). nginx needs `location / { try_files $uri $uri/index.html
 /index.html; }` before the deploy, and README → Hosting has the optional block for Ishaara's live events.
 
 ## 1. Goal
