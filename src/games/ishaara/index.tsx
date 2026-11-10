@@ -1,11 +1,16 @@
-import type { MouseEvent, ReactNode } from 'react';
+import { lazy, Suspense, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { go } from '@/platform/route';
+import { MQ } from '@/theme/breakpoints';
 import { signedInAs, useSession } from '@/sync/session';
 import IshaaraShell from './screens/IshaaraShell';
 import { IshaaraProvider, useIshaara } from './state/store';
 import { useOnline } from './state/useTable';
 import { shell } from './strings/shell';
+
+// Only tablets and desktops download the large-screen shell; the phone shell stays in the first load.
+const IshaaraDeskShell = lazy(() => import('./screens/desk/IshaaraDeskShell'));
 
 function Gate({ title, body, children }: { title: string; body: string; children: ReactNode }) {
   return (
@@ -29,6 +34,7 @@ function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
 
 function Root() {
   const { nav, actions } = useIshaara();
+  const big = useMediaQuery(MQ.big);
   const online = useOnline();
   // A game in progress handles a dropped connection itself (reconnecting), so only the hub is gated.
   if (!online && !nav.gameId && nav.screen !== 'history')
@@ -37,7 +43,13 @@ function Root() {
         <PrimaryButton onClick={() => actions.go('history')}>{shell.offline.history}</PrimaryButton>
       </Gate>
     );
-  return <IshaaraShell />;
+  return big ? (
+    <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
+      <IshaaraDeskShell />
+    </Suspense>
+  ) : (
+    <IshaaraShell />
+  );
 }
 
 /** Ishaara's lazy root: signed in and online only, since the server runs the game. */
