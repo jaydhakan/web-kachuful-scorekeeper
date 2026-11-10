@@ -8,7 +8,16 @@ const HEX = '#[0-9a-fA-F]{3,8}\\b';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'coverage', 'playwright-report', 'test-results', 'reports', 'dev-dist', '.claude', 'prototype'],
+    ignores: [
+      'dist',
+      'coverage',
+      'playwright-report',
+      'test-results',
+      'reports',
+      'dev-dist',
+      '.claude',
+      'prototype',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

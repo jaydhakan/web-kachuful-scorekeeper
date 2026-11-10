@@ -4,3 +4,7 @@ package-lock.json
 playwright-report
 test-results
 reports
+# Imported design kit and research, generated golden fixtures, and a saved reference page: not hand-formatted.
+references
+contract/fixtures
+credits-reference.html
