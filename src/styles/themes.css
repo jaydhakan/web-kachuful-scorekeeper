@@ -215,6 +215,8 @@
   --word-trap: #0b0b10;
   --word-trap-ink: #f6efe3;
   --word-edge: transparent;
+  /* The blank and trap stripes, the same in every theme (contrast.test.ts measures ink over them). */
+  --word-stripe: rgba(255, 255, 255, 0.16);
   /* The theme's accent, not gold: gold is for first place. */
   --kt-bid: var(--brand);
   --kt-bid-ink: var(--on-brand);

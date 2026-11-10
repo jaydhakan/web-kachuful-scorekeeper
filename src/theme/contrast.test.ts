@@ -82,8 +82,8 @@ const cases = THEME_IDS.flatMap((id) => {
     return over(`rgba(${r}, ${g}, ${b}, 0.1)`, on);
   };
   const soon = over(t['--soon-bg'], panel);
-  // Word cards' white stripes at their strongest (the round-2 kit's blank hatch), where ink is hardest to read.
-  const hatch = (k: string) => over('rgba(255, 255, 255, 0.16)', parse(t[k]));
+  // Word cards' stripes (--word-stripe) over the card, where ink is hardest to read.
+  const hatch = (k: string) => over(t['--word-stripe'], parse(t[k]));
   const pairs: [string, RGBA, RGBA, number][] = [
     ['text-1 on bg', fg('--text-1', bg), bg, 4.5],
     ['text-2 on bg', fg('--text-2', bg), bg, 4.5],
