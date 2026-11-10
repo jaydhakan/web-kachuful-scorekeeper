@@ -18,8 +18,11 @@ import {
   TEAM,
   type Team,
 } from './ishaara-helpers';
+import { freshBackend } from './backend';
 
-// Whole Ishaara games on the mock API: the table (Jay) and each clue phone in its own context.
+// Whole Ishaara games, the table (Jay) and each clue phone in its own context: on the mock API, or the real backend
+// with E2E_API=local (a fresh demo database per test).
+freshBackend();
 
 /** Seats a known player from the setup's Add player sheet. */
 async function seat(page: Page, name: string) {
@@ -146,13 +149,14 @@ test('rematch: the table deals the next game and Next game takes the clue phones
     await ishBtn(p, 'Next game').click();
     await ishBtn(p, 'Show key').click();
   }
+  // The game starts once both keys are open; the second may still be on its way.
+  await expect.poll(async () => (await stateOf(page, next)).status).toBe('active');
   const g = await stateOf(page, next);
   // The new game's board, and only it: the finished one is gone.
   await expect(page.getByRole('list', { name: 'Words', exact: true })).toHaveCount(1);
   await expect(
     page.getByRole('button', { name: `${g.words[0].toUpperCase()}, face down`, exact: true }),
   ).toBeVisible();
-  expect(g.status).toBe('active');
   // The team that went second starts the rematch.
   expect(g.turn).toBe(other(t));
   await boardWaitsFor(page, other(t), GIVER[other(t)]);

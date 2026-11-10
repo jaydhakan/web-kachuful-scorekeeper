@@ -32,7 +32,7 @@ Kachuful: guided seating, automatic dealer, trump and card-count rotation, the d
 
 **Accounts.** The backend's demo seed and the mock API have the same accounts: `admin@kachuful.test` / `admin-demo` (Jay, admin), `riya@kachuful.test` / `riya-demo`, `kabir@kachuful.test` / `kabir-demo`, and players Asha, Om, Neha, Dev, Zoya and Ishan (`<name>@kachuful.test`).
 
-**e2e against the backend.** `npm run test:e2e` uses the mock. `E2E_API=local npx playwright test` runs the online specs (accounts, sync, global, share, photos) against the local backend, serving the app on `localhost:5173`, resetting the demo data before each test, one test at a time. The backend's golden fixtures live in [`contract/`](contract/README.md).
+**e2e against the backend.** `npm run test:e2e` uses the mock. `E2E_API=local npx playwright test` runs the online specs (accounts, sync, global, share, photos, ishaara-play) against the local backend, serving the app on `localhost:5173`, resetting the demo data before each test, one test at a time. The backend's golden fixtures live in [`contract/`](contract/README.md).
 
 Lighthouse: `node tools/lighthouse.mjs`.
 

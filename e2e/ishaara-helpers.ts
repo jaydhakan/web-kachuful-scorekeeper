@@ -160,7 +160,8 @@ export async function createGame(page: Page, o: GameOpts = {}) {
   });
   const id = crypto.randomUUID();
   const r = await page.request.post('/api/ishaara/games', {
-    headers: { 'X-Kachuful': '1' },
+    // The real backend also checks Origin on writes, as the browser sends it.
+    headers: { 'X-Kachuful': '1', Origin: new URL(page.url()).origin },
     data: {
       id,
       players,
