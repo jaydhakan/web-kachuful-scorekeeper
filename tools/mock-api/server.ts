@@ -58,6 +58,7 @@ import {
   type KtGame,
 } from '../../src/games/kaali-teeri/domain/index';
 import type { KtGameSummary } from '../../src/games/kaali-teeri/sync/types';
+import { ishaaraRoutes, resetIshaara } from './ishaara';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -266,6 +267,7 @@ export function seed(now = Date.now()) {
       feed({ kind: 'game_finished', game: sum, player: null, data: {}, createdAt: sum.endedAt });
   }
   db.activity.sort((a, b) => b.createdAt - a.createdAt);
+  resetIshaara(now);
 }
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
@@ -1934,6 +1936,23 @@ function raw(res: ServerResponse, type: string, body: string) {
   res.end(body);
   return RAW;
 }
+
+ishaaraRoutes({
+  on,
+  err,
+  STREAM,
+  RAW,
+  players: () => [...db.players.values()],
+  summaryOf: (id) => summaryOf(id),
+  userName,
+  page,
+  inPeriod: (period, t) => {
+    if (!['today', 'week', 'season', 'all'].includes(period)) return null;
+    const span = ktPeriod(period);
+    const d = dayOf(t, TZ);
+    return !span || (d >= span[0] && d < span[1]);
+  },
+});
 
 /** Connect-style middleware for Vite's dev and preview servers. */
 export function mockApi(req: IncomingMessage, res: ServerResponse, next: () => void) {
