@@ -3,6 +3,7 @@ import type { Identity } from '@/games/ishaara/domain';
 import { table as s } from '@/games/ishaara/strings/table';
 import { SPRING_POP } from '@/components/ui/motion';
 import { FACE, Mark } from './marks';
+import { FitWord } from './FitWord';
 
 export interface WordGridProps {
   words: string[];
@@ -22,7 +23,7 @@ export interface WordGridProps {
 }
 
 const CELL =
-  'relative flex min-h-11 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[14px] px-1 text-center font-bold uppercase leading-[1.1] tracking-[0.01em] [overflow-wrap:anywhere] @[26rem]:text-15 @[40rem]:text-18 @[40rem]:rounded-[18px] @[48rem]:text-22 text-13';
+  'relative flex min-h-11 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[14px] px-1 text-center font-bold uppercase leading-[1.1] tracking-[0.01em] @[26rem]:text-15 @[40rem]:text-18 @[40rem]:rounded-[18px] @[48rem]:text-22 text-13';
 
 /**
  * The 5 × 5 board as real buttons ("RIVER, face down"), sized by its container so the phone, a phone on its side and
@@ -53,7 +54,7 @@ export function WordGrid({
           const face = (
             <>
               {id && <Mark id={id} className="h-3.5 w-3.5 @[40rem]:h-5 @[40rem]:w-5" />}
-              <span>{word}</span>
+              <FitWord>{word}</FitWord>
             </>
           );
           if (readOnly)
