@@ -44,7 +44,8 @@ export const table = {
     you: (name: string) => `${name} (you)`,
     clueGiver: 'Clue-giver',
     guesser: 'Guesser',
-    move: (name: string, to: Team) => `${name}, move to ${TEAM[to]}`,
+    // Starts with what the row shows (name, then role), so the spoken name matches the visible one.
+    move: (name: string, role: string, to: Team) => `${name} ${role}, move to ${TEAM[to]}`,
     clueGiverOf: (team: Team) => `${TEAM[team]}’s clue-giver`,
     makeClueGiver: (name: string) => `${name} gives the clues`,
     noAccount: 'Not signed in · can guess, can’t give clues',

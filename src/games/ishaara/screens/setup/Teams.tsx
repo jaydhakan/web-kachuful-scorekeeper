@@ -31,13 +31,14 @@ function Row({
   onPick: () => void;
 }) {
   const name = me ? su.you(p.name) : p.name;
+  const role = p.role === 'clue-giver' ? su.clueGiver : su.guesser;
   return (
     <li className="flex min-h-16 items-center gap-1 pr-1">
       <m.button
         type="button"
         whileTap={PRESS}
         onClick={onMove}
-        aria-label={su.move(name, p.team === 'sun' ? 'moon' : 'sun')}
+        aria-label={su.move(name, role, p.team === 'sun' ? 'moon' : 'sun')}
         className="flex min-h-14 min-w-0 flex-1 items-center gap-2.5 rounded-2xl py-1.5 pl-3 text-left"
       >
         <Avatar p={p} className="h-10 w-10 shrink-0 text-20" />
@@ -45,9 +46,7 @@ function Row({
           <span className="block text-17 font-bold leading-tight [overflow-wrap:anywhere]">
             {name}
           </span>
-          <span className="block text-15 leading-tight text-[var(--tx2)]">
-            {p.role === 'clue-giver' ? su.clueGiver : su.guesser}
-          </span>
+          <span className="block text-15 leading-tight text-[var(--tx2)]">{role}</span>
         </span>
       </m.button>
       <label className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center">

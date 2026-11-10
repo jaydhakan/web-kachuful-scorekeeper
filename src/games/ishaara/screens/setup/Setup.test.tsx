@@ -88,15 +88,15 @@ describe('Ishaara setup', () => {
     expect(next()).toBeDisabled();
     expect(screen.getByText('Each team needs at least 2 players.')).toBeInTheDocument();
     // Dev moves to Moon and, as Moon's only signed-in player, becomes its clue-giver (Meera has no account).
-    fireEvent.click(screen.getByRole('button', { name: 'Dev, move to Moon' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Dev Guesser, move to Moon' }));
     expect(screen.getByRole('radio', { name: 'Dev gives the clues' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Meera gives the clues' })).toBeDisabled();
     expect(next()).toBeEnabled();
     // Picking Riya hands Sun's clues over; moving Dev back leaves Moon without anyone signed in.
     fireEvent.click(screen.getByRole('radio', { name: 'Riya gives the clues' }));
     expect(screen.getByRole('radio', { name: 'Jay gives the clues' })).not.toBeChecked();
-    fireEvent.click(screen.getByRole('button', { name: 'Dev, move to Sun' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Jay (you), move to Moon' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Dev Clue-giver, move to Sun' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Jay (you) Guesser, move to Moon' }));
     expect(next()).toBeEnabled();
     expect(screen.getByRole('radio', { name: 'Jay gives the clues' })).toBeChecked();
   });
