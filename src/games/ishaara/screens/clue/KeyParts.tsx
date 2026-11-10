@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Identity, Team } from '@/games/ishaara/domain';
 import { clue } from '@/games/ishaara/strings/clue';
+import { FitWord } from '../board/FitWord';
 
 const svg = (d: ReactNode, className: string) => (
   <svg viewBox="0 0 16 16" aria-hidden className={`inline-block shrink-0 ${className}`}>
@@ -95,8 +96,8 @@ export function KeyGrid({ words, keyIds, revealed, pickable, selected, onPick }:
         const body = (
           <>
             <Mark id={id} />
-            <span className="w-full text-13 font-bold uppercase leading-tight [overflow-wrap:anywhere]">
-              {w}
+            <span className="w-full text-13 font-bold uppercase leading-tight">
+              <FitWord>{w}</FitWord>
             </span>
           </>
         );

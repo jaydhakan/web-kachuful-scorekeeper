@@ -11,7 +11,8 @@ export function FitWord({ children }: { children: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   useLayoutEffect(() => {
     const el = ref.current;
-    const box = el?.closest('li');
+    // The card: a grid cell, or the word's wrapper's box outside a grid.
+    const box = el?.closest('li') ?? el?.parentElement?.parentElement;
     if (!el || !box) return;
     const fit = () => {
       const room = box.clientWidth - 8;

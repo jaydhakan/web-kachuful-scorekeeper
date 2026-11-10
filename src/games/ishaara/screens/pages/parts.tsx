@@ -4,6 +4,7 @@ import type { IshaaraSummaryOut } from '@/games/ishaara/sync/types';
 import { ipg } from '@/games/ishaara/strings/pages';
 import { PageFrame, type PageProps } from '@/components/ui/PageParts';
 import type { Face } from '@/components/ui/Avatar';
+import { FitWord } from '../board/FitWord';
 
 /** A player as the pages draw them: a registry id with a face and a name. */
 export interface Who extends Face {
@@ -102,8 +103,8 @@ export function WordCard({
       className={`flex flex-col items-center justify-center gap-1 rounded-xl px-1 text-center ${small ? 'min-h-12 py-1.5' : 'min-h-[3.75rem] py-2'} ${picked ? CARD_FACE[id] : `bg-word-card text-word-card-ink ${RING[id]}`}`}
     >
       <Mark id={id} className="h-3.5 w-3.5" />
-      <span className="max-w-full text-13 font-bold uppercase leading-tight tracking-[0.02em] [overflow-wrap:anywhere]">
-        {word}
+      <span className="max-w-full text-13 font-bold uppercase leading-tight tracking-[0.02em]">
+        <FitWord>{word}</FitWord>
       </span>
     </div>
   );
