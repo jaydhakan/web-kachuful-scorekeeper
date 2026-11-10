@@ -42,6 +42,8 @@ export interface IshaaraGameRec {
   updatedAt: number;
   endedAt: number;
   hostName?: string | null;
+  /** Whether this account hosted it (from the server's `me`), so only the host sees Delete offline too. */
+  host?: boolean;
 }
 
 export interface PlayerRec {
@@ -482,10 +484,15 @@ export function forgetEmptyKt(syncId: string): boolean {
 }
 
 /** Keeps a finished Ishaara game for History offline; an unfinished one is never stored (its state is live). */
-export function archiveIshaaraGame(g: IshaaraPublic, hostName?: string | null) {
+export function archiveIshaaraGame(g: IshaaraPublic, hostName?: string | null, host?: boolean) {
   if (g.status !== 'finished' || !g.solution) return;
   const prev = archive.get('ishaaraGames', g.id);
-  if (prev && prev.game.rev === g.rev && (hostName === undefined || prev.hostName === hostName))
+  if (
+    prev &&
+    prev.game.rev === g.rev &&
+    (hostName === undefined || prev.hostName === hostName) &&
+    (host === undefined || prev.host === host)
+  )
     return;
   archive.put('ishaaraGames', {
     syncId: g.id,
@@ -493,5 +500,6 @@ export function archiveIshaaraGame(g: IshaaraPublic, hostName?: string | null) {
     updatedAt: g.updatedAt,
     endedAt: g.finishedAt ?? g.updatedAt,
     hostName: hostName ?? prev?.hostName ?? null,
+    host: host ?? prev?.host,
   });
 }

@@ -118,6 +118,8 @@ export function useIshaaraHistory(status?: 'active' | 'finished'): IshaaraHistor
 
 export interface FinishedGame {
   game: IshaaraPublic | null;
+  /** This account hosted the game (the server's `me.host`); null when the device's copy never learnt it. */
+  host: boolean | null;
   loading: boolean;
   error: ApiError | null;
 }
@@ -128,28 +130,29 @@ export interface FinishedGame {
  */
 export function useIshaaraGame(id: string | null): FinishedGame {
   const kept = id ? archive.get('ishaaraGames', id) : undefined;
-  const [s, setS] = useState<FinishedGame>({ game: null, loading: false, error: null });
+  const [s, setS] = useState<FinishedGame>({ game: null, host: null, loading: false, error: null });
   useEffect(() => {
     if (!id || archive.get('ishaaraGames', id)) return;
     let live = true;
-    setS({ game: null, loading: true, error: null });
+    setS({ game: null, host: null, loading: true, error: null });
     ishEp.game(id).then(
       (r) => {
         if (!live) return;
-        archiveIshaaraGame(r.game);
-        setS({ game: r.game, loading: false, error: null });
+        archiveIshaaraGame(r.game, undefined, r.me.host);
+        setS({ game: r.game, host: r.me.host, loading: false, error: null });
       },
       (e: unknown) =>
         live &&
         setS({
           game: null,
+          host: null,
           loading: false,
           error: e instanceof ApiError ? e : new ApiError(0, 'offline'),
         }),
     );
     return () => void (live = false);
   }, [id]);
-  return kept ? { game: kept.game, loading: false, error: null } : s;
+  return kept ? { game: kept.game, host: kept.host ?? null, loading: false, error: null } : s;
 }
 
 /** Deletes a game (host or admin) and forgets this device's copy. */

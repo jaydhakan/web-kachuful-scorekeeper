@@ -152,7 +152,8 @@ export class GameLink {
     if (!cur || out.game.rev >= cur.rev) p.game = out.game;
     if (this.s.status !== 'gone') p.status = p.game || cur ? 'ready' : this.s.status;
     this.set(p);
-    if (p.game?.status === 'finished') archiveIshaaraGame(p.game);
+    if (p.game?.status === 'finished')
+      archiveIshaaraGame(p.game, undefined, (out.me ?? this.s.me)?.host);
   }
 
   /** Sends one action with a fresh actionId and the rev shown; refused while busy or not live. */

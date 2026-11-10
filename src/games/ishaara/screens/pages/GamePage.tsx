@@ -5,7 +5,6 @@ import { deleteIshaaraGame, useIshaaraGame } from '@/games/ishaara/state/lists';
 import type { IshaaraSummaryOut } from '@/games/ishaara/sync/types';
 import { ipg } from '@/games/ishaara/strings/pages';
 import { authError } from '@/platform/pages/AuthPages';
-import { archive } from '@/state/archive';
 import { ApiError } from '@/sync/api';
 import { signedInAs, useSession } from '@/sync/session';
 import { dayLabel, timeLabel } from '@/lib/dates';
@@ -21,30 +20,14 @@ const gt = ipg.game;
 const TEAMS: readonly Team[] = ['sun', 'moon'];
 
 /** One finished game: how it ended, the teams, the whole key and the clue log. Opened from History. */
-export function GamePage({ id, summary }: { id: string; summary?: IshaaraSummaryOut }) {
+export function GamePage({ id }: { id: string; summary?: IshaaraSummaryOut }) {
   const [attempt, setAttempt] = useState(0);
-  return (
-    <GameLoad key={attempt} id={id} summary={summary} retry={() => setAttempt((n) => n + 1)} />
-  );
+  return <GameLoad key={attempt} id={id} retry={() => setAttempt((n) => n + 1)} />;
 }
 
-function GameLoad({
-  id,
-  summary,
-  retry,
-}: {
-  id: string;
-  summary?: IshaaraSummaryOut;
-  retry: () => void;
-}) {
-  const { game, loading, error } = useIshaaraGame(id);
-  if (game && game.status === 'finished' && game.solution)
-    return (
-      <GameBody
-        g={game}
-        hostName={summary?.host.name ?? archive.get('ishaaraGames', id)?.hostName ?? null}
-      />
-    );
+function GameLoad({ id, retry }: { id: string; retry: () => void }) {
+  const { game, host, loading, error } = useIshaaraGame(id);
+  if (game && game.status === 'finished' && game.solution) return <GameBody g={game} host={host} />;
   return (
     <IshPage title={gt.title}>
       {loading || (!game && !error) ? (
@@ -60,16 +43,14 @@ function GameLoad({
   );
 }
 
-function GameBody({ g, hostName }: { g: IshaaraPublic; hostName: string | null }) {
+function GameBody({ g, host }: { g: IshaaraPublic; host: boolean | null }) {
   const { open, back } = useHubNav();
   const session = signedInAs(useSession());
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
-  // The list gives only the host's name; the server has the final say and answers 403 to anyone else.
-  const canDelete =
-    !!session &&
-    (session.user.role === 'admin' || (!!hostName && session.player?.displayName === hostName));
+  // `host` comes from the server's answer for this account; the server still has the final say (403).
+  const canDelete = !!session && (session.user.role === 'admin' || host === true);
   const at = g.finishedAt ?? g.updatedAt;
   const line = ipg.outcome(g.winner, g.endedBy);
   const multi = g.rules.bestOf > 1;

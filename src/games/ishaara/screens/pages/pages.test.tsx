@@ -153,7 +153,7 @@ const BOARD: IshaaraLeaderboardOut = {
 
 beforeEach(() => {
   h.history.mockReturnValue(hist());
-  h.game.mockReturnValue({ game: null, loading: true, error: null });
+  h.game.mockReturnValue({ game: null, host: null, loading: true, error: null });
   h.board.mockReturnValue(remote());
   h.stats.mockReturnValue(remote());
   h.vs.mockReturnValue(remote());
@@ -232,7 +232,7 @@ describe('History', () => {
   it('opens a game and comes back; Back at the bottom leaves the hub', () => {
     const onBack = vi.fn();
     h.history.mockReturnValue(hist({ items: [summary()] }));
-    h.game.mockReturnValue({ game: finished, loading: false, error: null });
+    h.game.mockReturnValue({ game: finished, host: null, loading: false, error: null });
     hub('history', onBack);
     fireEvent.click(screen.getByRole('button', { name: /Moon won/ }));
     expect(screen.getByRole('list', { name: 'The key' })).toBeInTheDocument();
@@ -255,19 +255,29 @@ describe('a game', () => {
     open();
     expect(await screen.findByLabelText('Loading')).toBeInTheDocument();
     cleanupAnd(() => {
-      h.game.mockReturnValue({ game: null, loading: false, error: new ApiError(500, 'server') });
+      h.game.mockReturnValue({
+        game: null,
+        host: null,
+        loading: false,
+        error: new ApiError(500, 'server'),
+      });
       open();
       expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
     });
     cleanupAnd(() => {
-      h.game.mockReturnValue({ game: null, loading: false, error: new ApiError(404, 'not_found') });
+      h.game.mockReturnValue({
+        game: null,
+        host: null,
+        loading: false,
+        error: new ApiError(404, 'not_found'),
+      });
       open();
       expect(screen.getByRole('heading', { name: 'Game not found' })).toBeInTheDocument();
     });
   });
 
   it('shows the whole key with identities and which were picked', () => {
-    h.game.mockReturnValue({ game: finished, loading: false, error: null });
+    h.game.mockReturnValue({ game: finished, host: null, loading: false, error: null });
     open();
     const key = screen.getByRole('list', { name: 'The key' });
     expect(within(key).getAllByRole('img')).toHaveLength(25);
@@ -283,7 +293,7 @@ describe('a game', () => {
       player: null,
     });
     h.del.mockResolvedValue(undefined);
-    h.game.mockReturnValue({ game: finished, loading: false, error: null });
+    h.game.mockReturnValue({ game: finished, host: null, loading: false, error: null });
     open();
     fireEvent.click(screen.getByRole('button', { name: 'Delete game' }));
     fireEvent.click(
@@ -299,10 +309,11 @@ describe('a game', () => {
       user: { id: 'u2', email: 'd@b.c', role: 'member', playerId: dev.playerId! },
       player: { id: dev.playerId!, displayName: 'Dev', emoji: '🙂', color: '#fff' },
     });
-    h.game.mockReturnValue({ game: finished, loading: false, error: null });
+    h.game.mockReturnValue({ game: finished, host: false, loading: false, error: null });
     open();
     expect(screen.queryByRole('button', { name: 'Delete game' })).not.toBeInTheDocument();
     cleanupAnd(() => {
+      h.game.mockReturnValue({ game: finished, host: true, loading: false, error: null });
       setSession({
         user: { id: 'u3', email: 'r@b.c', role: 'member', playerId: riya.playerId! },
         player: { id: riya.playerId!, displayName: 'Riya', emoji: '🙂', color: '#fff' },
@@ -319,7 +330,7 @@ describe('a game', () => {
   });
 
   it('opens a seated player’s stats', () => {
-    h.game.mockReturnValue({ game: finished, loading: false, error: null });
+    h.game.mockReturnValue({ game: finished, host: null, loading: false, error: null });
     h.stats.mockReturnValue(remote({ data: tallyOf() }));
     open();
     fireEvent.click(screen.getByRole('button', { name: `${arjun.name}’s stats` }));
