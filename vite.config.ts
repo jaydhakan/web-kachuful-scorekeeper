@@ -259,7 +259,7 @@ export default defineConfig(({ mode }) => ({
           },
         ],
         // One installed app; each live game is a long-press shortcut into its own path.
-        shortcuts: GAME_IDS.filter((id) => id !== 'ishaara').map((id) => ({
+        shortcuts: GAME_IDS.map((id) => ({
           name: platform.games[id].name,
           url: `/${id}`,
           icons: [{ src: `games/${id}/icon-96.png`, sizes: '96x96', type: 'image/png' }],
