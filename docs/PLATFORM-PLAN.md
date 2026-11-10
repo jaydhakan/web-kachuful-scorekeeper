@@ -2,8 +2,7 @@
 
 **Status:** final, for approval · **Date:** 2026-11-09 · **Working doc:** delete when the work ships, never commit.
 
-Both game plans ([KAALI-TEERI-PLAN.md](KAALI-TEERI-PLAN.md), [ISHAARA-PLAN.md](ISHAARA-PLAN.md)) build on this, so this
-goes first, whichever game we start with.
+Both game plans (Kaali Teeri's and Ishaara's, deleted once each game was built in both repos) built on this.
 
 ## 0. Build status (2026-11-10)
 
