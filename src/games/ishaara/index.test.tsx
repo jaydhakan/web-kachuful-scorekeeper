@@ -19,13 +19,14 @@ describe('Ishaara’s gates', () => {
     );
   });
 
-  it('offline, it says it needs a connection and still opens History', () => {
+  it('offline, it says it needs a connection and still opens History', async () => {
     signIn();
     setOnline(false);
     render(<Ishaara />);
     expect(screen.getByRole('heading', { name: 'Ishaara needs a connection' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
-    expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument();
+    // History is its own lazy chunk.
+    expect(await screen.findByRole('heading', { name: 'History' })).toBeInTheDocument();
   });
 
   it('signed in and online, it opens the game', () => {
