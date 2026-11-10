@@ -1,5 +1,6 @@
 import { doneRounds, type Game } from '@/games/kachuful/domain';
 import type { KtGame } from '@/games/kaali-teeri/domain';
+import type { IshaaraPublic } from '@/games/ishaara/domain/types';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,
@@ -32,6 +33,16 @@ export interface GameRecOf<G> {
 
 export type GameRec = GameRecOf<Game>;
 export type KtGameRec = GameRecOf<KtGame>;
+
+/** A finished Ishaara game, read-only: the server ran it, so this copy is only for reading History offline. */
+export interface IshaaraGameRec {
+  /** The game's id. */
+  syncId: string;
+  game: IshaaraPublic;
+  updatedAt: number;
+  endedAt: number;
+  hostName?: string | null;
+}
 
 export interface PlayerRec {
   id: string;
@@ -109,6 +120,7 @@ interface Stores {
   cache: CacheRec;
   inbox: InboxItem;
   ktGames: KtGameRec;
+  ishaaraGames: IshaaraGameRec;
 }
 type StoreName = keyof Stores;
 
@@ -119,6 +131,7 @@ const KEY_PATH: { [K in StoreName]: keyof Stores[K] & string } = {
   cache: 'key',
   inbox: 'id',
   ktGames: 'syncId',
+  ishaaraGames: 'syncId',
 };
 const STORES = Object.keys(KEY_PATH) as StoreName[];
 
@@ -132,17 +145,25 @@ export interface Backend {
 
 /** Nothing outlives the page: tests, and browsers without IndexedDB (or with it blocked). */
 export const memoryBackend = (): Backend => ({
-  load: async () => ({ games: [], players: [], outbox: [], cache: [], inbox: [], ktGames: [] }),
+  load: async () => ({
+    games: [],
+    players: [],
+    outbox: [],
+    cache: [],
+    inbox: [],
+    ktGames: [],
+    ishaaraGames: [],
+  }),
   put: async () => {},
   del: async () => {},
   clear: async () => {},
 });
 
 const DB = 'kachuful';
-/** 2 added `ktGames`. Bump it with every new store; existing stores and their rows are never touched. */
-export const DB_VERSION = 2;
+/** 2 added `ktGames`, 3 `ishaaraGames`. Bump it with every new store; existing stores and rows are never touched. */
+export const DB_VERSION = 3;
 /** Every game's store, each listed by when it ended and when it changed. */
-const GAME_STORES: readonly StoreName[] = ['games', 'ktGames'];
+const GAME_STORES: readonly StoreName[] = ['games', 'ktGames', 'ishaaraGames'];
 
 /** What an upgrade needs of the database, so it can be tested without a browser. */
 export interface UpgradeDb {
@@ -223,6 +244,7 @@ export class Archive {
     cache: new Map(),
     inbox: new Map(),
     ktGames: new Map(),
+    ishaaraGames: new Map(),
   };
   private listeners = new Set<Listener>();
   private errorListeners = new Set<(e: WriteError) => void>();
@@ -322,6 +344,10 @@ export class Archive {
   /** Every Kaali Teeri game this device knows, newest first, without deleted ones. */
   ktGames(): KtGameRec[] {
     return this.listed('ktGames');
+  }
+  /** Finished Ishaara games kept for History offline, newest first. */
+  ishaaraGames(): IshaaraGameRec[] {
+    return this.all('ishaaraGames').sort((a, b) => b.endedAt - a.endedAt);
   }
   private listed<K extends 'games' | 'ktGames'>(s: K): Stores[K][] {
     return this.all(s)
@@ -453,4 +479,19 @@ export function forgetEmptyKt(syncId: string): boolean {
     createdAt: Date.now(),
   });
   return true;
+}
+
+/** Keeps a finished Ishaara game for History offline; an unfinished one is never stored (its state is live). */
+export function archiveIshaaraGame(g: IshaaraPublic, hostName?: string | null) {
+  if (g.status !== 'finished' || !g.solution) return;
+  const prev = archive.get('ishaaraGames', g.id);
+  if (prev && prev.game.rev === g.rev && (hostName === undefined || prev.hostName === hostName))
+    return;
+  archive.put('ishaaraGames', {
+    syncId: g.id,
+    game: g,
+    updatedAt: g.updatedAt,
+    endedAt: g.finishedAt ?? g.updatedAt,
+    hostName: hostName ?? prev?.hostName ?? null,
+  });
 }

@@ -28,6 +28,8 @@ export async function signOutDevice(remove: boolean) {
       .filter((g) => g.origin === 'remote' || g.syncedRev === g.game.rev)
       .map((g) => g.syncId);
     archive.del('ktGames', ...ktRemote);
+    // Ishaara runs on the server, so every copy here is the server's.
+    archive.clear('ishaaraGames');
   }
   // Server players used by games kept here become this device's own again.
   archive.put(

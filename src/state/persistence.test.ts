@@ -10,7 +10,13 @@ import {
   saveGame,
   storage,
   pushRecentNames,
+  loadIshLastSetup,
+  saveIshLastSetup,
+  loadRecentWords,
+  pushRecentWords,
+  RECENT_WORDS_MAX,
 } from './persistence';
+import { PLAYERS, RULES } from '@/games/ishaara/domain/__fixtures__/kit';
 
 const parsed = (s: string) => parseSnapshot(s)!;
 
@@ -248,5 +254,44 @@ describe('recent names', () => {
     expect(storage.get<string[]>(KEYS.recentNames, [])).toEqual(['Zed', 'dev', 'Riya']);
     pushRecentNames(Array.from({ length: 25 }, (_, i) => 'n' + i));
     expect(storage.get<string[]>(KEYS.recentNames, [])).toHaveLength(20);
+  });
+});
+
+describe('Ishaara keys', () => {
+  it('saves the last setup under ishaara.lastSetup and drops seats it cannot read', () => {
+    expect(KEYS.ishLastSetup).toBe('ishaara.lastSetup');
+    expect(loadIshLastSetup()).toBeNull();
+    const setup = {
+      players: PLAYERS,
+      packs: ['desi'],
+      customWords: ['Bhindi'],
+      rules: RULES,
+      at: 5,
+    };
+    saveIshLastSetup(setup);
+    expect(JSON.parse(localStorage.getItem('ishaara.lastSetup')!)).toEqual(setup);
+    expect(loadIshLastSetup()).toEqual(setup);
+    seed({
+      'ishaara.lastSetup': {
+        ...setup,
+        players: [...PLAYERS, { name: 'x', team: 'mars' }],
+        packs: 3,
+      },
+    });
+    expect(loadIshLastSetup()).toMatchObject({ players: PLAYERS, packs: [] });
+    seed({ 'ishaara.lastSetup': 'junk' });
+    expect(loadIshLastSetup()).toBeNull();
+  });
+
+  it('keeps recent words newest first, without repeats, capped', () => {
+    expect(KEYS.ishRecentWords).toBe('ishaara.recentWords');
+    pushRecentWords(['river', 'kite']);
+    pushRecentWords(['Kite', 'mango']);
+    expect(loadRecentWords()).toEqual(['Kite', 'mango', 'river']);
+    pushRecentWords(Array.from({ length: 250 }, (_, i) => `w${i}`));
+    expect(loadRecentWords()).toHaveLength(RECENT_WORDS_MAX);
+    expect(loadRecentWords()[0]).toBe('w0');
+    seed({ 'ishaara.recentWords': [1, 2] });
+    expect(loadRecentWords()).toEqual([]);
   });
 });

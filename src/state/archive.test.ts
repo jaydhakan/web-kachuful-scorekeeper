@@ -1,9 +1,12 @@
 import { demoGame, type Game } from '@/games/kachuful/domain';
 import type { KtGame } from '@/games/kaali-teeri/domain';
 import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
+import { newGame, type IshaaraPublic } from '@/games/ishaara/domain';
+import { PLAYERS, RULES, WORDS } from '@/games/ishaara/domain/__fixtures__/kit';
 import {
   archive,
   archiveGame,
+  archiveIshaaraGame,
   archiveKtGame,
   Archive,
   DB_VERSION,
@@ -27,9 +30,12 @@ function diskBackend(fail = false): Backend & { rows: Record<string, Map<string,
     cache: new Map(),
     inbox: new Map(),
     ktGames: new Map(),
+    ishaaraGames: new Map(),
   };
   const key = (s: string, r: Record<string, unknown>) =>
-    String(r[{ games: 'syncId', ktGames: 'syncId', cache: 'key' }[s] ?? 'id']);
+    String(
+      r[{ games: 'syncId', ktGames: 'syncId', ishaaraGames: 'syncId', cache: 'key' }[s] ?? 'id'],
+    );
   return {
     rows,
     load: async () =>
@@ -251,6 +257,46 @@ describe('Kaali Teeri games', () => {
   });
 });
 
+describe('Ishaara history copies', () => {
+  const finished = (over: Partial<IshaaraPublic> = {}): IshaaraPublic => {
+    const g = newGame({
+      id: 'ish-1',
+      players: PLAYERS,
+      words: WORDS,
+      rules: RULES,
+      starting: 'sun',
+      now: 5,
+    });
+    return {
+      ...g,
+      status: 'finished',
+      winner: 'sun',
+      endedBy: 'resign',
+      finishedAt: 9,
+      solution: [],
+      ...over,
+    };
+  };
+
+  it('keeps only finished games, newest first, and survives a reload', async () => {
+    const disk = diskBackend();
+    resetArchive(disk);
+    await archive.ready;
+    archiveIshaaraGame({ ...finished(), status: 'active', solution: null });
+    expect(archive.ishaaraGames()).toHaveLength(0);
+    archiveIshaaraGame(finished(), 'Jay');
+    archiveIshaaraGame(finished({ id: 'ish-2', finishedAt: 20 }));
+    expect(archive.ishaaraGames().map((r) => [r.syncId, r.endedAt])).toEqual([
+      ['ish-2', 20],
+      ['ish-1', 9],
+    ]);
+    await archive.flush();
+    const b = new Archive(disk);
+    await b.ready;
+    expect(b.get('ishaaraGames', 'ish-1')).toMatchObject({ hostName: 'Jay', endedAt: 9 });
+  });
+});
+
 describe('database upgrade', () => {
   /** A database as an older version left it: stores holding rows, which an upgrade must not touch. */
   function oldDb(stores: string[]) {
@@ -271,14 +317,25 @@ describe('database upgrade', () => {
   }
   const V1 = ['games', 'players', 'outbox', 'cache', 'inbox'];
 
-  it("version 1 to 2 adds only ktGames, with the games store's indexes, and keeps every row", () => {
-    expect(DB_VERSION).toBe(2);
+  it("version 1 to 3 adds ktGames and ishaaraGames, with the games store's indexes, and keeps every row", () => {
+    expect(DB_VERSION).toBe(3);
     const d = oldDb(V1);
     upgradeDb(d);
     expect(d.made).toEqual([
       { name: 'ktGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
+      { name: 'ishaaraGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
     ]);
     for (const s of V1) expect(d.rows.get(s)).toEqual(['row']);
+  });
+
+  it('version 2 to 3 adds only ishaaraGames and keeps every row', () => {
+    const V2 = [...V1, 'ktGames'];
+    const d = oldDb(V2);
+    upgradeDb(d);
+    expect(d.made).toEqual([
+      { name: 'ishaaraGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
+    ]);
+    for (const s of V2) expect(d.rows.get(s)).toEqual(['row']);
   });
 
   it('a new database gets every store', () => {
@@ -291,6 +348,7 @@ describe('database upgrade', () => {
       ['cache', 'key', 0],
       ['inbox', 'id', 0],
       ['ktGames', 'syncId', 2],
+      ['ishaaraGames', 'syncId', 2],
     ]);
   });
 
@@ -313,12 +371,13 @@ describe('database upgrade', () => {
       },
     } as unknown as IDBFactory;
     const loaded = await idbBackend(idb).load();
-    expect(asked).toEqual(['kachuful', 2]);
-    expect(d.made.map((m) => m.name)).toEqual(['ktGames']);
+    expect(asked).toEqual(['kachuful', 3]);
+    expect(d.made.map((m) => m.name)).toEqual(['ktGames', 'ishaaraGames']);
     expect(Object.keys(loaded).sort()).toEqual([
       'cache',
       'games',
       'inbox',
+      'ishaaraGames',
       'ktGames',
       'outbox',
       'players',
