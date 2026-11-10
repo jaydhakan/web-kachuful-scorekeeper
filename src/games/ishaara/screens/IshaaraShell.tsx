@@ -1,5 +1,14 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import { tableScreen, useIshaara } from '@/games/ishaara/state/store';
 import { useTable } from '@/games/ishaara/state/useTable';
 import { table as s } from '@/games/ishaara/strings/table';
@@ -9,6 +18,7 @@ import { ErrorState, EmptyState } from '@/components/ui/PageParts';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
+import type { BoardProps } from './board/Board';
 import Home, { type HubLink } from './Home';
 
 // Never the first screen, so out of the first load; setup is fetched once the page is idle.
@@ -34,7 +44,15 @@ function Over({ page, onBack }: { page: Hub; onBack: () => void }) {
 }
 
 /** One game on the table: a single live link across waiting, the board and the result. */
-function TableGame({ id, onRules }: { id: string; onRules: () => void }) {
+function TableGame({
+  id,
+  onRules,
+  Board,
+}: {
+  id: string;
+  onRules: () => void;
+  Board: ComponentType<BoardProps>;
+}) {
   const { nav, actions } = useIshaara();
   const t = useTable(id);
   const status = t.game?.status;
@@ -94,9 +112,15 @@ const Centre = ({ children }: { children: ReactNode }) => (
 
 /**
  * Ishaara's phone UI: the hub, setup, and one game on the table (waiting, board, result); a clue-giver's phone gets
- * the clue screens. Hub pages open over the screen under them.
+ * the clue screens. Hub pages open over the screen under them. The desk shell passes its own board.
  */
-export default function IshaaraShell() {
+export default function IshaaraShell({
+  board = Board,
+  desk,
+}: {
+  board?: ComponentType<BoardProps>;
+  desk?: boolean;
+}) {
   const { nav, actions } = useIshaara();
   const rm = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
@@ -120,12 +144,17 @@ export default function IshaaraShell() {
     content = <ClueHome />;
   } else if (nav.gameId) {
     key = `game-${nav.gameId}`;
-    content = <TableGame id={nav.gameId} onRules={() => setHub('rules')} />;
+    content = <TableGame id={nav.gameId} onRules={() => setHub('rules')} Board={board} />;
   } else if (nav.screen === 'setup') content = <Setup />;
   else content = <Home onOpen={open} />;
 
   return (
-    <div ref={root} data-game="ishaara" className="app-root scr-bg grain relative h-full w-full">
+    <div
+      ref={root}
+      data-game="ishaara"
+      {...(desk ? { 'data-desk': '' } : {})}
+      className="app-root scr-bg grain relative h-full w-full"
+    >
       <div className="absolute inset-0" {...(hub ? { inert: '' as const } : {})}>
         <div
           aria-hidden
