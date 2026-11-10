@@ -12,6 +12,7 @@ import { metaTags, PAGES } from './src/platform/meta';
 import { GAME_IDS } from './src/platform/route';
 import { platform } from './src/strings/platform';
 import { mockApiPlugin } from './tools/mock-api';
+import { ownCss } from './tools/ownCss';
 
 const splash = THEMES[DEFAULT_THEME].themeColor;
 
@@ -207,6 +208,16 @@ const shellCommon = (id: string, g: Graph) => {
   return !by.includes('entry') && SHELLS.every((s) => by.includes(s)) ? 'shell-common' : null;
 };
 
+/**
+ * The phone layout's frame and the two viewport hooks every phone shell uses travel together: a game that imports
+ * only one of them (Ishaara's shell) otherwise splits them into three chunks, and Kachuful's phone load grows.
+ */
+const phoneFrame = (id: string, g: Graph) =>
+  /src\/(components\/ui\/Scaffold|hooks\/useVisualViewport|hooks\/useBoxHeight)\.tsx?$/.test(id) &&
+  !loadedBy(id, g).includes(SHELLS[1])
+    ? 'Scaffold'
+    : null;
+
 // The real backend behind the dev and preview servers, so the app and the API share one origin.
 const API_TARGET = process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000';
 const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
@@ -216,10 +227,21 @@ export default defineConfig(({ mode }) => ({
   build: {
     // Deck art stays a file even when small: inlined, it would land in the shared JS every theme downloads.
     assetsInlineLimit: (file) => (file.includes('/assets/themes/') ? false : undefined),
-    rolldownOptions: { output: { codeSplitting: { groups: [{ name: shellCommon }] } } },
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: shellCommon },
+            { name: (id: string) => (id.includes('/use-presence.') ? 'use-presence' : null) },
+            { name: phoneFrame },
+          ],
+        },
+      },
+    },
   },
   preview: mode === 'mock' ? {} : { proxy: apiProxy },
   plugins: [
+    ownCss('src/games/ishaara/index.tsx'),
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),

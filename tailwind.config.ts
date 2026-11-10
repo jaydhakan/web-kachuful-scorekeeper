@@ -44,7 +44,13 @@ const sizes = [
 ];
 
 export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  // Every source but Ishaara's, which builds its own sheet (tailwind.ishaara.config.ts) that loads with its chunk.
+  content: [
+    './index.html',
+    './src/*.{ts,tsx}',
+    './src/{assets,components,hooks,lib,people,platform,state,strings,styles,sync,test,theme}/**/*.{ts,tsx}',
+    './src/games/{kachuful,kaali-teeri}/**/*.{ts,tsx}',
+  ],
   future: { hoverOnlyWhenSupported: true },
   // The legacy `*-opacity-*` utilities are unused; without them a colour class is one short declaration.
   corePlugins: {

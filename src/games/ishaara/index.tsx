@@ -1,3 +1,4 @@
+import './ishaara.css';
 import { lazy, Suspense, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
