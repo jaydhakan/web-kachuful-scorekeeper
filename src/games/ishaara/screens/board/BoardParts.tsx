@@ -65,7 +65,8 @@ export function SendError({ v }: { v: BoardView }) {
 /** Undo (while its window is open) and End turn, once the clue is in. */
 export function TurnActions({ v, className = '' }: { v: BoardView; className?: string }) {
   const { game, active, pending, undo, canSend, endDisabled } = v;
-  if (!game || !active || pending || !game.clue) return null;
+  // A mis-tap that ended the turn leaves no clue, which is when Undo matters most.
+  if (!game || !active || pending || (!game.clue && !undo)) return null;
   const endId = 'ish-end-why';
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
@@ -82,18 +83,22 @@ export function TurnActions({ v, className = '' }: { v: BoardView; className?: s
           {b.undo(game.words[undo.card].toUpperCase())}
         </PrimaryButton>
       )}
-      <PrimaryButton
-        tone="glass"
-        onClick={() => void v.act({ type: 'endTurn' })}
-        disabled={endDisabled}
-        aria-describedby={game.guessedThisTurn < 1 ? endId : undefined}
-        className="!h-14 min-w-[10rem] flex-1 !text-17"
-      >
-        {b.endTurn(game.turn)}
-      </PrimaryButton>
-      <span id={endId} className="sr-only">
-        {b.endTurnWhy}
-      </span>
+      {game.clue && (
+        <>
+          <PrimaryButton
+            tone="glass"
+            onClick={() => void v.act({ type: 'endTurn' })}
+            disabled={endDisabled}
+            aria-describedby={game.guessedThisTurn < 1 ? endId : undefined}
+            className="!h-14 min-w-[10rem] flex-1 !text-17"
+          >
+            {b.endTurn(game.turn)}
+          </PrimaryButton>
+          <span id={endId} className="sr-only">
+            {b.endTurnWhy}
+          </span>
+        </>
+      )}
     </div>
   );
 }
