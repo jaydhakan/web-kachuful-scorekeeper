@@ -50,8 +50,6 @@ export const ipg = {
     loadingMore: 'Loading more…',
     moreFailed: 'More games didn’t load.',
     left: (sun: number, moon: number) => `Words left · Sun ${sun} · Moon ${moon}`,
-    rowLabel: (when: string, line: string) => `${when}: ${line}`,
-    teamLabel: (team: string, names: string) => `${team}: ${names}`,
   },
   game: {
     title: 'Game',

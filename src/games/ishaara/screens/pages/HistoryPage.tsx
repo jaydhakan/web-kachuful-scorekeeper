@@ -162,15 +162,12 @@ function GameRow({ g }: { g: IshaaraSummaryOut }) {
   const at = g.finishedAt ?? g.updatedAt;
   const line = ipg.outcome(g.winner, g.endedBy);
   const multi = g.match.game > 1 || g.match.sunWins + g.match.moonWins > 1;
+  // Named by what it shows (the day is the group's heading), so the spoken name matches the visible text.
   return (
     <m.button
       type="button"
       whileTap={PRESS}
       onClick={() => open({ page: 'game', id: g.id, summary: g })}
-      aria-label={[
-        h.rowLabel(`${dayLabel(at)} ${timeLabel(at)}`, line),
-        ...TEAMS.map((t) => h.teamLabel(ipg.team[t], names(g, t))),
-      ].join('. ')}
       className="glass flex min-h-[4.5rem] w-full flex-col gap-1.5 px-4 py-3 text-left"
     >
       <span className="flex w-full items-center gap-2 text-16 font-bold leading-tight [overflow-wrap:anywhere]">

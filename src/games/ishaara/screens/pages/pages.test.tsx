@@ -188,7 +188,7 @@ describe('History', () => {
     h.history.mockReturnValue(hist({ items: [summary()], hasMore: true, more }));
     hub('history');
     const row = screen.getByRole('button', { name: /Moon won · the other team hit the trap/ });
-    expect(row).toHaveAccessibleName(/Sun: Riya, Arjun\. Moon: Dev, Meera/);
+    expect(row).toHaveAccessibleName(/Sun\s*Riya, Arjun\s*Moon\s*Dev, Meera/);
     expect(within(row).getByText('Words left · Sun 9 · Moon 6')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Show more games' }));
     expect(more).toHaveBeenCalled();
