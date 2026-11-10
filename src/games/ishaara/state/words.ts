@@ -1,5 +1,5 @@
 import { boardWordOk, GRID, norm, pickWords } from '@/games/ishaara/domain';
-import { loadRecentWords, pushRecentWords } from '@/state/persistence';
+import { loadRecentWords, pushRecentWords } from '@/games/ishaara/state/persistence';
 
 export const PACK_IDS = ['everyday', 'desi', 'family', 'hinglish'] as const;
 export type PackId = (typeof PACK_IDS)[number];

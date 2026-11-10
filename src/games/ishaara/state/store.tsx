@@ -3,7 +3,7 @@ import type { IshaaraPublic, IshaaraRules, Seated, Team } from '@/games/ishaara/
 import { ishEp } from '@/games/ishaara/sync/endpoints';
 import type { IshaaraGameOut } from '@/games/ishaara/sync/types';
 import { uuid } from '@/lib/ids';
-import { saveIshLastSetup } from '@/state/persistence';
+import { saveIshLastSetup } from '@/games/ishaara/state/persistence';
 import { ApiError } from '@/sync/api';
 import { rememberWords } from './words';
 

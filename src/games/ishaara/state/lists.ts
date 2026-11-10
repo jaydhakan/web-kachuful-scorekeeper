@@ -8,7 +8,8 @@ import type {
   IshaaraSummaryOut,
   IshaaraVsOut,
 } from '@/games/ishaara/sync/types';
-import { archive, archiveIshaaraGame, type IshaaraGameRec } from '@/state/archive';
+import { archive, type IshaaraGameRec } from '@/state/archive';
+import { archiveIshaaraGame } from './persistence';
 import { ApiError } from '@/sync/api';
 import { signedInAs, useSession } from '@/sync/session';
 import { useRemote, type Remote } from '@/sync/useRemote';

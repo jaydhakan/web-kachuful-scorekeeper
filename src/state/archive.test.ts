@@ -3,10 +3,10 @@ import type { KtGame } from '@/games/kaali-teeri/domain';
 import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
 import { newGame, type IshaaraPublic } from '@/games/ishaara/domain';
 import { PLAYERS, RULES, WORDS } from '@/games/ishaara/domain/__fixtures__/kit';
+import { archiveIshaaraGame } from '@/games/ishaara/state/persistence';
 import {
   archive,
   archiveGame,
-  archiveIshaaraGame,
   archiveKtGame,
   Archive,
   DB_VERSION,

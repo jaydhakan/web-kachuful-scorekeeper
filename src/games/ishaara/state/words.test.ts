@@ -1,5 +1,5 @@
 import { seeded } from '@/games/ishaara/domain';
-import { loadRecentWords, pushRecentWords } from '@/state/persistence';
+import { loadRecentWords, pushRecentWords } from '@/games/ishaara/state/persistence';
 import { cleanCustom, dealWords, loadPack, PACK_IDS, rememberWords } from './words';
 
 describe('word dealing', () => {

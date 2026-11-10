@@ -3,7 +3,7 @@ import { ishEp, gameOfError } from '@/games/ishaara/sync/endpoints';
 import { followIshaara, type FollowHandlers, type StreamConn } from '@/games/ishaara/sync/events';
 import type { IshaaraActionBody, IshaaraGameOut, IshaaraMe } from '@/games/ishaara/sync/types';
 import { uuid } from '@/lib/ids';
-import { archiveIshaaraGame } from '@/state/archive';
+import { archiveIshaaraGame } from './persistence';
 import { ApiError } from '@/sync/api';
 
 export type LinkStatus = 'loading' | 'ready' | 'error' | 'gone';

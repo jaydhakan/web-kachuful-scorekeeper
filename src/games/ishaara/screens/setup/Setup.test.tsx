@@ -3,7 +3,7 @@ import { started } from '@/games/ishaara/domain/__fixtures__/kit';
 import type { IshaaraRules, Seated } from '@/games/ishaara/domain';
 import { IshaaraProvider } from '@/games/ishaara/state/store';
 import { archive, type PlayerRec } from '@/state/archive';
-import { saveIshLastSetup } from '@/state/persistence';
+import { saveIshLastSetup } from '@/games/ishaara/state/persistence';
 import { setSession } from '@/sync/session';
 import Setup from './Setup';
 

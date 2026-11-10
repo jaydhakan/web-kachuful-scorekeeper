@@ -482,24 +482,3 @@ export function forgetEmptyKt(syncId: string): boolean {
   });
   return true;
 }
-
-/** Keeps a finished Ishaara game for History offline; an unfinished one is never stored (its state is live). */
-export function archiveIshaaraGame(g: IshaaraPublic, hostName?: string | null, host?: boolean) {
-  if (g.status !== 'finished' || !g.solution) return;
-  const prev = archive.get('ishaaraGames', g.id);
-  if (
-    prev &&
-    prev.game.rev === g.rev &&
-    (hostName === undefined || prev.hostName === hostName) &&
-    (host === undefined || prev.host === host)
-  )
-    return;
-  archive.put('ishaaraGames', {
-    syncId: g.id,
-    game: g,
-    updatedAt: g.updatedAt,
-    endedAt: g.finishedAt ?? g.updatedAt,
-    hostName: hostName ?? prev?.hostName ?? null,
-    host: host ?? prev?.host,
-  });
-}

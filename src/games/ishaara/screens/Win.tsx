@@ -11,7 +11,7 @@ import {
 import { useIshaara } from '@/games/ishaara/state/store';
 import { dealWords } from '@/games/ishaara/state/words';
 import { table as s } from '@/games/ishaara/strings/table';
-import { loadIshLastSetup } from '@/state/persistence';
+import { loadIshLastSetup } from '@/games/ishaara/state/persistence';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';

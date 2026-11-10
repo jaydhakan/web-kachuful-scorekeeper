@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { started } from '@/games/ishaara/domain/__fixtures__/kit';
-import { loadIshLastSetup, loadRecentWords } from '@/state/persistence';
+import { loadIshLastSetup, loadRecentWords } from '@/games/ishaara/state/persistence';
 import { IshaaraProvider, navReducer, initialNav, useIshaara } from './store';
 
 const G = started().state;

@@ -2,7 +2,6 @@ import { demoGame, type Decks, type Game } from '@/games/kachuful/domain';
 import { uuid } from '@/lib/ids';
 import { CURRENT_SCHEMA, migrateGame as migrateRaw } from '@/games/kachuful/state/migrations';
 import type { Appearance } from '@/theme/themes';
-import type { IshaaraRules, Seated } from '@/games/ishaara/domain/types';
 
 export const KEYS = {
   game: 'kachuful.v1',
@@ -262,51 +261,3 @@ export const saveAchSeen = (playerId: string, at: number) =>
     ...storage.get<Record<string, number>>(KEYS.achSeen, {}),
     [playerId]: at,
   });
-
-/** The last Ishaara setup on this device: seats with teams and clue-givers, packs, custom words and rules. */
-export interface IshaaraLastSetup {
-  players: Seated[];
-  packs: string[];
-  customWords: string[];
-  rules: IshaaraRules;
-  at: number;
-}
-
-const isStrings = (v: unknown): v is string[] =>
-  Array.isArray(v) && v.every((x) => typeof x === 'string');
-
-export function loadIshLastSetup(): IshaaraLastSetup | null {
-  const v = storage.get<Partial<IshaaraLastSetup> | null>(KEYS.ishLastSetup, null);
-  if (!v || typeof v !== 'object' || !Array.isArray(v.players) || !v.rules) return null;
-  const players = v.players.filter(
-    (p): p is Seated =>
-      !!p &&
-      typeof p.name === 'string' &&
-      (p.team === 'sun' || p.team === 'moon') &&
-      (p.role === 'clue-giver' || p.role === 'guesser'),
-  );
-  return {
-    players,
-    packs: isStrings(v.packs) ? v.packs : [],
-    customWords: isStrings(v.customWords) ? v.customWords : [],
-    rules: v.rules,
-    at: typeof v.at === 'number' ? v.at : 0,
-  };
-}
-
-export const saveIshLastSetup = (s: IshaaraLastSetup) => storage.set(KEYS.ishLastSetup, s);
-
-/** How many recently dealt words are remembered, so the next deal can avoid them. */
-export const RECENT_WORDS_MAX = 200;
-
-/** Words dealt lately, newest first. */
-export function loadRecentWords(): string[] {
-  const v = storage.get<unknown>(KEYS.ishRecentWords, []);
-  return isStrings(v) ? v : [];
-}
-
-export function pushRecentWords(words: readonly string[]) {
-  const keys = new Set(words.map((w) => w.toLowerCase()));
-  const kept = loadRecentWords().filter((w) => !keys.has(w.toLowerCase()));
-  return storage.set(KEYS.ishRecentWords, [...words, ...kept].slice(0, RECENT_WORDS_MAX));
-}

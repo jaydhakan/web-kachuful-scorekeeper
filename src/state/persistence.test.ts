@@ -10,12 +10,14 @@ import {
   saveGame,
   storage,
   pushRecentNames,
+} from './persistence';
+import {
   loadIshLastSetup,
   saveIshLastSetup,
   loadRecentWords,
   pushRecentWords,
   RECENT_WORDS_MAX,
-} from './persistence';
+} from '@/games/ishaara/state/persistence';
 import { PLAYERS, RULES } from '@/games/ishaara/domain/__fixtures__/kit';
 
 const parsed = (s: string) => parseSnapshot(s)!;
