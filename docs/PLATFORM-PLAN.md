@@ -10,10 +10,16 @@ goes first, whichever game we start with.
 Done on `baithak` (both repos): P0, P1a, P1 (paths, `src/platform/catalog.ts`), P2 (one HTML page per game with its
 preview tags, Baithak manifest with shortcuts), P3, P4 (landing page), P5 (All games in both games, transition), P6
 in part (shared session `src/sync/session.ts` and theme sync at the site level; the account pages still live in
-Kachuful's shell, reached with `/kachuful?open=account`), P8, and Kaali Teeri in full. Open: P7 (theme-aware tile art
-beyond the landing tiles, Kachuful OG redraw), P9 (bundle budgets: landing 152 KB and Kachuful phone 158 KB are over
-145; the shared chunk holds Kachuful's store next to `persistence.ts` and the API client), P10 (renames), Ishaara.
-nginx needs `location / { try_files $uri $uri/index.html /index.html; }` before the deploy (README, Hosting).
+Kachuful's shell, reached with `/kachuful?open=account`), P8, and Kaali Teeri in full.
+
+Done on `ishaara` (both repos, branched from `baithak`): **Ishaara in full**, live in the catalog behind sign-in, and
+§8 item 5 for it (player-wide queries, unused-player delete, counters and merge count Ishaara seats; prune-empty takes
+only finished Ishaara games). Ishaara links to sign-in at `/kachuful?open=signin`, as the landing page does.
+
+Open: P7 (theme-aware tile art beyond the landing tiles, Kachuful OG redraw), P9 (bundle budgets: landing 152 KB and
+Kachuful phone 158 KB are over 145; the shared chunk holds Kachuful's store next to `persistence.ts` and the API
+client), P10 (renames), Ishaara in the manifest's shortcuts. nginx needs `location / { try_files $uri $uri/index.html
+/index.html; }` before the deploy, and README → Hosting has the optional block for Ishaara's live events.
 
 ## 1. Goal
 
