@@ -53,8 +53,11 @@ test('a game in progress gets a resume row, and coming soon is not a control', a
   const resume = page.getByRole('link', { name: 'Resume Kachuful' });
   await expect(resume).toBeVisible();
   await expect(page.getByText(/saved \d+ min ago/)).toBeVisible();
-  await expect(page.getByRole('article', { name: 'Ishaara, coming soon' })).toBeVisible();
-  await expect(page.getByRole('link', { name: /Ishaara/ })).toHaveCount(0);
+  // Signed out, Ishaara's card leads to sign in.
+  await expect(page.getByRole('link', { name: /^Ishaara.*Sign in to play$/ })).toHaveAttribute(
+    'href',
+    '/kachuful?open=signin',
+  );
   await resume.click();
   await expect(page).toHaveURL(/\/kachuful$/);
 });

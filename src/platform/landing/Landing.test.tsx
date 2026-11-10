@@ -60,15 +60,6 @@ describe('Landing', () => {
     expect(screen.queryByRole('link', { name: /^Resume/ })).toBeNull();
   });
 
-  it('coming soon is text, not a control', () => {
-    render(<Landing />);
-    const card = screen.getByRole('article', { name: 'Ishaara, coming soon' });
-    expect(within(card).getByText('Coming soon')).toBeInTheDocument();
-    expect(within(card).queryByRole('link')).toBeNull();
-    expect(within(card).queryByRole('button')).toBeNull();
-    expect(screen.queryByRole('link', { name: /Ishaara/ })).toBeNull();
-  });
-
   it('a plain click opens the game in place; a modified click is left to the browser', () => {
     render(<Landing />);
     const link = screen.getByRole('link', { name: /^Kachuful.*Play$/ });

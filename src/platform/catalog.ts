@@ -17,7 +17,7 @@ export interface GameEntry {
   pitch: string;
   players: string;
   status: 'live' | 'soon';
-  /** Shown to everyone, playable only signed in (Ishaara's word lists come from the server). */
+  /** Shown to everyone, playable only signed in (Ishaara: the server runs the game). */
   signedInOnly: boolean;
   /** The game's lazy root. */
   load: () => Promise<{ default: ComponentType }>;
@@ -50,9 +50,10 @@ export const GAMES: readonly GameEntry[] = [
     id: 'ishaara',
     path: '/ishaara',
     ...g.ishaara,
-    status: 'soon',
+    status: 'live',
     signedInOnly: true,
-    load: () => Promise.reject(new Error('Ishaara is not built yet')),
+    load: () => import('@/games/ishaara'),
+    // Nothing to resume from storage: the server holds every game.
     peek: () => null,
   },
 ];
