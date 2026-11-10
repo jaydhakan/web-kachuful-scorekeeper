@@ -121,6 +121,7 @@ export const table = {
     title: 'Waiting for clue-givers',
     open: (a: string, b: string) => `${a} and ${b}, open`,
     onPhone: 'on your phone.',
+    qr: 'QR code for play.vectanix.com/ishaara',
     yourGames: 'Signed-in clue-givers see this game under “Your games”.',
     giverOf: (team: Team) => `${TEAM[team]} clue-giver`,
     joined: 'Joined',

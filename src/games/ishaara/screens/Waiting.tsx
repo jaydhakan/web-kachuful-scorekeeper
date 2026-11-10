@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { stagger } from '@/components/ui/stagger';
 import { Mark } from './board/marks';
+import { JoinQr } from './JoinQr';
 
 const w = s.waiting;
 
@@ -67,6 +68,9 @@ export default function Waiting({ game, onLeave }: { game: IshaaraPublic; onLeav
           <b>{w.open(names[0], names[1])}</b>{' '}
           <b className="break-all text-[var(--accent)]">{clueUrl()}</b> {w.onPhone}
         </m.p>
+        <m.div {...stagger(1)} className="mt-4 flex justify-center">
+          <JoinQr className="h-40 w-40 p-1" />
+        </m.div>
         <m.p {...stagger(1)} className="mt-3 text-16 text-[var(--tx2)]">
           {w.yourGames}
         </m.p>
