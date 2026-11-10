@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Seated } from '@/games/ishaara/domain';
 import { reasonOf } from '@/games/ishaara/sync/endpoints';
 import { useIshaara } from '@/games/ishaara/state/store';
+import { pullIshaaraMet } from '@/games/ishaara/state/lists';
 import { cleanCustom, dealWords } from '@/games/ishaara/state/words';
 import { table as s } from '@/games/ishaara/strings/table';
 import { uuid } from '@/lib/ids';
@@ -68,7 +69,10 @@ export default function Setup() {
 
   // Who is linked to an account may have changed since this device last looked (an invite accepted).
   useEffect(() => {
-    if (session) pullPlayers().catch(() => undefined);
+    if (!session) return;
+    pullPlayers().catch(() => undefined);
+    // On a new device the circle is empty until some game's history arrives: bring Ishaara's.
+    if (session.player) pullIshaaraMet(session.player.id).catch(() => undefined);
   }, [session]);
   // A clue-giver who lost their link (or a team that just gained one) is settled as the registry changes.
   useEffect(() => {

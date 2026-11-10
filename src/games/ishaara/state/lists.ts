@@ -175,3 +175,21 @@ export const useIshaaraHeadToHead = (a: string | null, b: string | null) =>
   useRemote<IshaaraVsOut>(useUserId() && a && b && a !== b ? `ish:vs:${a}:${b}` : null, (o) =>
     ishEp.vs(a!, b!, o),
   );
+
+/**
+ * Everyone this account has sat with at Ishaara, added to the circle setup suggests from (shared with the other
+ * games, as their sync engines do): Ishaara has no engine, so setup asks when it opens.
+ */
+export async function pullIshaaraMet(me: string) {
+  const met = new Set((archive.get('cache', 'met')?.value as string[] | undefined) ?? []);
+  const before = met.size;
+  let cursor: string | undefined;
+  do {
+    const page = await ishEp.games({ cursor });
+    for (const g of page.items)
+      for (const p of g.players) if (p.playerId !== me) met.add(p.playerId);
+    cursor = page.nextCursor ?? undefined;
+  } while (cursor);
+  if (met.size > before)
+    archive.put('cache', { key: 'met', value: [...met], fetchedAt: Date.now() });
+}
