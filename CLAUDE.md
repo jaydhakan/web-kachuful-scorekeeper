@@ -1,7 +1,7 @@
 # Kachuful — working notes
 
 Baithak: mobile-first scorekeepers for table games, used by people at a card table. A landing page at `/`; each game at
-its own path (`/kachuful`, `/kaali-teeri`), registered in `src/platform/catalog.ts`. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to the separate FastAPI backend in `../backend-kachuful-scorekeeper`. The API as built (its routes and schemas, `/docs` when running) is the contract; never change the API's behaviour to suit the app.
+its own path (`/kachuful`, `/kaali-teeri`, `/ishaara`), registered in `src/platform/catalog.ts`. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to the separate FastAPI backend in `../backend-kachuful-scorekeeper`. The API as built (its routes and schemas, `/docs` when running) is the contract; never change the API's behaviour to suit the app.
 
 Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
 
@@ -29,23 +29,24 @@ Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `sr
 
 ## Reuse before you write
 
-| Need                        | Use                                                                                               |
-| --------------------------- | ------------------------------------------------------------------------------------------------- |
-| Rules, scoring, ranking     | `src/games/<game>/domain` (pure; never import UI into it)                                         |
-| Paths, games, landing       | `src/platform` (`route.ts`, `catalog.ts`, `PlatformRoot`, `landing/`)                             |
-| Who is signed in            | `src/sync/session.ts` (`useSession`, `signedInAs`)                                                |
-| Numbers and text formats    | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)                                            |
-| User-visible strings        | `src/strings` (shared; `platform.ts` for the landing page) and `src/games/<game>/strings`         |
-| Storage                     | `src/state/persistence.ts` — never call `localStorage` elsewhere                                  |
-| Archive (IndexedDB)         | `src/state/archive.ts` — the only IndexedDB access                                                |
-| Network                     | `src/sync/` (+ `src/games/<game>/sync/`) — the only `fetch`/`EventSource`, signed in only         |
-| Stats, boards, achievements | `src/games/kachuful/domain` (timeline, leaderboard, achievements, awards)                         |
-| People (players, avatars)   | `src/people` (`Player`, `COLORS`, `nameKey`, `pidOf`) and `src/state/registry.ts`                 |
-| Account and admin pages     | `src/platform/pages`                                                                              |
-| UI primitives               | `src/components/ui/`                                                                              |
-| Colours, themes, materials  | `src/styles/themes.css` + `src/styles/themes/<id>.css` (the only colour files) via Tailwind names |
+| Need                        | Use                                                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Rules, scoring, ranking     | `src/games/<game>/domain` (pure; never import UI into it)                                              |
+| Paths, games, landing       | `src/platform` (`route.ts`, `catalog.ts`, `PlatformRoot`, `landing/`)                                  |
+| Who is signed in            | `src/sync/session.ts` (`useSession`, `signedInAs`)                                                     |
+| Numbers and text formats    | `src/lib/format.ts` (`sgnN`, `fmt`, `trunc`, `agoTxt`)                                                 |
+| User-visible strings        | `src/strings` (shared; `platform.ts` for the landing page) and `src/games/<game>/strings`              |
+| Storage                     | `src/state/persistence.ts` — never call `localStorage` elsewhere                                       |
+| Archive (IndexedDB)         | `src/state/archive.ts` — the only IndexedDB access                                                     |
+| Network                     | `src/sync/` (+ `src/games/<game>/sync/`) — the only `fetch`/`EventSource`, signed in only              |
+| Stats, boards, achievements | `src/games/kachuful/domain` (timeline, leaderboard, achievements, awards)                              |
+| Ishaara's rules             | `src/games/ishaara/domain` (`applyAction`): the server runs them; the app never deals or holds the key |
+| People (players, avatars)   | `src/people` (`Player`, `COLORS`, `nameKey`, `pidOf`) and `src/state/registry.ts`                      |
+| Account and admin pages     | `src/platform/pages`                                                                                   |
+| UI primitives               | `src/components/ui/`                                                                                   |
+| Colours, themes, materials  | `src/styles/themes.css` + `src/styles/themes/<id>.css` (the only colour files) via Tailwind names      |
 
-Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the original prototype's shape (the prototype itself is gone; it's in git history); `direction` changes seat layout only, not rotation.
+Ishaara is the server's game: signed in and online only; the key reaches only a clue-giver's phone, in memory, and never the table device. Data quirks: avatar colours are stored as hex in saved players; totals are derived, never stored; a saved game without `schemaVersion` is the original prototype's shape (the prototype itself is gone; it's in git history); `direction` changes seat layout only, not rotation.
 
 ## Rules
 

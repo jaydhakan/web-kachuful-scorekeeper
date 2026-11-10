@@ -1,6 +1,6 @@
 # Architecture
 
-Baithak is an offline-first PWA hosting several table games (Kachuful, Kaali Teeri; Ishaara to come): Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`../backend-kachuful-scorekeeper`; the API as built is the contract).
+Baithak is an offline-first PWA hosting several table games (Kachuful, Kaali Teeri, Ishaara): Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`../backend-kachuful-scorekeeper`; the API as built is the contract).
 
 ## Layers
 
@@ -19,6 +19,10 @@ src/games/kachuful/   everything that is Kachuful's own:
 src/games/kaali-teeri/   the same layout for Kaali Teeri: domain/ (cards, auction, calls, scoring, stats, boards, validate;
                 the backend's golden fixtures come from here), state/, screens/ (setup/, hand/, desk/, pages/, viewer/),
                 sheets/, strings/, sync/ (engine on /api/kaali-teeri, boards, share links); index.tsx is its lazy root
+src/games/ishaara/   the word game the server runs: domain/ (rules engine applyAction, clue check, deal, validate,
+                stats, boards, packs/*.json; the backend mirrors it and the golden fixtures come from here), state/
+                (store.tsx nav, useTable / useClue over link.ts, lists, words), sync/ (endpoints, events), screens/
+                (setup/, Waiting, board/, Win, clue/, pages/, desk/), strings/
 src/platform/   route.ts (the first path segment names the game; go(), useGame), catalog.ts (GAMES: name, status, lazy
                 root, peek() for the resume line), PlatformRoot (landing or the game, a load error with Retry), meta.ts
                 (each page's preview tags), landing/; pages/ holds the account, sign-in, admin and credits pages
@@ -121,7 +125,7 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 
 ## Online
 
-**Archive.** `state/archive.ts` is the only IndexedDB access: games (every Kachuful game this device knows, never replaced), ktGames (Kaali Teeri's, by the same rules; database version 2), players (the registry, shared by every game), outbox, cache and inbox. A version bump only adds missing stores (`upgradeDb`). Setup's suggestions (`people()`, `circle()`) count co-players from every game's store. It loads once and is read synchronously from memory; writes land in memory at once and on disk in the background, falling back to memory when IndexedDB is missing. The current game is copied in after every change, so starting a new game saves the old one to History. Schema 3 added `syncId` (old games: a hash of a per-device id, the game id and its creation time, so a game, its undo snapshots and its backup are one remote game), `rev`, `finishedAt` and `Round.doneAt`.
+**Archive.** `state/archive.ts` is the only IndexedDB access: games (every Kachuful game this device knows, never replaced), ktGames (Kaali Teeri's, by the same rules; database version 2), ishaaraGames (read-only copies of finished Ishaara games, for History offline; version 3), players (the registry, shared by every game), outbox, cache and inbox. A version bump only adds missing stores (`upgradeDb`). Setup's suggestions (`people()`, `circle()`) count co-players from every game's store. It loads once and is read synchronously from memory; writes land in memory at once and on disk in the background, falling back to memory when IndexedDB is missing. The current game is copied in after every change, so starting a new game saves the old one to History. Schema 3 added `syncId` (old games: a hash of a per-device id, the game id and its creation time, so a game, its undo snapshots and its backup are one remote game), `rev`, `finishedAt` and `Round.doneAt`.
 
 **Navigation.** `state.nav` is a stack of routes opened over the game screens (`games/kachuful/screens/pages/Pages.tsx`, one lazy chunk). `useHistorySync` keeps one browser history entry per open screen and sheet, so system Back closes the top one. `?invite=`, `?reset=`, `?live=` and `?recap=` open their screen once at start and are removed from the address bar.
 
@@ -130,6 +134,21 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 **Photos.** `components/ui/Avatar.tsx` draws a player: their photo (`photoUrl`, versioned and cached forever) over the emoji, else the emoji. A seat finds its photo in the registry by `playerId`; the signed-out live and recap viewers take it from the public summary. `components/PhotoPicker.tsx` squares and shrinks a picked photo to 256×256 on the phone (`lib/photo.ts`) and uploads it; it shows only for the admin, the player's creator and the player.
 
 **Kaali Teeri sync.** `games/kaali-teeri/sync/engine.ts` follows Kachuful's rules on `/api/kaali-teeri/*` (uploads, stale copies, rejections in the shared inbox, tombstones) and pulls the games the account sat in into `ktGames`; its outbox ids start `ktput:` / `ktdel:`. Signed in, the leaderboard, player stats and head-to-head read the server (`sync/boards.ts`); signed out they compute from the device's games (`domain/boards.ts`, `stats.ts`). `/kaali-teeri?live=` and `?recap=` open the read-only viewer.
+
+**Ishaara.** Signed in and online only: the server deals the 25 words' key, keeps it, and applies every action through
+the same rules as `games/ishaara/domain` (`applyAction`; the backend's Python mirror passes `contract/fixtures/ishaara-*`).
+There is no local engine of record. `state/link.ts` follows one game: it loads `GET /api/ishaara/games/{id}`, listens
+to its events (`state` frames with the public state, `joined`, `ended`), and sends actions with a fresh `actionId` and
+the `rev` it shows. A pick is refused, never queued, while one is in flight or the stream is reconnecting; a 409, 403
+or 422 carries the current game, which the link adopts. `clockOffset` (`serverNow` − the device clock) lets the table
+send `timeout` when the turn's deadline passes; the server accepts it only after the deadline. The table device never
+asks for the key. A clue-giver's phone fetches it once from the key endpoint (opening it marks that team joined) and
+keeps it in memory only: never in storage, IndexedDB, the URL or the title. The public state never holds a face-down
+card's identity; `solution` arrives only once the game is finished, and only finished games go to `ishaaraGames`.
+Words come from the packs (lazy JSON chunks) plus custom words, avoiding `ishaara.recentWords`; `ishaara.lastSetup`
+remembers the last seats and rules. Signed out, the landing card and `/ishaara` say "Sign in to play"; offline, the hub
+says "Ishaara needs a connection" and History reads the device's copies. The mock API runs the same domain for e2e
+(`tools/mock-api/ishaara.ts`, with a test clock at `POST /api/__mock/ishaara/clock`).
 
 **Sync.** `games/kachuful/sync/engine.ts` runs only while signed in: on start, coming online, becoming visible, 1.5 s after a change and every minute while work waits (backing off to 5 min, or the server's `retryAfter` after a 429). It pulls with one `bootstrap` call (then `updatedSince`, the newest server `updatedAt` seen minus 5 s), pushes new players, then games whose players the server knows. A game goes up as it is to `PUT /api/games/{syncId}`. A stale upload keeps the copy with more finished rounds and saves the other as a conflict copy; a rejected game stays local with the reason in the inbox; a deleted one (410 or a tombstone) leaves the device. `409 same_player` takes the server's player and rewrites the games. Server reads use `useRemote`: the cached answer renders first, then refreshes with `If-None-Match`; closed days and seasons are never asked for again.
 
