@@ -56,7 +56,7 @@ test('a game scored offline uploads when the connection comes back', async ({ pa
 });
 
 test('first sign-in offers to add the games already on this phone', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   // A game scored here while signed out, with finished rounds.
   await openSeeded(
     page,

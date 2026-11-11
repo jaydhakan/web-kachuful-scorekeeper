@@ -3,7 +3,7 @@ import { LONG_NAMES_14, openSeeded, seedGame } from './fixtures';
 import { btn, openAdvanced, startGame } from './helpers';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await btn(page, 'New Game').click();
 });
 
@@ -48,7 +48,7 @@ test('going back to one deck drops a count it cannot seat', async ({ page }) => 
 });
 
 test('a fourteen-player two-deck game starts and its Rules explain the decks', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await startGame(page, LONG_NAMES_14);

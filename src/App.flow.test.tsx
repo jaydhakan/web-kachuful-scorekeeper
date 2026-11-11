@@ -2,10 +2,10 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
 // The shell and the sheets it opens are lazy chunks; loaded up front so transforming them can't outlast a findBy.
-import './components/PhoneShell';
-import './sheets/AddPlayerBody';
+import './games/kachuful/components/PhoneShell';
+import './games/kachuful/sheets/AddPlayerBody';
 import { KEYS } from './state/persistence';
-import fixture from './state/__fixtures__/prototype-save.json';
+import fixture from '@/games/kachuful/state/__fixtures__/prototype-save.json';
 
 const seedPrototypeSave = (screenName = 'round') => {
   localStorage.setItem(KEYS.game, JSON.stringify(fixture['kachuful.v1']));

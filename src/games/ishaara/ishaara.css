@@ -1,0 +1,3 @@
+/* Ishaara's utilities only; the site's sheet (styles/index.css) has the tokens, base and everything shared. */
+@config '../../../tailwind.ishaara.config.ts';
+@tailwind utilities;

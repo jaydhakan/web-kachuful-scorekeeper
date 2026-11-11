@@ -1,4 +1,4 @@
-import { PODIUM_BG, rankTone } from './podium';
+import { PODIUM_BG, rankTone } from './rankTones';
 
 /**
  * A place in a standings list. Once the game is over the top three get the podium's gold, silver and bronze discs,

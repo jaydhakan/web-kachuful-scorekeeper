@@ -166,3 +166,6 @@ screenshots/
 dist-profile/
 reports/lighthouse/*.html
 
+
+# Agent worktrees
+.claude/worktrees/

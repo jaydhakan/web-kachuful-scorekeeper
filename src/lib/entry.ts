@@ -1,4 +1,4 @@
-import type { Route } from '@/state/types';
+import type { Route } from '@/games/kachuful/state/types';
 
 const KINDS = { invite: 'invite', reset: 'reset', live: 'live', recap: 'recap' } as const;
 
@@ -24,6 +24,19 @@ export function readEntryLink(): Route | null {
       location.pathname + (rest ? '?' + rest : '') + location.hash,
     );
     taken = { href: location.href, route: { screen, params: { token } } };
+    return taken.route;
+  }
+  // The landing page's account chip and menu: `/kachuful?open=account` (these pages still live in Kachuful).
+  const open = q.get('open');
+  if (open === 'account' || open === 'signin' || open === 'credits') {
+    q.delete('open');
+    const rest = q.toString();
+    history.replaceState(
+      history.state,
+      '',
+      location.pathname + (rest ? '?' + rest : '') + location.hash,
+    );
+    taken = { href: location.href, route: { screen: open } };
     return taken.route;
   }
   return null;

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import type { Direction, RoundOrder, Trump } from '@/domain';
+import type { Direction } from '@/people';
+import type { RoundOrder, Trump } from '@/games/kachuful/domain';
+import type { Rank, Suit } from '@/lib/cards';
 import { messages } from './messages';
 import { hub } from './hub';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
@@ -10,6 +12,21 @@ import { Icon } from '@/components/ui/Icons';
  * Every user-visible string lives here (English only, no i18n library). Sentences that carry markup are
  * functions returning JSX so a translator sees the whole sentence in one place.
  */
+const RANK_NAME: Record<Rank, string> = {
+  A: 'Ace',
+  K: 'King',
+  Q: 'Queen',
+  J: 'Jack',
+  '10': 'Ten',
+  '9': 'Nine',
+  '8': 'Eight',
+  '7': 'Seven',
+  '6': 'Six',
+  '5': 'Five',
+  '4': 'Four',
+  '3': 'Three',
+  '2': 'Two',
+};
 const side = (dir: Direction) => (dir === 'cw' ? 'left' : 'right');
 const b = (s: ReactNode) => <b>{s}</b>;
 // A two-line segmented option, so "2 cycles / 14 rounds" never has to wrap mid-label.
@@ -37,6 +54,11 @@ export const t = {
     undo: 'Undo',
   },
 
+  keypad: {
+    amount: 'Bid amount',
+    quick: 'Change the bid',
+    change: (d: number) => (d > 0 ? `Up ${d}` : `Down ${-d}`),
+  },
   table: {
     dealerMark: 'D',
     deals: 'DEALS',
@@ -44,6 +66,10 @@ export const t = {
     seat: (k: number, name?: string) => (name ? `Seat ${k}: ${name}` : `Seat ${k}`),
     made: '✓',
     missed: '✗',
+  },
+  card: {
+    name: (rank: Rank, suit: Suit) => `${RANK_NAME[rank]} of ${suit}`,
+    faceDown: 'Face-down card',
   },
   suit: {
     cards: (n: number) => `${n} cards`,

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=390"><title>Baithak landing · signed-in</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Cinzel:wght@600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Mono:wght@400;700&family=DM+Mono:wght@400;500&display=swap">
+<style>/* Baithak — theme tokens + components (round 2).
+   Themes change colour, type, radius and shadow only. Sizes, borders and positions are identical in every theme.
+   NEW = added for the platform or the new games. */
+
+.theme-sunset, .theme-emerald, .theme-yerba, .theme-paper {
+  --text-xs: 13px; --text-sm: 15px; --text-md: 17px; --text-lg: 20px; --text-xl: 24px;
+  --text-2xl: 30px; --text-3xl: 40px; --text-4xl: 56px; --text-5xl: 72px;
+  --tap-min: 48px; --border-w: 1px;
+  --motion-enter: 320ms; --motion-exit: 240ms; --motion-reduced: 150ms;
+  --motion-ease-out: cubic-bezier(.2,.8,.2,1); --motion-ease-in: cubic-bezier(.4,0,.9,.5);
+  --team-sun: #f5a524; --team-sun-ink: #2a1600;
+  --card-trap: #0b0b10; --card-trap-ink: #f6efe3;
+  --positive: #1f8a55; --negative: #c43a3a;
+  --clue-bg: #0e0e10; --clue-surface: #1a1a1e; --clue-border: #2c2c32; --clue-text: #e9e6e1; --clue-muted: #a19d97;
+}
+
+/* ---------------- Sunset Glass ---------------- */
+.theme-sunset {
+  --page-bg: radial-gradient(90% 50% at 0% 0%, rgba(138,64,41,.8) 0%, rgba(138,64,41,0) 70%), radial-gradient(80% 45% at 100% 35%, rgba(123,36,86,.6) 0%, rgba(123,36,86,0) 70%), radial-gradient(70% 40% at 20% 100%, rgba(70,30,110,.45) 0%, rgba(70,30,110,0) 70%), #160d14;
+  --color-bg: #160d14; --color-surface: rgba(255,236,242,.07); --color-surface-strong: #241520; --color-border: rgba(255,226,236,.18);
+  --color-text: #fbf0ea; --color-text-muted: #cdb8be; --color-label: #f2b56b; --color-gold: #e6c36a; --color-focus: #ffd59a;
+  --cta-bg: linear-gradient(90deg,#ffb27a,#f2679a); --cta-text: #2a0e16;
+  --control-bg: rgba(255,236,242,.08); --control-on-bg: #fbf0ea; --control-on-text: #2a0e16;
+  --shadow-card: 0 12px 32px rgba(0,0,0,.32); --shadow-outline: 0 0 0 0 transparent;
+  --radius-card: 28px; --radius-control: 999px; --radius-tile: 18px; --radius-key: 16px;
+  --font-display: 'Instrument Sans', system-ui, sans-serif; --display-weight: 700; --display-style: normal; --display-tracking: -0.03em; --display-transform: none;
+  --font-body: 'Instrument Sans', system-ui, sans-serif; --body-weight-strong: 700;
+  --font-num: 'Instrument Sans', system-ui, sans-serif; --num-weight: 700; --num-style: normal;
+  --font-label: 'Instrument Sans', system-ui, sans-serif; --label-weight: 700; --label-tracking: .14em;
+  --positive: #7fe0a8; --negative: #ff8a9a;
+  /* NEW */
+  --brand-seat: #fbefe5; --brand-seat-active: #e9c46a;
+  --table-felt: #c8508a; --table-felt-2: #6d1c4a; --table-rim: rgba(255,214,230,.35);
+  --seat-ring: rgba(255,226,236,.35); --seat-active: #ffb27a;
+  --badge-soon-bg: rgba(255,236,242,.10); --badge-soon-text: #f4ddd0; --badge-soon-border: rgba(255,226,236,.34);
+  --status-offline-bg: #3a2614; --status-offline-text: #ffd89a; --status-live: #7fe0a8;
+  --scrim: rgba(10,4,8,.62); --sheet-bg: #22141d;
+  --team-moon: #4f5bd5; --team-moon-ink: #fbf6ec;
+  --card-word: #f6efe3; --card-word-ink: #1d1a17; --card-blank: #6e6a86; --card-blank-ink: #ffffff; --card-edge: transparent;
+  --side-bid: #e9c46a; --side-bid-ink: #2a1a05;
+  --select-ring: #ffd59a;
+}
+
+/* ---------------- Emerald Gilt ---------------- */
+.theme-emerald {
+  --page-bg: radial-gradient(90% 50% at 50% 0%, rgba(40,96,68,.75) 0%, rgba(40,96,68,0) 70%), radial-gradient(60% 40% at 100% 100%, rgba(120,92,30,.35) 0%, rgba(120,92,30,0) 70%), #0c1f17;
+  --color-bg: #0c1f17; --color-surface: rgba(20,58,42,.78); --color-surface-strong: #12301f; --color-border: rgba(217,180,90,.45);
+  --color-text: #f4ecd6; --color-text-muted: #bcc6b2; --color-label: #e0bf6a; --color-gold: #d9b45a; --color-focus: #f4dc94;
+  --cta-bg: linear-gradient(180deg,#ecc977,#c79a3c); --cta-text: #1b1405;
+  --control-bg: rgba(217,180,90,.10); --control-on-bg: #d9b45a; --control-on-text: #1b1405;
+  --shadow-card: 0 10px 28px rgba(0,0,0,.35); --shadow-outline: 0 0 0 0 transparent;
+  --radius-card: 16px; --radius-control: 12px; --radius-tile: 12px; --radius-key: 12px;
+  --font-display: 'Cinzel', Georgia, serif; --display-weight: 700; --display-style: normal; --display-tracking: .02em; --display-transform: uppercase;
+  --font-body: 'Instrument Sans', system-ui, sans-serif; --body-weight-strong: 700;
+  --font-num: 'Instrument Sans', system-ui, sans-serif; --num-weight: 700; --num-style: normal;
+  --font-label: 'Cinzel', Georgia, serif; --label-weight: 700; --label-tracking: .12em;
+  --positive: #8fe0ae; --negative: #ff9a8a;
+  /* NEW */
+  --brand-seat: #f3ead2; --brand-seat-active: #d9b45a;
+  --table-felt: #2a6a4c; --table-felt-2: #0f3324; --table-rim: #c9a24a;
+  --seat-ring: rgba(217,180,90,.6); --seat-active: #ecc977;
+  --badge-soon-bg: rgba(217,180,90,.14); --badge-soon-text: #ecd9a6; --badge-soon-border: rgba(217,180,90,.55);
+  --status-offline-bg: #2d2a12; --status-offline-text: #f1d68a; --status-live: #8fe0ae;
+  --scrim: rgba(3,12,8,.62); --sheet-bg: #102a1e;
+  --team-moon: #4f5bd5; --team-moon-ink: #fbf6ec;
+  --card-word: #f6efe3; --card-word-ink: #1a1a12; --card-blank: #5b6a5e; --card-blank-ink: #ffffff; --card-edge: rgba(217,180,90,.6);
+  --side-bid: #d9b45a; --side-bid-ink: #1b1405;
+  --select-ring: #f4dc94;
+}
+
+/* ---------------- Yerba Sun ---------------- */
+.theme-yerba {
+  --page-bg: #fbe4b3;
+  --color-bg: #fbe4b3; --color-surface: #fff6e2; --color-surface-strong: #fff1d2; --color-border: #2b1608;
+  --color-text: #2b1608; --color-text-muted: #6b4a2e; --color-label: #b23d24; --color-gold: #b23d24; --color-focus: #2b1608;
+  --cta-bg: #ec6a4f; --cta-text: #2b1608;
+  --control-bg: #fff6e2; --control-on-bg: #2b1608; --control-on-text: #fff6e2;
+  --shadow-card: 4px 4px 0 #2b1608; --shadow-outline: 0 0 0 2px #2b1608;
+  --radius-card: 22px; --radius-control: 16px; --radius-tile: 14px; --radius-key: 14px;
+  --font-display: 'Bricolage Grotesque', 'Arial Black', sans-serif; --display-weight: 800; --display-style: normal; --display-tracking: -0.03em; --display-transform: none;
+  --font-body: 'Bricolage Grotesque', system-ui, sans-serif; --body-weight-strong: 700;
+  --font-num: 'Bricolage Grotesque', system-ui, sans-serif; --num-weight: 800; --num-style: normal;
+  --font-label: 'Space Mono', ui-monospace, monospace; --label-weight: 700; --label-tracking: .1em;
+  --positive: #1f7a4a; --negative: #b3261e;
+  /* NEW */
+  --brand-seat: #2b1608; --brand-seat-active: #c8462c;
+  --table-felt: #ef7a5f; --table-felt-2: #e0563b; --table-rim: #2b1608;
+  --seat-ring: #2b1608; --seat-active: #2b1608;
+  --badge-soon-bg: #fbe4b3; --badge-soon-text: #2b1608; --badge-soon-border: #2b1608;
+  --status-offline-bg: #2b1608; --status-offline-text: #fff1d2; --status-live: #1f7a4a;
+  --scrim: rgba(43,22,8,.5); --sheet-bg: #fff6e2;
+  --team-moon: #3f4bc4; --team-moon-ink: #ffffff;
+  --card-word: #fff6e2; --card-word-ink: #2b1608; --card-blank: #8a7360; --card-blank-ink: #ffffff; --card-edge: #2b1608;
+  --side-bid: #ec6a4f; --side-bid-ink: #2b1608;
+  --select-ring: #2b1608;
+}
+
+/* ---------------- Editorial Paper ---------------- */
+.theme-paper {
+  --page-bg: #f1ede4;
+  --color-bg: #f1ede4; --color-surface: #faf8f3; --color-surface-strong: #ffffff; --color-border: #161616;
+  --color-text: #161616; --color-text-muted: #55524c; --color-label: #161616; --color-gold: #c2330f; --color-focus: #c2330f;
+  --cta-bg: #161616; --cta-text: #faf8f3;
+  --control-bg: transparent; --control-on-bg: #161616; --control-on-text: #faf8f3;
+  --shadow-card: none; --shadow-outline: 0 0 0 0 transparent;
+  --radius-card: 0px; --radius-control: 0px; --radius-tile: 0px; --radius-key: 0px;
+  --font-display: 'Instrument Serif', Georgia, serif; --display-weight: 400; --display-style: italic; --display-tracking: -0.01em; --display-transform: none;
+  --font-body: 'Instrument Sans', system-ui, sans-serif; --body-weight-strong: 700;
+  --font-num: 'Instrument Serif', Georgia, serif; --num-weight: 400; --num-style: italic;
+  --font-label: 'DM Mono', ui-monospace, monospace; --label-weight: 500; --label-tracking: .14em;
+  --positive: #1f6a44; --negative: #b3261e;
+  /* NEW */
+  --brand-seat: #161616; --brand-seat-active: #c2330f;
+  --table-felt: #245a46; --table-felt-2: #1a4234; --table-rim: #f1ede4;
+  --seat-ring: #161616; --seat-active: #c2330f;
+  --badge-soon-bg: transparent; --badge-soon-text: #161616; --badge-soon-border: #161616;
+  --status-offline-bg: #161616; --status-offline-text: #faf8f3; --status-live: #1f6a44;
+  --scrim: rgba(22,22,22,.45); --sheet-bg: #faf8f3;
+  --team-moon: #3f4bc4; --team-moon-ink: #ffffff;
+  --card-word: #ffffff; --card-word-ink: #161616; --card-blank: #77736b; --card-blank-ink: #ffffff; --card-edge: #161616;
+  --side-bid: #161616; --side-bid-ink: #faf8f3;
+  --select-ring: #c2330f;
+}
+
+/* ---------------- base ---------------- */
+html, body { margin: 0; }
+body { -webkit-font-smoothing: antialiased; }
+.screen { position: relative; overflow: hidden; background: var(--page-bg); color: var(--color-text); font-family: var(--font-body); font-size: var(--text-md); line-height: 1.35; }
+.screen *, .screen *::before, .screen *::after { box-sizing: border-box; }
+.screen p, .screen h1, .screen h2, .screen h3, .screen ul { margin: 0; }
+.display { font-family: var(--font-display); font-weight: var(--display-weight); font-style: var(--display-style); letter-spacing: var(--display-tracking); text-transform: var(--display-transform); line-height: 1.02; }
+.num { font-family: var(--font-num); font-weight: var(--num-weight); font-style: var(--num-style); font-variant-numeric: tabular-nums; }
+.label { font-family: var(--font-label); font-weight: var(--label-weight); letter-spacing: var(--label-tracking); text-transform: uppercase; font-size: var(--text-xs); color: var(--color-label); line-height: 1.2; }
+.muted { color: var(--color-text-muted); }
+.strong { font-weight: var(--body-weight-strong); }
+.card { background: var(--color-surface); border: var(--border-w) solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-outline), var(--shadow-card); backdrop-filter: blur(16px); color: var(--color-text); text-decoration: none; }
+.theme-emerald .card, .theme-yerba .card, .theme-paper .card { backdrop-filter: none; }
+.btn { min-height: var(--tap-min); min-width: var(--tap-min); padding: 0 20px; border-radius: var(--radius-control); border: var(--border-w) solid var(--color-border); background: var(--control-bg); color: var(--color-text); font: 600 var(--text-md)/1 var(--font-body); display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; box-shadow: var(--shadow-outline); white-space: nowrap; }
+.btn-primary { background: var(--cta-bg); color: var(--cta-text); border-color: transparent; font-weight: 700; }
+.theme-yerba .btn-primary, .theme-paper .btn-primary { border-color: var(--color-border); }
+.theme-yerba .btn-primary { box-shadow: var(--shadow-outline), 3px 3px 0 #2b1608; }
+.btn-ghost { border-color: transparent; background: transparent; box-shadow: none; }
+.btn-icon { padding: 0; width: var(--tap-min); }
+.btn[disabled], .btn.is-disabled { opacity: .45; }
+.btn:focus-visible, a:focus-visible, .focus-ring { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.chip { min-height: 32px; padding: 0 12px; border-radius: var(--radius-control); border: var(--border-w) solid var(--color-border); font-size: var(--text-sm); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; color: var(--color-text-muted); white-space: nowrap; }
+.badge-soon { min-height: 32px; padding: 0 12px; border-radius: var(--radius-control); border: var(--border-w) dashed var(--badge-soon-border); background: var(--badge-soon-bg); color: var(--badge-soon-text); font: var(--label-weight) var(--text-xs)/1 var(--font-label); letter-spacing: var(--label-tracking); text-transform: uppercase; display: inline-flex; align-items: center; white-space: nowrap; }
+.offline { background: var(--status-offline-bg); color: var(--status-offline-text); border-radius: var(--radius-control); display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; font-size: var(--text-sm); font-weight: 700; }
+.seg { display: grid; border: var(--border-w) solid var(--color-border); border-radius: var(--radius-control); padding: 3px; gap: 3px; background: var(--control-bg); box-shadow: var(--shadow-outline); }
+.seg > * { min-height: 44px; border-radius: var(--radius-control); display: flex; align-items: center; justify-content: center; gap: 6px; font: 600 var(--text-sm)/1 var(--font-body); color: var(--color-text-muted); border: 0; background: transparent; }
+.seg > .on { background: var(--control-on-bg); color: var(--control-on-text); }
+.switch { width: 52px; height: 32px; border-radius: 99px; background: var(--control-on-bg); position: relative; flex: none; border: var(--border-w) solid var(--color-border); }
+.switch::after { content: ''; position: absolute; top: 3px; left: 23px; width: 24px; height: 24px; border-radius: 99px; background: var(--control-on-text); }
+.switch.off { background: var(--control-bg); }
+.switch.off::after { left: 3px; background: var(--color-text-muted); }
+.row { display: flex; align-items: center; gap: 12px; min-height: 56px; }
+.divider { border-top: var(--border-w) solid var(--color-border); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--sheet-bg); border-top: var(--border-w) solid var(--color-border); border-radius: 28px 28px 0 0; padding: 10px 20px 24px; box-shadow: var(--shadow-outline); }
+.theme-paper .sheet { border-radius: 0; }
+.handle { width: 44px; height: 5px; border-radius: 9px; background: var(--color-border); margin: 0 auto 6px; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); }
+.fade-bottom { position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(180deg, transparent, var(--color-bg)); pointer-events: none; }
+.avatar { width: 48px; height: 48px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; flex: none; line-height: 1; }
+.art { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-tile); overflow: hidden; }
+.art > svg { display: block; width: 100%; height: 100%; }
+.soon-art { filter: saturate(.35); opacity: .75; }
+.pill-dot { width: 8px; height: 8px; border-radius: 99px; background: var(--status-live); flex: none; }
+
+/* in-game table */
+.felt { background: radial-gradient(70% 70% at 40% 30%, var(--table-felt), var(--table-felt-2)); border: 3px solid var(--table-rim); border-radius: 50%; box-shadow: var(--shadow-outline), inset 0 -10px 30px rgba(0,0,0,.25); }
+.theme-yerba .felt { box-shadow: 0 0 0 2px #2b1608, 5px 6px 0 #2b1608; }
+.seat { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 92px; transform: translate(-50%, -50%); }
+.seat .avatar { box-shadow: 0 0 0 3px var(--seat-ring); }
+.seat-name { font-weight: 700; font-size: var(--text-sm); text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.theme-yerba .seat-name, .theme-paper .seat-name { text-shadow: none; }
+.badge { min-height: 26px; padding: 0 10px; border-radius: 99px; background: var(--control-on-bg); color: var(--control-on-text); font: 700 var(--text-xs)/26px var(--font-body); letter-spacing: .06em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.badge-bid { background: var(--side-bid); color: var(--side-bid-ink); }
+.passed .avatar { opacity: .4; filter: grayscale(1); }
+.passed .seat-name { opacity: .6; }
+
+/* Ishaara word cards */
+.wcard { border-radius: var(--radius-key); border: 2px solid var(--card-edge); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; font: 800 var(--text-sm)/1.05 var(--font-body); letter-spacing: .02em; text-transform: uppercase; position: relative; overflow: hidden; padding: 4px; }
+.w-word { background: var(--card-word); color: var(--card-word-ink); }
+.w-sun { background: var(--team-sun); color: var(--team-sun-ink); }
+.w-moon { background: var(--team-moon); color: var(--team-moon-ink); }
+.w-blank { background: repeating-linear-gradient(135deg, rgba(255,255,255,.16) 0 6px, rgba(255,255,255,0) 6px 14px), var(--card-blank); color: var(--card-blank-ink); }
+.w-trap { background: repeating-linear-gradient(45deg, rgba(255,255,255,.13) 0 4px, rgba(255,255,255,0) 4px 12px), var(--card-trap); color: var(--card-trap-ink); }
+.w-selected { box-shadow: 0 0 0 4px var(--select-ring), 0 10px 24px rgba(0,0,0,.35); transform: translateY(-3px); }
+.w-done { opacity: .9; }
+.team-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 99px; font-weight: 800; font-size: var(--text-md); }
+.t-sun { background: var(--team-sun); color: var(--team-sun-ink); }
+.t-moon { background: var(--team-moon); color: var(--team-moon-ink); }
+
+/* clue-giver phone: plain and dark in every theme */
+.clue { background: var(--clue-bg); color: var(--clue-text); font-family: 'Instrument Sans', system-ui, sans-serif; }
+.clue .card { background: var(--clue-surface); border-color: var(--clue-border); color: var(--clue-text); box-shadow: none; border-radius: 16px; backdrop-filter: none; }
+.clue .muted { color: var(--clue-muted); }
+.clue .btn { background: var(--clue-surface); color: var(--clue-text); border-color: var(--clue-border); border-radius: 14px; box-shadow: none; font-family: 'Instrument Sans', sans-serif; }
+.clue .btn-primary { background: #e9e6e1; color: #0e0e10; border-color: transparent; }
+.clue .label { color: var(--clue-muted); font-family: 'Instrument Sans', sans-serif; letter-spacing: .14em; }
+.clue .wcard { border-radius: 10px; border-color: transparent; }
+
+/* NEW · deck colours (card faces, backs, suit pips in the UI) */
+.theme-sunset  { --deck-face: #fbf3ec; --deck-ink: #1d1418; --deck-red: #c0263f; --deck-rule: #e2a3b8; --deck-back: #9a3466; --suit-red: #ff8fb0; }
+.theme-emerald { --deck-face: #f6efe3; --deck-ink: #1a1a12; --deck-red: #a8202e; --deck-rule: #b8862f; --deck-back: #1d5a40; --suit-red: #ff9a8a; }
+.theme-yerba   { --deck-face: #fff6e2; --deck-ink: #2b1608; --deck-red: #c8462c; --deck-rule: #2b1608; --deck-back: #ec6a4f; --suit-red: #c8462c; }
+.theme-paper   { --deck-face: #ffffff; --deck-ink: #161616; --deck-red: #c2330f; --deck-rule: #161616; --deck-back: #1d1d1d; --suit-red: #c2330f; }
+
+html,body{width:390px;height:844px;overflow:hidden;background:#000}
+.theme-sunset{--suit-red:#ff8fb0}.theme-emerald{--suit-red:#ff9a8a}.theme-yerba{--suit-red:#c8462c}.theme-paper{--suit-red:#c2330f}
+</style></head>
+<body><div class="screen theme-paper " style="width:390px;height:844px"><div style="height:844px;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:16px">
+<header style="display:flex;align-items:center;justify-content:space-between;min-height:56px;gap:8px"><span aria-label="Baithak"><svg style="height:28px;width:auto;display:block" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 -88 478.56 92" role="img" aria-label="Baithak"><defs><linearGradient id="u338_tbl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb27a"/><stop offset="1" stop-color="#f2679a"/></linearGradient></defs>
+<g transform="translate(0 -88) scale(1.44)">
+  <circle cx="32" cy="32" r="15" fill="url(#u338_tbl)"/>
+  <path d="M20.65 9.72A25 25 0 0 1 43.35 9.72" fill="none" stroke="#161616" stroke-opacity="1" stroke-width="7" stroke-linecap="round"/><path d="M54.28 20.65A25 25 0 0 1 54.28 43.35" fill="none" stroke="#161616" stroke-opacity="1" stroke-width="7" stroke-linecap="round"/><path d="M9.72 43.35A25 25 0 0 1 9.72 20.65" fill="none" stroke="#161616" stroke-opacity="1" stroke-width="7" stroke-linecap="round"/><path d="M43.35 54.28A25 25 0 0 1 20.65 54.28" fill="none" stroke="#c2330f" stroke-opacity="1" stroke-width="7" stroke-linecap="round"/>
+</g>
+<g transform="translate(117.76 0)"><path d="M39.60 1.40Q34.60 1.40 30.85-0.50Q27.10-2.40 24.75-6.20Q22.40-10 21.60-15.60L19.70-15.60L19.40 0L6.20 0L6.20-72L22.30-72L22.30-54.50Q22.30-52.10 21.95-49.45Q21.60-46.80 21.05-43.90Q20.50-41 19.90-37.70L22.20-37.70Q23.60-43.10 25.90-46.70Q28.20-50.30 31.65-52.15Q35.10-54 39.80-54Q46.40-54 51.25-50.60Q56.10-47.20 58.80-40.95Q61.50-34.70 61.50-26Q61.50-17.60 58.85-11.45Q56.20-5.30 51.30-1.95Q46.40 1.40 39.60 1.40M33.60-11.60Q36.90-11.60 39.40-13.45Q41.90-15.30 43.25-18.65Q44.60-22 44.60-26.50Q44.60-31.10 43.30-34.35Q42-37.60 39.65-39.40Q37.30-41.20 34-41.20Q31.80-41.20 29.95-40.40Q28.10-39.60 26.70-38.20Q25.30-36.80 24.30-35.05Q23.30-33.30 22.80-31.35Q22.30-29.40 22.30-27.50L22.30-25.40Q22.30-23.30 22.90-20.90Q23.50-18.50 24.85-16.40Q26.20-14.30 28.35-12.95Q30.50-11.60 33.60-11.60M79.90 1.40Q75.50 1.40 72.10-0.35Q68.70-2.10 66.80-5.45Q64.90-8.80 64.90-13.60Q64.90-18.10 66.65-21.05Q68.40-24 71.75-25.75Q75.10-27.50 79.80-28.65Q84.50-29.80 90.50-30.70Q93.40-31.20 95.35-31.65Q97.30-32.10 98.30-33.10Q99.30-34.10 99.30-36Q99.30-38.50 97.50-40.30Q95.70-42.10 91.70-42.10Q88.90-42.10 86.65-41.10Q84.40-40.10 82.80-38.20Q81.20-36.30 80.40-33.60L66.20-37.80Q67.50-42 69.85-45.10Q72.20-48.20 75.50-50.25Q78.80-52.30 83.05-53.25Q87.30-54.20 92.10-54.20Q100.10-54.20 105.15-51.65Q110.20-49.10 112.65-43.75Q115.10-38.40 115.10-30L115.10-21.90Q115.10-18.30 115.25-14.65Q115.40-11 115.65-7.35Q115.90-3.70 116.30 0L102.10 0Q101.70-2.30 101.30-5.55Q100.90-8.80 100.70-12.20L98.80-12.20Q97.40-8.40 94.75-5.25Q92.10-2.10 88.35-0.35Q84.60 1.40 79.90 1.40M87.20-10Q89-10 90.85-10.65Q92.70-11.30 94.40-12.45Q96.10-13.60 97.50-15.30Q98.90-17 99.60-19L99.40-25.30Q98.50-24.80 97.40-24.50Q95.10-23.80 92.75-23.40Q90.40-23 88.15-22.55Q85.90-22.10 84.15-21.40Q82.40-20.70 81.40-19.50Q80.40-18.30 80.40-16.20Q80.40-13.40 82.30-11.70Q84.20-10 87.20-10M139.60 0L123.50 0L123.50-52.80L139.60-52.80M169.20 1.30Q159.90 1.30 155.50-3.65Q151.10-8.60 151.10-19.50L151.10-40.20L143.60-40.20L143.90-52.70L149.30-52.70Q152.50-52.80 154.15-53.70Q155.80-54.60 156.20-57.10L157.50-64.50L166.60-64.50L166.60-52.80L179.30-52.80L179.30-39.70L166.60-39.70L166.60-20.20Q166.60-16.80 168.25-15.20Q169.90-13.60 173.30-13.60Q175.20-13.60 176.90-14Q178.60-14.40 179.70-15.10L179.70-0.20Q176.50 0.80 173.85 1.05Q171.20 1.30 169.20 1.30M201.80 0L185.70 0L185.70-72L201.80-72L201.80-55.50Q201.80-53.50 201.65-51.35Q201.50-49.20 201.15-46.95Q200.80-44.70 200.45-42.40Q200.10-40.10 199.60-37.90L202-37.90Q203.40-42.80 205.50-46.45Q207.60-50.10 211-52.15Q214.40-54.20 219.70-54.20Q229.10-54.20 233.75-47.65Q238.40-41.10 238.40-27.50L238.40 0L222.20 0L222.20-24.80Q222.20-32.90 219.85-36.95Q217.50-41 212.70-41Q209-41 206.60-38.70Q204.20-36.40 203-32.55Q201.80-28.70 201.80-24M258.90 1.40Q254.50 1.40 251.10-0.35Q247.70-2.10 245.80-5.45Q243.90-8.80 243.90-13.60Q243.90-18.10 245.65-21.05Q247.40-24 250.75-25.75Q254.10-27.50 258.80-28.65Q263.50-29.80 269.50-30.70Q272.40-31.20 274.35-31.65Q276.30-32.10 277.30-33.10Q278.30-34.10 278.30-36Q278.30-38.50 276.50-40.30Q274.70-42.10 270.70-42.10Q267.90-42.10 265.65-41.10Q263.40-40.10 261.80-38.20Q260.20-36.30 259.40-33.60L245.20-37.80Q246.50-42 248.85-45.10Q251.20-48.20 254.50-50.25Q257.80-52.30 262.05-53.25Q266.30-54.20 271.10-54.20Q279.10-54.20 284.15-51.65Q289.20-49.10 291.65-43.75Q294.10-38.40 294.10-30L294.10-21.90Q294.10-18.30 294.25-14.65Q294.40-11 294.65-7.35Q294.90-3.70 295.30 0L281.10 0Q280.70-2.30 280.30-5.55Q279.90-8.80 279.70-12.20L277.80-12.20Q276.40-8.40 273.75-5.25Q271.10-2.10 267.35-0.35Q263.60 1.40 258.90 1.40M266.20-10Q268-10 269.85-10.65Q271.70-11.30 273.40-12.45Q275.10-13.60 276.50-15.30Q277.90-17 278.60-19L278.40-25.30Q277.50-24.80 276.40-24.50Q274.10-23.80 271.75-23.40Q269.40-23 267.15-22.55Q264.90-22.10 263.15-21.40Q261.40-20.70 260.40-19.50Q259.40-18.30 259.40-16.20Q259.40-13.40 261.30-11.70Q263.20-10 266.20-10M318.30 0L302.50 0L302.50-72.10L318.30-72.10L318.30-32.30Q321.20-34.40 323.75-36.80Q326.30-39.20 328.45-41.80Q330.60-44.40 332.35-47.15Q334.10-49.90 335.40-52.80L353.80-52.80Q352.50-48.90 350.20-45.05Q347.90-41.20 344.60-37.95Q341.30-34.70 336.75-32.40Q332.20-30.10 326.50-29.30L326.50-27.50Q333.70-28.90 338.35-27.55Q343-26.20 345.80-23.20Q348.60-20.20 350.10-16.20Q351.60-12.20 352.60-8.30L354.70 0L337.20 0L336.20-5Q335.20-9.90 333.85-13.40Q332.50-16.90 330-18.85Q327.50-20.80 322.80-20.80L318.30-20.80" fill="#161616"/><circle cx="131.55" cy="-69.78" r="9.98" fill="#c2330f"/></g></svg></span>
+<div style="display:flex;gap:8px;align-items:center"><button type="button" class="btn" aria-label="Account: Jay" style="padding:0 16px 0 5px;gap:8px"><svg width="36" height="36" viewBox="0 0 40 40" role="img" aria-label="Profile photo" style="border-radius:999px;flex:none;display:block"><defs><linearGradient id="ph36" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9a37a"/><stop offset="1" stop-color="#7a3f2c"/></linearGradient></defs><rect width="40" height="40" fill="url(#ph36)"/><circle cx="20" cy="16" r="7" fill="#f6e3d3"/><path d="M6 40c2-9 8-13 14-13s12 4 14 13z" fill="#f6e3d3"/></svg><span>Jay</span></button><button type="button" class="btn btn-icon" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div></header>
+
+<section style="display:flex;flex-direction:column;gap:10px"><h1 class="display" style="font-size:var(--text-2xl)">Pick a game</h1>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:8px" aria-label="All games"><p class="label">Games</p><div style="display:flex;flex-direction:column;gap:12px"><article class="card" style="padding:12px;display:grid;grid-template-columns:88px 1fr;gap:12px 14px">
+<div style="width:88px;height:88px" class=""><div class="art"><svg style="display:block;width:100%;height:100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Kachuful: a table of five with a spade"><defs><linearGradient id="u333_bg"><stop offset="0" stop-color="#f1ede4"/><stop offset="1" stop-color="#f1ede4"/></linearGradient><radialGradient id="u333_tb" cx="0.4" cy="0.3" r="0.8"><stop offset="0" stop-color="#2c6650"/><stop offset="1" stop-color="#1a4234"/></radialGradient><linearGradient id="u333_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dc8c"/><stop offset="1" stop-color="#b8862f"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#u333_bg)"/>
+<ellipse cx="320" cy="214" rx="214" ry="128" fill="#000" opacity=".25"/>
+<ellipse cx="320" cy="206" rx="206" ry="122" fill="url(#u333_tb)" stroke="#161616" stroke-opacity="1" stroke-width="4"/>
+
+<ellipse cx="320" cy="206" rx="150" ry="84" fill="none" stroke="#f1ede4" stroke-opacity=".7" stroke-width="4" stroke-dasharray="10 12"/>
+<path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="#f1ede4" transform="translate(275 150) scale(.9)"/>
+<circle cx="320" cy="334" r="30" fill="#e5a57a" stroke="#161616" stroke-width="5"/><circle cx="128" cy="250" r="28" fill="#7fb0d8" stroke="#161616" stroke-width="3"/><circle cx="190" cy="96" r="28" fill="#e3c35f" stroke="#161616" stroke-width="3"/><circle cx="450" cy="96" r="28" fill="#8fcfa8" stroke="#161616" stroke-width="3"/><circle cx="512" cy="250" r="28" fill="#b9a3e3" stroke="#161616" stroke-width="3"/></svg></div></div>
+<div style="display:flex;flex-direction:column;gap:5px;min-width:0;justify-content:center"><h3 class="display" style="font-size:var(--text-xl)">Kachuful</h3><p class="muted" style="font-size:var(--text-sm);line-height:1.35">Call your tricks exactly. It deals every round and keeps score.</p></div>
+<div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></svg>3–14 players</span><a href="#" class="btn" style="min-height:44px;padding:0 16px" aria-label="Play Kachuful">Play<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></article><article class="card" style="padding:12px;display:grid;grid-template-columns:88px 1fr;gap:12px 14px">
+<div style="width:88px;height:88px" class=""><div class="art"><svg style="display:block;width:100%;height:100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Kaali Teeri: the 3 of spades with two hidden partner cards"><defs><linearGradient id="u336_bg"><stop offset="0" stop-color="#f1ede4"/><stop offset="1" stop-color="#f1ede4"/></linearGradient><radialGradient id="u336_tb" cx="0.5" cy="0.4" r="0.8"><stop offset="0" stop-color="#2c6650"/><stop offset="1" stop-color="#1a4234"/></radialGradient></defs>
+<rect width="640" height="400" fill="url(#u336_bg)"/>
+<rect x="40" y="40" width="560" height="320" rx="160" fill="url(#u336_tb)" stroke="#161616" stroke-opacity="1" stroke-width="3"/>
+<g transform="rotate(-16 248 292)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350" x="176" y="92" width="144" height="202"><defs><linearGradient id="u336_cb334g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d1d1d"/><stop offset="1" stop-color="#111111"/></linearGradient><clipPath id="u336_cb334c"><rect x="24" y="24" width="202" height="302" rx="6"/></clipPath></defs>
+<rect x="1" y="1" width="248" height="348" rx="18" fill="url(#u336_cb334g)" stroke="#161616" stroke-width="2"/>
+<rect x="12" y="12" width="226" height="326" rx="10" fill="none" stroke="#f1ede4" stroke-width="2.5"/><rect x="18" y="18" width="214" height="314" rx="7" fill="none" stroke="#f1ede4" stroke-width="1"/>
+<path d="M-350 0L0 350M0 0L-350 350M-328 0L22 350M22 0L-328 350M-306 0L44 350M44 0L-306 350M-284 0L66 350M66 0L-284 350M-262 0L88 350M88 0L-262 350M-240 0L110 350M110 0L-240 350M-218 0L132 350M132 0L-218 350M-196 0L154 350M154 0L-196 350M-174 0L176 350M176 0L-174 350M-152 0L198 350M198 0L-152 350M-130 0L220 350M220 0L-130 350M-108 0L242 350M242 0L-108 350M-86 0L264 350M264 0L-86 350M-64 0L286 350M286 0L-64 350M-42 0L308 350M308 0L-42 350M-20 0L330 350M330 0L-20 350M2 0L352 350M352 0L2 350M24 0L374 350M374 0L24 350M46 0L396 350M396 0L46 350M68 0L418 350M418 0L68 350M90 0L440 350M440 0L90 350M112 0L462 350M462 0L112 350M134 0L484 350M484 0L134 350M156 0L506 350M506 0L156 350M178 0L528 350M528 0L178 350M200 0L550 350M550 0L200 350M222 0L572 350M572 0L222 350M244 0L594 350M594 0L244 350M266 0L616 350M616 0L266 350M288 0L638 350M638 0L288 350M310 0L660 350M660 0L310 350M332 0L682 350M682 0L332 350M354 0L704 350M704 0L354 350M376 0L726 350M726 0L376 350M398 0L748 350M748 0L398 350M420 0L770 350M770 0L420 350M442 0L792 350M792 0L442 350M464 0L814 350M814 0L464 350M486 0L836 350M836 0L486 350M508 0L858 350M858 0L508 350M530 0L880 350M880 0L530 350M552 0L902 350M902 0L552 350M574 0L924 350M924 0L574 350M596 0L946 350M946 0L596 350" clip-path="url(#u336_cb334c)" stroke="#f1ede4" stroke-opacity=".35" stroke-width="1.2" fill="none"/>
+<circle cx="125" cy="175" r="40" fill="#1d1d1d" stroke="#f1ede4" stroke-width="3"/><path d="M125 147L145 175L125 203L105 175Z" fill="#f1ede4"/></svg>
+<circle cx="248" cy="193" r="30" fill="#f1ede4" stroke="#161616" stroke-width="0"/><path d="M251.84 196.40L245.13 196.40Q245.13 194.23 245.70 192.76Q246.28 191.29 247.19 190.28Q248.12 189.27 249.13 188.48Q250.14 187.70 251.06 187.01Q251.98 186.32 252.55 185.47Q253.13 184.62 253.13 183.47L253.13 183.47Q253.13 181.72 251.96 180.82Q250.78 179.93 248.71 179.93L248.71 179.93Q246.18 179.93 244.55 181.12Q242.92 182.32 242.55 184.57L242.55 184.57L235.79 184.57Q236.25 181.49 237.95 179.24Q239.65 176.98 242.41 175.74Q245.17 174.50 248.76 174.50L248.76 174.50Q252.25 174.50 254.83 175.60Q257.41 176.71 258.86 178.71Q260.31 180.71 260.31 183.38L260.31 183.38Q260.31 185.26 259.68 186.64Q259.06 188.02 258.12 189.01Q257.18 190.00 256.07 190.81Q254.97 191.61 254.03 192.42Q253.08 193.22 252.46 194.16Q251.84 195.11 251.84 196.40L251.84 196.40ZM252.30 209L244.71 209L244.71 201.41L252.30 201.41L252.30 209Z" fill="#1a1a12"/></g><g transform="rotate(16 392 292)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350" x="320" y="92" width="144" height="202"><defs><linearGradient id="u336_cb335g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d1d1d"/><stop offset="1" stop-color="#111111"/></linearGradient><clipPath id="u336_cb335c"><rect x="24" y="24" width="202" height="302" rx="6"/></clipPath></defs>
+<rect x="1" y="1" width="248" height="348" rx="18" fill="url(#u336_cb335g)" stroke="#161616" stroke-width="2"/>
+<rect x="12" y="12" width="226" height="326" rx="10" fill="none" stroke="#f1ede4" stroke-width="2.5"/><rect x="18" y="18" width="214" height="314" rx="7" fill="none" stroke="#f1ede4" stroke-width="1"/>
+<path d="M-350 0L0 350M0 0L-350 350M-328 0L22 350M22 0L-328 350M-306 0L44 350M44 0L-306 350M-284 0L66 350M66 0L-284 350M-262 0L88 350M88 0L-262 350M-240 0L110 350M110 0L-240 350M-218 0L132 350M132 0L-218 350M-196 0L154 350M154 0L-196 350M-174 0L176 350M176 0L-174 350M-152 0L198 350M198 0L-152 350M-130 0L220 350M220 0L-130 350M-108 0L242 350M242 0L-108 350M-86 0L264 350M264 0L-86 350M-64 0L286 350M286 0L-64 350M-42 0L308 350M308 0L-42 350M-20 0L330 350M330 0L-20 350M2 0L352 350M352 0L2 350M24 0L374 350M374 0L24 350M46 0L396 350M396 0L46 350M68 0L418 350M418 0L68 350M90 0L440 350M440 0L90 350M112 0L462 350M462 0L112 350M134 0L484 350M484 0L134 350M156 0L506 350M506 0L156 350M178 0L528 350M528 0L178 350M200 0L550 350M550 0L200 350M222 0L572 350M572 0L222 350M244 0L594 350M594 0L244 350M266 0L616 350M616 0L266 350M288 0L638 350M638 0L288 350M310 0L660 350M660 0L310 350M332 0L682 350M682 0L332 350M354 0L704 350M704 0L354 350M376 0L726 350M726 0L376 350M398 0L748 350M748 0L398 350M420 0L770 350M770 0L420 350M442 0L792 350M792 0L442 350M464 0L814 350M814 0L464 350M486 0L836 350M836 0L486 350M508 0L858 350M858 0L508 350M530 0L880 350M880 0L530 350M552 0L902 350M902 0L552 350M574 0L924 350M924 0L574 350M596 0L946 350M946 0L596 350" clip-path="url(#u336_cb335c)" stroke="#f1ede4" stroke-opacity=".35" stroke-width="1.2" fill="none"/>
+<circle cx="125" cy="175" r="40" fill="#1d1d1d" stroke="#f1ede4" stroke-width="3"/><path d="M125 147L145 175L125 203L105 175Z" fill="#f1ede4"/></svg>
+<circle cx="392" cy="193" r="30" fill="#f1ede4" stroke="#161616" stroke-width="0"/><path d="M395.84 196.40L389.13 196.40Q389.13 194.23 389.70 192.76Q390.28 191.29 391.20 190.28Q392.12 189.27 393.13 188.48Q394.14 187.70 395.06 187.01Q395.98 186.32 396.55 185.47Q397.13 184.62 397.13 183.47L397.13 183.47Q397.13 181.72 395.96 180.82Q394.78 179.93 392.71 179.93L392.71 179.93Q390.18 179.93 388.55 181.12Q386.92 182.32 386.55 184.57L386.55 184.57L379.79 184.57Q380.25 181.49 381.95 179.24Q383.65 176.98 386.41 175.74Q389.17 174.50 392.76 174.50L392.76 174.50Q396.25 174.50 398.83 175.60Q401.41 176.71 402.86 178.71Q404.31 180.71 404.31 183.38L404.31 183.38Q404.31 185.26 403.68 186.64Q403.06 188.02 402.12 189.01Q401.18 190.00 400.07 190.81Q398.97 191.61 398.03 192.42Q397.08 193.22 396.46 194.16Q395.84 195.11 395.84 196.40L395.84 196.40ZM396.30 209L388.71 209L388.71 201.41L396.30 201.41L396.30 209Z" fill="#1a1a12"/></g>
+<g transform="rotate(-3 320 300)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350" x="240" y="72" width="160" height="224"><rect x="1" y="1" width="248" height="348" rx="18" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="9" y="9" width="232" height="332" rx="12" fill="none" stroke="#1a1a12" stroke-width="7"/><rect x="17" y="17" width="216" height="316" rx="8" fill="none" stroke="#161616" stroke-width="2.5"/><rect x="22" y="22" width="206" height="306" rx="6" fill="none" stroke="#161616" stroke-width="1"/><path d="M22 13L31 22L22 31L13 22Z" fill="#161616" stroke="#1a1a12" stroke-width="1.5"/><path d="M228 13L237 22L228 31L219 22Z" fill="#161616" stroke="#1a1a12" stroke-width="1.5"/><path d="M22 319L31 328L22 337L13 328Z" fill="#161616" stroke="#1a1a12" stroke-width="1.5"/><path d="M228 319L237 328L228 337L219 328Z" fill="#161616" stroke="#1a1a12" stroke-width="1.5"/><path d="M36.02 66.36L36.02 66.36Q34.26 66.36 32.96 65.60Q31.66 64.84 31.66 63.36L31.66 63.36Q31.66 62.56 32.08 62.12Q32.50 61.68 33.06 61.68L33.06 61.68Q33.74 61.68 34 62.04Q34.26 62.40 34.32 62.94Q34.38 63.48 34.48 64.04Q34.58 64.60 34.96 64.96Q35.34 65.32 36.26 65.32L36.26 65.32Q37.98 65.32 39.30 64.32Q40.62 63.32 41.52 61.70Q42.42 60.08 42.88 58.18Q43.34 56.28 43.34 54.52L43.34 54.52Q43.34 52.08 42.56 50.80Q41.78 49.52 39.90 49.52L39.90 49.52Q39.14 49.52 38.54 49.68Q37.94 49.84 37.42 50.08L37.42 50.08Q36.98 50.28 36.72 50.20Q36.46 50.12 36.46 49.84L36.46 49.84Q36.46 49.56 37.02 49.16L37.02 49.16L40.42 46.84Q42.90 45.16 44.02 43.64Q45.14 42.12 45.14 40.44L45.14 40.44Q45.14 39.32 44.54 38.70Q43.94 38.08 42.78 38.08L42.78 38.08Q41.38 38.08 40.20 39.08Q39.02 40.08 38.50 42.12L38.50 42.12Q38.38 42.64 37.90 42.64L37.90 42.64Q37.30 42.64 37.50 41.84L37.50 41.84Q38.06 39.36 39.72 38.08Q41.38 36.80 43.42 36.80L43.42 36.80Q45.54 36.80 46.72 37.82Q47.90 38.84 47.90 40.44L47.90 40.44Q47.90 42.40 46.28 44.12Q44.66 45.84 41.22 47.56L41.22 47.56L40.10 48.12Q39.90 48.20 39.94 48.34Q39.98 48.48 40.22 48.44L40.22 48.44Q40.66 48.32 40.98 48.32L40.98 48.32Q43.30 48.32 44.74 50.14Q46.18 51.96 46.18 55.12L46.18 55.12Q46.18 57 45.34 58.96Q44.50 60.92 43.08 62.60Q41.66 64.28 39.84 65.32Q38.02 66.36 36.02 66.36Z" fill="#161616"/><path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="#161616" transform="translate(28 78) scale(0.24)"/><g transform="rotate(180 125 175)"><path d="M36.02 66.36L36.02 66.36Q34.26 66.36 32.96 65.60Q31.66 64.84 31.66 63.36L31.66 63.36Q31.66 62.56 32.08 62.12Q32.50 61.68 33.06 61.68L33.06 61.68Q33.74 61.68 34 62.04Q34.26 62.40 34.32 62.94Q34.38 63.48 34.48 64.04Q34.58 64.60 34.96 64.96Q35.34 65.32 36.26 65.32L36.26 65.32Q37.98 65.32 39.30 64.32Q40.62 63.32 41.52 61.70Q42.42 60.08 42.88 58.18Q43.34 56.28 43.34 54.52L43.34 54.52Q43.34 52.08 42.56 50.80Q41.78 49.52 39.90 49.52L39.90 49.52Q39.14 49.52 38.54 49.68Q37.94 49.84 37.42 50.08L37.42 50.08Q36.98 50.28 36.72 50.20Q36.46 50.12 36.46 49.84L36.46 49.84Q36.46 49.56 37.02 49.16L37.02 49.16L40.42 46.84Q42.90 45.16 44.02 43.64Q45.14 42.12 45.14 40.44L45.14 40.44Q45.14 39.32 44.54 38.70Q43.94 38.08 42.78 38.08L42.78 38.08Q41.38 38.08 40.20 39.08Q39.02 40.08 38.50 42.12L38.50 42.12Q38.38 42.64 37.90 42.64L37.90 42.64Q37.30 42.64 37.50 41.84L37.50 41.84Q38.06 39.36 39.72 38.08Q41.38 36.80 43.42 36.80L43.42 36.80Q45.54 36.80 46.72 37.82Q47.90 38.84 47.90 40.44L47.90 40.44Q47.90 42.40 46.28 44.12Q44.66 45.84 41.22 47.56L41.22 47.56L40.10 48.12Q39.90 48.20 39.94 48.34Q39.98 48.48 40.22 48.44L40.22 48.44Q40.66 48.32 40.98 48.32L40.98 48.32Q43.30 48.32 44.74 50.14Q46.18 51.96 46.18 55.12L46.18 55.12Q46.18 57 45.34 58.96Q44.50 60.92 43.08 62.60Q41.66 64.28 39.84 65.32Q38.02 66.36 36.02 66.36Z" fill="#161616"/><path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="#161616" transform="translate(28 78) scale(0.24)"/></g><path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="#161616" transform="translate(107 62) scale(0.36)"/><path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="#161616" transform="translate(107 157) scale(0.36)"/><path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="#161616" transform="translate(107 252) scale(0.36) rotate(180 50 50)"/><circle cx="125" cy="175" r="34" fill="none" stroke="#161616" stroke-width="2"/><rect x="83" y="300" width="84" height="28" rx="14" fill="#1a1a12"/><path d="M117.85 306.76L117.85 306.76Q119.29 306.74 120.32 307.14Q121.35 307.54 121.91 308.27Q122.47 309 122.47 310.02L122.47 310.02Q122.47 310.82 122.15 311.44Q121.83 312.06 121.30 312.47Q120.77 312.88 120.15 313.02L120.15 313.02Q119.95 313.08 119.75 313.10L119.75 313.10Q120.01 313.14 120.29 313.22L120.29 313.22Q120.97 313.44 121.59 313.89Q122.21 314.34 122.59 315.08Q122.97 315.82 122.97 316.88L122.97 316.88Q122.97 318.10 122.43 319.08Q121.89 320.06 120.95 320.74Q120.01 321.42 118.81 321.77Q117.61 322.12 116.29 322.10Q114.97 322.08 113.69 321.64L113.69 321.64L113.73 321.44Q114.95 321.46 116.04 321.13Q117.13 320.80 117.97 320.17Q118.81 319.54 119.29 318.64Q119.77 317.74 119.77 316.66L119.77 316.66Q119.77 315.46 119.22 314.73Q118.67 314 117.79 313.66Q116.91 313.32 115.91 313.32L115.91 313.32L115.95 313.12Q116.87 313.14 117.68 312.71Q118.49 312.28 118.98 311.50Q119.47 310.72 119.37 309.70L119.37 309.70Q119.33 309.02 119.01 308.54Q118.69 308.06 118.16 307.81Q117.63 307.56 116.93 307.60L116.93 307.60Q115.71 307.66 115.14 308.53Q114.57 309.40 114.61 311.02L114.61 311.02L114.41 311.02L113.59 308.18Q114.25 307.58 115.32 307.18Q116.39 306.78 117.85 306.76ZM130.73 306.72L130.73 306.72Q132.49 306.72 133.74 307.62Q134.99 308.52 135.66 310.15Q136.33 311.78 136.33 314L136.33 314Q136.33 316.22 135.66 317.85Q134.99 319.48 133.74 320.38Q132.49 321.28 130.73 321.28L130.73 321.28Q128.97 321.28 127.71 320.38Q126.45 319.48 125.78 317.85Q125.11 316.22 125.11 314L125.11 314Q125.11 311.78 125.78 310.15Q126.45 308.52 127.71 307.62Q128.97 306.72 130.73 306.72ZM130.73 307.56L130.73 307.56Q129.49 307.56 128.85 309.19Q128.21 310.82 128.21 314L128.21 314Q128.21 317.18 128.85 318.81Q129.49 320.44 130.73 320.44L130.73 320.44Q131.95 320.44 132.59 318.81Q133.23 317.18 133.23 314L133.23 314Q133.23 310.82 132.59 309.19Q131.95 307.56 130.73 307.56Z" fill="#161616"/></svg></g></svg></div></div>
+<div style="display:flex;flex-direction:column;gap:5px;min-width:0;justify-content:center"><h3 class="display" style="font-size:var(--text-xl)">Kaali Teeri</h3><p class="muted" style="font-size:var(--text-sm);line-height:1.35">Bid for trump, call secret partners, chase the 3 of spades.</p></div>
+<div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></svg>4–12 players</span><a href="#" class="btn" style="min-height:44px;padding:0 16px" aria-label="Play Kaali Teeri">Play<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></article><article class="card" style="padding:12px;display:grid;grid-template-columns:88px 1fr;gap:12px 14px">
+<div style="width:88px;height:88px" class=""><div class="art"><svg style="display:block;width:100%;height:100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Ishaara: a grid of word cards, some claimed by Sun and Moon"><defs><linearGradient id="u337_bg"><stop offset="0" stop-color="#f1ede4"/><stop offset="1" stop-color="#f1ede4"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#u337_bg)"/>
+<path d="M248 44h144a18 18 0 0 1 18 18v28a18 18 0 0 1-18 18h-58l-18 18-6-18h-62a18 18 0 0 1-18-18v-28a18 18 0 0 1 18-18z" fill="#ffffff" stroke="#161616" stroke-width="2"/>
+<rect x="268" y="70" width="80" height="12" rx="6" fill="#2a2a6e"/><circle cx="370" cy="76" r="9" fill="#f5a524"/>
+<rect x="36" y="140" width="104" height="62" rx="0" fill="#77736b" stroke="#161616" stroke-width="2"/><path d="M44 194l46 -46M68 194l46 -46M92 194l46 -46" stroke="#fff" stroke-opacity=".2" stroke-width="6"/><rect x="152" y="140" width="104" height="62" rx="0" fill="#f5a524" stroke="#161616" stroke-width="2"/><circle cx="204" cy="171" r="14" fill="#2a1600"/><rect x="268" y="140" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="290" y="167" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="384" y="140" width="104" height="62" rx="0" fill="#3f4bc4" stroke="#161616" stroke-width="2"/><path d="M441 156A15 15 0 1 0 441 186A31.5 31.5 0 0 1 441 156Z" fill="#fbf6ec"/><rect x="500" y="140" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="522" y="167" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="36" y="214" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="58" y="241" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="152" y="214" width="104" height="62" rx="0" fill="#f5a524" stroke="#161616" stroke-width="2"/><circle cx="204" cy="245" r="14" fill="#2a1600"/><rect x="268" y="214" width="104" height="62" rx="0" fill="#77736b" stroke="#161616" stroke-width="2"/><path d="M276 268l46 -46M300 268l46 -46M324 268l46 -46" stroke="#fff" stroke-opacity=".2" stroke-width="6"/><rect x="384" y="214" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="406" y="241" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="500" y="214" width="104" height="62" rx="0" fill="#3f4bc4" stroke="#161616" stroke-width="2"/><path d="M557 230A15 15 0 1 0 557 260A31.5 31.5 0 0 1 557 230Z" fill="#fbf6ec"/><rect x="36" y="288" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="58" y="315" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="152" y="288" width="104" height="62" rx="0" fill="#0b0b10" stroke="#161616" stroke-width="2"/><path d="M194 309l20 20M214 309l-20 20" stroke="#f6efe3" stroke-width="6" stroke-linecap="round"/><rect x="268" y="288" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="290" y="315" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="384" y="288" width="104" height="62" rx="0" fill="#ffffff" stroke="#161616" stroke-width="2"/><rect x="406" y="315" width="60" height="8" rx="4" fill="#161616" opacity="0.55"/><rect x="500" y="288" width="104" height="62" rx="0" fill="#f5a524" stroke="#161616" stroke-width="2"/><circle cx="552" cy="319" r="14" fill="#2a1600"/></svg></div></div>
+<div style="display:flex;flex-direction:column;gap:5px;min-width:0;justify-content:center"><h3 class="display" style="font-size:var(--text-xl)">Ishaara</h3><p class="muted" style="font-size:var(--text-sm);line-height:1.35">Two teams, one-word clues, and one card nobody should pick.</p></div>
+<div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></svg>4+ · two teams</span><a href="#" class="btn" style="min-height:44px;padding:0 16px" aria-label="Play Ishaara">Play<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></article></div></section>
+</div><div class="fade-bottom"></div></div></body></html>

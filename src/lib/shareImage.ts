@@ -1,9 +1,34 @@
-import { doneRounds, standings, type Game } from '@/domain';
 import { fmt } from '@/lib/format';
 import { cssColor, seatColorValue } from '@/theme/palette';
 
-/** Draws the final-scores card (1080×1350) in the active theme. Fonts must be loaded first or the canvas falls back silently. */
-export async function drawShareCanvas(g: Game): Promise<HTMLCanvasElement> {
+/** One player's line on the card: tied players share a rank. */
+export interface ShareStanding {
+  rank: number;
+  name: string;
+  emoji: string;
+  /** The saved (hex) seat colour, drawn in the theme's avatar palette. */
+  color: string;
+  total: number;
+}
+
+export interface ShareCard {
+  /** The game's name, set large in gold. */
+  title: string;
+  /** The line under it ("12 rounds · final scores"). */
+  subtitle: string;
+  /** Best first. */
+  standings: ShareStanding[];
+}
+
+/**
+ * Draws a final-scores card (1080×1350) in the active theme: a podium for the top three places, then the first nine
+ * lines. Fonts must be loaded first or the canvas falls back silently.
+ */
+export async function drawShareCanvas({
+  title,
+  subtitle,
+  standings: st,
+}: ShareCard): Promise<HTMLCanvasElement> {
   // A canvas can't read CSS variables, so the theme's faces and colours are resolved once here.
   const font = (v: string) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const DISPLAY = font('--font-display') || 'system-ui, sans-serif',
@@ -16,8 +41,7 @@ export async function drawShareCanvas(g: Game): Promise<HTMLCanvasElement> {
       document.fonts.load(f).catch(() => []),
     ),
   );
-  const st = standings(g),
-    c = document.createElement('canvas');
+  const c = document.createElement('canvas');
   c.width = 1080;
   c.height = 1350;
   const x = c.getContext('2d');
@@ -34,20 +58,21 @@ export async function drawShareCanvas(g: Game): Promise<HTMLCanvasElement> {
   gd.addColorStop(1, palette['gold-dark']);
   x.fillStyle = gd;
   x.font = '800 96px ' + DISPLAY;
-  x.fillText('Kachuful', 540, 130);
+  x.fillText(title, 540, 130);
   x.fillStyle = palette['text-secondary'];
   x.font = '500 34px ' + SANS;
-  x.fillText(`${doneRounds(g).length} rounds · final scores`, 540, 185);
+  x.fillText(subtitle, 540, 185);
   (
     [
-      [2, 150, 230],
-      [1, 420, 330],
-      [3, 690, 160],
+      [2, 150, 300],
+      [1, 420, 400],
+      [3, 690, 220],
     ] as const
   ).forEach(([k, px, hh]) => {
+    // Steps stand on y=880 so the names sit just under the title, with no empty band between.
     const m = st.filter((s) => s.rank === k),
       cx = px + 120,
-      top = 740 + 330 - hh;
+      top = 880 - hh;
     x.fillStyle =
       k === 1 ? palette['gold-mid'] : k === 2 ? palette['rank-silver'] : palette['rank-bronze'];
     x.beginPath();
@@ -59,27 +84,27 @@ export async function drawShareCanvas(g: Game): Promise<HTMLCanvasElement> {
     m.slice(0, 2).forEach((s, j) => {
       const ax = cx + (m.length > 1 ? (j ? 55 : -55) : 0),
         ay = top - 70;
-      x.fillStyle = seatColorValue(s.p.color);
+      x.fillStyle = seatColorValue(s.color);
       x.beginPath();
       x.arc(ax, ay, 46, 0, 7);
       x.fill();
       x.font = '56px sans-serif';
       x.fillStyle = 'black';
-      x.fillText(s.p.emoji, ax, ay + 19);
+      x.fillText(s.emoji, ax, ay + 19);
       x.fillStyle = palette['text-primary'];
       x.font = '700 30px ' + SANS;
-      x.fillText(s.p.name.slice(0, 9), ax, ay - 62);
+      x.fillText(s.name.slice(0, 9), ax, ay - 62);
     });
   });
-  st.slice(0, 7).forEach((s, i) => {
-    const yy = 1110 + i * 38;
+  st.slice(0, 9).forEach((s, i) => {
+    const yy = 950 + i * 42;
     x.textAlign = 'left';
     x.fillStyle = palette['text-primary'];
     x.font = '700 28px ' + SANS;
-    x.fillText(`${s.rank}.  ${s.p.emoji}  ${s.p.name.slice(0, 12)}`, 220, yy);
+    x.fillText(`${s.rank}.  ${s.emoji}  ${s.name.slice(0, 12)}`, 220, yy);
     x.textAlign = 'right';
-    x.fillStyle = s.t < 0 ? palette.negative : palette.positive;
-    x.fillText(fmt(s.t), 860, yy);
+    x.fillStyle = s.total < 0 ? palette.negative : palette.positive;
+    x.fillText(fmt(s.total), 860, yy);
   });
   return c;
 }

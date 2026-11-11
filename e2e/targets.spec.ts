@@ -47,7 +47,7 @@ for (const [w, h, names] of [
       found.push(...(await smallControls(page, screen)));
     };
 
-    await page.goto('/');
+    await page.goto('/kachuful');
     await check('home');
     await page.getByText(/Resume game|Try the demo/).click();
     await check('demo bidding');
@@ -69,7 +69,7 @@ for (const [w, h, names] of [
     await page.waitForTimeout(300);
 
     await page.evaluate(() => localStorage.clear());
-    await page.goto('/');
+    await page.goto('/kachuful');
     await startGame(page, [...names], async (step) => check(step));
     await check('bidding');
     await bidEveryone(page);

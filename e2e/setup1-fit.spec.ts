@@ -31,7 +31,7 @@ test.describe('setup 1 fits the screen', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await page.getByRole('button', { name: /New game/ }).click();
     await btn(page, '5 players').click();
     await page.waitForTimeout(500);

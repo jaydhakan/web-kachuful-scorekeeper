@@ -199,6 +199,53 @@
   --fan-step: 140ms;
   --reveal-rays: none;
   --reveal-glint: none;
+  /* Platform: each game's accent, Ishaara's teams and word cards, Kaali Teeri's bidding team, the coming-soon badge.
+     Word blanks are dark enough for their ink over the lightest stripe of their hatch. */
+  --game-kachuful: #e9c46a;
+  --game-kaali-teeri: #ff7a4f;
+  --game-ishaara: #f5a524;
+  --team-sun: #f5a524;
+  --team-sun-ink: #2a1600;
+  --team-moon: #4f5bd5;
+  --team-moon-ink: var(--text-1);
+  --word-card: var(--card-bg);
+  --word-card-ink: var(--card-fg);
+  --word-blank: #55516e;
+  --word-blank-ink: #fff;
+  --word-trap: #0b0b10;
+  --word-trap-ink: #f6efe3;
+  --word-edge: transparent;
+  /* The blank and trap stripes, the same in every theme (contrast.test.ts measures ink over them). */
+  --word-stripe: rgba(255, 255, 255, 0.16);
+  /* The theme's accent, not gold: gold is for first place. */
+  --kt-bid: var(--brand);
+  --kt-bid-ink: var(--on-brand);
+  --soon-bg: rgba(255, 236, 242, 0.1);
+  --soon-ink: var(--text-2);
+  --soon-edge: rgba(255, 226, 236, 0.34);
+}
+
+/* ---------- Ishaara's clue phone: plain and dark in every theme, so its tokens sit outside the theme blocks ---------- */
+:root,
+[data-theme] {
+  --key-bg: #0f0f12;
+  --key-surface: #1b1b20;
+  --key-edge: #6a6a73;
+  --key-text: #eeebe6;
+  --key-text-2: #a6a4a1;
+  --key-cta: #ebe8e2;
+  --key-cta-ink: #121214;
+  --key-sun: #44300c;
+  --key-sun-ink: #f9c75e;
+  --key-moon: #222a80;
+  --key-moon-ink: #d0d3ff;
+  --key-blank: #2b2b31;
+  --key-blank-ink: #c9c7c4;
+  --key-blank-stripe: rgba(255, 255, 255, 0.08);
+  --key-trap: #000000;
+  --key-trap-ink: #ff927f;
+  --key-alert: #ff927f;
+  --key-ok: #8fdcaa;
 }
 
 /* ---------- names the app used before themes, resolved per [data-theme] so nested previews get their own ---------- */

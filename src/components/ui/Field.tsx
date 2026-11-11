@@ -1,5 +1,5 @@
 import { useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
-import { COLORS, EMOJIS } from '@/domain';
+import { COLORS, EMOJIS } from '@/people';
 import { t } from '@/strings';
 import { icon } from './IconsMore';
 

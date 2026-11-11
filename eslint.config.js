@@ -8,7 +8,16 @@ const HEX = '#[0-9a-fA-F]{3,8}\\b';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'coverage', 'playwright-report', 'test-results', 'reports', 'dev-dist'],
+    ignores: [
+      'dist',
+      'coverage',
+      'playwright-report',
+      'test-results',
+      'reports',
+      'dev-dist',
+      '.claude',
+      'prototype',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -31,7 +40,13 @@ export default tseslint.config(
   },
   {
     // Design tokens only: colours come from the Tailwind theme / CSS variables, never literals.
-    files: ['src/components/**/*.tsx', 'src/screens/**/*.tsx', 'src/sheets/**/*.tsx'],
+    files: [
+      'src/components/**/*.tsx',
+      'src/platform/**/*.tsx',
+      'src/games/*/components/**/*.tsx',
+      'src/games/*/screens/**/*.tsx',
+      'src/games/*/sheets/**/*.tsx',
+    ],
     rules: {
       'no-restricted-syntax': [
         'error',

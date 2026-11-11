@@ -68,7 +68,7 @@ for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`nothing on a table overlaps at any size (${n} players)`, async ({ page }) => {
     // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
     await page.setViewportSize({ width: 740, height: 900 });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await startGame(page, LONG_NAMES_14.slice(0, n));
     await bidEveryone(page);
     const found: string[] = [];
@@ -92,7 +92,7 @@ for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
     // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
     await page.setViewportSize({ width: 740, height: 900 });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await toSetup3(page, LONG_NAMES_14.slice(0, n));
     await btn(page, 'Deal!').click();
     await page.locator('[data-table="rs"]').waitFor();
@@ -110,7 +110,7 @@ for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`the made and missed marks stay clear of the names (${n} players)`, async ({ page }) => {
     // The large-screen workspace keeps its table while results are entered, with the marks on it.
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await openSeeded(page, seedGame(n, 'results'), 'round');
     const made = page.getByRole('button', { name: /Made/ }),
       missed = page.getByRole('button', { name: /Missed/ });
@@ -137,7 +137,7 @@ for (const [w, h, what] of [
       page,
     }) => {
       await page.setViewportSize({ width: w, height: h });
-      await page.goto('/');
+      await page.goto('/kachuful');
       await openSeeded(page, seedGame(n, 'summary'), 'round');
       // The phone's Next-up card and the large-screen one draw different tables.
       const uid = what === 'wide' ? 'dsum' : 'sum';
@@ -158,7 +158,7 @@ for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
+    await page.goto('/kachuful');
     await openSeeded(page, seedGame(n, 'bidding'), 'round');
     await page.locator('[data-table="ws"]').waitFor();
     const found: string[] = [];

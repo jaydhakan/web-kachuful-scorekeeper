@@ -1,6 +1,14 @@
 import type { Page } from '@playwright/test';
-import { COLORS, EMOJIS, maxFor, newRound, type Decks, type Game, type Outcome } from '@/domain';
-import { CURRENT_SCHEMA } from '@/state/migrations';
+import {
+  COLORS,
+  EMOJIS,
+  maxFor,
+  newRound,
+  type Decks,
+  type Game,
+  type Outcome,
+} from '@/games/kachuful/domain';
+import { CURRENT_SCHEMA } from '@/games/kachuful/state/migrations';
 
 /** Seven names at the 14-character input limit, the widest a seat label, row or podium must hold. */
 export const LONG_NAMES = [

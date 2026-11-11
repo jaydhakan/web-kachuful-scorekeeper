@@ -1,12 +1,25 @@
 import { useEffect, useRef } from 'react';
 
-/** A shortcut name: a lower-case letter, `digit` (0–9, the handler reads `e.key`), `enter`, `?` or `undo` (⌘/Ctrl+Z). */
+/**
+ * A shortcut name: a lower-case letter, `digit` (0–9, the handler reads `e.key`), `enter`, `?`, `undo` (⌘/Ctrl+Z) or
+ * an arrow (`up`, `down`, `left`, `right`).
+ */
 export type ShortcutKey = string;
 export type Shortcuts = Partial<Record<ShortcutKey, (e: KeyboardEvent) => void>>;
 
 /** Controls that act on Enter themselves; Enter on one of them must not also fire the page's shortcut. */
 const ACTIVATES = 'button,a[href],[role="button"],[role="switch"],[role="link"],summary';
 const TYPING = 'input,textarea,select,[contenteditable=""],[contenteditable="true"]';
+/** Widgets that move focus or change their value with the arrow keys themselves. */
+const ARROWS_OWNED =
+  '[role="group"],[role="radiogroup"],[role="tablist"],[role="listbox"],[role="menu"],[role="grid"],[role="slider"],[role="spinbutton"]';
+const ARROW: Record<string, ShortcutKey> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+};
+const ARROW_NAMES: Record<ShortcutKey, true> = { up: true, down: true, left: true, right: true };
 
 /** The shortcut a key press stands for, or null when it is not one. */
 export function shortcutOf(e: KeyboardEvent): ShortcutKey | null {
@@ -16,12 +29,13 @@ export function shortcutOf(e: KeyboardEvent): ShortcutKey | null {
   if (e.key === '?') return '?';
   if (/^[0-9]$/.test(e.key)) return 'digit';
   if (e.key === 'Enter') return 'enter';
+  if (e.key in ARROW && !e.shiftKey) return ARROW[e.key];
   return /^[a-zA-Z]$/.test(e.key) ? e.key.toLowerCase() : null;
 }
 
 /**
- * Page-level keyboard shortcuts. Keys typed into a field, keys held down (except digits), and every key while a
- * dialog is open are left alone; a dialog handles its own Escape and Tab.
+ * Page-level keyboard shortcuts. Keys typed into a field, keys held down (except digits and arrows), arrows inside a
+ * widget that uses them, and every key while a dialog is open are left alone; a dialog handles its own Escape and Tab.
  */
 export function useShortcuts(map: Shortcuts, enabled = true) {
   const ref = useRef(map);
@@ -41,7 +55,8 @@ export function useShortcuts(map: Shortcuts, enabled = true) {
       // Enter on an option that is already picked would do nothing, so it confirms instead.
       if (k === 'enter' && target?.closest(ACTIVATES) && !target.closest('[aria-pressed="true"]'))
         return;
-      if (e.repeat && k !== 'digit') return;
+      if (k in ARROW_NAMES && target?.closest(ARROWS_OWNED)) return;
+      if (e.repeat && k !== 'digit' && !(k in ARROW_NAMES)) return;
       const f = ref.current[k];
       if (!f) return;
       e.preventDefault();

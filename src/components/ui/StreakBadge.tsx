@@ -1,4 +1,4 @@
-import { streakTier, type Streak } from '@/domain';
+import { streakTier, type Streak } from '@/games/kachuful/domain';
 import { palette } from '@/theme/palette';
 import { t } from '@/strings';
 

@@ -4,7 +4,7 @@ import { LONG_NAMES, openSeeded, seedGame } from './fixtures';
 
 async function openBoard(page: Page, width: number, height: number, n = 7) {
   await page.setViewportSize({ width, height });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(n, 'bidding'), 'round');
   await btn(page, 'Scoreboard').click();
   const dialog = page.getByRole('dialog');
@@ -19,7 +19,7 @@ const scroller = (page: Page) =>
 /** Tablets and desktops get the large-screen Scoreboard: a screen over the game, reached from Scores. */
 async function openDeskBoard(page: Page, width: number, height: number, n = 7) {
   await page.setViewportSize({ width, height });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(n, 'bidding'), 'round');
   await page.getByRole('button', { name: 'Scores', exact: true }).click();
   const grid = page.getByRole('region', { name: 'Rounds by player' });

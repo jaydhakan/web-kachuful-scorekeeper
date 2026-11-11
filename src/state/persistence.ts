@@ -1,6 +1,6 @@
-import { demoGame, type Decks, type Game } from '@/domain';
+import { demoGame, type Decks, type Game } from '@/games/kachuful/domain';
 import { uuid } from '@/lib/ids';
-import { CURRENT_SCHEMA, migrateGame as migrateRaw } from './migrations';
+import { CURRENT_SCHEMA, migrateGame as migrateRaw } from '@/games/kachuful/state/migrations';
 import type { Appearance } from '@/theme/themes';
 
 export const KEYS = {
@@ -21,6 +21,16 @@ export const KEYS = {
   themeUserUnsent: 'kf.theme.user.unsent',
   /** When each player's achievements were last opened (epoch ms by player id), for the "new" dots. */
   achSeen: 'kachuful.achSeen',
+  // Kaali Teeri's own game, undo, screen, last group, its backup, and this device's quick/auction and points side.
+  ktGame: 'kaaliteeri.v1',
+  ktUndo: 'kaaliteeri.undo',
+  ktScreen: 'kaaliteeri.screen',
+  ktLastGroup: 'kaaliteeri.lastGroup',
+  ktPrefs: 'kaaliteeri.prefs',
+  ktBackup: 'kaaliteeri.v1.backup',
+  // Ishaara keeps no game here (the server runs it): only the last setup and the words dealt lately.
+  ishLastSetup: 'ishaara.lastSetup',
+  ishRecentWords: 'ishaara.recentWords',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';

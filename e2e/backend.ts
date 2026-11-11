@@ -87,7 +87,7 @@ export async function addPlayer(who: Who, displayName: string, email: string) {
 /** Signs in through the app's own screen. */
 export async function signIn(page: Page, who: Who | { email: string; password: string }) {
   const a = typeof who === 'string' ? ACCOUNTS[who] : who;
-  if (!page.url().startsWith('http')) await page.goto('/');
+  if (!page.url().startsWith('http')) await page.goto('/kachuful');
   await page.getByRole('button', { name: 'Sign in', exact: true }).first().click();
   await page.getByLabel('Email').fill(a.email);
   await page.getByLabel('Password', { exact: true }).fill(a.password);

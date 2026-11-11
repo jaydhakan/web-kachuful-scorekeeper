@@ -2,7 +2,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { encodeCrop, loadPhoto, type Crop, type Photo } from '@/lib/photo';
 import { keepPlayer } from '@/state/registry';
-import { useApp } from '@/state/store';
+import { useApp } from '@/games/kachuful/state/store';
 import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
 import { usePhoto, type Face } from '@/components/ui/Avatar';

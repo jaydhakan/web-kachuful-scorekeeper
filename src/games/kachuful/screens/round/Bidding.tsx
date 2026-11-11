@@ -1,0 +1,241 @@
+import { AnimatePresence, m } from 'framer-motion';
+import { useId, useState } from 'react';
+import { roundAt, type Game, type Round } from '@/games/kachuful/domain';
+import { useApp } from '@/games/kachuful/state/store';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useBoxHeight } from '@/hooks/useBoxHeight';
+import { TD, minScale } from '@/lib/tableGeometry';
+import { MQ } from '@/theme/breakpoints';
+import { Glass } from '@/components/ui/Glass';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { SuitCenter } from '@/components/ui/SuitCenter';
+import { Table } from '@/components/ui/Table';
+import { EASE, SPRING } from '@/components/ui/motion';
+import { BidKeys } from '@/components/ui/BidKeypad';
+import { RoundFrame } from './RoundFrame';
+import { bidView } from './roundView';
+import { t } from '@/strings';
+import { Avatar, type Face } from '@/components/ui/Avatar';
+import { useBidFlight } from '@/components/ui/BidFlight';
+
+/** Who deals and how many cards, big enough to read across the table; first card and a sized-up trump under it. */
+function DealLine({ g, r }: { g: Game; r: Round }) {
+  const prev = r.index > 0 ? roundAt(g, r.index - 1).cards : 0,
+    ar = r.cards > prev ? '↑' : r.cards < prev ? '↓' : '→';
+  return (
+    <>
+      <span className="disp face-body block text-20 font-bold leading-[1.2] tracking-[-0.02em] [&_[data-n]]:text-28 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] wide:text-22 wide:[&_[data-n]]:text-32">
+        {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
+      </span>
+      <span className="mt-1 block text-15 leading-[1.35] text-[var(--tx2)] [&_b]:text-[var(--tx)] [&_[data-t]]:text-20 [&_[data-t]]:font-bold wide:[&_[data-t]]:text-22">
+        {t.round.dealSub(g.players[r.firstPlayerIndex].name, r.trump, ar)}
+      </span>
+    </>
+  );
+}
+
+/**
+ * The hero "who" row (DESIGN-SYSTEM.md, Hero layout): avatar, a kicker, the player's name set big, and the live bid tally. The
+ * name steps down with its length so it stays on one line at 360px; short screens scale the whole row.
+ */
+export function HeroWho({
+  p,
+  kicker,
+  tally,
+  of,
+}: {
+  p: Face & { name: string };
+  kicker: string;
+  tally: number;
+  of: number;
+}) {
+  const len = Math.max(1, [...p.name].length);
+  const k = Math.max(0.42, Math.min(1, 6.5 / len));
+  // Never wider than its column: about 0.62em a letter in the widest face (Bricolage at 800), so a name never breaks.
+  const fit = `calc(100cqw / ${(len * 0.62).toFixed(2)})`;
+  return (
+    <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-end gap-3.5 px-1 [--hero-s:1] @h-short:[--hero-s:.6] @h-tiny:[--hero-s:.5]">
+      <Avatar
+        p={p}
+        className="mat-av grid h-[calc(52px*var(--hero-s))] w-[calc(52px*var(--hero-s))] min-h-10 min-w-10 shrink-0 place-items-center self-center rounded-full text-28"
+      />
+      <div className="min-w-0 [container-type:inline-size]">
+        <p className="mono-label text-[0.6875rem] font-medium leading-4 text-[var(--tx2)]">
+          {kicker}
+        </p>
+        <h2
+          className="hero-name pb-[0.06em] [overflow-wrap:anywhere]"
+          style={{
+            fontSize: `max(1.5rem, min(${fit}, calc(var(--big-size) * ${k} * var(--hero-s))))`,
+            // The size is the theme's, the line box is not: every theme's row is the same height.
+            lineHeight: `max(1.4rem, calc(59px * ${k} * var(--hero-s)))`,
+          }}
+        >
+          {p.name}
+        </h2>
+      </div>
+      {/* The meter below says the same in words. */}
+      <p aria-hidden className="hero-tally flex items-baseline gap-0.5 leading-none">
+        <span style={{ fontSize: 'max(1.5rem, calc(44px * var(--hero-s)))' }}>{tally}</span>
+        <small>/{of}</small>
+      </p>
+    </div>
+  );
+}
+
+export function Bidding() {
+  const { state, actions } = useApp();
+  const g = state.game;
+  const { r, n, pI, p, isD, allBid, forb, hookWarn, sum, cnt, diff, dealer, cap } = bidView(g);
+  const [shake, setShake] = useState<number | null>(null);
+  // Two lines of text do not fit a short, narrow pane, so it swaps to a one-line wording there.
+  const reason =
+    hookWarn && isD ? (
+      t.bidding.earlierBidInvalid
+    ) : isD && forb != null ? (
+      <>
+        <span className="@h-[24rem]:hidden">{t.bidding.cantBid(forb, r.cards)}</span>
+        <span className="hidden @h-[24rem]:inline">{t.bidding.cantBidShort(forb, r.cards)}</span>
+      </>
+    ) : null;
+  const reasonId = useId();
+  // Geometry cannot be switched in CSS, so it is chosen here. Only props change on rotation: the screen stays mounted
+  // and keeps its bids, bidder and selection.
+  const wide = useMediaQuery(MQ.wide);
+  // The round table only where its slot holds it at its smallest scale (seats no smaller than the flat oval's).
+  // Measured, not the page height: a Home Screen app loses ~100px to the status bar and home indicator.
+  const [slot, slotH] = useBoxHeight<HTMLDivElement>();
+  const round = slotH >= TD.full.H * minScale(n);
+  const flight = useBidFlight('bid');
+  const pick = (v: number, key: HTMLElement) => {
+    const locked = isD && v === forb;
+    if (!locked) flight.launch(key, v, pI);
+    actions.bid(v);
+    if (locked) {
+      setShake(v);
+      setTimeout(() => setShake(null), 320);
+    }
+  };
+  return (
+    <>
+      {flight.node}
+      <RoundFrame
+        hero
+        r={r}
+        fit
+        aside={
+          // Content height: a long name wraps instead of being cut. The old and new card share one grid cell, so
+          // the slide moves transforms only and the cell follows the taller of the two.
+          <div className="mt-3 @h-short:mt-2 pane:mt-0 pane:flex pane:min-h-full pane:flex-col pane:justify-end">
+            <div className="@h-[24rem]:hidden">
+              <div className="grid">
+                <AnimatePresence initial={false}>
+                  <m.div
+                    key={pI}
+                    initial={{ opacity: 0, x: 44, scale: 0.97 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -44, scale: 0.97 }}
+                    transition={{ duration: 0.28, ease: EASE }}
+                    className="[grid-area:1/1]"
+                  >
+                    <HeroWho p={p} kicker={cap} tally={sum} of={r.cards} />
+                  </m.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        }
+        bar={
+          // The dock: everything a bidder touches sits in the thumb's reach, above the button.
+          <div className="flex w-full flex-col gap-2.5 @h-short:gap-2 @h-tiny:gap-1.5 @h-[24rem]:gap-1">
+            <div>
+              <div className="flex justify-between text-15 font-bold tracking-[-0.01em] @h-[24rem]:leading-4">
+                <span>{t.bidding.total(sum, r.cards)}</span>
+                <span className={diff === 0 ? 'text-[var(--pos)]' : 'text-[var(--warn)]'}>
+                  {diff < 0
+                    ? t.bidding.under(-diff)
+                    : diff > 0
+                      ? t.bidding.over(diff)
+                      : t.bidding.level}
+                </span>
+              </div>
+              <div className="mat-meter mt-1.5 h-2 overflow-hidden rounded-full @h-short:mt-1 @h-[24rem]:hidden">
+                <m.div
+                  className="relative h-full origin-left"
+                  animate={{ scaleX: Math.min(1, sum / r.cards) }}
+                  transition={SPRING}
+                >
+                  <m.i
+                    className="mat-meter-fill absolute inset-0"
+                    animate={{ opacity: diff > 0 ? 0 : 1 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                  />
+                  <m.i
+                    className="absolute inset-0 bg-[var(--warn)]"
+                    animate={{ opacity: diff > 0 ? 1 : 0 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                  />
+                </m.div>
+              </div>
+            </div>
+            <div
+              id={reasonId}
+              aria-live="polite"
+              className="min-h-5 text-14 font-medium leading-5 text-[var(--warn)] @h-[24rem]:min-h-0"
+            >
+              {reason}
+            </div>
+            <BidKeys
+              max={r.cards}
+              label={t.bidding.bidFor(p.name)}
+              selected={r.bids[p.id]}
+              locked={isD && forb != null ? [forb] : []}
+              describedBy={reasonId}
+              shake={shake}
+              onPick={pick}
+            />
+            {allBid && !hookWarn ? (
+              <PrimaryButton
+                className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"
+                onClick={() => actions.phase('playing')}
+              >
+                {t.bidding.startPlaying}
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton
+                className="w-full @h-short:!h-14 @h-[36rem]:!h-12 @h-tiny:!h-12 @h-[24rem]:!h-11"
+                disabled
+              >
+                {t.bidding.bidsIn(cnt, n)}
+              </PrimaryButton>
+            )}
+          </div>
+        }
+      >
+        <Glass glow spot={false} className="flex min-h-0 flex-1 flex-col p-2 pb-2.5">
+          <div ref={slot} className="-mx-2 flex min-h-0 flex-1 flex-col">
+            <Table
+              uid="bid"
+              fit
+              size={wide || round ? 'full' : 'mini'}
+              big={wide}
+              players={g.players}
+              dir={g.direction}
+              dealer={r.dealerIndex}
+              first={r.firstPlayerIndex}
+              bids={r.bids}
+              cur={pI}
+              warn={hookWarn && r.bids[dealer.id] === undefined ? r.dealerIndex : undefined}
+              onSeat={actions.pickSeat}
+              noSeatAnim
+              center={<SuitCenter trump={r.trump} cards={r.cards} big={wide} />}
+            />
+          </div>
+          <p className="px-2 pb-0.5 pt-2.5 text-center tracking-[-0.01em] [text-wrap:balance] @h-short:sr-only">
+            <DealLine g={g} r={r} />
+          </p>
+        </Glass>
+      </RoundFrame>
+    </>
+  );
+}

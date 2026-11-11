@@ -81,7 +81,7 @@ test("Riya claims a guest's seat from the live table; once Kabir says yes it's i
   expect((await kabir.post(`/api/claims/${mine.id}/approve`)).status()).toBe(200);
   await kabir.dispose();
 
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page
     .getByRole('button', { name: /History/ })
     .first()

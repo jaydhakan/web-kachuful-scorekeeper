@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { bidOrder, curRound } from '@/domain';
+import { bidOrder, curRound } from '@/games/kachuful/domain';
 import { openSeeded, seedGame } from './fixtures';
 
 const PHONE = { width: 390, height: 844 },
@@ -27,7 +27,7 @@ test('rotating mid-bidding keeps the bids, the bidder and the selected pill, and
   page,
 }) => {
   await page.setViewportSize(PHONE);
-  await page.goto('/');
+  await page.goto('/kachuful');
   const game = seedGame(5, 'bidding');
   // The second bidder has already picked 1, so a pill is selected for the bidder on screen.
   game.ui.bidIdx = 1;

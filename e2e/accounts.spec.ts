@@ -181,7 +181,7 @@ test('the admin deletes an account after seeing what goes and typing the email',
 }) => {
   // A throwaway account, so the shared demo accounts stay.
   const email = `${uniq()}@example.com`;
-  await page.goto('/');
+  await page.goto('/kachuful');
   const token = await makeInvite(page, email);
   const other = await browser.newPage();
   await other.goto(`/?invite=${token}`);

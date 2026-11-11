@@ -1,6 +1,6 @@
 import { AnimatePresence, m, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { useMemo, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import type { Direction, Outcome } from '@/domain';
+import type { Direction } from '@/people';
 import {
   DEALS_PILL,
   SMALL_CHIP,
@@ -30,6 +30,17 @@ export interface TablePlayer {
   color: string;
 }
 
+/** A mark on a seat's avatar once the hand is settled: a tick for `pos`, a cross for `neg`. The game decides which. */
+export type SeatMark = 'pos' | 'neg';
+
+/** A role shown under a seat (a game's own, e.g. a bidder's crown): an icon and its word, the word kept for crowded tables' assistive tech. */
+export interface SeatBadge {
+  icon: ReactNode;
+  label: string;
+  /** The badge's colours (theme variables); the table knows no game. */
+  style: CSSProperties;
+}
+
 interface TableProps {
   uid: string;
   size?: TableSize;
@@ -43,7 +54,10 @@ interface TableProps {
   warn?: number;
   hl?: number;
   bids?: Record<string, number>;
-  res?: Record<string, Outcome>;
+  /** Marks keyed by player id. */
+  marks?: Record<string, SeatMark>;
+  /** Badges keyed by player id, under the seat's name (or its avatar when names are hidden). */
+  badges?: Record<string, SeatBadge>;
   big?: boolean;
   /** Fill the slot it sits in (a definite-height parent) instead of keeping the fixed design size. */
   fit?: boolean;
@@ -186,7 +200,8 @@ export function Table({
   warn,
   hl,
   bids,
-  res,
+  marks,
+  badges,
   big,
   fit,
   minFit,
@@ -300,7 +315,8 @@ export function Table({
         const ring =
           cur === k ? 'ring-pulse' : warn === k ? 'warn-pulse' : hl === k ? 'ring-pulse' : '';
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
-        const out = p?.id !== undefined ? res?.[p.id] : undefined;
+        const out = p?.id !== undefined ? marks?.[p.id] : undefined;
+        const badge = p?.id !== undefined ? badges?.[p.id] : undefined;
         // The bubble takes the outer edge on the left: a flat table's corners, and a crowded table's felt side, which
         // the "1st" chip needs.
         const flip = size === 'mini' ? at.x < 38 : N >= CROWDED_FROM && at.x < 50;
@@ -311,7 +327,7 @@ export function Table({
             {...(onSeat && {
               role: 'button',
               tabIndex: 0,
-              // With no name label the seat is named for assistive tech and on hover instead.
+              // Named by what it shows (name, Deals, 1st, badge), the avatar's emoji left out; with no name label, by name.
               'aria-label': p ? (named ? undefined : p.name) : t.table.seat(k + 1),
               onClick: () => onSeat(k),
               onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
@@ -342,6 +358,7 @@ export function Table({
                 <m.div
                   key={p.emoji + p.color}
                   data-seat-avatar
+                  aria-hidden
                   title={named ? undefined : p.name}
                   initial={false}
                   // Bid pop (DESIGN-SYSTEM.md, Motion): a bid landing squashes the player, who stretches up and settles.
@@ -495,16 +512,39 @@ export function Table({
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={SPRING_POP}
-                  className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'made' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
+                  className={`absolute z-[3] grid h-5 w-5 place-items-center rounded-full text-13 font-extrabold text-ink-on-accent ${out === 'pos' ? 'bg-[var(--pos)]' : 'bg-[var(--neg)]'}`}
                   style={{
                     // On the avatar's upper-left corner: the name sits below it, the bubble on its other side.
                     left: `calc(50% - ${dpx(R * 0.707)} - 10px)`,
                     top: `calc(${dpx(R * 0.293)} - 6px)`,
                   }}
                 >
-                  {out === 'made' ? t.table.made : t.table.missed}
+                  {out === 'pos' ? t.table.made : t.table.missed}
                 </m.div>
               )}
+              <AnimatePresence>
+                {p && badge && (
+                  <m.div
+                    key={badge.label}
+                    data-seat-chip
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.6, opacity: 0, transition: { duration: 0.15 } }}
+                    transition={SPRING_POP}
+                    title={badge.label}
+                    className={`absolute left-1/2 z-[3] flex h-[18px] items-center gap-[3px] whitespace-nowrap rounded-[9px] px-[5px] text-13 font-extrabold uppercase leading-[18px] tracking-[0.005em]`}
+                    // Under the name, or under the avatar on a table that hides names, where only the icon fits.
+                    style={{
+                      ...badge.style,
+                      top: named ? 'calc(100% + 18px)' : 'calc(100% + 2px)',
+                      translate: '-50% 0',
+                    }}
+                  >
+                    {badge.icon}
+                    <span className={named ? '' : 'sr-only'}>{badge.label}</span>
+                  </m.div>
+                )}
+              </AnimatePresence>
             </m.div>
           </div>
         );

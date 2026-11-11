@@ -1,4 +1,4 @@
-import type { Direction } from '@/domain';
+import type { Direction } from '@/people';
 
 export type TableSize = 'full' | 'mini' | 'wide';
 

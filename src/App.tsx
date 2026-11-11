@@ -1,10 +1,9 @@
 import { domAnimation, LazyMotion, MotionConfig, type FeatureBundle } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { AppShell } from '@/components/AppShell';
-import { ThemeSync } from '@/components/ThemeSync';
 import { SPRING } from '@/components/ui/motion';
-import { AppProvider } from '@/state/store';
 import { whenIdle } from '@/lib/idle';
+import { PlatformRoot } from '@/platform/PlatformRoot';
+import { ThemeSync } from '@/components/ThemeSync';
 
 export function App() {
   // Animations, exits and gestures from the first paint; layout and drag follow when the page is idle (~10 KB gzip
@@ -18,10 +17,8 @@ export function App() {
   return (
     <LazyMotion features={features} strict>
       <MotionConfig reducedMotion="user" transition={SPRING}>
-        <AppProvider>
-          <ThemeSync />
-          <AppShell />
-        </AppProvider>
+        <ThemeSync />
+        <PlatformRoot />
       </MotionConfig>
     </LazyMotion>
   );

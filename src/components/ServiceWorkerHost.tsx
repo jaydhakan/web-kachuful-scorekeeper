@@ -1,7 +1,7 @@
 import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
-import { useApp } from '@/state/store';
+import { useApp } from '@/games/kachuful/state/store';
 import { t } from '@/strings';
 import { UpdateGate } from './UpdateGate';
 

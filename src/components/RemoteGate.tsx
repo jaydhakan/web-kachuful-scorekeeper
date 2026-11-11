@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { timeLabel } from '@/lib/dates';
 import type { Remote } from '@/sync/useRemote';
 import { ErrorState, Skeleton } from './ui/Page';
-import { authError } from '@/screens/pages/AuthPages';
+import { authError } from '@/platform/pages/AuthPages';
 import { t } from '@/strings';
 
 /** Loading, error and offline states for server data; renders the data as soon as there is any. */

@@ -74,7 +74,7 @@ test('a player adds a photo, it shows instead of the emoji, and can be removed',
 });
 
 test('the service worker keeps photos for offline, and no other API answer', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/kachuful');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload();
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);

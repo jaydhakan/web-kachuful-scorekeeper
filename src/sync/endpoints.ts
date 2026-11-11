@@ -32,7 +32,7 @@ import type {
   WireGame,
   WrappedResp,
 } from './types';
-import type { Metric } from '@/domain';
+import type { Metric } from '@/games/kachuful/domain';
 
 export type PlayerEdit = Partial<
   Pick<Player, 'displayName' | 'email' | 'firstName' | 'lastName' | 'emoji' | 'color'>

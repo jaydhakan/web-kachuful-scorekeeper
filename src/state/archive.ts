@@ -1,4 +1,6 @@
-import { doneRounds, type Game } from '@/domain';
+import { doneRounds, type Game } from '@/games/kachuful/domain';
+import type { KtGame } from '@/games/kaali-teeri/domain';
+import type { IshaaraPublic } from '@/games/ishaara/domain/types';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,
@@ -7,9 +9,10 @@ import { doneRounds, type Game } from '@/domain';
  * once and to IndexedDB in the background, so screens never wait on the database.
  */
 
-export interface GameRec {
+/** One game in a game's store; `G` is that game's saved shape. */
+export interface GameRecOf<G> {
   syncId: string;
-  game: Game;
+  game: G;
   updatedAt: number;
   /** When it ended (finished or ended early); null while it can still be played. */
   endedAt: number | null;
@@ -26,6 +29,21 @@ export interface GameRec {
   /** The account this game syncs to: set for games scored signed in, or added at import. */
   account?: string;
   deleted?: boolean;
+}
+
+export type GameRec = GameRecOf<Game>;
+export type KtGameRec = GameRecOf<KtGame>;
+
+/** A finished Ishaara game, read-only: the server ran it, so this copy is only for reading History offline. */
+export interface IshaaraGameRec {
+  /** The game's id. */
+  syncId: string;
+  game: IshaaraPublic;
+  updatedAt: number;
+  endedAt: number;
+  hostName?: string | null;
+  /** Whether this account hosted it (from the server's `me`), so only the host sees Delete offline too. */
+  host?: boolean;
 }
 
 export interface PlayerRec {
@@ -57,7 +75,14 @@ export interface PlayerRec {
   lastPlayedAt?: number | null;
 }
 
-export type OutboxKind = 'putGame' | 'createPlayer' | 'patchPlayer' | 'deleteGame';
+export type OutboxKind =
+  | 'putGame'
+  | 'createPlayer'
+  | 'patchPlayer'
+  | 'deleteGame'
+  // Kaali Teeri's own, so Kachuful's engine never sends them to /api/games.
+  | 'putKtGame'
+  | 'deleteKtGame';
 
 export interface OutboxItem {
   id: string;
@@ -96,6 +121,8 @@ interface Stores {
   outbox: OutboxItem;
   cache: CacheRec;
   inbox: InboxItem;
+  ktGames: KtGameRec;
+  ishaaraGames: IshaaraGameRec;
 }
 type StoreName = keyof Stores;
 
@@ -105,6 +132,8 @@ const KEY_PATH: { [K in StoreName]: keyof Stores[K] & string } = {
   outbox: 'id',
   cache: 'key',
   inbox: 'id',
+  ktGames: 'syncId',
+  ishaaraGames: 'syncId',
 };
 const STORES = Object.keys(KEY_PATH) as StoreName[];
 
@@ -118,13 +147,46 @@ export interface Backend {
 
 /** Nothing outlives the page: tests, and browsers without IndexedDB (or with it blocked). */
 export const memoryBackend = (): Backend => ({
-  load: async () => ({ games: [], players: [], outbox: [], cache: [], inbox: [] }),
+  load: async () => ({
+    games: [],
+    players: [],
+    outbox: [],
+    cache: [],
+    inbox: [],
+    ktGames: [],
+    ishaaraGames: [],
+  }),
   put: async () => {},
   del: async () => {},
   clear: async () => {},
 });
 
 const DB = 'kachuful';
+/** 2 added `ktGames`, 3 `ishaaraGames`. Bump it with every new store; existing stores and rows are never touched. */
+export const DB_VERSION = 3;
+/** Every game's store, each listed by when it ended and when it changed. */
+const GAME_STORES: readonly StoreName[] = ['games', 'ktGames', 'ishaaraGames'];
+
+/** What an upgrade needs of the database, so it can be tested without a browser. */
+export interface UpgradeDb {
+  objectStoreNames: { contains(name: string): boolean };
+  createObjectStore(
+    name: string,
+    o: { keyPath: string },
+  ): { createIndex(name: string, keyPath: string): unknown };
+}
+
+/** Creates whatever stores are missing; a database at any older version keeps its stores and rows. */
+export function upgradeDb(d: UpgradeDb) {
+  for (const s of STORES) {
+    if (d.objectStoreNames.contains(s)) continue;
+    const os = d.createObjectStore(s, { keyPath: KEY_PATH[s] });
+    if (GAME_STORES.includes(s)) {
+      os.createIndex('endedAt', 'endedAt');
+      os.createIndex('updatedAt', 'updatedAt');
+    }
+  }
+}
 const req = <T>(r: IDBRequest<T>) =>
   new Promise<T>((ok, no) => {
     r.onsuccess = () => ok(r.result);
@@ -140,18 +202,8 @@ export function idbBackend(idb: IDBFactory): Backend {
   let dbp: Promise<IDBDatabase> | null = null;
   const db = () =>
     (dbp ??= new Promise((ok, no) => {
-      const r = idb.open(DB, 1);
-      r.onupgradeneeded = () => {
-        const d = r.result;
-        for (const s of STORES) {
-          if (d.objectStoreNames.contains(s)) continue;
-          const os = d.createObjectStore(s, { keyPath: KEY_PATH[s] });
-          if (s === 'games') {
-            os.createIndex('endedAt', 'endedAt');
-            os.createIndex('updatedAt', 'updatedAt');
-          }
-        }
-      };
+      const r = idb.open(DB, DB_VERSION);
+      r.onupgradeneeded = () => upgradeDb(r.result);
       r.onsuccess = () => ok(r.result);
       r.onerror = () => no(r.error);
       r.onblocked = () => no(new Error('blocked'));
@@ -193,12 +245,16 @@ export class Archive {
     outbox: new Map(),
     cache: new Map(),
     inbox: new Map(),
+    ktGames: new Map(),
+    ishaaraGames: new Map(),
   };
   private listeners = new Set<Listener>();
   private errorListeners = new Set<(e: WriteError) => void>();
   /** Goes up on every change; screens memoise derived data on it. */
   version = 0;
   loaded = false;
+  /** The last write or load failure, for screens that mount after it was announced. */
+  lastError: WriteError | null = null;
   readonly ready: Promise<void>;
 
   constructor(private backend: Backend) {
@@ -240,6 +296,7 @@ export class Archive {
     this.listeners.forEach((f) => f());
   }
   private fail(e: WriteError) {
+    this.lastError = e;
     this.errorListeners.forEach((f) => f(e));
   }
   private pending = new Set<Promise<void>>();
@@ -282,9 +339,20 @@ export class Archive {
     this.bump();
   }
 
-  /** Every game this device knows, newest first, without deleted ones. */
+  /** Every Kachuful game this device knows, newest first, without deleted ones. */
   games(): GameRec[] {
-    return this.all('games')
+    return this.listed('games');
+  }
+  /** Every Kaali Teeri game this device knows, newest first, without deleted ones. */
+  ktGames(): KtGameRec[] {
+    return this.listed('ktGames');
+  }
+  /** Finished Ishaara games kept for History offline, newest first. */
+  ishaaraGames(): IshaaraGameRec[] {
+    return this.all('ishaaraGames').sort((a, b) => b.endedAt - a.endedAt);
+  }
+  private listed<K extends 'games' | 'ktGames'>(s: K): Stores[K][] {
+    return this.all(s)
       .filter((r) => !r.deleted)
       .sort((a, b) => (b.endedAt ?? b.updatedAt) - (a.endedAt ?? a.updatedAt));
   }
@@ -372,3 +440,45 @@ export const inHistory = (r: GameRec, user: { id: string; playerId: string | nul
   !user ||
   scoredHere(r, user.id) ||
   (!!user.playerId && r.game.players.some((p) => p.playerId === user.playerId));
+
+/** Kaali Teeri's archive copy, kept by the same rule: the demo and games with no hand done are not kept. */
+export function archiveKtGame(g: KtGame, rec: Partial<KtGameRec> = {}) {
+  if (g.id === 'demo' || !g.hands.some((h) => h.phase === 'done')) return;
+  const prev = archive.get('ktGames', g.syncId);
+  if (prev && prev.game.rev === g.rev && prev.game.updatedAt === g.updatedAt && !rec.deleted)
+    return;
+  archive.put('ktGames', {
+    ...prev,
+    origin: prev?.origin ?? 'local',
+    ...rec,
+    syncId: g.syncId,
+    game: g,
+    updatedAt: g.updatedAt,
+    endedAt: g.status === 'finished' ? (g.finishedAt ?? g.updatedAt) : null,
+  });
+}
+
+/**
+ * A Kaali Teeri game undone back to no hand done leaves no trace, as forgetEmpty: a copy the server has is deleted
+ * there through the outbox. True when the server had it, so its id can't be used again.
+ */
+export function forgetEmptyKt(syncId: string): boolean {
+  const r = archive.get('ktGames', syncId);
+  if (!r || r.deleted) return false;
+  const onServer = !!r.account && r.syncedRev !== undefined;
+  archive.del('outbox', 'ktput:' + syncId);
+  if (!onServer) {
+    archive.del('ktGames', syncId);
+    return false;
+  }
+  archive.put('ktGames', { ...r, deleted: true, updatedAt: Date.now() });
+  archive.put('outbox', {
+    id: 'ktdel:' + syncId,
+    kind: 'deleteKtGame',
+    key: syncId,
+    attempts: 0,
+    nextAt: 0,
+    createdAt: Date.now(),
+  });
+  return true;
+}

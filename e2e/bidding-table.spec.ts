@@ -24,7 +24,7 @@ for (const [vp, round] of [
     page,
   }) => {
     await page.setViewportSize(vp);
-    await page.goto('/');
+    await page.goto('/kachuful');
     await openSeeded(page, seedGame(7, 'bidding'), 'round');
     await page.waitForTimeout(600);
     const s = await shape(page);
@@ -37,7 +37,7 @@ for (const [vp, round] of [
 // threshold can't see: the table must still clear the deal line, names included.
 test('bidding on a notched phone keeps the table clear of the deal line', async ({ page }) => {
   await page.setViewportSize({ width: 402, height: 874 });
-  await page.goto('/');
+  await page.goto('/kachuful');
   await openSeeded(page, seedGame(5, 'bidding'), 'round');
   await page.addStyleTag({ content: ':root{--sat:86px !important;--sab:34px !important}' });
   await page.waitForTimeout(600);

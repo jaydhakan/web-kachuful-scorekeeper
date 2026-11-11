@@ -1,5 +1,5 @@
 import { AnimatePresence, m } from 'framer-motion';
-import type { Banner as BannerData } from '@/state/types';
+import type { Banner as BannerData } from '@/games/kachuful/state/types';
 import { SPRING } from './motion';
 
 export function Banner({ banner }: { banner: BannerData | null }) {

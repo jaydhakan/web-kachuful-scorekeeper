@@ -119,6 +119,26 @@
   --fan-step: 140ms;
   --reveal-rays: none;
   --reveal-glint: none;
+  /* Platform tokens (themes.css, Sunset Glass, says what each is for). */
+  --game-kachuful: #8a5d0c;
+  --game-kaali-teeri: #b23d24;
+  --game-ishaara: #8f5300;
+  --team-sun: #f5a524;
+  --team-sun-ink: var(--ink);
+  --team-moon: #3f4bc4;
+  --team-moon-ink: var(--panel);
+  --word-card: var(--card-bg);
+  --word-card-ink: var(--card-fg);
+  --word-blank: #64513f;
+  --word-blank-ink: var(--panel);
+  --word-trap: var(--ink);
+  --word-trap-ink: var(--panel);
+  --word-edge: var(--ink);
+  --kt-bid: var(--brand);
+  --kt-bid-ink: var(--on-brand);
+  --soon-bg: var(--bg);
+  --soon-ink: var(--ink);
+  --soon-edge: var(--ink);
 }
 [data-theme='yerba-sun'] .glass {
   --r-card: var(--r-lg);

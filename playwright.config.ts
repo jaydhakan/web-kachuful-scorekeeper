@@ -8,7 +8,7 @@ const port = Number(process.env.E2E_PORT ?? 4173);
  */
 const real = !!process.env.E2E_API;
 const base = real ? 'http://localhost:5173' : `http://127.0.0.1:${port}`;
-const ONLINE = /(accounts|sync|global|share|photos)\.spec\.ts$/;
+const ONLINE = /(accounts|sync|global|share|photos|ishaara-play)\.spec\.ts$/;
 
 export default defineConfig({
   testDir: 'e2e',

@@ -37,6 +37,7 @@ function tokens(id: ThemeId): Record<string, string> {
 
 type RGBA = [number, number, number, number];
 const parse = (c: string): RGBA => {
+  if (c === 'transparent') return [0, 0, 0, 0];
   const h = /^#([0-9a-f]{3,8})$/i.exec(c);
   if (h) {
     const s = h[1].length === 3 ? [...h[1]].map((x) => x + x).join('') : h[1];
@@ -76,6 +77,13 @@ const cases = THEME_IDS.flatMap((id) => {
   const s2 = parse(t['--surface-2']);
   const sheet = over(t['--sheet-bg'], bg);
   const fg = (k: string, on: RGBA) => over(t[k], on);
+  const tint = (k: string, on: RGBA): RGBA => {
+    const [r, g, b] = parse(t[k]);
+    return over(`rgba(${r}, ${g}, ${b}, 0.1)`, on);
+  };
+  const soon = over(t['--soon-bg'], panel);
+  // Word cards' stripes (--word-stripe) over the card, where ink is hardest to read.
+  const hatch = (k: string) => over(t['--word-stripe'], parse(t[k]));
   const pairs: [string, RGBA, RGBA, number][] = [
     ['text-1 on bg', fg('--text-1', bg), bg, 4.5],
     ['text-2 on bg', fg('--text-2', bg), bg, 4.5],
@@ -101,12 +109,58 @@ const cases = THEME_IDS.flatMap((id) => {
     // A large glyph, so the 3:1 large-text bar (DESIGN-SYSTEM.md, Contrast lists Yerba Sun's heart at 3.9).
     ['heart on the table', parse(t['--suit-red-felt']), parse(t['--felt']), 3],
     ['card count on the table', fg('--ctr-fg', parse(t['--felt'])), parse(t['--felt']), 4.5],
+    // The offline chip is warning text on its own 10% tint, so it needs no status token of its own.
+    ['warning on its tint', fg('--warning', tint('--warning', bg)), tint('--warning', bg), 4.5],
+    // Game accents may label a landing card, on the page or on the card.
+    ...(['kachuful', 'kaali-teeri', 'ishaara'] as const).flatMap(
+      (g): [string, RGBA, RGBA, number][] => [
+        [`${g} accent on bg`, fg(`--game-${g}`, bg), bg, 4.5],
+        [`${g} accent on panel`, fg(`--game-${g}`, panel), panel, 4.5],
+      ],
+    ),
+    ['soon badge', fg('--soon-ink', soon), soon, 4.5],
+    ['sun ink on sun', parse(t['--team-sun-ink']), parse(t['--team-sun']), 4.5],
+    ['moon ink on moon', parse(t['--team-moon-ink']), parse(t['--team-moon']), 4.5],
+    ['word ink on word card', parse(t['--word-card-ink']), parse(t['--word-card']), 4.5],
+    ['blank ink on its hatch', parse(t['--word-blank-ink']), hatch('--word-blank'), 4.5],
+    ['trap ink on its hatch', parse(t['--word-trap-ink']), hatch('--word-trap'), 4.5],
+    ['bid ink on the bidding team', parse(t['--kt-bid-ink']), parse(t['--kt-bid']), 4.5],
   ];
   return pairs.map(([name, a, b, min]) => [`${id}: ${name}`, a, b, min] as const);
 });
 
 describe('every theme meets WCAG AA for its text pairs', () => {
   it.each(cases)('%s', (_name, fg, bg, min) => {
+    expect(ratio(fg, bg)).toBeGreaterThanOrEqual(min);
+  });
+});
+
+// Ishaara's clue phone has one look for every theme: its own `:root, [data-theme]` block in themes.css.
+describe('the clue phone meets WCAG AA', () => {
+  const at = css.indexOf('--key-bg:');
+  const body = css.slice(at, css.indexOf('\n}', at));
+  const k = Object.fromEntries(
+    [...body.matchAll(/--key-([\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]),
+  );
+  const c = (n: string) => parse(k[n]);
+  const blankHatch = over(k['blank-stripe'], c('blank'));
+  const pairs: [string, RGBA, RGBA, number][] = [
+    ['text on bg', c('text'), c('bg'), 4.5],
+    ['text on surface', c('text'), c('surface'), 4.5],
+    ['text-2 on bg', c('text-2'), c('bg'), 4.5],
+    ['text-2 on surface', c('text-2'), c('surface'), 4.5],
+    ['cta ink on cta', c('cta-ink'), c('cta'), 4.5],
+    ['sun ink on sun', c('sun-ink'), c('sun'), 4.5],
+    ['moon ink on moon', c('moon-ink'), c('moon'), 4.5],
+    ['blank ink on its hatch', c('blank-ink'), blankHatch, 4.5],
+    ['trap ink on trap', c('trap-ink'), c('trap'), 4.5],
+    ['alert on surface', c('alert'), c('surface'), 4.5],
+    ['ok on surface', c('ok'), c('surface'), 4.5],
+    // Control outlines are non-text: 3:1.
+    ['edge on surface', c('edge'), c('surface'), 3],
+    ['edge on bg', c('edge'), c('bg'), 3],
+  ];
+  it.each(pairs)('%s', (_name, fg, bg, min) => {
     expect(ratio(fg, bg)).toBeGreaterThanOrEqual(min);
   });
 });

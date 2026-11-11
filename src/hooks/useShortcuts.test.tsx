@@ -27,12 +27,19 @@ describe('shortcutOf', () => {
     expect(shortcutOf(key('z', { ctrlKey: true }))).toBe('undo');
   });
 
+  it('names the arrow keys', () => {
+    expect(shortcutOf(key('ArrowUp'))).toBe('up');
+    expect(shortcutOf(key('ArrowDown'))).toBe('down');
+    expect(shortcutOf(key('ArrowLeft'))).toBe('left');
+    expect(shortcutOf(key('ArrowRight'))).toBe('right');
+  });
+
   it('leaves other modified keys and named keys alone', () => {
     expect(shortcutOf(key('z', { ctrlKey: true, shiftKey: true }))).toBeNull();
     expect(shortcutOf(key('e', { altKey: true }))).toBeNull();
     expect(shortcutOf(key('r', { metaKey: true }))).toBeNull();
     expect(shortcutOf(key('Tab'))).toBeNull();
-    expect(shortcutOf(key('ArrowUp'))).toBeNull();
+    expect(shortcutOf(key('ArrowUp', { shiftKey: true }))).toBeNull();
   });
 });
 
@@ -102,6 +109,23 @@ describe('useShortcuts', () => {
     rerender(<Harness map={{ z }} />);
     fireEvent.keyDown(document.body, { key: 'z', ctrlKey: true });
     expect(z).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves arrows to a widget that moves with them, and lets them repeat on the page', () => {
+    const up = vi.fn();
+    render(
+      <>
+        <Harness map={{ up }} />
+        <div role="radiogroup" aria-label="side">
+          <button type="button">in group</button>
+        </div>
+      </>,
+    );
+    fireEvent.keyDown(screen.getByRole('button', { name: 'in group' }), { key: 'ArrowUp' });
+    expect(up).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.body, { key: 'ArrowUp' });
+    fireEvent.keyDown(document.body, { key: 'ArrowUp', repeat: true });
+    expect(up).toHaveBeenCalledTimes(2);
   });
 
   it('skips a key another handler already took', () => {

@@ -18,7 +18,7 @@ const sources = walk(root)
 const ALLOWED: Record<string, string[]> = {
   // Seat labels ellipsize by width; the podium and the Scoreboard headers show a short name.
   'text-ellipsis': ['components/ui/Table.tsx'],
-  'trunc(': ['screens/Winner.tsx', 'sheets/BoardBody.tsx'],
+  'trunc(': ['components/ui/Podium.tsx', 'games/kachuful/sheets/BoardBody.tsx'],
 };
 
 describe('names are never cut where the player is the focus', () => {
@@ -43,9 +43,9 @@ describe('names are never cut where the player is the focus', () => {
   it('gives every shortened name its full text as a tooltip or accessible name', () => {
     const table = sources.find((s) => s.file === 'components/ui/Table.tsx')!.text;
     expect(table).toMatch(/data-seat-name[\s\S]{0,400}title=\{p\.name\}/);
-    const board = sources.find((s) => s.file === 'sheets/BoardBody.tsx')!.text;
+    const board = sources.find((s) => s.file === 'games/kachuful/sheets/BoardBody.tsx')!.text;
     expect(board).toMatch(/title=\{p\.name\}/);
-    const winner = sources.find((s) => s.file === 'screens/Winner.tsx')!.text;
-    expect(winner).toMatch(/aria-hidden>\{trunc\(/);
+    const podium = sources.find((s) => s.file === 'components/ui/Podium.tsx')!.text;
+    expect(podium).toMatch(/aria-hidden>\{trunc\(/);
   });
 });

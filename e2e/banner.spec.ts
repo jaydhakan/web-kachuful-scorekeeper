@@ -16,7 +16,7 @@ for (const [w, h] of VIEWPORTS) {
     page,
   }) => {
     await page.setViewportSize({ width: w, height: h });
-    await page.goto('/');
+    await page.goto('/kachuful');
     // The seeded summary leads into the peak round, which announces itself with a banner.
     await openSeeded(page, seedGame(5, 'summary'), 'round');
     await btn(page, 'Next round').click();

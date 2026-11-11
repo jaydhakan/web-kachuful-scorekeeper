@@ -1,8 +1,8 @@
-import { COLORS, emailKey, nameKey, pidOf, tidyName, type Game, type Player } from '@/domain';
+import { COLORS, emailKey, nameKey, pidOf, tidyName, type Player, type Seat } from '@/people';
+import type { Game } from '@/games/kachuful/domain';
 import { uuid } from '@/lib/ids';
-import { archive, type PlayerRec } from './archive';
+import { archive, type GameRec, type KtGameRec, type PlayerRec } from './archive';
 import { KEYS, storage } from './persistence';
-import type { Seat } from './types';
 import type { Player as ServerPlayer } from '@/sync/types';
 
 /**
@@ -155,6 +155,9 @@ export function backfillRegistry() {
   archive.put('players', ...add);
 }
 
+/** Every game of every kind this device keeps, as who sat down and whose it is: one person, every game. */
+const everyGame = (): (GameRec | KtGameRec)[] => [...archive.games(), ...archive.ktGames()];
+
 export interface Person extends PlayerRec {
   games: number;
   lastPlayedAt: number | null;
@@ -163,7 +166,7 @@ export interface Person extends PlayerRec {
 /** Live players with how often and how recently they played on this device, most recent first. */
 export function people(): Person[] {
   const stats = new Map<string, { games: number; last: number }>();
-  for (const r of archive.games()) {
+  for (const r of everyGame()) {
     if (r.conflictOf) continue;
     for (const p of r.game.players) {
       const id = idOf(p);
@@ -197,7 +200,7 @@ const cached = (k: string): string[] => (archive.get('cache', k)?.value as strin
  */
 export function circle(userId: string, playerId: string | null): Person[] {
   const met = new Set([...cached('met'), ...cached('same')]);
-  for (const r of archive.games()) {
+  for (const r of everyGame()) {
     if (r.conflictOf) continue;
     const ids = r.game.players.map(idOf);
     if (r.account === userId || r.owner?.id === userId || (playerId && ids.includes(playerId)))

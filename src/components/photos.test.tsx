@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { AppProvider } from '@/state/store';
+import { AppProvider } from '@/games/kachuful/state/store';
 import { archive } from '@/state/archive';
 import { KEYS } from '@/state/persistence';
 import type { Player } from '@/sync/types';
