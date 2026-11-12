@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { COLORS, EMOJIS, nameKey, NAME_MAX, tidyName } from '@/people';
 import { uuid } from '@/lib/ids';
 import { passwordOk } from '@/lib/password';
@@ -8,11 +8,11 @@ import { ApiError } from '@/sync/api';
 import { sessionOf, signIn } from '@/sync/account';
 import { takePrefs } from '@/sync/prefs';
 import { ep } from '@/sync/endpoints';
-import type { PlayerSummary } from '@/sync/types';
+import type { Player, PlayerSummary } from '@/sync/types';
 import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
 import { Field, LookPicker, PasswordField } from '@/components/ui/Field';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { EASE } from '@/components/ui/motion';
+import { EASE, REDUCED, SPRING } from '@/components/ui/motion';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 
@@ -115,6 +115,87 @@ function usePasswordPair() {
   return { fields, value: passwordOk(pw) && pw === pw2 ? pw : null };
 }
 
+/** How long the welcome holds before Home, and when its words come in: 0.2s after the avatar has landed (~0.35s). */
+export const WELCOME_MS = 1800;
+const WORDS_AT = 0.55;
+const SEAT = 'grid h-12 w-12 place-items-center rounded-full';
+const EMPTY = `${SEAT} absolute bg-[var(--surface-2)] shadow-[inset_0_0_0_1px_var(--hairline-2)]`;
+
+/**
+ * Shown once an invite is accepted: the new player's avatar takes the empty seat at a small table, then the words.
+ * It moves on by itself; a tap, Enter or Escape moves on at once. `onDone` runs exactly once, leaving included.
+ */
+function Welcome({ player, onDone }: { player: Player; onDone: () => void }) {
+  const rm = useReducedMotion();
+  const skip = useRef<HTMLDivElement>(null);
+  const done = useRef(false);
+  const mounted = useRef(false);
+  const finish = useRef(() => {
+    if (done.current) return;
+    done.current = true;
+    onDone();
+  }).current;
+  useEffect(() => {
+    mounted.current = true;
+    skip.current?.focus({ preventScroll: true });
+    const tm = setTimeout(finish, WELCOME_MS);
+    return () => {
+      clearTimeout(tm);
+      mounted.current = false;
+      // StrictMode unmounts and remounts once in development; only a real unmount (still gone a tick later) moves on.
+      setTimeout(() => !mounted.current && finish(), 0);
+    };
+  }, [finish]);
+  const fade = { duration: rm ? REDUCED : 0.25, delay: rm ? 0 : WORDS_AT };
+  return (
+    <div className="relative flex min-h-[22rem] flex-col items-center justify-center gap-6 text-center">
+      <div aria-hidden className="relative h-40 w-64 shrink-0">
+        <div className="felt absolute inset-x-6 inset-y-6 rounded-[50%]" />
+        <span className={`${EMPTY} left-1/2 top-0 -translate-x-1/2`} />
+        <span className={`${EMPTY} left-0 top-1/2 -translate-y-1/2`} />
+        <span className={`${EMPTY} right-0 top-1/2 -translate-y-1/2`} />
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2">
+          <m.span
+            className="block"
+            initial={rm ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={rm ? { duration: REDUCED } : SPRING}
+          >
+            <Avatar p={player} className={`${SEAT} text-24`} />
+          </m.span>
+        </span>
+      </div>
+      <m.div
+        role="status"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={fade}
+        className="flex flex-col gap-2"
+      >
+        <h2 className="disp text-30 font-extrabold tracking-[-0.03em]">{a.welcomeTitle}</h2>
+        <p className="text-17 text-[var(--tx2)] [overflow-wrap:anywhere]">
+          {a.welcomeBody(player.displayName)}
+        </p>
+      </m.div>
+      {/* Over the whole welcome, so a tap anywhere moves on; it holds focus for Enter and Escape. */}
+      <div
+        ref={skip}
+        role="button"
+        tabIndex={0}
+        aria-label={t.streak.continue}
+        onClick={finish}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+            e.preventDefault();
+            finish();
+          }
+        }}
+        className="absolute inset-0 cursor-pointer rounded-[var(--r-md)]"
+      />
+    </div>
+  );
+}
+
 type InviteState =
   | { k: 'loading' }
   | { k: 'gone'; msg: string }
@@ -131,6 +212,7 @@ export function InvitePage({ token }: { token: string }) {
   const [look, setLook] = useState({ emoji: EMOJIS[0], color: COLORS[0] });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [joined, setJoined] = useState<Player | null>(null);
   const pw = usePasswordPair();
   const [id] = useState(uuid);
 
@@ -184,15 +266,22 @@ export function InvitePage({ token }: { token: string }) {
     setErr('');
     try {
       const r = await ep.acceptInvite(token, pw.value, player);
+      // Signed in first; the welcome then holds this page for a moment and goes Home when it ends (or is left).
       actions.setSession(sessionOf(r.user, r.player));
       takePrefs(r.preferences);
-      actions.navReset();
+      setJoined(r.player);
     } catch (x) {
       setErr(authError(x));
     } finally {
       setBusy(false);
     }
   };
+  if (joined)
+    return (
+      <Page title={a.inviteTitle}>
+        <Welcome player={joined} onDone={() => actions.navReset()} />
+      </Page>
+    );
   const ready = !!pw.value && (!!(offer && claim?.id === offer.id) || !!nameKey(name));
   return (
     <Page title={a.inviteTitle}>
