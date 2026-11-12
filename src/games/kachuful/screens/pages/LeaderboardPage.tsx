@@ -1,5 +1,5 @@
-import { m, useReducedMotion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   leaderboard,
   rangeFor,
@@ -17,7 +17,7 @@ import { DeltaIntro, MetricPick, pct, Progress, RangePick, RankDelta } from '@/c
 import { Seg } from '@/components/ui/Seg';
 import { StreakBadge } from '@/components/ui/StreakBadge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { PRESS, SPRING } from '@/components/ui/motion';
+import { PRESS, REDUCED, SPRING } from '@/components/ui/motion';
 import { rankTone } from '@/games/kachuful/screens/desk/DeskParts';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
@@ -109,7 +109,6 @@ export function LeaderboardPage() {
           <BoardList
             data={device}
             metric={metric}
-            key={`d-${range.from}-${range.to}-${metric}`}
             you={state.session?.player?.id}
             onShowAll={showAll}
           />
@@ -142,22 +141,31 @@ function GlobalBoard({
 }) {
   const key = `lb:${range.from}:${range.to}:${metric}`;
   const r = useRemote(key, (o) => ep.leaderboard(range.from, range.to, metric, o));
+  // The last board and the metric it was sorted by stay up while the next one loads, so the list is never
+  // unmounted and rows can slide to their new rank. A new answer is a new object; the old key's is the same one.
+  const held = useRef<{ lb: NonNullable<typeof r.data>; metric: Metric } | null>(null);
+  if (r.data && r.data !== held.current?.lb) held.current = { lb: r.data, metric };
+  const h = held.current;
+  const stale = r.data == null && !r.error && !!h;
   return (
-    <RemoteGate r={r}>
-      {(lb) => (
-        <BoardList
-          key={key}
-          you={you}
-          metric={metric}
-          onShowAll={onShowAll}
-          data={{
-            minRounds: lb.minRounds,
-            facts: null,
-            rows: lb.rows.map(({ player, ...row }) => ({ ...row, playerId: player.id })),
-          }}
-        />
-      )}
-    </RemoteGate>
+    <div aria-busy={stale} className={stale ? 'opacity-60' : ''}>
+      <RemoteGate r={stale ? { ...r, data: h.lb } : r}>
+        {() =>
+          h && (
+            <BoardList
+              you={you}
+              metric={h.metric}
+              onShowAll={onShowAll}
+              data={{
+                minRounds: h.lb.minRounds,
+                facts: null,
+                rows: h.lb.rows.map(({ player, ...row }) => ({ ...row, playerId: player.id })),
+              }}
+            />
+          )
+        }
+      </RemoteGate>
+    </div>
   );
 }
 
@@ -220,32 +228,36 @@ export function BoardList({
       )}
       {ranked.length > 0 && (
         <ol className="flex flex-col gap-2">
-          {ranked.map((r, i) => (
-            <Row
-              key={r.playerId}
-              r={r}
-              i={i}
-              metric={metric}
-              facts={data.facts}
-              you={you === r.playerId}
-            />
-          ))}
+          <AnimatePresence>
+            {ranked.map((r, i) => (
+              <Row
+                key={r.playerId}
+                r={r}
+                i={i}
+                metric={metric}
+                facts={data.facts}
+                you={you === r.playerId}
+              />
+            ))}
+          </AnimatePresence>
         </ol>
       )}
       {rest.length > 0 && (
         <Section title={b.unranked(data.minRounds)} className="mt-6">
           <ol className="flex flex-col gap-2">
-            {shown.map((r, i) => (
-              <Row
-                key={r.playerId}
-                r={r}
-                i={ranked.length + i}
-                metric={metric}
-                facts={data.facts}
-                need={data.minRounds + 1}
-                you={you === r.playerId}
-              />
-            ))}
+            <AnimatePresence>
+              {shown.map((r, i) => (
+                <Row
+                  key={r.playerId}
+                  r={r}
+                  i={ranked.length + i}
+                  metric={metric}
+                  facts={data.facts}
+                  need={data.minRounds + 1}
+                  you={you === r.playerId}
+                />
+              ))}
+            </AnimatePresence>
           </ol>
           {folded && (
             <button
@@ -279,15 +291,26 @@ function Row({
 }) {
   const { actions } = useApp();
   const rm = useReducedMotion();
+  const intro = useContext(DeltaIntro);
+  // Read at mount: the first list of a visit rises in row by row; a row that joins after a filter change only fades.
+  const [rise] = useState(() => !intro?.done && !rm);
+  useEffect(() => {
+    if (intro) intro.done = true;
+  }, [intro]);
   const w = whoIs(facts, r.playerId);
   const run = facts ? lastRun(facts, r.playerId) : null;
   const value = fmtValue(metric, r.value);
   return (
     <m.li
-      layout={!rm}
-      initial={{ opacity: 0, y: 8 }}
+      layout={rm ? false : 'position'}
+      initial={rise ? { opacity: 0, y: 8 } : { opacity: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING, delay: rm ? 0 : Math.min(i, 12) * 0.02 }}
+      exit={{ opacity: 0, transition: { duration: REDUCED } }}
+      // The stagger belongs to the entrance only: a re-rank slides at once.
+      transition={{
+        layout: SPRING,
+        default: rise ? { ...SPRING, delay: Math.min(i, 12) * 0.02 } : { duration: REDUCED },
+      }}
       // The pinned row floats over the list, so it needs a shadow to not read as the row beneath it.
       className={
         you
