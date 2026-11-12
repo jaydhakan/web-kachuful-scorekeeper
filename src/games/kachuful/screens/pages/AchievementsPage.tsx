@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ACH,
@@ -15,7 +15,7 @@ import { dayLabel } from '@/lib/dates';
 import { useDeviceFacts, whoIs } from '@/games/kachuful/state/useFacts';
 import { Chip, ChipRow, Page, Section } from '@/components/ui/Page';
 import { Progress, ProgressRing } from '@/components/ui/Stats';
-import { Medal } from '@/components/ui/Medal';
+import { Medal, STAMP_LANDS } from '@/components/ui/Medal';
 import { Edge } from '@/components/ui/Edge';
 import { stagger } from '@/components/ui/stagger';
 import { achievements as names } from '@/games/kachuful/strings/achievements';
@@ -31,6 +31,9 @@ import { PlayerTag } from '@/components/ui/PlayerTag';
 const a = t.hub.ach;
 const GROUPS: AchievementGroup[] = ['round', 'game', 'career', 'daily', 'season'];
 const TOTAL = ACHIEVEMENTS.length;
+// New medals stamp one after another; past the fifth they land together, so a big haul doesn't keep anyone waiting.
+const STAMP_GAP = 0.12;
+const STAMP_CAP = 5;
 
 type Item = { x: AchievementDef; l?: never } | { l: Ladder; x?: never };
 /** A group's cards: each ladder of levels takes the place of its first level. */
@@ -93,6 +96,9 @@ export function AchievementsPage({
   }, [all]);
   const rarity = (code: string) =>
     who && players.length > 1 ? { n: holders.get(code)?.size ?? 0, of: players.length } : null;
+  // Each new tile's place among the new ones, in reading order: the stagger of their stamps.
+  let newest = 0;
+  const turn = (isFresh: boolean) => (isFresh ? newest++ : -1);
   return (
     <Page
       wide
@@ -126,7 +132,7 @@ export function AchievementsPage({
                   f={f}
                   count={counts?.[c.l.id]}
                   everyone={!who}
-                  fresh={c.l.codes.some((x) => fresh.has(x))}
+                  fresh={turn(c.l.codes.some((x) => fresh.has(x)))}
                   rarity={rarity}
                 />
               ) : (
@@ -137,7 +143,7 @@ export function AchievementsPage({
                   got={by.get(c.x.code) ?? []}
                   f={f}
                   everyone={!who}
-                  fresh={fresh.has(c.x.code)}
+                  fresh={turn(fresh.has(c.x.code))}
                   rare={rarity(c.x.code)}
                 />
               ),
@@ -207,11 +213,16 @@ function Shell({
   i: number;
   earned: boolean;
   emoji: string;
-  fresh: boolean;
+  /** Its place among the tiles earned since the last visit, or -1 when it isn't one. */
+  fresh: number;
   title: string;
   beside?: ReactNode;
   children: ReactNode;
 }) {
+  const rm = useReducedMotion();
+  const isNew = fresh >= 0;
+  // After the tile itself has come up.
+  const wait = 0.35 + Math.min(fresh, STAMP_CAP) * STAMP_GAP;
   return (
     <m.li
       {...stagger(Math.min(i, 10))}
@@ -227,16 +238,21 @@ function Shell({
         </span>
       )}
       <span className="flex items-center gap-2">
-        {/* One pass of light across a medal earned since the last visit. */}
-        <Medal emoji={emoji} won={earned} shine={fresh} delay={0.35 + Math.min(i, 10) * 0.04} />
+        {/* A medal earned since the last visit turns over and stamps into place, then light crosses it once. */}
+        <Medal emoji={emoji} won={earned} shine={isNew} stamp={isNew} delay={wait} />
         {beside}
       </span>
       <span className="mt-1 flex flex-wrap items-center gap-x-1.5 text-15 font-bold leading-tight">
         {title}
-        {fresh && (
-          <span className="rounded-full bg-gold px-1.5 text-13 leading-5 text-ink-gold">
+        {isNew && (
+          <m.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: rm ? 0 : wait + STAMP_LANDS }}
+            className="rounded-full bg-gold px-1.5 text-13 leading-5 text-ink-gold"
+          >
             {a.fresh}
-          </span>
+          </m.span>
         )}
       </span>
       {children}
@@ -300,7 +316,7 @@ function Card({
   got: Earned[];
   f: Facts;
   everyone: boolean;
-  fresh: boolean;
+  fresh: number;
   rare: Rarity;
 }) {
   return (
@@ -339,7 +355,7 @@ function LadderCard({
   f: Facts;
   count?: number;
   everyone: boolean;
-  fresh: boolean;
+  fresh: number;
   rarity: (code: string) => Rarity;
 }) {
   const reached = l.codes.map((c) => (by.get(c)?.length ?? 0) > 0);

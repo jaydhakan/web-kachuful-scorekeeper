@@ -73,6 +73,10 @@ describe('achievements, signed in', () => {
     expect(within(spoon).queryByText('Rare')).not.toBeInTheDocument();
     expect(within(spoon).getByText('4 of 4 players')).toBeInTheDocument();
     expect(screen.getAllByText('New')).toHaveLength(1);
+    // Only the new medal is stamped: it alone carries the ring that pulses behind it.
+    const ring = '[aria-hidden] > .pointer-events-none.rounded-full';
+    expect(perfect.querySelector(ring)).not.toBeNull();
+    expect(document.querySelectorAll(ring)).toHaveLength(1);
     // This visit is remembered, so the same achievements are not new next time.
     expect(JSON.parse(localStorage.getItem(KEYS.achSeen)!).x).toBeGreaterThan(5);
   });
