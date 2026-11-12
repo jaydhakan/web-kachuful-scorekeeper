@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { wrapped, type Facts, type Wrapped } from '@/games/kachuful/domain';
 import { monthLabel, parseDay, shortDay } from '@/lib/dates';
 import { sgnN } from '@/lib/format';
@@ -21,9 +21,19 @@ import { Avatar } from '@/components/ui/Avatar';
 
 const wr = t.hub.wrapped;
 
+// A slide comes in over this long; the last one then holds for a beat before its value arrives.
+const SLIDE = 0.35;
+const BEAT = 0.35;
+// A flick this fast (px/s) turns the slide even when it travelled less than SWIPE px.
+const FLICK = 400;
+const SWIPE = 60;
+// The entrance curve of DESIGN-SYSTEM.md (Motion).
+const SETTLE = [0.22, 1, 0.36, 1] as const;
+
 interface Slide {
   kicker: string;
-  big: ReactNode;
+  /** As a function it is told when to start counting, for a value that arrives after the slide has. */
+  big: ReactNode | ((run: boolean) => ReactNode);
   sub?: ReactNode;
   /** A Phosphor illustration, or the player's own avatar emoji for the people slides. */
   emoji: ReactNode;
@@ -100,11 +110,50 @@ function slidesOf(w: Wrapped, f: Facts | null): Slide[] {
   });
   out.push({
     kicker: wr.slides.rank,
-    big: w.rank.rank ? `#${w.rank.rank}` : '–',
+    // The rank climbs the board from last place to the player's own.
+    big: (run) =>
+      w.rank.rank ? (
+        <>
+          #<Counter from={w.rank.outOf} to={w.rank.rank} run={run} />
+        </>
+      ) : (
+        '–'
+      ),
     sub: w.rank.rank ? `/ ${w.rank.outOf}` : wr.slides.unranked,
     emoji: icon('trophy', ART),
   });
   return out;
+}
+
+/** The last slide's value: nothing for a beat after the slide has landed, then it settles in and counts. */
+function Finale({ s, rm }: { s: Slide; rm: boolean | null }) {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setOn(true), (SLIDE + BEAT) * 1000);
+    return () => clearTimeout(id);
+  }, []);
+  const hidden = rm ? { opacity: 0 } : { opacity: 0, scale: 0.9 };
+  return (
+    <m.span
+      initial={hidden}
+      animate={on ? { opacity: 1, scale: 1 } : hidden}
+      transition={{ duration: 0.45, ease: SETTLE }}
+      className="flex flex-col items-center gap-4"
+    >
+      <Value s={s} run={on} />
+    </m.span>
+  );
+}
+
+function Value({ s, run }: { s: Slide; run: boolean }) {
+  return (
+    <>
+      <span className="disp gold-text text-52 font-extrabold leading-none [overflow-wrap:anywhere]">
+        {typeof s.big === 'function' ? s.big(run) : s.big}
+      </span>
+      {s.sub && <span className="text-20 text-[var(--tx2)]">{s.sub}</span>}
+    </>
+  );
 }
 
 export function WrappedPage({
@@ -133,8 +182,16 @@ export function WrappedPage({
   );
   const slides = w && w.totals.rounds ? slidesOf(w, f) : [];
   const [i, setI] = useState(0);
+  // Which way the deck is moving: Next brings a slide in from the right, Previous from the left.
+  const [dir, setDir] = useState(1);
   const rm = useReducedMotion();
-  const go = (d: number) => setI((k) => Math.max(0, Math.min(slides.length - 1, k + d)));
+  const go = (d: number) => {
+    setDir(d);
+    setI((k) => Math.max(0, Math.min(slides.length - 1, k + d)));
+  };
+  // The click that ends a swipe is the swipe's, not a tap to advance.
+  const swiped = useRef(false);
+  const side = (d: number) => (rm ? { opacity: 0 } : { opacity: 0, x: 40 * d, scale: 0.96 });
   const s = slides[i];
   return (
     <Page
@@ -168,20 +225,33 @@ export function WrappedPage({
           </div>
           <m.button
             type="button"
-            onClick={() => go(1)}
+            onClick={() => (swiped.current ? (swiped.current = false) : go(1))}
             aria-label={wr.tap}
             drag={rm ? false : 'x'}
             dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={(_e, inf) => (inf.offset.x < -60 ? go(1) : inf.offset.x > 60 && go(-1))}
+            onDragStart={() => (swiped.current = true)}
+            onDragEnd={(_e, { offset, velocity }) => {
+              // Cleared after the click that follows a release on the card; a release elsewhere sends none.
+              setTimeout(() => (swiped.current = false));
+              const far = Math.abs(offset.x) > SWIPE;
+              const fast = Math.abs(velocity.x) > FLICK && velocity.x * offset.x > 0;
+              if (far || fast) go(offset.x < 0 ? 1 : -1);
+            }}
             className="glass glass-glow relative grid aspect-[9/14] w-[min(100%,26rem,calc(62svh*9/14))] place-items-center overflow-hidden p-8 text-center"
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" custom={dir}>
               <m.div
                 key={i}
-                initial={rm ? { opacity: 0 } : { opacity: 0, x: 40, scale: 0.96 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={rm ? { opacity: 0 } : { opacity: 0, x: -40, scale: 0.96 }}
-                transition={{ duration: 0.35, ease: EASE }}
+                custom={dir}
+                variants={{
+                  from: (d: number) => side(d),
+                  here: { opacity: 1, x: 0, scale: 1 },
+                  to: (d: number) => side(-d),
+                }}
+                initial="from"
+                animate="here"
+                exit="to"
+                transition={{ duration: SLIDE, ease: EASE }}
                 className="flex flex-col items-center gap-4"
                 aria-live="polite"
               >
@@ -196,10 +266,7 @@ export function WrappedPage({
                 <span className="text-15 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
                   {s.kicker}
                 </span>
-                <span className="disp gold-text text-52 font-extrabold leading-none [overflow-wrap:anywhere]">
-                  {s.big}
-                </span>
-                {s.sub && <span className="text-20 text-[var(--tx2)]">{s.sub}</span>}
+                {i === slides.length - 1 ? <Finale s={s} rm={rm} /> : <Value s={s} run />}
               </m.div>
             </AnimatePresence>
           </m.button>
