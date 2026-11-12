@@ -27,6 +27,7 @@ import { auctionView } from '../hand/bidding/auctionView';
 import { PassChip, PassVeil, TableMiddle } from '../hand/bidding/BidTable';
 import { ROLE_ICON, TEAM_FILL, seatBadges } from '../hand/parts/bits';
 import { InPane } from '../hand/parts/HandFrame';
+import { useRevealBadges } from '../hand/parts/reveal';
 import { TakeOut } from '../setup/TakeOut';
 import { AuctionPane, QuickPane } from './BidPanes';
 import { KtScorePanel } from './KtScorePanel';
@@ -76,6 +77,8 @@ function titleFor(g: KtGame, h: KtHand, seat: number | null, amount: number): st
 export function KtWorkspace({ g }: { g: KtGame }) {
   const { state, actions } = useKt();
   const h = curHand(g);
+  // A partner marked just now gets their seat badge as the dot lands, as on the phone.
+  const playBadges = useRevealBadges(h);
   const phase = h.phase as Phase;
   const step = STEP[phase];
   const n = g.players.length;
@@ -221,7 +224,7 @@ export function KtWorkspace({ g }: { g: KtGame }) {
             },
           }
         : undefined
-      : seatBadges(h);
+      : playBadges;
 
   return (
     <DeskPage>

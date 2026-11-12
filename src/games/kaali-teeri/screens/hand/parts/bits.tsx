@@ -1,5 +1,11 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { cloneElement, type CSSProperties, type ReactElement, type ReactNode } from 'react';
+import {
+  cloneElement,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+} from 'react';
 import type { CardRef, KtHand } from '@/games/kaali-teeri/domain';
 import { kp } from '@/games/kaali-teeri/strings/play';
 import { Icon } from '@/components/ui/Icons';
@@ -46,11 +52,19 @@ export function Pill({ children }: { children: ReactNode }) {
   );
 }
 
-/** The seat badges for the shared table: crown on the bidder, link on each revealed partner. */
-export function seatBadges(h: Pick<KtHand, 'bidder' | 'playedBy'>): Record<string, SeatBadge> {
+/**
+ * The seat badges for the shared table: crown on the bidder, link on each revealed partner. `wait` holds back the
+ * called cards (by index) whose reveal is still on its way to the seat.
+ */
+export function seatBadges(
+  h: Pick<KtHand, 'bidder' | 'playedBy'>,
+  wait?: ReadonlySet<number>,
+): Record<string, SeatBadge> {
   const out: Record<string, SeatBadge> = {};
-  for (const id of h.playedBy)
-    if (id != null) out[id] = { icon: ROLE_ICON.partner, label: kp.role.partner, style: TEAM_FILL };
+  h.playedBy.forEach((id, i) => {
+    if (id != null && !wait?.has(i))
+      out[id] = { icon: ROLE_ICON.partner, label: kp.role.partner, style: TEAM_FILL };
+  });
   if (h.bidder) out[h.bidder] = { icon: ROLE_ICON.bidder, label: kp.role.bidder, style: TEAM_FILL };
   return out;
 }
@@ -81,7 +95,7 @@ export function CardName({ c, copy = true }: { c: CardRef; copy?: boolean }) {
  * A called card that turns face up once someone has played it. The turn is a rotation of two backface-hidden faces;
  * under reduced motion the faces cross-fade instead.
  */
-export function FlipCard({ c, up, size }: { c: CardRef; up: boolean; size: CardSize }) {
+export function FlipCard({ c, up, size, at }: FlipCardProps) {
   const rm = useReducedMotion();
   const face = (show: boolean, back: boolean) =>
     rm
@@ -90,7 +104,7 @@ export function FlipCard({ c, up, size }: { c: CardRef; up: boolean; size: CardS
   // One-off 3D values stay inline, off the shared stylesheet.
   const side: CSSProperties = { backfaceVisibility: 'hidden' };
   return (
-    <span aria-hidden className="relative inline-block" style={{ perspective: 600 }}>
+    <span ref={at} aria-hidden className="relative inline-block" style={{ perspective: 600 }}>
       <m.span initial={false} animate={face(!up, true)} className="relative grid" style={side}>
         <PlayingCard rank={c.rank} suit={c.suit} face="down" size={size} />
         <span
@@ -110,4 +124,12 @@ export function FlipCard({ c, up, size }: { c: CardRef; up: boolean; size: CardS
       </m.span>
     </span>
   );
+}
+
+interface FlipCardProps {
+  c: CardRef;
+  up: boolean;
+  size: CardSize;
+  /** The card's box, for whatever needs to know where it is on screen. */
+  at?: Ref<HTMLSpanElement>;
 }

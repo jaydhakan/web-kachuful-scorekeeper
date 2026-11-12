@@ -1,4 +1,4 @@
-import { m } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import type { CardRef, KtGame, KtHand, Suit } from '@/games/kaali-teeri/domain';
 import { curHand } from '@/games/kaali-teeri/state/select';
@@ -8,17 +8,19 @@ import { Avatar } from '@/components/ui/Avatar';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { HALO, onFelt } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
-import { PRESS } from '@/components/ui/motion';
+import { PRESS, REDUCED, SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { TR } from '@/theme/trumps';
 import { HandFrame } from './parts/HandFrame';
-import { CardName, FlipCard, RoleBadge, cardText, roleOf, seatBadges } from './parts/bits';
+import { CardName, FlipCard, RoleBadge, cardText, roleOf } from './parts/bits';
+import { FLIP_S, useFreshMarks, useRevealBadges, useRevealFlight } from './parts/reveal';
 
 /** Plan §3 screen 6: the hand in play. Who played each called card can be marked as it lands, or at the result. */
 export default function Play() {
   const { state, actions } = useKt();
   const g = state.game;
   const h = g && curHand(g);
+  const badges = useRevealBadges(h);
   if (!g || !h || h.bidder == null || h.trump == null) return null;
   const bi = g.players.findIndex((p) => p.id === h.bidder);
   const bidder = g.players[bi];
@@ -49,7 +51,7 @@ export default function Play() {
           dealer={h.dealerIndex}
           first={bi}
           firstLabel={kp.play.leads}
-          badges={seatBadges(h)}
+          badges={badges}
           noSeatAnim
           center={<TrumpCentre suit={h.trump} />}
         />
@@ -64,8 +66,10 @@ export default function Play() {
 
 /** The called cards, face down until someone plays them, each with its "Played by…" button; phone and desk. */
 export function CalledCards({ g, h, id, className = 'mt-3 pane:mt-0' }: CalledCardsProps) {
-  const { actions } = useKt();
+  const { state, actions } = useKt();
   const said = useReveal(g, h);
+  const fresh = useFreshMarks(h, state.undo.length);
+  const { fly, node } = useRevealFlight();
   const shown = h.playedBy.filter((p) => p != null).length;
   return (
     <section aria-labelledby={id} className={className}>
@@ -96,11 +100,14 @@ export function CalledCards({ g, h, id, className = 'mt-3 pane:mt-0' }: CalledCa
               c={c}
               i={i}
               tile={h.called.length === 2}
+              fresh={fresh.get(i)}
+              fly={fly}
               onPick={() => actions.openSheet({ type: 'playedBy', i })}
             />
           </m.div>
         ))}
       </div>
+      {node}
     </section>
   );
 }
@@ -158,11 +165,24 @@ interface CalledCardProps {
   i: number;
   /** Two cards share the width as tiles; one, three or four stack as rows. */
   tile: boolean;
+  /** Set when the card was marked just now, on this screen: its reveal plays. One value per marking. */
+  fresh?: number;
+  fly: (card: HTMLElement, seat: number) => void;
   onPick: () => void;
 }
 
-function CalledCard({ g, h, c, i, tile, onPick }: CalledCardProps) {
-  const by = g.players.find((p) => p.id === h.playedBy[i]);
+function CalledCard({ g, h, c, i, tile, fresh, fly, onPick }: CalledCardProps) {
+  const rm = useReducedMotion();
+  const card = useRef<HTMLSpanElement>(null);
+  const seat = g.players.findIndex((p) => p.id === h.playedBy[i]);
+  const by = g.players[seat];
+  // Partner revealed: once the card has turned, the team's colour runs to the seat of whoever was marked first.
+  useEffect(() => {
+    if (fresh === undefined || rm || seat < 0) return;
+    const id = setTimeout(() => card.current && fly(card.current, seat), FLIP_S * 1000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per marking, not when the name is changed
+  }, [fresh]);
   const role = by && roleOf(h, by.id);
   const label = by ? kp.play.change(cardText(c), by.name) : kp.play.hidden(cardText(c));
   const button = (
@@ -198,7 +218,7 @@ function CalledCard({ g, h, c, i, tile, onPick }: CalledCardProps) {
         className="pointer-events-none absolute inset-0 rounded-[inherit]"
         style={{ boxShadow: 'inset 0 0 0 2px var(--kt-bid)' }}
       />
-      <FlipCard c={c} up={!!by} size={tile ? 'md' : 'sm'} />
+      <FlipCard c={c} up={!!by} size={tile ? 'md' : 'sm'} at={card} />
       <div
         className={`flex min-w-0 flex-1 gap-2 ${tile ? 'w-full flex-col items-center' : 'flex-wrap items-center justify-between'}`}
       >
@@ -206,7 +226,19 @@ function CalledCard({ g, h, c, i, tile, onPick }: CalledCardProps) {
           <span className="text-20 font-extrabold leading-none">
             <CardName c={c} />
           </span>
-          {role && <RoleBadge kind={role} />}
+          {role && (
+            // Settles in after the flip when marked just now; already there otherwise.
+            <m.span
+              className="inline-flex"
+              initial={
+                fresh === undefined ? false : rm ? { opacity: 0 } : { opacity: 0, scale: 0.9 }
+              }
+              animate={{ opacity: 1, scale: 1 }}
+              transition={rm ? { duration: REDUCED } : { ...SPRING, delay: FLIP_S }}
+            >
+              <RoleBadge kind={role} />
+            </m.span>
+          )}
         </div>
         {button}
       </div>
