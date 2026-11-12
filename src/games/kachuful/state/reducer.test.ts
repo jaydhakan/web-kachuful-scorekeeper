@@ -380,6 +380,43 @@ describe('finishing, rematch and undo', () => {
     expect(back.screen).toBe('round');
   });
 
+  it('the last round’s streaks and moments show as cards on the winner screen, with no full-screen burst', () => {
+    // Seat 0 makes only the last three rounds (hot 3) and is alone in the last (lone wolf); seat 3 misses those three.
+    const total = totalRounds({ lengthMode: '1cycle', maxCards: 10 });
+    const g = kitGame({
+      id: 'fin',
+      players: ['a', 'b', 'c', 'd'],
+      start: 0,
+      lengthMode: '1cycle',
+      rounds: Array.from({ length: total }, (_, i) => ({
+        made:
+          i < total - 3
+            ? [false, true, true, true]
+            : i < total - 1
+              ? [true, true, true, false]
+              : [true, false, false, false],
+      })),
+    });
+    g.rounds = g.rounds.slice(0, total);
+    g.rounds[total - 1].phase = 'results';
+    delete g.rounds[total - 1].doneAt;
+    const before = run(initialState(g, 'round', []), { type: 'confirmRound' });
+    expect(before).toMatchObject({ screen: 'winner', fresh: true, game: { status: 'finished' } });
+    expect(before.streakFx).toBeNull();
+    expect(before.pops?.more).toBe(0);
+    expect(before.pops?.items).toEqual(
+      expect.arrayContaining([
+        { code: 'hot_3', name: 'a' },
+        { code: 'cold_3', name: 'd' },
+        { code: 'lone_wolf', name: 'a' },
+      ]),
+    );
+    const codes = before.pops!.items.map((x) => x.code + x.name);
+    expect(new Set(codes).size).toBe(codes.length);
+    expect(run(before, { type: 'undo' }).pops).toBeNull();
+    expect(run(before, { type: 'rematch', id: 'g2', syncId: 's2', now: 9 }).pops).toBeNull();
+  });
+
   it('ending the game early crowns a winner and can be undone', () => {
     const st = run(playRound(demo()), { type: 'finishGame' });
     expect(st).toMatchObject({ screen: 'winner', fresh: true });

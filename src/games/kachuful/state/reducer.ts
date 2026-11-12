@@ -57,12 +57,17 @@ export function initialState(
 const MAX_BURSTS = 2;
 // Common and a little mean, so they are earned quietly: the Achievements page still lists them.
 const QUIET = new Set(['odd_one_out', 'hooked']);
-const celebrate = (s: AppState, g: Game): Pick<AppState, 'streakFx' | 'pops'> => {
+const celebrate = (s: AppState, g: Game, final = false): Pick<AppState, 'streakFx' | 'pops'> => {
   // Three misses in a row is common enough that a full screen rubs it in; it drops in as a card instead.
   const fx = streakMilestones(g).filter((e) => e.kind === 'hot' || e.tier > 0);
   const items = lastRoundMoments(g)
     .filter(({ e }) => !QUIET.has(e.code) && (e.code === 'cold_3' || !/^(hot|cold)_/.test(e.code)))
     .map(({ e, p }) => ({ code: e.code, name: p.name }));
+  // A burst would cover the winner, so the last round's streaks drop in as cards with the rest.
+  if (final) {
+    const all = [...fx.map((e) => ({ code: `${e.kind}_${e.n}`, name: e.p.name })), ...items];
+    return { streakFx: null, pops: all.length ? { id: s.noteSeq + 1, items: all, more: 0 } : null };
+  }
   const more = Math.max(0, fx.length - MAX_BURSTS);
   return {
     streakFx: fx.length ? fx.slice(0, MAX_BURSTS) : null,
@@ -136,6 +141,8 @@ function begin(s: AppState, g: Game): AppState {
     undo: keep ? pushSnapshot([], JSON.stringify(old)) : [],
     dir: 1,
     screen: 'round',
+    // The finished game's cards may still be up when a rematch is dealt.
+    pops: null,
     seq: { round: g.rounds[0], prev: null, banner: roundBanner(g, g.rounds[0]) },
   };
   return keep ? say(next, m.toasts.previousSaved, true) : next;
@@ -359,7 +366,13 @@ function step(s: AppState, a: Action): AppState {
         dir: 1 as const,
       };
       return c.game.status === 'finished'
-        ? { ...c, fresh: true, screen: 'winner' }
+        ? {
+            ...c,
+            ...celebrate(c, c.game, true),
+            noteSeq: c.noteSeq + 1,
+            fresh: true,
+            screen: 'winner',
+          }
         : say(
             { ...c, sumAnim: true, ...celebrate(c, c.game), screen: 'round' },
             m.toasts.roundSaved,
