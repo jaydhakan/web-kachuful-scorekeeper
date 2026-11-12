@@ -1,9 +1,11 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { demoGame } from '@/games/kachuful/domain';
 import { KEYS, storage, type Session } from '@/state/persistence';
 import { setSession } from '@/sync/session';
-import { go } from '../route';
+import { gameById } from '../catalog';
+import { go, startRoute } from '../route';
 import Landing from './Landing';
+import { CAP_MS, FADE_MS, GROW_MS, OpenGameCover } from './OpenGame';
 
 vi.mock('../route', async (orig) => ({
   ...(await orig<typeof import('../route')>()),
@@ -67,6 +69,45 @@ describe('Landing', () => {
     expect(go).not.toHaveBeenCalled();
     expect(fireEvent.click(link)).toBe(false);
     expect(go).toHaveBeenCalledWith('kachuful');
+  });
+
+  it('with motion, a tile grows first and the game opens when it has; Resume opens at once', () => {
+    vi.useFakeTimers();
+    history.replaceState(null, '', '/');
+    startRoute();
+    window.matchMedia = () => ({ matches: false }) as MediaQueryList;
+    const load = vi.spyOn(gameById('kachuful'), 'load').mockResolvedValue({ default: () => null });
+    storage.set(KEYS.game, { ...demoGame(), id: 'g1', updatedAt: Date.now() });
+    render(
+      <>
+        <Landing />
+        <OpenGameCover />
+      </>,
+    );
+    const link = screen.getByRole('link', { name: /^Kachuful.*Play$/ });
+    const art = link.querySelector('[data-tile-art]') as HTMLElement;
+    art.getBoundingClientRect = () => new DOMRect(20, 300, 88, 88);
+    expect(fireEvent.click(link)).toBe(false);
+    expect(go).not.toHaveBeenCalled();
+    expect(load).toHaveBeenCalledTimes(1);
+    const cover = document.querySelector('[data-open-game]') as HTMLElement;
+    expect(cover).toHaveAttribute('aria-hidden', 'true');
+    expect(cover).toHaveClass('pointer-events-none');
+    // A second tap while it grows opens nothing twice.
+    fireEvent.click(link);
+    act(() => void vi.advanceTimersByTime(GROW_MS));
+    expect(go).toHaveBeenCalledTimes(1);
+    expect(go).toHaveBeenCalledWith('kachuful');
+    // The game never reports in here, so the cap takes the cover away.
+    expect(document.querySelector('[data-open-game]')).toHaveAttribute('data-open-game', 'cover');
+    act(() => void vi.advanceTimersByTime(CAP_MS - GROW_MS + FADE_MS));
+    expect(document.querySelector('[data-open-game]')).toBeNull();
+
+    vi.mocked(go).mockClear();
+    fireEvent.click(screen.getByRole('link', { name: 'Resume Kachuful' }));
+    expect(go).toHaveBeenCalledWith('kachuful');
+    expect(document.querySelector('[data-open-game]')).toBeNull();
+    vi.useRealTimers();
   });
 
   it('signed in: the account chip names the person and opens their account', () => {

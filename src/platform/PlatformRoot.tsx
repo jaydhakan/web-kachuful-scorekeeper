@@ -15,6 +15,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EXIT } from '@/components/ui/motion';
 import { platform } from '@/strings/platform';
 import { gameById } from './catalog';
+import { Arrived, GROW_MS, OpenGameCover, useOpening } from './landing/OpenGame';
 import { go, useGame, type GameId } from './route';
 
 const Landing = lazy(() => import('./landing/Landing'));
@@ -86,7 +87,8 @@ function useFocusHeading(key: string) {
   }, [key]);
 }
 
-// Opening a game rises in (round 2 storyboard: 400ms ease-out); going back settles the landing page in (240ms).
+// Opened by address, Back or Resume, a game rises in (400ms ease-out); from its tile, the tile grows into it instead
+// (OpenGame). Going back settles the landing page in (240ms).
 const OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 function enter(game: boolean, reduced: boolean): [Target, Transition] {
   if (reduced) return [{ opacity: 0 }, { duration: 0.12 }];
@@ -114,17 +116,24 @@ export function PlatformRoot() {
     drawn = true;
   }, []);
   useFocusHeading(key);
+  const opening = useOpening();
+  // The landing page dims while a tile grows; the game it opens is already whole under the cover, which fades off it.
+  const dim = !live && opening?.phase === 'grow';
+  const viaTile = live && opening?.id === id;
   const [from, transition] = enter(live, reduced);
   return (
-    <m.div
-      key={key}
-      className="relative h-full w-full"
-      initial={drawn ? from : false}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={transition}
-    >
-      <Page id={live ? id : null} />
-    </m.div>
+    <>
+      <m.div
+        key={key}
+        className="relative h-full w-full"
+        initial={drawn && !viaTile ? from : false}
+        animate={{ opacity: dim ? 0.4 : 1, y: 0, scale: 1 }}
+        transition={dim ? { duration: GROW_MS / 1000, ease: OUT } : transition}
+      >
+        <Page id={live ? id : null} />
+      </m.div>
+      <OpenGameCover />
+    </>
   );
 }
 
@@ -148,6 +157,7 @@ function Page({ id }: { id: GameId | null }) {
       >
         {/* Cached per game and attempt (rootOf), so this never remounts a game on a re-render. */}
         {createElement(rootOf(id, attempt))}
+        <Arrived />
       </Suspense>
     </LoadBoundary>
   );
