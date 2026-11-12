@@ -21,7 +21,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
-import { SPRING_POP } from '@/components/ui/motion';
+import { EASE, ENTER, EXIT, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { fmt, sgnN } from '@/lib/format';
 import { palette } from '@/theme/palette';
 import { Pill, RoleBadge, roleOf } from './parts/bits';
@@ -37,6 +37,8 @@ const rankColor = (rank: number) =>
 
 // A hand confirmed this long ago or less counts up on arrival; reopening the summary later shows it settled.
 const FRESH_MS = 4000;
+// The sweep's beat: it is announced, alone, before anything counts.
+const SWEEP_MS = 900;
 
 /** Plan §3 screen 8: totals after the hand, this hand's changes, standings and who deals next. */
 export default function Summary() {
@@ -70,13 +72,17 @@ export function useSummaryData(g: KtGame, h: KtHand) {
   /* eslint-disable react-hooks/exhaustive-deps */
   const fresh = useMemo(() => !rm && h.doneAt != null && Date.now() - h.doneAt < FRESH_MS, []);
   const before = useMemo(() => doneHands(g).filter((x) => x !== h), []);
+  const beat = useMemo(() => fresh && (result(h, g.rules)?.sweep ?? 'none') !== 'none', []);
   /* eslint-enable react-hooks/exhaustive-deps */
   const [stage, setStage] = useState(fresh ? 0 : 3);
+  const [sweeping, setSweeping] = useState(beat);
   useEffect(() => {
     if (!fresh) return;
-    const ts = [250, 700, 1500].map((ms, k) => setTimeout(() => setStage(k + 1), ms));
+    const wait = beat ? SWEEP_MS : 0;
+    const ts = [250, 700, 1500].map((ms, k) => setTimeout(() => setStage(k + 1), wait + ms));
+    if (beat) ts.push(setTimeout(() => setSweeping(false), SWEEP_MS));
     return () => ts.forEach(clearTimeout);
-  }, [fresh]);
+  }, [fresh, beat]);
   const pt = totals(g, before),
     ct = totals(g);
   const list = stage >= 3 ? standings(g) : standings(g, before);
@@ -97,26 +103,65 @@ export function useSummaryData(g: KtGame, h: KtHand) {
           : kp.summary.missed(bidder.name, h.teamPoints!, h.bid!);
   const good = res.sweep === 'bidders' || (res.made && res.sweep === 'none');
   const final = standings(g);
-  return { stage, fresh, pt, ct, list, delta, res, line, good, final, next, nD, nF };
+  return {
+    stage,
+    fresh,
+    beat,
+    sweeping,
+    pt,
+    ct,
+    list,
+    delta,
+    res,
+    line,
+    good,
+    final,
+    next,
+    nD,
+    nF,
+  };
 }
 
 type Data = ReturnType<typeof useSummaryData>;
 
 /** "Made: Meera's team took 190 of 180 · ♥ trump", and the standings for assistive tech once they settle. */
 export function ResultLine({ d, h }: { d: Data; h: KtHand }) {
-  const { good, line, stage, final, delta } = d;
+  const { good, line, stage, final, delta, res, sweeping } = d;
   return (
     <>
-      <p className="mb-3 flex flex-wrap items-center gap-x-1.5 text-15 text-[var(--tx2)]">
-        <span aria-hidden className={good ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}>
-          {good ? kp.board.made : kp.board.missed}
-        </span>
-        <span>{line}</span>
-        <span aria-hidden>·</span>
-        <span>
-          <SuitGlyph trump={h.trump!} /> {kp.summary.trump}
-        </span>
-      </p>
+      <div className="relative mb-3">
+        <m.p
+          initial={false}
+          animate={{ opacity: sweeping ? 0 : 1 }}
+          transition={{ duration: ENTER, ease: EASE }}
+          className="flex flex-wrap items-center gap-x-1.5 text-15 text-[var(--tx2)]"
+        >
+          <span aria-hidden className={good ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}>
+            {good ? kp.board.made : kp.board.missed}
+          </span>
+          <span>{line}</span>
+          <span aria-hidden>·</span>
+          <span>
+            <SuitGlyph trump={h.trump!} /> {kp.summary.trump}
+          </span>
+        </m.p>
+        {/* The sweep, announced over the line it then gives way to; the line itself is what assistive tech reads. */}
+        <AnimatePresence>
+          {sweeping && (
+            <m.span
+              aria-hidden
+              data-kt-sweep
+              initial={{ opacity: 0, scale: 0.94, y: '-50%' }}
+              animate={{ opacity: 1, scale: 1, y: '-50%' }}
+              exit={{ opacity: 0, y: '-50%', transition: { duration: EXIT } }}
+              transition={{ duration: ENTER, ease: EASE }}
+              className="disp pointer-events-none absolute left-0 top-1/2 origin-left whitespace-nowrap text-26 font-extrabold leading-none tracking-[-0.03em]"
+            >
+              {res.sweep === 'bidders' ? kp.result.sweepBidders : kp.result.sweepDefenders}
+            </m.span>
+          )}
+        </AnimatePresence>
+      </div>
       <p role="status" aria-live="polite" className="sr-only">
         {stage >= 3 &&
           kp.summary.announce(
@@ -129,7 +174,7 @@ export function ResultLine({ d, h }: { d: Data; h: KtHand }) {
 
 /** The standings after the hand: this hand's change and the total counting up. */
 export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
-  const { list, delta, res, stage, fresh, pt, ct } = d;
+  const { list, delta, res, stage, fresh, beat, sweeping, pt, ct } = d;
   return (
     <div
       role="region"
@@ -141,6 +186,7 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
         const id = x.p.id,
           d = delta[id],
           role = roleOf(h, id);
+        const swept = res.sweep === 'bidders' ? !!role : res.sweep === 'defenders' && !role;
         return (
           <m.div
             layout="position"
@@ -149,6 +195,21 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
             className="mb-1.5"
           >
             <Glass spot={false} className="relative flex min-h-16 items-center gap-2.5 px-3 py-2">
+              {beat && swept && (
+                // The sweeping side's rows light once during the beat: the team's colour, or the accent for defenders.
+                <m.span
+                  aria-hidden
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.22, 0.22, 0] }}
+                  transition={{
+                    duration: 0.7,
+                    delay: 0.15,
+                    times: [0, 0.3, 0.65, 1],
+                    ease: 'easeInOut',
+                  }}
+                  className={`pointer-events-none absolute inset-0 rounded-[inherit] ${res.sweep === 'bidders' ? 'bg-kt-bid' : 'bg-[var(--accent)]'}`}
+                />
+              )}
               <div
                 className="disp w-6 shrink-0 text-center text-22 font-extrabold"
                 style={{ color: rankColor(x.rank) }}
@@ -166,7 +227,17 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
                 {(role || res.sweep !== 'none') && (
                   <span className="flex flex-wrap gap-1">
                     {role && <RoleBadge kind={role} />}
-                    {res.sweep !== 'none' && d > 0 && <Pill>{kp.role.sweep}</Pill>}
+                    {res.sweep !== 'none' && d > 0 && (
+                      // After the beat the announcement settles here.
+                      <m.span
+                        className="inline-flex"
+                        initial={false}
+                        animate={{ opacity: sweeping ? 0 : 1, scale: sweeping ? 0.9 : 1 }}
+                        transition={SPRING}
+                      >
+                        <Pill>{kp.role.sweep}</Pill>
+                      </m.span>
+                    )}
                   </span>
                 )}
               </div>
