@@ -307,6 +307,8 @@ export const t = {
     nextUp: 'Next up',
     peak: 'Peak round!',
     backTo3: 'Back to 3',
+    /** The best round the rules allow: the dealer's rule means someone always misses. */
+    allButOne: (name: string) => `Everyone but ${name} made it`,
     nextLine: (round: number, cards: number, trump: Trump): ReactNode => (
       <>
         Round {round} · {b(`${cards} cards`)} · <SuitGlyph trump={trump} /> {TR[trump].name}
@@ -338,6 +340,7 @@ export const t = {
 
   start: {
     skip: 'Skip the deal animation',
+    lastRound: 'Last round',
     trumpIs: (name: string) => `${name} are trump`,
     firstCard: (name: string): ReactNode => <>First card to {b(name)}</>,
     tapToSkip: 'Tap to skip',
@@ -373,6 +376,14 @@ export const t = {
     headline: (names: string[]) =>
       names.length > 1 ? `${names.join(' & ')} share it` : `${names[0]} wins`,
     finalScores: 'Final scores',
+    /** One line under the winner's name saying how the game was won; the rarest that applies. */
+    how: {
+      comeback: 'from last place',
+      perfect: 'every bid made',
+      wire: 'led from the first round',
+      photo: (by: number) => `by ${by} points`,
+      firstWin: 'first win',
+    },
     levelUp: 'Level up',
     levels: (from: number, to: number, of: number) => `Level ${from} to ${to} of ${of}`,
     share: 'Share',

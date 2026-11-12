@@ -326,6 +326,9 @@ export const hub = {
     attention: (n: number) => (n === 1 ? '1 thing needs you' : `${n} things need you`),
   },
   auth: {
+    /** Shown once, right after an invite is accepted. */
+    welcomeTitle: "You're in",
+    welcomeBody: (name: string) => `A seat is yours, ${name}.`,
     signIn: 'Sign in',
     signInTitle: 'Sign in to sync',
     signInBody:
