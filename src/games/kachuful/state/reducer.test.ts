@@ -31,7 +31,6 @@ function bidAll(s: AppState): AppState {
     const forb = isDealer ? forbiddenFor(g, r) : null;
     const v = [1, 0, 2].find((x) => x !== forb)!;
     st = run(st, { type: 'bid', v });
-    if (st.advance) st = run(st, { type: 'advanceBid', idx: st.advance.idx });
   }
   return st;
 }
@@ -122,7 +121,6 @@ describe('setup and starting a game', () => {
     let st = setup(10, 'endless', 2);
     for (let i = 0; i < 10; i++) {
       st = run(st, { type: 'bid', v: 0 });
-      if (st.advance) st = run(st, { type: 'advanceBid', idx: st.advance.idx });
     }
     st = run(st, { type: 'phase', phase: 'playing' }, { type: 'phase', phase: 'results' });
     const r = curRound(st.game);
@@ -204,23 +202,16 @@ describe('setup and starting a game', () => {
 });
 
 describe('bidding', () => {
-  it('saves a bid, makes it undoable and schedules the pointer to advance', () => {
+  it('saves a bid, makes it undoable and moves the turn on in the same update', () => {
     const st = run(demo(), { type: 'bid', v: 1 });
     expect(curRound(st.game).bids.p4).toBe(1);
     expect(st.undo).toHaveLength(1);
     expect(st.toast).toMatchObject({ msg: 'Bid saved', undo: true });
-    expect(st.advance).toEqual({ idx: 3 });
-    expect(run(st, { type: 'advanceBid', idx: 3 }).game.ui.bidIdx).toBe(3);
+    expect(st.game.ui.bidIdx).toBe(3);
   });
 
   it('locks the dealer’s forbidden bid, counts a hook hit and stores nothing else', () => {
-    let st = run(
-      demo(),
-      { type: 'bid', v: 1 },
-      { type: 'advanceBid', idx: 3 },
-      { type: 'bid', v: 1 },
-      { type: 'advanceBid', idx: 4 },
-    );
+    let st = run(demo(), { type: 'bid', v: 1 }, { type: 'bid', v: 1 });
     const before = st.undo.length;
     expect(forbiddenFor(st.game, curRound(st.game))).toBe(2);
     st = run(st, { type: 'bid', v: 2 });
@@ -242,7 +233,23 @@ describe('bidding', () => {
     st = run(st, { type: 'bid', v: 2 });
     expect(st.game.ui.hookWarn).toBe(true);
     expect(curRound(st.game).bids.p1).toBeUndefined();
-    expect(st.advance).toEqual({ idx: 4 });
+    expect(st.game.ui.bidIdx).toBe(4);
+  });
+
+  it('two bids back to back land on two consecutive players in bid order', () => {
+    const st = run(demo(), { type: 'bid', v: 1 }, { type: 'bid', v: 0 });
+    const r = curRound(st.game),
+      od = bidOrder(st.game, r).map((i) => st.game.players[i].id);
+    expect(od.slice(2, 4)).toEqual(['p4', 'p0']);
+    expect(r.bids.p4).toBe(1);
+    expect(r.bids.p0).toBe(0);
+    expect(st.game.ui.bidIdx).toBe(4);
+    expect(st.undo).toHaveLength(2);
+    // Undo takes back the second bid only, and the turn with it.
+    const back = run(st, { type: 'undo' });
+    expect(curRound(back.game).bids).toMatchObject({ p4: 1 });
+    expect(curRound(back.game).bids.p0).toBeUndefined();
+    expect(back.game.ui.bidIdx).toBe(3);
   });
 
   it('only jumps to a seat that has bid or is up now', () => {
@@ -252,10 +259,10 @@ describe('bidding', () => {
     expect(run(st, { type: 'pickSeat', k: 4 }).game.ui.bidIdx).toBe(2);
   });
 
-  it('undo reverts a bid and cancels the pending advance', () => {
+  it('undo reverts a bid and gives the turn back', () => {
     const st = run(demo(), { type: 'bid', v: 1 }, { type: 'undo' });
     expect(curRound(st.game).bids.p4).toBeUndefined();
-    expect(st.advance).toBeNull();
+    expect(st.game.ui.bidIdx).toBe(2);
     expect(st.toast?.msg).toBe('Undone');
   });
 });

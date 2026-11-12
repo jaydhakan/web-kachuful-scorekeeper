@@ -265,13 +265,6 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     return () => clearTimeout(t);
   }, [bannerId]);
 
-  const advance = state.advance;
-  useEffect(() => {
-    if (!advance) return;
-    const t = setTimeout(() => dispatch({ type: 'advanceBid', idx: advance.idx }), 250);
-    return () => clearTimeout(t);
-  }, [advance]);
-
   const actions = useMemo<Actions>(() => {
     // Screen changes mount a lot of UI; as transitions React renders them in small slices and stays interruptible.
     const nav = (a: Action) => startTransition(() => dispatch(a));

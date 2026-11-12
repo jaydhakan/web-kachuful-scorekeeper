@@ -107,8 +107,6 @@ export interface AppState {
   streakFx: StreakEvent[] | null;
   /** Small achievement cards that drop in under the top bar after a round; `more` counts streaks not shown. */
   pops: { id: number; items: { code: string; name: string }[]; more: number } | null;
-  /** A pending move of the "who bids now" pointer, applied shortly after a bid. */
-  advance: { idx: number } | null;
   noteSeq: number;
   corrupt: boolean;
   /** The player whose result the app filled in because only one could work; cleared by the next action. */
@@ -129,7 +127,6 @@ export type Action =
   | { type: 'beginGame'; id: string; syncId: string; now: number; playerIds?: string[] }
   | { type: 'resume' }
   | { type: 'bid'; v: number }
-  | { type: 'advanceBid'; idx: number }
   | { type: 'pickSeat'; k: number }
   | { type: 'phase'; phase: Phase; dir?: Dir }
   | { type: 'setResult'; id: string; v: Outcome }

@@ -47,7 +47,6 @@ export function initialState(
     sumAnim: false,
     streakFx: null,
     pops: null,
-    advance: null,
     noteSeq: 0,
     autoResult: null,
     corrupt,
@@ -155,15 +154,15 @@ function bid(s: AppState, v: number): AppState {
       curRound(gg).hookHits = (curRound(gg).hookHits || 0) + 1;
     });
   }
-  let next = bi;
-  const out = commit(
+  // The turn moves in the same update as the bid, so a second tap can never land on the same player.
+  return commit(
     s,
     (gg) => {
       const rr = curRound(gg);
       rr.bids[p.id] = v;
       if (pI === rr.dealerIndex) gg.ui.hookWarn = false;
       const miss = od.findIndex((i) => rr.bids[gg.players[i].id] === undefined);
-      if (miss >= 0) next = miss;
+      if (miss >= 0) gg.ui.bidIdx = miss;
       else {
         const f = forbiddenFor(gg, rr),
           dl = gg.players[rr.dealerIndex];
@@ -171,12 +170,11 @@ function bid(s: AppState, v: number): AppState {
           delete rr.bids[dl.id];
           gg.ui.hookWarn = true;
         }
-        next = n - 1;
+        gg.ui.bidIdx = n - 1;
       }
     },
     { undo: true, toast: m.toasts.bidSaved },
   );
-  return { ...out, advance: next !== bi ? { idx: next } : s.advance };
 }
 
 function undoLast(s: AppState): AppState {
@@ -189,7 +187,6 @@ function undoLast(s: AppState): AppState {
     ...s,
     game: { ...g, rev: s.game.rev + 1, updatedAt: now() },
     undo,
-    advance: null,
     sumAnim: false,
     streakFx: null,
     pops: null,
@@ -298,13 +295,6 @@ function step(s: AppState, a: Action): AppState {
       return { ...s, dir: 1, screen: s.game.status === 'finished' ? 'winner' : 'round' };
     case 'bid':
       return bid(s, a.v);
-    case 'advanceBid':
-      return {
-        ...commit(s, (g) => {
-          g.ui.bidIdx = a.idx;
-        }),
-        advance: null,
-      };
     case 'pickSeat': {
       const g = s.game,
         r = curRound(g);
@@ -474,7 +464,6 @@ function step(s: AppState, a: Action): AppState {
             game: a.game,
             undo: [],
             seq: null,
-            advance: null,
             screen:
               a.game.status === 'finished' ? 'winner' : s.screen === 'winner' ? 'round' : s.screen,
           }
@@ -489,7 +478,6 @@ function step(s: AppState, a: Action): AppState {
         seq: null,
         streakFx: null,
         sumAnim: false,
-        advance: null,
         screen: a.game.status === 'finished' ? 'winner' : 'round',
       };
     case 'replaceGame':
@@ -503,7 +491,6 @@ function step(s: AppState, a: Action): AppState {
         screen: 'home',
         sheet: null,
         seq: null,
-        advance: null,
         streakFx: null,
       };
     case 'renewSyncId': {
