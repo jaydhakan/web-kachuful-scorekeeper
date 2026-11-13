@@ -96,6 +96,9 @@ export function seedGame(
 
 /** Replaces whatever the app saved with `game`, on `screen`, and reloads into it (the podium by way of Home). */
 export async function openSeeded(page: Page, game: Game, screen: 'home' | 'round' | 'winner') {
+  // Seeded from a page of this origin with no app on it: an app still starting up would save over the seed.
+  const url = page.url();
+  await page.goto('/favicon-16.png');
   await page.evaluate(
     ([g, s, names]) => {
       localStorage.clear();
@@ -114,7 +117,7 @@ export async function openSeeded(page: Page, game: Game, screen: 'home' | 'round
     },
     [game, screen, LONG_NAMES] as const,
   );
-  await page.reload();
+  await page.goto(url);
   if (screen === 'winner') await openPodium(page);
 }
 

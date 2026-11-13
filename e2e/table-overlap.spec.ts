@@ -88,23 +88,27 @@ for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   });
 }
 
-for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
-  test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
-    // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
-    await page.setViewportSize({ width: 740, height: 900 });
-    await page.goto('/kachuful');
-    await toSetup3(page, LONG_NAMES_14.slice(0, n));
-    await btn(page, 'Deal!').click();
-    await page.locator('[data-table="rs"]').waitFor();
-    const found: string[] = [];
-    for (const w of WIDTHS) {
-      await scaleTable(page, 'rs', w);
-      await page.waitForTimeout(150);
-      found.push(...(await collisions(page, 'rs')).map((c) => `deal ${w}px: ${c}`));
-    }
-    expect(found).toEqual([]);
-  });
-}
+test.describe('the deal', () => {
+  // Under reduced motion the deal shows the trump for a moment and closes; with motion on its table stays for seconds.
+  test.use({ reducedMotion: 'no-preference' });
+  for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
+    test(`the deal screen's table has no overlaps at any size (${n} players)`, async ({ page }) => {
+      // The widest window that still gets the phone UI; the sizes come from scaling the table, not the window.
+      await page.setViewportSize({ width: 740, height: 900 });
+      await page.goto('/kachuful');
+      await toSetup3(page, LONG_NAMES_14.slice(0, n));
+      await btn(page, 'Deal!').click();
+      await page.locator('[data-table="rs"]').waitFor();
+      const found: string[] = [];
+      for (const w of WIDTHS) {
+        await scaleTable(page, 'rs', w);
+        await page.waitForTimeout(150);
+        found.push(...(await collisions(page, 'rs')).map((c) => `deal ${w}px: ${c}`));
+      }
+      expect(found).toEqual([]);
+    });
+  }
+});
 
 for (const n of [3, 5, 7, 8, 9, 10, 12, 14]) {
   test(`the made and missed marks stay clear of the names (${n} players)`, async ({ page }) => {
