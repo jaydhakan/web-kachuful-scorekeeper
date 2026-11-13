@@ -32,7 +32,7 @@ export function InboxList() {
             <button
               type="button"
               onClick={() => archive.del('inbox', i.id)}
-              className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
+              className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent-tx)]"
             >
               {t.common.done}
             </button>

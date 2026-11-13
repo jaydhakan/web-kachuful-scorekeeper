@@ -136,7 +136,7 @@ export function Home() {
                     </div>
                   </>
                 ) : (
-                  <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+                  <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent-tx)]">
                     {fin ? t.home.finished : t.home.resume}
                   </div>
                 )}

@@ -274,7 +274,7 @@ export function EmailStep({
         <button
           type="button"
           onClick={() => setFull(true)}
-          className="press min-h-11 self-start rounded-xl px-1 text-14 font-bold text-[var(--accent)]"
+          className="press min-h-11 self-start rounded-xl px-1 text-14 font-bold text-[var(--accent-tx)]"
         >
           {x.addFullName}
         </button>

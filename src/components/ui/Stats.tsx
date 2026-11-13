@@ -93,7 +93,7 @@ function OptionSheet<T extends string>({
                 type="button"
                 aria-pressed={v === value}
                 onClick={() => onPick(v)}
-                className={`press flex min-h-12 items-center justify-between gap-3 rounded-2xl px-4 py-1.5 text-left ${v === value ? 'bg-ov/[.07] text-[var(--accent)]' : ''}`}
+                className={`press flex min-h-12 items-center justify-between gap-3 rounded-2xl px-4 py-1.5 text-left ${v === value ? 'bg-ov/[.07] text-[var(--accent-tx)]' : ''}`}
               >
                 <span className="flex flex-col">
                   <span className="text-17 font-bold">{label.get(v)}</span>

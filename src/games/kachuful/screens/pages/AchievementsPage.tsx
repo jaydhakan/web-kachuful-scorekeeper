@@ -289,7 +289,7 @@ function Footer({
         </span>
       )}
       <span
-        className={`mt-auto pt-1 text-13 ${got.length ? 'font-bold text-[var(--accent)]' : 'text-[var(--tx2)]'}`}
+        className={`mt-auto pt-1 text-13 ${got.length ? 'font-bold text-[var(--accent-tx)]' : 'text-[var(--tx2)]'}`}
       >
         {got.length ? a.earned(dayLabel(lastOf(got))) : a.locked}
       </span>
@@ -328,7 +328,7 @@ function Card({
       title={names[x.code].name}
       beside={
         got.length > 1 && (
-          <span className="disp text-17 font-extrabold text-[var(--accent)]">×{got.length}</span>
+          <span className="disp text-17 font-extrabold text-[var(--accent-tx)]">×{got.length}</span>
         )
       }
     >

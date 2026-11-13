@@ -22,7 +22,7 @@ export function TodayStrip({ className = '' }: { className?: string }) {
         <button
           type="button"
           onClick={() => actions.open({ screen: 'awards' })}
-          className="press min-h-11 px-1 text-13 font-bold text-[var(--accent)]"
+          className="press min-h-11 px-1 text-13 font-bold text-[var(--accent-tx)]"
         >
           {t.hub.home.seeAwards}
         </button>

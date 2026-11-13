@@ -267,7 +267,7 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
       className="app-root scr-bg grain relative h-full w-full overflow-y-auto"
     >
       <main className="mx-auto w-full max-w-[40rem] px-4 pb-[calc(var(--sab)+2rem)] pt-[calc(var(--sat)+1.5rem)]">
-        {eyebrow && <p className="text-13 font-bold text-[var(--accent)]">{eyebrow}</p>}
+        {eyebrow && <p className="text-13 font-bold text-[var(--accent-tx)]">{eyebrow}</p>}
         <h1 className="disp text-30 font-extrabold tracking-[-0.025em]">{title}</h1>
         {body}
         {open}

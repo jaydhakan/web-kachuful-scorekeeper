@@ -40,7 +40,7 @@ interface Slide {
 }
 
 // Slide art: the size of the 72px emoji it replaced.
-const ART = 'h-[4.5rem] w-[4.5rem] text-[var(--accent)]';
+const ART = 'h-[4.5rem] w-[4.5rem] text-[var(--accent-tx)]';
 // The people slides show the player's own face at the same size.
 const FACE = 'grid h-24 w-24 place-items-center rounded-full text-52';
 
@@ -263,7 +263,7 @@ export function WrappedPage({
                 >
                   {s.emoji}
                 </m.span>
-                <span className="text-15 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+                <span className="text-15 font-bold uppercase tracking-[0.12em] text-[var(--accent-tx)]">
                   {s.kicker}
                 </span>
                 {i === slides.length - 1 ? <Finale s={s} rm={rm} /> : <Value s={s} run />}

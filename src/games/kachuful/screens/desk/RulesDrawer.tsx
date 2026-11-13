@@ -25,7 +25,7 @@ export function RulesDrawer() {
       onClose={() => actions.openSheet(null)}
       foot={
         <div className="glass hidden shrink-0 flex-col gap-2 px-4 py-3.5 kbd:flex">
-          <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+          <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent-tx)]">
             {t.desk.rules.keyboard}
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-15 text-[var(--tx2)]">
@@ -53,7 +53,7 @@ export function RulesDrawer() {
             {...stagger(i, 0.12)}
             className="flex gap-3.5 border-t border-ov/[.08] py-3.5 first:border-t-0"
           >
-            <span className="disp grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] text-16 font-extrabold text-[var(--accent)]">
+            <span className="disp grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] text-16 font-extrabold text-[var(--accent-tx)]">
               {i + 1}
             </span>
             <div>

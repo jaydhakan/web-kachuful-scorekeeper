@@ -60,7 +60,7 @@ function Themes({ admin, who, signedIn }: { admin: boolean; who: string; signedI
   return (
     <section aria-labelledby="landing-theme" className="flex flex-col gap-2">
       <div className="flex items-center gap-2 px-2">
-        <h3 id="landing-theme" className="mono-label text-13 text-[var(--accent)]">
+        <h3 id="landing-theme" className="mono-label text-13 text-[var(--accent-tx)]">
           {admin ? s.theme : s.ownTheme}
         </h3>
         {admin && (

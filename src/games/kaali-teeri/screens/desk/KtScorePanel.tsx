@@ -77,7 +77,7 @@ export function KtScorePanel({ g, changes }: KtScorePanelProps) {
         <button
           type="button"
           onClick={() => actions.openSheet({ type: 'board' })}
-          className="press mt-auto hidden min-h-12 rounded-xl px-1.5 text-left text-14 font-bold text-[var(--accent)] dt:block"
+          className="press mt-auto hidden min-h-12 rounded-xl px-1.5 text-left text-14 font-bold text-[var(--accent-tx)] dt:block"
         >
           {kd.scores.open}
         </button>

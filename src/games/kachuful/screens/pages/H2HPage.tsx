@@ -108,7 +108,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
     <Page title={h.title(A.name, B.name)}>
       <div className="mb-6 flex items-start gap-2">
         {side(A, -60)}
-        <span className="disp mt-6 text-28 font-extrabold text-[var(--accent)]">{h.vs}</span>
+        <span className="disp mt-6 text-28 font-extrabold text-[var(--accent-tx)]">{h.vs}</span>
         {side(B, 60)}
       </div>
       {!x.games ? (
@@ -134,7 +134,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
                     className="press glass grid min-h-14 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4"
                   >
                     <span
-                      className={`text-right text-18 font-extrabold ${g.a[0] < g.b[0] ? 'text-gold' : ''}`}
+                      className={`text-right text-18 font-extrabold ${g.a[0] < g.b[0] ? 'text-[var(--gold-tx)]' : ''}`}
                     >
                       #{g.a[0]} · {fmt(g.a[1])}
                     </span>
@@ -142,7 +142,7 @@ export function H2HPage({ a, b, facts }: { a: string; b: string; facts?: Facts }
                       {g.endedAt ? dayLabel(g.endedAt) : ''}
                     </span>
                     <span
-                      className={`text-left text-18 font-extrabold ${g.b[0] < g.a[0] ? 'text-gold' : ''}`}
+                      className={`text-left text-18 font-extrabold ${g.b[0] < g.a[0] ? 'text-[var(--gold-tx)]' : ''}`}
                     >
                       #{g.b[0]} · {fmt(g.b[1])}
                     </span>

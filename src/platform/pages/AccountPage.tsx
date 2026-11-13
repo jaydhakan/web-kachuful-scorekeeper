@@ -160,7 +160,10 @@ export function AccountPage() {
                 onClick={go}
                 className="press flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold"
               >
-                <span aria-hidden className="grid h-6 w-6 place-items-center text-[var(--accent)]">
+                <span
+                  aria-hidden
+                  className="grid h-6 w-6 place-items-center text-[var(--accent-tx)]"
+                >
                   {ic}
                 </span>
                 <span className="flex-1">{label}</span>
@@ -238,7 +241,7 @@ function Hero({
           type="button"
           aria-label={ac.editMe}
           onClick={onEdit}
-          className="press glass absolute -bottom-1 -right-2 grid h-11 w-11 place-items-center !rounded-full text-[var(--accent)]"
+          className="press glass absolute -bottom-1 -right-2 grid h-11 w-11 place-items-center !rounded-full text-[var(--accent-tx)]"
         >
           {Icon.edit}
         </button>

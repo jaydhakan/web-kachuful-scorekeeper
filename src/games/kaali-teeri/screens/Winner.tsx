@@ -107,7 +107,7 @@ export default function Winner() {
                 initial={{ y: -140, scale: 0.5, opacity: 0 }}
                 animate={{ y: 0, scale: 1, opacity: 1 }}
                 transition={{ ...SPRING_POP, delay: 0.5 }}
-                className="mx-auto block h-[3.25rem] w-[3.25rem] text-gold land:hidden"
+                className="mx-auto block h-[3.25rem] w-[3.25rem] text-[var(--gold-tx)] land:hidden"
               >
                 {icon('trophy', 'h-full w-full')}
               </m.span>

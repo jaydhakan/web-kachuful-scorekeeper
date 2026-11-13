@@ -42,16 +42,16 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
           className="mat-av grid h-12 w-12 shrink-0 place-items-center rounded-full text-28"
         />
         <p className="min-w-0 flex-1 leading-tight">
-          <span className="mono-label block text-12 text-[var(--accent)]">{s.trump.bidWon}</span>
+          <span className="mono-label block text-12 text-[var(--accent-tx)]">{s.trump.bidWon}</span>
           <span className="disp block text-24 font-extrabold tracking-[-0.02em] [overflow-wrap:anywhere]">
             {p.name}
           </span>
         </p>
-        <span className="disp tick text-40 font-extrabold leading-none text-[var(--accent)]">
+        <span className="disp tick text-40 font-extrabold leading-none text-[var(--accent-tx)]">
           {h.bid}
         </span>
       </div>
-      <h2 className="mono-label mb-2.5 mt-5 px-1 text-12 text-[var(--accent)]">
+      <h2 className="mono-label mb-2.5 mt-5 px-1 text-12 text-[var(--accent-tx)]">
         {s.trump.pick(p.name)}
       </h2>
       <div role="group" aria-label={s.trump.group} className="grid grid-cols-2 gap-3">
@@ -121,7 +121,7 @@ function CardsStep({ g, h, onTrump }: { g: KtGame; h: KtHand; onTrump: () => voi
         </PrimaryButton>
       }
     >
-      <h2 className="mono-label px-1 text-12 text-[var(--accent)]">{s.call.head(count)}</h2>
+      <h2 className="mono-label px-1 text-12 text-[var(--accent-tx)]">{s.call.head(count)}</h2>
       <div className="mt-1.5 flex items-center justify-between gap-2">
         <p className="min-w-0 px-1 text-15 text-[var(--tx2)] [overflow-wrap:anywhere]">
           {s.call.leads(p.name)}

@@ -216,7 +216,7 @@ export function RoundStart() {
         transition={
           rm ? { duration: REDUCED } : { delay: lineAt / 1000, duration: 0.3, ease: EASE }
         }
-        className="mb-2 px-7 text-center text-17 font-bold text-[var(--accent)] @h-short:mb-1 pane:[grid-area:4/1]"
+        className="mb-2 px-7 text-center text-17 font-bold text-[var(--accent-tx)] @h-short:mb-1 pane:[grid-area:4/1]"
       >
         {t.start.trumpIs(th.name)}
       </m.div>
@@ -268,7 +268,7 @@ export function RoundStart() {
         <AnimatePresence>
           {live && stage >= 3 && (
             <m.div initial={rm ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="disp face-body text-24 font-bold leading-[1.2] tracking-[-0.02em] @h-short:text-20 land:text-20 [&_[data-n]]:text-32 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] @h-short:[&_[data-n]]:text-26 land:[&_[data-n]]:text-26">
+              <div className="disp face-body text-24 font-bold leading-[1.2] tracking-[-0.02em] @h-short:text-20 land:text-20 [&_[data-n]]:text-32 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent-tx)] @h-short:[&_[data-n]]:text-26 land:[&_[data-n]]:text-26">
                 {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
               </div>
               <div className="mt-1">{t.start.firstCard(g.players[r.firstPlayerIndex].name)}</div>

@@ -32,7 +32,7 @@ export const Eyebrow = ({
   className?: string;
 }) => (
   <div
-    className={`text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)] ${className}`}
+    className={`text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent-tx)] ${className}`}
   >
     {children}
   </div>

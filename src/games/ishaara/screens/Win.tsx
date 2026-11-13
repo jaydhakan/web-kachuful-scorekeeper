@@ -125,7 +125,7 @@ export default function Win({ game }: { game: IshaaraPublic }) {
 
             {game.solution && (
               <m.section {...stagger(1)} aria-labelledby="ish-key" className="mt-6">
-                <h2 id="ish-key" className="mono-label mb-2 text-13 text-[var(--accent)]">
+                <h2 id="ish-key" className="mono-label mb-2 text-13 text-[var(--accent-tx)]">
                   {w.key}
                 </h2>
                 <div className="h-[19rem] land:h-[15rem]">
@@ -136,7 +136,7 @@ export default function Win({ game }: { game: IshaaraPublic }) {
           </div>
 
           <m.section {...stagger(2)} aria-labelledby="ish-log" className="mt-6">
-            <h2 id="ish-log" className="mono-label mb-2 text-13 text-[var(--accent)]">
+            <h2 id="ish-log" className="mono-label mb-2 text-13 text-[var(--accent-tx)]">
               {w.log}
             </h2>
             {rows.length === 0 ? (

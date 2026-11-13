@@ -76,7 +76,7 @@ export function CalledCards({ g, h, id, className = 'mt-3 pane:mt-0' }: CalledCa
       <div className="mb-2.5 flex items-baseline justify-between gap-3">
         <h2
           id={id}
-          className="mono-label text-13 font-bold uppercase tracking-[0.14em] text-[var(--accent)]"
+          className="mono-label text-13 font-bold uppercase tracking-[0.14em] text-[var(--accent-tx)]"
         >
           {kp.play.called}
         </h2>

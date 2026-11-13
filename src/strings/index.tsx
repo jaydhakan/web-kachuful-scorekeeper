@@ -235,7 +235,7 @@ export const t = {
         <b data-t>
           <SuitGlyph trump={trump} /> {TR[trump].name}
         </b>{' '}
-        trump <b className="text-[var(--accent)]">{arrow}</b>
+        trump <b className="text-[var(--accent-tx)]">{arrow}</b>
       </>
     ),
   },
@@ -511,7 +511,7 @@ export const t = {
         trump{' '}
         {delta != null && delta !== 0 && (
           <>
-            · <b className="text-[var(--accent)]">{delta > 0 ? '↑' : '↓'}</b> one{' '}
+            · <b className="text-[var(--accent-tx)]">{delta > 0 ? '↑' : '↓'}</b> one{' '}
             {delta > 0 ? 'more' : 'fewer'} card than last round
           </>
         )}

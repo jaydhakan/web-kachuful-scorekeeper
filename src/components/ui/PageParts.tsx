@@ -51,7 +51,7 @@ export function PageFrame({
           </IconButton>
           <div className="min-w-0 flex-1">
             {eyebrow && (
-              <div className="mb-1 text-13 font-bold uppercase leading-tight tracking-[0.12em] text-[var(--accent)] [overflow-wrap:anywhere]">
+              <div className="mb-1 text-13 font-bold uppercase leading-tight tracking-[0.12em] text-[var(--accent-tx)] [overflow-wrap:anywhere]">
                 {eyebrow}
               </div>
             )}

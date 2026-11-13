@@ -107,7 +107,7 @@ export function ScoreTable({ g, onRow }: { g: KtGame; onRow?: (i: number) => voi
                         className={`inline-flex items-center gap-1 text-15 font-extrabold ${v > 0 ? 'text-[var(--pos)]' : 'text-[var(--tx2)]'}`}
                       >
                         {role && (
-                          <span className="text-[var(--accent)]">
+                          <span className="text-[var(--accent-tx)]">
                             {ROLE_ICON[role]}
                             <span className="sr-only">{kp.role[role]}</span>
                           </span>

@@ -98,7 +98,10 @@ function Row({ a }: { a: Activity }) {
         ? [icon('flag', 'h-6 w-6'), ac.finished(top?.name ?? '', top ? sgnN(top.points) : '')]
         : a.kind === 'player_joined'
           ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
-          : [icon('crown', 'h-6 w-6 text-gold'), ac.season(String(a.data.season ?? ''))];
+          : [
+              icon('crown', 'h-6 w-6 text-[var(--gold-tx)]'),
+              ac.season(String(a.data.season ?? '')),
+            ];
   const go = () =>
     a.game
       ? actions.open({ screen: 'game', params: { id: a.game.id } })

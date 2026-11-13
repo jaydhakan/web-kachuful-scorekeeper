@@ -66,7 +66,7 @@ export default function Waiting({ game, onLeave }: { game: IshaaraPublic; onLeav
       >
         <m.p {...stagger(0)} className="text-22 leading-snug [text-wrap:balance]">
           <b>{w.open(names[0], names[1])}</b>{' '}
-          <b className="break-all text-[var(--accent)]">{clueUrl()}</b> {w.onPhone}
+          <b className="break-all text-[var(--accent-tx)]">{clueUrl()}</b> {w.onPhone}
         </m.p>
         <m.div {...stagger(1)} className="mt-4 flex justify-center">
           <JoinQr className="h-40 w-40 p-1" />

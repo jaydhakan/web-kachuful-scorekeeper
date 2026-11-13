@@ -155,7 +155,7 @@ function ClaimButton({ gameId, p }: { gameId: string; p: Player }) {
       type="button"
       aria-label={lv.thatsMeLabel(p.name)}
       onClick={() => void claim()}
-      className="press min-h-11 shrink-0 rounded-xl px-2.5 text-14 font-bold text-[var(--accent)]"
+      className="press min-h-11 shrink-0 rounded-xl px-2.5 text-14 font-bold text-[var(--accent-tx)]"
     >
       {lv.thatsMe}
     </button>

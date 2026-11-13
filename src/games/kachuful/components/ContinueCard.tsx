@@ -80,7 +80,7 @@ export function ContinueCard({ className = '' }: { className?: string }) {
       onClick={() => void open()}
       className={`glass flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold ${className}`}
     >
-      <span aria-hidden className="grid text-[var(--accent)]">
+      <span aria-hidden className="grid text-[var(--accent-tx)]">
         {Icon.resume}
       </span>
       {t.hub.sync2.continueOther(pick.round)}

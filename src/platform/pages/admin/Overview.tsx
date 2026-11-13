@@ -41,7 +41,7 @@ function Item({
           <span className="block text-16 font-bold [overflow-wrap:anywhere]">{title}</span>
           {sub && <span className="block text-13 text-[var(--tx2)]">{sub}</span>}
         </span>
-        <span className="shrink-0 text-14 font-bold text-[var(--accent)]">{action}</span>
+        <span className="shrink-0 text-14 font-bold text-[var(--accent-tx)]">{action}</span>
         <Chevron />
       </button>
     </m.li>

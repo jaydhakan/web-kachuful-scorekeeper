@@ -168,7 +168,7 @@ export const hub = {
     dealer: 'As dealer',
     places: (a: number, b: number, c: number): ReactNode => (
       <>
-        <span className="text-gold">{Icon.medalInline}</span> {a} ·{' '}
+        <span className="text-[var(--gold-tx)]">{Icon.medalInline}</span> {a} ·{' '}
         <span className="text-rank-silver">{Icon.medalInline}</span> {b} ·{' '}
         <span className="text-rank-bronze">{Icon.medalInline}</span> {c}
       </>

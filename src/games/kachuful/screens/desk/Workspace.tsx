@@ -180,7 +180,7 @@ export function Workspace() {
               >
                 {phase === 'bidding' ? (
                   <>
-                    <div className="disp text-26 font-bold leading-[1.15] tracking-[-0.02em] [&_[data-n]]:text-36 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)]">
+                    <div className="disp text-26 font-bold leading-[1.15] tracking-[-0.02em] [&_[data-n]]:text-36 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent-tx)]">
                       {t.deal.head(v.dealer.name, r.cards)}
                     </div>
                     <div className="mt-1.5 text-17 text-[var(--tx2)] [&_b]:text-[var(--tx)] [&_[data-t]]:text-24 [&_[data-t]]:font-bold">

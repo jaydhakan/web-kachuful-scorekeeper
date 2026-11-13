@@ -112,7 +112,7 @@ export function Slots({ count, called, draft, onRemove, onOpen }: SlotsProps) {
               </span>
               {note && (
                 <span
-                  className={`text-13 font-medium ${active ? 'text-[var(--accent)]' : 'text-[var(--tx2)]'}`}
+                  className={`text-13 font-medium ${active ? 'text-[var(--accent-tx)]' : 'text-[var(--tx2)]'}`}
                 >
                   {note}
                 </span>

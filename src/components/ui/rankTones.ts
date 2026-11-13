@@ -8,7 +8,7 @@ export const PODIUM_BG = {
 /** A place's colour: gold, silver and bronze for the top three, the text colour after. */
 export const rankTone = (rank: number) =>
   rank === 1
-    ? 'text-gold'
+    ? 'text-[var(--gold-tx)]'
     : rank === 2
       ? 'text-rank-silver'
       : rank === 3

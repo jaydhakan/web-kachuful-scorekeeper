@@ -109,7 +109,7 @@ export function EditPlayerSheet({ p, onClose }: { p: Person; onClose: () => void
                   className="press glass inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-15 font-bold disabled:opacity-50"
                 >
                   {a}
-                  <span aria-hidden className="text-13 font-medium text-[var(--accent)]">
+                  <span aria-hidden className="text-13 font-medium text-[var(--accent-tx)]">
                     ↑
                   </span>
                 </button>

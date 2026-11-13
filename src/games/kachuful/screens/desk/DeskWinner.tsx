@@ -148,7 +148,7 @@ export function DeskWinner() {
             transition={{ ...SPRING_POP, delay: after }}
             role="img"
             aria-label={t.desk.winner.trophy}
-            className="absolute left-1/2 top-7 h-[min(84px,12cqh)] w-[min(84px,12cqh)] -translate-x-1/2 text-gold [filter:drop-shadow(0_0_24px_color-mix(in_srgb,var(--medal-gold)_60%,transparent))]"
+            className="absolute left-1/2 top-7 h-[min(84px,12cqh)] w-[min(84px,12cqh)] -translate-x-1/2 text-[var(--gold-tx)] [filter:drop-shadow(0_0_24px_color-mix(in_srgb,var(--medal-gold)_60%,transparent))]"
           >
             {Icon.trophy}
           </m.span>

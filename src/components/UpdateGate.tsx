@@ -46,7 +46,7 @@ export function UpdateGate({ onReload }: { onReload: () => void }) {
         >
           ♠
         </m.div>
-        <p className="mb-1 text-13 font-bold uppercase tracking-[0.14em] text-[var(--accent)]">
+        <p className="mb-1 text-13 font-bold uppercase tracking-[0.14em] text-[var(--accent-tx)]">
           {t.update.kicker}
         </p>
         <h2

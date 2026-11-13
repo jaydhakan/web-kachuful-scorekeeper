@@ -41,7 +41,7 @@ export function ClueCard({ game }: { game: IshaaraPublic }) {
       className="glass flex items-center gap-3 px-5 py-4 land:px-4 land:py-3"
     >
       <div className="min-w-0 flex-1">
-        <p className="mono-label text-13 text-[var(--accent)]">{b.cluesBy(giver)}</p>
+        <p className="mono-label text-13 text-[var(--accent-tx)]">{b.cluesBy(giver)}</p>
         {c ? (
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="disp text-36 font-extrabold leading-none tracking-[-0.03em] [overflow-wrap:anywhere] land:text-28">

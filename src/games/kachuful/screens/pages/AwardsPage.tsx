@@ -64,7 +64,7 @@ export function AwardCard({ a, f, i }: { a: Award; f: Facts | null; i: number })
         <Edge />
         <Medal emoji={ACH.get(a.code)?.emoji ?? ''} size="sm" />
         <span className="min-w-0 flex-1">
-          <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--accent)]">
+          <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--accent-tx)]">
             {achName(a.code)}
           </span>
           <span className="block text-17 font-bold [overflow-wrap:anywhere]">
@@ -296,7 +296,7 @@ function PastChampions({
     <Section title={aw.champions} className="mt-2">
       {lead && n >= 2 && (
         <p className="mb-3 flex items-center gap-2 text-15 font-bold">
-          <span aria-hidden className="text-gold">
+          <span aria-hidden className="text-[var(--gold-tx)]">
             {icon('crown', 'h-5 w-5')}
           </span>
           {aw.mostTitles(whoIs(f, lead).name, n)}
@@ -360,7 +360,7 @@ function ChaseLine({ c }: { c: Chase }) {
             : ch.absent;
   return (
     <p className="glass mb-4 flex items-center gap-3 px-4 py-3 text-15 font-bold">
-      <span aria-hidden className="grid h-6 w-6 shrink-0 text-gold">
+      <span aria-hidden className="grid h-6 w-6 shrink-0 text-[var(--gold-tx)]">
         {c.kind === 'top' ? icon('crown', 'h-6 w-6') : icon('target', 'h-6 w-6')}
       </span>
       <span className="min-w-0 flex-1">
@@ -415,7 +415,7 @@ function Explore({ year }: { year: number }) {
             {k > 0 && <span aria-hidden className="absolute left-14 right-0 top-0 h-px bg-ov/10" />}
             <span
               aria-hidden
-              className="grid h-6 w-6 shrink-0 place-items-center text-[var(--accent)]"
+              className="grid h-6 w-6 shrink-0 place-items-center text-[var(--accent-tx)]"
             >
               {l.ic}
             </span>
@@ -446,7 +446,7 @@ function Podium({ s, f }: { s: ReturnType<typeof season>; f: Facts | null }) {
           k = top.indexOf(r);
         return (
           <div key={r.playerId} className="flex w-24 flex-col items-center gap-1 text-center">
-            {k === 0 && <span className="text-gold">{icon('crown', 'h-7 w-7')}</span>}
+            {k === 0 && <span className="text-[var(--gold-tx)]">{icon('crown', 'h-7 w-7')}</span>}
             <Avatar p={w} className="grid h-12 w-12 place-items-center rounded-full text-26" />
             <span className="text-14 font-bold [overflow-wrap:anywhere]">{w.name}</span>
             <m.span

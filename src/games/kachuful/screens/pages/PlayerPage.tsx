@@ -278,7 +278,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
               aria-expanded={more}
               aria-controls="more-stats"
               onClick={() => setMore(!more)}
-              className="press mt-1 flex min-h-11 items-center gap-1.5 px-1 text-14 font-bold text-[var(--accent)]"
+              className="press mt-1 flex min-h-11 items-center gap-1.5 px-1 text-14 font-bold text-[var(--accent-tx)]"
             >
               {more ? p.fewerStats : p.moreStats}
               <span
@@ -332,7 +332,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
                 <button
                   type="button"
                   onClick={() => actions.open({ screen: 'achievements', params: { id } })}
-                  className="press min-h-11 px-2 text-14 font-bold text-[var(--accent)]"
+                  className="press min-h-11 px-2 text-14 font-bold text-[var(--accent-tx)]"
                 >
                   {t.hub.common.see}
                 </button>

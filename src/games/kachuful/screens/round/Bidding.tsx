@@ -8,7 +8,7 @@ export function DealLine({ g, r }: { g: Game; r: Round }) {
     ar = r.cards > prev ? '↑' : r.cards < prev ? '↓' : '→';
   return (
     <>
-      <span className="disp face-body block text-20 font-bold leading-[1.2] tracking-[-0.02em] [&_[data-n]]:text-28 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent)] wide:text-22 wide:[&_[data-n]]:text-32">
+      <span className="disp face-body block text-20 font-bold leading-[1.2] tracking-[-0.02em] [&_[data-n]]:text-28 [&_[data-n]]:leading-none [&_[data-n]]:text-[var(--accent-tx)] wide:text-22 wide:[&_[data-n]]:text-32">
         {t.deal.head(g.players[r.dealerIndex].name, r.cards)}
       </span>
       <span className="mt-1 block text-15 leading-[1.35] text-[var(--tx2)] [&_b]:text-[var(--tx)] [&_[data-t]]:text-20 [&_[data-t]]:font-bold wide:[&_[data-t]]:text-22">

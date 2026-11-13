@@ -86,7 +86,7 @@ function Key({
 }
 
 const Label = ({ children, first }: { children: ReactNode; first?: boolean }) => (
-  <h3 className={`mono-label mb-2 px-1 text-12 text-[var(--accent)] ${first ? '' : 'mt-4'}`}>
+  <h3 className={`mono-label mb-2 px-1 text-12 text-[var(--accent-tx)] ${first ? '' : 'mt-4'}`}>
     {children}
   </h3>
 );

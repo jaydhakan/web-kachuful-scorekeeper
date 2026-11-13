@@ -351,7 +351,7 @@ export function AddPlayerForm({
                 // Focus moves on in the same tap, so the keyboard stays up.
                 setTimeout(() => firstRef.current?.focus(), 0);
               }}
-              className="press mt-1 min-h-11 self-start rounded-xl px-1 text-14 font-bold text-[var(--accent)]"
+              className="press mt-1 min-h-11 self-start rounded-xl px-1 text-14 font-bold text-[var(--accent-tx)]"
             >
               {x.addFullName}
             </button>

@@ -27,7 +27,7 @@ export function HomeOnline({ className = '' }: { className?: string }) {
           onClick={() => actions.open({ screen: 'player', params: { id: me } })}
           className="press glass flex min-h-14 items-center gap-3 px-4 text-left"
         >
-          <span aria-hidden className="grid h-6 w-6 text-gold">
+          <span aria-hidden className="grid h-6 w-6 text-[var(--gold-tx)]">
             {Icon.trophy}
           </span>
           <span className="flex-1 text-16 font-bold">
@@ -85,7 +85,7 @@ export function HomeOnlineStrip({ className = '' }: { className?: string }) {
       onClick={() => actions.open({ screen: 'player', params: { id: me } })}
       className={`press glass flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left ${className}`}
     >
-      <span aria-hidden className="grid h-6 w-6 shrink-0 text-gold">
+      <span aria-hidden className="grid h-6 w-6 shrink-0 text-[var(--gold-tx)]">
         {Icon.trophy}
       </span>
       <span className="min-w-0 flex-1">

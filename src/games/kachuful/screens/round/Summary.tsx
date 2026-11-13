@@ -235,7 +235,7 @@ export function Summary() {
             {t.summary.nextShort(nr.index + 1, nr.cards, nr.trump, nD.name, nF.name)}
           </p>
           <div className="@h-[56rem]:hidden pane:!block">
-            <div className="flex items-center justify-between text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+            <div className="flex items-center justify-between text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent-tx)]">
               <span>{t.summary.nextUp}</span>
               {tag && (
                 <span className="rounded-[10px] bg-[var(--gold)] px-2.5 py-0.5 text-13 normal-case tracking-normal text-ink-gold">

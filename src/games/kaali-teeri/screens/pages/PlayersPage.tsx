@@ -43,7 +43,7 @@ export function PlayersPage() {
                 <button
                   type="button"
                   onClick={() => setQ('')}
-                  className="press min-h-12 px-3 text-16 font-bold text-[var(--accent)]"
+                  className="press min-h-12 px-3 text-16 font-bold text-[var(--accent-tx)]"
                 >
                   {ps.clear}
                 </button>

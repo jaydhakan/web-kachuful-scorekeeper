@@ -37,7 +37,7 @@ function ResumeCard({ g }: { g: KtGame }) {
     ld = standings(g)[0];
   return (
     <Glass glow onClick={actions.resume} className="w-full cursor-pointer p-5 text-left">
-      <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+      <div className="text-13 font-bold uppercase tracking-[0.12em] text-[var(--accent-tx)]">
         {fin ? s.home.finished : s.home.resume}
       </div>
       <div className="disp mt-1 text-24 font-bold tracking-[-0.025em] @h-short:text-22">

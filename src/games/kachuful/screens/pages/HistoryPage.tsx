@@ -101,7 +101,7 @@ export function HistoryPage() {
           <button
             type="button"
             onClick={() => (setWho(null), setRange(allTime()), setScope('all'))}
-            className="press min-h-12 px-3 text-16 font-bold text-[var(--accent)]"
+            className="press min-h-12 px-3 text-16 font-bold text-[var(--accent-tx)]"
           >
             {h.clear}
           </button>

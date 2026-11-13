@@ -29,7 +29,7 @@ export function AlmostThere({ className = '' }: { className?: string }) {
         {ACH.get(n.code)?.emoji}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--accent)]">
+        <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--accent-tx)]">
           {t.hub.home.almost}
         </span>
         <span className="block text-16 font-bold [overflow-wrap:anywhere]">{achName(n.code)}</span>

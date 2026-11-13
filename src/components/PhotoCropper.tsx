@@ -147,7 +147,7 @@ export function PhotoCropper({
         <button
           type="button"
           onClick={() => setCrop(centred(src.width, src.height))}
-          className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)]"
+          className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent-tx)]"
         >
           {x.reset}
         </button>

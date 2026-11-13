@@ -297,7 +297,7 @@ export function InvitePage({ token }: { token: string }) {
               transition={{ duration: 0.35, ease: EASE }}
               className="glass mb-6 flex flex-col items-center gap-2 p-5 text-center"
             >
-              <div className="text-15 font-bold text-[var(--accent)]">{a.isThisYou}</div>
+              <div className="text-15 font-bold text-[var(--accent-tx)]">{a.isThisYou}</div>
               <Avatar
                 p={offer}
                 className="grid h-16 w-16 place-items-center rounded-full text-36"

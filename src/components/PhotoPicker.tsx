@@ -91,7 +91,7 @@ export function PhotoPicker({
             type="button"
             disabled={busy}
             onClick={() => void run(async () => (await ep.deletePhoto(p.id), null), x.removed)}
-            className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent)] disabled:opacity-50"
+            className="press min-h-11 rounded-xl px-3 text-14 font-bold text-[var(--accent-tx)] disabled:opacity-50"
           >
             {x.remove}
           </button>

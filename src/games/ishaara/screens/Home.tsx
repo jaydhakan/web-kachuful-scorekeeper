@@ -34,7 +34,7 @@ function InProgress() {
         <button
           type="button"
           onClick={list.reload}
-          className="press min-h-11 rounded-xl px-3 text-15 font-bold text-[var(--accent)]"
+          className="press min-h-11 rounded-xl px-3 text-15 font-bold text-[var(--accent-tx)]"
         >
           {h.retry}
         </button>

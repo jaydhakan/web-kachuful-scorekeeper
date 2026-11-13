@@ -85,7 +85,7 @@ function Header({ onMenu }: { onMenu: () => void }) {
 function ResumePanel({ rows }: { rows: [GameEntry, Resume][] }) {
   return (
     <section aria-labelledby="landing-resume" className="flex flex-col gap-2">
-      <h2 id="landing-resume" className="mono-label text-13 text-[var(--accent)]">
+      <h2 id="landing-resume" className="mono-label text-13 text-[var(--accent-tx)]">
         {s.inProgress}
       </h2>
       <ul className="glass flex flex-col divide-y divide-[var(--hairline)] px-3.5">
@@ -223,7 +223,7 @@ export default function Landing() {
               {resumes.length > 0 && <ResumePanel rows={resumes} />}
             </div>
             <section aria-labelledby="landing-games" className="flex flex-col gap-2 big:gap-4">
-              <h2 id="landing-games" className="mono-label text-13 text-[var(--accent)]">
+              <h2 id="landing-games" className="mono-label text-13 text-[var(--accent-tx)]">
                 {s.games}
               </h2>
               <ul className="grid gap-3 big:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] big:gap-6">

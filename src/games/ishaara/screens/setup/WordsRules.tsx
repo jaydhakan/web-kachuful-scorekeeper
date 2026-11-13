@@ -11,7 +11,7 @@ const su = s.setup;
 type Timer = 'off' | '60' | '120' | '180';
 
 const Label = ({ id, children }: { id?: string; children: string }) => (
-  <h2 id={id} className="mono-label mb-2 mt-6 text-13 text-[var(--accent)] first:mt-0">
+  <h2 id={id} className="mono-label mb-2 mt-6 text-13 text-[var(--accent-tx)] first:mt-0">
     {children}
   </h2>
 );

@@ -342,7 +342,9 @@ function Row({
         <span className="min-w-0 flex-1">
           <span className="block text-17 font-bold leading-tight [overflow-wrap:anywhere]">
             {w.name}
-            {you && <span className="ml-1.5 text-13 font-bold text-[var(--accent)]">{b.you}</span>}
+            {you && (
+              <span className="ml-1.5 text-13 font-bold text-[var(--accent-tx)]">{b.you}</span>
+            )}
             <StreakBadge s={run} />
           </span>
           <span className="mt-0.5 block text-13 text-[var(--tx2)]">{b.sub(r.games, r.rounds)}</span>
