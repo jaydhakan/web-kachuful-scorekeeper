@@ -55,7 +55,7 @@ One app, one service worker, one manifest (`id: '/'`). `main.tsx` calls `startRo
 
 One `useReducer` in `AppProvider`. Actions are a discriminated union (`games/kachuful/state/types.ts`); the reducer is pure apart from `now()` (`lib/clock.ts`). Effects live in the provider and hooks, never in the reducer:
 
-- toast (4 s), banner (1.6 s) and the "who bids next" advance (250 ms) are timers keyed on a counter in state;
+- toast (4 s) and banner (1.6 s) are timers keyed on a counter in state; the turn passes to the next bidder in the same update as the bid, with no timer;
 - `usePersistence` writes `kachuful.v1`, `kachuful.undo` and `kachuful.screen` after every change;
 - `useWakeLock` holds a screen lock while a game is active.
 
@@ -94,7 +94,7 @@ The app fills the viewport and rearranges itself by page layout, not by device. 
 
 **Keyboard.** The viewport meta sets `interactive-widget=resizes-content`, so Chrome on Android shrinks the layout when the keyboard opens. iOS Safari ignores it, so `useVisualViewport` sizes the app root to the visual viewport while a field has focus. Setup 2 steps its table aside on a very short portrait screen so the field and Add stay in view.
 
-**JavaScript media queries** are used in three places and nowhere else: the enter and exit motion of sheets, and the table geometry (`full` or `mini`) of Bidding and Summary on wide screens, which CSS cannot switch. None of them is part of a `key`, so a change re-renders but never remounts.
+**JavaScript media queries** are used in three places and nowhere else: the enter and exit motion of sheets, and the table geometry (`full` or `mini`) of the Turn screen and Summary on wide screens, which CSS cannot switch. None of them is part of a `key`, so a change re-renders but never remounts.
 
 **Audit.** `e2e/responsive.spec.ts` plays a game through every screen and sheet and `e2e/audit-rules.ts` decides what is a violation (a missing or covered primary action, anything past the screen edge, clipped text, overlaps, targets under 44px, a page that scrolls sideways, and a screen that should fit but scrolls on a portrait phone of 360x640 and up). It runs a four-viewport subset by default, the whole matrix with `RESPONSIVE_FULL=1`, and writes reports without failing with `RESPONSIVE=1` (`tools/responsive/report.mjs`).
 

@@ -38,8 +38,8 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
   our own drawings, the 3♠ marked as special) and the card's photo art (`--art-card-<rank>-<suit>`, `none` until a
   real file exists; adding one is a file plus that token's line). Each covers the one below once loaded, and a
   stand-in downloads only when a card on screen uses it. A card never shows another card's art.
-- **Theme hooks** have a neutral value in every theme: `--card-back-edge`, `--reveal-hold` (ms the round intro holds
-  the fanned backs; read once by `RoundStart`), `--fan-*`, `--reveal-rays`, `--reveal-glint`, `--name-frame`, the
+- **Theme hooks** have a neutral value in every theme: `--card-back-edge`, `--reveal-hold` (extra ms the round intro
+  holds the trump card face-down before it turns; read once by `RoundStart`), `--fan-*`, `--reveal-rays`, `--reveal-glint`, `--name-frame`, the
   `--m-back` preview token, and slots that only one theme paints (`.suit-ring`, `.trump-mini`, `.empty-card`,
   `.streak-ring`, `.sq-card`, `.badge-pop`). `--confetti-1…4` are set only by a theme that wants its own confetti.
 - ESLint rejects hex colour literals in `src/components`, `src/platform` and each game's `components`, `screens` and `sheets`;
@@ -53,6 +53,11 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
   so every number falls through to Instrument Sans). Only the active theme's faces download; only Instrument Sans is
   precached.
 - Icons are Phosphor (regular), inlined in `src/components/ui/Icons.tsx` (first load) and `IconsMore.tsx` (lazy screens).
+  The large-screen rail draws the current page with the fill weight (`IconsFill.tsx`), so place is told by shape as
+  well as colour.
+- Accent or gold used as **text** is `text-[var(--accent-tx)]` and `text-[var(--gold-tx)]`: the same as `--accent` and
+  `--medal-gold` on the dark themes, darkened to pass AA on the light ones. `--accent` and `text-gold` are for fills,
+  borders and glows. The focus ring is `--focus` (ink on the light themes).
   Emoji are for avatars and personality copy, never for UI icons.
 - A new component or state is added to all four themes at once.
 - Component-intrinsic sizes (a 60px button, a 66px dealer chip) stay as arbitrary values; colours and font sizes do not.
@@ -101,20 +106,40 @@ name is sized to its column and never cut.
 
 Existing animations all stay. Added, each off or reduced to a fade under `prefers-reduced-motion`:
 
-1. **Deal fan**: card backs leave the deck behind the trump card on the round intro, once.
+1. **Trump reveal and deal**: on the round intro the card waits face-down (350ms), lifts (120ms), turns (450ms) and
+   is held (250ms) before "Trump is …"; then the backs fan out from the deck behind it and the suit settles into the
+   table centre. The last round first holds "Last round" for 600ms and deals a third slower. A tap skips it. Reduced
+   motion: the face for 600ms, then on.
 2. **Loader**: a squash-and-stretch ball for a lazy screen still loading, invisible for the first 300ms. No
    percentage, since nothing reports real progress.
 3. **Bid pop**: the badge springs in with an overshoot; the avatar squashes and stretches.
 4. **Bid flight**: a copy of the tapped key flies to the bidder's seat as the badge pops.
-5. **Outline-to-fill**: the winner's name draws as an outline, then fills left to right.
+5. **Winner reveal** (a game just finished; reopened, everything is in place): 3rd, 2nd, then 1st, each step sliding
+   up inside a clipped box of its final size with its player landing on it; a 350ms beat; the name inks in from
+   outline to fill over 700ms with one line on how it was won; confetti bursts from the winner's avatar as the name
+   completes; then the trophy, rows and stats, and only then any badge cards. Timings are in
+   `ui/podiumReveal.ts`. Confetti steps by elapsed time, so 60Hz and 120Hz screens draw the same flight. Leaving for
+   Home, a chip of the winner flies to the History entry (`FiledAway.tsx`).
 6. **Variable-weight score**: count-ups swell from light to heavy, then settle.
 7. **Turn light**: a lit arc on the rim points at the active seat and turns to the next one.
 8. **Feedback**: Results rows flash made or missed; Yerba Sun keys press in; toasts flick away.
-9. **Trump reveal (Emerald Gilt)**: the real backs fan out wider and hold (`--reveal-hold`, 700ms), the card turns to
-   its court card, gold rays bloom behind it and one glint crosses it. Other themes keep today's timing exactly.
+9. **Trump reveal (Emerald Gilt)**: on top of item 1, the real back is held longer (`--reveal-hold`, 700ms), the card
+   turns to its court card, gold rays bloom behind it and one glint crosses it, and the backs fan out wider.
    Reduced motion: the face with the rays, nothing else.
 10. **Emerald Gilt extras**: one sheen across the foil button on press (200ms), the winner's frame settling in with the
     fill, the loader's card back turning. Each is off or static under reduced motion.
+11. **Bidding to playing** (phone): one screen (`Turn.tsx`) and one table element; the who row, dock and buttons
+    cross-fade round it (out 110ms, in 200ms) and the table does not move. The dealer's forbidden key dims to locked
+    over 200ms and the reason fades in with it.
+12. **Round summary**: a player climbing two or more places into first passes each rival in turn (about 170ms each)
+    before the crown lands; "everyone but one made it" is called out.
+13. **Browsing**: leaderboard rows slide to their new rank on a sort or range change; a newly earned medal turns over
+    and stamps into its slot once; Wrapped's last slide holds a beat, then counts the rank; the confirmation dialog
+    fades and settles (scale .96 to 1, 200ms).
+14. **Platform**: a landing tile grows to fill the screen (280ms) before the game comes up; an accepted invite gets a
+    short welcome once.
+15. **Kaali Teeri**: when a called card is played, the bidding team's colour runs from the card to that seat and the
+    role badge settles; a sweep fans the hand's cards toward the winning side before the totals count.
 
 Rules: transform and opacity only (plus `clip-path` for the fill); entrances ease out (`cubic-bezier(.22,1,.36,1)`),
 in-place changes ease in and out; nothing blocks a tap.
