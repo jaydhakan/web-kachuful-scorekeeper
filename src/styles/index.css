@@ -357,7 +357,8 @@ input {
 
 /* ---------- Motion (docs/codebase/DESIGN-SYSTEM.md, Motion). Transform and opacity, plus clip-path for the
    headline fill. Each stops or fades under reduced motion. ---------- */
-/* 1. Deal fan: five backs leave the deck in a staggered arc behind the trump card, settle, then fade. Once. */
+/* 1. Deal fan: five backs leave the deck in a staggered arc behind the trump card, settle, then fade. Once, and
+   only after the card has turned (RoundStart sets --reveal-at, the moment the face has been held). */
 .deal-fan > i {
   position: absolute;
   inset: 0;
@@ -365,7 +366,7 @@ input {
   opacity: 0;
   /* A theme with a reveal hold swaps in a keyframe that spreads, waits, then falls (themes.css, --fan-*). */
   animation: var(--fan-anim, deal-fan) var(--fan-dur, 1.5s) cubic-bezier(0.22, 1, 0.36, 1)
-    calc(var(--i) * var(--fan-step, 140ms)) forwards;
+    calc(var(--reveal-at, 0ms) + var(--i) * var(--fan-step, 140ms)) forwards;
 }
 @keyframes deal-fan {
   15% {
@@ -396,8 +397,8 @@ input {
     transform: translate(calc((var(--i) - 2) * 40px), 22px) rotate(calc((var(--i) - 2) * 8deg));
   }
 }
-/* 1b. The reveal's rays and glint, timed from the same hold as the card's turn. Themes that don't paint them leave
-   --reveal-rays and --reveal-glint at none, so both stay empty. */
+/* 1b. The reveal's rays and glint bloom at --reveal-at too, with the face already showing. Themes that don't paint
+   them leave --reveal-rays and --reveal-glint at none, so both stay empty. */
 .reveal-halo {
   /* Behind the round title too, inside the intro's own stacking context. */
   z-index: -1;
@@ -411,8 +412,7 @@ input {
   -webkit-mask-image: radial-gradient(closest-side, transparent 38%, #000 52%, transparent 100%);
   mask-image: radial-gradient(closest-side, transparent 38%, #000 52%, transparent 100%);
   opacity: 0;
-  animation: reveal-halo 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--reveal-hold) + 600ms)
-    forwards;
+  animation: reveal-halo 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-at, 0ms) forwards;
 }
 @keyframes reveal-halo {
   from {
@@ -435,7 +435,7 @@ input {
   inset: -10% -40%;
   background: var(--reveal-glint);
   opacity: 0;
-  animation: reveal-glint 0.65s ease-in-out calc(var(--reveal-hold) + 850ms);
+  animation: reveal-glint 0.65s ease-in-out calc(var(--reveal-at, 0ms) + 250ms);
 }
 @keyframes reveal-glint {
   from {
