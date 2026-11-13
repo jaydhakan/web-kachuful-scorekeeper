@@ -182,7 +182,7 @@ function GameCard({ g, signedIn }: { g: GameEntry; signedIn: boolean }) {
   );
 }
 
-/** The site's front page: every game, with what's in progress first (docs/PLATFORM-PLAN.md §5.6). */
+/** The site's front page: every game, with what's in progress first. */
 export default function Landing() {
   const session = useSession();
   const online = useOnline();

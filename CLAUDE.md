@@ -3,7 +3,7 @@
 Baithak: mobile-first scorekeepers for table games, used by people at a card table. A landing page at `/`; each game at
 its own path (`/kachuful`, `/kaali-teeri`, `/ishaara`), registered in `src/platform/catalog.ts`. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to the separate FastAPI backend in `../backend-kachuful-scorekeeper`. The API as built (its routes and schemas, `/docs` when running) is the contract; never change the API's behaviour to suit the app.
 
-Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens).
+Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens). Open work is in [`docs/codebase/TODO.md`](docs/codebase/TODO.md).
 
 ## Stack — what this is NOT
 
@@ -59,6 +59,7 @@ Ishaara is the server's game: signed in and online only; the key reaches only a 
 - **Comments: 1–3 lines**, non-obvious _why_ only.
 - Touching more than ~3 files: outline the plan first.
 - **Backend changes go in `backend-requests.md`, always.** When a task needs the API to change, write what is needed and why in `backend-requests.md` at the root, and build the app against it. It is the only handoff file (no HANDOFF.md or changelog). Once it exists, build the backend side in `../backend-kachuful-scorekeeper` in the same task, following that repo's CLAUDE.md, and only what `backend-requests.md` says.
+- **`docs/codebase/TODO.md` is the repo's to-do list; keep it current.** Read it at the start of a task. When work is left undone (a follow-up, a skipped check, a known failure), add it there before finishing; when an item is done, remove it. It is committed, unlike working docs.
 - **Working docs are temporary:** a task's plan (`docs/<TASK>-PLAN.md`) and `backend-requests.md` are written for the task. Delete them once the feature is done in both repos (built, tested, committed). Never commit them.
 - Every screen needs loading, empty, no-results and error states where data can be missing.
 - Accessibility is part of done: real buttons and labels, keyboard and focus handling, visible focus rings, 44px targets.
