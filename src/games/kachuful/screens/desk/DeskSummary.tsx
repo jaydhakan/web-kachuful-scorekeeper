@@ -1,6 +1,7 @@
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, m } from 'framer-motion';
+import { useMemo } from 'react';
 import {
+  bidOrder,
   currentStreaks,
   curRound,
   doneRounds,
@@ -19,6 +20,14 @@ import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
 import { EASE, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
+import {
+  AllButOne,
+  climbFor,
+  landOrder,
+  rowMove,
+  soleMiss,
+  useSumStages,
+} from '@/games/kachuful/screens/round/Summary';
 import { ComingUp } from './ComingUp';
 import { DeskPage, Delta, Eyebrow, GhostButton, Kbd, PageHead, rankTone } from './DeskParts';
 import { ChartLegend, ScoreChart } from './ScoreChart';
@@ -30,8 +39,7 @@ export function DeskSummary() {
   const { state, actions } = useApp();
   const g = state.game,
     r = curRound(g),
-    anim = state.sumAnim,
-    rm = useReducedMotion();
+    anim = state.sumAnim;
   // The "before" board is frozen when the screen opens so the count-up has something to animate from.
   /* eslint-disable react-hooks/exhaustive-deps */
   const prevR = useMemo(() => doneRounds(g).filter((x) => x !== r), []);
@@ -42,22 +50,22 @@ export function DeskSummary() {
     ct = totals(g),
     sk = currentStreaks(g),
     done = doneRounds(g);
-  const [stage, setStage] = useState(anim ? 0 : 5);
-  // A streak celebration plays first; the count-up waits for it.
-  const celebrating = !!state.streakFx;
-  useEffect(() => {
-    if (!anim || celebrating) return;
-    const T = rm ? [60, 120, 180, 240, 300] : [300, 900, 1700, 2300, 3000];
-    const ts = T.map((ms, i) => setTimeout(() => setStage(i + 1), ms));
-    const end = setTimeout(() => actions.setSumAnim(false), T[4] + 100);
-    return () => {
-      ts.forEach(clearTimeout);
-      clearTimeout(end);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run, once nothing plays over the screen
-  }, [celebrating]);
+  const climb = climbFor(prev, cur),
+    miss = soleMiss(g.players, r.results),
+    wait = landOrder(g.players, bidOrder(g, r), r.results);
+  const { stage, step, landed, rm } = useSumStages(
+    [300, 900, 1700, 2300, 3000],
+    climb,
+    Object.keys(wait).length,
+  );
   useDeskKeys({ enter: actions.nextRound });
-  const list = stage >= 3 ? cur : prev;
+  // Mid-climb the rows keep their old ranks; the numbers change when the last step lands.
+  const list =
+    stage >= 3
+      ? cur
+      : step > 0
+        ? climb[step - 1].map((id) => prev.find((x) => x.p.id === id)!)
+        : prev;
   const before = Object.fromEntries(prev.map((x) => [x.p.id, x.rank]));
   const newLead = prevR.length > 0 && prev[0].p.id !== cur[0].p.id;
   const nr = roundAt(g, r.index + 1),
@@ -84,6 +92,14 @@ export function DeskSummary() {
       />
       <div className="grid min-h-0 flex-1 gap-4 tp:grid-rows-[minmax(0,1fr)_auto] tl:grid-cols-[minmax(0,1fr)_clamp(20rem,36vw,25rem)] tl:gap-5 dt:grid-cols-[minmax(0,1fr)_clamp(26rem,36vw,32.5rem)] dt:gap-6">
         <section className="flex min-h-0 flex-col gap-4">
+          {miss && (
+            <AllButOne
+              name={miss.name}
+              show={stage >= 1}
+              anim={anim}
+              className="-mb-2 shrink-0 px-3 text-16"
+            />
+          )}
           <ol
             aria-label={t.summary.standings}
             className="glass scroll-thin flex shrink-0 flex-col gap-1.5 overflow-y-auto p-3 tp:max-h-[55%] rail:max-h-[60%]"
@@ -98,7 +114,7 @@ export function DeskSummary() {
                 <m.li
                   layout="position"
                   key={id}
-                  transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+                  transition={rowMove(climb.length > 0 && anim && !rm)}
                   animate={stage === 1 && d < 0 ? shakeKF : undefined}
                   className={`relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl py-1 pl-1.5 pr-3.5 dt:min-h-16 dt:gap-3.5 ${lead ? 'bg-[color-mix(in_srgb,var(--medal-gold)_10%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--medal-gold)_50%,transparent)]' : ''}`}
                 >
@@ -145,7 +161,9 @@ export function DeskSummary() {
                             ? t.desk.scores.down(-move)
                             : t.desk.scores.holds}
                   </span>
-                  <span className="w-[52px] shrink-0">{stage >= 1 && <Delta v={d} />}</span>
+                  <span className="w-[52px] shrink-0">
+                    {stage >= 1 && (wait[id] ?? 0) <= landed && <Delta v={d} />}
+                  </span>
                   <span
                     className={`disp tick w-[4.5rem] shrink-0 text-right text-32 font-extrabold tracking-[-0.03em] dt:w-[5.25rem] dt:text-40 ${ct[id] < 0 ? 'text-[var(--neg-tx)]' : ''}`}
                   >

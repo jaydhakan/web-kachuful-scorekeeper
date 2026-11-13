@@ -1,6 +1,7 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  bidOrder,
   currentStreaks,
   curRound,
   doneRounds,
@@ -8,6 +9,8 @@ import {
   roundAt,
   standings,
   totals,
+  type Outcome,
+  type Player,
 } from '@/games/kachuful/domain';
 import { sgnN } from '@/lib/format';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -20,7 +23,7 @@ import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { Table } from '@/components/ui/Table';
-import { EASE, SPRING_POP } from '@/components/ui/motion';
+import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
@@ -58,6 +61,132 @@ const rankColor = (rank: number) =>
         ? palette['rank-bronze']
         : 'var(--tx)';
 
+/** One rival passed, in ms. */
+export const CLIMB_STEP = 170;
+const CLIMB_EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
+const REORDER = { type: 'spring', stiffness: 260, damping: 30 } as const;
+/** How a standings row moves to its new place: one quick step per rival on a comeback, today's spring otherwise. */
+export const rowMove = (climbing: boolean) =>
+  climbing ? { duration: CLIMB_STEP / 1000, ease: CLIMB_EASE } : REORDER;
+/** Between two deltas landing on an all-but-one round, in ms. */
+const LAND_GAP = 60;
+const REDUCED_T = [60, 120, 180, 240, 300];
+
+interface Ranked {
+  p: { id: string };
+  rank: number;
+}
+
+/** Who came from third or lower to sole first this round, by the ranks `standings` gives; null on any other round. */
+export function comeback(prev: Ranked[], cur: Ranked[]): string | null {
+  const top = cur[0];
+  if (!top || cur[1]?.rank === 1) return null;
+  const was = prev.find((x) => x.p.id === top.p.id)?.rank ?? 1;
+  return was - top.rank >= 2 ? top.p.id : null;
+}
+
+/** The orders a climb passes through, one rival at a time; the last is the final order, so the rest settle with it. */
+export function climbOrders(before: string[], after: string[], id: string): string[][] {
+  const from = before.indexOf(id);
+  if (from < 1) return [];
+  const rest = before.filter((x) => x !== id);
+  return Array.from({ length: from }, (_, k) =>
+    k === from - 1 ? after : [...rest.slice(0, from - 1 - k), id, ...rest.slice(from - 1 - k)],
+  );
+}
+
+/** The climb for this round's change in standings; empty unless it is a comeback. */
+export function climbFor(prev: Ranked[], cur: Ranked[]): string[][] {
+  const id = comeback(prev, cur);
+  const ids = (a: Ranked[]) => a.map((x) => x.p.id);
+  return id ? climbOrders(ids(prev), ids(cur), id) : [];
+}
+
+/** The one player who missed when everyone else made it. Four or more players: with three it is too common. */
+export function soleMiss<P extends { id: string }>(
+  players: P[],
+  results: Record<string, Outcome>,
+): P | null {
+  if (players.length < 4 || !players.every((p) => results[p.id])) return null;
+  const missed = players.filter((p) => results[p.id] === 'missed');
+  return missed.length === 1 ? missed[0] : null;
+}
+
+/**
+ * The summary's stages on their timers. A comeback adds a step per rival passed and pushes the reorder and everything
+ * after it back by as much; `lands` deltas arrive one after another instead of together.
+ */
+export function useSumStages(T: number[], climb: string[][], lands: number) {
+  const { state, actions } = useApp();
+  const anim = state.sumAnim,
+    rm = useReducedMotion();
+  const [stage, setStage] = useState(anim ? 0 : 5);
+  const [step, setStep] = useState(0);
+  const [landed, setLanded] = useState(0);
+  // A streak celebration plays first; the count-up waits for it.
+  const celebrating = !!state.streakFx;
+  useEffect(() => {
+    if (!anim || celebrating) return;
+    const mid = rm ? 0 : Math.max(0, climb.length - 1),
+      push = mid * CLIMB_STEP;
+    const at = (rm ? REDUCED_T : T).map((ms, i) => (i >= 2 ? ms + push : ms));
+    const ts = [
+      ...at.map((ms, i) => setTimeout(() => setStage(i + 1), ms)),
+      ...Array.from({ length: mid }, (_, i) =>
+        setTimeout(() => setStep(i + 1), at[2] - push + i * CLIMB_STEP),
+      ),
+      ...Array.from({ length: rm ? 0 : Math.max(0, lands - 1) }, (_, i) =>
+        setTimeout(() => setLanded(i + 1), at[0] + (i + 1) * LAND_GAP),
+      ),
+      setTimeout(() => actions.setSumAnim(false), at[4] + 100),
+    ];
+    return () => ts.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run, once nothing plays over the screen
+  }, [celebrating]);
+  // Past the deltas stage nothing is held back, whatever happened to the timers.
+  return { stage, step, landed: rm || stage !== 1 ? Infinity : landed, rm };
+}
+
+/** When each made player's delta lands on an all-but-one round: their place in bid order. Empty on other rounds. */
+export function landOrder(
+  players: Player[],
+  order: number[],
+  results: Record<string, Outcome>,
+): Record<string, number> {
+  if (!soleMiss(players, results)) return {};
+  const made = order.map((i) => players[i].id).filter((id) => results[id] === 'made');
+  return Object.fromEntries(made.map((id, i) => [id, i]));
+}
+
+/** "Everyone but Dev made it": a quiet line, announced once because the text arrives after the status exists. */
+export function AllButOne({
+  name,
+  show,
+  anim,
+  className = '',
+}: {
+  name: string;
+  show: boolean;
+  anim: boolean;
+  className?: string;
+}) {
+  const rm = useReducedMotion();
+  return (
+    <p role="status" className={`min-h-5 font-semibold leading-5 text-[var(--tx2)] ${className}`}>
+      {show && (
+        <m.span
+          className="inline-block"
+          initial={anim ? { opacity: 0, y: rm ? 0 : 6 } : false}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: rm ? REDUCED : 0.25, ease: EASE }}
+        >
+          {t.summary.allButOne(name)}
+        </m.span>
+      )}
+    </p>
+  );
+}
+
 export function Summary() {
   const { state, actions } = useApp();
   const g = state.game,
@@ -74,22 +203,21 @@ export function Summary() {
   const cur = standings(g),
     ct = totals(g),
     sk = currentStreaks(g);
-  const [stage, setStage] = useState(anim ? 0 : 5);
-  const rm = useReducedMotion();
-  // A streak celebration plays first; the count-up waits for it.
-  const celebrating = !!state.streakFx;
-  useEffect(() => {
-    if (!anim || celebrating) return;
-    const T = rm ? [60, 120, 180, 240, 300] : [350, 1000, 1850, 2450, 3300];
-    const ts = T.map((t, i) => setTimeout(() => setStage(i + 1), t));
-    const done = setTimeout(() => actions.setSumAnim(false), T[4] + 100);
-    return () => {
-      ts.forEach(clearTimeout);
-      clearTimeout(done);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one run, once nothing plays over the screen
-  }, [celebrating]);
-  const list = stage >= 3 ? cur : prev;
+  const climb = climbFor(prev, cur),
+    miss = soleMiss(g.players, r.results),
+    wait = landOrder(g.players, bidOrder(g, r), r.results);
+  const { stage, step, landed, rm } = useSumStages(
+    [350, 1000, 1850, 2450, 3300],
+    climb,
+    Object.keys(wait).length,
+  );
+  // Mid-climb the rows keep their old ranks; the numbers change when the last step lands.
+  const list =
+    stage >= 3
+      ? cur
+      : step > 0
+        ? climb[step - 1].map((id) => prev.find((x) => x.p.id === id)!)
+        : prev;
   const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
   const nr = roundAt(g, r.index + 1),
     nD = g.players[nr.dealerIndex],
@@ -152,6 +280,9 @@ export function Summary() {
         </>
       }
     >
+      {miss && (
+        <AllButOne name={miss.name} show={stage >= 1} anim={anim} className="mb-1.5 text-14" />
+      )}
       <div
         role="region"
         aria-label={t.summary.standings}
@@ -162,12 +293,13 @@ export function Summary() {
           const id = x.p.id,
             d = r.results[id] ? (pts(r, id) ?? 0) : 0,
             rank = x.rank,
-            lead = stage >= 4 && x.rank === 1;
+            lead = stage >= 4 && x.rank === 1,
+            shown = stage >= 1 && (wait[id] ?? 0) <= landed;
           return (
             <m.div
               layout="position"
               key={id}
-              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+              transition={rowMove(climb.length > 0 && anim && !rm)}
               animate={stage === 1 && d < 0 ? shakeKF : undefined}
               className="mb-1.5"
             >
@@ -190,7 +322,7 @@ export function Summary() {
                   <StreakBadge s={sk[id]} />
                 </div>
                 <AnimatePresence>
-                  {stage >= 1 && (
+                  {shown && (
                     <m.span
                       initial={{ scale: 0.4, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
@@ -201,7 +333,7 @@ export function Summary() {
                     </m.span>
                   )}
                 </AnimatePresence>
-                {stage === 1 && d > 0 && !rm && <Spark color={palette.positive} />}
+                {stage === 1 && shown && d > 0 && !rm && <Spark color={palette.positive} />}
                 <div className="disp min-w-[3.25rem] text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:min-w-[70px] @[26rem]:text-28">
                   <Counter from={anim ? pt[id] : ct[id]} to={ct[id]} run={anim && stage >= 2} />
                 </div>
