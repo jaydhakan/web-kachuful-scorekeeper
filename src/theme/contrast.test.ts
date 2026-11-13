@@ -92,6 +92,14 @@ const cases = THEME_IDS.flatMap((id) => {
     ['text-3 on bg', fg('--text-3', bg), bg, 4.5],
     ['text-3 on surface-2', fg('--text-3', s2), s2, 4.5],
     ['on-brand on brand', parse(t['--on-brand']), parse(t['--brand']), 4.5],
+    // The accent and gold as text (links, kickers, scores), on every surface they are written on.
+    ['accent text on bg', fg('--accent-tx', bg), bg, 4.5],
+    ['accent text on panel', fg('--accent-tx', panel), panel, 4.5],
+    ['accent text on surface-2', fg('--accent-tx', s2), s2, 4.5],
+    ['gold text on bg', fg('--gold-tx', bg), bg, 4.5],
+    ['gold text on panel', fg('--gold-tx', panel), panel, 4.5],
+    // A focus ring is not text: 3:1 against what it sits on.
+    ['focus ring on bg', fg('--focus', bg), bg, 3],
     ['success on panel', fg('--success', panel), panel, 4.5],
     ['danger on panel', fg('--danger', panel), panel, 4.5],
     ['warning on bg', fg('--warning', bg), bg, 4.5],

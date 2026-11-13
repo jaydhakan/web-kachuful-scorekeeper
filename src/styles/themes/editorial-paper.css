@@ -22,6 +22,9 @@
   --text-2: #46433c;
   --text-3: #615d54;
   --brand: #ff4b1f;
+  --accent-tx: #a32a09;
+  --gold-tx: #6e500c;
+  --focus: var(--ink);
   --brand-press: #e63d12;
   --on-brand: #151412;
   --brand-soft: rgba(255, 75, 31, 0.14);
@@ -141,9 +144,6 @@
   --soon-bg: transparent;
   --soon-ink: var(--ink);
   --soon-edge: var(--ink);
-}
-[data-theme='editorial-paper'] {
-  --focus: var(--ink);
 }
 [data-theme='editorial-paper'] .glass {
   --r-card: var(--r-lg);

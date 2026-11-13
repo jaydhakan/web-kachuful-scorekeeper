@@ -21,6 +21,9 @@
   --text-2: #5b4128;
   --text-3: #6e5232;
   --brand: #ee6a4b;
+  --accent-tx: #93300f;
+  --gold-tx: #6f4a00;
+  --focus: var(--ink);
   --brand-press: #da5a3c;
   --on-brand: #2b1a0e;
   --brand-soft: rgba(238, 106, 75, 0.2);

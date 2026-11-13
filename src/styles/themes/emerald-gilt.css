@@ -22,6 +22,9 @@
   --text-2: #d8c9a6;
   --text-3: #93ae96;
   --brand: #c9a24e;
+  --accent-tx: var(--brand);
+  --gold-tx: var(--medal-gold);
+  --focus: var(--brand);
   --brand-press: #b08a3e;
   --on-brand: #0c1a12;
   --brand-soft: rgba(201, 162, 78, 0.16);
@@ -195,10 +198,11 @@
     var(--gl) left 5px bottom 5px / 2px 8px no-repeat, var(--gl) right bottom / 14px 2px no-repeat,
     var(--gl) right bottom / 2px 14px no-repeat, var(--gl) right 5px bottom 5px / 8px 2px no-repeat,
     var(--gl) right 5px bottom 5px / 2px 8px no-repeat;
-  /* The backs fan out and hold so the art is seen before the trump card turns (RoundStart reads --reveal-hold). */
+  /* The real back is held before the trump card turns (RoundStart reads --reveal-hold); the backs then fan out
+     wider behind the face, hold and fall before the card leaves for the table. */
   --reveal-hold: 700ms;
   --fan-anim: deal-fan-hold;
-  --fan-dur: 1.9s;
+  --fan-dur: 1.5s;
   --fan-step: 90ms;
   --reveal-rays: repeating-conic-gradient(
     rgba(235, 208, 140, 0.5) 0 1.2deg,

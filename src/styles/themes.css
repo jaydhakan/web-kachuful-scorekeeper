@@ -92,6 +92,10 @@
   --text-2: #f0d2ce;
   --text-3: #cca8ac;
   --brand: #ffb86b;
+  /* The accent and gold as text, and the focus ring: light themes need darker ones than their fills. */
+  --accent-tx: var(--brand);
+  --gold-tx: var(--medal-gold);
+  --focus: var(--brand);
   --brand-press: #f0a04f;
   --on-brand: #2a0a14;
   --brand-soft: rgba(255, 184, 107, 0.16);
@@ -261,7 +265,6 @@
   --neg: var(--danger);
   --warn: var(--warning);
   --accent: var(--brand);
-  --focus: var(--brand);
   --wallpaper: none;
   color: var(--text-1);
   font-family: var(--font-body);
