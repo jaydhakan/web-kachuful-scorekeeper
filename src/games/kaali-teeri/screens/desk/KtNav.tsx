@@ -7,6 +7,7 @@ import { kp } from '@/games/kaali-teeri/strings/play';
 import { GhostButton, Kbd } from '@/components/desk/DeskParts';
 import { RailItem } from '@/components/desk/RailItem';
 import { Icon } from '@/components/ui/Icons';
+import { IconOn } from '@/components/ui/IconsFill';
 import { PRESS_SM } from '@/components/ui/motion';
 import { t } from '@/strings';
 
@@ -64,9 +65,16 @@ export function KtRail({ onKeys }: { onKeys: () => void }) {
       >
         <span aria-hidden>{kd.logo}</span>
       </m.button>
-      <RailItem icon={Icon.home} label={kd.nav.home} on={n.where === 'home'} onClick={n.home} />
+      <RailItem
+        icon={Icon.home}
+        iconOn={IconOn.home}
+        label={kd.nav.home}
+        on={n.where === 'home'}
+        onClick={n.home}
+      />
       <RailItem
         icon={Icon.cards}
+        iconOn={IconOn.game}
         label={kd.nav.game}
         on={n.where === 'game'}
         disabled={!n.hasGame}
@@ -74,12 +82,19 @@ export function KtRail({ onKeys }: { onKeys: () => void }) {
       />
       <RailItem
         icon={Icon.scores}
+        iconOn={IconOn.scores}
         label={kd.nav.scores}
         on={n.where === 'scores'}
         disabled={!n.hasGame}
         onClick={n.scores}
       />
-      <RailItem icon={Icon.rules} label={kd.nav.rules} on={n.where === 'rules'} onClick={n.rules} />
+      <RailItem
+        icon={Icon.rules}
+        iconOn={IconOn.rules}
+        label={kd.nav.rules}
+        on={n.where === 'rules'}
+        onClick={n.rules}
+      />
       <div className="flex-1" />
       <RailItem icon={Icon.undo} label={kd.nav.undo} disabled={!n.canUndo} onClick={n.undo} />
       <RailItem icon={Icon.menu} label={kd.nav.menu} onClick={n.menu} />

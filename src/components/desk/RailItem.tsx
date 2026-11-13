@@ -4,6 +4,8 @@ import { PRESS_SM, SPRING } from '@/components/ui/motion';
 
 interface RailItemProps {
   icon: ReactNode;
+  /** The filled version, drawn while this is the current page. */
+  iconOn?: ReactNode;
   label: string;
   on?: boolean;
   disabled?: boolean;
@@ -11,7 +13,7 @@ interface RailItemProps {
 }
 
 /** One destination on the large-screen side rail: icon over label, the current one lit. */
-export function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) {
+export function RailItem({ icon, iconOn, label, on, disabled, onClick }: RailItemProps) {
   return (
     <m.button
       type="button"
@@ -34,7 +36,7 @@ export function RailItem({ icon, label, on, disabled, onClick }: RailItemProps) 
         aria-hidden
         className="absolute inset-0 -z-20 rounded-2xl bg-ov/[.06] opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-enabled:group-hover:opacity-100"
       />
-      <span className={on ? 'text-[var(--accent)]' : ''}>{icon}</span>
+      <span className={on ? 'text-[var(--accent-tx)]' : ''}>{(on && iconOn) || icon}</span>
       {label}
     </m.button>
   );

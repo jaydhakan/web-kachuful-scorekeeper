@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PRESS_SM } from '@/components/ui/motion';
 import { GhostButton, Kbd } from './DeskParts';
 import { RailItem } from '@/components/desk/RailItem';
+import { IconOn } from '@/components/ui/IconsFill';
 import { DESTS, destRoute, destsFor, type Dest } from '@/games/kachuful/components/hubNav';
 import { SyncDot } from '@/components/SyncDot';
 import type { RouteName } from '@/games/kachuful/state/types';
@@ -82,15 +83,23 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         aria-hidden
         className="mb-3 h-px w-10 shrink-0 bg-ov/10 [@media(max-height:900px)]:mb-1"
       />
-      <RailItem icon={Icon.home} label={t.desk.nav.home} on={n.where === 'home'} onClick={n.home} />
+      <RailItem
+        icon={Icon.home}
+        iconOn={IconOn.home}
+        label={t.desk.nav.home}
+        on={n.where === 'home'}
+        onClick={n.home}
+      />
       <RailItem
         icon={Icon.cards}
+        iconOn={IconOn.game}
         label={t.desk.nav.game}
         on={n.where === 'game'}
         onClick={n.game}
       />
       <RailItem
         icon={Icon.scores}
+        iconOn={IconOn.scores}
         label={t.desk.nav.scores}
         on={n.where === 'scores'}
         disabled={!n.hasRounds}
@@ -98,12 +107,14 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
       />
       <RailItem
         icon={Icon.rules}
+        iconOn={IconOn.rules}
         label={t.desk.nav.rules}
         on={n.where === 'rules'}
         onClick={n.rules}
       />
       <RailItem
         icon={Icon.rounds}
+        iconOn={IconOn.rounds}
         label={t.desk.nav.rounds}
         on={n.where === 'rounds'}
         disabled={!n.inGame}
@@ -114,6 +125,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         <span key={d.screen} data-dest={d.screen} className="contents">
           <RailItem
             icon={d.icon}
+            iconOn={IconOn[d.screen]}
             label={d.label}
             on={n.where === `dest:${d.screen}`}
             onClick={() => n.dest(d)}
@@ -125,6 +137,12 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         icon={
           <span className="relative">
             {Icon.account}
+            <SyncDot className="absolute -right-3 -top-2" />
+          </span>
+        }
+        iconOn={
+          <span className="relative">
+            {IconOn.account}
             <SyncDot className="absolute -right-3 -top-2" />
           </span>
         }
