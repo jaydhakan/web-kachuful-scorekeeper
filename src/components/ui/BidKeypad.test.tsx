@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { BidKeys, BidStepper, bidValues, snapBid, stepBid } from './BidKeypad';
@@ -43,6 +43,42 @@ describe('BidKeys', () => {
     expect(key).toHaveAttribute('aria-describedby', 'why');
     await userEvent.click(key);
     expect(onPick).toHaveBeenCalledWith(1, key);
+  });
+  it.each(['dock', 'pane'] as const)(
+    'a %s key that becomes locked is the same node and gets the lock, then gives it back',
+    (look) => {
+      const props = { look, max: 3, label: 'Bid', describedBy: 'why', onPick: () => {} };
+      const { rerender } = render(<BidKeys {...props} />);
+      const key = screen.getByRole('button', { name: 'Bid 1' });
+      // Nothing fades on mount, only on a change.
+      expect(key.querySelector('[data-lock-fade]')).toBeNull();
+      rerender(<BidKeys {...props} locked={[1]} />);
+      expect(screen.getByRole('button', { name: 'Locked 1' })).toBe(key);
+      expect(key).toHaveAttribute('aria-disabled', 'true');
+      expect(key).toHaveAttribute('aria-describedby', 'why');
+      // The old and new materials cross-fade as two layers; the large-screen key also gets its lock icon.
+      expect(key.querySelectorAll('[data-lock-fade]')).toHaveLength(2);
+      expect(!!key.querySelector('[data-lock]')).toBe(look === 'pane');
+      expect(
+        screen.getByRole('button', { name: 'Bid 2' }).querySelector('[data-lock-fade]'),
+      ).toBeNull();
+      rerender(<BidKeys {...props} />);
+      expect(screen.getByRole('button', { name: 'Bid 1' })).toBe(key);
+      expect(key).not.toHaveAttribute('aria-disabled');
+      expect(key).not.toHaveAttribute('aria-describedby');
+    },
+  );
+  it('a key locked from the start does not fade in', () => {
+    render(<BidKeys max={3} label="Bid" locked={[1]} onPick={() => {}} />);
+    expect(document.querySelector('[data-lock-fade]')).toBeNull();
+  });
+  it('wears its material again once the fade is over', async () => {
+    const { rerender } = render(<BidKeys max={3} label="Bid" onPick={() => {}} />);
+    rerender(<BidKeys max={3} label="Bid" locked={[1]} onPick={() => {}} />);
+    const key = screen.getByRole('button', { name: 'Locked 1' });
+    expect(key.className).not.toContain('mat-key-no');
+    await waitFor(() => expect(key.querySelector('[data-lock-fade]')).toBeNull());
+    expect(key.className).toContain('mat-key-no');
   });
   it('moves focus with the arrow keys', async () => {
     render(<BidKeys look="pane" max={3} label="Bid" selected={0} onPick={() => {}} />);

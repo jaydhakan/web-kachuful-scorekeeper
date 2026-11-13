@@ -1,10 +1,10 @@
-import { m } from 'framer-motion';
-import { useId, type CSSProperties } from 'react';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { useEffect, useId, useState, type CSSProperties } from 'react';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { t } from '@/strings';
 import { Edge } from './Edge';
 import { Icon } from './Icons';
-import { PRESS_SM, SPRING_POP } from './motion';
+import { EASE, PRESS_SM, REDUCED, SPRING_POP } from './motion';
 import { PrimaryButton } from './PrimaryButton';
 import { shakeKF } from './stagger';
 
@@ -32,6 +32,11 @@ export const stepBid = (v: number, delta: number, range: BidRange): number =>
 const pillColumns = (pills: number) => Math.min(6, pills <= 6 ? pills : Math.ceil(pills / 2));
 /** Rows of keys: 0–9 is two rows of five (as on the boards), 0–10 two rows of six; a tablet held upright uses one row. */
 const keyCols = (keys: number) => (keys <= 5 ? keys : keys <= 10 ? 5 : 6);
+
+/** A key turning locked or free: its two materials cross-fade for this long (seconds), then the key wears the new one. */
+const LOCK_FADE = 0.2;
+const PANE_NO =
+  'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]';
 
 interface BidKeysProps extends BidRange {
   /** The group's accessible name ("Bid for Riya"). */
@@ -77,6 +82,34 @@ export function BidKeys({
   const keys = values.length;
   const cols = pillColumns(keys);
   const dock = look === 'dock';
+  const rm = useReducedMotion();
+  const fade = rm ? REDUCED : LOCK_FADE;
+  // Keys whose lock just changed while on screen (never on mount): set while rendering, so no frame shows a jump.
+  const lockKey = locked.join();
+  const [seen, setSeen] = useState(lockKey);
+  const [turning, setTurning] = useState<number[]>([]);
+  if (seen !== lockKey) {
+    const was = seen ? seen.split(',').map(Number) : [];
+    setSeen(lockKey);
+    setTurning(values.filter((v) => was.includes(v) !== locked.includes(v)));
+  }
+  useEffect(() => {
+    if (!turning.length) return;
+    const id = setTimeout(() => setTurning([]), fade * 1000 + 20);
+    return () => clearTimeout(id);
+  }, [turning, fade]);
+  const mat = (lock: boolean, sel: boolean) =>
+    dock
+      ? lock
+        ? 'mat-key-no'
+        : sel
+          ? 'mat-key text-ink-on-accent'
+          : 'mat-key'
+      : lock
+        ? PANE_NO
+        : sel
+          ? 'text-ink-on-accent'
+          : 'glass';
   return (
     <div
       role="group"
@@ -101,7 +134,11 @@ export function BidKeys({
       {values.map((v, i) => {
         const lock = locked.includes(v),
           sel = selected === v,
-          kept = !dock && saved === v && !sel;
+          kept = !dock && saved === v && !sel,
+          turn = turning.includes(v),
+          // While it turns the key is bare and two layers carry the old and new material, so only opacity moves.
+          own = turn ? (lock && !dock ? 'cursor-not-allowed' : '') : mat(lock, sel),
+          round = dock ? 'rounded-[18px]' : 'rounded-2xl';
         return (
           <m.button
             key={v}
@@ -118,10 +155,24 @@ export function BidKeys({
             onClick={(e) => onPick(v, e.currentTarget)}
             className={
               dock
-                ? `disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${lock ? 'mat-key-no' : sel ? 'mat-key text-ink-on-accent' : 'mat-key'}`
-                : `disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${lock ? 'cursor-not-allowed border border-dashed border-ov/30 bg-ov/[.03] text-[var(--dis)]' : sel ? 'text-ink-on-accent' : 'glass'}`
+                ? `disp relative grid aspect-square min-h-11 w-full min-w-11 max-w-[60px] @h-short:max-w-12 @h-tiny:max-w-11 place-items-center rounded-[18px] text-22 font-bold tracking-[-0.02em] ${own}`
+                : `disp relative grid h-[76px] min-w-0 place-items-center rounded-2xl text-30 font-extrabold dt:h-[60px] dt:text-26 tl:text-32 ${own}`
             }
           >
+            {turn &&
+              [!lock, lock].map((to, at) => (
+                <m.span
+                  key={String(to)}
+                  aria-hidden
+                  data-lock-fade={to ? 'in' : 'out'}
+                  initial={{ opacity: at ? 0 : 1 }}
+                  animate={{ opacity: at ? 1 : 0 }}
+                  transition={{ duration: fade, ease: EASE }}
+                  className={`pointer-events-none absolute inset-0 grid place-items-center ${round} ${mat(to, false)}`}
+                >
+                  <span className={to && !dock ? 'line-through' : ''}>{v}</span>
+                </m.span>
+              ))}
             {kept && <Edge tone="saved" />}
             {sel &&
               (dock ? (
@@ -139,10 +190,26 @@ export function BidKeys({
                 />
               ))}
             {/* On the dock the forbidden bid is struck through by its material, not a lock (reference audit fix). */}
-            <span className={`relative ${lock && !dock ? 'line-through' : ''}`}>{v}</span>
-            {lock && !dock && (
-              <span className="absolute right-1.5 top-1.5 text-[var(--warn)]">{Icon.lock}</span>
-            )}
+            <span
+              className={`relative ${lock && !dock ? 'line-through' : ''} ${turn ? 'opacity-0' : ''}`}
+            >
+              {v}
+            </span>
+            <AnimatePresence initial={false}>
+              {lock && !dock && (
+                <m.span
+                  key="lock"
+                  data-lock
+                  initial={rm ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: rm ? REDUCED : 0.22, ease: EASE }}
+                  className="absolute right-1.5 top-1.5 text-[var(--warn)]"
+                >
+                  {Icon.lock}
+                </m.span>
+              )}
+            </AnimatePresence>
           </m.button>
         );
       })}

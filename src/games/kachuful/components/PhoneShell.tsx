@@ -9,11 +9,10 @@ import { routeKey } from '@/games/kachuful/lib/route';
 import { palette, themeConfetti } from '@/theme/palette';
 import { TR } from '@/theme/trumps';
 import { Home } from '@/games/kachuful/screens/Home';
-import { Bidding } from '@/games/kachuful/screens/round/Bidding';
-import { Play } from '@/games/kachuful/screens/round/Play';
 import { Results } from '@/games/kachuful/screens/round/Results';
 import { RoundStart } from '@/games/kachuful/screens/round/RoundStart';
 import { Summary } from '@/games/kachuful/screens/round/Summary';
+import { Turn } from '@/games/kachuful/screens/round/Turn';
 import { SheetHost } from '@/games/kachuful/sheets/SheetHost';
 import { ConfirmModal } from './ConfirmModal';
 import { RepairSaveModal } from './RepairSaveModal';
@@ -45,10 +44,14 @@ export default function PhoneShell() {
   const th = TR[trump];
   const r = curRound(game);
   const top = state.nav.at(-1);
+  // Bidding and playing are one screen (the table stays put), so their key is one: no slide between them.
+  const turn = game.ui.view !== 'summary' && r.phase !== 'results';
   const screenKey = top
     ? routeKey(top)
     : screen === 'round'
-      ? `round-${game.ui.view}-${r.phase}`
+      ? turn
+        ? 'round-turn'
+        : `round-${game.ui.view}-${r.phase}`
       : screen;
   const rm = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
@@ -90,8 +93,7 @@ export default function PhoneShell() {
       </Suspense>
     );
   else if (game.ui.view === 'summary') content = <Summary />;
-  else
-    content = r.phase === 'bidding' ? <Bidding /> : r.phase === 'playing' ? <Play /> : <Results />;
+  else content = turn ? <Turn /> : <Results />;
   return (
     <div
       ref={root}

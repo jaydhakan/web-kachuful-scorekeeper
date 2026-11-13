@@ -1,10 +1,10 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useId } from 'react';
 import type { Game } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { EASE, SPRING, SPRING_POP } from '@/components/ui/motion';
+import { EASE, REDUCED, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { BidKeys } from '@/components/ui/BidKeypad';
 import type { bidView } from '@/games/kachuful/screens/round/roundView';
 import { KeyHints, Kbd } from './DeskParts';
@@ -29,6 +29,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
   const { actions } = useApp();
   const { r, n, od, bi, pI, p, isD, forb, hookWarn, sum, diff, cap } = v;
   const reasonId = useId();
+  const rm = useReducedMotion();
   const reason =
     hookWarn && isD
       ? t.bidding.earlierBidInvalid
@@ -70,12 +71,22 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
         aria-live="polite"
         className="flex min-h-[1.375rem] items-center gap-2 text-15 font-bold text-[var(--warn)]"
       >
-        {reason && (
-          <>
-            {Icon.lockLg}
-            <span>{reason}</span>
-          </>
-        )}
+        {/* The reason arrives with the key's lock instead of popping in; opacity only, so the row never moves. */}
+        <AnimatePresence initial={false}>
+          {reason && (
+            <m.span
+              key="why"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: rm ? REDUCED : 0.2, ease: EASE }}
+              className="flex items-center gap-2"
+            >
+              {Icon.lockLg}
+              <span>{reason}</span>
+            </m.span>
+          )}
+        </AnimatePresence>
       </div>
       <BidKeys
         look="pane"
