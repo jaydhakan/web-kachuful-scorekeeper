@@ -1,9 +1,10 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { ACH } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { achName } from '@/games/kachuful/strings/achievements';
 import { SPRING_POP } from '@/components/ui/motion';
+import { reveal } from '@/components/ui/podiumReveal';
 import { t } from '@/strings';
 
 const HOLD_MS = 2500;
@@ -15,7 +16,10 @@ const HOLD_MS = 2500;
 export function BadgePop() {
   const { state, actions } = useApp();
   const rm = useReducedMotion();
-  const pops = state.streakFx ? null : state.pops;
+  const phase = useSyncExternalStore(reveal.subscribe, reveal.get);
+  // On a game just finished the cards wait for the winner's name, so they never cover the podium's reveal.
+  const held = state.fresh && state.screen === 'winner' && !rm && phase !== 'done';
+  const pops = state.streakFx || held ? null : state.pops;
   const n = pops ? pops.items.length + (pops.more ? 1 : 0) : 0;
   useEffect(() => {
     if (!pops) return;

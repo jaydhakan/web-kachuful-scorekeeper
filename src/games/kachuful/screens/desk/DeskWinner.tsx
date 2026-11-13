@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { doneRounds, gameStats, standings, type Player } from '@/games/kachuful/domain';
 import { fmt, sgnN } from '@/lib/format';
 import { useApp } from '@/games/kachuful/state/store';
@@ -21,6 +21,9 @@ import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
 import { Podium } from '@/components/ui/Podium';
 import { finalStandings } from '@/games/kachuful/lib/finalStandings';
+import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
+import { useFiledAway } from '@/games/kachuful/components/FiledAway';
+import { howWon } from '@/games/kachuful/lib/howWon';
 
 const Highlight = ({
   label,
@@ -28,17 +31,20 @@ const Highlight = ({
   tone = '',
   who,
   i,
+  wait,
 }: {
   label: string;
   value: string;
   tone?: string;
   who: Player;
   i: number;
+  /** Seconds before the first card. */
+  wait: number;
 }) => (
   <m.div
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ ...SPRING_SOFT, delay: 1.1 + i * 0.08 }}
+    transition={{ ...SPRING_SOFT, delay: wait + i * 0.08 }}
     className="glass p-3.5"
   >
     <div className="text-13 font-bold text-[var(--tx2)]">{label}</div>
@@ -57,11 +63,24 @@ export function DeskWinner() {
     st = standings(g),
     done = doneRounds(g),
     S = gameStats(g),
-    rm = useReducedMotion();
+    rm = useReducedMotion(),
+    board = finalStandings(g);
   useDeskKeys({ r: actions.rematch });
   const reel = useGameAchievements(g);
   const [showReel, setShowReel] = useState(false);
   const top = st.filter((x) => x.rank === 1);
+  const { play, plan } = useReveal(
+    board.map((x) => x.rank),
+    state.fresh,
+  );
+  const how = howWon(
+    reel,
+    top.map((x) => x.p),
+  );
+  const headline = useRef<HTMLSpanElement>(null);
+  const filed = useFiledAway(g, top[0]?.p);
+  // Reopened, the page keeps its own short entrance; just finished, everything follows the winner's name.
+  const after = play ? plan.done / 1000 : 0;
   const title =
     top.length > 1
       ? t.desk.winner.tie(top.map((x) => x.p.name).join(', '), fmt(top[0].t))
@@ -70,7 +89,26 @@ export function DeskWinner() {
     <DeskPage scroll label={t.winner.finalScores} className="dt:px-12 rail:overflow-hidden">
       <PageHead
         eyebrow={t.desk.winner.eyebrow(done.length)}
-        title={<InkFill text={title} />}
+        title={
+          <>
+            <span ref={headline} className="inline-block">
+              <InkFill
+                text={title}
+                fill={play ? { delay: plan.name / 1000, duration: NAME_MS / 1000 } : 'done'}
+              />
+            </span>
+            {how && (
+              <m.span
+                initial={play ? { opacity: 0 } : false}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: after }}
+                className="mt-1 block font-sans text-18 font-semibold tracking-normal text-[var(--tx2)]"
+              >
+                {how}
+              </m.span>
+            )}
+          </>
+        }
         actions={
           <>
             {reel.length > 0 && (
@@ -82,7 +120,14 @@ export function DeskWinner() {
               {Icon.share}
               {t.winner.share}
             </GhostButton>
-            <GhostButton onClick={() => actions.go('home', -1)}>{t.common.home}</GhostButton>
+            <GhostButton
+              onClick={() => {
+                filed.file(headline.current);
+                actions.go('home', -1);
+              }}
+            >
+              {t.common.home}
+            </GhostButton>
             <PrimaryButton
               className="!h-12 !rounded-[14px] px-5 !text-16"
               onClick={actions.rematch}
@@ -98,16 +143,16 @@ export function DeskWinner() {
           className="glass glass-glow cq-size relative flex h-[28rem] flex-col items-center justify-end overflow-hidden px-6 pt-8 rail:h-auto dt:px-10"
         >
           <m.span
-            initial={rm ? false : { y: -120, scale: 0.4, opacity: 0 }}
+            initial={rm || !play ? false : { y: -120, scale: 0.4, opacity: 0 }}
             animate={{ y: 0, scale: 1, opacity: 1 }}
-            transition={{ ...SPRING_POP, delay: 0.4 }}
+            transition={{ ...SPRING_POP, delay: after }}
             role="img"
             aria-label={t.desk.winner.trophy}
             className="absolute left-1/2 top-7 h-[min(84px,12cqh)] w-[min(84px,12cqh)] -translate-x-1/2 text-gold [filter:drop-shadow(0_0_24px_color-mix(in_srgb,var(--medal-gold)_60%,transparent))]"
           >
             {Icon.trophy}
           </m.span>
-          <Podium look="desk" standings={finalStandings(g)} />
+          <Podium look="desk" standings={board} reveal={play ? plan : null} />
         </section>
         <aside className="flex min-h-0 flex-col gap-4">
           <ol
@@ -119,7 +164,7 @@ export function DeskWinner() {
                 key={x.p.id}
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ ...SPRING_SOFT, delay: 0.3 + i * 0.04 }}
+                transition={{ ...SPRING_SOFT, delay: (play ? after + 0.1 : 0.3) + i * 0.04 }}
                 className="flex min-h-14 items-center gap-3 px-2.5"
               >
                 <span className={`disp w-8 text-center text-22 font-extrabold ${rankTone(x.rank)}`}>
@@ -147,12 +192,14 @@ export function DeskWinner() {
               </h2>
               <div className="grid grid-cols-3 gap-3">
                 <Highlight
+                  wait={play ? after + 0.4 : 1.1}
                   i={0}
                   label={t.desk.winner.mostExact}
                   value={t.desk.winner.exactOf(S.sharp.exact, done.length)}
                   who={S.sharp.p}
                 />
                 <Highlight
+                  wait={play ? after + 0.4 : 1.1}
                   i={1}
                   label={t.desk.winner.biggestRound}
                   value={sgnN(S.big.best)}
@@ -160,6 +207,7 @@ export function DeskWinner() {
                   who={S.big.p}
                 />
                 <Highlight
+                  wait={play ? after + 0.4 : 1.1}
                   i={2}
                   label={t.desk.winner.biggestMiss}
                   value={sgnN(S.ouch.worst)}
@@ -189,6 +237,7 @@ export function DeskWinner() {
           <LevelUps g={g} heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]" />
         </Sheet>
       )}
+      {filed.node}
     </DeskPage>
   );
 }

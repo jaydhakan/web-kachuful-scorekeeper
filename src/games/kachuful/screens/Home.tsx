@@ -201,6 +201,7 @@ export function Home() {
                     key={d.key}
                     type="button"
                     whileTap={PRESS}
+                    data-dest={d.key}
                     onClick={d.go}
                     className="relative flex min-h-12 w-full items-center gap-3.5 px-4 text-left text-16 font-medium @h-short:min-h-11"
                   >
@@ -246,6 +247,7 @@ export function Home() {
                     key={d.key}
                     type="button"
                     whileTap={PRESS}
+                    data-dest={d.key}
                     onClick={d.go}
                     aria-label={d.tile && d.label}
                     className="glass flex min-h-[3.75rem] flex-col items-center justify-start gap-1 !rounded-2xl px-1 pt-2.5 pb-2 text-center text-13 font-bold leading-tight"

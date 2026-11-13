@@ -1,9 +1,17 @@
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion, type MotionProps } from 'framer-motion';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { seatColor } from '@/theme/palette';
 import { t } from '@/strings';
 import { AvatarFill, type Face } from './Avatar';
-import { EASE, SPRING_POP } from './motion';
+import { SPRING_POP } from './motion';
+import {
+  LAND_AFTER_MS,
+  LAND_MS,
+  RISE_EASE,
+  STEP_MS,
+  type Place,
+  type RevealPlan,
+} from './podiumReveal';
 import { PODIUM_BG } from './rankTones';
 
 /** One player in the final standings; tied players share a rank. */
@@ -42,14 +50,68 @@ interface PodiumProps {
   standings: PodiumStanding[];
   /** `phone`: steps sized to the screen (`--pu` set by the parent); `desk`: the large screen's tall steps. */
   look?: 'phone' | 'desk';
+  /**
+   * A plan stages the reveal (lowest place first) and marks the winner's avatar as the confetti's origin; `null` shows
+   * everything in place; left out, the steps rise together a beat apart. Reduced motion is always in place.
+   */
+  reveal?: RevealPlan | null;
 }
 
+const STEP_S = STEP_MS / 1000;
+type Entrance = Pick<MotionProps, 'initial' | 'animate' | 'transition'>;
+
 /** The top three places as steps (2nd, 1st, 3rd), tied players side by side on theirs. */
-export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
+export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
   const rm = useReducedMotion();
+  const staged = !!reveal;
+  // When a step starts rising, in seconds; null when it does not move.
+  const stepAt = (k: Place) => {
+    if (rm || reveal === null) return null;
+    if (!reveal) return (3 - k) * 0.15;
+    const at = reveal.step[k];
+    return at == null ? null : at / 1000;
+  };
+  // A player lands on a staged step as it settles; otherwise they pop in after the steps, `late` seconds in.
+  const land = (k: Place, i: number, late: number, from: Entrance['initial']): Entrance => {
+    const at = stepAt(k);
+    if (at == null) return { initial: false };
+    return staged
+      ? {
+          initial: { y: -24, opacity: 0 },
+          animate: { y: 0, opacity: 1 },
+          transition: {
+            duration: LAND_MS / 1000,
+            ease: RISE_EASE,
+            delay: at + LAND_AFTER_MS / 1000 + i * 0.05,
+          },
+        }
+      : {
+          initial: from,
+          animate: { y: 0, opacity: 1, scale: 1 },
+          transition: { ...SPRING_POP, delay: late + i * 0.05 },
+        };
+  };
+  // The step slides up inside a box of its final size, so its label and score are never squashed.
+  const rise = (k: Place, on: boolean) => {
+    const at = stepAt(k);
+    return {
+      box: {
+        initial: at == null ? (false as const) : { opacity: 0 },
+        animate: { opacity: on ? 1 : 0.25 },
+        transition: { duration: 0.2, delay: at ?? 0 },
+      },
+      slab: {
+        initial: at == null ? (false as const) : { y: '100%' },
+        animate: { y: 0 },
+        transition: { duration: STEP_S, ease: RISE_EASE, delay: at ?? 0 },
+      },
+    };
+  };
+  const origin = (k: Place, i: number) => (staged && k === 1 && i === 0 ? '' : undefined);
   const phone = (k: 1 | 2 | 3) => {
     const tied = st.filter((x) => x.rank === k),
-      h = k === 1 ? 128 : k === 2 ? 96 : 76;
+      h = k === 1 ? 128 : k === 2 ? 96 : 76,
+      r = rise(k, tied.length > 0);
     // Tied players share their step side by side, so their avatars shrink to fit the column.
     const w = `calc(${AVATAR[k].w} * ${tied.length > 2 ? 0.56 : tied.length > 1 ? 0.82 : 1})`;
     return (
@@ -61,9 +123,7 @@ export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
           {tied.map((x, i) => (
             <m.div
               key={x.id}
-              initial={{ y: -30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ ...SPRING_POP, delay: 0.9 + (3 - k) * 0.12 + i * 0.05 }}
+              {...land(k, i, 0.9 + (3 - k) * 0.12, { y: -30, opacity: 0 })}
               // The name is shortened to fit the column; the full one is the accessible name and the tooltip.
               role="group"
               aria-label={x.name}
@@ -73,6 +133,7 @@ export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
             >
               <span
                 aria-hidden
+                data-confetti-origin={origin(k, i)}
                 className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]' : 'border-ov/25'}`}
                 style={{
                   background: seatColor(x.color),
@@ -88,20 +149,20 @@ export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
           ))}
         </div>
         <m.div
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 0.8, ease: EASE, delay: (3 - k) * 0.15 }}
-          style={{
-            height: `max(${STEP_MIN}, calc(${h} * var(--pu)))`,
-            originY: 1,
-            opacity: tied.length ? 1 : 0.25,
-          }}
-          className={`disp flex w-full flex-col items-center rounded-t-2xl pt-2 text-32 land:text-22 land:leading-none font-extrabold text-ink-podium ${STEP_SHADOW} ${PODIUM_BG[k]}`}
+          data-step={k}
+          {...r.box}
+          style={{ height: `max(${STEP_MIN}, calc(${h} * var(--pu)))` }}
+          className={`w-full overflow-hidden rounded-t-2xl ${STEP_SHADOW}`}
         >
-          {place(k)}
-          <small className="font-sans text-13 font-bold land:mt-1">
-            {tied.length ? sgnN(tied[0].total) : '—'}
-          </small>
+          <m.div
+            {...r.slab}
+            className={`disp flex h-full w-full flex-col items-center rounded-t-2xl pt-2 text-32 land:text-22 land:leading-none font-extrabold text-ink-podium ${PODIUM_BG[k]}`}
+          >
+            {place(k)}
+            <small className="font-sans text-13 font-bold land:mt-1">
+              {tied.length ? sgnN(tied[0].total) : '—'}
+            </small>
+          </m.div>
         </m.div>
       </div>
     );
@@ -109,20 +170,20 @@ export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
   const desk = (k: 1 | 2 | 3) => {
     const tied = st.filter((x) => x.rank === k),
       s = DESK[k],
-      av = tied.length > 1 ? s.av * 0.7 : s.av;
+      av = tied.length > 1 ? s.av * 0.7 : s.av,
+      r = rise(k, tied.length > 0);
     return (
       <div key={k} className="flex min-w-0 flex-1 flex-col items-center justify-end">
         <div className="mb-2.5 flex flex-wrap justify-center gap-2">
           {tied.map((x, i) => (
             <m.div
               key={x.id}
-              initial={rm ? false : { y: -40, opacity: 0, scale: 0.6 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              transition={{ ...SPRING_POP, delay: 0.7 + (3 - k) * 0.15 + i * 0.05 }}
+              {...land(k, i, 0.7 + (3 - k) * 0.15, { y: -40, opacity: 0, scale: 0.6 })}
               className="flex min-w-0 flex-col items-center"
             >
               <span
                 aria-hidden
+                data-confetti-origin={origin(k, i)}
                 className={`relative grid place-items-center rounded-full border-[3px] ${s.ring}`}
                 style={{
                   width: av,
@@ -140,16 +201,19 @@ export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
           ))}
         </div>
         <m.div
-          initial={rm ? false : { scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 0.85, ease: EASE, delay: (3 - k) * 0.15 }}
-          style={{ originY: 1, opacity: tied.length ? 1 : 0.25 }}
-          className={`flex w-full flex-col items-center rounded-t-[20px] pt-3.5 text-ink-podium ${STEP_SHADOW} ${s.h} ${PODIUM_BG[k]}`}
+          data-step={k}
+          {...r.box}
+          className={`w-full overflow-hidden rounded-t-[20px] ${STEP_SHADOW} ${s.h}`}
         >
-          <span className={`disp font-extrabold leading-none ${s.text}`}>{place(k)}</span>
-          <span className="disp tick mt-1 text-30 font-extrabold">
-            {tied.length ? fmt(tied[0].total) : '—'}
-          </span>
+          <m.div
+            {...r.slab}
+            className={`flex h-full w-full flex-col items-center rounded-t-[20px] pt-3.5 text-ink-podium ${PODIUM_BG[k]}`}
+          >
+            <span className={`disp font-extrabold leading-none ${s.text}`}>{place(k)}</span>
+            <span className="disp tick mt-1 text-30 font-extrabold">
+              {tied.length ? fmt(tied[0].total) : '—'}
+            </span>
+          </m.div>
         </m.div>
       </div>
     );
@@ -157,12 +221,13 @@ export function Podium({ standings: st, look = 'phone' }: PodiumProps) {
   return look === 'phone' ? (
     <div
       data-podium
+      data-steps
       className="mb-4 mt-2 flex min-h-[240px] items-end justify-center gap-2 land:mb-0 land:mt-0 land:min-h-0"
     >
       {([2, 1, 3] as const).map(phone)}
     </div>
   ) : (
-    <div className="flex w-full max-w-[40rem] items-end justify-center gap-4">
+    <div data-steps className="flex w-full max-w-[40rem] items-end justify-center gap-4">
       {([2, 1, 3] as const).map(desk)}
     </div>
   );

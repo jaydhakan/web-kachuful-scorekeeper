@@ -111,13 +111,14 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
       />
       <div aria-hidden className="my-1 h-px w-10 shrink-0 bg-ov/10" />
       {destsFor(!!state.session).map((d) => (
-        <RailItem
-          key={d.screen}
-          icon={d.icon}
-          label={d.label}
-          on={n.where === `dest:${d.screen}`}
-          onClick={() => n.dest(d)}
-        />
+        <span key={d.screen} data-dest={d.screen} className="contents">
+          <RailItem
+            icon={d.icon}
+            label={d.label}
+            on={n.where === `dest:${d.screen}`}
+            onClick={() => n.dest(d)}
+          />
+        </span>
       ))}
       <div className="flex-1" />
       <RailItem
