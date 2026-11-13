@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
-import { btn } from './helpers';
+import { btn, skipDeal } from './helpers';
 
 // The phone UI's layouts; the large-screen UI places these in large-screen.desktop.spec.
 const VIEWPORTS = [
@@ -20,7 +20,7 @@ for (const [w, h] of VIEWPORTS) {
     // The seeded summary leads into the peak round, which announces itself with a banner.
     await openSeeded(page, seedGame(5, 'summary'), 'round');
     await btn(page, 'Next round').click();
-    await btn(page, 'Skip the deal animation').click();
+    await skipDeal(page);
     const banner = page.locator('[data-main-anchor] > div');
     await expect(banner).toBeVisible();
     await page.waitForTimeout(500);

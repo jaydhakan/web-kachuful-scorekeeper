@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { NAMES7, bidEveryone, btn, nameField, startGame } from './helpers';
+import { NAMES7, bidEveryone, btn, nameField, skipDeal, startGame } from './helpers';
 
 const noOverflow = (page: import('@playwright/test').Page) =>
   page.evaluate(
@@ -136,7 +136,7 @@ test.describe('accessibility (axe)', () => {
     await page.waitForTimeout(600);
     await scan(page, 'setup 3');
     await btn(page, 'Deal!').click();
-    await btn(page, 'Skip the deal animation').click();
+    await skipDeal(page);
     await page.waitForTimeout(700);
     await scan(page, 'bidding');
     await bidEveryone(page);

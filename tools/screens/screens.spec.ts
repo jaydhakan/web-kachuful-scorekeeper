@@ -356,7 +356,11 @@ for (const device of RUN) {
         }
       });
       await step('deal-animation', () => page.locator('[data-deal]').click(), 1300);
-      await step('bidding-first', () => btn(page, 'Skip the deal animation').click());
+      await step('bidding-first', async () => {
+        await btn(page, 'Skip the deal animation')
+          .click()
+          .catch(() => {});
+      });
       const views: [SeedView, string][] = [
         ['bidding', 'bidding-mid-game'],
         ['playing', 'play'],

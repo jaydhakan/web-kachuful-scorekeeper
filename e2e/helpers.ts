@@ -3,6 +3,16 @@ import type { Page } from '@playwright/test';
 export const btn = (page: Page, name: string | RegExp) =>
   page.getByRole('button', { name, exact: typeof name === 'string' });
 
+/**
+ * Past the deal: skips it if it is still up. Under reduced motion (how these specs run) it closes itself in under a
+ * second, so the Skip button may already be gone.
+ */
+export async function skipDeal(page: Page) {
+  const skip = btn(page, 'Skip the deal animation');
+  await skip.click({ timeout: 1500 }).catch(() => {});
+  await skip.waitFor({ state: 'hidden' });
+}
+
 /** Opens Setup 1's collapsed Advanced section (decks, direction); a no-op when already open. */
 export async function openAdvanced(page: Page) {
   const toggle = btn(page, /^Advanced/);
@@ -50,7 +60,7 @@ export async function startGame(
 ) {
   await toSetup3(page, names, onStep);
   await btn(page, 'Deal!').click();
-  await btn(page, 'Skip the deal animation').click();
+  await skipDeal(page);
 }
 
 export const NAMES7 = ['Aarav', 'Riya', 'Kabir', 'Meera', 'Dev', 'Isha', 'Zoravar'];

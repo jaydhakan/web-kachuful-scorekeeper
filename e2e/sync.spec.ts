@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { addPlayer, apiAs, freshBackend, signIn } from './backend';
 import { openSeeded, seedGame } from './fixtures';
-import { btn, giveEmail, nameField, playRound } from './helpers';
+import { btn, giveEmail, nameField, playRound, skipDeal } from './helpers';
 
 // Signed-in play against the mock API, or a real backend with E2E_API=local (e2e/backend.ts).
 freshBackend();
@@ -39,7 +39,7 @@ test('a game scored offline uploads when the connection comes back', async ({ pa
     page.getByText('Signed in: this game counts on the global leaderboard.'),
   ).toBeVisible();
   await btn(page, 'Deal!').click();
-  await btn(page, 'Skip the deal animation').click();
+  await skipDeal(page);
   await context.setOffline(true);
   await playRound(page);
   const id = await syncIdOf(page);
