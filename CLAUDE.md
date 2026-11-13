@@ -3,7 +3,7 @@
 Baithak: mobile-first scorekeepers for table games, used by people at a card table. A landing page at `/`; each game at
 its own path (`/kachuful`, `/kaali-teeri`, `/ishaara`), registered in `src/platform/catalog.ts`. Signed out, everything lives on the device (`localStorage` for the current game, IndexedDB for the archive) and nothing touches the network. Signed in (invite only), games sync to the separate FastAPI backend in `../backend-kachuful-scorekeeper`. The API as built (its routes and schemas, `/docs` when running) is the contract; never change the API's behaviour to suit the app.
 
-Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens). Open work is in [`docs/codebase/TODO.md`](docs/codebase/TODO.md).
+Conventions are written down: [`CONTRIBUTING.md`](docs/codebase/CONTRIBUTING.md) (PR checklist, naming, comments, testing), [`docs/codebase/ARCHITECTURE.md`](docs/codebase/ARCHITECTURE.md) (layering, state, persistence), [`docs/codebase/DESIGN-SYSTEM.md`](docs/codebase/DESIGN-SYSTEM.md) (tokens). Open work is in [`docs/codebase/TODO.md`](docs/codebase/TODO.md).
 
 ## Stack — what this is NOT
 
@@ -13,19 +13,12 @@ Conventions are written down: [`CONTRIBUTING.md`](CONTRIBUTING.md) (PR checklist
 
 Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `src`, `e2e`, `tools` and the config files.
 
-## E2E tests that fail under load (not regressions)
+## E2E tests
 
-`npm run test:e2e` runs on half the CPU cores. A full run on a busy machine fails a few tests that **pass when run alone**. Which ones varies by run (6 workers: 7 failed; 3 workers: 2). Measured 2026-11-02 at `b9a6450`, 158 tests:
+`npm run test:e2e` runs on half the CPU cores and takes about 3 minutes. Measured 2026-11-13 at 222 tests: all pass on 3 and on 5 workers. On a busy machine a slow test can still time out (30s test, 5s `expect`): rerun only the failures, one at a time, with `npx playwright test --last-failed --workers=1`. If a test still fails alone, it's real. CI retries once (`retries: 1` in `playwright.config.ts`).
 
-| Test                                                                                              | Fails with                                  | Why                                                                                                                                      |
-| ------------------------------------------------------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `app.spec.ts` · accessibility (axe)                                                               | 30s test timeout                            | About 12 axe scans plus fixed waits: ~22s alone, so load pushes it past the 30s default                                                  |
-| `targets.spec.ts` · every control is at least 44px (both viewports)                               | 30s test timeout                            | Walks every screen measuring targets: ~21–24s alone                                                                                      |
-| `share.spec.ts` · a live link follows the table                                                   | 30s test timeout                            | Two pages following one game: ~9s alone                                                                                                  |
-| `accounts.spec.ts` · admin invites someone; `results-rule.spec.ts` · the last player is filled in | 5s `expect` timeout                         | The next screen arrives late under load                                                                                                  |
-| `themes.spec.ts` · yerba-sun: only this theme's fonts are downloaded                              | Instrument Sans counted as the theme's font | Probably the default theme's font request starting after the first `networkidle`, so it lands after the counter is reset (not confirmed) |
-
-**How to pass:** after a full run, rerun only the failures, one at a time: `npx playwright test --last-failed --workers=1`. If a test still fails alone, it's real. CI hides these because it retries once (`retries: 1` in `playwright.config.ts`).
+- The suite runs with reduced motion. A test of something that only happens with motion on (the deal's cards, confetti, the winner reveal) sets `test.use({ reducedMotion: 'no-preference' })`.
+- Seed a saved game with `openSeeded` (`e2e/fixtures.ts`), never by writing `localStorage` under a running app: the app saves on every change and would overwrite the seed.
 
 ## Reuse before you write
 

@@ -17,16 +17,18 @@ Kachuful: guided seating, automatic dealer, trump and card-count rotation, the d
 
 ## Scripts
 
-| Command                                 | What it does                                                     |
-| --------------------------------------- | ---------------------------------------------------------------- |
-| `npm run dev`                           | Dev server; `/api`, `/r`, `/l` go to a local backend on :8000    |
-| `npm run dev:mock`                      | Dev server with the in-memory API (`tools/mock-api`)             |
-| `npm run build`                         | Typecheck, then production build with the service worker         |
-| `npm run preview`                       | Serve the build                                                  |
-| `npm test`                              | Vitest (domain, state, hooks, React flows)                       |
-| `npm run test:coverage`                 | Same, with coverage for every game's `domain/` and `src/people`  |
-| `npm run test:e2e`                      | Playwright against a fresh build (uses installed Chrome locally) |
-| `npm run lint` · `typecheck` · `format` | ESLint, `tsc`, Prettier                                          |
+| Command                                 | What it does                                                                |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| `npm run dev`                           | Dev server; `/api`, `/r`, `/l` go to a local backend on :8000               |
+| `npm run dev:mock`                      | Dev server with the in-memory API (`tools/mock-api`)                        |
+| `npm run build`                         | Typecheck, then production build with the service worker                    |
+| `npm run preview`                       | Serve the build                                                             |
+| `npm test`                              | Vitest (domain, state, hooks, React flows)                                  |
+| `npm run test:coverage`                 | Same, with coverage for every game's `domain/` and `src/people`             |
+| `npm run test:e2e`                      | Playwright against a fresh build (uses installed Chrome locally)            |
+| `npm run lint` · `typecheck` · `format` | ESLint, `tsc`, Prettier (rewrites files; `format:check` only checks)        |
+| `npm run verify`                        | Format check, lint, typecheck and unit tests: run before every commit       |
+| `npm run perf:budget`                   | First-load JS, CSS and lazy chunks against `tools/budget.json` (CI runs it) |
 
 **Backend.** The API is the separate FastAPI backend; the API as built (its routes and schemas) is the contract. To run it locally: `cd ../backend-kachuful-scorekeeper && cp .env.example .env && make dev`, then `uv run python -m app.cli seed-demo --reset`. `npm run dev` proxies `/api`, `/r` and `/l` to it (`KACHUFUL_API` changes the target) and must run on `localhost:5173`, the backend's `APP_ORIGIN`.
 
@@ -62,4 +64,6 @@ location ~ ^/api/ishaara/games/[^/]+/events$ {
 
 ## Docs
 
-[CONTRIBUTING](CONTRIBUTING.md) · [Architecture](docs/codebase/ARCHITECTURE.md) · [Design system](docs/codebase/DESIGN-SYSTEM.md) · [Manual test checklist](docs/MANUAL-TEST.md)
+[Contributing](docs/codebase/CONTRIBUTING.md) · [Architecture](docs/codebase/ARCHITECTURE.md) · [Design system](docs/codebase/DESIGN-SYSTEM.md) · [To do](docs/codebase/TODO.md) · [Manual test checklist](docs/MANUAL-TEST.md)
+
+**Deploys.** Every push to `main` deploys to production (`.github/workflows/deploy.yml`). CI (`ci.yml`) runs lint, typecheck, unit tests, the build, the bundle budget and then the e2e suite.

@@ -5,9 +5,10 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
 
 ## How tokens reach the code
 
-- `themes.css` is the only file with colour values. Each `[data-theme]` block sets the same tokens (`--bg`,
+- `themes.css` (the default theme and shared tokens) and `themes/<id>.css` (one per other theme) are the only files
+  with colour values. Each `[data-theme]` block sets the same tokens (`--bg`,
   `--surface-1…3`, `--text-1…3`, `--brand`, `--on-brand`, `--felt*`, `--suit-*`, `--success`/`--danger`/`--warning`,
-  medals, `--seat-1…10`, font roles `--font-display/body/mono`, radii) and then paints the materials.
+  medals, `--seat-1…14`, font roles `--font-display/body/mono`, radii) and then paints the materials.
 - Platform tokens, in every theme: `--game-<id>` (each game's accent), Ishaara's `--team-sun/-moon` (+ `-ink`) and
   word cards `--word-card/-blank/-trap` (+ `-ink`) and `--word-edge`, Kaali Teeri's bidding team `--kt-bid` (+ `-ink`),
   and the coming-soon badge `--soon-bg/-ink/-edge`. Offline and live use `--warning` (on its 10% tint) and `--success`.
@@ -26,8 +27,8 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
 - The theme registry is `src/theme/themes.ts`; the boot script that sets `data-theme` before the first paint is
   generated from it (`vite.config.ts`, `themeBoot`). The runtime store is `src/state/theme.ts`.
 - **Deck art** (Emerald Gilt's card back and court cards, `src/assets/themes/emerald-gilt/`, used with permission,
-  see its `SOURCE.md`) is referenced only as tokens in `themes.css` (`--art-back`, `--art-back-mini`,
-  `--art-trump-<suit>`), which the other themes set to `none`. Components paint it through classes (`.card-art`,
+  see its `SOURCE.md`) is referenced only as tokens (set in `themes/emerald-gilt.css`, defaulted to `none` in `themes.css`:`--art-back`, `--art-back-mini`,
+  `--art-trump-<suit>`). Components paint it through classes (`.card-art`,
   `.trump-face`, `TrumpMark`), so none knows which theme has art and other themes never download it. A trump with no
   file keeps its suit symbol; never show another suit's card. It never leaves the app (share image, icons, manifest).
   Backgrounds only download once something on screen uses them, so `src/theme/art.ts` imports the same files and
@@ -48,7 +49,7 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
 ## Rules
 
 - Positive and negative colours always come with a sign or a mark. Gold is for first place.
-- Fonts are self-hosted Latin subsets: Instrument Sans (all themes), Bricolage Grotesque and Space Mono (Yerba Sun),
+- Fonts are self-hosted Latin subsets: Instrument Sans (every theme but Yerba Sun), Bricolage Grotesque and Space Mono (Yerba Sun),
   Instrument Serif and DM Mono (Editorial Paper), Cinzel (Emerald Gilt; its `@font-face` leaves out digits and signs,
   so every number falls through to Instrument Sans). Only the active theme's faces download; only Instrument Sans is
   precached.
@@ -77,8 +78,8 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
   Sans for body, names and every number; a sentence that would wrap in Cinzel where other faces don't stays in the
   body face (`.face-body`). Double gold rim and faint rays on the felt, a dotted ring round the trump, a gold piano
   strip only on sheets, the winner's frame and a new badge.
-- **Paint, never geometry.** Every control keeps its size and a 48px hit area in every theme; body text has a fixed
-  line-height (1.22) because each face's `normal` differs. `e2e/themes.spec.ts` checks it.
+- **Paint, never geometry.** Every control keeps its size in every theme; body text has a fixed
+  line-height (1.22) because each face's `normal` differs. `e2e/themes.spec.ts` checks that the bidding screen's controls measure the same in every theme.
 - **Nested themes** (the Appearance previews) paint from the `--m-*` tokens, not material classes: custom properties
   resolve against the nearest `data-theme`, class rules from the page's theme would leak in.
 - The trump colour tints only the glow and the table's suit halo on Sunset Glass; controls use the theme's accent.
@@ -146,7 +147,7 @@ in-place changes ease in and out; nothing blocks a tap.
 
 ## Contrast
 
-`src/theme/contrast.test.ts` reads every theme from `themes.css` and checks its text pairs against WCAG AA. One
+`src/theme/contrast.test.ts` reads every theme from `themes.css` and `themes/*.css` and checks its text pairs against WCAG AA. One
 allowed exception: the heart on Yerba Sun's tomato table (3.9:1) is a large glyph, so 3:1 applies. Text over Sunset
 Glass's wallpaper is checked by screenshot, since the wallpaper is a gradient.
 
@@ -155,7 +156,7 @@ Glass's wallpaper is checked by screenshot, since the wallpaper is a gradient.
 - **Breakpoints** live in `src/theme/breakpoints.ts` and become Tailwind screens: `land:`, `md:`, `wide:`, `pane:` (land or wide), `roomy:` (md or wide). Pick the layout with these; use container queries for anything inside a component.
 - **Container queries** come from `@tailwindcss/container-queries` (`@sm:`, `@[26rem]:`) plus two height variants, `@h-short:` (40rem) and `@h-tiny:` (32rem), which answer to the nearest size container (the Scaffold root).
 - **Type never uses an in-between size.** It moves between the existing scale steps at a breakpoint or container size (a large title `text-30` to `text-36`, the table's suit `text-34` to `text-40`); `clamp()` is for spacing and the table only.
-- **Touch targets** are at least 44px (`max(44px, 2.75rem)`), hover styles apply only on devices that can hover (`future.hoverOnlyWhenSupported`), and every control has a visible focus ring.
+- **Touch targets** are at least 44px (`e2e/targets.spec.ts` measures every control), hover styles apply only on devices that can hover (`future.hoverOnlyWhenSupported`), and every control has a visible focus ring.
 - **The table has its own unit.** Inside a table, sizes are `calc(N * var(--s))` where `--s` is one design pixel at the table's current size, so an avatar, a bubble or a chip scales with the seats; text stays on the type scale and never shrinks below `text-13`.
 - **Scrollbars** are hidden on touch and thin and themed on devices with a fine pointer (`.scroll-thin`); a hidden scrollbar on a laptop hides the fact that content scrolls.
 - **Lists that open something** (Admin's People and Players, the Overview's attention items) are full-width `glass` rows, at least 64px tall, with a trailing chevron. The row is the one button, and its actions live in the sheet it opens, so a list never carries rows of equal-weight buttons.

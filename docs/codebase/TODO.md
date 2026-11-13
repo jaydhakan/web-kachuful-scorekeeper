@@ -30,7 +30,12 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 - **Ask Jay:** should Wrapped's rank count up from 0 (it counts down from the field size)? Should the deal's closing
   part be trimmed (it runs about 3.2s, 3.9s on Emerald Gilt, 4s on the last round)?
 
-## Docs
+## Repo
 
-- **`CLAUDE.md`, "E2E tests that fail under load":** measured at 158 tests; the suite is now 222 and passed in full on
-  3 workers on 2026-11-13. Re-measure and rewrite or drop the table.
+- **`references/`** (about 330 tracked files: design round 2 and Kaali Teeri's house rules) was to be deleted once
+  both new games shipped, and they have. Ask Jay before deleting; it stays in git history either way.
+- **`reports/`** still tracks before/after images and audits from finished work (`reports/responsive/`,
+  `reports/perf/before|after*`). Keep `reports/perf/REPORT.md` and `hosting.md` (the code points at the latter);
+  the rest can probably go.
+- **The installed app is portrait-only** (`orientation: 'portrait'` in the manifest in `vite.config.ts`) although
+  every screen has a landscape layout. Decide whether to lift it.

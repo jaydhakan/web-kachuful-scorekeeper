@@ -11,7 +11,7 @@ const GAMES = ['kachuful', 'kaali-teeri', 'ishaara'];
 
 /** [source SVG, output PNG, size], paths from the repo root. */
 const jobs = [
-  // Kachuful's icons before the platform; kept one release for installed apps (docs/PLATFORM-PLAN.md §5.4).
+  // Kachuful's icons before the platform; kept one release for installed apps.
   ['public/icon.svg', 'public/pwa-192.png', 192],
   ['public/icon.svg', 'public/pwa-512.png', 512],
   ['public/icon-maskable.svg', 'public/pwa-maskable-512.png', 512],
