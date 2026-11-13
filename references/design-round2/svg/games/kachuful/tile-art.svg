@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Kachuful: a table of five with a spade"><defs><radialGradient id="bg" cx="0.5" cy="0.35" r="0.9"><stop offset="0" stop-color="#26674b"/><stop offset="1" stop-color="#0b2419"/></radialGradient><radialGradient id="tb" cx="0.4" cy="0.3" r="0.8"><stop offset="0" stop-color="#2f7454"/><stop offset="1" stop-color="#15402e"/></radialGradient><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dc8c"/><stop offset="1" stop-color="#b8862f"/></linearGradient></defs>
-<rect width="640" height="400" fill="url(#bg)"/>
-<ellipse cx="320" cy="214" rx="214" ry="128" fill="#000" opacity=".25"/>
-<ellipse cx="320" cy="206" rx="206" ry="122" fill="url(#tb)" stroke="#c9a24a" stroke-opacity="1" stroke-width="4"/>
-<ellipse cx="300" cy="150" rx="150" ry="52" fill="#fff" opacity=".07"/>
-<ellipse cx="320" cy="206" rx="150" ry="84" fill="none" stroke="#e0bf6a" stroke-opacity=".7" stroke-width="4" stroke-dasharray="10 12"/>
-<path d="M50 6C62 25 93 39 93 62C93 76 81 85 68 85C61 85 56 82 53 78C54 85 57 90 64 95L36 95C43 90 46 85 47 78C44 82 39 85 32 85C19 85 7 76 7 62C7 39 38 25 50 6Z" fill="url(#gold)" transform="translate(275 150) scale(.9)"/>
-<circle cx="320" cy="334" r="30" fill="#e5a57a" stroke="#ecc977" stroke-width="5"/><circle cx="128" cy="250" r="28" fill="#7fb0d8" stroke="none" stroke-width="3"/><circle cx="190" cy="96" r="28" fill="#e3c35f" stroke="none" stroke-width="3"/><circle cx="450" cy="96" r="28" fill="#8fcfa8" stroke="none" stroke-width="3"/><circle cx="512" cy="250" r="28" fill="#b9a3e3" stroke="none" stroke-width="3"/></svg>

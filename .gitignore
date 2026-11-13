@@ -156,7 +156,6 @@ test-results/
 .env.*
 !.env.example
 .DS_Store
-prototype/
 reports/**/*.png
 reports/parity/proto-dist/
 reports/parity/app-dist/

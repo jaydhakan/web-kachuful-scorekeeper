@@ -32,10 +32,5 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 
 ## Repo
 
-- **`references/`** (about 330 tracked files: design round 2 and Kaali Teeri's house rules) was to be deleted once
-  both new games shipped, and they have. Ask Jay before deleting; it stays in git history either way.
-- **`reports/`** still tracks before/after images and audits from finished work (`reports/responsive/`,
-  `reports/perf/before|after*`). Keep `reports/perf/REPORT.md` and `hosting.md` (the code points at the latter);
-  the rest can probably go.
 - **The installed app is portrait-only** (`orientation: 'portrait'` in the manifest in `vite.config.ts`) although
   every screen has a landscape layout. Decide whether to lift it.

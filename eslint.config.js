@@ -16,7 +16,6 @@ export default tseslint.config(
       'reports',
       'dev-dist',
       '.claude',
-      'prototype',
     ],
   },
   js.configs.recommended,
