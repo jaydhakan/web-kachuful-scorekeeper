@@ -13,7 +13,10 @@ import type { Remote } from '@/sync/useRemote';
 import ClueHome from './ClueHome';
 
 vi.mock('@/games/ishaara/state/useTable', () => ({ useClue: vi.fn() }));
-vi.mock('@/games/ishaara/state/lists', () => ({ useYourGames: vi.fn() }));
+vi.mock('@/games/ishaara/state/lists', () => ({
+  useYourGames: vi.fn(),
+  useRefreshWhileVisible: vi.fn(),
+}));
 
 const G = started().state;
 const KEY = plainKey('sun'); // 0–8 Sun, 9–16 Moon, 17–23 blank, 24 the trap; this phone is Sun's (Riya)

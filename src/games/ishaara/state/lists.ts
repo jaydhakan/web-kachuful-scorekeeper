@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { wordsLeft, type IshaaraPublic, type IshaaraSort } from '@/games/ishaara/domain';
 import { ishEp } from '@/games/ishaara/sync/endpoints';
 import type {
@@ -15,6 +15,26 @@ import { signedInAs, useSession } from '@/sync/session';
 import { useRemote, type Remote } from '@/sync/useRemote';
 
 const useUserId = () => signedInAs(useSession())?.user.id ?? null;
+
+/** How often a list a clue-giver is waiting on asks again: a game made at the table appears within seconds. */
+export const LIST_REFRESH_MS = 5000;
+
+/** Calls `reload` every `ms` while the page is visible, and at once when it becomes visible again. */
+export function useRefreshWhileVisible(reload: () => void, ms = LIST_REFRESH_MS) {
+  // The latest reload, so a new function each render doesn't restart the clock.
+  const latest = useRef(reload);
+  latest.current = reload;
+  useEffect(() => {
+    const visible = () => document.visibilityState === 'visible';
+    const timer = setInterval(() => visible() && latest.current(), ms);
+    const back = () => visible() && latest.current();
+    document.addEventListener('visibilitychange', back);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', back);
+    };
+  }, [ms]);
+}
 
 /** A clue-giver's active games ("Your games"), cache first; refreshed on reload and on coming back online. */
 export function useYourGames(): Remote<IshaaraSummaryOut[]> {

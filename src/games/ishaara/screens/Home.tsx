@@ -1,7 +1,7 @@
 import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useIshaara } from '@/games/ishaara/state/store';
-import { useIshaaraHistory } from '@/games/ishaara/state/lists';
+import { useIshaaraHistory, useRefreshWhileVisible } from '@/games/ishaara/state/lists';
 import type { IshaaraSummaryOut } from '@/games/ishaara/sync/types';
 import { table as s } from '@/games/ishaara/strings/table';
 import { go } from '@/platform/route';
@@ -85,8 +85,10 @@ function GameRow({ g }: { g: IshaaraSummaryOut }) {
 /** Games this account is in that haven't finished: the table, the key, or both for a host who gives clues. */
 function InProgress() {
   const list = useIshaaraHistory('active');
+  // A game started on another device, or a clue-giver's game made at the table, shows up without a reload.
+  useRefreshWhileVisible(list.reload);
   let body: ReactNode;
-  if (list.loading)
+  if (list.loading && !list.items.length)
     body = (
       <p role="status" className="px-4 py-3 text-15 text-[var(--tx2)]">
         {h.loading}

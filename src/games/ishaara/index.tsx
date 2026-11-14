@@ -6,6 +6,7 @@ import { go } from '@/platform/route';
 import { MQ } from '@/theme/breakpoints';
 import { signedInAs, useSession } from '@/sync/session';
 import IshaaraShell from './screens/IshaaraShell';
+import { useGameLink } from './state/gameLink';
 import { IshaaraProvider, useIshaara } from './state/store';
 import { useOnline } from './state/useTable';
 import { shell } from './strings/shell';
@@ -35,6 +36,7 @@ function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
 
 function Root() {
   const { nav, actions } = useIshaara();
+  useGameLink(actions.openGame);
   const big = useMediaQuery(MQ.big);
   const online = useOnline();
   // A game in progress handles a dropped connection itself (reconnecting), so only the hub is gated.

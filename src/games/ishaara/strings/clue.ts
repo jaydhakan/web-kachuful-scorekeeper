@@ -51,6 +51,8 @@ export const clue = {
     meta: (ago: string, players: number) => `Ishaara · started ${ago} · ${players} players`,
     open: 'Open your key',
     footnote: 'Your key stays on this phone. Give your clue out loud or type it here on your turn.',
+    refresh: 'Check again',
+    checking: 'Checking…',
   },
 
   gate: {
