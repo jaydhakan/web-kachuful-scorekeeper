@@ -141,6 +141,11 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
     short welcome once.
 15. **Kaali Teeri**: when a called card is played, the bidding team's colour runs from the card to that seat and the
     role badge settles; a sweep fans the hand's cards toward the winning side before the totals count.
+16. **Leaderboard podium** (every game's board, `ui/RankBoard.tsx`; the first board of a visit only): 3rd, 2nd, then
+    1st, 260ms apart (`BOARD_GAP_MS`), each step sliding up with its player landing on it and its value counting up
+    over 500ms; one sheen crosses the gold step; the rows fade in as the winner lands. Confetti bursts from the
+    winner's avatar only when the signed-in player has newly taken first place on that board (remembered per board in
+    `baithak.boardTop`). A filter change swaps the podium in place. Reduced motion: everything in place.
 
 Rules: transform and opacity only (plus `clip-path` for the fill); entrances ease out (`cubic-bezier(.22,1,.36,1)`),
 in-place changes ease in and out; nothing blocks a tap.

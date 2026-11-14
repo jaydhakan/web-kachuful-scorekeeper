@@ -5,8 +5,8 @@ The open work for this repo, in one place. Add an item when something is left un
 
 ## Performance
 
-- **First-load budget is over, so `npm run perf:budget` and the CI check job fail.** Measured 2026-11-13: landing JS
-  160.1 KB (budget 145), phone JS 159.7 KB (145), large-screen JS 186.7 KB (165), CSS 23.1 KB (22). Budgets are in
+- **First-load budget is over, so `npm run perf:budget` and the CI check job fail.** Measured 2026-11-14: landing JS
+  160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -27,6 +27,8 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
   the "everyone but one made it" line on short phones; the invite welcome's table in each theme.
 - **Filled icons for active tabs.** The large-screen rail has them (`IconsFill.tsx`); tabs do not.
 - **Invite welcome** borrows `t.streak.continue`; give it its own `t.hub.auth.welcomeContinue`.
+- **Leaderboard podium, check on a real phone with motion on:** the 3rd-to-1st reveal and the first-place confetti
+  were checked in desktop Chrome only (`ui/RankBoard.tsx`).
 - **Ask Jay:** should Wrapped's rank count up from 0 (it counts down from the field size)? Should the deal's closing
   part be trimmed (it runs about 3.2s, 3.9s on Emerald Gilt, 4s on the last round)?
 
