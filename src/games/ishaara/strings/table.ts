@@ -33,6 +33,10 @@ export const table = {
     playing: (sun: number, moon: number) => `Sun ${sun} left · Moon ${moon} left`,
     open: 'Open',
     yourClues: (team: Team) => `You give ${TEAM[team]}’s clues`,
+    hostAndClues: (team: Team) => `You host and give ${TEAM[team]}’s clues`,
+    openBoard: 'Open the board',
+    openKey: 'Open my key',
+    watching: (host: string) => (host ? `Watching ${host}’s table` : 'Watching the table'),
   },
 
   setup: {

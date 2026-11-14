@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { IshaaraSummaryOut } from '@/games/ishaara/sync/types';
 import { started } from '@/games/ishaara/domain/__fixtures__/kit';
 import type { IshaaraPublic } from '@/games/ishaara/domain';
 import { IshaaraProvider, type IshaaraNav } from '@/games/ishaara/state/store';
@@ -45,5 +46,68 @@ describe('Ishaara’s shell', () => {
     show({ screen: 'waiting', gameId: g.id, role: 'table' });
     expect(await screen.findByRole('list', { name: 'Words' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Waiting for clue-givers' })).toBeNull();
+  });
+
+  it('after a key, Home’s New game opens setup, not the clue list (ISH-F12)', async () => {
+    serve(started().state);
+    show({ screen: 'clue-list', gameId: null, role: 'clue' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Back to Ishaara' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'New game' }));
+    expect(await screen.findByRole('heading', { name: 'Teams' })).toBeInTheDocument();
+  });
+});
+
+const row = (o: Partial<IshaaraSummaryOut>): IshaaraSummaryOut => {
+  const g = started().state;
+  return {
+    id: g.id,
+    createdAt: 1,
+    updatedAt: 1,
+    finishedAt: null,
+    status: 'active',
+    turn: 'sun',
+    starting: 'sun',
+    winner: null,
+    endedBy: null,
+    match: g.match,
+    wordsLeft: { sun: 9, moon: 8 },
+    revealed: 0,
+    host: { name: 'Jay' },
+    players: g.players.map((p) => ({ ...p, playerId: p.playerId ?? '' })),
+    myTeam: null,
+    isHost: true,
+    ...o,
+  };
+};
+const listing = (item: IshaaraSummaryOut) =>
+  vi.stubGlobal('fetch', async (url: string) =>
+    String(url).includes('/api/ishaara/games/')
+      ? new Response(
+          JSON.stringify({ game: started().state, me: { host: true, team: null }, serverNow: 1 }),
+        )
+      : new Response(JSON.stringify({ items: [item], nextCursor: null })),
+  );
+
+describe('Ishaara’s home, games in progress', () => {
+  it('a host who gives clues can open the board or the key (ISH-F01)', async () => {
+    listing(row({ myTeam: 'sun' }));
+    show({ screen: 'home', gameId: null, role: 'table' });
+    expect(await screen.findByText('You host and give Sun’s clues')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Open the board' }));
+    expect(await screen.findByRole('list', { name: 'Words' })).toBeInTheDocument();
+  });
+
+  it('the host’s key opens the clue screens, not the board', async () => {
+    listing(row({ myTeam: 'sun' }));
+    show({ screen: 'home', gameId: null, role: 'table' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Open my key' }));
+    expect(await screen.findByRole('button', { name: 'Show key' })).toBeInTheDocument();
+  });
+
+  it('someone else’s table says it is only watched', async () => {
+    listing(row({ isHost: false }));
+    show({ screen: 'home', gameId: null, role: 'table' });
+    expect(await screen.findByText('Watching Jay’s table')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open the board' })).toBeNull();
   });
 });

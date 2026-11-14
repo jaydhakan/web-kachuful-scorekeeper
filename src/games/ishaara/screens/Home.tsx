@@ -2,6 +2,7 @@ import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useIshaara } from '@/games/ishaara/state/store';
 import { useIshaaraHistory } from '@/games/ishaara/state/lists';
+import type { IshaaraSummaryOut } from '@/games/ishaara/sync/types';
 import { table as s } from '@/games/ishaara/strings/table';
 import { go } from '@/platform/route';
 import { Icon } from '@/components/ui/Icons';
@@ -16,9 +17,73 @@ const ROOT =
 
 export type HubLink = 'clues' | 'history' | 'leaderboard' | 'rules';
 
-/** Games this account is in that haven't finished: tap to open the table, or the key for a clue-giver. */
-function InProgress() {
+const rowText = (g: IshaaraSummaryOut) => (
+  <span className="min-w-0 flex-1">
+    <span className="block text-16 font-semibold">
+      {g.players
+        .filter((p) => p.role === 'clue-giver')
+        .map((p) => p.name)
+        .join(' · ')}
+    </span>
+    <span className="flex items-center gap-1.5 text-14 text-[var(--tx2)]">
+      {g.myTeam && <Mark id={g.myTeam} className="h-3 w-3" />}
+      {g.myTeam
+        ? g.isHost
+          ? h.hostAndClues(g.myTeam)
+          : h.yourClues(g.myTeam)
+        : !g.isHost
+          ? h.watching(g.host.name)
+          : g.status === 'waiting'
+            ? h.waiting
+            : h.playing(g.wordsLeft.sun, g.wordsLeft.moon)}
+    </span>
+  </span>
+);
+
+/**
+ * One game in progress. A host who also gives clues gets both the board and their key, so the table device can
+ * always get back to the board (ISH-F01); anyone else opens the one view that is theirs.
+ */
+function GameRow({ g }: { g: IshaaraSummaryOut }) {
   const { actions } = useIshaara();
+  if (g.isHost && g.myTeam)
+    return (
+      <div className="flex flex-col gap-2 px-4 py-2.5">
+        {rowText(g)}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => actions.openGame(g.id, 'table')}
+            className="press mat-fill-s min-h-11 flex-1 rounded-xl px-3 text-15 font-bold"
+          >
+            {h.openBoard}
+          </button>
+          <button
+            type="button"
+            onClick={() => actions.openGame(g.id, 'clue')}
+            className="press mat-fill-s min-h-11 flex-1 rounded-xl px-3 text-15 font-bold"
+          >
+            {h.openKey}
+          </button>
+        </div>
+      </div>
+    );
+  return (
+    <button
+      type="button"
+      onClick={() => actions.openGame(g.id, g.myTeam ? 'clue' : 'table')}
+      className="press flex min-h-14 w-full items-center gap-3 px-4 py-2.5 text-left"
+    >
+      {rowText(g)}
+      <span aria-hidden className="text-[var(--dis)]">
+        {Icon.chev}
+      </span>
+    </button>
+  );
+}
+
+/** Games this account is in that haven't finished: the table, the key, or both for a host who gives clues. */
+function InProgress() {
   const list = useIshaaraHistory('active');
   let body: ReactNode;
   if (list.loading)
@@ -45,38 +110,12 @@ function InProgress() {
   else
     body = (
       <ul>
-        {list.items.map((g, k) => {
-          const givers = g.players.filter((p) => p.role === 'clue-giver').map((p) => p.name);
-          return (
-            <li key={g.id} className="relative">
-              {k > 0 && (
-                <span aria-hidden className="absolute left-4 right-0 top-0 h-px bg-ov/10" />
-              )}
-              <button
-                type="button"
-                onClick={() =>
-                  g.myTeam ? actions.openGame(g.id, 'clue') : actions.openGame(g.id, 'table')
-                }
-                className="press flex min-h-14 w-full items-center gap-3 px-4 py-2.5 text-left"
-              >
-                <span className="min-w-0 flex-1">
-                  <span className="block text-16 font-semibold">{givers.join(' · ')}</span>
-                  <span className="flex items-center gap-1.5 text-14 text-[var(--tx2)]">
-                    {g.myTeam && <Mark id={g.myTeam} className="h-3 w-3" />}
-                    {g.myTeam
-                      ? h.yourClues(g.myTeam)
-                      : g.status === 'waiting'
-                        ? h.waiting
-                        : h.playing(g.wordsLeft.sun, g.wordsLeft.moon)}
-                  </span>
-                </span>
-                <span aria-hidden className="text-[var(--dis)]">
-                  {Icon.chev}
-                </span>
-              </button>
-            </li>
-          );
-        })}
+        {list.items.map((g, k) => (
+          <li key={g.id} className="relative">
+            {k > 0 && <span aria-hidden className="absolute left-4 right-0 top-0 h-px bg-ov/10" />}
+            <GameRow g={g} />
+          </li>
+        ))}
       </ul>
     );
   return (
