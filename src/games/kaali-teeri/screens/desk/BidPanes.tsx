@@ -24,7 +24,7 @@ function Who({ p, line }: { p: KtGame['players'][number] | null; line: string })
       )}
       <p className="min-w-0 flex-1 leading-tight">
         {p && (
-          <span className="disp block text-24 font-extrabold tracking-[-0.02em] [overflow-wrap:anywhere]">
+          <span className="disp block text-24 font-extrabold tracking-[-0.02em] break-words">
             {p.name}
           </span>
         )}

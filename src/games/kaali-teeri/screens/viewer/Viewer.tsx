@@ -80,9 +80,7 @@ function Standings({ g }: { g: KtGame }) {
         >
           <RankMark rank={s.rank} final={g.status === 'finished'} />
           <Dot p={s.p} s={36} />
-          <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
-            {s.p.name}
-          </span>
+          <span className="min-w-0 flex-1 text-17 font-bold break-words">{s.p.name}</span>
           {/* Keyed on the total, so a changed score fades in (opacity only). */}
           <m.span
             key={s.t}

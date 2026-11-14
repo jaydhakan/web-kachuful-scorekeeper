@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { ktBtn, ktStart } from './kt-helpers';
+import { auditScreen } from './audit';
+import { ktBtn, ktStart, playedBy } from './kt-helpers';
 
 // KT-F01 and KT-F02: bidding, trump and the card call fit a phone on its side and a laptop-height window.
 const NAMES = ['Aarav', 'Bartholomew Jr', 'Konstantinos K', 'Meera', 'Dev', 'Riya', 'Kabir'];
@@ -62,5 +63,43 @@ for (const [w, h] of [
         k,
         `key ${(await k.getAttribute('aria-label')) ?? (await k.innerText())}`,
       );
+  });
+}
+
+// KT-F03: long names wrap at spaces, never inside a word, on the bidding and points screens and the score panel.
+for (const [w, h] of [
+  [360, 800],
+  [1280, 720],
+  [1366, 768],
+  [1920, 1080],
+] as const) {
+  test(`${w}×${h}: long names are never broken mid-word`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/kaali-teeri');
+    await ktStart(page, NAMES);
+    const words = NAMES.flatMap((n) => n.split(' '));
+    const broken = async (screen: string) =>
+      (await auditScreen(page, screen)).brokenWords
+        .filter((x) => words.includes(x))
+        .map((x) => `${screen}: ${x}`);
+    const found = await broken('bidding');
+    await page
+      .getByRole('button', { name: /^Bartholomew\b/ })
+      .first()
+      .click();
+    await page.getByRole('button', { name: 'Bartholomew Jr · 350', exact: true }).first().click();
+    await ktBtn(page, /Spades$/).click();
+    await ktBtn(page, /^Next: call/).click();
+    for (const r of ['A', 'K']) {
+      await ktBtn(page, r).click();
+      await ktBtn(page, 'Hearts').click();
+      await ktBtn(page, '1st played').click();
+    }
+    await page.getByRole('button', { name: /^Call [AKQJ0-9]/ }).click();
+    await ktBtn(page, /^Hand over/).click();
+    await playedBy(page, /^Ace of hearts/, 'Konstantinos');
+    await playedBy(page, /^King of hearts/, 'Konstantinos');
+    found.push(...(await broken('points')));
+    expect(found).toEqual([]);
   });
 }

@@ -64,11 +64,11 @@ export function TableMiddle({
         initial={{ opacity: 0.4, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={SPRING_POP}
-        className={`disp tick font-extrabold leading-none tracking-[-0.03em] ${word ? `max-w-[9rem] text-center [overflow-wrap:anywhere] ${flat ? 'text-22' : 'text-32'}` : flat ? 'text-28' : 'text-52'}`}
+        className={`disp tick font-extrabold leading-none tracking-[-0.03em] ${word ? `max-w-[9rem] text-center break-words ${flat ? 'text-22' : 'text-32'}` : flat ? 'text-28' : 'text-52'}`}
       >
         {amount}
       </m.span>
-      <span className="max-w-[9rem] text-center text-14 font-bold leading-5 [overflow-wrap:anywhere]">
+      <span className="max-w-[9rem] text-center text-14 font-bold leading-5 break-words">
         {who}
       </span>
     </span>

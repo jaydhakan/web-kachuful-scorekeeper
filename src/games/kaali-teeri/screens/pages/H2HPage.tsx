@@ -80,7 +80,7 @@ function Face({ w }: { w: Who }) {
       className="press flex min-h-12 flex-col items-center gap-1.5 rounded-2xl px-2 py-1"
     >
       <Avatar p={w} className="grid h-16 w-16 place-items-center rounded-full text-36" />
-      <span className="text-15 font-bold [overflow-wrap:anywhere]">{w.name}</span>
+      <span className="text-15 font-bold break-words">{w.name}</span>
     </button>
   );
 }

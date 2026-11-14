@@ -85,7 +85,7 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
         />
         <p className="min-w-0 flex-1 leading-tight">
           <span className="mono-label block text-12 text-[var(--accent-tx)]">{s.trump.bidWon}</span>
-          <span className="disp block text-24 font-extrabold tracking-[-0.02em] [overflow-wrap:anywhere]">
+          <span className="disp block text-24 font-extrabold tracking-[-0.02em] break-words">
             {p.name}
           </span>
         </p>
@@ -152,14 +152,14 @@ function CardsStep({ g, h, onTrump }: { g: KtGame; h: KtHand; onTrump: () => voi
         <div className="min-w-0">
           <h2 className="mono-label px-1 text-12 text-[var(--accent-tx)]">{s.call.head(count)}</h2>
           {dense && (
-            <p className="min-w-0 px-1 text-15 text-[var(--tx2)] [overflow-wrap:anywhere]">
+            <p className="min-w-0 px-1 text-15 text-[var(--tx2)] break-words">
               {s.call.leads(p.name)}
             </p>
           )}
         </div>
         <div className={dense ? 'shrink-0' : 'mt-1.5 flex items-center justify-between gap-2'}>
           {!dense && (
-            <p className="min-w-0 px-1 text-15 text-[var(--tx2)] [overflow-wrap:anywhere]">
+            <p className="min-w-0 px-1 text-15 text-[var(--tx2)] break-words">
               {s.call.leads(p.name)}
             </p>
           )}

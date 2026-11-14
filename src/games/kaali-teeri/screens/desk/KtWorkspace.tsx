@@ -37,7 +37,7 @@ import { onGrid, useKtDeskKeys, useTypedNumber } from './useKtDeskKeys';
 // One DOM tree for every layout, as in Kachuful's workspace: upright, table, score strip, action pane; on its side,
 // table and scores left, action pane right; desktop, table, action pane, scores.
 const GRID =
-  "grid flex-1 gap-3 [grid-template-areas:'table'_'scores'_'action'] min-h-0 grid-rows-[minmax(15rem,1fr)_auto_minmax(0,auto)] rail:gap-4 tl:gap-5 tl:[grid-template-areas:'table_action'_'scores_action'] tl:grid-cols-[minmax(0,1fr)_clamp(22rem,37vw,27.5rem)] tl:grid-rows-[minmax(0,1fr)_auto] dt:gap-6 dt:[grid-template-areas:'table_action_scores'] dt:grid-cols-[minmax(0,1fr)_clamp(23rem,27vw,30rem)_clamp(16.5rem,23vw,21rem)] dt:grid-rows-[minmax(0,1fr)]";
+  "grid flex-1 gap-3 [grid-template-areas:'table'_'scores'_'action'] min-h-0 grid-rows-[minmax(15rem,1fr)_auto_minmax(0,auto)] rail:gap-4 tl:gap-5 tl:[grid-template-areas:'table_action'_'scores_action'] tl:grid-cols-[minmax(0,1fr)_clamp(22rem,37vw,27.5rem)] tl:grid-rows-[minmax(0,1fr)_auto] dt:gap-6 dt:[grid-template-areas:'table_action_scores'] dt:grid-cols-[minmax(0,1fr)_clamp(23rem,27vw,30rem)_clamp(17rem,25vw,22rem)] dt:grid-rows-[minmax(0,1fr)]";
 
 type Phase = 'bidding' | 'calling' | 'playing' | 'result';
 const STEP: Record<Phase, number> = { bidding: 0, calling: 1, playing: 2, result: 3 };

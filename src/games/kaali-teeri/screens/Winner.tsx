@@ -111,7 +111,7 @@ export default function Winner() {
               >
                 {icon('trophy', 'h-full w-full')}
               </m.span>
-              <h2 className="framed disp mt-1 text-center text-28 font-extrabold leading-tight [overflow-wrap:anywhere] land:hidden">
+              <h2 className="framed disp mt-1 text-center text-28 font-extrabold leading-tight break-words land:hidden">
                 <InkFill
                   text={t.winner.headline(st.filter((x) => x.rank === 1).map((x) => x.p.name))}
                 />
@@ -142,7 +142,7 @@ export default function Winner() {
                       {x.rank}
                     </div>
                     <Dot p={x.p} s={40} />
-                    <div className="min-w-0 flex-1 text-18 font-bold tracking-[-0.015em] [overflow-wrap:anywhere] [text-wrap:balance] land:text-16">
+                    <div className="min-w-0 flex-1 text-18 font-bold tracking-[-0.015em] break-words [text-wrap:balance] land:text-16">
                       {x.p.name}
                     </div>
                     <div className="disp tick text-26 font-extrabold tracking-[-0.03em] land:text-22">

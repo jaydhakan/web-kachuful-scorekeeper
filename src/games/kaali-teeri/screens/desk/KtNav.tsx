@@ -134,7 +134,7 @@ export function KtTopBar({ onKeys }: { onKeys: () => void }) {
       >
         <span aria-hidden>{kd.logo}</span>
       </m.button>
-      <div className="disp min-w-0 flex-1 text-22 font-extrabold leading-tight tracking-[-0.02em] [overflow-wrap:anywhere]">
+      <div className="disp min-w-0 flex-1 text-22 font-extrabold leading-tight tracking-[-0.02em] break-words">
         {title}
       </div>
       {n.hasGame && <GhostButton onClick={n.scores}>{kd.nav.scores}</GhostButton>}

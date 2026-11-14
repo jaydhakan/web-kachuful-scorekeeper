@@ -48,7 +48,7 @@ export function KtScorePanel({ g, changes }: KtScorePanelProps) {
               layout="position"
               key={x.p.id}
               transition={SPRING}
-              className={`grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 rounded-2xl px-1 py-1 [grid-template-areas:'av_tot'_'av_name'] rail:min-h-12 rail:grid-cols-[2rem_auto_minmax(0,1fr)_auto] rail:gap-x-3 rail:pl-1.5 rail:pr-3 rail:[grid-template-areas:'rank_av_name_tot'] dt:min-h-14 ${lead ? 'rail:bg-[color-mix(in_srgb,var(--medal-gold)_10%,transparent)] rail:shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--medal-gold)_45%,transparent)]' : ''}`}
+              className={`grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 rounded-2xl px-1 py-1 [grid-template-areas:'av_tot'_'av_name'] rail:min-h-12 rail:grid-cols-[2rem_auto_minmax(0,1fr)_auto] rail:gap-x-2 rail:pl-1.5 rail:pr-3 rail:[grid-template-areas:'rank_av_name_tot'] dt:min-h-14 ${lead ? 'rail:bg-[color-mix(in_srgb,var(--medal-gold)_10%,transparent)] rail:shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--medal-gold)_45%,transparent)]' : ''}`}
             >
               <span
                 className={`disp hidden text-center text-22 font-extrabold [grid-area:rank] rail:block ${done.length ? rankTone(x.rank) : 'text-[var(--tx2)]'}`}
@@ -60,14 +60,14 @@ export function KtScorePanel({ g, changes }: KtScorePanelProps) {
                 className="mat-av grid h-[34px] w-[34px] place-items-center rounded-full text-19 [grid-area:av] dt:h-10 dt:w-10 dt:text-22"
               />
               <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 [grid-area:name]">
-                <span className="min-w-0 text-13 text-[var(--tx2)] [overflow-wrap:anywhere] rail:text-16 rail:font-bold rail:leading-tight rail:text-[var(--tx)] dt:text-18">
+                <span className="min-w-0 text-13 text-[var(--tx2)] break-words rail:text-16 rail:font-bold rail:leading-tight rail:text-[var(--tx)] dt:text-18">
                   {x.p.name}
                 </span>
                 {d != null && <Delta v={d} className="!h-6 !min-w-[44px] !px-1.5 !text-13" />}
               </div>
               <Ticker
                 v={x.t}
-                className="disp tick text-24 font-extrabold leading-none tracking-[-0.02em] [grid-area:tot] rail:min-w-12 rail:text-right dt:text-28"
+                className="disp tick text-24 font-extrabold leading-none tracking-[-0.02em] [grid-area:tot] rail:min-w-10 rail:text-right dt:text-28"
               />
             </m.li>
           );

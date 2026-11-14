@@ -49,7 +49,7 @@ export function Auction({ g, h }: { g: KtGame; h: KtHand }) {
                 className="mat-av grid h-11 w-11 shrink-0 place-items-center rounded-full text-24"
               />
               <p className="min-w-0 flex-1 leading-tight">
-                <span className="disp block text-22 font-extrabold tracking-[-0.02em] [overflow-wrap:anywhere]">
+                <span className="disp block text-22 font-extrabold tracking-[-0.02em] break-words">
                   {speaker.name}
                 </span>
                 <span className="text-14 text-[var(--tx2)]">
