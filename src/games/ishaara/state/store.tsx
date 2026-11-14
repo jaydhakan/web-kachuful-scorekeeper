@@ -27,6 +27,9 @@ export type NavAction =
 
 export const initialNav: IshaaraNav = { screen: 'home', gameId: null, role: 'table' };
 
+/** The clue phone's own screens; every other screen is the table's or the hub's, whatever role was last used. */
+export const isClueScreen = (screen: IshaaraScreen) => screen === 'clue-list' || screen === 'key';
+
 /** Where the table belongs for a game's status; a clue phone stays on its key screen throughout. */
 export const tableScreen = (status: IshaaraPublic['status']): IshaaraScreen =>
   status === 'waiting' ? 'waiting' : status === 'active' ? 'board' : 'win';
@@ -34,7 +37,9 @@ export const tableScreen = (status: IshaaraPublic['status']): IshaaraScreen =>
 export function navReducer(s: IshaaraNav, a: NavAction): IshaaraNav {
   switch (a.type) {
     case 'go':
-      return s.screen === a.screen ? s : { ...s, screen: a.screen };
+      if (s.screen === a.screen) return s;
+      // Leaving the clue screens for the hub or setup makes this device a table again (ISH-F12).
+      return { ...s, screen: a.screen, role: isClueScreen(a.screen) ? s.role : 'table' };
     case 'open':
       return {
         gameId: a.id,

@@ -9,7 +9,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from 'react';
-import { tableScreen, useIshaara } from '@/games/ishaara/state/store';
+import { isClueScreen, tableScreen, useIshaara } from '@/games/ishaara/state/store';
 import { useTable } from '@/games/ishaara/state/useTable';
 import { table as s } from '@/games/ishaara/strings/table';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
@@ -129,10 +129,7 @@ export default function IshaaraShell({
   useEffect(() => whenIdle(() => void loadSetup()), []);
   const closeHub = useCallback(() => setHub(null), []);
 
-  const clue =
-    nav.screen === 'clue-list' ||
-    nav.screen === 'key' ||
-    (nav.role === 'clue' && nav.screen !== 'home' && nav.screen !== 'history');
+  const clue = isClueScreen(nav.screen);
   const open = (l: HubLink) => (l === 'clues' ? actions.go('clue-list') : setHub(l));
 
   let key: string = nav.screen,

@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { started } from '@/games/ishaara/domain/__fixtures__/kit';
 import { loadIshLastSetup, loadRecentWords } from '@/games/ishaara/state/persistence';
-import { IshaaraProvider, navReducer, initialNav, useIshaara } from './store';
+import { IshaaraProvider, isClueScreen, navReducer, initialNav, useIshaara } from './store';
 
 const G = started().state;
 const wrap = ({ children }: { children: ReactNode }) => (
@@ -26,6 +26,21 @@ describe('Ishaara nav', () => {
     const clue = navReducer(initialNav, { type: 'open', id: 'g', role: 'clue' });
     expect(navReducer(clue, { type: 'track', status: 'finished' }).screen).toBe('key');
     expect(navReducer(clue, { type: 'leave' }).screen).toBe('clue-list');
+  });
+
+  it('decides the clue screens by name: after a key, Home and New game are the table’s again', () => {
+    expect(['clue-list', 'key'].every((x) => isClueScreen(x as never))).toBe(true);
+    expect(['home', 'setup', 'history', 'board'].some((x) => isClueScreen(x as never))).toBe(false);
+    const key = navReducer(initialNav, { type: 'open', id: 'g', role: 'clue' });
+    const left = navReducer(key, { type: 'leave' });
+    expect(left).toEqual({ screen: 'clue-list', gameId: null, role: 'clue' });
+    const home = navReducer(left, { type: 'go', screen: 'home' });
+    expect(home.role).toBe('table');
+    expect(navReducer(home, { type: 'go', screen: 'setup' })).toEqual({
+      screen: 'setup',
+      gameId: null,
+      role: 'table',
+    });
   });
 
   it('startGame creates on the server, reuses the id after a lost answer, and remembers the setup', async () => {
