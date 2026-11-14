@@ -97,11 +97,20 @@ export function Sheet({ title, onClose, full, roomy = 'modal', children }: Sheet
           className="shrink-0 cursor-grab touch-none px-5 pb-1.5 pt-2.5 roomy:cursor-auto roomy:touch-auto"
         >
           <div className="mat-grabber mx-auto mb-3 h-[5px] w-11 rounded-full roomy:hidden" />
-          <div className="flex items-center justify-between">
-            <h2 id={titleId} className="disp text-26 font-extrabold tracking-[-0.03em]">
+          {/* A long title (an email address) wraps rather than pushing Close off the edge. */}
+          <div className="flex items-start justify-between gap-3">
+            <h2
+              id={titleId}
+              className="disp min-w-0 flex-1 pt-1.5 text-26 font-extrabold leading-[1.15] tracking-[-0.03em] [overflow-wrap:anywhere]"
+            >
               {title}
             </h2>
-            <IconButton label={t.common.close} onClick={onClose} skipInitialFocus className="-mr-2">
+            <IconButton
+              label={t.common.close}
+              onClick={onClose}
+              skipInitialFocus
+              className="-mr-2 shrink-0"
+            >
               {Icon.close}
             </IconButton>
           </div>
