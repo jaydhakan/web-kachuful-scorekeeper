@@ -29,6 +29,7 @@ describe('the "You" row on a board', () => {
         <BoardList
           metric="points"
           you="b"
+          podium={false}
           data={{ minRounds: 10, facts: null, rows: [row('a', 1), row('b', 2)] }}
         />
       </AppProvider>,
@@ -66,6 +67,7 @@ describe('re-sorting a board', () => {
     <AppProvider>
       <BoardList
         metric={metric}
+        podium={false}
         data={{ minRounds: 10, facts: null, rows: order.map((id, i) => row(id, i + 1)) }}
       />
     </AppProvider>

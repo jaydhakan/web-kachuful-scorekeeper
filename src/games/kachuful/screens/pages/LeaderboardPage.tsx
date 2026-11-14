@@ -1,5 +1,4 @@
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   leaderboard,
   rangeFor,
@@ -11,30 +10,33 @@ import {
   type Streak,
 } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
-import { useDeviceFacts, whoIs } from '@/games/kachuful/state/useFacts';
-import { EmptyState, Page, Section } from '@/components/ui/Page';
-import { DeltaIntro, MetricPick, pct, Progress, RangePick, RankDelta } from '@/components/ui/Stats';
+import { findWho, useDeviceFacts, whoIs } from '@/games/kachuful/state/useFacts';
+import { EmptyState, Page } from '@/components/ui/Page';
+import { DeltaIntro, MetricPick, pct, RangePick } from '@/components/ui/Stats';
+import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { Seg } from '@/components/ui/Seg';
 import { StreakBadge } from '@/components/ui/StreakBadge';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { PRESS, REDUCED, SPRING } from '@/components/ui/motion';
-import { rankTone } from '@/games/kachuful/screens/desk/DeskParts';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import { RemoteGate } from '@/components/RemoteGate';
 import { t } from '@/strings';
-import { Avatar } from '@/components/ui/Avatar';
+import type { Face } from '@/components/ui/Avatar';
 import { icon } from '@/components/ui/IconsMore';
-import { Edge } from '@/components/ui/Edge';
 
 const b = t.hub.leaderboard;
-/** Unranked rows shown before "Show all"; ranked rows are never folded. */
-const UNRANKED_FOLD = 10;
 
 /** A board value as people read it: a whole-number average, a percentage, or a count. */
 export function fmtValue(m: Metric, v: number): string {
   if (m === 'accuracy' || m === 'winRate') return pct(v);
   return String(Math.round(v));
+}
+
+/** The distance between two board values: an average keeps a decimal, since two players a rank apart can round alike. */
+export function fmtGap(m: Metric, d: number): string {
+  if (m === 'accuracy' || m === 'winRate') return pct(d);
+  // One decimal only where it says something: "0.4 behind", but "2 behind", not "2.0".
+  return String(m === 'avgPerRound' ? Math.round(d * 10) / 10 : Math.round(d));
 }
 
 /** A player's run as of their last round, for the badge. */
@@ -49,6 +51,8 @@ export interface BoardData {
   rows: BoardRow[];
   minRounds: number;
   facts: Facts | null;
+  /** The server's own look for each player, for one this device has never met. */
+  people?: Map<string, Face & { name: string }>;
 }
 
 export function LeaderboardPage() {
@@ -68,6 +72,7 @@ export function LeaderboardPage() {
   return (
     <DeltaIntro.Provider value={intro}>
       <Page
+        wide
         title={b.title}
         sub={
           <div className="flex flex-col gap-2">
@@ -111,6 +116,7 @@ export function LeaderboardPage() {
             metric={metric}
             you={state.session?.player?.id}
             onShowAll={showAll}
+            celebrate={`kachuful:device:${metric}:${range.kind}`}
           />
         ) : !signedIn ? (
           <SignedOut />
@@ -143,9 +149,22 @@ function GlobalBoard({
   const r = useRemote(key, (o) => ep.leaderboard(range.from, range.to, metric, o));
   // The last board and the metric it was sorted by stay up while the next one loads, so the list is never
   // unmounted and rows can slide to their new rank. A new answer is a new object; the old key's is the same one.
-  const held = useRef<{ lb: NonNullable<typeof r.data>; metric: Metric } | null>(null);
-  if (r.data && r.data !== held.current?.lb) held.current = { lb: r.data, metric };
+  const held = useRef<{ lb: NonNullable<typeof r.data>; metric: Metric; kind: string } | null>(
+    null,
+  );
+  if (r.data && r.data !== held.current?.lb)
+    held.current = { lb: r.data, metric, kind: range.kind };
   const h = held.current;
+  const people = useMemo(
+    () =>
+      new Map(
+        (h?.lb.rows ?? []).map(({ player: p }) => [
+          p.id,
+          { name: p.displayName, emoji: p.emoji, color: p.color, photoUrl: p.photoUrl, id: p.id },
+        ]),
+      ),
+    [h?.lb],
+  );
   const stale = r.data == null && !r.error && !!h;
   return (
     <div aria-busy={stale} className={stale ? 'opacity-60' : ''}>
@@ -156,9 +175,11 @@ function GlobalBoard({
               you={you}
               metric={h.metric}
               onShowAll={onShowAll}
+              celebrate={`kachuful:global:${h.metric}:${h.kind}`}
               data={{
                 minRounds: h.lb.minRounds,
                 facts: null,
+                people,
                 rows: h.lb.rows.map(({ player, ...row }) => ({ ...row, playerId: player.id })),
               }}
             />
@@ -185,24 +206,45 @@ function SignedOut() {
   );
 }
 
+/** A Kachuful board (the leaderboard's, or a season's standings) drawn by the board every game shares. */
 export function BoardList({
   data,
   metric,
   you,
   onShowAll,
+  podium,
+  celebrate,
 }: {
   data: BoardData;
   metric: Metric;
   you?: string | null;
   onShowAll?: () => void;
+  podium?: boolean;
+  celebrate?: string;
 }) {
-  const rate = RATE_METRICS.includes(metric);
-  const [unfolded, setUnfolded] = useState(false);
-  const ranked = data.rows.filter((r) => r.qualified),
-    rest = data.rows.filter((r) => !r.qualified);
-  const folded = !unfolded && rest.length > UNRANKED_FOLD;
-  // Your own row stays in view when folded, so the pinned "You" row still has something to pin.
-  const shown = folded ? rest.filter((r, i) => i < UNRANKED_FOLD || r.playerId === you) : rest;
+  const { actions } = useApp();
+  const show = useCallback((v: number) => fmtValue(metric, v), [metric]);
+  const gap = useCallback((d: number) => fmtGap(metric, d), [metric]);
+  const need = data.minRounds + 1;
+  const entries = useMemo<BoardEntry[]>(
+    () =>
+      data.rows.map((r) => {
+        const seen = findWho(data.facts, r.playerId);
+        return {
+          id: r.playerId,
+          who: seen ?? data.people?.get(r.playerId) ?? whoIs(data.facts, r.playerId),
+          rank: r.qualified ? r.rank : null,
+          n: r.value,
+          sub: b.sub(r.games, r.rounds),
+          delta: r.rankDelta,
+          progress: r.qualified
+            ? undefined
+            : { v: r.rounds, of: need, label: b.progress(r.rounds, need) },
+          badge: <StreakBadge s={data.facts ? lastRun(data.facts, r.playerId) : null} />,
+        };
+      }),
+    [data, need],
+  );
   if (!data.rows.length)
     return (
       <EmptyState
@@ -220,145 +262,25 @@ export function BoardList({
       />
     );
   return (
-    <>
-      {rate && !ranked.length && (
-        <p className="glass mb-4 p-4 text-15 leading-[1.45] text-[var(--tx2)]">
-          {b.nobodyRanked(data.minRounds)}
-        </p>
-      )}
-      {ranked.length > 0 && (
-        <ol className="flex flex-col gap-2">
-          <AnimatePresence>
-            {ranked.map((r, i) => (
-              <Row
-                key={r.playerId}
-                r={r}
-                i={i}
-                metric={metric}
-                facts={data.facts}
-                you={you === r.playerId}
-              />
-            ))}
-          </AnimatePresence>
-        </ol>
-      )}
-      {rest.length > 0 && (
-        <Section title={b.unranked(data.minRounds)} className="mt-6">
-          <ol className="flex flex-col gap-2">
-            <AnimatePresence>
-              {shown.map((r, i) => (
-                <Row
-                  key={r.playerId}
-                  r={r}
-                  i={ranked.length + i}
-                  metric={metric}
-                  facts={data.facts}
-                  need={data.minRounds + 1}
-                  you={you === r.playerId}
-                />
-              ))}
-            </AnimatePresence>
-          </ol>
-          {folded && (
-            <button
-              type="button"
-              onClick={() => setUnfolded(true)}
-              className="press glass mt-4 min-h-12 w-full rounded-2xl font-bold"
-            >
-              {b.showAllUnranked(rest.length)}
-            </button>
-          )}
-        </Section>
-      )}
-    </>
-  );
-}
-
-function Row({
-  r,
-  i,
-  metric,
-  facts,
-  need,
-  you,
-}: {
-  r: BoardRow;
-  i: number;
-  metric: Metric;
-  facts: Facts | null;
-  need?: number;
-  you?: boolean;
-}) {
-  const { actions } = useApp();
-  const rm = useReducedMotion();
-  const intro = useContext(DeltaIntro);
-  // Read at mount: the first list of a visit rises in row by row; a row that joins after a filter change only fades.
-  const [rise] = useState(() => !intro?.done && !rm);
-  useEffect(() => {
-    if (intro) intro.done = true;
-  }, [intro]);
-  const w = whoIs(facts, r.playerId);
-  const run = facts ? lastRun(facts, r.playerId) : null;
-  const value = fmtValue(metric, r.value);
-  return (
-    <m.li
-      layout={rm ? false : 'position'}
-      initial={rise ? { opacity: 0, y: 8 } : { opacity: 0 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, transition: { duration: REDUCED } }}
-      // The stagger belongs to the entrance only: a re-rank slides at once.
-      transition={{
-        layout: SPRING,
-        default: rise ? { ...SPRING, delay: Math.min(i, 12) * 0.02 } : { duration: REDUCED },
-      }}
-      // The pinned row floats over the list, so it needs a shadow to not read as the row beneath it.
-      className={
-        you
-          ? 'sticky bottom-2 top-2 z-10 rounded-[var(--r-card,22px)] shadow-[0_10px_28px_-6px_var(--drop)]'
-          : ''
+    <RankBoard
+      entries={entries}
+      show={show}
+      gap={gap}
+      you={you}
+      podium={podium}
+      celebrate={celebrate}
+      onOpen={(id) => actions.open({ screen: 'player', params: { id } })}
+      label={b.row}
+      unrankedShort={b.unrankedShort}
+      unrankedTitle={b.unranked(data.minRounds)}
+      note={
+        RATE_METRICS.includes(metric) &&
+        !data.rows.some((r) => r.qualified) && (
+          <p className="glass mb-4 p-4 text-15 leading-[1.45] text-[var(--tx2)]">
+            {b.nobodyRanked(data.minRounds)}
+          </p>
+        )
       }
-    >
-      <m.button
-        type="button"
-        whileTap={PRESS}
-        onClick={() => actions.open({ screen: 'player', params: { id: r.playerId } })}
-        aria-label={b.row(r.rank ? `#${r.rank}` : b.unrankedShort, w.name, value)}
-        className="glass relative flex min-h-16 w-full items-center gap-3 px-3 py-2 text-left"
-      >
-        {you && <Edge tone="accent" />}
-        {/* The movement sits under the rank, so rows without one don't leave a gap before the avatar. */}
-        <span className="flex w-8 shrink-0 flex-col items-center">
-          <span
-            className={`disp text-22 font-extrabold leading-none ${r.rank ? rankTone(r.rank) : 'text-[var(--tx2)]'}`}
-          >
-            {r.rank ?? '–'}
-          </span>
-          <RankDelta d={r.rankDelta} i={i} />
-        </span>
-        <Avatar
-          p={w}
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-22 ${need ? 'opacity-60' : ''}`}
-        />
-        <span className="min-w-0 flex-1">
-          <span className="block text-17 font-bold leading-tight [overflow-wrap:anywhere]">
-            {w.name}
-            {you && (
-              <span className="ml-1.5 text-13 font-bold text-[var(--accent-tx)]">{b.you}</span>
-            )}
-            <StreakBadge s={run} />
-          </span>
-          <span className="mt-0.5 block text-13 text-[var(--tx2)]">{b.sub(r.games, r.rounds)}</span>
-          {need && (
-            <span className="mt-1 flex items-center gap-2 text-13 text-[var(--tx2)]">
-              <Progress v={r.rounds} of={need} />
-              <span className="shrink-0">{b.progress(r.rounds, need)}</span>
-            </span>
-          )}
-        </span>
-        <span className={`disp shrink-0 text-24 font-extrabold ${need ? 'text-[var(--tx2)]' : ''}`}>
-          {value}
-        </span>
-      </m.button>
-    </m.li>
+    />
   );
 }

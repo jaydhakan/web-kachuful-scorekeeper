@@ -21,12 +21,15 @@ export interface RevealPlan {
   done: number;
 }
 
+/** A leaderboard is opened often, so its steps follow each other sooner than a game's winner reveal. */
+export const BOARD_GAP_MS = 260;
+
 /** Lowest place first, the winner's step last; a place nobody holds (a tie above it, a short table) takes no turn. */
-export function revealPlan(ranks: number[]): RevealPlan {
+export function revealPlan(ranks: number[], gap = STEP_GAP_MS): RevealPlan {
   const taken = ([3, 2, 1] as const).filter((k) => ranks.includes(k));
   const step: RevealPlan['step'] = { 1: null, 2: null, 3: null };
-  taken.forEach((k, i) => (step[k] = i * STEP_GAP_MS));
-  const last = Math.max(0, taken.length - 1) * STEP_GAP_MS;
+  taken.forEach((k, i) => (step[k] = i * gap));
+  const last = Math.max(0, taken.length - 1) * gap;
   const name = last + LAND_AFTER_MS + LAND_MS + BEAT_MS;
   return { step, name, done: name + NAME_MS };
 }

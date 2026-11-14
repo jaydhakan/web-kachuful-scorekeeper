@@ -145,6 +145,11 @@ export const hub = {
     signIn: 'Sign in',
     row: (rank: string, name: string, value: string) => `${rank} ${name}, ${value}`,
     unrankedShort: 'Not ranked',
+    // Every game's board: the podium, the line on your own row, and what a screen reader hears when you lead.
+    podium: 'Top three',
+    behind: (gap: string, name: string) => `${gap} behind ${name}`,
+    justBehind: (name: string) => `Just behind ${name}`,
+    tookTop: 'You are in first place.',
   },
   player: {
     title: 'Player',

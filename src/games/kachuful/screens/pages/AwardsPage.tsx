@@ -261,6 +261,7 @@ export function AwardsPage({ source }: { source?: AwardsSource }) {
                   <BoardList
                     data={{ rows: s.standings, minRounds: 50, facts: src.facts }}
                     metric="avgPerRound"
+                    podium={false}
                   />
                 ) : (
                   <EmptyState icon="calendar" title={aw.noSeason} />

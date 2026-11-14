@@ -37,8 +37,8 @@ export interface Who {
   lastName?: string | null;
 }
 
-/** How to show a player: the registry's current look, else the last game they played in. */
-export function whoIs(f: Facts | null, id: string): Who {
+/** A player as the registry or their last game on this device shows them; null when neither has met them. */
+export function findWho(f: Facts | null, id: string): Who | null {
   const r = archive.get('players', resolveId(id));
   if (r)
     return {
@@ -50,7 +50,9 @@ export function whoIs(f: Facts | null, id: string): Who {
       lastName: r.lastName,
     };
   const p = f?.people.get(id);
-  return p
-    ? { id, name: p.name, emoji: p.emoji, color: p.color }
-    : { id, name: id.replace(/^name:/, ''), emoji: '🙂', color: 'var(--tx2)' };
+  return p ? { id, name: p.name, emoji: p.emoji, color: p.color } : null;
 }
+
+/** How to show a player: the registry's current look, else the last game they played in. */
+export const whoIs = (f: Facts | null, id: string): Who =>
+  findWho(f, id) ?? { id, name: id.replace(/^name:/, ''), emoji: '🙂', color: 'var(--tx2)' };

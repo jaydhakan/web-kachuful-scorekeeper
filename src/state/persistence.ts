@@ -31,6 +31,8 @@ export const KEYS = {
   // Ishaara keeps no game here (the server runs it): only the last setup and the words dealt lately.
   ishLastSetup: 'ishaara.lastSetup',
   ishRecentWords: 'ishaara.recentWords',
+  /** Boards on which this player was last seen in first place, so taking the top is celebrated once, not per visit. */
+  boardTop: 'baithak.boardTop',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -261,3 +263,16 @@ export const saveAchSeen = (playerId: string, at: number) =>
     ...storage.get<Record<string, number>>(KEYS.achSeen, {}),
     [playerId]: at,
   });
+
+/** Whether first place on this board (a key naming the game, player and filters) was already celebrated here. */
+export const wasBoardTop = (board: string): boolean =>
+  storage.get<Record<string, true>>(KEYS.boardTop, {})[board] === true;
+
+/** Records who holds this board's first place as this player sees it: them (celebrated now) or someone else. */
+export function saveBoardTop(board: string, mine: boolean) {
+  const all = { ...storage.get<Record<string, true>>(KEYS.boardTop, {}) };
+  if (mine === (all[board] === true)) return;
+  if (mine) all[board] = true;
+  else delete all[board];
+  storage.set(KEYS.boardTop, all);
+}
