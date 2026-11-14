@@ -113,10 +113,11 @@ export async function auditScreen(
       )
         smallTargets.push(`${label(el)} ${Math.round(hit.width)}×${Math.round(hit.height)}`);
       if (!ownText(el)) continue;
-      // A word whose range has boxes on two lines was broken inside it (overflow-wrap, break-all).
+      // A word whose range has boxes on two lines was broken inside it (overflow-wrap, break-all). Each part of a
+      // hyphenated word counts alone: wrapping after "clue-" is ordinary line breaking.
       for (const n of el.childNodes) {
         if (n.nodeType !== 3) continue;
-        for (const m of (n.textContent || '').matchAll(/\S{2,}/g)) {
+        for (const m of (n.textContent || '').matchAll(/[^\s\-‐]{2,}/g)) {
           const wr = document.createRange();
           wr.setStart(n, m.index);
           wr.setEnd(n, m.index + m[0].length);
