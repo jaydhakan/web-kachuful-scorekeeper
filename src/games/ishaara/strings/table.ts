@@ -127,7 +127,7 @@ export const table = {
     open: (a: string, b: string) => `${a} and ${b}, open`,
     onPhone: 'on your phone.',
     qr: 'QR code for play.vectanix.com/ishaara',
-    yourGames: 'Signed-in clue-givers see this game under “Your games”.',
+    yourGames: 'Signed-in clue-givers see this game under “Your games” within a few seconds.',
     giverOf: (team: Team) => `${TEAM[team]} clue-giver`,
     joined: 'Joined',
     notYet: 'Waiting',
@@ -138,6 +138,11 @@ export const table = {
     cancelOk: 'Cancel game',
     keep: 'Keep waiting',
     cancelFailed: 'Couldn’t cancel the game. Try again.',
+    copyLink: 'Copy a link to this game',
+    shareLink: 'Send a link to this game',
+    linkText: 'Open your Ishaara key',
+    copied: 'Link copied.',
+    copyFailed: 'Couldn’t copy. Use the address above.',
   },
 
   board: {

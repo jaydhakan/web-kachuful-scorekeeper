@@ -37,9 +37,10 @@ describe('Ishaara’s shell', () => {
     const g = started().state;
     serve({ ...g, status: 'waiting', joined: { sun: true, moon: false } });
     const { unmount } = show({ screen: 'waiting', gameId: g.id, role: 'table' });
+    // Two panes: the title is drawn in both and CSS (absent here) hides one.
     expect(
-      await screen.findByRole('heading', { name: 'Waiting for clue-givers' }),
-    ).toBeInTheDocument();
+      (await screen.findAllByRole('heading', { name: 'Waiting for clue-givers' })).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText('Joined')).toBeInTheDocument();
     unmount();
     serve(g);
