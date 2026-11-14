@@ -1,4 +1,4 @@
-import { expect, type Browser, type Page } from '@playwright/test';
+import { expect, type Browser, type BrowserContextOptions, type Page } from '@playwright/test';
 import { signIn, type Who } from './backend';
 
 /** Ishaara's two-device e2e: the table (Jay, the host) and the clue phones (Riya for Sun, Kabir for Moon). */
@@ -57,9 +57,17 @@ export async function openIshaara(page: Page, who: Who, o: { circle?: boolean } 
   await expect(page.getByRole('heading', { level: 1, name: 'Ishaara' })).toBeVisible();
 }
 
-/** A phone of its own (a new context, so its own sign-in) for a clue-giver, on Ishaara's home. */
-export async function cluePhone(browser: Browser, who: Who, gameId: string) {
-  const ctx = await browser.newContext();
+/**
+ * A phone of its own (a new context, so its own sign-in) for a clue-giver, on Ishaara's home. A new context takes
+ * none of the project's options, so the layout specs pass a viewport here.
+ */
+export async function cluePhone(
+  browser: Browser,
+  who: Who,
+  gameId: string,
+  device: BrowserContextOptions = {},
+) {
+  const ctx = await browser.newContext(device);
   const page = await ctx.newPage();
   await onlyGame(page, gameId);
   await openIshaara(page, who);
@@ -129,6 +137,8 @@ export interface GameOpts {
   timerSec?: 60 | 120 | 180 | null;
   clueEntry?: 'typed' | 'spoken';
   bestOf?: 1 | 3;
+  /** The clue phones' viewport and device options (default: a new context's 1280×720). */
+  phone?: BrowserContextOptions;
 }
 
 /** Creates a game as the signed-in host on `page` (Riya gives Sun's clues, Kabir Moon's); returns its id. */
@@ -313,8 +323,8 @@ export async function readyGame(page: Page, browser: Browser, o: GameOpts = {}) 
   await onlyGame(page, id);
   await page.reload();
   const phones = {
-    sun: await cluePhone(browser, 'riya', id),
-    moon: await cluePhone(browser, 'kabir', id),
+    sun: await cluePhone(browser, 'riya', id, o.phone),
+    moon: await cluePhone(browser, 'kabir', id, o.phone),
   };
   await showKey(phones.sun);
   await showKey(phones.moon);

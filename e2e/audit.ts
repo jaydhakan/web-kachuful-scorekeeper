@@ -12,6 +12,8 @@ export interface ScreenReport {
   clipped: string[];
   /** Text shortened with an ellipsis ("Bartholo…"). Allowed only on seat labels, board headers and the podium. */
   shortened: string[];
+  /** Words split across two lines ("Ka" / "bir"): a name broken mid-word. */
+  brokenWords: string[];
   /** Scroll regions whose content is taller than the region. */
   scrolls: string[];
   /** Seat labels overlapping each other or a chip on the same table. */
@@ -89,6 +91,7 @@ export async function auditScreen(
     const offscreen: string[] = [],
       clipped: string[] = [],
       shortened: string[] = [],
+      brokenWords: string[] = [],
       scrolls: string[] = [],
       smallTargets: string[] = [];
     for (const el of all) {
@@ -102,12 +105,25 @@ export async function auditScreen(
             document.getElementById(el.getAttribute('aria-labelledby') ?? '')?.textContent ||
             label(el),
         );
+      // A radio or checkbox inside its label is hit through the label, so the label is the target.
+      const hit = (el.matches('input') && el.closest('label')?.getBoundingClientRect()) || r;
       if (
         el.matches('button,[role="button"],[role="switch"],a[href],input,[role="tab"]') &&
-        (r.width < 43.5 || r.height < 43.5)
+        (hit.width < 43.5 || hit.height < 43.5)
       )
-        smallTargets.push(`${label(el)} ${Math.round(r.width)}×${Math.round(r.height)}`);
+        smallTargets.push(`${label(el)} ${Math.round(hit.width)}×${Math.round(hit.height)}`);
       if (!ownText(el)) continue;
+      // A word whose range has boxes on two lines was broken inside it (overflow-wrap, break-all).
+      for (const n of el.childNodes) {
+        if (n.nodeType !== 3) continue;
+        for (const m of (n.textContent || '').matchAll(/\S{2,}/g)) {
+          const wr = document.createRange();
+          wr.setStart(n, m.index);
+          wr.setEnd(n, m.index + m[0].length);
+          const tops = new Set([...wr.getClientRects()].map((b) => Math.round(b.top)));
+          if (tops.size > 1) brokenWords.push(m[0]);
+        }
+      }
       const txt = (el.textContent || '').trim();
       if (/…/.test(txt)) shortened.push(txt);
       // Seat labels may be shortened (the plan allows it); the full name is in the text and the tooltip.
@@ -125,9 +141,18 @@ export async function auditScreen(
       }
       // An ancestor that hides overflow can cut text the element itself lets spill; a side scroller reveals it.
       if (hasSideScroll(el)) continue;
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      const tr = range.getBoundingClientRect();
+      // Only the element's own text: a child (an sr-only span) is measured on its own.
+      const own = [...el.childNodes]
+        .filter((n) => n.nodeType === 3 && (n.textContent || '').trim())
+        .map((n) => {
+          const range = document.createRange();
+          range.selectNodeContents(n);
+          return range.getBoundingClientRect();
+        });
+      const tr = {
+        left: Math.min(...own.map((b) => b.left)),
+        right: Math.max(...own.map((b) => b.right)),
+      };
       for (let a = el.parentElement; a; a = a.parentElement) {
         const acs = getComputedStyle(a);
         if (!/(hidden|clip)/.test(acs.overflowX) || /(auto|scroll)/.test(acs.overflowY)) continue;
@@ -183,6 +208,7 @@ export async function auditScreen(
       offscreen,
       clipped,
       shortened,
+      brokenWords,
       scrolls,
       overlaps,
       smallTargets,
@@ -198,6 +224,7 @@ export async function auditScreen(
     offscreen: uniq(rest.offscreen),
     clipped: uniq(rest.clipped),
     shortened: uniq(rest.shortened),
+    brokenWords: uniq(rest.brokenWords),
     scrolls: uniq(rest.scrolls),
     overlaps: uniq(rest.overlaps),
     smallTargets: uniq(rest.smallTargets),

@@ -8,6 +8,7 @@ const clean = (screen: string): ScreenReport => ({
   offscreen: [],
   clipped: [],
   shortened: [],
+  brokenWords: [],
   scrolls: [],
   overlaps: [],
   smallTargets: [],
@@ -51,6 +52,15 @@ describe('audit rules', () => {
     const r = { ...clean('17-summary'), scrolls: ['Standings'] };
     expect(violations(r, { ...phone, players: 5 })).toHaveLength(1);
     expect(violations(r, { ...phone, players: 7 })).toEqual([]);
+  });
+
+  it('holds Ishaara screens to whole words and its board to one screen', () => {
+    expect(violations({ ...clean('ish-setup-teams'), brokenWords: ['Kabir'] }, phone)).toHaveLength(
+      1,
+    );
+    expect(violations({ ...clean('ish-board'), scrolls: ['Words'] }, phone)).toHaveLength(1);
+    // Kachuful's screens are not checked for broken words yet (KF-F01).
+    expect(violations({ ...clean('16-results'), brokenWords: ['Bartholomew'] }, phone)).toEqual([]);
   });
 
   it('lets sheets scroll', () => {

@@ -4,6 +4,7 @@ import { auditScreen, type ScreenReport } from './audit';
 import { violations } from './audit-rules';
 import { LONG_NAMES_14, openSeeded, seedGame } from './fixtures';
 import { btn, nameField, openAdvanced } from './helpers';
+import { ishBtn, openIshaara, readyGame, TEAM } from './ishaara-helpers';
 
 /**
  * Every device class that still gets the phone UI (docs/codebase/ARCHITECTURE.md, Layout). From 768×501 up the app shows the
@@ -199,3 +200,156 @@ for (const [w, h] of MATRIX) {
     }
   });
 }
+
+/** Seats a known player from Ishaara's Add player sheet (known players need no email). */
+async function seatIsh(page: Page, name: string) {
+  const field = page.getByRole('dialog').getByLabel('Player name');
+  await field.fill(name);
+  await expect(
+    page.getByText(`${name} is already in your games, so no email is needed.`),
+  ).toBeVisible();
+  await field.press('Enter');
+  await expect(
+    page.getByRole('dialog').getByRole('button', { name: `Remove ${name}`, exact: true }),
+  ).toBeVisible();
+}
+
+/**
+ * Ishaara's open audit findings (docs/DESIGN-AUDIT-PLAN.md), each with the sizes it shows at. Anything else fails
+ * the test; so does a listed bug that no longer shows, so the fix must delete its line here.
+ */
+const ISH_KNOWN: { id: string; re: RegExp; at: string[] }[] = [
+  { id: 'ISH-F10', re: /^ish-setup-teams word broken mid-word/, at: ['360x640'] },
+  { id: 'ISH-F09', re: /^ish-key-clue (target under 44px|scrolls although)/, at: ['360x640'] },
+  { id: 'ISH-F08', re: /^ish-board-confirm primary action: (covered|grid moved)/, at: ['360x640'] },
+  {
+    id: 'ISH-F24',
+    re: /^ish-board-confirm primary action: outside viewport/,
+    at: ['844x390', '740x360'],
+  },
+];
+
+// Ishaara under the same rules: the table and both clue phones at each phone size, setup to the win.
+for (const [w, h] of MATRIX) {
+  const phone = Math.min(w, h) < 500;
+  const device = {
+    viewport: { width: w, height: h },
+    isMobile: phone,
+    hasTouch: true,
+    deviceScaleFactor: phone ? 2 : 1,
+    reducedMotion: 'reduce' as const,
+  };
+  test.describe(`${w}×${h}`, () => {
+    test.use({ ...device, actionTimeout: 5000 });
+    test('Ishaara: setup, board, key and win', async ({ page, browser }) => {
+      test.setTimeout(120_000);
+      const dir = `${OUT}/${w}x${h}/ishaara`;
+      mkdirSync(dir, { recursive: true });
+      const reports: ScreenReport[] = [];
+      const shot = async (on: Page, screen: string, primary?: Locator) => {
+        await settle(on);
+        reports.push(await auditScreen(on, screen, { primary }));
+        await on.screenshot({ path: `${dir}/${screen}.png` });
+      };
+
+      await openIshaara(page, 'admin', { circle: true });
+      await shot(page, 'ish-home', ishBtn(page, 'New game'));
+      await ishBtn(page, 'New game').click();
+      // Landscape hides the step headings, so wait on each step's own controls.
+      await ishBtn(page, 'Add player').click();
+      for (const n of ['Riya', 'Kabir', 'Asha', 'Om', 'Neha']) await seatIsh(page, n);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await shot(page, 'ish-setup-teams', ishBtn(page, 'Next: words'));
+      await ishBtn(page, 'Next: words').click();
+      await expect(ishBtn(page, 'Start game')).toBeVisible();
+      await shot(page, 'ish-setup-words', ishBtn(page, 'Start game'));
+      await page.goto('/ishaara');
+
+      const { phones, t, close } = await readyGame(page, browser, { phone: device });
+      const them = t === 'sun' ? phones.moon : phones.sun;
+      await shot(page, 'ish-board');
+      await phones[t].getByLabel('Your clue · one word').fill('Quasar');
+      await ishBtn(phones[t], '2').click();
+      await shot(phones[t], 'ish-key-clue', ishBtn(phones[t], 'Send QUASAR · 2'));
+      await ishBtn(phones[t], 'Send QUASAR · 2').click();
+      await expect(phones[t].getByText('Your clue: QUASAR · 2')).toBeVisible();
+      await shot(them, 'ish-key-waiting');
+      // Picking a card must not move or resize the grid under the finger.
+      const words = page.getByRole('list', { name: 'Words', exact: true });
+      // By position: a picked card's name changes, so a name-based locator would move to the next card.
+      const card = words.getByRole('button').first();
+      const before = [await words.boundingBox(), await card.boundingBox()];
+      await card.click();
+      await shot(page, 'ish-board-confirm', ishBtn(page, 'Confirm'));
+      const after = [await words.boundingBox(), await card.boundingBox()];
+      const box = (b: { x: number; y: number; width: number; height: number } | null) =>
+        b ? [b.x, b.y, b.width, b.height].map(Math.round).join(',') : 'none';
+      if (before.map(box).join(' ') !== after.map(box).join(' '))
+        reports.push({
+          ...reports[reports.length - 1],
+          screen: 'ish-board-confirm',
+          primary: `grid moved on a pick: ${before.map(box).join(' ')} → ${after.map(box).join(' ')}`,
+          clipped: [],
+          smallTargets: [],
+          brokenWords: [],
+          offscreen: [],
+          pageOverflow: [],
+          offscreenControls: [],
+          overlaps: [],
+          scrolls: [],
+        });
+      await ishBtn(page, 'Menu').click();
+      await ishBtn(page, `${TEAM[t]} resigns`).click();
+      await page.getByRole('alertdialog').getByRole('button', { name: 'Resign' }).click();
+      await expect(page.getByText(`${TEAM[t]} resigned.`)).toBeVisible({ timeout: 10_000 });
+      await shot(page, 'ish-win', ishBtn(page, 'Rematch'));
+      await shot(phones[t], 'ish-key-finished');
+      await close();
+
+      writeFileSync(`${OUT}/${w}x${h}-ishaara.json`, JSON.stringify(reports, null, 1));
+      if (!REPORT_ONLY) {
+        const found = reports.flatMap((r) => violations(r, { width: w, height: h, players: 6 }));
+        const known = (v: string) => ISH_KNOWN.find((k) => k.re.test(v));
+        expect(
+          found.filter((v) => !known(v)),
+          `${w}x${h}, Ishaara`,
+        ).toEqual([]);
+        for (const k of ISH_KNOWN.filter((k) => k.at.includes(`${w}x${h}`))) {
+          test.info().annotations.push({ type: 'known bug', description: k.id });
+          if (!FULL)
+            expect(
+              found.some((v) => k.re.test(v)),
+              `${k.id} no longer shows at ${w}x${h}: delete it from ISH_KNOWN`,
+            ).toBe(true);
+        }
+      }
+    });
+  });
+}
+
+test.describe('Ishaara across the large-screen line', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  test('turning a tablet keeps the setup in progress', async ({ page }) => {
+    test.fail(true, 'ISH-F04: crossing 768px remounts Ishaara and drops what was being done');
+    await openIshaara(page, 'admin', { circle: true });
+    await ishBtn(page, 'New game').click();
+    await ishBtn(page, 'Add player').click();
+    await seatIsh(page, 'Riya');
+    await page.keyboard.press('Escape');
+    const riya = page.getByRole('button', { name: /^Riya\b.*move to/ });
+    await expect(riya).toBeVisible();
+    // Resize, then let the layout query flip and React render before looking again.
+    const turn = async (width: number, height: number, big: boolean) => {
+      await page.setViewportSize({ width, height });
+      await page.waitForFunction(
+        (b) => matchMedia('(min-width: 768px) and (min-height: 501px)').matches === b,
+        big,
+      );
+      await page.waitForTimeout(400);
+      await expect(riya).toBeVisible();
+    };
+    await turn(1024, 768, true);
+    await turn(390, 844, false);
+  });
+});

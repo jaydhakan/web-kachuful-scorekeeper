@@ -32,6 +32,17 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 - **Ask Jay:** should Wrapped's rank count up from 0 (it counts down from the field size)? Should the deal's closing
   part be trimmed (it runs about 3.2s, 3.9s on Emerald Gilt, 4s on the last round)?
 
+## Tests
+
+- **Kachuful's theme-layout test never loads the other themes' stylesheets.** `themes.spec.ts` "every theme lays
+  the bidding screen out identically" only sets `data-theme`, so Yerba Sun, Editorial Paper and Emerald Gilt are
+  measured without their own rules and faces. Switch it to `showTheme` (as the Ishaara test does) and expect width
+  slack for pills sized by their label.
+- **Broken-word check covers Ishaara only** (`e2e/audit-rules.ts`). Extend it to every screen once KF-F01 and
+  KT-F03 (names broken mid-word) are fixed.
+- **Ishaara's known bugs are listed in the specs** (`ISH_KNOWN` in `responsive.spec.ts` and `targets.spec.ts`,
+  `test.fail` for ISH-F04 and PL-F02, the Yerba Sun excuse in `themes.spec.ts`). Each fix deletes its entry.
+
 ## Repo
 
 - **The installed app is portrait-only** (`orientation: 'portrait'` in the manifest in `vite.config.ts`) although

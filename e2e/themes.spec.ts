@@ -1,6 +1,17 @@
 import { expect, test, type Page } from '@playwright/test';
 import { openSeeded, seedGame } from './fixtures';
 import { NAMES7, btn, toSetup3 } from './helpers';
+import {
+  boardWaitsFor,
+  GIVER,
+  ishBtn,
+  openFromHome,
+  openIshaara,
+  other,
+  readyGame,
+  showKey,
+  TEAM,
+} from './ishaara-helpers';
 
 // DESIGN-SYSTEM.md, Switching themes: themes change paint, never geometry, and switching mid-game touches no state.
 const THEMES = ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gilt'] as const;
@@ -169,4 +180,172 @@ test('only the shown theme’s stylesheet is downloaded, linked before the first
     ),
   );
   expect(order.slice(0, 2)).toEqual(['main', 'yerba-sun']);
+});
+
+/**
+ * Shows a theme the way the app does: the cached choice plus a reload, so the boot script links the theme's own
+ * stylesheet (setting data-theme alone leaves its rules out). Signed in, the server's appearance would override
+ * the cache, so it answers with the same theme.
+ */
+const themeHref = new Map<string, string>();
+async function showTheme(page: Page, id: string) {
+  await page.route('**/api/settings/appearance', (r) =>
+    r.fulfill({ json: { theme: id, allowUserOverride: false, updatedAt: null, updatedBy: null } }),
+  );
+  await page.evaluate((t) => localStorage.setItem('kf.theme', t), id);
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', id);
+  if (id !== 'sunset-glass')
+    await page.waitForFunction(
+      (t) => !!document.querySelector<HTMLLinkElement>(`link[data-theme-css="${t}"]`)?.sheet,
+      id,
+    );
+  const href = await page.evaluate(
+    (t) => document.querySelector(`link[data-theme-css="${t}"]`)?.getAttribute('href'),
+    id,
+  );
+  if (href) themeHref.set(id, href);
+  await page.waitForTimeout(400);
+}
+
+/** Switches theme in place, as the app's switcher does: the theme's stylesheet first, then data-theme. */
+async function switchTheme(page: Page, id: string) {
+  await page.evaluate(
+    async ([t, href]) => {
+      if (href && !document.querySelector(`link[data-theme-css="${t}"]`)) {
+        const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href });
+        link.dataset.themeCss = t;
+        await new Promise((ok) => {
+          link.onload = ok;
+          document.head.append(link);
+        });
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    },
+    [id, themeHref.get(id) ?? ''] as const,
+  );
+  await page.waitForTimeout(400);
+}
+
+/** Lowest contrast between an element's text and any colour in its background (a gradient's stops included). */
+const labelContrast = (page: Page, sel: string) =>
+  page.evaluate((sel) => {
+    const el = document.querySelector(sel)!;
+    const cs = getComputedStyle(el);
+    const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+    const rgb = (c: string) => {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = c;
+      ctx.fillRect(0, 0, 1, 1);
+      return [...ctx.getImageData(0, 0, 1, 1).data];
+    };
+    const lum = ([r, g, b]: number[]) =>
+      [r, g, b]
+        .map((v) => v / 255)
+        .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+        .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const stops =
+      cs.backgroundImage.match(/(rgba?|color|oklch|oklab|hsla?)\([^)]*\)|#[0-9a-f]{3,8}/gi) ?? [];
+    const bgs = [cs.backgroundColor, ...stops].map(rgb).filter((c) => c[3] > 0);
+    const fg = lum(rgb(cs.color));
+    return Math.min(
+      ...bgs.map((b) => {
+        const [hi, lo] = [Math.max(fg, lum(b)), Math.min(fg, lum(b))];
+        return (hi + 0.05) / (lo + 0.05);
+      }),
+    );
+  }, sel);
+
+for (const id of THEMES)
+  test(`${id}: Ishaara's sign-in gate shows its Sign in label`, async ({ page }) => {
+    test.fail(id === 'editorial-paper', 'PL-F02: ink label on an ink pill in Editorial Paper');
+    await page.goto('/ishaara');
+    await showTheme(page, id);
+    const link = page.getByRole('link', { name: 'Sign in' });
+    await expect(link).toBeVisible();
+    await link.evaluate((el) => el.setAttribute('data-probe', ''));
+    expect(await labelContrast(page, '[data-probe]')).toBeGreaterThanOrEqual(3);
+  });
+
+test('every theme lays out Ishaara’s setup, board, key and win identically', async ({
+  page,
+  browser,
+}) => {
+  test.setTimeout(150_000);
+  const phone = { viewport: { width: 360, height: 780 }, hasTouch: true, isMobile: true };
+  await openIshaara(page, 'admin');
+  const { phones, t, close } = await readyGame(page, browser, {
+    phone: { ...phone, reducedMotion: 'reduce' },
+  });
+  const key = phones[t];
+  const layouts: Record<string, string[]> = {};
+  const each = async (screen: string, open: (theme: string) => Promise<void>) => {
+    for (const id of THEMES) {
+      await open(id);
+      const on = screen === 'key' ? key : page;
+      await on.waitForTimeout(500);
+      // Measured in the theme's own faces: a fallback font lays text out differently.
+      await on.evaluate(() => document.fonts.ready.then(() => {}));
+      layouts[`${id} ${screen}`] = await boxes(on);
+    }
+  };
+
+  await each('setup', async (id) => {
+    await page.goto('/ishaara');
+    await showTheme(page, id);
+    await ishBtn(page, 'New game').click();
+    await expect(page.getByRole('heading', { name: 'Teams' })).toBeVisible();
+  });
+  await each('board', async (id) => {
+    await page.goto('/ishaara');
+    await showTheme(page, id);
+    await openFromHome(page);
+    await boardWaitsFor(page, t, GIVER[t]);
+  });
+  await each('key', async (id) => {
+    await showTheme(key, id);
+    await showKey(key);
+  });
+  await ishBtn(page, 'Menu').click();
+  await ishBtn(page, `${TEAM[t]} resigns`).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Resign' }).click();
+  await expect(page.getByText(`${TEAM[t]} resigned.`)).toBeVisible({ timeout: 10_000 });
+  // A finished game leaves Home, so the win is themed in place rather than reopened.
+  await each('win', async (id) => {
+    await switchTheme(page, id);
+    await expect(page.getByRole('heading', { name: `${TEAM[other(t)]} wins` })).toBeVisible();
+  });
+  await close();
+
+  // Each theme loads its own faces, so a pill sized by its label may differ in width (within 15%); heights match
+  // exactly, and positions stay within 2px plus what a wider neighbour pushes sideways.
+  const parse = (b: string[]) =>
+    b.map((s) => {
+      const m = /^(.*) (-?\d+),(-?\d+) (\d+)x(\d+)$/.exec(s)!;
+      return { id: m[1], x: +m[2], y: +m[3], w: +m[4], h: +m[5] };
+    });
+  const moved: string[] = [];
+  for (const screen of ['setup', 'board', 'key', 'win']) {
+    const want = parse(layouts[`${THEMES[0]} ${screen}`]);
+    expect(want.length, screen).toBeGreaterThan(2);
+    for (const id of THEMES.slice(1)) {
+      const got = parse(layouts[`${id} ${screen}`]);
+      expect(
+        got.map((g) => g.id),
+        `${id} ${screen}`,
+      ).toEqual(want.map((w) => w.id));
+      got.forEach((g, i) => {
+        const w = want[i];
+        const at = `${id} ${screen} ${g.id}`;
+        if (g.h !== w.h) moved.push(`${at} height ${w.h}→${g.h}`);
+        if (Math.abs(g.w - w.w) > w.w * 0.15) moved.push(`${at} width ${w.w}→${g.w}`);
+        if (Math.abs(g.y - w.y) > 2) moved.push(`${at} y ${w.y}→${g.y}`);
+        if (Math.abs(g.x - w.x) > 2 + w.w * 0.15) moved.push(`${at} x ${w.x}→${g.x}`);
+      });
+    }
+  }
+  // Open finding (ISH-F17): the clue phone's status line can wrap in Yerba Sun's wider face and push the key down.
+  // It depends on which team starts, so it is excused here, not required; delete this once the line is fixed.
+  const known = /^yerba-sun key .* y \d+→\d+$/;
+  expect(moved.filter((m) => !known.test(m))).toEqual([]);
 });
