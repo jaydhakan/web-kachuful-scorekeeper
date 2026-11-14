@@ -85,8 +85,23 @@ function Key({
   );
 }
 
-const Label = ({ children, first }: { children: ReactNode; first?: boolean }) => (
-  <h3 className={`mono-label mb-2 px-1 text-12 text-[var(--accent-tx)] ${first ? '' : 'mt-4'}`}>
+// Dense: the groups keep their names for screen readers, and the keys get the height back.
+const Label = ({
+  children,
+  first,
+  dense,
+}: {
+  children: ReactNode;
+  first?: boolean;
+  dense?: boolean;
+}) => (
+  <h3
+    className={
+      dense
+        ? 'sr-only'
+        : `mono-label mb-2 px-1 text-12 text-[var(--accent-tx)] ${first ? '' : 'mt-4'}`
+    }
+  >
     {children}
   </h3>
 );
@@ -100,10 +115,12 @@ interface CardGridProps {
   onDraft: (d: Draft) => void;
   /** Why a tapped option can't be used, for the status line; null clears it. */
   onWhy: (why: string | null) => void;
+  /** Short panes (a phone on its side, the desk): one compact block of keys. */
+  dense?: boolean;
 }
 
 /** Rank, then suit, then (both copies in play) which copy: every option the rules rule out is disabled with a reason. */
-export function CardGrid({ uid, n, called, draft, onDraft, onWhy }: CardGridProps) {
+export function CardGrid({ uid, n, called, draft, onDraft, onWhy, dense }: CardGridProps) {
   const opt = draft.rank && draft.suit ? cardOption(draft.rank, draft.suit, called, n) : null;
   const pick = (d: Draft) => {
     onWhy(null);
@@ -119,7 +136,9 @@ export function CardGrid({ uid, n, called, draft, onDraft, onWhy }: CardGridProp
   };
   return (
     <div>
-      <Label first>{s.rank}</Label>
+      <Label first dense={dense}>
+        {s.rank}
+      </Label>
       <div role="group" aria-label={s.rank} className="grid grid-cols-7 gap-1.5">
         {RANKS.map((r) => {
           const why = draft.suit
@@ -143,8 +162,12 @@ export function CardGrid({ uid, n, called, draft, onDraft, onWhy }: CardGridProp
           );
         })}
       </div>
-      <Label>{s.suit}</Label>
-      <div role="group" aria-label={s.suit} className="grid grid-cols-4 gap-2">
+      <Label dense={dense}>{s.suit}</Label>
+      <div
+        role="group"
+        aria-label={s.suit}
+        className={`grid grid-cols-4 ${dense ? 'mt-1.5 gap-1.5' : 'gap-2'}`}
+      >
         {SUITS.map((st) => {
           const why = draft.rank
             ? whyCard(draft.rank, st)
@@ -162,7 +185,7 @@ export function CardGrid({ uid, n, called, draft, onDraft, onWhy }: CardGridProp
               layoutId={uid + 'suit'}
               onPick={() => pick({ ...draft, suit: st, copy: null })}
               onRefuse={onWhy}
-              className="min-h-14 text-28 leading-none"
+              className={`${dense ? '' : 'min-h-14'} text-28 leading-none`}
             >
               <span aria-hidden style={{ color: suitColor(st, on) }}>
                 {TR[st].sym}
@@ -173,8 +196,12 @@ export function CardGrid({ uid, n, called, draft, onDraft, onWhy }: CardGridProp
       </div>
       {opt?.needsCopy && !opt.why && (
         <>
-          <Label>{s.copy}</Label>
-          <div role="group" aria-label={s.copy} className="grid grid-cols-3 gap-2">
+          <Label dense={dense}>{s.copy}</Label>
+          <div
+            role="group"
+            aria-label={s.copy}
+            className={`grid grid-cols-3 gap-2 ${dense ? 'mt-1.5' : ''}`}
+          >
             {COPIES.map((c) => {
               const off = !opt.copies.includes(c);
               return (
