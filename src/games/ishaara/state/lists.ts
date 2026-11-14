@@ -51,6 +51,7 @@ export function summaryOfCached(r: IshaaraGameRec, myPlayerId: string | null): I
       role: p.role,
     })),
     myTeam: mine?.team ?? null,
+    isHost: !!r.host,
   };
 }
 

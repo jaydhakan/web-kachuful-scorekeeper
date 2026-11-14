@@ -349,6 +349,7 @@ const summary: IshaaraSummaryOut = {
   host: { name: 'Jay' },
   players: G.players.map((p) => ({ ...p, playerId: p.playerId ?? '' })),
   myTeam: 'sun',
+  isHost: false,
 };
 
 describe('Your games', () => {
