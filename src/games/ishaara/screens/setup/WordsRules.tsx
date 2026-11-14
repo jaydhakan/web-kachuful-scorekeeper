@@ -11,27 +11,29 @@ const su = s.setup;
 type Timer = 'off' | '60' | '120' | '180';
 
 const Label = ({ id, children }: { id?: string; children: string }) => (
-  <h2 id={id} className="mono-label mb-2 mt-6 text-13 text-[var(--accent-tx)] first:mt-0">
+  <h2 id={id} className="mono-label mb-2 text-13 text-[var(--accent-tx)]">
     {children}
   </h2>
 );
 
-/** Setup step 2: packs, custom words, the turn timer, typed or spoken clues, one game or best of three. */
-export function WordsRules({ draft, patch }: { draft: Draft; patch: (p: Partial<Draft>) => void }) {
+interface StepProps {
+  draft: Draft;
+  patch: (p: Partial<Draft>) => void;
+}
+
+/** Setup step 2, the words: packs and custom words. The rules are `WordsRulesSide`. */
+export function WordsRules({ draft, patch }: StepProps) {
   const customId = useId(),
     countId = useId(),
     packsId = useId();
   const typed = splitCustom(draft.custom);
   const good = cleanCustom(typed);
   const skipped = typed.length - good.length;
-  const rules = draft.rules;
-  const setRules = (r: Partial<Draft['rules']>) => patch({ rules: { ...rules, ...r } });
-  const timer: Timer = rules.timerSec === null ? 'off' : (String(rules.timerSec) as Timer);
   return (
-    <>
+    <div className="space-y-6 @container">
       <m.section {...stagger(0)} aria-labelledby={packsId}>
         <Label id={packsId}>{su.packs}</Label>
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5 @[34rem]:grid-cols-4">
           {PACK_IDS.map((id) => {
             const on = draft.packs.includes(id);
             return (
@@ -51,7 +53,7 @@ export function WordsRules({ draft, patch }: { draft: Draft; patch: (p: Partial<
                 />
                 <span
                   aria-hidden
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg [&_svg]:h-5 [&_svg]:w-5 ${on ? 'bg-team-sun text-team-sun-ink' : 'bg-word-card shadow-[inset_0_0_0_2px_var(--hairline-2)]'}`}
+                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg [&_svg]:h-5 [&_svg]:w-5 ${on ? 'bg-[var(--accent)] text-ink-on-accent' : 'bg-word-card shadow-[inset_0_0_0_2px_var(--hairline-2)]'}`}
                 >
                   {on && Icon.check}
                 </span>
@@ -87,7 +89,17 @@ export function WordsRules({ draft, patch }: { draft: Draft; patch: (p: Partial<
           </p>
         </div>
       </m.section>
+    </div>
+  );
+}
 
+/** Setup step 2, the rules: the turn timer, typed or spoken clues, one game or best of three. */
+export function WordsRulesSide({ draft, patch }: StepProps) {
+  const rules = draft.rules;
+  const setRules = (r: Partial<Draft['rules']>) => patch({ rules: { ...rules, ...r } });
+  const timer: Timer = rules.timerSec === null ? 'off' : (String(rules.timerSec) as Timer);
+  return (
+    <div className="mt-6 space-y-6 pane:mt-0">
       <m.section {...stagger(2)}>
         <Label>{su.timer}</Label>
         <Seg<Timer>
@@ -139,6 +151,6 @@ export function WordsRules({ draft, patch }: { draft: Draft; patch: (p: Partial<
           className="flex w-full [&>button]:flex-1"
         />
       </m.section>
-    </>
+    </div>
   );
 }

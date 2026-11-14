@@ -100,6 +100,9 @@ export const table = {
       clueGiverAccount: 'A clue-giver isn’t linked to an account. Pick someone else.',
       generic: 'Couldn’t start the game. Try again.',
     },
+    givesClues: 'Gives clues',
+    makeGiver: 'Make clue-giver',
+    noAccountChip: 'No account',
   },
 
   invite: {

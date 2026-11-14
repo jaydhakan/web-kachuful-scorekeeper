@@ -29,7 +29,8 @@ describe('Ishaara’s shell', () => {
     show({ screen: 'home', gameId: null, role: 'table' });
     expect(screen.getByRole('heading', { name: 'Ishaara' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'New game' }));
-    expect(await screen.findByRole('heading', { name: 'Teams' })).toBeInTheDocument();
+    // Setup's title is drawn twice (one-column and two-pane); jsdom applies no CSS to hide either.
+    expect(await screen.findAllByRole('heading', { name: 'Teams' })).not.toHaveLength(0);
   });
 
   it('opens a game on the screen for its status: waiting, then the board', async () => {

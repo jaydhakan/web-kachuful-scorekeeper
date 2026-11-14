@@ -11,11 +11,46 @@ import { onTeam, TEAMS, type AccountOf } from './teamRules';
 
 const su = s.setup;
 
-// A real radio, drawn as the design's ring: the team's colour inside when picked.
-const RADIO: Record<Team, string> = {
-  sun: 'checked:bg-team-sun',
-  moon: 'checked:bg-team-moon',
+// The arrow points at the other team: down or up while the teams are stacked, sideways once they sit side by side.
+const TOWARD: Record<Team, string> = {
+  sun: 'rotate-90 @[40rem]:rotate-0',
+  moon: '-rotate-90 @[40rem]:rotate-180',
 };
+
+/**
+ * Who gives the clues, as a labelled chip around a real radio: filled in the team's colour when on, outlined when it
+ * can be chosen, "No account" when it can't. The radio keeps the spoken name ("Kabir gives the clues").
+ */
+function GiverChip({ p, linked, onPick }: { p: Seated; linked: boolean; onPick: () => void }) {
+  const on = p.role === 'clue-giver';
+  const look = !linked
+    ? 'font-semibold text-[var(--tx2)]'
+    : on
+      ? `font-bold ${TEAM_FILL[p.team]}`
+      : 'mat-fill-s font-bold shadow-[inset_0_0_0_1.5px_var(--hairline-2)]';
+  return (
+    <label
+      className={`relative flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-15 leading-tight has-[:focus-visible]:outline has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${look}`}
+    >
+      {/* Invisible but covering the chip, so a tap lands on the radio itself. */}
+      <input
+        type="radio"
+        name={`ish-giver-${p.team}`}
+        checked={on}
+        disabled={!linked}
+        onChange={onPick}
+        aria-label={su.makeClueGiver(p.name)}
+        className="absolute inset-0 m-0 cursor-pointer appearance-none rounded-full opacity-0 checked:cursor-default disabled:cursor-default"
+      />
+      {on && (
+        <span aria-hidden className="[&_svg]:h-4 [&_svg]:w-4">
+          {Icon.check}
+        </span>
+      )}
+      <span aria-hidden>{!linked ? su.noAccountChip : on ? su.givesClues : su.makeGiver}</span>
+    </label>
+  );
+}
 
 function Row({
   p,
@@ -33,7 +68,8 @@ function Row({
   const name = me ? su.you(p.name) : p.name;
   const role = p.role === 'clue-giver' ? su.clueGiver : su.guesser;
   return (
-    <li className="flex min-h-16 items-center gap-1 pr-1">
+    // The chip drops under the name when both don't fit on one line, so the name keeps its width.
+    <li className="flex min-h-14 flex-wrap items-center justify-end gap-x-2 pb-1 pr-2.5">
       <m.button
         type="button"
         whileTap={PRESS}
@@ -42,39 +78,23 @@ function Row({
         className="flex min-h-14 min-w-0 flex-1 items-center gap-2.5 rounded-2xl py-1.5 pl-3 text-left"
       >
         <Avatar p={p} className="h-10 w-10 shrink-0 text-20" />
-        <span className="min-w-0">
-          <span className="block text-17 font-bold leading-tight [overflow-wrap:anywhere]">
-            {name}
-          </span>
-          <span className="block text-15 leading-tight text-[var(--tx2)]">{role}</span>
+        {/* Breaks only between words, unless one word is wider than the whole row. */}
+        <span className="min-w-0 text-17 font-bold leading-tight [overflow-wrap:break-word]">
+          {name}
+        </span>
+        <span
+          aria-hidden
+          className={`ml-auto shrink-0 text-[var(--tx2)] [&_svg]:h-4 [&_svg]:w-4 ${TOWARD[p.team]}`}
+        >
+          {Icon.arrow}
         </span>
       </m.button>
-      <label className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center">
-        <span className="sr-only">{su.makeClueGiver(p.name)}</span>
-        <input
-          type="radio"
-          name={`ish-giver-${p.team}`}
-          checked={p.role === 'clue-giver'}
-          disabled={!linked}
-          onChange={onPick}
-          className={`h-7 w-7 cursor-pointer appearance-none rounded-full bg-word-card shadow-[inset_0_0_0_2px_var(--hairline-2)] checked:shadow-[inset_0_0_0_2px_var(--hairline-2),inset_0_0_0_6px_var(--word-card)] disabled:cursor-default disabled:opacity-35 ${RADIO[p.team]}`}
-        />
-      </label>
+      <GiverChip p={p} linked={linked} onPick={onPick} />
     </li>
   );
 }
 
-/** Setup step 1: Sun and Moon side by side, each with its clue-giver; who can't give clues, and Invite. */
-export function Teams({
-  players,
-  accountOf,
-  myPlayerId,
-  onMove,
-  onPick,
-  onInvite,
-  onShuffle,
-  onAdd,
-}: {
+export interface TeamsProps {
   players: Seated[];
   accountOf: AccountOf;
   myPlayerId: string | null;
@@ -83,14 +103,22 @@ export function Teams({
   onInvite: (p: Seated) => void;
   onShuffle: () => void;
   onAdd: () => void;
-}) {
-  const unlinked = players.filter((p) => !accountOf(p));
+}
+
+/**
+ * Setup step 1: Sun and Moon, each with its clue-giver. Stacked while a column can't hold a name beside its chip,
+ * side by side once it can. The rest of the step (who can't give clues, Shuffle, Add) is `TeamsSide`.
+ */
+export function Teams({ players, accountOf, myPlayerId, onMove, onPick }: TeamsProps) {
   return (
-    <>
+    <div className="@container">
       <m.p {...stagger(0)} className="text-17 leading-snug text-[var(--tx2)]">
         {su.teamsHint}
       </m.p>
-      <m.div {...stagger(1)} className="mt-4 grid grid-cols-2 gap-3">
+      <m.div
+        {...stagger(1)}
+        className="mt-4 grid grid-cols-1 items-start gap-3 @[40rem]:grid-cols-2"
+      >
         {TEAMS.map((t) => {
           const list = onTeam(players, t);
           return (
@@ -101,7 +129,7 @@ export function Teams({
             >
               <h2
                 id={`ish-team-${t}`}
-                className={`flex min-h-14 items-center gap-2.5 px-4 text-22 font-extrabold ${TEAM_FILL[t]}`}
+                className={`flex min-h-12 items-center gap-2.5 px-4 text-22 font-extrabold ${TEAM_FILL[t]}`}
               >
                 <Mark id={t} className="h-5 w-5" />
                 {s.team[t]}
@@ -127,8 +155,17 @@ export function Teams({
           );
         })}
       </m.div>
+    </div>
+  );
+}
+
+/** Setup step 1's other half: players who can't give clues (with Invite), Shuffle and Add player. */
+export function TeamsSide({ players, accountOf, onInvite, onShuffle, onAdd }: TeamsProps) {
+  const unlinked = players.filter((p) => !accountOf(p));
+  return (
+    <div className="mt-3 pane:mt-0">
       {unlinked.length > 0 && (
-        <m.ul {...stagger(2)} className="glass mt-3 overflow-hidden">
+        <m.ul {...stagger(2)} className="glass mb-3 overflow-hidden">
           {unlinked.map((p, k) => (
             <li key={p.id} className="relative flex min-h-[4.5rem] items-center gap-3 px-4 py-3">
               {k > 0 && (
@@ -154,7 +191,7 @@ export function Teams({
           ))}
         </m.ul>
       )}
-      <m.div {...stagger(3)} className="mt-3 grid grid-cols-2 gap-3">
+      <m.div {...stagger(3)} className="grid grid-cols-2 gap-3">
         <PrimaryButton
           tone="glass"
           onClick={onShuffle}
@@ -173,6 +210,6 @@ export function Teams({
           {su.addPlayer}
         </PrimaryButton>
       </m.div>
-    </>
+    </div>
   );
 }

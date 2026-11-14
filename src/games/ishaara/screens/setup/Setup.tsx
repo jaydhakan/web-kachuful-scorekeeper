@@ -25,9 +25,9 @@ import {
   teamsProblem,
   type AccountOf,
 } from './teamRules';
-import { Teams } from './Teams';
+import { Teams, TeamsSide, type TeamsProps } from './Teams';
 import { useAccountOf, useDraft, splitCustom, type Draft } from './useDraft';
-import { WordsRules } from './WordsRules';
+import { WordsRules, WordsRulesSide } from './WordsRules';
 
 const su = s.setup;
 
@@ -128,11 +128,25 @@ export default function Setup() {
   };
 
   const why = step === 1 ? teamsProblem(players, accountOf) : wordsProblem(draft);
+  const teams: TeamsProps = {
+    players,
+    accountOf,
+    myPlayerId: session?.user.playerId ?? null,
+    onMove: (id) => setPlayers((ps) => moveSeat(ps, id, accountOf)),
+    onPick: (id) => setPlayers((ps) => pickClueGiver(ps, id, accountOf)),
+    onInvite: (p) => setSheet(p),
+    onShuffle: () => setPlayers((ps) => shuffleTeams(ps, accountOf)),
+    onAdd: () => setSheet('players'),
+  };
   return (
     <>
       <SetupFrame
         step={step}
         title={step === 1 ? su.teamsTitle : su.wordsTitle}
+        // Two panes from a phone on its side up: the step's choices in the main pane, the rest beside the bar.
+        aside={
+          step === 1 ? <TeamsSide {...teams} /> : <WordsRulesSide draft={draft} patch={patch} />
+        }
         onBack={() => (step === 1 ? actions.go('home') : setStep(1))}
         backLabel={su.back}
         stepLabel={su.stepOf(step)}
@@ -155,20 +169,7 @@ export default function Setup() {
           </div>
         }
       >
-        {step === 1 ? (
-          <Teams
-            players={players}
-            accountOf={accountOf}
-            myPlayerId={session?.user.playerId ?? null}
-            onMove={(id) => setPlayers((ps) => moveSeat(ps, id, accountOf))}
-            onPick={(id) => setPlayers((ps) => pickClueGiver(ps, id, accountOf))}
-            onInvite={(p) => setSheet(p)}
-            onShuffle={() => setPlayers((ps) => shuffleTeams(ps, accountOf))}
-            onAdd={() => setSheet('players')}
-          />
-        ) : (
-          <WordsRules draft={draft} patch={patch} />
-        )}
+        {step === 1 ? <Teams {...teams} /> : <WordsRules draft={draft} patch={patch} />}
       </SetupFrame>
       <AnimatePresence>
         {sheet === 'players' && (
