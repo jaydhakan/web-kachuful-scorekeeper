@@ -1,5 +1,5 @@
 import './ishaara.css';
-import { lazy, Suspense, type MouseEvent, type ReactNode } from 'react';
+import { lazy, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { go } from '@/platform/route';
@@ -10,8 +10,8 @@ import { IshaaraProvider, useIshaara } from './state/store';
 import { useOnline } from './state/useTable';
 import { shell } from './strings/shell';
 
-// Only tablets and desktops download the large-screen shell; the phone shell stays in the first load.
-const IshaaraDeskShell = lazy(() => import('./screens/desk/IshaaraDeskShell'));
+// Only tablets and desktops download the large-screen board; the phone shell stays in the first load.
+const DeskBoard = lazy(() => import('./screens/desk/DeskBoard'));
 
 function Gate({ title, body, children }: { title: string; body: string; children: ReactNode }) {
   return (
@@ -44,13 +44,8 @@ function Root() {
         <PrimaryButton onClick={() => actions.go('history')}>{shell.offline.history}</PrimaryButton>
       </Gate>
     );
-  return big ? (
-    <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
-      <IshaaraDeskShell />
-    </Suspense>
-  ) : (
-    <IshaaraShell />
-  );
+  // One shell at every size, so crossing MQ.big swaps only the board and keeps setup, the key and any page open.
+  return big ? <IshaaraShell board={DeskBoard} desk /> : <IshaaraShell />;
 }
 
 /** Ishaara's lazy root: signed in and online only, since the server runs the game. */
