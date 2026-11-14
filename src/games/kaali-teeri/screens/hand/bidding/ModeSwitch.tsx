@@ -22,7 +22,8 @@ export function ModeSwitch() {
     >
       <span className="flex min-w-0 flex-col">
         <span className="text-16 font-bold tracking-[-0.01em]">{s.quick}</span>
-        <span className="text-14 leading-5 text-[var(--tx2)]">
+        {/* On a phone on its side the bidding bar needs the height; the label alone says what it is. */}
+        <span className="text-14 leading-5 text-[var(--tx2)] land:hidden">
           {quick ? s.quickHint : s.auctionHint}
         </span>
       </span>
