@@ -19,7 +19,8 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/games/kachuful/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
-import { readEntryLink } from '@/lib/entry';
+import { readEntryLink, returnTo } from '@/lib/entry';
+import { go as goTo } from '@/platform/route';
 import {
   KEYS,
   loadInitial,
@@ -268,6 +269,12 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   const actions = useMemo<Actions>(() => {
     // Screen changes mount a lot of UI; as transitions React renders them in small slices and stays interruptible.
     const nav = (a: Action) => startTransition(() => dispatch(a));
+    // An account page opened from another game or the landing page returns there once nothing is left above it.
+    const leave = (r: Route | undefined) => {
+      const to = r && returnTo(r);
+      if (to) goTo(to === 'landing' ? null : to);
+      return !!to;
+    };
     return {
       go: (screen, dir) => nav({ type: 'go', screen, dir }),
       startSetup: () => {
@@ -335,8 +342,15 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       dismissToast: () => dispatch({ type: 'toastDone' }),
       vib,
       open: (route) => nav({ type: 'navPush', route }),
-      back: () => nav({ type: 'navPop' }),
-      navReset: (routes) => nav({ type: 'navReset', routes }),
+      back: () => {
+        const open = ref.current.nav;
+        if (open.length === 1 && leave(open[0])) return;
+        nav({ type: 'navPop' });
+      },
+      navReset: (routes) => {
+        if (!routes?.length && leave(ref.current.nav[0])) return;
+        nav({ type: 'navReset', routes });
+      },
       openGame: (game) => nav({ type: 'openGame', game }),
       setSession: (session) => dispatch({ type: 'session', session }),
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
