@@ -55,6 +55,7 @@ export function Modal({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={textId}
+        aria-describedby={body ? textId + '-b' : undefined}
         tabIndex={-1}
         initial={rm ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
         animate={rm ? { opacity: 1 } : { opacity: 1, scale: 1 }}
@@ -65,7 +66,11 @@ export function Modal({
         <p id={textId} className="mb-5 text-19 font-medium leading-snug tracking-[-0.012em]">
           {text}
         </p>
-        {body && <p className="-mt-3 mb-5 text-15 text-[var(--tx2)]">{body}</p>}
+        {body && (
+          <p id={textId + '-b'} className="-mt-3 mb-5 text-15 text-[var(--tx2)]">
+            {body}
+          </p>
+        )}
         {alt ? (
           <div className="flex flex-col gap-2.5">
             <PrimaryButton onClick={onOk} className="!h-[52px] !text-16">
