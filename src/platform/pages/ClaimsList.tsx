@@ -4,6 +4,7 @@ import type { Claim } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
 import { useApp } from '@/games/kachuful/state/store';
 import { authError } from './AuthPages';
+import { InlineError } from './InlineError';
 import { t } from '@/strings';
 
 const c = t.hub.claims;
@@ -16,14 +17,17 @@ export function useClaims(signedIn: boolean) {
 export function ClaimsList({ items, onDone }: { items: Claim[]; onDone: () => void }) {
   const { actions } = useApp();
   const [busy, setBusy] = useState<string | null>(null);
+  // A failure stays on its own row, where the tap was, instead of a passing toast.
+  const [err, setErr] = useState<{ id: string; msg: string } | null>(null);
   const decide = async (cl: Claim, yes: boolean) => {
     setBusy(cl.id);
+    setErr(null);
     try {
       await (yes ? ep.approveClaim(cl.id) : ep.rejectClaim(cl.id));
       actions.say(yes ? c.approved(cl.claimant.displayName) : c.rejected);
       onDone();
     } catch (e) {
-      actions.say(authError(e));
+      setErr({ id: cl.id, msg: authError(e) });
     } finally {
       setBusy(null);
     }
@@ -51,6 +55,7 @@ export function ClaimsList({ items, onDone }: { items: Claim[]; onDone: () => vo
           >
             {c.reject}
           </button>
+          {err?.id === cl.id && <InlineError msg={err.msg} className="basis-full" />}
         </li>
       ))}
     </ul>
