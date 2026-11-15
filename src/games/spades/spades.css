@@ -1,0 +1,18 @@
+/* Spades' utilities only; the site's sheet (styles/index.css) has the tokens, base and everything shared. */
+@config '../../../tailwind.spades.config.ts';
+@tailwind utilities;
+
+/* The join field's caret: blinks in opacity only, and holds still under reduced motion. */
+.sp-caret {
+  animation: sp-blink 1.06s steps(2, jump-none) infinite;
+}
+@keyframes sp-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-caret {
+    animation: none;
+  }
+}
