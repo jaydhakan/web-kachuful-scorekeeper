@@ -66,6 +66,12 @@ import {
   resetIshaara,
 } from './ishaara';
 import { inviteSeat, registerSeatKind, resetSeatInvites, seatInviteRoutes } from './seatInvites';
+import {
+  resetSpadesOnline,
+  spadesOnlineRoutes,
+  spadesSeatings,
+  spadesSeatKind,
+} from './spadesOnline';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -276,6 +282,7 @@ export function seed(now = Date.now()) {
   db.activity.sort((a, b) => b.createdAt - a.createdAt);
   resetIshaara(now);
   resetSeatInvites();
+  resetSpadesOnline();
 }
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
@@ -1976,6 +1983,17 @@ registerSeatKind('ishaara', {
   partner: () => null,
 });
 
+spadesOnlineRoutes({
+  on,
+  err,
+  STREAM,
+  RAW,
+  players: () => [...db.players.values()],
+  photoUrl,
+  page,
+});
+registerSeatKind('spades-online', spadesSeatKind);
+
 seatInviteRoutes({
   on,
   err,
@@ -1993,6 +2011,7 @@ seatInviteRoutes({
       at: g.updatedAt,
     })),
     ...ishaaraSeatings(),
+    ...spadesSeatings(),
   ],
 });
 
