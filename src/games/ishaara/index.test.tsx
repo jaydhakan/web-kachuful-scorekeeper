@@ -23,7 +23,7 @@ describe('Ishaara’s gates', () => {
     expect(screen.getByRole('heading', { name: 'Sign in to play' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
       'href',
-      '/kachuful?open=signin',
+      '/kachuful?open=signin&from=ishaara',
     );
     // The primary button's materials, so each theme paints its own label colour on it (PL-F02).
     expect(screen.getByRole('link', { name: 'Sign in' })).toHaveClass(

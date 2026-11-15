@@ -74,7 +74,7 @@ describe('Landing, after the design audit', () => {
     setSession({ ...SESSION, stale: true });
     render(<Landing />);
     const chip = screen.getByRole('link', { name: 'Your session ended. Sign in again' });
-    expect(chip).toHaveAttribute('href', '/kachuful?open=signin');
+    expect(chip).toHaveAttribute('href', '/kachuful?open=signin&from=landing');
   });
 
   it('signed in, the chip never shows an email address', () => {

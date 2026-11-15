@@ -7,7 +7,7 @@ describe('Landing, a game for signed-in players', () => {
     render(<Landing />);
     expect(screen.getByRole('link', { name: /^Ishaara.*Sign in to play$/ })).toHaveAttribute(
       'href',
-      '/kachuful?open=signin',
+      '/kachuful?open=signin&from=landing',
     );
   });
 

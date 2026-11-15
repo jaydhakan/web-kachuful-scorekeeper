@@ -28,7 +28,7 @@ test('signed out, the landing card and /ishaara say Sign in to play', async ({ p
   await expect(page.getByRole('heading', { level: 1, name: 'Sign in to play' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
     'href',
-    '/kachuful?open=signin',
+    '/kachuful?open=signin&from=ishaara',
   );
 });
 

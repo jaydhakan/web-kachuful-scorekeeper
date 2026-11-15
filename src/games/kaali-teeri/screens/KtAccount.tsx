@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react';
+import { authSearch } from '@/lib/entry';
 import { go } from '@/platform/route';
 import { useSession } from '@/sync/session';
 import { t } from '@/strings';
@@ -8,14 +9,14 @@ import { Icon } from '@/components/ui/Icons';
 import { IconOn } from '@/components/ui/IconsFill';
 import { RailItem } from '@/components/desk/RailItem';
 
-// Sign-in and the account are Kachuful's screens (DESIGN_AUDIT PL-F01); this is the one place Kaali Teeri opens them.
+// Sign-in and the account are Kachuful's screens; this is the one place Kaali Teeri opens them, and they come back here.
 const where = (signedIn: boolean) => (signedIn ? 'account' : 'signin');
-const href = (signedIn: boolean) => `/kachuful?open=${where(signedIn)}`;
+const href = (signedIn: boolean) => `/kachuful${authSearch(where(signedIn), 'kaali-teeri')}`;
 
 function openAccount(signedIn: boolean, e?: MouseEvent) {
   if (e && (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey)) return;
   e?.preventDefault();
-  go('kachuful', `?open=${where(signedIn)}`);
+  go('kachuful', authSearch(where(signedIn), 'kaali-teeri'));
 }
 
 /** Home's top corner on the phone: the account with its sync state, or Sign in (KT-F04). */

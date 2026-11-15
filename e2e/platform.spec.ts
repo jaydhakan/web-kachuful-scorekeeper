@@ -56,7 +56,7 @@ test('a game in progress gets a resume row, and coming soon is not a control', a
   // Signed out, Ishaara's card leads to sign in.
   await expect(page.getByRole('link', { name: /^Ishaara.*Sign in to play$/ })).toHaveAttribute(
     'href',
-    '/kachuful?open=signin',
+    '/kachuful?open=signin&from=landing',
   );
   await resume.click();
   await expect(page).toHaveURL(/\/kachuful$/);

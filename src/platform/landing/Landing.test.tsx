@@ -40,7 +40,7 @@ describe('Landing', () => {
     );
     expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
       'href',
-      '/kachuful?open=signin',
+      '/kachuful?open=signin&from=landing',
     );
     expect(screen.queryByRole('status')).toBeNull();
   });
@@ -114,9 +114,9 @@ describe('Landing', () => {
     setSession(SESSION);
     render(<Landing />);
     const chip = screen.getByRole('link', { name: 'Account: Jay' });
-    expect(chip).toHaveAttribute('href', '/kachuful?open=account');
+    expect(chip).toHaveAttribute('href', '/kachuful?open=account&from=landing');
     fireEvent.click(chip);
-    expect(go).toHaveBeenCalledWith('kachuful', '?open=account');
+    expect(go).toHaveBeenCalledWith('kachuful', '?open=account&from=landing');
   });
 
   it('offline says games still save here', () => {

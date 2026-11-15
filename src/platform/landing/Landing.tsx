@@ -14,7 +14,7 @@ import { useSession } from '@/sync/session';
 import { platform } from '@/strings/platform';
 import { GAMES, gameById, type GameEntry, type Resume } from '../catalog';
 import { clearUnknown, go, unknownAddress, type Unknown } from '../route';
-import { LandingMenu, openInKachuful } from './LandingMenu';
+import { kachufulSearch, LandingMenu, openInKachuful } from './LandingMenu';
 import { openGame } from './OpenGame';
 import { PersonDot } from './PersonDot';
 import { GameIcon, TileArt } from './TileArt';
@@ -68,7 +68,7 @@ function Header({ onMenu }: { onMenu: () => void }) {
       </span>
       <div className="flex min-w-0 items-center gap-2">
         <a
-          href={`/kachuful?open=${open}`}
+          href={`/kachuful${kachufulSearch(open)}`}
           onClick={(e) => openInKachuful(e, open)}
           aria-label={label}
           className={`mat-ibtn press inline-flex min-h-12 min-w-12 items-center gap-2 whitespace-nowrap !rounded-full text-16 font-bold ${live ? 'p-1.5 big:pr-4' : 'px-5'}`}
@@ -257,7 +257,7 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
   // Named by its own text (name, pitch, players, then Play), so what's read is what's shown.
   return (
     <a
-      href={locked ? '/kachuful?open=signin' : g.path}
+      href={locked ? `/kachuful${kachufulSearch('signin')}` : g.path}
       onClick={(e) => (locked ? openInKachuful(e, 'signin') : follow(e, g, true))}
       className={`${box} press`}
       {...tilt}

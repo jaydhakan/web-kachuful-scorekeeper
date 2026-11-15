@@ -1,4 +1,5 @@
 import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { authSearch } from '@/lib/entry';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { Icon } from '@/components/ui/Icons';
@@ -18,8 +19,12 @@ export function openInKachuful(e: MouseEvent<HTMLAnchorElement>, open: string) {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
     return;
   e.preventDefault();
-  go('kachuful', `?open=${open}`);
+  go('kachuful', kachufulSearch(open));
 }
+
+/** Account pages come back to the landing page; credits is Kachuful's own page. */
+export const kachufulSearch = (open: string) =>
+  open === 'signin' || open === 'account' ? authSearch(open, 'landing') : `?open=${open}`;
 
 function Row({
   href,
@@ -155,7 +160,7 @@ export function LandingMenu({ onClose }: { onClose: () => void }) {
             </span>
           </a>
         ) : (
-          <Row href="/kachuful?open=signin" open="signin" icon={Icon.key}>
+          <Row href={`/kachuful${kachufulSearch('signin')}`} open="signin" icon={Icon.key}>
             <span className="block">{s.signIn}</span>
             <span className="block text-14 text-[var(--tx2)]">{s.signInHint}</span>
           </Row>

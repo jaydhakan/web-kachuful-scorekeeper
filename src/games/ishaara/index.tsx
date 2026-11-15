@@ -1,4 +1,5 @@
 import './ishaara.css';
+import { authSearch } from '@/lib/entry';
 import { lazy, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -34,7 +35,7 @@ function Gate({ title, body, children }: { title: string; body: string; children
 function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
-  go('kachuful', '?open=signin');
+  go('kachuful', authSearch('signin', 'ishaara'));
 }
 
 function Root() {
@@ -64,7 +65,7 @@ function IshaaraRoot() {
     return (
       <Gate title={shell.signIn.title} body={shell.signIn.body}>
         <a
-          href="/kachuful?open=signin"
+          href={`/kachuful${authSearch('signin', 'ishaara')}`}
           onClick={toSignIn}
           className="mat-cta mat-cta-on mat-tone-accent mat-fill press relative isolate inline-flex h-[60px] min-w-[16rem] items-center justify-center gap-2 rounded-[20px] px-6 text-18 font-bold tracking-[-0.01em] text-ink-on-accent"
         >
