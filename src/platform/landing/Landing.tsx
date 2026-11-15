@@ -15,7 +15,6 @@ import { platform } from '@/strings/platform';
 import { GAMES, gameById, type GameEntry, type Resume } from '../catalog';
 import { clearUnknown, go, unknownAddress, type Unknown } from '../route';
 import { kachufulSearch, LandingMenu, openInKachuful } from './LandingMenu';
-import { openGame } from './OpenGame';
 import { PersonDot } from './PersonDot';
 import { GameIcon, TileArt } from './TileArt';
 import { Wordmark } from './Wordmark';
@@ -32,20 +31,12 @@ const subscribeOnline = (f: () => void) => {
 };
 const useOnline = () => useSyncExternalStore(subscribeOnline, () => navigator.onLine);
 
-/**
- * A plain left-click opens the game in place (no reload); new-tab and other modified clicks go to the browser.
- * From a tile (`grow`), the tile's art grows into the game; Enter on the tile arrives here as a click too.
- */
-function follow(e: MouseEvent<HTMLAnchorElement>, g: GameEntry, grow = false) {
+/** A plain left-click opens the game in place (no reload); new-tab and other modified clicks go to the browser. */
+function follow(e: MouseEvent<HTMLAnchorElement>, g: GameEntry) {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
     return;
   e.preventDefault();
-  if (!grow) return go(g.id);
-  openGame(
-    g.id,
-    e.currentTarget.querySelector('[data-tile-art]'),
-    <TileArt game={g.id} className="block h-full w-full" />,
-  );
+  go(g.id);
 }
 
 function Header({ onMenu }: { onMenu: () => void }) {
@@ -205,10 +196,7 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
   const tilt = useTilt();
   const body = (
     <>
-      <div
-        data-tile-art
-        className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh]"
-      >
+      <div className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh]">
         <TileArt
           game={g.id}
           className={`block h-full w-full ${soon ? 'opacity-60 grayscale' : ''}`}
@@ -258,7 +246,7 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
   return (
     <a
       href={locked ? `/kachuful${kachufulSearch('signin')}` : g.path}
-      onClick={(e) => (locked ? openInKachuful(e, 'signin') : follow(e, g, true))}
+      onClick={(e) => (locked ? openInKachuful(e, 'signin') : follow(e, g))}
       className={`${box} press`}
       {...tilt}
     >

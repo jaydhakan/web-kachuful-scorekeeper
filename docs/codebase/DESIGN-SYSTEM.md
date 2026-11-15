@@ -137,8 +137,8 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
 13. **Browsing**: leaderboard rows slide to their new rank on a sort or range change; a newly earned medal turns over
     and stamps into its slot once; Wrapped's last slide holds a beat, then counts the rank; the confirmation dialog
     fades and settles (scale .96 to 1, 200ms).
-14. **Platform**: a landing tile grows to fill the screen (280ms) before the game comes up; an accepted invite gets a
-    short welcome once.
+14. **Platform**: a game rises in (400ms) however it is opened, from its tile, Resume, Back or an address; an
+    accepted invite gets a short welcome once.
 15. **Kaali Teeri**: when a called card is played, the bidding team's colour runs from the card to that seat and the
     role badge settles; a sweep fans the hand's cards toward the winning side before the totals count.
 16. **Leaderboard podium** (every game's board, `ui/RankBoard.tsx`; the first board of a visit only): 3rd, 2nd, then

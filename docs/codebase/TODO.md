@@ -23,8 +23,8 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 ## Motion
 
 - **Check in a browser with motion on:** the winner sequence and the deal in Yerba Sun, Editorial Paper and Emerald
-  Gilt; where the Kaali Teeri partner-reveal dot lands; the landing tile's square cover against its rounded corners;
-  the "everyone but one made it" line on short phones; the invite welcome's table in each theme.
+  Gilt; where the Kaali Teeri partner-reveal dot lands; the "everyone but one made it" line on short phones; the
+  invite welcome's table in each theme.
 - **Filled icons for active tabs.** The large-screen rail has them (`IconsFill.tsx`); tabs do not.
 - **Invite welcome** borrows `t.streak.continue`; give it its own `t.hub.auth.welcomeContinue`.
 - **Leaderboard podium, check on a real phone with motion on:** the 3rd-to-1st reveal and the first-place confetti
