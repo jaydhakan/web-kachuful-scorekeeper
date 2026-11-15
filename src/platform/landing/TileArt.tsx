@@ -253,10 +253,120 @@ function Ishaara({ id }: { id: string }) {
   );
 }
 
+const PIP = {
+  hearts:
+    'M50 92C40 80 6 60 6 33C6 18 17 8 30 8C40 8 46 14 50 21C54 14 60 8 70 8C83 8 94 18 94 33C94 60 60 80 50 92Z',
+  diamonds: 'M50 4L88 50L50 96L12 50Z',
+  clubs:
+    'M50 8a19 19 0 0 1 17 28a19 19 0 1 1-11 30l6 28H38l6-28a19 19 0 1 1-11-30A19 19 0 0 1 50 8Z',
+};
+
+/** A face-up card of the trick: its suit's pip in the middle. */
+function Face({
+  x,
+  y,
+  turn,
+  suit,
+}: {
+  x: number;
+  y: number;
+  turn: number;
+  suit: keyof typeof PIP;
+}) {
+  return (
+    <g transform={`rotate(${turn} ${x + 36} ${y + 50})`}>
+      <rect
+        x={x}
+        y={y}
+        width="72"
+        height="100"
+        rx="8"
+        style={{ ...fill('card-bg'), ...stroke('card-fg') }}
+        strokeOpacity=".25"
+        strokeWidth="3"
+      />
+      <path
+        d={PIP[suit]}
+        style={fill(suit === 'clubs' ? 'card-fg' : 'card-red')}
+        transform={`translate(${x + 18} ${y + 32}) scale(.36)`}
+      />
+    </g>
+  );
+}
+
+/** Four seats, partners opposite; the last card of the trick is the ace of spades, and the felt cracks under it. */
+function Spades({ id }: { id: string }) {
+  const seats: [number, number, string][] = [
+    [320, 52, 'seat-1'],
+    [488, 200, 'seat-3'],
+    [320, 348, 'seat-1'],
+    [152, 200, 'seat-3'],
+  ];
+  return (
+    <Frame id={id}>
+      <rect x="160" y="62" width="340" height="300" rx="76" style={fill('shade')} opacity=".25" />
+      <rect
+        x="152"
+        y="52"
+        width="336"
+        height="296"
+        rx="72"
+        fill={`url(#${id}felt)`}
+        style={stroke('felt-rim')}
+        strokeWidth="4"
+      />
+      <path
+        d="M366 296l16-10l4 14l18-9l6 12l16-6"
+        fill="none"
+        style={stroke('felt-rim')}
+        strokeOpacity=".8"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Face x={284} y={82} turn={-4} suit="hearts" />
+      <Face x={228} y={136} turn={-12} suit="diamonds" />
+      <Face x={340} y={136} turn={11} suit="clubs" />
+      <g transform="rotate(4 324 236)">
+        <rect
+          x="280"
+          y="176"
+          width="84"
+          height="118"
+          rx="9"
+          style={{ ...fill('card-bg'), ...stroke('medal-gold') }}
+          strokeWidth="4"
+        />
+        <text
+          x="292"
+          y="208"
+          fontSize="26"
+          fontWeight="700"
+          style={{ ...fill('card-fg'), fontFamily: 'var(--font-body)' }}
+        >
+          A
+        </text>
+        <path d={SPADE} style={fill('card-fg')} transform="translate(298 214) scale(.48)" />
+      </g>
+      {seats.map(([x, y, c], k) => (
+        <circle
+          key={k}
+          cx={x}
+          cy={y}
+          r={k === 2 ? 28 : 26}
+          style={{ ...fill(c), ...(k === 2 ? stroke('medal-gold') : {}) }}
+          strokeWidth={k === 2 ? 5 : 0}
+        />
+      ))}
+    </Frame>
+  );
+}
+
 const ART: Record<GameId, (p: { id: string }) => ReactNode> = {
   kachuful: Kachuful,
   'kaali-teeri': KaaliTeeri,
   ishaara: Ishaara,
+  spades: Spades,
 };
 
 /** A game's landing tile, 16:10, drawn from the theme's tokens; `slice` crops it to a square on the phone. */
@@ -291,6 +401,21 @@ export function GameIcon({ game }: { game: GameId }) {
         <svg viewBox="0 0 100 100" className="h-6 w-6" fill="currentColor">
           {game === 'kachuful' ? (
             <path d={SPADE} />
+          ) : game === 'spades' ? (
+            // A spade on a card, so it never reads as Kachuful's bare spade.
+            <>
+              <rect
+                x="16"
+                y="4"
+                width="68"
+                height="92"
+                rx="12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="8"
+              />
+              <path d={SPADE} transform="translate(27 27) scale(.46)" />
+            </>
           ) : (
             <path d="M14 18h72a8 8 0 0 1 8 8v36a8 8 0 0 1-8 8H48l-18 16V70H14a8 8 0 0 1-8-8V26a8 8 0 0 1 8-8Z" />
           )}

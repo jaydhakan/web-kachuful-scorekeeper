@@ -17,7 +17,7 @@ Working name: **Baithak**. If the name changes, only `wordmark-*`, `lockup-*` an
 | `icon-maskable.svg` → `icon-maskable-512.png`      | 512        | Manifest, `purpose: maskable`; mark radius 150 px inside the 204.8 px safe circle |
 | `og-image.png`                                     | 1200 × 630 | Link previews                                                                     |
 
-## Games (`games/<id>/`, ids: `kachuful`, `kaali-teeri`, `ishaara`)
+## Games (`games/<id>/`, ids: `kachuful`, `kaali-teeri`, `ishaara`, `spades`)
 
 | File                                                                  | Size              | Use                                  |
 | --------------------------------------------------------------------- | ----------------- | ------------------------------------ |
@@ -25,6 +25,7 @@ Working name: **Baithak**. If the name changes, only `wordmark-*`, `lockup-*` an
 | `icon-maskable.svg` → `icon-maskable-512.png`, `apple-touch-icon.png` | 512, 180          | Full-bleed versions                  |
 | `tile-art.svg`                                                        | 640 × 400 (16:10) | Landing card art                     |
 | `og-image.png`                                                        | 1200 × 630        | Preview for `play.vectanix.com/<id>` |
+| `og-image.svg` (Spades) → `og-image.png`                              | 1200 × 630        | Rendered by `make-icons`             |
 
 ## Head tags
 
