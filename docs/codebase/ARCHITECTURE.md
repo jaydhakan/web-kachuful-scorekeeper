@@ -122,7 +122,8 @@ One `Sheet` has three presentations. On a phone it is a bottom (or full-height) 
 - **Haptics:** `navigator.vibrate` works on Android Chrome and does not exist on iOS Safari, where `vibrate()` is a silent no-op. There is no workaround and none is attempted.
 - **Wake lock:** supported on current Chrome and Safari 16.4+. It is re-acquired when the tab becomes visible and released when the game ends.
 - **Share:** Web Share with a PNG file where `navigator.canShare({ files })` is true; otherwise the PNG is downloaded and the text summary copied. Both need a tap, so they live behind buttons.
-- **Install and offline:** the service worker precaches the shell and fonts. The app asks for a new version at launch, on every return to the front, on coming online and hourly; a waiting version shows the update gate (`UpdateGate`), which can't be dismissed, and its one button reloads into it.
+- **Install and offline:** the service worker precaches the shell and fonts. The app asks for a new version at launch, on every return to the front, on coming online and hourly; a waiting version shows the update gate (`UpdateGate`), which can't be dismissed, and its one button reloads into it. `PlatformRoot` draws it (`platform/PlatformUpdate.tsx`) over the landing page and every game; a game only announces offline-readiness in its own toast slot.
+- **Sign-in from another game:** the account pages are Kachuful's screens. Open them with `go('kachuful', authSearch('signin', '<game>'))` (`lib/entry.ts`) and they return to that game, or the landing page, when they close.
 
 ## Online
 
