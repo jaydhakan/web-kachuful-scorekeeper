@@ -17,6 +17,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { KtAccountChip } from './KtAccount';
 
 const ROOT =
   'absolute inset-0 flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))]';
@@ -145,6 +146,8 @@ export default function Home() {
       >
         {Icon.menu}
       </IconButton>
+      {/* The desk rail and top bar carry the account; on the phone it sits opposite the menu (KT-F04). */}
+      <KtAccountChip className="!absolute right-[max(1rem,var(--sar))] top-[calc(var(--sat)+0.75rem)] z-10 [[data-desk]_&]:!hidden" />
       <div
         tabIndex={0}
         role="region"
