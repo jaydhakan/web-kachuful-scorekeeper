@@ -111,9 +111,7 @@ for (const [w, h, names] of [
  * Ishaara's open findings below 44px, by size. Anything else fails; so does a listed one that no longer shows,
  * so the fix must delete its line here.
  */
-const ISH_KNOWN: { id: string; screen: string; label: RegExp; at: number }[] = [
-  { id: 'ISH-F09', screen: 'clue entry', label: /^(\d|Any number)$/, at: 360 },
-];
+const ISH_KNOWN: { id: string; screen: string; label: RegExp; at: number }[] = [];
 
 for (const [w, h] of [
   [390, 844],
