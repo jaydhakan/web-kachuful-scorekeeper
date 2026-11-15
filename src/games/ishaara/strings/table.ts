@@ -107,6 +107,8 @@ export const table = {
     givesClues: 'Gives clues',
     makeGiver: 'Make clue-giver',
     noAccountChip: 'No account',
+    hostGivesClues:
+      'You give clues from your own phone: open Ishaara there and sign in. This screen stays the board everyone sees.',
   },
 
   invite: {

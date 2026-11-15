@@ -110,11 +110,26 @@ export interface TeamsProps {
  * side by side once it can. The rest of the step (who can't give clues, Shuffle, Add) is `TeamsSide`.
  */
 export function Teams({ players, accountOf, myPlayerId, onMove, onPick }: TeamsProps) {
+  // The host who gives clues needs a second device: this screen is the board everyone sees (ISH-F01).
+  const hostGives = players.some(
+    (p) => p.role === 'clue-giver' && !!myPlayerId && p.playerId === myPlayerId,
+  );
   return (
     <div className="@container">
       <m.p {...stagger(0)} className="text-17 leading-snug text-[var(--tx2)]">
         {su.teamsHint}
       </m.p>
+      {hostGives && (
+        <p
+          role="note"
+          className="glass mt-3 flex items-start gap-2.5 px-4 py-3 text-16 leading-snug"
+        >
+          <span aria-hidden className="mt-0.5 shrink-0 [&_svg]:h-5 [&_svg]:w-5">
+            {Icon.key}
+          </span>
+          {su.hostGivesClues}
+        </p>
+      )}
       <m.div
         {...stagger(1)}
         className="mt-4 grid grid-cols-1 items-start gap-3 @[40rem]:grid-cols-2"

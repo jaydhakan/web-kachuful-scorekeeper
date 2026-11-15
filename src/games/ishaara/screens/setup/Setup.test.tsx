@@ -124,6 +124,26 @@ describe('Ishaara setup', () => {
     expect(row(/^Jay \(you\) Guesser/)).toHaveTextContent('Make clue-giver');
   });
 
+  it('tells a host who gives clues to use their own phone, until someone else takes it (ISH-F01)', () => {
+    saveIshLastSetup({
+      players: [
+        seat('p-jay', 'Jay', 'sun', 'clue-giver'),
+        seat('p-riya', 'Riya', 'sun', 'guesser'),
+        seat('p-dev', 'Dev', 'moon', 'clue-giver'),
+        seat('p-meera', 'Meera', 'moon', 'guesser'),
+      ],
+      packs: ['everyday'],
+      customWords: [],
+      rules: RULES,
+      at: 1,
+    });
+    show();
+    const note = () => screen.queryByText(/You give clues from your own phone/);
+    expect(note()).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: 'Riya gives the clues' }));
+    expect(note()).toBeNull();
+  });
+
   it('marks who can’t give clues, and Invite tells a member to ask the admin', () => {
     saveIshLastSetup({
       players: [
