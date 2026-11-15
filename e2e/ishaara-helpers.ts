@@ -139,6 +139,8 @@ export interface GameOpts {
   bestOf?: 1 | 3;
   /** The clue phones' viewport and device options (default: a new context's 1280×720). */
   phone?: BrowserContextOptions;
+  /** The host (Jay) gives this team's clues instead of Riya or Kabir. */
+  hostGives?: Team;
 }
 
 /** Creates a game as the signed-in host on `page` (Riya gives Sun's clues, Kabir Moon's); returns its id. */
@@ -149,10 +151,10 @@ export async function createGame(page: Page, o: GameOpts = {}) {
   const list = Array.isArray(all) ? all : all.items;
   const by = (n: string) => list.find((p) => p.displayName === n)!;
   const seats: [string, Team, boolean][] = [
-    ['Riya', 'sun', true],
+    [o.hostGives === 'sun' ? 'Jay' : 'Riya', 'sun', true],
     ['Asha', 'sun', false],
     ['Om', 'sun', false],
-    ['Kabir', 'moon', true],
+    [o.hostGives === 'moon' ? 'Jay' : 'Kabir', 'moon', true],
     ['Neha', 'moon', false],
     ['Dev', 'moon', false],
   ];
