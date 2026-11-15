@@ -72,6 +72,10 @@ input {
   outline-offset: 3px;
   border-radius: 12px;
 }
+/* A heading focused on arrival is for screen readers; a ring would make it read as a field (X-F02). */
+:is(h1, h2, h3)[tabindex='-1']:focus-visible {
+  outline: none;
+}
 /* Press feedback for plain buttons, matching PRESS and PRESS_SM in motion.ts. The `scale` property composes with
    any transform the element already has, so positioned controls don't jump. */
 .press,

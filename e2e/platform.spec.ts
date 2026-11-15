@@ -4,6 +4,22 @@ import { seedGame } from './fixtures';
 
 const heading = (page: Page) => page.getByRole('heading', { level: 1, name: 'Pick a game' });
 
+test('a heading focused on arrival draws no ring; a control still does (X-F02)', async ({
+  page,
+}) => {
+  await page.goto('/');
+  // By keyboard, so the arriving heading really matches :focus-visible.
+  await page.getByRole('link', { name: /^Kachuful.*Play$/ }).focus();
+  await page.keyboard.press('Enter');
+  const h1 = page.getByRole('heading', { level: 1, name: 'Kachuful' });
+  await expect(h1).toBeFocused();
+  expect(await h1.evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+  expect(await h1.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none');
+  await page.keyboard.press('Tab');
+  const ring = await page.evaluate(() => getComputedStyle(document.activeElement!).outlineStyle);
+  expect(ring).toBe('solid');
+});
+
 test('landing → Kachuful in place → system Back returns to the landing page', async ({ page }) => {
   await page.goto('/');
   await expect(heading(page)).toBeVisible();
