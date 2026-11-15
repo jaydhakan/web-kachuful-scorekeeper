@@ -56,6 +56,10 @@ export const ktSetup = {
   minBidHint: (lo: number, hi: number) => `${lo} to ${hi}`,
   minBidLower: 'Lower the minimum bid',
   minBidRaise: 'Raise the minimum bid',
+  partners: 'Secret partners',
+  partnersHint: (lo: number, hi: number, usual: number) => `${lo} to ${hi} · usually ${usual}`,
+  partnersFewer: 'Call one partner fewer',
+  partnersMore: 'Call one partner more',
   bidStep: 'Bids go up by',
   stepOptions: [
     { v: '5' as const, label: '5' },

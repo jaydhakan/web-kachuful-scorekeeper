@@ -12,6 +12,8 @@ import {
   enteredPoints,
   gameOver,
   minBidRange,
+  partnersFor,
+  partnersOk,
   rulesOk,
   speakingOrder,
   teamPointsFrom,
@@ -156,6 +158,10 @@ function begin(s: KtState, g: KtGame): KtState {
 
 const defaultMin = (n: number) => defaultRules(n).minBid;
 
+/** A custom partner count kept only while it fits the table and differs from the usual; else null. */
+const customPartners = (p: number | null | undefined, n: number): number | null =>
+  typeof p === 'number' && partnersOk(p, n) && p !== partnersFor(n) ? p : null;
+
 /** A custom minimum the table's decks and step allow; anything else is refused. */
 const minBidOk = (min: number, n: number, step: 5 | 10) => {
   const { lo, hi } = minBidRange(decksFor(n));
@@ -190,6 +196,7 @@ function setupStep(su: KtSetup, a: KtAction): KtSetup | null {
         seats: resize(su.seats, a.n),
         dealer: su.dealer < a.n ? su.dealer : 0,
         minBid: keep ? su.minBid : null,
+        partners: customPartners(su.partners, a.n),
       };
     }
     case 'setupDir':
@@ -206,6 +213,9 @@ function setupStep(su: KtSetup, a: KtAction): KtSetup | null {
       if (min > hi) min = Math.floor(hi / a.step) * a.step;
       return { ...su, bidStep: a.step, minBid: min === defaultMin(su.n) ? null : min };
     }
+    case 'setupPartners':
+      if (a.partners !== null && !partnersOk(a.partners, su.n)) return null;
+      return { ...su, partners: customPartners(a.partners, su.n) };
     case 'setupLength':
       return a.length === 'endless' || a.length === 'to1000' ? { ...su, length: a.length } : null;
     case 'setupSeat':
@@ -237,6 +247,7 @@ function setupStep(su: KtSetup, a: KtAction): KtSetup | null {
         seats: lg.players.map((p) => ({ ...p })),
         dealer: su.dealer < n ? su.dealer : 0,
         minBid: su.minBid !== null && minBidOk(su.minBid, n, su.bidStep) ? su.minBid : null,
+        partners: customPartners(lg.partners ?? su.partners, n),
       };
     }
     case 'setupDealer':
@@ -264,6 +275,7 @@ function startSetup(s: KtState, lg: KtSetup['lg']): KtState {
       dir: fits ? lg.direction : 'cw',
       minBid: min,
       bidStep,
+      partners: fits ? customPartners(lg.partners, n) : null,
       length: fits && lg.length === 'to1000' ? 'to1000' : 'endless',
       seats: resize<Seat>([], n),
       dealer: 0,
@@ -277,6 +289,7 @@ export function setupRules(su: KtSetup): KtRules | null {
   const r: KtRules = {
     ...defaultRules(su.n),
     minBid: su.minBid ?? defaultMin(su.n),
+    partners: su.partners ?? partnersFor(su.n),
     step: su.bidStep,
     length: su.length,
   };
@@ -601,6 +614,7 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
     case 'setupDir':
     case 'setupMinBid':
     case 'setupBidStep':
+    case 'setupPartners':
     case 'setupLength':
     case 'setupSeat':
     case 'setupSeatPatch':

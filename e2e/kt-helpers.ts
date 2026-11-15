@@ -1,17 +1,34 @@
 import { expect, type Page } from '@playwright/test';
+import { openAdvanced } from './helpers';
 
 export const ktBtn = (page: Page, name: string | RegExp) =>
   page.getByRole('button', { name, exact: typeof name === 'string' });
 
-/** From Kaali Teeri's home: New Game with `names` seated in order, `dealer` (seat index) dealing; ends on hand 1. */
+/**
+ * From Kaali Teeri's home: New Game with `names` seated in order, `dealer` (seat index) dealing and, when given,
+ * `partners` picked in Advanced; ends on hand 1.
+ */
 export async function ktStart(
   page: Page,
   names: string[],
-  o: { dealer?: number; first1000?: boolean } = {},
+  o: { dealer?: number; first1000?: boolean; partners?: number } = {},
 ) {
   await ktBtn(page, 'New Game').click();
   for (let n = 4; n < names.length; n++) await ktBtn(page, 'One player more').click();
   if (o.first1000) await ktBtn(page, 'First to 1000').click();
+  if (o.partners !== undefined) {
+    await openAdvanced(page);
+    const usual = Math.floor(names.length / 2) - 1;
+    const step = ktBtn(
+      page,
+      o.partners < usual ? 'Call one partner fewer' : 'Call one partner more',
+    );
+    for (let k = 0; k < Math.abs(o.partners - usual); k++) await step.click();
+    const n = o.partners;
+    await expect(page.getByLabel('Rules for this table')).toContainText(
+      `call ${n} ${n === 1 ? 'partner' : 'partners'}`,
+    );
+  }
   await ktBtn(page, /^Next: seat/).click();
   await ktBtn(page, 'Add player').click();
   const field = page.getByPlaceholder('Search or add a name');

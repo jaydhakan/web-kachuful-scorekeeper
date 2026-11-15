@@ -24,9 +24,12 @@ describe('KtProvider', () => {
     expect(r.result.current.state).toMatchObject({ game: null, screen: 'setup' });
     act(() => r.result.current.actions.randomDealer());
     expect(r.result.current.state.setup!.dealer).toBeLessThan(4);
+    act(() => r.result.current.actions.setupPartners(2));
     act(() => r.result.current.actions.beginGame());
     const g = r.result.current.state.game!;
     expect(g.players.map((p) => p.name)).toEqual(NAMES);
+    expect(g.rules.partners).toBe(2);
+    expect(storage.get<{ partners?: number }>(KEYS.ktLastGroup, {}).partners).toBe(2);
     expect(g.players.every((p) => archive.get('players', p.playerId!))).toBe(true);
     expect(
       storage

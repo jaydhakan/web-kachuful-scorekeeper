@@ -66,6 +66,7 @@ export interface KtActions {
   /** Null goes back to the deck's default (150 / 350). */
   setupMinBid(minBid: number | null): void;
   setupBidStep(step: 5 | 10): void;
+  setupPartners(partners: number | null): void;
   setupLength(length: KtLength): void;
   setupSeat(k: number, seat: Seat | null): void;
   setupSeatPatch(k: number, patch: Partial<Seat>): void;
@@ -216,6 +217,7 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
       setupDir: (dir) => dispatch({ type: 'setupDir', dir }),
       setupMinBid: (minBid) => dispatch({ type: 'setupMinBid', minBid }),
       setupBidStep: (step) => dispatch({ type: 'setupBidStep', step }),
+      setupPartners: (partners) => dispatch({ type: 'setupPartners', partners }),
       setupLength: (length) => dispatch({ type: 'setupLength', length }),
       setupSeat: (k, seat) => dispatch({ type: 'setupSeat', k, seat }),
       setupSeatPatch: (k, patch) => dispatch({ type: 'setupSeatPatch', k, patch }),
@@ -243,6 +245,7 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
           direction: su.dir,
           minBid: rules.minBid,
           step: rules.step,
+          partners: rules.partners,
           length: rules.length,
           at: Date.now(),
         });

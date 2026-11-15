@@ -80,7 +80,7 @@ export const end = {
     colDecks: 'Decks',
     colOut: 'Take out',
     colEach: 'Each',
-    colPartners: 'Partners',
+    colPartners: 'Usual partners',
     none: 'Nothing',
     times: (n: number) => `×${n}`,
     thisTable: 'This table',

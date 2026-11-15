@@ -200,6 +200,7 @@ export default function Rules() {
             })}
           </tbody>
         </table>
+        <p>{T.partners.choice}</p>
         <p>{T.partners.secret}</p>
         {(!r || r.decks === 2) && <p>{T.partners.copies}</p>}
         <p>{T.partners.lead}</p>

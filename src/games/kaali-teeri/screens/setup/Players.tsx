@@ -6,6 +6,7 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   minBidRange,
+  partnerRange,
   partnersFor,
   type KtLength,
 } from '@/games/kaali-teeri/domain';
@@ -81,11 +82,14 @@ function Stepper({
 export default function Players() {
   const { su, actions } = useSetup();
   const [more, setMore] = useState(false);
-  const ids = { n: useId(), min: useId(), adv: useId() };
+  const ids = { n: useId(), min: useId(), partners: useId(), adv: useId() };
   const n = su.n,
     decks = decksFor(n),
     rules = setupRules(su),
-    minBid = rules?.minBid ?? su.minBid ?? 0;
+    minBid = rules?.minBid ?? su.minBid ?? 0,
+    usual = partnersFor(n),
+    partners = rules?.partners ?? su.partners ?? usual,
+    pr = partnerRange(n);
   const range = minBidRange(decks),
     lo = Math.ceil(range.lo / su.bidStep) * su.bidStep,
     hi = Math.floor(range.hi / su.bidStep) * su.bidStep;
@@ -143,7 +147,7 @@ export default function Players() {
             </div>
             <div aria-hidden className="my-2.5 h-px bg-ov/10" />
             <p aria-label={s.rulesLabel} className="text-14 font-medium text-[var(--tx2)]">
-              {s.rulesLine(decks, minBid, partnersFor(n))}
+              {s.rulesLine(decks, minBid, partners)}
             </p>
             <TakeOut n={n} className="mt-2" />
             <p className="mt-2 text-13 text-[var(--tx2)] @h-short:hidden">
@@ -222,6 +226,26 @@ export default function Players() {
                       canRaise={minBid + su.bidStep <= hi}
                       onLower={() => actions.setupMinBid(minBid - su.bidStep)}
                       onRaise={() => actions.setupMinBid(minBid + su.bidStep)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 id={ids.partners} className="text-16 font-bold">
+                        {s.partners}
+                      </h3>
+                      <p className="text-13 text-[var(--tx2)]">
+                        {s.partnersHint(pr.lo, pr.hi, usual)}
+                      </p>
+                    </div>
+                    <Stepper
+                      value={partners}
+                      labelledBy={ids.partners}
+                      lower={s.partnersFewer}
+                      raise={s.partnersMore}
+                      canLower={partners > pr.lo}
+                      canRaise={partners < pr.hi}
+                      onLower={() => actions.setupPartners(partners - 1)}
+                      onRaise={() => actions.setupPartners(partners + 1)}
                     />
                   </div>
                   <div>

@@ -100,6 +100,7 @@ describe('setup', () => {
       dir: 'cw',
       minBid: null,
       bidStep: 5,
+      partners: null,
       length: 'endless',
     });
     expect(s.setup!.seats).toEqual([null, null, null, null]);
@@ -157,6 +158,44 @@ describe('setup', () => {
       run(s, { type: 'setupMinBid', minBid: 200 }, { type: 'setupMinBid', minBid: null }).setup!
         .minBid,
     ).toBe(null);
+  });
+
+  it('partners: 1 to n − 2; the usual count is stored as null and a custom one follows the count while it fits', () => {
+    let s = run(empty(), { type: 'startSetup', lg: null }, { type: 'setupCount', n: 6 });
+    for (const partners of [0, 5, 1.5]) ignored(s, { type: 'setupPartners', partners });
+    expect(run(s, { type: 'setupPartners', partners: 2 }).setup!.partners).toBe(null);
+    s = run(s, { type: 'setupPartners', partners: 4 });
+    expect(s.setup!.partners).toBe(4);
+    expect(setupRules(s.setup!)).toMatchObject({ partners: 4 });
+    expect(run(s, { type: 'setupPartners', partners: null }).setup!.partners).toBe(null);
+    // Eight seats still fit four partners; five don't, so the usual count comes back.
+    expect(run(s, { type: 'setupCount', n: 8 }).setup!.partners).toBe(4);
+    const five = run(s, { type: 'setupCount', n: 5 });
+    expect(five.setup!.partners).toBe(null);
+    expect(setupRules(five.setup!)).toMatchObject({ partners: 1 });
+    // At ten seats four is the usual count, so it is stored as null.
+    expect(run(s, { type: 'setupCount', n: 10 }).setup!.partners).toBe(null);
+  });
+
+  it('the last group brings back its partner count; an older group without one gets the usual', () => {
+    const lg: KtLastGroup = {
+      players: NAMES.slice(0, 6).map((x) => seat(x)),
+      direction: 'cw',
+      minBid: 150,
+      step: 5,
+      partners: 1,
+      length: 'endless',
+      at: 1,
+    };
+    const s = run(empty(), { type: 'startSetup', lg });
+    expect(s.setup!.partners).toBe(1);
+    expect(setupRules(s.setup!)).toMatchObject({ partners: 1 });
+    const old: KtLastGroup = { ...lg };
+    delete old.partners;
+    expect(run(empty(), { type: 'startSetup', lg: old }).setup!.partners).toBe(null);
+    expect(run(empty(), { type: 'startSetup', lg: { ...lg, partners: 9 } }).setup!.partners).toBe(
+      null,
+    );
   });
 
   it('bid step 10 moves a custom minimum onto it', () => {

@@ -86,6 +86,9 @@ export const rulesText = {
         The winning bidder names <b>trump</b> (any suit) and calls partners <b>by card</b>:
       </>
     ),
+    /** Under the table of usual counts. */
+    choice:
+      'At setup the table can pick another count in Advanced: from 1 up to two fewer than the players.',
     secret: (
       <>
         Whoever plays a called card is on the bidder’s team, and nobody knows until it is played.

@@ -185,6 +185,24 @@ test('six players: a partner who played both called cards fills two slots', asyn
   await expect(standings).toContainText('360');
 });
 
+test('six players calling 1 partner, picked in Advanced: one slot to fill, and the game keeps the count', async ({
+  page,
+}) => {
+  await ktStart(page, ['Riya', 'Aarav', 'Meera', 'Kabir', 'Dev', 'Isha'], { partners: 1 });
+  await quickBid(page, 'Meera', 180);
+  await callCards(page, 'Hearts', [{ rank: 'A', suit: 'Hearts' }]);
+  await playedBy(page, /^Ace of hearts/, 'Dev');
+  await points(page, 50, { bid: 180 });
+  await confirmHand(page, 1);
+  await expect(page.getByRole('region', { name: 'Standings' })).toContainText('180');
+  await page.reload();
+  await ktBtn(page, 'Menu').click();
+  await ktBtn(page, /^Rules/).click();
+  // The menu's own "This game" section stays under the sheet: the rules' one lists the settings.
+  const settings = page.getByRole('region', { name: 'This game' }).filter({ hasText: 'Decks' });
+  await expect(settings).toContainText('1 called card');
+});
+
 test('every screen of a hand, and the hub pages, have no serious axe violations; targets are 44px', async ({
   page,
 }) => {

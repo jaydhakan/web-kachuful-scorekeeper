@@ -31,6 +31,8 @@ export interface KtLastGroup {
   direction: Direction;
   minBid: number;
   step: 5 | 10;
+  /** Absent in groups saved before the table could pick it: the usual count then. */
+  partners?: number;
   length: KtLength;
   /** When it was saved (epoch ms). */
   at: number;
@@ -44,6 +46,8 @@ export interface KtSetup {
   /** Null follows the deck's default (150 / 350), so changing the count never strands a custom minimum. */
   minBid: number | null;
   bidStep: 5 | 10;
+  /** Partners called each hand; null follows the usual count for the table (`partnersFor`). */
+  partners: number | null;
   length: KtLength;
   seats: (Seat | null)[];
   dealer: number;
@@ -140,6 +144,7 @@ export type KtAction =
   | { type: 'setupDir'; dir: Direction }
   | { type: 'setupMinBid'; minBid: number | null }
   | { type: 'setupBidStep'; step: 5 | 10 }
+  | { type: 'setupPartners'; partners: number | null }
   | { type: 'setupLength'; length: KtLength }
   | { type: 'setupSeat'; k: number; seat: Seat | null }
   | { type: 'setupSeatPatch'; k: number; patch: Partial<Seat> }
