@@ -122,6 +122,8 @@ test('picking the trap loses at once', async ({ page, browser }) => {
   await page.getByRole('button', { name: `${trap}, face down`, exact: true }).click();
   await ishBtn(page, 'Confirm').click();
   await expect(page.getByText(`Trap! ${trap}`).first()).toBeVisible();
+  // The trap holds on the board until the table moves on (ISH-F14).
+  await ishBtn(page, 'See the result').click();
   await expect(page.getByRole('heading', { name: `${TEAM[other(t)]} wins` })).toBeVisible({
     timeout: 10_000,
   });

@@ -1,7 +1,13 @@
 import { useIsPresent } from 'framer-motion';
 import { useEffect, useRef, type KeyboardEvent } from 'react';
-import type { BoardProps } from '@/games/ishaara/screens/board/Board';
 import {
+  countPulse,
+  gridProps,
+  turnMs,
+  type BoardProps,
+} from '@/games/ishaara/screens/board/Board';
+import {
+  BoardEnd,
   BoardNote,
   BoardOverlays,
   Reconnecting,
@@ -11,7 +17,9 @@ import {
 import {
   ClueCard,
   GuessesLeft,
+  TimerBar,
   TurnBanner,
+  TurnSweep,
   TurnTimer,
   WordsLeft,
 } from '@/games/ishaara/screens/board/TurnPanel';
@@ -72,7 +80,7 @@ export default function DeskBoard({ table, onLeave, onRules, onFinished }: Board
       ref={root}
       className="absolute inset-0 overflow-hidden pb-[max(1.5rem,var(--sab))] pl-[max(1.5rem,var(--sal))] pr-[max(1.5rem,var(--sar))] pt-[calc(var(--sat)+1.5rem)]"
     >
-      <div className="mx-auto grid h-full max-w-[100rem] grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-5 rail:grid-cols-[minmax(19rem,24rem)_minmax(0,1fr)] rail:grid-rows-1 rail:gap-6">
+      <div className="mx-auto grid h-full max-w-[100rem] grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-5 rail:grid-cols-[minmax(19rem,24rem)_minmax(0,1fr)] rail:grid-rows-1 rail:gap-6 dt:grid-cols-[minmax(24rem,32rem)_minmax(0,1fr)] dt:gap-8">
         <aside
           aria-label={d.panel}
           className="grid grid-cols-2 gap-x-6 gap-y-4 rail:flex rail:min-h-0 rail:flex-col rail:overflow-y-auto rail:overscroll-contain"
@@ -87,11 +95,16 @@ export default function DeskBoard({ table, onLeave, onRules, onFinished }: Board
                 <TurnTimer deadline={active ? game.deadline : null} serverNow={serverNow} />
               </span>
             </div>
-            <ClueCard game={game} />
+            <TimerBar
+              deadline={active ? game.deadline : null}
+              totalMs={turnMs(v)}
+              serverNow={serverNow}
+            />
+            <ClueCard game={game} nudge={v.nudge} />
             <div className="hidden pane:block">
               <GuessesLeft game={game} />
             </div>
-            <WordsLeft game={game} column />
+            <WordsLeft game={game} column pulse={countPulse(v)} />
           </header>
           <footer className="flex flex-col justify-end gap-3 rail:mt-auto">
             <BoardNote v={v} compact />
@@ -117,19 +130,13 @@ export default function DeskBoard({ table, onLeave, onRules, onFinished }: Board
             {...{ ...roving.group, onKeyDown: onGridKey }}
             className="h-full"
           >
-            <WordGrid
-              words={game.words}
-              revealed={game.revealed}
-              disabled={!v.canPick}
-              selected={selected}
-              lit={v.moment?.card ?? null}
-              onPick={setSelected}
-              cellProps={roving.item}
-            />
+            <WordGrid {...gridProps(v)} cellProps={roving.item} />
           </div>
+          <BoardEnd v={v} />
         </main>
       </div>
 
+      <TurnSweep handoff={v.handoff} />
       <Reconnecting v={v} />
       <BoardOverlays v={v} onRules={onRules} onLeave={onLeave} />
     </div>

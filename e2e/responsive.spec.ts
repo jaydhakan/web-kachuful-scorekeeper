@@ -218,14 +218,7 @@ async function seatIsh(page: Page, name: string) {
  * Ishaara's open audit findings (docs/DESIGN-AUDIT-PLAN.md), each with the sizes it shows at. Anything else fails
  * the test; so does a listed bug that no longer shows, so the fix must delete its line here.
  */
-const ISH_KNOWN: { id: string; re: RegExp; at: string[] }[] = [
-  { id: 'ISH-F08', re: /^ish-board-confirm primary action: (covered|grid moved)/, at: ['360x640'] },
-  {
-    id: 'ISH-F24',
-    re: /^ish-board-confirm primary action: outside viewport/,
-    at: ['844x390', '740x360'],
-  },
-];
+const ISH_KNOWN: { id: string; re: RegExp; at: string[] }[] = [];
 
 // Ishaara under the same rules: the table and both clue phones at each phone size, setup to the win.
 for (const [w, h] of MATRIX) {

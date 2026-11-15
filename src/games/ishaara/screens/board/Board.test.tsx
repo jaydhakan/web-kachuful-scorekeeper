@@ -1,9 +1,16 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { clue, giver, pick, started, act as play } from '@/games/ishaara/domain/__fixtures__/kit';
+import {
+  clue,
+  giver,
+  pick,
+  started,
+  TABLE,
+  act as play,
+} from '@/games/ishaara/domain/__fixtures__/kit';
 import { SKIP_AFTER_MS, type IshaaraPublic } from '@/games/ishaara/domain';
 import type { SendResult } from '@/games/ishaara/state/link';
 import type { IshaaraTable } from '@/games/ishaara/state/useTable';
-import { Board, diffReveal } from './Board';
+import { Board, diffReveal, WIN_HOLD_MS } from './Board';
 
 type Send = (a: unknown) => Promise<SendResult>;
 
@@ -147,5 +154,73 @@ describe('reveal moments', () => {
     const live = document.querySelector('[aria-live="polite"]')!;
     expect(live).toHaveTextContent('GARDEN is blank. Turn over.');
     expect(live).toHaveTextContent('Moon’s turn. Waiting for Dev’s clue.');
+  });
+});
+
+describe('waiting, turn notices and the end', () => {
+  const live = () => document.querySelector('[aria-live="polite"]')!;
+  const at = (fin = vi.fn()) => ({
+    fin,
+    view: (t: IshaaraTable) => <Board table={t} onLeave={noop} onRules={noop} onFinished={fin} />,
+  });
+
+  it('says why a tap on the board did nothing while it waits for the clue', () => {
+    show(table(started().state));
+    expect(screen.getByRole('region', { name: 'Riya’s clue' })).toHaveAttribute('data-waiting');
+    expect(card('KITE')).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(card('KITE'));
+    expect(screen.queryByRole('button', { name: 'Confirm' })).toBeNull();
+    expect(live()).toHaveTextContent('Waiting for Riya’s clue');
+  });
+
+  it('shows a turn ended by End turn, and one ended by the timer, as a moment', () => {
+    let k = pick(clue(started({ rules: { timerSec: 60 } }), 'spice', 2), 0);
+    const { rerender } = show(table(k.state));
+    k = play(k, TABLE, { type: 'endTurn' });
+    rerender(<Board table={table(k.state)} onLeave={noop} onRules={noop} onFinished={noop} />);
+    expect(screen.getByText('Turn ended. Moon’s turn.')).toBeInTheDocument();
+    k = play(clue(k, 'quasar', 1), TABLE, { type: 'timeout' }, 61_000);
+    rerender(<Board table={table(k.state)} onLeave={noop} onRules={noop} onFinished={noop} />);
+    expect(screen.getByText('Time’s up. Sun’s turn.')).toBeInTheDocument();
+    expect(live()).toHaveTextContent('Time’s up.');
+  });
+
+  it('holds the trap on the board until "See the result"', async () => {
+    vi.useFakeTimers({ now: 0 });
+    const k = clue(started(), 'spice', 2);
+    const { fin, view } = at();
+    const { rerender } = render(view(table(k.state)));
+    rerender(view(table(pick(k, 24).state)));
+    await act(() => vi.advanceTimersByTimeAsync(10_000));
+    expect(fin).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'See the result' }));
+    expect(fin).toHaveBeenCalledTimes(1);
+  });
+
+  it('holds a found-all win a few seconds over the turned key', async () => {
+    vi.useFakeTimers({ now: 0 });
+    let k = clue(started(), 'spice', 'inf');
+    for (let c = 0; c < 8; c++) k = pick(k, c);
+    const { fin, view } = at();
+    const { rerender } = render(view(table(k.state)));
+    rerender(view(table(pick(k, 8).state)));
+    expect(screen.getByText('Sun found all 9 words.')).toBeInTheDocument();
+    await act(() => vi.advanceTimersByTimeAsync(WIN_HOLD_MS - 100));
+    expect(fin).not.toHaveBeenCalled();
+    await act(() => vi.advanceTimersByTimeAsync(200));
+    expect(fin).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves on at once after a resignation, even right after a reveal', async () => {
+    vi.useFakeTimers({ now: 0 });
+    let k = clue(started(), 'spice', 2);
+    const { fin, view } = at();
+    const { rerender } = render(view(table(k.state)));
+    k = pick(k, 0);
+    rerender(view(table(k.state)));
+    rerender(view(table(play(k, TABLE, { type: 'resign', team: 'sun' }).state)));
+    await act(() => vi.advanceTimersByTimeAsync(10));
+    expect(fin).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'See the result' })).toBeNull();
   });
 });

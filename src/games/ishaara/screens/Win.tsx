@@ -1,5 +1,5 @@
-import { m } from 'framer-motion';
-import { useState } from 'react';
+import { m, useReducedMotion } from 'framer-motion';
+import { lazy, Suspense, useRef, useState } from 'react';
 import {
   clueGiverOf,
   wordsOf,
@@ -15,11 +15,23 @@ import { loadIshLastSetup } from '@/games/ishaara/state/persistence';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { Mark, TEAM_FILL } from './board/marks';
 import { WordGrid } from './board/WordGrid';
 
 const w = s.win;
+
+const Confetti = lazy(() =>
+  import('@/components/ui/Confetti').then((x) => ({ default: x.Confetti })),
+);
+const INK: Record<Team, string> = { sun: 'text-team-sun-ink', moon: 'text-team-moon-ink' };
+/** Confetti in the two teams' colours, the winner's twice as often. */
+const teamConfetti = (t: Team) => [
+  `var(--team-${t})`,
+  `var(--team-${t})`,
+  `var(--team-${t === 'sun' ? 'moon' : 'sun'})`,
+];
 
 export interface ClueRow {
   team: Team;
@@ -56,6 +68,10 @@ export function clueLog(g: Pick<IshaaraPublic, 'log'>): ClueRow[] {
 /** The result: who won and how, the whole key, the clue log, the match score, and Rematch. */
 export default function Win({ game }: { game: IshaaraPublic }) {
   const { actions } = useIshaara();
+  const rm = useReducedMotion();
+  // Confetti once, on arriving; never under reduced motion.
+  const [party, setParty] = useState(!rm);
+  const headline = useRef<HTMLHeadingElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const winner = game.winner;
@@ -94,34 +110,64 @@ export default function Win({ game }: { game: IshaaraPublic }) {
       >
         <div className="pane:grid pane:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] pane:gap-6">
           <div>
-            <m.section {...stagger(0)} className="mt-2 flex items-center gap-4">
-              <span
-                aria-hidden
-                className={`grid h-24 w-24 shrink-0 place-items-center rounded-full land:h-16 land:w-16 ${winner ? TEAM_FILL[winner] : 'glass'}`}
-              >
-                {winner && <Mark id={winner} className="h-11 w-11 land:h-8 land:w-8" />}
-              </span>
-              <div className="min-w-0">
-                <h2 className="disp text-44 font-extrabold leading-none tracking-[-0.035em] land:text-32">
-                  {winner ? w.wins(winner) : w.noWinner}
-                </h2>
-                <p className="mt-1 text-17 text-[var(--tx2)]">
-                  {w.how(
-                    game.endedBy,
-                    winner,
-                    winner ? wordsOf(game, winner) : 0,
-                    trap?.word?.toUpperCase() ?? null,
+            {/* The win (A4): the winner's colour floods the card from its own side, the headline comes in. */}
+            <section
+              data-win-hero={winner ?? undefined}
+              className={`relative mt-2 overflow-hidden rounded-[28px] p-5 ${winner ? INK[winner] : 'glass'}`}
+            >
+              {winner && (
+                <m.span
+                  aria-hidden
+                  initial={rm ? { opacity: 0 } : { scaleX: 0 }}
+                  animate={rm ? { opacity: 1 } : { scaleX: 1 }}
+                  transition={rm ? { duration: REDUCED } : { duration: 0.55, ease: EASE }}
+                  style={{ transformOrigin: winner === 'sun' ? 'left' : 'right' }}
+                  className={`absolute inset-0 ${TEAM_FILL[winner]}`}
+                />
+              )}
+              <div className="relative flex items-center gap-4">
+                <m.span
+                  aria-hidden
+                  initial={rm ? { opacity: 0 } : { opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={rm ? { duration: REDUCED } : { ...SPRING_POP, delay: 0.35 }}
+                  className="grid h-20 w-20 shrink-0 place-items-center rounded-full bg-ov/10 land:h-16 land:w-16 dt:h-28 dt:w-28"
+                >
+                  {winner && (
+                    <Mark id={winner} className="h-11 w-11 land:h-8 land:w-8 dt:h-14 dt:w-14" />
                   )}
-                </p>
-                {game.rules.bestOf === 3 && (
-                  <p className="mt-1 text-16 font-semibold">
-                    {matchWinner
-                      ? w.matchWon(matchWinner)
-                      : w.match(sunWins, moonWins, game.match.game)}
+                </m.span>
+                <div className="min-w-0">
+                  <m.h2
+                    ref={headline}
+                    data-confetti-origin=""
+                    initial={rm ? { opacity: 0 } : { opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: rm ? REDUCED : 0.4, ease: EASE, delay: rm ? 0 : 0.45 }}
+                    className="disp text-44 font-extrabold leading-none tracking-[-0.035em] land:text-32 dt:text-64"
+                  >
+                    {winner ? w.wins(winner) : w.noWinner}
+                  </m.h2>
+                  <p
+                    className={`mt-1 text-17 dt:text-22 ${winner ? 'opacity-85' : 'text-[var(--tx2)]'}`}
+                  >
+                    {w.how(
+                      game.endedBy,
+                      winner,
+                      winner ? wordsOf(game, winner) : 0,
+                      trap?.word?.toUpperCase() ?? null,
+                    )}
                   </p>
-                )}
+                  {game.rules.bestOf === 3 && (
+                    <p className="mt-1 text-16 font-semibold">
+                      {matchWinner
+                        ? w.matchWon(matchWinner)
+                        : w.match(sunWins, moonWins, game.match.game)}
+                    </p>
+                  )}
+                </div>
               </div>
-            </m.section>
+            </section>
 
             {game.solution && (
               <m.section {...stagger(1)} aria-labelledby="ish-key" className="mt-6">
@@ -175,6 +221,15 @@ export default function Win({ game }: { game: IshaaraPublic }) {
           </p>
         )}
       </div>
+      {party && winner && (
+        <Suspense fallback={null}>
+          <Confetti
+            colors={teamConfetti(winner)}
+            origin={headline.current}
+            onDone={() => setParty(false)}
+          />
+        </Suspense>
+      )}
       <div className="chrome-bot flex shrink-0 gap-3 px-5 pb-[max(1.125rem,var(--sab))] pt-[1.125rem]">
         <PrimaryButton tone="glass" className="flex-1" onClick={actions.leave}>
           {w.back}

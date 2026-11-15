@@ -8,7 +8,7 @@ export const ishDesk = {
     cancel: 'cancel',
   },
   keys: {
-    arrows: '← →',
+    arrows: '← → ↑ ↓',
     enter: '⏎',
     esc: 'Esc',
   },
