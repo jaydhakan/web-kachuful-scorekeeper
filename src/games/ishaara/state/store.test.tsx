@@ -2,7 +2,14 @@ import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { started } from '@/games/ishaara/domain/__fixtures__/kit';
 import { loadIshLastSetup, loadRecentWords } from '@/games/ishaara/state/persistence';
-import { IshaaraProvider, isClueScreen, navReducer, initialNav, useIshaara } from './store';
+import {
+  backDepth,
+  IshaaraProvider,
+  isClueScreen,
+  navReducer,
+  initialNav,
+  useIshaara,
+} from './store';
 
 const G = started().state;
 const wrap = ({ children }: { children: ReactNode }) => (
@@ -41,6 +48,25 @@ describe('Ishaara nav', () => {
       gameId: null,
       role: 'table',
     });
+  });
+
+  it('system Back walks a clue-giver from the key to Your games, then Home (ISH-F03)', async () => {
+    expect(backDepth({ screen: 'key', gameId: 'g', role: 'clue' })).toBe(2);
+    expect(backDepth({ screen: 'board', gameId: 'g', role: 'table' })).toBe(0);
+    const { result } = renderHook(() => useIshaara(), { wrapper: wrap });
+    const before = history.length;
+    act(() => result.current.actions.openGame('g', 'clue'));
+    expect(history.length).toBe(before + 2);
+    await act(async () => {
+      history.back();
+      await new Promise((r) => window.addEventListener('popstate', r, { once: true }));
+    });
+    expect(result.current.nav).toMatchObject({ screen: 'clue-list', gameId: null });
+    await act(async () => {
+      history.back();
+      await new Promise((r) => window.addEventListener('popstate', r, { once: true }));
+    });
+    expect(result.current.nav.screen).toBe('home');
   });
 
   it('startGame creates on the server, reuses the id after a lost answer, and remembers the setup', async () => {

@@ -4,6 +4,7 @@ import { ishEp } from '@/games/ishaara/sync/endpoints';
 import type { IshaaraGameOut } from '@/games/ishaara/sync/types';
 import { uuid } from '@/lib/ids';
 import { saveIshLastSetup } from '@/games/ishaara/state/persistence';
+import { useHistorySync } from '@/hooks/useHistorySync';
 import { ApiError } from '@/sync/api';
 import { rememberWords } from './words';
 
@@ -54,6 +55,15 @@ export function navReducer(s: IshaaraNav, a: NavAction): IshaaraNav {
     case 'leave':
       return { gameId: null, role: s.role, screen: s.role === 'clue' ? 'clue-list' : 'home' };
   }
+}
+
+/**
+ * How many system Back steps the screen is from Home: Your games and setup one, a clue-giver's key two (Back walks
+ * key → Your games → Home, ISH-F03). A game on the table counts none, so Back never drops a live board unasked.
+ */
+export function backDepth(nav: IshaaraNav): number {
+  if (nav.screen === 'key' && nav.gameId) return 2;
+  return nav.screen === 'clue-list' || nav.screen === 'setup' || nav.screen === 'history' ? 1 : 0;
 }
 
 export type Done = { ok: true; out: IshaaraGameOut } | { ok: false; error: ApiError };
@@ -150,6 +160,11 @@ export function IshaaraProvider({
     }),
     [],
   );
+
+  useHistorySync(backDepth(nav), () => {
+    if (navRef.current.screen === 'key') dispatch({ type: 'leave' });
+    else dispatch({ type: 'go', screen: 'home' });
+  });
 
   const value = useMemo(() => ({ nav, actions }), [nav, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
