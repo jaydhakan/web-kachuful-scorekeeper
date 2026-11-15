@@ -79,6 +79,12 @@ export async function cluePhone(
  * the game lists this page reads are cut to this test's game, so the one row on screen is ours.
  */
 export async function onlyGame(page: Page, gameId: string) {
+  // Seat invites from every test's games would sit on top of Ishaara's home: none here (seat-invites.spec has its own).
+  await page.route(/\/api\/seat-invites(\?.*)?$/, (route) =>
+    route.request().method() === 'GET'
+      ? route.fulfill({ json: { items: [], serverNow: Date.now() } })
+      : route.continue(),
+  );
   await page.route(/\/api\/ishaara\/games(\?.*)?$/, async (route) => {
     if (route.request().method() !== 'GET') return route.continue();
     const res = await route.fetch();
