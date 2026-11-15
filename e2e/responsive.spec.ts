@@ -219,7 +219,6 @@ async function seatIsh(page: Page, name: string) {
  * the test; so does a listed bug that no longer shows, so the fix must delete its line here.
  */
 const ISH_KNOWN: { id: string; re: RegExp; at: string[] }[] = [
-  { id: 'ISH-F09', re: /^ish-key-clue (target under 44px|scrolls although)/, at: ['360x640'] },
   { id: 'ISH-F08', re: /^ish-board-confirm primary action: (covered|grid moved)/, at: ['360x640'] },
   {
     id: 'ISH-F24',

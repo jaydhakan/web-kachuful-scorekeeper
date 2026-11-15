@@ -131,7 +131,14 @@ const cases = THEME_IDS.flatMap((id) => {
     ['moon ink on moon', parse(t['--team-moon-ink']), parse(t['--team-moon']), 4.5],
     ['word ink on word card', parse(t['--word-card-ink']), parse(t['--word-card']), 4.5],
     ['blank ink on its hatch', parse(t['--word-blank-ink']), hatch('--word-blank'), 4.5],
-    ['trap ink on its hatch', parse(t['--word-trap-ink']), hatch('--word-trap'), 4.5],
+    // The trap is solid (no hatch) with a ring; blank keeps the hatch.
+    ['trap ink on trap', parse(t['--word-trap-ink']), parse(t['--word-trap']), 4.5],
+    ['trap ring on trap', parse(t['--word-trap-edge']), parse(t['--word-trap']), 3],
+    // Team colours as text, on the page and on panels (ISH-F18).
+    ['sun text on bg', fg('--team-sun-tx', bg), bg, 4.5],
+    ['sun text on panel', fg('--team-sun-tx', panel), panel, 4.5],
+    ['moon text on bg', fg('--team-moon-tx', bg), bg, 4.5],
+    ['moon text on panel', fg('--team-moon-tx', panel), panel, 4.5],
     ['bid ink on the bidding team', parse(t['--kt-bid-ink']), parse(t['--kt-bid']), 4.5],
   ];
   return pairs.map(([name, a, b, min]) => [`${id}: ${name}`, a, b, min] as const);
@@ -151,7 +158,6 @@ describe('the clue phone meets WCAG AA', () => {
     [...body.matchAll(/--key-([\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]),
   );
   const c = (n: string) => parse(k[n]);
-  const blankHatch = over(k['blank-stripe'], c('blank'));
   const pairs: [string, RGBA, RGBA, number][] = [
     ['text on bg', c('text'), c('bg'), 4.5],
     ['text on surface', c('text'), c('surface'), 4.5],
@@ -160,13 +166,24 @@ describe('the clue phone meets WCAG AA', () => {
     ['cta ink on cta', c('cta-ink'), c('cta'), 4.5],
     ['sun ink on sun', c('sun-ink'), c('sun'), 4.5],
     ['moon ink on moon', c('moon-ink'), c('moon'), 4.5],
-    ['blank ink on its hatch', c('blank-ink'), blankHatch, 4.5],
+    ['blank ink on blank', c('blank-ink'), c('blank'), 4.5],
     ['trap ink on trap', c('trap-ink'), c('trap'), 4.5],
     ['alert on surface', c('alert'), c('surface'), 4.5],
     ['ok on surface', c('ok'), c('surface'), 4.5],
     // Control outlines are non-text: 3:1.
     ['edge on surface', c('edge'), c('surface'), 3],
     ['edge on bg', c('edge'), c('bg'), 3],
+    // Each team's cell carries an outline in its colour: 3:1 against the page and its own fill (ISH-F05).
+    ['sun edge on bg', c('sun-edge'), c('bg'), 3],
+    ['sun edge on sun', c('sun-edge'), c('sun'), 3],
+    ['moon edge on bg', c('moon-edge'), c('bg'), 3],
+    ['moon edge on moon', c('moon-edge'), c('moon'), 3],
+    ['trap ring on bg', c('trap-ink'), c('bg'), 3],
+    // A revealed word keeps full ink on the page, struck through (ISH-F16).
+    ['revealed word on bg', c('text-2'), c('bg'), 4.5],
+    ...(['sun-ink', 'moon-ink', 'blank-ink', 'trap-ink'] as const).map(
+      (n): [string, RGBA, RGBA, number] => [`revealed ${n} mark on bg`, c(n), c('bg'), 3],
+    ),
   ];
   it.each(pairs)('%s', (_name, fg, bg, min) => {
     expect(ratio(fg, bg)).toBeGreaterThanOrEqual(min);

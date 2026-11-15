@@ -80,9 +80,8 @@ describe('key gate', () => {
     expect(within(grid).getByRole('img', { name: 'RIVER, Sun’s word' })).toBeVisible();
     expect(within(grid).getByRole('img', { name: 'CHAI, the trap' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Hide key' })).toHaveFocus();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Sun’s turn: your clue · Sun 9 left · Moon 8 left',
-    );
+    // One short line in the team's band, so it never wraps the layout; the counts sit on their own chips.
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Sun’s turn: your clue$/);
     fireEvent.click(screen.getByRole('button', { name: 'Hide key' }));
     expect(screen.queryByRole('list', { name: 'Your key' })).toBeNull();
     expect(screen.getByRole('button', { name: /Show key/ })).toHaveFocus();
@@ -119,6 +118,49 @@ describe('key gate', () => {
     mount();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(state.reload).toHaveBeenCalled();
+  });
+});
+
+describe('reading the key', () => {
+  it('counts what is still face down, and marks this phone’s own words', () => {
+    phone({ revealed: G.revealed.map((r, i) => (i === 0 ? 'sun' : r)) });
+    atKey();
+    const counts = screen.getByRole('list', { name: 'Words on your key' });
+    expect(counts).toHaveTextContent('Sun 8');
+    expect(counts).toHaveTextContent('Moon 8');
+    const grid = screen.getByRole('list', { name: 'Your key' });
+    expect(within(grid).getByRole('img', { name: 'KITE, Sun’s word' })).toHaveClass(
+      'font-extrabold',
+    );
+    expect(within(grid).getAllByRole('img', { name: /, Moon’s word$/ })[0]).not.toHaveClass(
+      'font-extrabold',
+    );
+  });
+
+  it('keeps a revealed word at full ink, struck through, instead of dimming the cell', () => {
+    phone({ revealed: G.revealed.map((r, i) => (i === 0 ? 'sun' : r)) });
+    atKey();
+    const card = screen.getByRole('img', { name: 'RIVER, Sun’s word, revealed' });
+    expect(card).not.toHaveClass('opacity-40');
+    expect(card.querySelector('.line-through')).not.toBeNull();
+  });
+
+  it('vibrates once when this phone’s turn to give a clue starts', () => {
+    const vibrate = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    phone({ turn: 'moon', clue: { team: 'moon', word: 'storm', number: 3 } });
+    const { rerender } = mount();
+    fireEvent.click(screen.getByRole('button', { name: /Show key/ }));
+    expect(vibrate).not.toHaveBeenCalled();
+    phone({ turn: 'sun', clue: null });
+    rerender(
+      <IshaaraProvider initial={AT_KEY}>
+        <NavSpy />
+        <ClueHome />
+      </IshaaraProvider>,
+    );
+    expect(vibrate).toHaveBeenCalledTimes(1);
+    Reflect.deleteProperty(navigator, 'vibrate');
   });
 });
 

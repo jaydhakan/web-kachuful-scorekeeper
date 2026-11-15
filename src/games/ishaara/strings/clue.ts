@@ -100,6 +100,8 @@ export const clue = {
     spokenBare: 'Pick how many words',
     infLabel: 'Any number',
     ok: 'Not on the board. The table can still rule it out.',
+    thenHowMany: 'One word, then how many it points to.',
+    sendShort: 'Send',
   },
   check: (c: Exclude<ClueCheck, { ok: true }>, typed: string): string => {
     if (!('word' in c))

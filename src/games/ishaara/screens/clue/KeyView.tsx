@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import {
   clueGiverOf,
   other,
-  wordsLeft,
   type ClueNumber,
   type Action,
+  type IshaaraPublic,
   type Team,
 } from '@/games/ishaara/domain';
 import { useIshaara } from '@/games/ishaara/state/store';
@@ -14,9 +14,9 @@ import { clue } from '@/games/ishaara/strings/clue';
 import { icon } from '@/components/ui/IconsMore';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { ClueEntry } from './ClueEntry';
-import { Counts, KeyGrid, TeamPill } from './KeyParts';
+import { Counts, KeyGrid, Mark, TeamPill, TINT } from './KeyParts';
 import { FinishedPanel, NotePanel, OursPanel, PenaltyPanel, TheirsPanel } from './Panels';
-import { CTA, OUTLINE, sendError } from './clueKit';
+import { CTA, OUTLINE, sendError, useCountdown } from './clueKit';
 
 /** A centred message for loading, refusal and error states, with an optional action. */
 function Notice({
@@ -98,6 +98,7 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
   const disabled = !live || c.busy;
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [typing, setTyping] = useState(false);
   const hide = useRef<HTMLButtonElement>(null);
   useEffect(() => hide.current?.focus(), []);
   // A new state from the server answers whatever the last message was about.
@@ -134,11 +135,6 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
               ? clue.status.yourGuessing(team)
               : clue.status.yourClue(team)
             : clue.status.theirs(g.turn);
-  const status = [
-    line,
-    clue.status.left('sun', wordsLeft(g, 'sun')),
-    clue.status.left('moon', wordsLeft(g, 'moon')),
-  ].join(' · ');
 
   let panel;
   if (g.status === 'finished')
@@ -164,7 +160,8 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
     ) : (
       <NotePanel body={clue.penalty.against(other(team))} />
     );
-  else if (mine && !g.clue) panel = <ClueEntry game={g} disabled={disabled} onSend={sendClue} />;
+  else if (mine && !g.clue)
+    panel = <ClueEntry game={g} disabled={disabled} onSend={sendClue} onTyping={setTyping} />;
   else if (mine) panel = <OursPanel game={g} offset={c.clockOffset} />;
   else
     panel = (
@@ -175,15 +172,18 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
         onNotAllowed={() => void send({ type: 'notAllowed' })}
       />
     );
+  const finished = g.status === 'finished';
 
   return (
     <m.div
       initial={rm ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-      className="mx-auto grid w-full max-w-[30rem] gap-4 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]"
+      data-typing={typing || undefined}
+      className={`group mx-auto flex h-full w-full max-w-[30rem] flex-col gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] md:max-w-[40rem] land:pb-[max(0.75rem,env(safe-area-inset-bottom))] land:pt-[max(0.75rem,env(safe-area-inset-top))] ${PANES}`}
     >
-      <div className="flex items-center justify-between gap-3">
+      {/* While typing on a short screen (the keyboard is up) the header and counts make way for the key. */}
+      <div className="flex items-center justify-between gap-3 pane:[grid-area:head] [@media(max-height:560px)]:group-data-[typing]:hidden">
         <TeamPill team={team} name={clueGiverOf(g, team)?.name ?? null} />
         <button
           ref={hide}
@@ -196,32 +196,123 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
           {clue.hide}
         </button>
       </div>
-      <h1 className="text-16 text-key-text-2" aria-live="polite">
-        {status}
-      </h1>
-      <Counts keyIds={keyIds} />
-      <KeyGrid
-        words={g.words}
-        keyIds={keyIds}
-        revealed={g.revealed}
-        pickable={
-          picker && !disabled ? (i) => keyIds[i] === team && g.revealed[i] === null : undefined
-        }
-        selected={selected}
-        onPick={setSelected}
-      />
-      {!live && (
-        <p role="status" className="text-16 font-semibold text-key-alert">
-          {clue.reconnecting}
-        </p>
+      <StatusBand game={g} team={team} line={line} offset={c.clockOffset} />
+      {finished && <div className="pane:[grid-area:panel]">{panel}</div>}
+      {/* On a phone on its side the key itself shows the counts; the room goes to the clue bar. */}
+      <div className="land:hidden pane:[grid-area:counts] [@media(max-height:560px)]:group-data-[typing]:hidden">
+        <Counts keyIds={keyIds} revealed={g.revealed} />
+      </div>
+      <div className="flex min-h-[15.25rem] flex-1 flex-col pane:min-h-0 pane:[grid-area:key]">
+        <KeyGrid
+          words={g.words}
+          keyIds={keyIds}
+          revealed={g.revealed}
+          team={team}
+          pickable={
+            picker && !disabled ? (i) => keyIds[i] === team && g.revealed[i] === null : undefined
+          }
+          selected={selected}
+          onPick={setSelected}
+        />
+      </div>
+      {(!live || error) && (
+        <div className="grid gap-1 pane:[grid-area:note]">
+          {!live && (
+            <p role="status" className="text-16 font-semibold text-key-alert">
+              {clue.reconnecting}
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-16 font-semibold text-key-alert">
+              {error}
+            </p>
+          )}
+        </div>
       )}
-      {error && (
-        <p role="alert" className="text-16 font-semibold text-key-alert">
-          {error}
-        </p>
-      )}
-      {panel}
+      {!finished && <div className="pane:self-end pane:[grid-area:panel]">{panel}</div>}
     </m.div>
+  );
+}
+
+/**
+ * From a phone on its side up: the key fills the left pane's height and the status, counts and panel sit beside it
+ * (ISH-F02), the split the desk board uses. Upright tablets keep one wider column.
+ */
+const PANES =
+  'pane:grid pane:max-w-[96rem] pane:grid-cols-[minmax(0,3fr)_minmax(19rem,2fr)] pane:grid-rows-[auto_auto_auto_auto_1fr] pane:gap-x-6 pane:[grid-template-areas:"key_head""key_band""key_counts""key_note""key_panel"] wide:px-8 wide:pb-8 wide:pt-8';
+
+/**
+ * Whose turn it is, as a band in the acting team's colour (ISH-F17). A new turn sweeps in from that team's side
+ * (A2), the phone whose turn starts vibrates once (A11), and a timed turn drains a bar along the bottom (A3).
+ */
+function StatusBand({
+  game,
+  team,
+  line,
+  offset,
+}: {
+  game: IshaaraPublic;
+  team: Team;
+  line: string;
+  offset: number;
+}) {
+  const rm = useReducedMotion();
+  const active = game.status === 'active';
+  const yours = active && game.turn === team && !game.clue && !game.pending;
+  const was = useRef(yours);
+  useEffect(() => {
+    if (yours && !was.current) navigator.vibrate?.(40);
+    was.current = yours;
+  }, [yours]);
+  const fill = active ? TINT[game.turn] : 'bg-key-surface text-key-text';
+  return (
+    <div
+      className={`relative isolate min-h-12 shrink-0 overflow-hidden rounded-[16px] pane:[grid-area:band] ${fill}`}
+    >
+      {active && !rm && (
+        <m.span
+          key={game.turn}
+          aria-hidden
+          initial={{ scaleX: 0, opacity: 0.5 }}
+          animate={{ scaleX: 1, opacity: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className={`absolute inset-0 -z-10 bg-key-text ${game.turn === 'sun' ? 'origin-left' : 'origin-right'}`}
+        />
+      )}
+      <h1
+        aria-live="polite"
+        className="flex min-h-12 items-center gap-2.5 px-4 py-2 text-18 font-bold leading-tight"
+      >
+        {active && <Mark id={game.turn} className="h-4 w-4" />}
+        {line}
+      </h1>
+      {active && <TurnBar game={game} offset={offset} />}
+    </div>
+  );
+}
+
+/** A thin bar that drains over a timed turn; the last ten seconds turn it to the alert colour and pulse. */
+function TurnBar({ game, offset }: { game: IshaaraPublic; offset: number }) {
+  const rm = useReducedMotion();
+  const left = useCountdown(game.deadline, offset);
+  const total = game.rules.timerSec;
+  if (left === null || !total) return null;
+  const low = left <= 10;
+  return (
+    <span aria-hidden className="absolute inset-x-0 bottom-0 h-1">
+      <span className="absolute inset-0 bg-key-bg opacity-40" />
+      <m.span
+        className={`absolute inset-0 origin-left ${low ? 'bg-key-alert' : 'bg-current'}`}
+        animate={{
+          scaleX: Math.min(1, left / total),
+          opacity: low && !rm ? [1, 0.45, 1] : 1,
+        }}
+        transition={{
+          scaleX: { duration: rm ? 0 : 0.5, ease: 'linear' },
+          opacity: low && !rm ? { duration: 1, repeat: Infinity } : { duration: 0 },
+        }}
+      />
+    </span>
   );
 }
 

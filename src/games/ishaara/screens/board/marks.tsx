@@ -1,7 +1,10 @@
 import type { Identity, Team } from '@/games/ishaara/domain';
 import { table as s } from '@/games/ishaara/strings/table';
 
-/** Identity is never colour alone: Sun a dot, Moon a crescent, blank two strokes, the trap a cross. */
+/**
+ * Identity is never colour alone: Sun a dot, Moon a crescent, blank two strokes, the trap a cross. The one drawing
+ * of the marks: the board, the clue phone and the pages all use it.
+ */
 export function Mark({ id, className = 'h-[1em] w-[1em]' }: { id: Identity; className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden className={`inline-block shrink-0 ${className}`}>
@@ -34,13 +37,22 @@ export function Mark({ id, className = 'h-[1em] w-[1em]' }: { id: Identity; clas
 const HATCH =
   '[background-image:repeating-linear-gradient(135deg,var(--word-stripe)_0_7px,transparent_7px_15px)]';
 
-/** Fill and ink per identity; blank and trap carry stripes (contrast.test.ts measures ink over them). */
+/**
+ * Fill and ink per identity. Blank carries stripes (contrast.test.ts measures ink over them); the trap is solid with
+ * a ring in its own colour, so it never reads as a darker blank.
+ */
 export const FACE: Record<Identity | 'down', string> = {
   down: 'bg-word-card text-word-card-ink shadow-[inset_0_0_0_1.5px_var(--word-edge)]',
   sun: 'bg-team-sun text-team-sun-ink shadow-[inset_0_0_0_1.5px_var(--word-edge)]',
   moon: 'bg-team-moon text-team-moon-ink shadow-[inset_0_0_0_1.5px_var(--word-edge)]',
   blank: `${HATCH} bg-word-blank text-word-blank-ink shadow-[inset_0_0_0_1.5px_var(--word-edge)]`,
-  trap: `${HATCH} bg-word-trap text-word-trap-ink shadow-[inset_0_0_0_1.5px_var(--word-edge)]`,
+  trap: 'bg-word-trap text-word-trap-ink shadow-[inset_0_0_0_3px_var(--word-trap-edge)]',
+};
+
+/** A team's colour as text or a mark on the page itself (passes 4.5:1 in every theme, unlike the fills). */
+export const TEAM_TX: Record<Team, string> = {
+  sun: 'text-team-sun-tx',
+  moon: 'text-team-moon-tx',
 };
 
 export const TEAM_FILL: Record<Team, string> = {
@@ -80,7 +92,7 @@ export function TeamCount({
 }) {
   return (
     <span className={`inline-flex items-center gap-2 font-semibold ${className}`}>
-      <Mark id={team} className="h-3.5 w-3.5" />
+      <Mark id={team} className={`h-3.5 w-3.5 ${TEAM_TX[team]}`} />
       {s.board.left(team, n)}
     </span>
   );

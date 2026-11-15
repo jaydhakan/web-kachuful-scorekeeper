@@ -344,8 +344,5 @@ test('every theme lays out Ishaara’s setup, board, key and win identically', a
       });
     }
   }
-  // Open finding (ISH-F17): the clue phone's status line can wrap in Yerba Sun's wider face and push the key down.
-  // It depends on which team starts, so it is excused here, not required; delete this once the line is fixed.
-  const known = /^yerba-sun key .* y \d+→\d+$/;
-  expect(moved.filter((m) => !known.test(m))).toEqual([]);
+  expect(moved).toEqual([]);
 });
