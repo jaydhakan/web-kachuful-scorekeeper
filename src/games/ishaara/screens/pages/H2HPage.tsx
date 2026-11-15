@@ -12,7 +12,7 @@ const x = ipg.h2h;
 export function H2HPage({ a, b }: { a: Who; b: Who }) {
   const r = useIshaaraHeadToHead(a.id, b.id);
   return (
-    <IshPage eyebrow={x.title} title={`${a.name} · ${b.name}`}>
+    <IshPage wide eyebrow={x.title} title={`${a.name} · ${b.name}`}>
       <div className="mb-5 flex items-center justify-center gap-6">
         <Face w={a} />
         <span aria-hidden className="disp text-20 font-extrabold text-[var(--tx2)]">
@@ -63,7 +63,7 @@ function Face({ w }: { w: Who }) {
       className="press flex min-h-12 flex-col items-center gap-1.5 rounded-2xl px-2 py-1"
     >
       <Avatar p={w} className="grid h-16 w-16 place-items-center rounded-full text-36" />
-      <span className="text-15 font-bold [overflow-wrap:anywhere]">{w.name}</span>
+      <span className="text-15 font-bold [overflow-wrap:break-word]">{w.name}</span>
     </button>
   );
 }

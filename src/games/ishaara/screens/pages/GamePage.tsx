@@ -88,72 +88,84 @@ function GameBody({ g, host }: { g: IshaaraPublic; host: boolean | null }) {
             {failed}
           </p>
         )}
-        <Section title={gt.teams}>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 [[data-desk]_&]:grid-cols-2">
-            {TEAMS.map((t) => (
-              <div key={t} className="glass p-2">
-                <h3 className="px-2 pb-1 pt-1 text-15 font-bold">
-                  <TeamName team={t} />
-                </h3>
-                <ul>
-                  {g.players
-                    .filter((p) => p.team === t)
-                    .map((p) => (
-                      <li key={p.id}>
-                        <button
-                          type="button"
-                          disabled={!p.playerId}
-                          aria-label={gt.openPlayer(p.name)}
-                          onClick={() =>
-                            p.playerId &&
-                            open({
-                              page: 'player',
-                              who: {
-                                id: p.playerId,
-                                playerId: p.playerId,
-                                name: p.name,
-                                emoji: p.emoji,
-                                color: p.color,
-                              },
-                            })
-                          }
-                          className="press flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 py-1 text-left"
-                        >
-                          <Avatar
-                            p={p}
-                            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-18"
-                          />
-                          <span className="min-w-0 flex-1 text-16 font-bold [overflow-wrap:anywhere]">
-                            {p.name}
-                          </span>
-                          {p.role === 'clue-giver' && (
-                            <span className="rounded-full bg-ov/[.08] px-2 py-0.5 text-13 font-bold text-[var(--tx2)]">
-                              {ipg.common.clueGiver}
-                            </span>
-                          )}
-                        </button>
-                      </li>
-                    ))}
+        {/* Wide enough, the teams and the key sit beside the clue log instead of above it. */}
+        <div className="@container">
+          <div className="@[56rem]:grid @[56rem]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] @[56rem]:gap-8">
+            <div className="@container">
+              <Section title={gt.teams}>
+                <div className="grid grid-cols-1 gap-2 @[30rem]:grid-cols-2">
+                  {TEAMS.map((t) => (
+                    <div key={t} className="glass p-2">
+                      <h3 className="px-2 pb-1 pt-1 text-15 font-bold">
+                        <TeamName team={t} />
+                      </h3>
+                      <ul>
+                        {g.players
+                          .filter((p) => p.team === t)
+                          .map((p) => (
+                            <li key={p.id}>
+                              <button
+                                type="button"
+                                disabled={!p.playerId}
+                                aria-label={gt.openPlayer(p.name)}
+                                onClick={() =>
+                                  p.playerId &&
+                                  open({
+                                    page: 'player',
+                                    who: {
+                                      id: p.playerId,
+                                      playerId: p.playerId,
+                                      name: p.name,
+                                      emoji: p.emoji,
+                                      color: p.color,
+                                    },
+                                  })
+                                }
+                                className="press flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 py-1 text-left"
+                              >
+                                <Avatar
+                                  p={p}
+                                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-18"
+                                />
+                                <span className="min-w-0 flex-1 text-16 font-bold [overflow-wrap:break-word]">
+                                  {p.name}
+                                </span>
+                                {p.role === 'clue-giver' && (
+                                  <span className="rounded-full bg-ov/[.08] px-2 py-0.5 text-13 font-bold text-[var(--tx2)]">
+                                    {ipg.common.clueGiver}
+                                  </span>
+                                )}
+                              </button>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+              <Section
+                title={gt.key}
+                aside={<span className="text-13 text-[var(--tx2)]">{gt.keyNote}</span>}
+              >
+                <ul aria-label={gt.key} className="grid grid-cols-5 gap-1.5">
+                  {g.words.map((w, i) => (
+                    <li key={i}>
+                      <WordCard
+                        word={w}
+                        id={g.solution![i]}
+                        picked={g.revealed[i] !== null}
+                        small
+                      />
+                    </li>
+                  ))}
                 </ul>
-              </div>
-            ))}
+              </Section>
+            </div>
+            <Section title={gt.log}>
+              <ClueLog game={g} />
+            </Section>
           </div>
-        </Section>
-        <Section
-          title={gt.key}
-          aside={<span className="text-13 text-[var(--tx2)]">{gt.keyNote}</span>}
-        >
-          <ul aria-label={gt.key} className="grid grid-cols-5 gap-1.5">
-            {g.words.map((w, i) => (
-              <li key={i}>
-                <WordCard word={w} id={g.solution![i]} picked={g.revealed[i] !== null} small />
-              </li>
-            ))}
-          </ul>
-        </Section>
-        <Section title={gt.log}>
-          <ClueLog game={g} />
-        </Section>
+        </div>
       </IshPage>
       <AnimatePresence>
         {asking && (

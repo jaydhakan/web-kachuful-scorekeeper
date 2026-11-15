@@ -101,6 +101,29 @@ describe('Ishaara setup', () => {
     expect(screen.getByRole('radio', { name: 'Jay gives the clues' })).toBeChecked();
   });
 
+  it('says on each row who gives clues, who could, and who has no account', () => {
+    saveIshLastSetup({
+      players: [
+        seat('p-jay', 'Jay', 'sun', 'clue-giver'),
+        seat('p-riya', 'Riya', 'sun', 'guesser'),
+        seat('p-dev', 'Dev', 'moon', 'clue-giver'),
+        seat('p-meera', 'Meera', 'moon', 'guesser'),
+      ],
+      packs: ['everyday'],
+      customWords: [],
+      rules: RULES,
+      at: 1,
+    });
+    show();
+    const row = (name: RegExp) => screen.getByRole('button', { name }).closest('li')!;
+    expect(row(/^Jay \(you\) Clue-giver/)).toHaveTextContent('Gives clues');
+    expect(row(/^Riya Guesser/)).toHaveTextContent('Make clue-giver');
+    expect(row(/^Meera Guesser/)).toHaveTextContent('No account');
+    fireEvent.click(screen.getByRole('radio', { name: 'Riya gives the clues' }));
+    expect(row(/^Riya Clue-giver/)).toHaveTextContent('Gives clues');
+    expect(row(/^Jay \(you\) Guesser/)).toHaveTextContent('Make clue-giver');
+  });
+
   it('marks who can’t give clues, and Invite tells a member to ask the admin', () => {
     saveIshLastSetup({
       players: [
