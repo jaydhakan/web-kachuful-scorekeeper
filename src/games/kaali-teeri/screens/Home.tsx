@@ -17,9 +17,13 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { MQ } from '@/theme/breakpoints';
+import { KtAccountChip } from './KtAccount';
 
+// One centred column on a phone and tablet; from the rail up two panes use the width (KT-F05).
 const ROOT =
-  'absolute inset-0 flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))]';
+  'absolute inset-0 flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))] rail:pl-[var(--sal)] rail:pr-[var(--sar)]';
 
 /** "Hand 4 · Riya bid 180", or who deals while the hand has no bid yet. */
 function handLine(g: KtGame): string {
@@ -112,7 +116,7 @@ function Recent({ current }: { current: string | null }) {
     );
   return (
     <section aria-labelledby="kt-recent" className="w-full">
-      <h2 id="kt-recent" className="mono-label mb-1.5 px-1 text-12 text-[var(--tx2)]">
+      <h2 id="kt-recent" className="mono-label mb-1.5 px-1 text-13 text-[var(--tx2)]">
         {s.home.recent}
       </h2>
       <div className="glass overflow-hidden">{body}</div>
@@ -124,6 +128,8 @@ function Recent({ current }: { current: string | null }) {
 export default function Home() {
   const { state, actions } = useKt();
   const g = state.game;
+  // One New Game: in the hero pane from the rail up, in the bottom bar below it.
+  const wide = useMediaQuery(MQ.rail);
   const links: { key: KtHubPage | 'rules'; icon: ReactNode; go: () => void }[] = [
     { key: 'history', icon: Icon.history, go: () => actions.openPage({ page: 'history' }) },
     {
@@ -145,63 +151,87 @@ export default function Home() {
       >
         {Icon.menu}
       </IconButton>
+      {/* The desk rail and top bar carry the account; on the phone it sits opposite the menu (KT-F04). */}
+      <KtAccountChip className="!absolute right-[max(1rem,var(--sar))] top-[calc(var(--sat)+0.75rem)] z-10 [[data-desk]_&]:!hidden" />
       <div
         tabIndex={0}
         role="region"
         aria-label={s.name}
         className="scroll-thin flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden px-5"
       >
-        <div className="mx-auto flex w-full max-w-[26rem] flex-col items-center gap-5 pb-4 pt-16">
-          <m.div {...stagger(0)} className="flex flex-col items-center text-center">
-            <h1 className="disp gold-text wordmark text-52 font-extrabold leading-none tracking-[-0.05em] @h-short:text-40">
-              {s.name}
-            </h1>
-            <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)]">{s.tagline}</p>
-          </m.div>
-          {g && (
-            <m.div {...stagger(1, 0.1)} className="w-full">
-              <ResumeCard g={g} />
+        <div className="mx-auto flex w-full max-w-[26rem] flex-col items-center gap-5 pb-4 pt-16 rail:grid rail:min-h-full rail:max-w-[66rem] rail:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] rail:items-center rail:gap-x-16 rail:px-8 rail:py-10 dt:gap-x-24">
+          {/* Contents on the phone, so the column keeps its order and gaps; the hero pane from the rail up. */}
+          <div className="contents rail:flex rail:flex-col rail:items-start rail:gap-7">
+            <m.div
+              {...stagger(0)}
+              className="flex flex-col items-center text-center rail:items-start rail:text-left"
+            >
+              <h1 className="disp gold-text wordmark text-52 font-extrabold leading-none tracking-[-0.05em] @h-short:text-40 rail:text-96 rail:leading-[.92]">
+                {s.name}
+              </h1>
+              <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)] rail:mt-4 rail:text-20">
+                {s.tagline}
+              </p>
+              <p className="hidden max-w-[30rem] text-18 leading-[1.45] text-[var(--tx2)] rail:mt-3 rail:block">
+                {s.home.pitch}
+              </p>
             </m.div>
-          )}
-          <m.nav
-            {...stagger(2, 0.15)}
-            aria-label={s.home.nav}
-            className="glass w-full overflow-hidden"
-          >
-            {links.map((d, k) => (
-              <m.button
-                key={d.key}
-                type="button"
-                whileTap={PRESS}
-                onClick={d.go}
-                className="relative flex min-h-12 w-full items-center gap-3.5 px-4 text-left text-16 font-medium"
-              >
-                {k > 0 && (
-                  <span aria-hidden className="absolute left-12 right-0 top-0 h-px bg-ov/10" />
-                )}
-                <span
-                  aria-hidden
-                  className="grid h-5 w-5 place-items-center text-[var(--tx2)] [&_svg]:h-5 [&_svg]:w-5"
+            {wide && (
+              <m.div {...stagger(1, 0.1)}>
+                <PrimaryButton className="w-60" onClick={actions.startSetup}>
+                  {s.home.newGame}
+                </PrimaryButton>
+              </m.div>
+            )}
+            {g && (
+              <m.div {...stagger(1, 0.1)} className="w-full rail:max-w-[30rem]">
+                <ResumeCard g={g} />
+              </m.div>
+            )}
+          </div>
+          <div className="contents rail:flex rail:flex-col rail:gap-6">
+            <m.nav
+              {...stagger(2, 0.15)}
+              aria-label={s.home.nav}
+              className="glass w-full overflow-hidden"
+            >
+              {links.map((d, k) => (
+                <m.button
+                  key={d.key}
+                  type="button"
+                  whileTap={PRESS}
+                  onClick={d.go}
+                  className="relative flex min-h-12 w-full items-center gap-3.5 px-4 text-left text-16 font-medium rail:min-h-14"
                 >
-                  {d.icon}
-                </span>
-                <span className="flex-1">{s.hub[d.key]}</span>
-                <span aria-hidden className="text-[var(--dis)]">
-                  {Icon.chev}
-                </span>
-              </m.button>
-            ))}
-          </m.nav>
-          <m.div {...stagger(3, 0.2)} className="w-full">
-            <Recent current={g?.syncId ?? null} />
-          </m.div>
+                  {k > 0 && (
+                    <span aria-hidden className="absolute left-12 right-0 top-0 h-px bg-ov/10" />
+                  )}
+                  <span
+                    aria-hidden
+                    className="grid h-5 w-5 place-items-center text-[var(--tx2)] [&_svg]:h-5 [&_svg]:w-5"
+                  >
+                    {d.icon}
+                  </span>
+                  <span className="flex-1">{s.hub[d.key]}</span>
+                  <span aria-hidden className="text-[var(--dis)]">
+                    {Icon.chev}
+                  </span>
+                </m.button>
+              ))}
+            </m.nav>
+            <m.div {...stagger(3, 0.2)} className="w-full">
+              <Recent current={g?.syncId ?? null} />
+            </m.div>
+          </div>
         </div>
       </div>
-      <div className="chrome-bot flex min-h-[96px] [[data-desk]_&]:bg-none items-center px-5 pb-[max(18px,var(--sab))] pt-[18px]">
-        <PrimaryButton className="mx-auto w-full max-w-[26rem]" onClick={actions.startSetup}>
-          {s.home.newGame}
-        </PrimaryButton>
-      </div>
+      {!wide && (
+        <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,var(--sab))] pt-[18px] [[data-desk]_&]:bg-none">
+          <PrimaryButton className="mx-auto w-full max-w-[26rem]" onClick={actions.startSetup}>
+            {s.home.newGame}
+          </PrimaryButton>
+        </div>
+      )}
     </div>
   );
 }

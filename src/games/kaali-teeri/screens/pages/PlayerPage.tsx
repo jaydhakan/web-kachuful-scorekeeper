@@ -97,9 +97,7 @@ export function PlayerPage({ id }: { id: string }) {
                         <span className="block text-13 font-bold uppercase tracking-[0.08em] text-[var(--tx2)]">
                           {p.mostWith}
                         </span>
-                        <span className="block text-17 font-bold [overflow-wrap:anywhere]">
-                          {mate.name}
-                        </span>
+                        <span className="block text-17 font-bold break-words">{mate.name}</span>
                       </span>
                       <span className="text-14 text-[var(--tx2)]">
                         {p.together(s.mostPartner.hands, s.mostPartner.made)}
@@ -137,9 +135,7 @@ export function PlayerPage({ id }: { id: string }) {
                               p={ow}
                               className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-18"
                             />
-                            <span className="flex-1 text-16 font-bold [overflow-wrap:anywhere]">
-                              {ow.name}
-                            </span>
+                            <span className="flex-1 text-16 font-bold break-words">{ow.name}</span>
                             <span className="text-14 text-[var(--tx2)]">{p.shared(o.games)}</span>
                           </RowButton>
                         </li>

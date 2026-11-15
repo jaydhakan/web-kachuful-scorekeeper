@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { KtGame, KtHand } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import { kp } from '@/games/kaali-teeri/strings/play';
@@ -33,10 +33,39 @@ interface HandFrameProps {
 export const InPane = createContext(false);
 
 /** A hand screen as the desk's action pane shows it: the content scrolls, the bar stays at the bottom. */
+/** True while the box can scroll further down: its bottom edge then fades so the cut reads as "more below". */
+function useMoreBelow() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const check = () => setMore(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    for (const c of el.children) ro.observe(c);
+    el.addEventListener('scroll', check, { passive: true });
+    check();
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', check);
+    };
+  }, []);
+  return [ref, more] as const;
+}
+
+const FADE = 'linear-gradient(to bottom, black calc(100% - 2rem), transparent)';
+
 function PaneFrame({ title, aside, asideFirst, bar, barNote, children }: HandFrameProps) {
+  const [scroller, more] = useMoreBelow();
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="scroll-thin -mx-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-1 pb-1">
+      <div
+        ref={scroller}
+        data-more-below={more || undefined}
+        style={more ? { maskImage: FADE, WebkitMaskImage: FADE } : undefined}
+        className="scroll-thin -mx-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-1 pb-1"
+      >
         {title && (
           <h2 className="disp mb-3 text-22 font-extrabold leading-tight tracking-[-0.02em]">
             {title}

@@ -26,6 +26,9 @@ export function QuickBid({ g, h }: { g: KtGame; h: KtHand }) {
       fit
       g={g}
       h={h}
+      // A phone on its side: the table gets the left pane, the switch and the amount the right (KT-F01).
+      aside={<ModeSwitch />}
+      asideFirst
       step={s.frame.bidding}
       sub={s.frame.dealt(g.players[h.dealerIndex].name, cardsEach(g.players.length))}
       bar={
@@ -52,8 +55,7 @@ export function QuickBid({ g, h }: { g: KtGame; h: KtHand }) {
         </div>
       }
     >
-      <ModeSwitch />
-      <h2 className="mono-label mb-1 px-1 text-12 text-[var(--accent-tx)] @h-short:sr-only">
+      <h2 className="mono-label mb-1 px-1 text-13 text-[var(--accent-tx)] @h-short:sr-only">
         {s.quick.who}
       </h2>
       <BidTable

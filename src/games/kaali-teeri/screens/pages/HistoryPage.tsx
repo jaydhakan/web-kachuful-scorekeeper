@@ -130,7 +130,7 @@ function GameRow({ rec, current }: { rec: KtGameRec; current: boolean }) {
       aria-label={h.rowLabel(`${dayLabel(at)} ${timeLabel(at)}`, line)}
       className="glass flex min-h-[4.5rem] w-full flex-col gap-1.5 px-4 py-3 text-left"
     >
-      <span className="flex w-full items-center gap-2 text-16 font-bold leading-tight [overflow-wrap:anywhere]">
+      <span className="flex w-full items-center gap-2 text-16 font-bold leading-tight break-words">
         {winner && (
           <Avatar
             p={winner}

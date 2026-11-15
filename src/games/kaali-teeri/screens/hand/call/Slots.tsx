@@ -17,14 +17,17 @@ interface SlotsProps {
   onRemove: (i: number) => void;
   /** Change a called card (rank, suit or copy). */
   onOpen: (i: number) => void;
+  /** Smaller cards where height is short: the slot is decoration until a card is chosen. */
+  compact?: boolean;
 }
 
 /** One place per partner card: the called cards face up, the one being picked outlined, the rest waiting. */
-export function Slots({ count, called, draft, onRemove, onOpen }: SlotsProps) {
-  const size: CardSize = count <= 2 ? 'lg' : 'md';
+export function Slots({ count, called, draft, onRemove, onOpen, compact }: SlotsProps) {
+  const big = count <= 2 && !compact;
+  const size: CardSize = big ? 'lg' : 'md';
   return (
     <ol
-      className={`flex flex-wrap justify-center gap-y-2 pt-3 ${count > 2 ? 'gap-x-2' : 'gap-x-4'}`}
+      className={`flex flex-wrap justify-center gap-y-2 ${compact ? 'pt-1' : 'pt-3'} ${big ? 'gap-x-4' : 'gap-x-2'}`}
     >
       {Array.from({ length: count }, (_, k) => {
         const c = called[k];
@@ -39,7 +42,7 @@ export function Slots({ count, called, draft, onRemove, onOpen }: SlotsProps) {
         return (
           <li
             key={k}
-            className={`flex flex-col items-center gap-1.5 ${count > 2 ? 'w-[4.5rem]' : 'w-28'}`}
+            className={`flex flex-col items-center gap-1.5 ${big ? 'w-28' : compact ? 'min-w-[4.5rem]' : 'w-[4.5rem]'}`}
           >
             <div className={`relative ${W[size]} aspect-[5/7]`}>
               <AnimatePresence mode="popLayout" initial={false}>
@@ -106,7 +109,9 @@ export function Slots({ count, called, draft, onRemove, onOpen }: SlotsProps) {
                 </m.button>
               )}
             </div>
-            <span className="flex flex-col items-center text-center leading-4">
+            <span
+              className={`flex items-center text-center leading-4 ${compact ? 'gap-x-1 whitespace-nowrap' : 'flex-col'}`}
+            >
               <span className={`text-14 font-bold ${c ? '' : 'text-[var(--tx2)]'}`}>
                 {s.slot(k + 1)}
               </span>

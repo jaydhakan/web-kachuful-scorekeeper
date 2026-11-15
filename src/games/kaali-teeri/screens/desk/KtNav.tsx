@@ -10,6 +10,7 @@ import { Icon } from '@/components/ui/Icons';
 import { IconOn } from '@/components/ui/IconsFill';
 import { PRESS_SM } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { KtAccountButton, KtAccountRail } from '../KtAccount';
 
 type Where = 'home' | 'game' | 'scores' | 'rules';
 
@@ -96,6 +97,7 @@ export function KtRail({ onKeys }: { onKeys: () => void }) {
         onClick={n.rules}
       />
       <div className="flex-1" />
+      <KtAccountRail />
       <RailItem icon={Icon.undo} label={kd.nav.undo} disabled={!n.canUndo} onClick={n.undo} />
       <RailItem icon={Icon.menu} label={kd.nav.menu} onClick={n.menu} />
       <div className="hidden kbd:block">
@@ -134,7 +136,7 @@ export function KtTopBar({ onKeys }: { onKeys: () => void }) {
       >
         <span aria-hidden>{kd.logo}</span>
       </m.button>
-      <div className="disp min-w-0 flex-1 text-22 font-extrabold leading-tight tracking-[-0.02em] [overflow-wrap:anywhere]">
+      <div className="disp min-w-0 flex-1 text-22 font-extrabold leading-tight tracking-[-0.02em] break-words">
         {title}
       </div>
       {n.hasGame && <GhostButton onClick={n.scores}>{kd.nav.scores}</GhostButton>}
@@ -147,6 +149,7 @@ export function KtTopBar({ onKeys }: { onKeys: () => void }) {
       <GhostButton icon aria-label={kd.nav.menu} onClick={n.menu}>
         {Icon.menu}
       </GhostButton>
+      <KtAccountButton />
       <GhostButton
         icon
         aria-label={kd.keys.open}

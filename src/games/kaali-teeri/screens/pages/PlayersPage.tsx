@@ -60,9 +60,7 @@ export function PlayersPage() {
                         p={w}
                         className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-22"
                       />
-                      <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
-                        {w.name}
-                      </span>
+                      <span className="min-w-0 flex-1 text-17 font-bold break-words">{w.name}</span>
                       <span className="text-14 text-[var(--tx2)]">{ps.sub(r.games)}</span>
                       <span aria-hidden className="text-[var(--dis)]">
                         {Icon.chev}

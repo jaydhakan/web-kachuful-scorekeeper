@@ -19,6 +19,7 @@ import { MQ } from '@/theme/breakpoints';
 import { Glass } from '@/components/ui/Glass';
 import { Table, type SeatBadge } from '@/components/ui/Table';
 import { SPRING_POP } from '@/components/ui/motion';
+import { useLand } from '../parts/reveal';
 
 interface BidTableProps {
   uid: string;
@@ -45,6 +46,7 @@ export function TableMiddle({
   who,
   flat,
   word,
+  won,
 }: {
   kicker: string;
   amount: ReactNode;
@@ -52,23 +54,30 @@ export function TableMiddle({
   flat: boolean;
   /** The big line is a name, not a number: smaller, and allowed to wrap. */
   word?: boolean;
+  /** The bid has just been won: the amount lands rather than ticking (A7). */
+  won?: boolean;
 }) {
+  const land = useLand('bid');
+  const tick = {
+    initial: { opacity: 0.4, y: 4 },
+    animate: { opacity: 1, y: 0 },
+    transition: SPRING_POP,
+  };
   return (
     <span
       aria-hidden
       className={`flex items-center text-[var(--ctr-fg)] ${flat ? 'gap-2' : 'flex-col gap-0.5'}`}
     >
-      {!flat && <span className="mono-label text-[0.6875rem] leading-4">{kicker}</span>}
+      {!flat && <span className="mono-label text-13 leading-4">{kicker}</span>}
       <m.span
         key={String(amount)}
-        initial={{ opacity: 0.4, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={SPRING_POP}
-        className={`disp tick font-extrabold leading-none tracking-[-0.03em] ${word ? `max-w-[9rem] text-center [overflow-wrap:anywhere] ${flat ? 'text-22' : 'text-32'}` : flat ? 'text-28' : 'text-52'}`}
+        {...(won ? land : tick)}
+        data-kt-land={won || undefined}
+        className={`disp tick font-extrabold leading-none tracking-[-0.03em] ${word ? `max-w-[9rem] text-center break-words ${flat ? 'text-22' : 'text-32'}` : flat ? 'text-28' : 'text-52'}`}
       >
         {amount}
       </m.span>
-      <span className="max-w-[9rem] text-center text-14 font-bold leading-5 [overflow-wrap:anywhere]">
+      <span className="max-w-[9rem] text-center text-14 font-bold leading-5 break-words">
         {who}
       </span>
     </span>

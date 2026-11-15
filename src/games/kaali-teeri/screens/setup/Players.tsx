@@ -170,7 +170,7 @@ export default function Players() {
               onClick={() => setMore((v) => !v)}
               className="press flex min-h-11 w-full items-center justify-between gap-3 rounded-2xl px-1 text-left"
             >
-              <span className="mono-label text-12 text-[var(--tx2)]">{s.advanced}</span>
+              <span className="mono-label text-13 text-[var(--tx2)]">{s.advanced}</span>
               <span className="flex items-center gap-2 text-13 font-medium text-[var(--tx2)]">
                 {s.advancedSummary(su.dir, minBid, su.bidStep)}
                 <span

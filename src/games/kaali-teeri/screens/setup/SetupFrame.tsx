@@ -40,7 +40,7 @@ export const SectionLabel = ({
   className?: string;
   id?: string;
 }) => (
-  <h2 id={id} className={`mono-label text-12 text-[var(--tx2)] ${className}`}>
+  <h2 id={id} className={`mono-label text-13 text-[var(--tx2)] ${className}`}>
     {children}
   </h2>
 );

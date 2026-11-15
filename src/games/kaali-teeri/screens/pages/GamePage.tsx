@@ -79,9 +79,7 @@ function GameBody({ g, current }: { g: KtGame; current: boolean }) {
                   p={s.p}
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-20"
                 />
-                <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
-                  {s.p.name}
-                </span>
+                <span className="min-w-0 flex-1 text-17 font-bold break-words">{s.p.name}</span>
                 <span className="disp text-22 font-extrabold">{gt.points(fmt(s.t))}</span>
               </button>
             </li>

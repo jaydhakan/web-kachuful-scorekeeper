@@ -20,7 +20,7 @@ export function PlayPane({ g, h }: { g: KtGame; h: KtHand }) {
           className="mat-av grid h-12 w-12 shrink-0 place-items-center rounded-full text-26"
         />
         <p className="min-w-0 flex-1 leading-tight">
-          <span className="disp block text-22 font-extrabold tracking-[-0.02em] [overflow-wrap:anywhere]">
+          <span className="disp block text-22 font-extrabold tracking-[-0.02em] break-words">
             {kd.play.bidLine(bidder.name, h.bid)}
           </span>
           <span className="text-15 text-[var(--tx2)]">{kp.play.leadsLine(bidder.name)}</span>
