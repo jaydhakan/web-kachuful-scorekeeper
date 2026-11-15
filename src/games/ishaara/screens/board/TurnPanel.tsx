@@ -92,7 +92,9 @@ export function ClueCard({ game, nudge = 0 }: { game: IshaaraPublic; nudge?: num
       aria-label={b.cluesBy(giver)}
       data-waiting={waiting || undefined}
       animate={shake}
-      className={`flex items-center gap-3 rounded-[24px] px-5 py-4 land:px-4 land:py-3 dt:px-7 dt:py-6 ${waiting ? TEAM_FILL[game.turn] : 'glass'}`}
+      // Tall enough for the waiting line on two lines (a wider theme face) or a clue and its number, so the grid
+      // below keeps its size across themes and when the clue arrives.
+      className={`flex min-h-[7.25rem] items-center gap-3 rounded-[24px] px-5 py-4 land:min-h-0 land:px-4 land:py-3 dt:px-7 dt:py-6 ${waiting ? TEAM_FILL[game.turn] : 'glass'}`}
     >
       <div className="min-w-0 flex-1">
         <p
