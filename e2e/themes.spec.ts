@@ -258,7 +258,6 @@ const labelContrast = (page: Page, sel: string) =>
 
 for (const id of THEMES)
   test(`${id}: Ishaara's sign-in gate shows its Sign in label`, async ({ page }) => {
-    test.fail(id === 'editorial-paper', 'PL-F02: ink label on an ink pill in Editorial Paper');
     await page.goto('/ishaara');
     await showTheme(page, id);
     const link = page.getByRole('link', { name: 'Sign in' });

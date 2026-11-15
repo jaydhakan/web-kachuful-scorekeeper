@@ -1,6 +1,9 @@
 import './ishaara.css';
 import { lazy, type MouseEvent, type ReactNode } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { UpdateGate } from '@/components/UpdateGate';
+import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { go } from '@/platform/route';
 import { MQ } from '@/theme/breakpoints';
@@ -27,7 +30,10 @@ function Gate({ title, body, children }: { title: string; body: string; children
   );
 }
 
-/** Sign-in lives in Kachuful's account pages; a plain click opens it without a reload. */
+/**
+ * Sign-in lives in Kachuful's account pages; a plain click opens it without a reload. A real link, painted with the
+ * primary button's materials so each theme's label colour applies (PL-F02).
+ */
 function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
@@ -50,8 +56,30 @@ function Root() {
   return big ? <IshaaraShell board={DeskBoard} desk /> : <IshaaraShell />;
 }
 
+/**
+ * Registers the service worker and holds the app behind a waiting update, as the other games do (PL-F04). Ishaara
+ * has no toast slot, so the offline-ready news is left for a game that can say it.
+ */
+function IshaaraServiceWorker() {
+  const { needRefresh, reload } = useServiceWorker();
+  return (
+    <AnimatePresence>
+      {needRefresh && <UpdateGate key="update" onReload={reload} />}
+    </AnimatePresence>
+  );
+}
+
 /** Ishaara's lazy root: signed in and online only, since the server runs the game. */
 export default function Ishaara() {
+  return (
+    <>
+      <IshaaraRoot />
+      <IshaaraServiceWorker />
+    </>
+  );
+}
+
+function IshaaraRoot() {
   const session = signedInAs(useSession());
   if (!session)
     return (
@@ -59,7 +87,7 @@ export default function Ishaara() {
         <a
           href="/kachuful?open=signin"
           onClick={toSignIn}
-          className="mat-fill press inline-flex min-h-12 items-center rounded-full px-6 text-16 font-bold text-ink-on-accent"
+          className="mat-cta mat-cta-on mat-tone-accent mat-fill press relative isolate inline-flex h-[60px] min-w-[16rem] items-center justify-center gap-2 rounded-[20px] px-6 text-18 font-bold tracking-[-0.01em] text-ink-on-accent"
         >
           {shell.signIn.action}
         </a>
