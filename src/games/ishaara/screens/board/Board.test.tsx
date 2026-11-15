@@ -52,6 +52,17 @@ describe('the board', () => {
     expect(t.send).toHaveBeenCalledWith({ type: 'guess', card: 1 });
   });
 
+  it('gives a watcher (not the host) nothing to press: no pick, no End turn (ISH-F11)', () => {
+    const k = pick(clue(started(), 'spice', 2), 0);
+    const t = table(k.state, { me: { host: false, team: null } });
+    show(t);
+    fireEvent.click(card('KITE'));
+    expect(screen.queryByRole('button', { name: 'Confirm' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^End .* turn$/ })).toBeNull();
+    expect(screen.getAllByText(/You’re watching this table/).length).toBeGreaterThan(0);
+    expect(t.send).not.toHaveBeenCalled();
+  });
+
   it('keeps End turn off until the first guess, then sends endTurn', async () => {
     let k = clue(started(), 'spice', 2);
     const { rerender } = show(table(k.state));

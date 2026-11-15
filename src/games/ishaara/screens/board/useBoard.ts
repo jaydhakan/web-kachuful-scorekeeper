@@ -137,7 +137,9 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   }, [notice]);
 
   const live = conn === 'live';
-  const canSend = live && !busy;
+  // Only the host's device acts on the board; any other signed-in account is watching (ISH-F11, ISH-F22).
+  const host = table.me?.host ?? false;
+  const canSend = live && !busy && host;
   const canPick = !!game && active && !!game.clue && !game.pending && canSend;
   const act = async (a: Action) => {
     setError('');
@@ -149,6 +151,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   const blocked = () => {
     if (!game || !active || canPick || !live) return;
     setNudge((x) => x + 1);
+    if (!host) return setSaid(b.watching);
     const giver = clueGiverOf(game, game.turn)?.name ?? s.team[game.turn];
     setSaid(game.pending ? b.penaltyWait : b.waitingClue(giver));
   };
@@ -165,8 +168,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
 
   return {
     game,
-    // Only the host's device acts on the board; any other signed-in account is watching (ISH-F11, ISH-F22).
-    host: table.me?.host ?? false,
+    host,
     conn,
     live,
     canSend,

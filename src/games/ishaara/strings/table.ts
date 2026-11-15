@@ -241,6 +241,7 @@ export const table = {
     endOk: 'End game',
     keepPlaying: 'Keep playing',
     endFailed: 'Couldn’t end the game. Try again.',
+    watching: 'You’re watching this table. Only the host’s screen can pick a word.',
   },
 
   win: {

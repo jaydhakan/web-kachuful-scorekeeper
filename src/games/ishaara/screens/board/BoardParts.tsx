@@ -88,7 +88,9 @@ export function TurnActions({ v, className = '' }: { v: BoardView; className?: s
   if (!game || !active) return null;
   // The row keeps its height while the game is live (no clue yet, a penalty pending), so the grid never jumps.
   // A mis-tap that ended the turn leaves no clue, which is when Undo matters most.
-  if (pending || (!game.clue && !undo)) return <div aria-hidden className={`h-14 ${className}`} />;
+  // A watcher's screen has nothing to press: only the host's device acts on the board (ISH-F11).
+  if (!v.host || pending || (!game.clue && !undo))
+    return <div aria-hidden className={`h-14 ${className}`} />;
   const endId = 'ish-end-why';
   return (
     <div className={`flex gap-2 ${className}`}>
