@@ -127,10 +127,13 @@ for (const [w, h] of [
     // The title spans the page instead of a narrow column (PL-F06).
     expect((await heading(page).boundingBox())!.width).toBeGreaterThan(w * 0.6);
     if (w === 768) {
-      // Three games in one row, none alone on a second.
+      // Four games two by two, none alone on a row.
       const tops = await page
         .locator('section[aria-labelledby="landing-games"] li')
         .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
-      expect(new Set(tops).size).toBe(1);
+      expect(tops).toHaveLength(4);
+      expect(new Set(tops).size).toBe(2);
+      expect(tops[0]).toBe(tops[1]);
+      expect(tops[2]).toBe(tops[3]);
     }
   });
