@@ -26,6 +26,7 @@ export const COLOR_VARS = {
   'game-kachuful': 'game-kachuful',
   'game-kaali-teeri': 'game-kaali-teeri',
   'game-ishaara': 'game-ishaara',
+  'game-spades': 'game-spades',
   'team-sun': 'team-sun',
   'team-sun-ink': 'team-sun-ink',
   'team-moon': 'team-moon',

@@ -120,7 +120,7 @@ const cases = THEME_IDS.flatMap((id) => {
     // The offline chip is warning text on its own 10% tint, so it needs no status token of its own.
     ['warning on its tint', fg('--warning', tint('--warning', bg)), tint('--warning', bg), 4.5],
     // Game accents may label a landing card, on the page or on the card.
-    ...(['kachuful', 'kaali-teeri', 'ishaara'] as const).flatMap(
+    ...(['kachuful', 'kaali-teeri', 'ishaara', 'spades'] as const).flatMap(
       (g): [string, RGBA, RGBA, number][] => [
         [`${g} accent on bg`, fg(`--game-${g}`, bg), bg, 4.5],
         [`${g} accent on panel`, fg(`--game-${g}`, panel), panel, 4.5],
