@@ -170,7 +170,7 @@ function GameRow({ g }: { g: IshaaraSummaryOut }) {
       onClick={() => open({ page: 'game', id: g.id, summary: g })}
       className="glass flex min-h-[4.5rem] w-full flex-col gap-1.5 px-4 py-3 text-left"
     >
-      <span className="flex w-full items-center gap-2 text-16 font-bold leading-tight [overflow-wrap:anywhere]">
+      <span className="flex w-full items-center gap-2 text-16 font-bold leading-tight [overflow-wrap:break-word]">
         {g.winner && g.endedBy !== 'abandoned' && (
           <span className={TEAM_TEXT[g.winner]}>
             <Mark id={g.winner} className="h-5 w-5" />
@@ -187,7 +187,7 @@ function GameRow({ g }: { g: IshaaraSummaryOut }) {
           <span key={t} className="flex w-full items-start gap-2 text-14 text-[var(--tx2)]">
             <TeamName team={t} />
             <AvatarStack players={ps} s={22} max={5} />
-            <span className="min-w-0 [overflow-wrap:anywhere]">{names(g, t)}</span>
+            <span className="min-w-0 [overflow-wrap:break-word]">{names(g, t)}</span>
           </span>
         );
       })}

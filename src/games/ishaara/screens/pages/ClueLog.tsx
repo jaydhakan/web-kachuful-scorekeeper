@@ -102,7 +102,7 @@ export function ClueLog({ game }: { game: Pick<IshaaraPublic, 'log' | 'players'>
                   <TeamName team={t.team}>{L.turn(t.team)}</TeamName>
                 </span>
                 {giver && <span className="text-13 text-[var(--tx2)]">{L.clueBy(giver.name)}</span>}
-                <span className="disp w-full text-20 font-extrabold tracking-[-0.01em] [overflow-wrap:anywhere]">
+                <span className="disp w-full text-20 font-extrabold tracking-[-0.01em] [overflow-wrap:break-word]">
                   {L.clue(t.clue.word ?? null, t.clue.number ?? 0)}
                 </span>
               </div>

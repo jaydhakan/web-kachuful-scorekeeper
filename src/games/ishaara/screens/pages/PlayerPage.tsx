@@ -72,7 +72,7 @@ function Rivals({ who }: { who: Who }) {
   return (
     <Section title={p.vs}>
       {others.length ? (
-        <ul className="flex flex-col gap-2">
+        <ul className="grid grid-cols-1 gap-2 [[data-desk]_&]:grid-cols-2">
           {others.map((x) => {
             const o = whoOf(x.player);
             return (
@@ -85,7 +85,7 @@ function Rivals({ who }: { who: Who }) {
                     p={o}
                     className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-18"
                   />
-                  <span className="flex-1 text-16 font-bold [overflow-wrap:anywhere]">
+                  <span className="flex-1 text-16 font-bold [overflow-wrap:break-word]">
                     {o.name}
                   </span>
                   <span className="text-14 text-[var(--tx2)]">{ipg.common.games(x.games)}</span>
