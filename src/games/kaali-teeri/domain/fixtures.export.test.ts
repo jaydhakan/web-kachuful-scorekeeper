@@ -335,6 +335,38 @@ function build() {
   spoil('played_by', (x) => (x.hands[1].playedBy = [null]));
   spoil('team_points', (x) => (x.hands[1].teamPoints = 192));
   spoil('times', (x) => (x.hands[1].doneAt = NOW + 3600e3));
+  // Added after the rest so their ids and dates stay put; the table picked its own partner count.
+  add(
+    'partners-fewer',
+    '6 players calling 1 partner instead of 2',
+    g(
+      6,
+      [
+        { bidder: 1, bid: 170, team: 180 },
+        { bidder: 4, bid: 160, playedBy: [4], team: 120 },
+      ],
+      { partners: 1 },
+    ),
+  );
+  add(
+    'partners-more',
+    '8 players calling 6 partners instead of 3; the bidder holds one',
+    g(
+      8,
+      [
+        {
+          bidder: 2,
+          bid: 360,
+          called: ['A', 'K', 'Q', 'J', '10', '5'].map((r) =>
+            card(r as CardRef['rank'], 'hearts', 1),
+          ),
+          playedBy: [3, 2, 5, 6, 7, 0],
+          team: 380,
+        },
+      ],
+      { partners: 6 },
+    ),
+  );
 
   const games = Object.values(out)
     .map((f) => f as { game: KtGame; expect: { valid: boolean } })

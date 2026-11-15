@@ -22,75 +22,100 @@ describe('§2.3 calling partners', () => {
     const pool = [AS, KH, QD, JC];
     for (const n of [4, 5, 6]) {
       const k = partnersFor(n);
-      expect(validCalled(pool.slice(0, k), n)).toBe(true);
-      expect(validCalled(pool.slice(0, k - 1), n)).toBe(false);
-      expect(validCalled(pool.slice(0, k + 1), n)).toBe(false);
+      expect(validCalled(pool.slice(0, k), n, k)).toBe(true);
+      expect(validCalled(pool.slice(0, k - 1), n, k)).toBe(false);
+      expect(validCalled(pool.slice(0, k + 1), n, k)).toBe(false);
     }
     const two = pool.map((x) => ({ ...x, copy: 1 as const }));
     for (const n of [7, 8, 9, 10]) {
       const k = partnersFor(n);
-      expect(validCalled(two.slice(0, k), n)).toBe(true);
-      expect(validCalled(two.slice(0, k - 1), n)).toBe(false);
+      expect(validCalled(two.slice(0, k), n, k)).toBe(true);
+      expect(validCalled(two.slice(0, k - 1), n, k)).toBe(false);
     }
   });
 
+  it("calls as many cards as the game's own rules say, not the usual count", () => {
+    expect(validCalled([AS], 6, 1)).toBe(true);
+    expect(validCalled([AS, KH], 6, 1)).toBe(false);
+    expect(canAdd(KH, [AS], 6, 1)).toBe(false);
+    expect(validCalled([AS, KH], 4, 2)).toBe(true);
+    expect(canAdd(KH, [AS], 4, 2)).toBe(true);
+    const two = [
+      AS,
+      KH,
+      QD,
+      JC,
+      c('10', 'spades'),
+      c('9', 'hearts'),
+      c('8', 'clubs'),
+      c('7', 'clubs'),
+    ];
+    const eight = two.map((x) => ({ ...x, copy: 1 as const }));
+    expect(validCalled(eight, 10, 8)).toBe(true);
+    expect(validCalled(eight.slice(0, 7), 10, 8)).toBe(false);
+  });
+
   it('a taken-out card can’t be called', () => {
-    expect(canAdd(c('2', 'clubs'), [], 5)).toBe(false);
-    expect(canAdd(c('2', 'hearts'), [], 5)).toBe(true);
-    expect(canAdd(c('2', 'spades'), [], 6)).toBe(false);
-    expect(canAdd(c('2', 'clubs', 1), [], 7)).toBe(false);
-    expect(validCalled([c('2', 'diamonds')], 4)).toBe(true);
+    expect(canAdd(c('2', 'clubs'), [], 5, partnersFor(5))).toBe(false);
+    expect(canAdd(c('2', 'hearts'), [], 5, partnersFor(5))).toBe(true);
+    expect(canAdd(c('2', 'spades'), [], 6, partnersFor(6))).toBe(false);
+    expect(canAdd(c('2', 'clubs', 1), [], 7, partnersFor(7))).toBe(false);
+    expect(validCalled([c('2', 'diamonds')], 4, partnersFor(4))).toBe(true);
   });
 
   it('with one deck a card has no copy marker', () => {
     expect(copyNeeded(AS, 5)).toBe(false);
-    expect(canAdd(AS, [], 5)).toBe(true);
-    expect(canAdd(c('A', 'spades', 1), [], 5)).toBe(false);
-    expect(canAdd(c('A', 'spades', 'other'), [], 5)).toBe(false);
+    expect(canAdd(AS, [], 5, partnersFor(5))).toBe(true);
+    expect(canAdd(c('A', 'spades', 1), [], 5, partnersFor(5))).toBe(false);
+    expect(canAdd(c('A', 'spades', 'other'), [], 5, partnersFor(5))).toBe(false);
   });
 
   it('with two decks each card is first played, second played or the other one', () => {
     expect(copyNeeded(AS, 7)).toBe(true);
-    expect(canAdd(AS, [], 7)).toBe(false);
+    expect(canAdd(AS, [], 7, partnersFor(7))).toBe(false);
     for (const copy of [1, 2, 'other'] as const)
-      expect(canAdd(c('A', 'spades', copy), [], 7)).toBe(true);
-    expect(canAdd({ ...AS, copy: 3 as 1 }, [], 7)).toBe(false);
+      expect(canAdd(c('A', 'spades', copy), [], 7, partnersFor(7))).toBe(true);
+    expect(canAdd({ ...AS, copy: 3 as 1 }, [], 7, partnersFor(7))).toBe(false);
   });
 
   it('a card with one copy left after removal needs no marker', () => {
     const two = c('2', 'hearts');
     expect(copyNeeded(two, 9)).toBe(false);
-    expect(canAdd(two, [], 9)).toBe(true);
-    expect(canAdd(c('2', 'hearts', 1), [], 9)).toBe(false);
-    expect(canAdd(c('2', 'hearts', 'other'), [], 9)).toBe(false);
+    expect(canAdd(two, [], 9, partnersFor(9))).toBe(true);
+    expect(canAdd(c('2', 'hearts', 1), [], 9, partnersFor(9))).toBe(false);
+    expect(canAdd(c('2', 'hearts', 'other'), [], 9, partnersFor(9))).toBe(false);
   });
 
   it('a card can’t be called twice', () => {
-    expect(canAdd(AS, [AS], 6)).toBe(false);
-    expect(validCalled([AS, AS], 6)).toBe(false);
-    expect(canAdd(c('A', 'spades', 1), [c('A', 'spades', 1)], 8)).toBe(false);
-    expect(canAdd(c('A', 'spades', 2), [c('A', 'spades', 1)], 8)).toBe(true);
-    expect(validCalled([c('A', 'spades', 1), c('A', 'spades', 2), c('K', 'spades', 1)], 8)).toBe(
-      true,
-    );
+    expect(canAdd(AS, [AS], 6, partnersFor(6))).toBe(false);
+    expect(validCalled([AS, AS], 6, partnersFor(6))).toBe(false);
+    expect(canAdd(c('A', 'spades', 1), [c('A', 'spades', 1)], 8, partnersFor(8))).toBe(false);
+    expect(canAdd(c('A', 'spades', 2), [c('A', 'spades', 1)], 8, partnersFor(8))).toBe(true);
+    expect(
+      validCalled(
+        [c('A', 'spades', 1), c('A', 'spades', 2), c('K', 'spades', 1)],
+        8,
+        partnersFor(8),
+      ),
+    ).toBe(true);
   });
 
   it('“the other one” can’t be combined with another call of the same card', () => {
     const other = c('A', 'spades', 'other');
-    expect(canAdd(c('A', 'spades', 1), [other], 8)).toBe(false);
-    expect(canAdd(other, [c('A', 'spades', 2)], 8)).toBe(false);
-    expect(canAdd(other, [other], 8)).toBe(false);
-    expect(canAdd(c('A', 'hearts', 1), [other], 8)).toBe(true);
+    expect(canAdd(c('A', 'spades', 1), [other], 8, partnersFor(8))).toBe(false);
+    expect(canAdd(other, [c('A', 'spades', 2)], 8, partnersFor(8))).toBe(false);
+    expect(canAdd(other, [other], 8, partnersFor(8))).toBe(false);
+    expect(canAdd(c('A', 'hearts', 1), [other], 8, partnersFor(8))).toBe(true);
   });
 
   it('only real cards', () => {
-    expect(canAdd(c('1' as 'A', 'spades'), [], 4)).toBe(false);
-    expect(canAdd(c('A', 'stars' as 'spades'), [], 4)).toBe(false);
+    expect(canAdd(c('1' as 'A', 'spades'), [], 4, partnersFor(4))).toBe(false);
+    expect(canAdd(c('A', 'stars' as 'spades'), [], 4, partnersFor(4))).toBe(false);
   });
 
   it('no more cards once the partners are all called', () => {
-    expect(canAdd(KH, [AS], 4)).toBe(false);
-    expect(canAdd(KH, [AS], 6)).toBe(true);
+    expect(canAdd(KH, [AS], 4, partnersFor(4))).toBe(false);
+    expect(canAdd(KH, [AS], 6, partnersFor(6))).toBe(true);
   });
 });
 

@@ -627,7 +627,8 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
     case 'addCard': {
       if (!inPhase(s, 'calling')) return s;
       const card = cleanCard(a.card);
-      if (!canAdd(card, curHand(s.game).called, s.game.players.length)) return s;
+      if (!canAdd(card, curHand(s.game).called, s.game.players.length, s.game.rules.partners))
+        return s;
       return commit(
         s,
         (_, h) => {
@@ -655,13 +656,14 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
       if (!c || c.copy === a.copy || !copyNeeded(c, n)) return s;
       const card = { ...c, copy: a.copy };
       const others = called.filter((_, k) => k !== a.i);
-      if (!canAdd(card, others, n)) return s;
+      if (!canAdd(card, others, n, s.game.rules.partners)) return s;
       return commit(s, (_, h) => void (h.called[a.i] = card), { undo: true });
     }
     case 'confirmCall': {
       if (!inPhase(s, 'calling')) return s;
       const h = curHand(s.game);
-      if (!h.trump || !validCalled(h.called, s.game.players.length)) return s;
+      if (!h.trump || !validCalled(h.called, s.game.players.length, s.game.rules.partners))
+        return s;
       return commit(s, (_, hh) => void (hh.phase = 'playing'), { undo: true });
     }
 

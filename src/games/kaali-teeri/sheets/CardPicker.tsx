@@ -28,7 +28,7 @@ export default function CardPicker() {
     return <p className="px-1 py-4 text-15 text-[var(--tx2)]">{s.picker.unavailable}</p>;
   const n = g.players.length;
   const others = i === null ? h.called : h.called.filter((_, k) => k !== i);
-  const ready = draftCard(draft, others, n);
+  const ready = draftCard(draft, others, n, g.rules.partners);
   // Picking only fills the draft; the button calls it, so a mis-tap is changed before it counts.
   const commit = (card: CardRef) => {
     if (i === null) actions.addCard(card);
@@ -57,6 +57,7 @@ export default function CardPicker() {
       <CardGrid
         uid="kt-picker"
         n={n}
+        partners={g.rules.partners}
         called={others}
         draft={draft}
         onDraft={setDraft}

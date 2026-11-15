@@ -22,8 +22,12 @@ export const MAX_PLAYERS = 10;
 const DECK = 52;
 
 export const decksFor = (n: number): 1 | 2 => (n <= 6 ? 1 : 2);
-/** 4p 1 · 5p 1 · 6p 2 · 7p 2 · 8p 3 · 9p 3 · 10p 4. */
+/** The usual count, a new game's default: 4p 1 · 5p 1 · 6p 2 · 7p 2 · 8p 3 · 9p 3 · 10p 4. */
 export const partnersFor = (n: number): number => Math.floor(n / 2) - 1;
+/** Advanced: the table may call 1 partner up to n − 2, which always leaves at least one defender. */
+export const partnerRange = (n: number) => ({ lo: 1, hi: n - 2 });
+export const partnersOk = (partners: number, n: number): boolean =>
+  Number.isInteger(partners) && partners >= partnerRange(n).lo && partners <= partnerRange(n).hi;
 export const deckTotal = (decks: 1 | 2): number => 250 * decks;
 
 export const cardPoints = ({ rank, suit }: Pick<CardRef, 'rank' | 'suit'>): number =>
@@ -94,7 +98,7 @@ export function rulesOk(r: KtRules, n: number): boolean {
   const { lo, hi } = minBidRange(r.decks);
   return (
     r.decks === decksFor(n) &&
-    r.partners === partnersFor(n) &&
+    partnersOk(r.partners, n) &&
     (r.step === 5 || r.step === 10) &&
     Number.isInteger(r.minBid) &&
     r.minBid >= lo &&

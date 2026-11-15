@@ -32,6 +32,27 @@ describe('validate: accepted games', () => {
     ).toBe(null);
   });
 
+  it("a table's own partner count: fewer or more than the usual", () => {
+    const six = ['a', 'b', 'c', 'd', 'e', 'f'];
+    const one = kitGame({
+      id: 'x',
+      players: six,
+      start: T0,
+      partners: 1,
+      hands: [{ bidder: 0, bid: 150, team: 160 }],
+    });
+    expect(one.hands[0].called).toHaveLength(1);
+    expect(check(one)).toBe(null);
+    const two = kitGame({
+      id: 'x',
+      players: P4,
+      start: T0,
+      partners: 2,
+      hands: [{ bidder: 0, bid: 150, team: 160 }],
+    });
+    expect(check(two)).toBe(null);
+  });
+
   it('every phase of the hand in play', () => {
     expect(check(fresh('bidding'))).toBe(null);
     expect(check(fresh('calling'))).toBe(null);
@@ -139,8 +160,26 @@ describe('validate: reasons', () => {
 
   it('rules', () => {
     expect(spoilt((g) => (g.rules.decks = 2))).toEqual({ reason: 'rules', handIndex: null });
-    expect(spoilt((g) => (g.rules.partners = 2))).toMatchObject({ reason: 'rules' });
     expect(spoilt((g) => (g.rules.minBid = 125))).toMatchObject({ reason: 'rules' });
+  });
+
+  it('rules: a partner count outside 1 to n − 2', () => {
+    expect(spoilt((g) => (g.rules.partners = 0))).toMatchObject({ reason: 'rules' });
+    expect(spoilt((g) => (g.rules.partners = 3))).toMatchObject({ reason: 'rules' });
+  });
+
+  it("called: more or fewer cards than the game's own count", () => {
+    const six = ['a', 'b', 'c', 'd', 'e', 'f'];
+    const g = kitGame({
+      id: 'x',
+      players: six,
+      start: T0,
+      partners: 1,
+      hands: [{ bidder: 0, bid: 150, team: 160 }],
+    });
+    g.hands[0].called.push({ rank: 'K', suit: 'clubs' });
+    g.hands[0].playedBy.push('p2');
+    expect(check(g)).toEqual({ reason: 'called', handIndex: 0 });
   });
 
   it('dealer', () => {

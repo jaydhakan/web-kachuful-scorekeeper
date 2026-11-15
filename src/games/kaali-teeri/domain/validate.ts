@@ -126,8 +126,8 @@ function handProblem(g: KtGame, h: KtHand, i: number, ids: string[]): KtInvalidR
     at < CALLING
       ? h.called.length > 0
       : at === CALLING
-        ? !h.called.every((c, k) => canAdd(c, h.called.slice(0, k), n))
-        : !validCalled(h.called, n)
+        ? !h.called.every((c, k) => canAdd(c, h.called.slice(0, k), n, r.partners))
+        : !validCalled(h.called, n, r.partners)
   )
     return 'called';
 

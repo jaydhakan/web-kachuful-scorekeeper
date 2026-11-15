@@ -1,4 +1,4 @@
-import { RANKS, SUITS, copiesInPlay, partnersFor, sameCard } from './cards';
+import { RANKS, SUITS, copiesInPlay, sameCard } from './cards';
 import type { CardRef, KtHand } from './types';
 
 /** A called card names its copy only when both copies are in play; a card out of one deck has a single copy left. */
@@ -17,13 +17,16 @@ const callable = (card: CardRef, n: number): boolean => {
 const clash = (a: CardRef, b: CardRef): boolean =>
   sameCard(a, b) && (a.copy === b.copy || a.copy === 'other' || b.copy === 'other');
 
-/** Whether `card` can join the cards already called: in play, marked right, no clash, a partner left to call. */
-export const canAdd = (card: CardRef, called: CardRef[], n: number): boolean =>
-  called.length < partnersFor(n) && callable(card, n) && !called.some((c) => clash(c, card));
+/**
+ * Whether `card` can join the cards already called: in play, marked right, no clash, a partner left to call.
+ * `partners` is the game's own count (`rules.partners`), which the table may have changed from the usual.
+ */
+export const canAdd = (card: CardRef, called: CardRef[], n: number, partners: number): boolean =>
+  called.length < partners && callable(card, n) && !called.some((c) => clash(c, card));
 
 /** The finished call: exactly one card per partner, each one addable in turn. */
-export const validCalled = (called: CardRef[], n: number): boolean =>
-  called.length === partnersFor(n) && called.every((c, i) => canAdd(c, called.slice(0, i), n));
+export const validCalled = (called: CardRef[], n: number, partners: number): boolean =>
+  called.length === partners && called.every((c, i) => canAdd(c, called.slice(0, i), n, partners));
 
 /** One entry per called card: a seat at the table or null; "the other one" is never the bidder's. */
 export const validPlayedBy = (

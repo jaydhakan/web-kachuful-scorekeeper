@@ -24,19 +24,27 @@ export interface CardOption {
 }
 
 /** The picker's view of one card, read from the domain's canAdd so the screen never decides the rules itself. */
-export function cardOption(rank: Rank, suit: Suit, called: CardRef[], n: number): CardOption {
+export function cardOption(
+  rank: Rank,
+  suit: Suit,
+  called: CardRef[],
+  n: number,
+  partners: number,
+): CardOption {
   const card: CardRef = { rank, suit };
   if (copiesInPlay(card, n) === 0) return { needsCopy: false, copies: [], why: 'out' };
   const needsCopy = copyNeeded(card, n);
-  const copies = needsCopy ? COPIES.filter((copy) => canAdd({ ...card, copy }, called, n)) : [];
-  const ok = needsCopy ? copies.length > 0 : canAdd(card, called, n);
+  const copies = needsCopy
+    ? COPIES.filter((copy) => canAdd({ ...card, copy }, called, n, partners))
+    : [];
+  const ok = needsCopy ? copies.length > 0 : canAdd(card, called, n, partners);
   return { needsCopy, copies, why: ok ? null : 'called' };
 }
 
 /** A rank is open while at least one suit of it can be called. */
-export const rankOpen = (rank: Rank, called: CardRef[], n: number): boolean =>
-  SUITS.some((s) => cardOption(rank, s, called, n).why === null);
+export const rankOpen = (rank: Rank, called: CardRef[], n: number, partners: number): boolean =>
+  SUITS.some((s) => cardOption(rank, s, called, n, partners).why === null);
 
 /** A suit is open while at least one rank of it can be called. */
-export const suitOpen = (suit: Suit, called: CardRef[], n: number): boolean =>
-  RANKS.some((r) => cardOption(r, suit, called, n).why === null);
+export const suitOpen = (suit: Suit, called: CardRef[], n: number, partners: number): boolean =>
+  RANKS.some((r) => cardOption(r, suit, called, n, partners).why === null);

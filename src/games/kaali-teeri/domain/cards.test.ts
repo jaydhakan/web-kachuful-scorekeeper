@@ -12,6 +12,7 @@ import {
   dealerFor,
   firstSpeaker,
   minBidRange,
+  partnerRange,
   partnersFor,
   removedCards,
   rulesOk,
@@ -165,9 +166,23 @@ describe('§2.2 rules of the table', () => {
     expect(rulesOk({ ...r, step: 10, minBid: 155 }, 6)).toBe(false);
     expect(rulesOk({ ...r, step: 7 as 5 }, 6)).toBe(false);
     expect(rulesOk({ ...r, decks: 2 }, 6)).toBe(false);
-    expect(rulesOk({ ...r, partners: 1 }, 6)).toBe(false);
     expect(rulesOk({ ...r, length: 'to1000' }, 6)).toBe(true);
     expect(rulesOk({ ...r, length: '8hands' as 'endless' }, 6)).toBe(false);
     expect(rulesOk(r, 7)).toBe(false);
+  });
+
+  it('the table picks how many partners are called: 1 up to n − 2, the usual count by default', () => {
+    expect([4, 6, 10].map(partnerRange)).toEqual([
+      { lo: 1, hi: 2 },
+      { lo: 1, hi: 4 },
+      { lo: 1, hi: 8 },
+    ]);
+    const r = defaultRules(6);
+    expect(r.partners).toBe(2);
+    for (const partners of [1, 2, 3, 4]) expect(rulesOk({ ...r, partners }, 6)).toBe(true);
+    for (const partners of [0, 5, -1, 1.5, NaN, '2' as unknown as number])
+      expect(rulesOk({ ...r, partners }, 6)).toBe(false);
+    expect(rulesOk({ ...defaultRules(4), partners: 2 }, 4)).toBe(true);
+    expect(rulesOk({ ...defaultRules(4), partners: 3 }, 4)).toBe(false);
   });
 });

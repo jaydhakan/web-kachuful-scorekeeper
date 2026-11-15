@@ -1,12 +1,6 @@
 import { m } from 'framer-motion';
 import { useContext, useState } from 'react';
-import {
-  SUITS,
-  partnersFor,
-  validCalled,
-  type KtGame,
-  type KtHand,
-} from '@/games/kaali-teeri/domain';
+import { SUITS, validCalled, type KtGame, type KtHand } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import { curHand } from '@/games/kaali-teeri/state/select';
 import { cardText, ktBidding } from '@/games/kaali-teeri/strings/bidding';
@@ -27,7 +21,7 @@ const s = ktBidding;
 function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void }) {
   const { actions } = useKt();
   const p = g.players.find((x) => x.id === h.bidder)!;
-  const n = partnersFor(g.players.length);
+  const n = g.rules.partners;
   const land = useLand('bid');
   return (
     <HandFrame
@@ -107,7 +101,7 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
 function CardsStep({ g, h, onTrump }: { g: KtGame; h: KtHand; onTrump: () => void }) {
   const { actions } = useKt();
   const n = g.players.length;
-  const count = partnersFor(n);
+  const count = g.rules.partners;
   const p = g.players.find((x) => x.id === h.bidder)!;
   const trump = h.trump!;
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
@@ -116,9 +110,9 @@ function CardsStep({ g, h, onTrump }: { g: KtGame; h: KtHand; onTrump: () => voi
   const land = useMediaQuery(MQ.land);
   const dense = inPane || land;
   const full = h.called.length >= count;
-  const ok = validCalled(h.called, n);
+  const ok = validCalled(h.called, n, count);
   const onDraft = (d: Draft) => {
-    const card = draftCard(d, h.called, n);
+    const card = draftCard(d, h.called, n, count);
     if (card) {
       actions.addCard(card);
       setDraft(EMPTY_DRAFT);
@@ -136,6 +130,7 @@ function CardsStep({ g, h, onTrump }: { g: KtGame; h: KtHand; onTrump: () => voi
             <CardGrid
               uid="kt-call"
               n={n}
+              partners={count}
               called={h.called}
               draft={draft}
               onDraft={onDraft}

@@ -35,6 +35,8 @@ export interface KitGame {
   length?: KtLength;
   minBid?: number;
   step?: 5 | 10;
+  /** Partners called each hand; defaults to the table's usual count. */
+  partners?: number;
   finished?: boolean;
 }
 
@@ -45,7 +47,7 @@ const DEFAULT_CALLED = ['A', 'K', 'Q', 'J'] as const;
 export function kitGame(k: KitGame): KtGame {
   const n = k.players.length,
     decks: 1 | 2 = n <= 6 ? 1 : 2,
-    partners = Math.floor(n / 2) - 1;
+    partners = k.partners ?? Math.floor(n / 2) - 1;
   const ids = k.players.map((_, i) => 'p' + i);
   const fd = k.firstDealer ?? 0;
   const hands: KtHand[] = k.hands.map((h, i) => {

@@ -23,9 +23,14 @@ export interface Draft {
 export const EMPTY_DRAFT: Draft = { rank: null, suit: null, copy: null };
 
 /** The finished card, or null while the draft still needs a rank, a suit, or (two decks) a copy that can be called. */
-export function draftCard(d: Draft, called: CardRef[], n: number): CardRef | null {
+export function draftCard(
+  d: Draft,
+  called: CardRef[],
+  n: number,
+  partners: number,
+): CardRef | null {
   if (!d.rank || !d.suit) return null;
-  const o = cardOption(d.rank, d.suit, called, n);
+  const o = cardOption(d.rank, d.suit, called, n, partners);
   if (o.why) return null;
   if (!o.needsCopy) return { rank: d.rank, suit: d.suit };
   return d.copy !== null && o.copies.includes(d.copy)
@@ -109,6 +114,8 @@ const Label = ({
 interface CardGridProps {
   uid: string;
   n: number;
+  /** The game's own partner count (`rules.partners`). */
+  partners: number;
   /** The cards already called, against which this one is checked (without the card being changed). */
   called: CardRef[];
   draft: Draft;
@@ -120,14 +127,24 @@ interface CardGridProps {
 }
 
 /** Rank, then suit, then (both copies in play) which copy: every option the rules rule out is disabled with a reason. */
-export function CardGrid({ uid, n, called, draft, onDraft, onWhy, dense }: CardGridProps) {
-  const opt = draft.rank && draft.suit ? cardOption(draft.rank, draft.suit, called, n) : null;
+export function CardGrid({
+  uid,
+  n,
+  partners,
+  called,
+  draft,
+  onDraft,
+  onWhy,
+  dense,
+}: CardGridProps) {
+  const opt =
+    draft.rank && draft.suit ? cardOption(draft.rank, draft.suit, called, n, partners) : null;
   const pick = (d: Draft) => {
     onWhy(null);
     onDraft(d);
   };
   const whyCard = (rank: Rank, suit: Suit) => {
-    const o = cardOption(rank, suit, called, n);
+    const o = cardOption(rank, suit, called, n, partners);
     return o.why === 'out'
       ? s.out(cardText(rank, suit))
       : o.why
@@ -143,7 +160,7 @@ export function CardGrid({ uid, n, called, draft, onDraft, onWhy, dense }: CardG
         {RANKS.map((r) => {
           const why = draft.suit
             ? whyCard(r, draft.suit)
-            : rankOpen(r, called, n)
+            : rankOpen(r, called, n, partners)
               ? null
               : s.allOut(r);
           return (
@@ -171,7 +188,7 @@ export function CardGrid({ uid, n, called, draft, onDraft, onWhy, dense }: CardG
         {SUITS.map((st) => {
           const why = draft.rank
             ? whyCard(draft.rank, st)
-            : suitOpen(st, called, n)
+            : suitOpen(st, called, n, partners)
               ? null
               : s.allOut(TR[st].name);
           const on = draft.suit === st;
