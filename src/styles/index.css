@@ -31,6 +31,13 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
 }
+/* A 1920 screen read from across the table: type and every rem-sized panel step up together (X-F01). Breakpoints
+   are in px, so the layouts switch where they always did. */
+@media (min-width: 1600px) and (min-height: 860px) {
+  html {
+    font-size: 112.5%;
+  }
+}
 html {
   /* Applies to everything below (touch-action intersects down the tree): pinch zoom stays, double-tap zoom goes, so
      quick taps anywhere never zoom the page. The grey tap flash goes everywhere too; controls draw their own. */

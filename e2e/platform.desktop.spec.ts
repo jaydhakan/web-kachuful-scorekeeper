@@ -18,3 +18,14 @@ test('desk: the rail’s Baithak mark leads back to all games', async ({ page })
   await expect(page.getByRole('heading', { level: 1, name: 'Pick a game' })).toBeFocused();
   await expect(page).toHaveURL(/\/$/);
 });
+
+test('a 1920 screen steps type and panels up together; a laptop keeps its sizes (X-F01)', async ({
+  page,
+}) => {
+  const root = () => page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto('/');
+  expect(await root()).toBe('16px');
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  expect(await root()).toBe('18px');
+});

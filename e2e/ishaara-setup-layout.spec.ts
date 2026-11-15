@@ -71,8 +71,10 @@ for (const [w, h] of SIZES) {
         expect(Math.abs(moon.y - sun.y), 'teams side by side').toBeLessThan(2);
         // The step reaches across the screen: teams in the main pane, the rest beside them.
         expect(shuffle.x).toBeGreaterThan(moon.x + moon.width);
-        // Scaffold caps two panes at 72rem; the 1920 step (X-F01) will raise it.
-        expect(shuffle.x + shuffle.width - sun.x).toBeGreaterThan(Math.min(w * 0.6, 900));
+        // Scaffold caps two panes at 72rem, which the 1920 step (X-F01) scales with the type.
+        expect(shuffle.x + shuffle.width - sun.x).toBeGreaterThan(
+          Math.min(w * 0.6, w >= 1600 ? 1000 : 900),
+        );
       }
       if (phone && w > h)
         expect(shuffle.x, 'two panes on its side').toBeGreaterThan(sun.x + sun.width);

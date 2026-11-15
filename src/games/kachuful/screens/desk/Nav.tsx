@@ -71,7 +71,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
   return (
     <nav
       aria-label={t.desk.nav.label}
-      className="scroll-thin relative z-[2] hidden w-[88px] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-ov/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
+      className="scroll-thin relative z-[2] hidden w-[5.5rem] shrink-0 flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden border-r border-ov/10 bg-felt-950/55 pb-6 pt-[calc(1.5rem+var(--sat))] pl-[var(--sal)] [backdrop-filter:blur(16px)] rail:flex"
     >
       {/* Baithak's mark leaves for the game picker; the game is saved on every change. */}
       <RailItem

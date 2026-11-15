@@ -40,7 +40,7 @@ const Confetti = lazy(() =>
 // The toast sits at the top, centred on the content, above the page title (under the top bar on an upright tablet),
 // where it never covers an action; the banner too, clear of the rail.
 const OVERLAY_VARS =
-  '[--toast-top:calc(var(--sat)+5.875rem)] rail:[--toast-top:calc(var(--sat)+0.375rem)] rail:[--toast-x:88px] rail:[--toast-w:calc(100%-88px)] [--main-w:min(32rem,calc(100%-3rem))] [--main-x:calc((100%-var(--main-w))/2)] rail:[--main-x:calc(88px+(100%-88px-var(--main-w))/2)]';
+  '[--toast-top:calc(var(--sat)+5.875rem)] rail:[--toast-top:calc(var(--sat)+0.375rem)] rail:[--toast-x:5.5rem] rail:[--toast-w:calc(100%-5.5rem)] [--main-w:min(32rem,calc(100%-3rem))] [--main-x:calc((100%-var(--main-w))/2)] rail:[--main-x:calc(5.5rem+(100%-5.5rem-var(--main-w))/2)]';
 
 /**
  * The tablet and desktop app: rail (or top bar), one content area, drawers on the right. Bidding, Play and Results are
