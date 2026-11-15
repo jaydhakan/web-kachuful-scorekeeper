@@ -34,10 +34,9 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 
 ## Tests
 
-- **Kachuful's theme-layout test never loads the other themes' stylesheets.** `themes.spec.ts` "every theme lays
-  the bidding screen out identically" only sets `data-theme`, so Yerba Sun, Editorial Paper and Emerald Gilt are
-  measured without their own rules and faces. Switch it to `showTheme` (as the Ishaara test does) and expect width
-  slack for pills sized by their label.
+- **Yerba Sun moves Kachuful's table seats up about 10px** on the bidding screen at 360x780 (seen once
+  `themes.spec.ts` loaded each theme's real stylesheet; sizes match). Themes should change paint, never geometry:
+  find what in Yerba Sun's sheet shifts the table slot, then drop the excuse in that test.
 - **Ishaara's known bugs are listed in the specs** (`ISH_KNOWN` in `responsive.spec.ts` and `targets.spec.ts`,
   `test.fail` for ISH-F04 and PL-F02, the Yerba Sun excuse in `themes.spec.ts`). Each fix deletes its entry.
 
