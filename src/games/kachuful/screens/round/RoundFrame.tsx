@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Round } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { IconButton } from '@/components/ui/IconButton';
+import { SyncDot } from '@/components/SyncDot';
 import { Icon } from '@/components/ui/Icons';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SuitGlyph } from '@/components/ui/SuitGlyph';
@@ -78,13 +79,17 @@ export function RoundFrame({
         )
       }
       right={
-        <IconButton
-          chrome
-          label={t.round.scoreboard}
-          onClick={() => actions.openSheet({ type: 'board' })}
-        >
-          {Icon.board}
-        </IconButton>
+        // Signed in, the sync mark rides on the scoreboard button: is this round reaching the account?
+        <span className="relative">
+          <IconButton
+            chrome
+            label={t.round.scoreboard}
+            onClick={() => actions.openSheet({ type: 'board' })}
+          >
+            {Icon.board}
+          </IconButton>
+          <SyncDot className="pointer-events-none absolute -right-1.5 -top-1.5" />
+        </span>
       }
     >
       {children}
