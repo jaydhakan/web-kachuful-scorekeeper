@@ -65,6 +65,15 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
 - **Backend:** `isHost` on Ishaara's game list is on branch `feat/design-audit` in the backend repo (from `ishaara`,
   which is itself not merged into the backend's `main`). Merge and deploy it with this branch.
 
+## Spades
+
+- **Offline-ready toast:** Spades isn't in `OWN_TOAST` (`platform/PlatformUpdate.tsx`), so the platform announces
+  offline-readiness on its pages. Add it once table mode mounts a toast slot that announces it.
+- **Brand art:** `design/brand/games/spades/` has `tile-art.svg` in Sunset Glass only; the other games keep a variant
+  per theme. The app's tile draws from tokens, so this is only for the kit.
+- **Budget:** `tools/bundle.mjs` and `budget.json` have no Spades first-load entry yet (plan §10). Its root chunk is
+  6.3 KB gzip (2026-11-16).
+
 ## Tests
 
 - **Yerba Sun moves Kachuful's table seats up about 10px** on the bidding screen at 360x780 (seen once
