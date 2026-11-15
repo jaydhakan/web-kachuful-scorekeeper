@@ -209,7 +209,7 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
   const body = (
     <>
       {!soon && !locked && <InviteBadge game={g.id} />}
-      <div className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh]">
+      <div className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh] tl:max-h-none">
         <TileArt
           game={g.id}
           className={`block h-full w-full ${soon ? 'opacity-60 grayscale' : ''}`}
@@ -324,11 +324,12 @@ export default function Landing() {
               </div>
               {resumes.length > 0 && <ResumePanel rows={resumes} />}
             </div>
+            {/* Four games: two by two until a desktop has room for one row, so no tile sits alone. */}
             <section aria-labelledby="landing-games" className="flex flex-col gap-2 big:gap-4">
               <h2 id="landing-games" className="mono-label text-13 text-[var(--accent-tx)]">
                 {s.games}
               </h2>
-              <ul className="grid gap-3 big:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] big:gap-6 tp:grid-cols-3 tp:gap-4">
+              <ul className="grid gap-3 big:grid-cols-2 big:gap-6 tp:gap-4 dt:grid-cols-4">
                 {GAMES.map((g) => (
                   <li key={g.id}>
                     <GameCard g={g} signedIn={!!session && !session.stale} online={online} />

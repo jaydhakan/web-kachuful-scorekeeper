@@ -3,7 +3,7 @@ export const platform = {
   name: 'Baithak',
   tagline: 'Scorekeepers for the games at your table',
   description:
-    'Scorekeepers for the card and party games played around one table: Kachuful, Kaali Teeri and more.',
+    'Scorekeepers for the card and party games played around one table: Kachuful, Kaali Teeri, Spades and more.',
   games: {
     kachuful: {
       name: 'Kachuful',
@@ -26,6 +26,14 @@ export const platform = {
       players: '4–12 players',
       kind: 'Played in the app',
       description: 'A word game for teams, played around one table.',
+    },
+    spades: {
+      name: 'Spades',
+      pitch: 'Bid with your partner, make your tricks, don’t get sandbagged.',
+      players: '4 players',
+      kind: 'Online or at the table',
+      description:
+        'Spades for four: each phone holds its own 13 cards, or one phone keeps score at a real table.',
     },
   },
   loadFailed: {

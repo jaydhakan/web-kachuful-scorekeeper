@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { peek as kfPeek } from '@/games/kachuful/state/peek';
 import { peek as ktPeek } from '@/games/kaali-teeri/state/peek';
+import { peek as spPeek } from '@/games/spades/state/peek';
 import { platform } from '@/strings/platform';
 import type { GameId } from './route';
 
@@ -31,7 +32,7 @@ export interface GameEntry {
   /** The game's lazy root. */
   load: () => Promise<{ default: ComponentType }>;
   peek: () => Resume | null;
-  /** Absent for a game the server runs (Ishaara): nothing is ever waiting to upload. */
+  /** Absent for a game the server runs (Ishaara): nothing is ever waiting to upload. Spades' is its table mode. */
   sync?: () => Promise<GameSync>;
 }
 
@@ -76,6 +77,21 @@ export const GAMES: readonly GameEntry[] = [
     load: () => import('@/games/ishaara'),
     // Nothing to resume from storage: the server holds every game.
     peek: () => null,
+  },
+  {
+    id: 'spades',
+    path: '/spades',
+    ...g.spades,
+    status: 'live',
+    // The scorekeeper works signed out; online play asks for sign-in itself.
+    signedInOnly: false,
+    load: () => import('@/games/spades'),
+    peek: spPeek,
+    sync: () =>
+      import('@/games/spades/table/sync/engine').then((m) => ({
+        syncNow: () => m.syncSpNow(),
+        pending: (u) => m.pendingSpGames(u).length,
+      })),
   },
 ];
 
