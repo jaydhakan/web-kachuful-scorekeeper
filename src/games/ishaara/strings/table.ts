@@ -157,7 +157,6 @@ export const table = {
             : `${word}, ${TEAM[id]}’s word`,
     selected: 'selected',
     guessAsk: (word: string) => `Guess ${word}?`,
-    guessHint: 'Tap Confirm, or pick another card',
     confirm: 'Confirm',
     cancel: 'Cancel',
     endTurn: (t: Team) => `End ${TEAM[t]}’s turn`,
@@ -206,6 +205,20 @@ export const table = {
     gone: 'This game is gone',
     goneBody: 'It was cancelled, or you’re no longer part of it.',
     retry: 'Try again',
+    notice: {
+      timeout: 'Time’s up.',
+      line: (kind: 'timeout' | 'end' | 'undo' | 'skip', next: Team, word?: string) =>
+        kind === 'timeout'
+          ? `Time’s up. ${TEAM[next]}’s turn.`
+          : kind === 'end'
+            ? `Turn ended. ${TEAM[next]}’s turn.`
+            : kind === 'skip'
+              ? `Penalty skipped. ${TEAM[next]}’s turn.`
+              : `${(word ?? '').toUpperCase()} turned back face down`,
+    },
+    penaltyWait: 'Waiting for the penalty pick',
+    timesUp: 'Time’s up',
+    undoShort: 'Undo',
   },
 
   win: {

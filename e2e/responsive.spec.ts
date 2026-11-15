@@ -221,12 +221,6 @@ async function seatIsh(page: Page, name: string) {
 const ISH_KNOWN: { id: string; re: RegExp; at: string[] }[] = [
   { id: 'ISH-F10', re: /^ish-setup-teams word broken mid-word/, at: ['360x640'] },
   { id: 'ISH-F09', re: /^ish-key-clue (target under 44px|scrolls although)/, at: ['360x640'] },
-  { id: 'ISH-F08', re: /^ish-board-confirm primary action: (covered|grid moved)/, at: ['360x640'] },
-  {
-    id: 'ISH-F24',
-    re: /^ish-board-confirm primary action: outside viewport/,
-    at: ['844x390', '740x360'],
-  },
 ];
 
 // Ishaara under the same rules: the table and both clue phones at each phone size, setup to the win.

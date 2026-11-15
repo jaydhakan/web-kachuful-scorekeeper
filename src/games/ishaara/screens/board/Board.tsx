@@ -2,12 +2,54 @@ import type { IshaaraTable } from '@/games/ishaara/state/useTable';
 import { table as s } from '@/games/ishaara/strings/table';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
-import { BoardNote, BoardOverlays, Reconnecting, SendError, TurnActions } from './BoardParts';
-import { ClueCard, GuessesLeft, TurnBanner, TurnTimer, WordsLeft } from './TurnPanel';
-import { useBoard } from './useBoard';
+import {
+  BoardEnd,
+  BoardNote,
+  BoardOverlays,
+  Reconnecting,
+  SendError,
+  TurnActions,
+} from './BoardParts';
+import {
+  ClueCard,
+  GuessesLeft,
+  TimerBar,
+  TurnBanner,
+  TurnSweep,
+  TurnTimer,
+  WordsLeft,
+} from './TurnPanel';
+import { useBoard, type BoardView } from './useBoard';
 import { WordGrid } from './WordGrid';
 
-export { diffReveal, MOMENT_MS } from './useBoard';
+export { diffReveal, MOMENT_MS, WIN_HOLD_MS } from './useBoard';
+
+/** What the grid shows and how, shared by the phone and the desk boards. */
+export function gridProps(v: BoardView) {
+  const g = v.game!;
+  const end = v.finished && g.solution;
+  return {
+    words: g.words,
+    // At the end the whole key turns over, in a wave from the cards that were still face down.
+    revealed: end ? g.solution! : g.revealed,
+    waveFrom: end ? g.revealed : null,
+    disabled: !v.canPick,
+    dim: v.active && v.live && !v.canPick,
+    selected: v.selected,
+    lit: v.moment?.card ?? null,
+    verdict: v.moment?.kind ?? null,
+    onPick: v.setSelected,
+    onBlocked: v.blocked,
+  };
+}
+
+/** The pulse on a team's count when it finds one of its own. */
+export const countPulse = (v: BoardView) =>
+  v.moment?.kind === 'own' ? { team: v.moment.team, key: v.moment.card } : null;
+
+/** The whole turn in ms on a timed game, for the timer bar. */
+export const turnMs = (v: BoardView) =>
+  v.game?.rules.timerSec ? v.game.rules.timerSec * 1000 : null;
 
 const b = s.board;
 
@@ -31,10 +73,11 @@ export function Board({ table, onLeave, onRules, onFinished }: BoardProps) {
 
   return (
     <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pb-[max(1rem,var(--sab))] pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))] pt-[calc(var(--sat)+0.75rem)]">
-      <div className="mx-auto grid h-full min-h-[38rem] max-w-[40rem] grid-cols-1 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 pane:min-h-0 pane:max-w-none pane:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] pane:grid-rows-1 pane:gap-4">
+      {/* No minimum height: on a short phone the grid takes what is left, and the note slot never borrows from it. */}
+      <div className="mx-auto grid h-full max-w-[40rem] grid-cols-1 grid-rows-[auto_minmax(0,1fr)_auto] gap-2.5 tall:gap-3 pane:max-w-none pane:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)] pane:grid-rows-1 pane:gap-4">
         {/* One column on an upright phone (header, grid, actions); the side panel beside the grid when wide. */}
-        <div className="contents pane:col-start-1 pane:row-start-1 pane:flex pane:min-h-0 pane:flex-col pane:gap-3 pane:overflow-y-auto pane:overscroll-contain">
-          <header className="order-1 flex flex-col gap-3">
+        <div className="contents pane:col-start-1 pane:row-start-1 pane:flex pane:min-h-0 pane:flex-col pane:gap-2.5 pane:overflow-y-auto pane:overscroll-contain">
+          <header className="order-1 flex flex-col gap-2.5 tall:gap-3">
             <div className="flex items-center justify-between gap-2">
               <IconButton chrome label={b.menu} onClick={() => v.setMenu(true)}>
                 {Icon.menu}
@@ -44,13 +87,19 @@ export function Board({ table, onLeave, onRules, onFinished }: BoardProps) {
                 <TurnTimer deadline={active ? game.deadline : null} serverNow={serverNow} />
               </span>
             </div>
-            <ClueCard game={game} />
-            <div className="hidden pane:block">
+            <TimerBar
+              deadline={active ? game.deadline : null}
+              totalMs={turnMs(v)}
+              serverNow={serverNow}
+            />
+            <ClueCard game={game} nudge={v.nudge} />
+            {/* A phone on its side keeps the count in the clue card, to leave room for End turn. */}
+            <div className="hidden wide:block">
               <GuessesLeft game={game} />
             </div>
-            <WordsLeft game={game} />
+            <WordsLeft game={game} pulse={countPulse(v)} />
           </header>
-          <footer className="order-3 flex flex-col gap-3 pane:mt-auto">
+          <footer className="order-3 flex flex-col gap-2.5 tall:gap-3 pane:mt-auto">
             <BoardNote v={v} />
             <SendError v={v} />
             <TurnActions v={v} />
@@ -59,19 +108,14 @@ export function Board({ table, onLeave, onRules, onFinished }: BoardProps) {
 
         <main
           aria-busy={!live || undefined}
-          className={`relative order-2 min-h-[17rem] pane:col-start-2 pane:row-start-1 pane:min-h-0 ${live ? '' : 'opacity-60'}`}
+          className={`relative order-2 min-h-0 pane:col-start-2 pane:row-start-1 ${live ? '' : 'opacity-60'}`}
         >
-          <WordGrid
-            words={game.words}
-            revealed={game.revealed}
-            disabled={!v.canPick}
-            selected={v.selected}
-            lit={v.moment?.card ?? null}
-            onPick={v.setSelected}
-          />
+          <WordGrid {...gridProps(v)} />
+          <BoardEnd v={v} />
         </main>
       </div>
 
+      <TurnSweep handoff={v.handoff} />
       <Reconnecting v={v} />
       <BoardOverlays v={v} onRules={onRules} onLeave={onLeave} />
     </div>

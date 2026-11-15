@@ -1,28 +1,26 @@
 import { AnimatePresence } from 'framer-motion';
-import { clueGiverOf, SKIP_AFTER_MS } from '@/games/ishaara/domain';
+import { clueGiverOf, SKIP_AFTER_MS, wordsOf } from '@/games/ishaara/domain';
 import { table as s } from '@/games/ishaara/strings/table';
 import { Icon } from '@/components/ui/Icons';
 import { Modal } from '@/components/ui/Modal';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { BoardMenu } from './BoardMenu';
-import { ConfirmBar, MomentNote, PenaltyNote } from './Notes';
+import { ConfirmBar, EndNote, MomentNote, NoticeNote, PenaltyNote } from './Notes';
 import type { BoardView } from './useBoard';
 
 const b = s.board;
 
-/** The one note under the turn: a reveal moment, the penalty wait, or Confirm for the picked card. */
+/**
+ * The one note under the turn: a reveal moment, a turn notice, the penalty wait, or Confirm for the picked card.
+ * It sits in a slot of fixed height, anchored at its foot, so the grid above never changes size when a note comes
+ * or goes; a taller note (the penalty wait, while picks are off) rises over the board instead.
+ */
 export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
-  const { game, moment, pending, picker, selected, canSend, finished, serverNow } = v;
+  const { game, moment, notice, pending, picker, selected, canSend, finished, serverNow } = v;
   if (!game) return null;
   let note;
-  if (moment && (moment.kind === 'trap' || selected === null))
-    note = (
-      <MomentNote
-        key={`m${moment.card}`}
-        mo={moment}
-        onDone={finished ? v.onFinished : undefined}
-      />
-    );
+  if (finished) note = null;
+  else if (moment && selected === null) note = <MomentNote key={`m${moment.card}`} mo={moment} />;
   else if (pending && picker)
     note = (
       <PenaltyNote
@@ -45,10 +43,32 @@ export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
         onConfirm={() => void v.confirm()}
       />
     );
+  else if (notice) note = <NoticeNote key={`n${notice.kind}`} n={notice} next={game.turn} />;
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
-      {note}
-    </AnimatePresence>
+    <div data-note-slot className={`relative shrink-0 ${compact ? 'h-[8.5rem]' : 'h-[4.75rem]'}`}>
+      <div className="absolute inset-x-0 bottom-0 z-10">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {note}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/** The last card's moment, over the grid: the trap waits for "See the result", a found-all win holds a while. */
+export function BoardEnd({ v }: { v: BoardView }) {
+  const { game, moment, endedOnCard } = v;
+  if (!game || !endedOnCard || !moment) return null;
+  const winner = game.winner;
+  return (
+    <EndNote
+      mo={moment}
+      winner={winner}
+      found={winner ? wordsOf(game, winner) : 0}
+      // Away from the card: a card in the lower rows puts the note at the top.
+      top={moment.card >= 10}
+      onDone={v.onFinished}
+    />
   );
 }
 
@@ -65,22 +85,25 @@ export function SendError({ v }: { v: BoardView }) {
 /** Undo (while its window is open) and End turn, once the clue is in. */
 export function TurnActions({ v, className = '' }: { v: BoardView; className?: string }) {
   const { game, active, pending, undo, canSend, endDisabled } = v;
+  if (!game || !active) return null;
+  // The row keeps its height while the game is live (no clue yet, a penalty pending), so the grid never jumps.
   // A mis-tap that ended the turn leaves no clue, which is when Undo matters most.
-  if (!game || !active || pending || (!game.clue && !undo)) return null;
+  if (pending || (!game.clue && !undo)) return <div aria-hidden className={`h-14 ${className}`} />;
   const endId = 'ish-end-why';
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
+    <div className={`flex gap-2 ${className}`}>
       {undo && (
         <PrimaryButton
           tone="glass"
           onClick={() => void v.act({ type: 'undoLast' })}
           disabled={!canSend}
-          className="!h-14 px-4 !text-16"
+          aria-label={b.undo(game.words[undo.card].toUpperCase())}
+          className="!h-14 shrink-0 px-4 !text-16"
         >
           <span aria-hidden className="[&_svg]:h-5 [&_svg]:w-5">
             {Icon.undo}
           </span>
-          {b.undo(game.words[undo.card].toUpperCase())}
+          {b.undoShort}
         </PrimaryButton>
       )}
       {game.clue && (
@@ -90,7 +113,7 @@ export function TurnActions({ v, className = '' }: { v: BoardView; className?: s
             onClick={() => void v.act({ type: 'endTurn' })}
             disabled={endDisabled}
             aria-describedby={game.guessedThisTurn < 1 ? endId : undefined}
-            className="!h-14 min-w-[10rem] flex-1 !text-17"
+            className="!h-14 min-w-0 flex-1 !text-17 dt:!text-22"
           >
             {b.endTurn(game.turn)}
           </PrimaryButton>
