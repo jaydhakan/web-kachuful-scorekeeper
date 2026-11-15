@@ -31,6 +31,14 @@ export const KEYS = {
   // Ishaara keeps no game here (the server runs it): only the last setup and the words dealt lately.
   ishLastSetup: 'ishaara.lastSetup',
   ishRecentWords: 'ishaara.recentWords',
+  // Spades' table-mode game, undo, screen, last group and backup; its sort and sound prefs; the last online rules.
+  spGame: 'spades.v1',
+  spUndo: 'spades.undo',
+  spScreen: 'spades.screen',
+  spLastGroup: 'spades.lastGroup',
+  spBackup: 'spades.v1.backup',
+  spPrefs: 'spades.prefs',
+  spLastSetup: 'spades.lastSetup',
   /** Boards on which this player was last seen in first place, so taking the top is celebrated once, not per visit. */
   boardTop: 'baithak.boardTop',
 } as const;

@@ -1,4 +1,4 @@
-import { archive, type GameRec, type KtGameRec } from '@/state/archive';
+import { archive, type GameRec, type KtGameRec, type SpGameRec } from '@/state/archive';
 import { pendingUploads } from './signout';
 
 const rec = (
@@ -15,7 +15,7 @@ const rec = (
 });
 
 describe('pendingUploads', () => {
-  beforeEach(() => archive.clear('games', 'ktGames', 'outbox'));
+  beforeEach(() => archive.clear('games', 'ktGames', 'spGames', 'outbox'));
 
   it('counts unsynced games of this account in Kachuful and Kaali Teeri', () => {
     archive.put(
@@ -27,6 +27,15 @@ describe('pendingUploads', () => {
     );
     archive.put('ktGames', rec('kt-1', { rev: 1 }) as unknown as KtGameRec);
     expect(pendingUploads('u1')).toBe(2);
+  });
+
+  it('counts Spades table games too', () => {
+    archive.put(
+      'spGames',
+      rec('sp-1', { rev: 4, synced: 3 }) as unknown as SpGameRec,
+      rec('sp-2', { rev: 4, synced: 4 }) as unknown as SpGameRec,
+    );
+    expect(pendingUploads('u1')).toBe(1);
   });
 
   it('leaves out an upload the server refused for good, and is 0 signed out', () => {

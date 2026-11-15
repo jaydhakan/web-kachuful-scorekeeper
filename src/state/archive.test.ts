@@ -4,6 +4,8 @@ import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
 import { newGame, type IshaaraPublic } from '@/games/ishaara/domain';
 import { PLAYERS, RULES, WORDS } from '@/games/ishaara/domain/__fixtures__/kit';
 import { archiveIshaaraGame } from '@/games/ishaara/state/persistence';
+import type { SpGame } from '@/games/spades/domain';
+import { kitGame as spKitGame } from '@/games/spades/domain/__fixtures__/kit';
 import {
   archive,
   archiveGame,
@@ -19,6 +21,7 @@ import {
   sweepEmpty,
   type Backend,
   type GameRec,
+  type SpGameRec,
 } from './archive';
 
 /** A backend that keeps rows between Archive instances, standing in for IndexedDB. */
@@ -31,10 +34,19 @@ function diskBackend(fail = false): Backend & { rows: Record<string, Map<string,
     inbox: new Map(),
     ktGames: new Map(),
     ishaaraGames: new Map(),
+    spGames: new Map(),
   };
   const key = (s: string, r: Record<string, unknown>) =>
     String(
-      r[{ games: 'syncId', ktGames: 'syncId', ishaaraGames: 'syncId', cache: 'key' }[s] ?? 'id'],
+      r[
+        {
+          games: 'syncId',
+          ktGames: 'syncId',
+          ishaaraGames: 'syncId',
+          spGames: 'syncId',
+          cache: 'key',
+        }[s] ?? 'id'
+      ],
     );
   return {
     rows,
@@ -297,6 +309,38 @@ describe('Ishaara history copies', () => {
   });
 });
 
+describe('Spades games', () => {
+  const rec = (g: SpGame, patch: Partial<SpGameRec> = {}): SpGameRec => ({
+    syncId: g.syncId,
+    game: g,
+    updatedAt: g.updatedAt,
+    endedAt: null,
+    origin: 'local',
+    ...patch,
+  });
+
+  it('lists newest first without deleted ones, apart from every other game, and survives a reload', async () => {
+    const disk = diskBackend();
+    resetArchive(disk);
+    await archive.ready;
+    const a = spKitGame([], { syncId: 'sp-a', updatedAt: 10 });
+    const b = spKitGame([], { syncId: 'sp-b', updatedAt: 30 });
+    archive.put(
+      'spGames',
+      rec(a),
+      rec(b, { endedAt: 20 }),
+      rec(spKitGame([], { syncId: 'sp-x' }), { deleted: true }),
+    );
+    expect(archive.spGames().map((r) => r.syncId)).toEqual(['sp-b', 'sp-a']);
+    expect(archive.games()).toEqual([]);
+    expect(archive.ktGames()).toEqual([]);
+    await archive.flush();
+    const again = new Archive(disk);
+    await again.ready;
+    expect(again.spGames().map((r) => r.syncId)).toEqual(['sp-b', 'sp-a']);
+  });
+});
+
 describe('database upgrade', () => {
   /** A database as an older version left it: stores holding rows, which an upgrade must not touch. */
   function oldDb(stores: string[]) {
@@ -317,25 +361,34 @@ describe('database upgrade', () => {
   }
   const V1 = ['games', 'players', 'outbox', 'cache', 'inbox'];
 
-  it("version 1 to 3 adds ktGames and ishaaraGames, with the games store's indexes, and keeps every row", () => {
-    expect(DB_VERSION).toBe(3);
+  const GAME_INDEXES = ['endedAt', 'updatedAt'];
+
+  it("version 1 to 4 adds ktGames, ishaaraGames and spGames, with the games store's indexes, and keeps every row", () => {
+    expect(DB_VERSION).toBe(4);
     const d = oldDb(V1);
     upgradeDb(d);
     expect(d.made).toEqual([
-      { name: 'ktGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
-      { name: 'ishaaraGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
+      { name: 'ktGames', keyPath: 'syncId', indexes: GAME_INDEXES },
+      { name: 'ishaaraGames', keyPath: 'syncId', indexes: GAME_INDEXES },
+      { name: 'spGames', keyPath: 'syncId', indexes: GAME_INDEXES },
     ]);
     for (const s of V1) expect(d.rows.get(s)).toEqual(['row']);
   });
 
-  it('version 2 to 3 adds only ishaaraGames and keeps every row', () => {
+  it('version 2 to 4 adds ishaaraGames and spGames and keeps every row', () => {
     const V2 = [...V1, 'ktGames'];
     const d = oldDb(V2);
     upgradeDb(d);
-    expect(d.made).toEqual([
-      { name: 'ishaaraGames', keyPath: 'syncId', indexes: ['endedAt', 'updatedAt'] },
-    ]);
+    expect(d.made.map((m) => m.name)).toEqual(['ishaaraGames', 'spGames']);
     for (const s of V2) expect(d.rows.get(s)).toEqual(['row']);
+  });
+
+  it('version 3 to 4 adds only spGames, with its indexes, and touches no other store', () => {
+    const V3 = [...V1, 'ktGames', 'ishaaraGames'];
+    const d = oldDb(V3);
+    upgradeDb(d);
+    expect(d.made).toEqual([{ name: 'spGames', keyPath: 'syncId', indexes: GAME_INDEXES }]);
+    for (const s of V3) expect(d.rows.get(s)).toEqual(['row']);
   });
 
   it('a new database gets every store', () => {
@@ -349,6 +402,7 @@ describe('database upgrade', () => {
       ['inbox', 'id', 0],
       ['ktGames', 'syncId', 2],
       ['ishaaraGames', 'syncId', 2],
+      ['spGames', 'syncId', 2],
     ]);
   });
 
@@ -371,8 +425,8 @@ describe('database upgrade', () => {
       },
     } as unknown as IDBFactory;
     const loaded = await idbBackend(idb).load();
-    expect(asked).toEqual(['kachuful', 3]);
-    expect(d.made.map((m) => m.name)).toEqual(['ktGames', 'ishaaraGames']);
+    expect(asked).toEqual(['kachuful', 4]);
+    expect(d.made.map((m) => m.name)).toEqual(['ktGames', 'ishaaraGames', 'spGames']);
     expect(Object.keys(loaded).sort()).toEqual([
       'cache',
       'games',
@@ -381,6 +435,7 @@ describe('database upgrade', () => {
       'ktGames',
       'outbox',
       'players',
+      'spGames',
     ]);
   });
 });
