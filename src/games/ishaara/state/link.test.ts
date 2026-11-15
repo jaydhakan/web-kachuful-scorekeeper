@@ -73,6 +73,22 @@ describe('GameLink', () => {
     expect(l.get()).toMatchObject({ status: 'gone', conn: 'offline' });
   });
 
+  it('a stream refused mid-game: 404 is a gone game, 401 asks the API again instead (ISH-F23)', async () => {
+    const { f } = api([
+      { status: 200, body: out(5) },
+      { status: 401, body: { code: 'unauthenticated' } },
+    ]);
+    const { l, h } = link();
+    l.start();
+    await tick();
+    h().onGone(401);
+    await tick();
+    expect(f).toHaveBeenCalledTimes(2);
+    expect(l.get().status).toBe('ready');
+    h().onGone(404);
+    expect(l.get().status).toBe('gone');
+  });
+
   it('sends with a fresh actionId and the rev shown, and refuses picks while busy or not live', async () => {
     const { f, posts } = api([{ status: 200, body: out(5) }]);
     const { l, h } = link();

@@ -63,18 +63,19 @@ function TableGame({
   }, [status, onBoard, actions]);
   const finished = useCallback(() => actions.track('finished'), [actions]);
 
+  // Checked before a loaded board too: a game deleted under it would otherwise reconnect for ever (ISH-F23).
+  if (t.status === 'gone')
+    return (
+      <Centre>
+        <EmptyState
+          icon="warn"
+          title={s.board.gone}
+          body={s.board.goneBody}
+          action={<PrimaryButton onClick={actions.leave}>{s.board.leave}</PrimaryButton>}
+        />
+      </Centre>
+    );
   if (!t.game) {
-    if (t.status === 'gone')
-      return (
-        <Centre>
-          <EmptyState
-            icon="warn"
-            title={s.board.gone}
-            body={s.board.goneBody}
-            action={<PrimaryButton onClick={actions.leave}>{s.board.leave}</PrimaryButton>}
-          />
-        </Centre>
-      );
     if (t.status === 'error')
       return (
         <Centre>

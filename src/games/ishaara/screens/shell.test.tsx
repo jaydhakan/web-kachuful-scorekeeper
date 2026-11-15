@@ -49,6 +49,21 @@ describe('Ishaara’s shell', () => {
     expect(screen.queryByRole('heading', { name: 'Waiting for clue-givers' })).toBeNull();
   });
 
+  it('a loaded board whose game is deleted says so instead of reconnecting (ISH-F23)', async () => {
+    const g = started().state;
+    let gone = false;
+    vi.stubGlobal('fetch', async (url: string) =>
+      String(url).includes('/events')
+        ? new Response(null, { status: gone ? 404 : 200 })
+        : String(url).includes('/api/ishaara/games/')
+          ? new Response(JSON.stringify({ game: g, me: { host: true, team: null }, serverNow: 1 }))
+          : new Response(JSON.stringify({ items: [], nextCursor: null })),
+    );
+    gone = true;
+    show({ screen: 'board', gameId: g.id, role: 'table' });
+    expect(await screen.findByText('This game is gone')).toBeInTheDocument();
+  });
+
   it('after a key, Home’s New game opens setup, not the clue list (ISH-F12)', async () => {
     serve(started().state);
     show({ screen: 'clue-list', gameId: null, role: 'clue' });
