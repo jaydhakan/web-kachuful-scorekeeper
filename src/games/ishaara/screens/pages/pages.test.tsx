@@ -109,6 +109,7 @@ const summary = (o: Partial<IshaaraSummaryOut> = {}): IshaaraSummaryOut => ({
     role: p.role,
   })),
   myTeam: null,
+  isHost: true,
   ...o,
 });
 

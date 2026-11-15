@@ -8,9 +8,9 @@ import type { IshaaraTable } from '@/games/ishaara/state/useTable';
 import { setSession } from '@/sync/session';
 import { MQ } from '@/theme/breakpoints';
 import Ishaara from '../../index';
-import IshaaraDeskShell from './IshaaraDeskShell';
-// Lazy chunks, loaded up front so transforming them can't outlast a findBy.
-import './DeskBoard';
+import IshaaraShell from '../IshaaraShell';
+import DeskBoard from './DeskBoard';
+// A lazy chunk, loaded up front so transforming it can't outlast a findBy.
 import '../board/Board';
 
 type Send = (a: unknown) => Promise<SendResult>;
@@ -59,7 +59,7 @@ function showBoard() {
   live.table = t;
   render(
     <IshaaraProvider initial={{ screen: 'board', gameId: t.game!.id, role: 'table' }}>
-      <IshaaraDeskShell />
+      <IshaaraShell board={DeskBoard} desk />
     </IshaaraProvider>,
   );
   return t;
@@ -138,7 +138,7 @@ describe('Ishaara’s desk board', () => {
 });
 
 describe('Ishaara’s root', () => {
-  it('picks the desk shell at MQ.big and the phone shell below it', async () => {
+  it('lays out for the desk at MQ.big and the phone below it', async () => {
     const { unmount } = render(<Ishaara />);
     await waitFor(() => expect(document.querySelector('[data-desk]')).not.toBeNull());
     expect(screen.getByRole('heading', { name: 'Ishaara' })).toBeInTheDocument();
@@ -147,5 +147,24 @@ describe('Ishaara’s root', () => {
     render(<Ishaara />);
     expect(screen.getByRole('heading', { name: 'Ishaara' })).toBeInTheDocument();
     expect(document.querySelector('[data-desk]')).toBeNull();
+  });
+
+  it('crossing MQ.big keeps the shell mounted, so nothing on screen is lost', async () => {
+    const subs = new Set<() => void>();
+    let big = true;
+    window.matchMedia = (q: string) =>
+      ({
+        matches: q === MQ.big ? big : false,
+        media: q,
+        addEventListener: (_: string, f: () => void) => subs.add(f),
+        removeEventListener: (_: string, f: () => void) => subs.delete(f),
+      }) as unknown as MediaQueryList;
+    render(<Ishaara />);
+    const shell = document.querySelector('[data-game="ishaara"]');
+    expect(shell).toHaveAttribute('data-desk');
+    big = false;
+    act(() => subs.forEach((f) => f()));
+    expect(document.querySelector('[data-game="ishaara"]')).toBe(shell);
+    expect(shell).not.toHaveAttribute('data-desk');
   });
 });

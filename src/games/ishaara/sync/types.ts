@@ -79,6 +79,8 @@ export interface IshaaraSummaryOut {
   host: { name: string };
   players: IshaaraSummaryPlayer[];
   myTeam: Team | null;
+  /** The caller created the game, so its device is the table. */
+  isHost: boolean;
 }
 
 export interface IshaaraListQuery {

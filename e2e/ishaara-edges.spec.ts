@@ -209,3 +209,24 @@ test('the table drops and recovers: dimmed, picks off and never queued, then liv
   await phones.sun.context().close();
   await phones.moon.context().close();
 });
+
+test('a host who gives clues gets back to the board from Home, and to the key (ISH-F01)', async ({
+  page,
+}) => {
+  await openIshaara(page, 'admin');
+  const id = await createGame(page, { hostGives: 'sun' });
+  await onlyGame(page, id);
+  await page.reload();
+  const live = page.getByRole('region', { name: 'Ishaara' });
+  await expect(live.getByText('You host and give Sun’s clues')).toBeVisible();
+  await ishBtn(page, 'Open the board').click();
+  await expect(page.getByRole('heading', { name: 'Waiting for clue-givers' })).toBeVisible();
+  await ishBtn(page, 'Back to games').click();
+  await ishBtn(page, 'Open my key').click();
+  await expect(ishBtn(page, 'Show key')).toBeVisible();
+  // System Back steps back out of the key to Your games, then Home (ISH-F03).
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Your games' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1, name: 'Ishaara' })).toBeVisible();
+});

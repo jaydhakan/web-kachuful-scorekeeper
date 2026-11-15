@@ -33,6 +33,10 @@ export const table = {
     playing: (sun: number, moon: number) => `Sun ${sun} left · Moon ${moon} left`,
     open: 'Open',
     yourClues: (team: Team) => `You give ${TEAM[team]}’s clues`,
+    hostAndClues: (team: Team) => `You host and give ${TEAM[team]}’s clues`,
+    openBoard: 'Open the board',
+    openKey: 'Open my key',
+    watching: (host: string) => (host ? `Watching ${host}’s table` : 'Watching the table'),
   },
 
   setup: {
@@ -126,7 +130,7 @@ export const table = {
     open: (a: string, b: string) => `${a} and ${b}, open`,
     onPhone: 'on your phone.',
     qr: 'QR code for play.vectanix.com/ishaara',
-    yourGames: 'Signed-in clue-givers see this game under “Your games”.',
+    yourGames: 'Signed-in clue-givers see this game under “Your games” within a few seconds.',
     giverOf: (team: Team) => `${TEAM[team]} clue-giver`,
     joined: 'Joined',
     notYet: 'Waiting',
@@ -137,6 +141,11 @@ export const table = {
     cancelOk: 'Cancel game',
     keep: 'Keep waiting',
     cancelFailed: 'Couldn’t cancel the game. Try again.',
+    copyLink: 'Copy a link to this game',
+    shareLink: 'Send a link to this game',
+    linkText: 'Open your Ishaara key',
+    copied: 'Link copied.',
+    copyFailed: 'Couldn’t copy. Use the address above.',
   },
 
   board: {
@@ -222,6 +231,16 @@ export const table = {
     penaltyWait: 'Waiting for the penalty pick',
     timesUp: 'Time’s up',
     undoShort: 'Undo',
+    leaveTimedNote:
+      'The game keeps going, but the turn’s timer waits until this board is open again.',
+    leaveTimedAsk:
+      'Leave the board? The timer can’t run out while the board is closed, so the turn waits for you.',
+    stay: 'Stay on the board',
+    endNoResult: 'End game without a result',
+    endAsk: 'End this game for everyone? Nobody wins or loses, and it won’t count in History.',
+    endOk: 'End game',
+    keepPlaying: 'Keep playing',
+    endFailed: 'Couldn’t end the game. Try again.',
   },
 
   win: {

@@ -322,7 +322,6 @@ for (const [w, h] of MATRIX) {
 test.describe('Ishaara across the large-screen line', () => {
   test.use({ viewport: { width: 390, height: 844 } });
   test('turning a tablet keeps the setup in progress', async ({ page }) => {
-    test.fail(true, 'ISH-F04: crossing 768px remounts Ishaara and drops what was being done');
     await openIshaara(page, 'admin', { circle: true });
     await ishBtn(page, 'New game').click();
     await ishBtn(page, 'Add player').click();

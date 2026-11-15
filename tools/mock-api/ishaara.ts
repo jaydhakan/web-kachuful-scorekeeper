@@ -219,6 +219,7 @@ function summary(r: IshRec, me: Me): IshaaraSummaryOut {
       role: p.role,
     })),
     myTeam: teamOf(r, me),
+    isHost: r.hostId === me.id,
   };
 }
 

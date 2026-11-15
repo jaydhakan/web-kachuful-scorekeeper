@@ -1,17 +1,18 @@
 import './ishaara.css';
-import { lazy, Suspense, type MouseEvent, type ReactNode } from 'react';
+import { lazy, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { go } from '@/platform/route';
 import { MQ } from '@/theme/breakpoints';
 import { signedInAs, useSession } from '@/sync/session';
 import IshaaraShell from './screens/IshaaraShell';
+import { useGameLink } from './state/gameLink';
 import { IshaaraProvider, useIshaara } from './state/store';
 import { useOnline } from './state/useTable';
 import { shell } from './strings/shell';
 
-// Only tablets and desktops download the large-screen shell; the phone shell stays in the first load.
-const IshaaraDeskShell = lazy(() => import('./screens/desk/IshaaraDeskShell'));
+// Only tablets and desktops download the large-screen board; the phone shell stays in the first load.
+const DeskBoard = lazy(() => import('./screens/desk/DeskBoard'));
 
 function Gate({ title, body, children }: { title: string; body: string; children: ReactNode }) {
   return (
@@ -26,7 +27,10 @@ function Gate({ title, body, children }: { title: string; body: string; children
   );
 }
 
-/** Sign-in lives in Kachuful's account pages; a plain click opens it without a reload. */
+/**
+ * Sign-in lives in Kachuful's account pages; a plain click opens it without a reload. A real link, painted with the
+ * primary button's materials so each theme's label colour applies (PL-F02).
+ */
 function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
@@ -35,6 +39,7 @@ function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
 
 function Root() {
   const { nav, actions } = useIshaara();
+  useGameLink(actions.openGame);
   const big = useMediaQuery(MQ.big);
   const online = useOnline();
   // A game in progress handles a dropped connection itself (reconnecting), so only the hub is gated.
@@ -44,17 +49,16 @@ function Root() {
         <PrimaryButton onClick={() => actions.go('history')}>{shell.offline.history}</PrimaryButton>
       </Gate>
     );
-  return big ? (
-    <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
-      <IshaaraDeskShell />
-    </Suspense>
-  ) : (
-    <IshaaraShell />
-  );
+  // One shell at every size, so crossing MQ.big swaps only the board and keeps setup, the key and any page open.
+  return big ? <IshaaraShell board={DeskBoard} desk /> : <IshaaraShell />;
 }
 
-/** Ishaara's lazy root: signed in and online only, since the server runs the game. */
+/** Ishaara's lazy root: signed in and online only, since the server runs the game. PlatformRoot gates updates. */
 export default function Ishaara() {
+  return <IshaaraRoot />;
+}
+
+function IshaaraRoot() {
   const session = signedInAs(useSession());
   if (!session)
     return (
@@ -62,7 +66,7 @@ export default function Ishaara() {
         <a
           href="/kachuful?open=signin"
           onClick={toSignIn}
-          className="mat-fill press inline-flex min-h-12 items-center rounded-full px-6 text-16 font-bold text-ink-on-accent"
+          className="mat-cta mat-cta-on mat-tone-accent mat-fill press relative isolate inline-flex h-[60px] min-w-[16rem] items-center justify-center gap-2 rounded-[20px] px-6 text-18 font-bold tracking-[-0.01em] text-ink-on-accent"
         >
           {shell.signIn.action}
         </a>

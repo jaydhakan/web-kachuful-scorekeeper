@@ -97,7 +97,9 @@ export class GameLink {
         this.setConn();
         if (c === 'live') this.flushRetry();
       },
-      onGone: () => this.set({ status: 'gone' }),
+      // A refused stream on 401 is a lost session, not a lost game: one more API read marks the session stale,
+      // and Ishaara then asks to sign in again (ISH-F23).
+      onGone: (status) => (status === 401 ? void this.load() : this.set({ status: 'gone' })),
     });
     if (typeof window !== 'undefined') {
       window.addEventListener('online', this.onNet);

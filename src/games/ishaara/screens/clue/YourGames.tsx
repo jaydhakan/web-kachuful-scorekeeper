@@ -1,6 +1,6 @@
 import { Icon } from '@/components/ui/Icons';
 import { useIshaara } from '@/games/ishaara/state/store';
-import { useYourGames } from '@/games/ishaara/state/lists';
+import { useRefreshWhileVisible, useYourGames } from '@/games/ishaara/state/lists';
 import { clue } from '@/games/ishaara/strings/clue';
 import { agoTxt } from '@/lib/format';
 import { Mark, TINT } from './KeyParts';
@@ -10,6 +10,8 @@ import { CTA, OUTLINE, PANEL } from './clueKit';
 export function YourGames() {
   const { actions } = useIshaara();
   const r = useYourGames();
+  // A game the table has just made appears here within seconds (ISH-F13).
+  useRefreshWhileVisible(r.reload);
   const items = r.data;
 
   let body;
@@ -35,6 +37,9 @@ export function YourGames() {
       <div className={`${PANEL} grid gap-2`}>
         <h2 className="text-20 font-bold">{clue.list.emptyTitle}</h2>
         <p className="text-16 text-key-text-2">{clue.list.empty}</p>
+        <button type="button" onClick={r.reload} disabled={r.loading} className={OUTLINE}>
+          {r.loading ? clue.list.checking : clue.list.refresh}
+        </button>
       </div>
     );
   else

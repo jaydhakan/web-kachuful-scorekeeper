@@ -169,6 +169,9 @@ export function BoardOverlays({
           <BoardMenu
             key="menu"
             canResign={v.active && v.canSend}
+            gameId={v.game?.id}
+            host={v.host}
+            timed={v.active && v.game?.deadline != null}
             onClose={() => setMenu(false)}
             onRules={() => (setMenu(false), onRules())}
             onLeave={() => (setMenu(false), onLeave())}
