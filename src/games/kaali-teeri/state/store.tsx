@@ -165,14 +165,17 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
   useKtSync(ref, dispatch);
 
   // System Back closes an open sheet, then the top page, then steps back through setup (step 3 → 2 → 1 → home).
+  // Inside a hand it opens the menu (Undo, Home) rather than leaving the game or undoing silently (KT-F06).
   const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;
-  useHistorySync(setupDepth + state.pages.length + (state.sheet ? 1 : 0), () => {
+  const handDepth = state.screen === 'game' && state.game ? 1 : 0;
+  useHistorySync(setupDepth + handDepth + state.pages.length + (state.sheet ? 1 : 0), () => {
     const s = ref.current;
     if (s.sheet) dispatch({ type: 'sheet', sheet: null });
     else if (s.pages.length) dispatch({ type: 'closePage' });
     else if (s.screen === 'setup' && s.setup && s.setup.step > 1)
       dispatch({ type: 'setupStep', step: (s.setup.step - 1) as 1 | 2 });
     else if (s.screen === 'setup') dispatch({ type: 'go', screen: 'home', dir: -1 });
+    else if (s.screen === 'game' && s.game) dispatch({ type: 'sheet', sheet: { type: 'menu' } });
   });
 
   const toastId = state.toast?.id;

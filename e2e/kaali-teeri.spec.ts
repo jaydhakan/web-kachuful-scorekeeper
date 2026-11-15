@@ -24,6 +24,27 @@ test('a quick-mode hand from the deal to the summary, kept across a reload', asy
   await expect(page.getByText('Aarav deals · 13 each')).toBeVisible();
 });
 
+test('Back inside a hand opens the menu, and Back again closes it, leaving the hand as it was', async ({
+  page,
+}) => {
+  await ktStart(page, P4);
+  await quickBid(page, 'Meera', 175);
+  await expect(ktBtn(page, /Hearts$/)).toBeVisible();
+  const saved = await page.evaluate(() => localStorage.getItem('kaaliteeri.v1'));
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page).toHaveURL(/\/kaali-teeri/);
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(ktBtn(page, /Hearts$/)).toBeVisible();
+  // A second round trip works the same: the guard entry comes back each time.
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('kaaliteeri.v1'))).toBe(saved);
+});
+
 test('the full auction: a player who passed bids again, and the last bid standing wins', async ({
   page,
 }) => {
