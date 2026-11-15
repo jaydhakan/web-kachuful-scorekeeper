@@ -9,7 +9,7 @@ import { type SeatInvite } from '@/sync/seatInvites';
 import { useSeatInviteJoin } from '@/sync/seatInviteSignals';
 import { signedInAs, useSession } from '@/sync/session';
 import IshaaraShell from './screens/IshaaraShell';
-import { useGameLink } from './state/gameLink';
+import { gameInSearch, useGameLink } from './state/gameLink';
 import { IshaaraProvider, useIshaara } from './state/store';
 import { useOnline } from './state/useTable';
 import { shell } from './strings/shell';
@@ -37,8 +37,14 @@ function Gate({ title, body, children }: { title: string; body: string; children
 function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
-  go('kachuful', authSearch('signin', 'ishaara'));
+  go('kachuful', signInSearch());
 }
+
+// A game link followed signed out (`/ishaara?game=<id>`) reopens that game once signed in.
+const signInSearch = () => {
+  const id = gameInSearch(location.search);
+  return authSearch('signin', 'ishaara', id ? `?game=${id}` : undefined);
+};
 
 function Root() {
   const { nav, actions } = useIshaara();
@@ -73,7 +79,7 @@ function IshaaraRoot() {
     return (
       <Gate title={shell.signIn.title} body={shell.signIn.body}>
         <a
-          href={`/kachuful${authSearch('signin', 'ishaara')}`}
+          href={`/kachuful${signInSearch()}`}
           onClick={toSignIn}
           className="mat-cta mat-cta-on mat-tone-accent mat-fill press relative isolate inline-flex h-[60px] min-w-[16rem] items-center justify-center gap-2 rounded-[20px] px-6 text-18 font-bold tracking-[-0.01em] text-ink-on-accent"
         >

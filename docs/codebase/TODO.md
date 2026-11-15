@@ -59,8 +59,6 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   what else the audit listed. `platform/pages/InlineError.tsx` duplicates `FormError` in `ui/Field.tsx`: fold it.
 - **Me page:** "Sync now" calls every game's sync, but Kaali Teeri's engine is only bound inside Kaali Teeri, so from
   Me it does nothing for Kaali Teeri games. The hero stats name no game.
-- **Ishaara links through sign-in:** a signed-out person who opens `/ishaara?game=<id>` returns to Ishaara's home
-  after signing in, not to that game. `authSearch` would need to carry the game id.
 - **Code passes:** Kachuful had no code pass in the audit (screenshots only); run one.
 - **Not verified:** a real phone (keyboard, safe areas, vibrate); the new motion (A1 to A8, A10, A11) watched with
   motion on, frame by frame (e2e checks it is present); the app's new Ishaara flows against the real backend.
