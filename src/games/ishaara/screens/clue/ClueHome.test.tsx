@@ -167,6 +167,29 @@ describe('reading the key', () => {
   });
 });
 
+describe('leaving the key (ISH-F03)', () => {
+  it('asks first while the table waits on this phone’s clue, then goes back', () => {
+    phone();
+    atKey();
+    fireEvent.click(screen.getByRole('button', { name: 'Leave this game' }));
+    const ask = screen.getByRole('alertdialog');
+    expect(ask).toHaveTextContent('The table is waiting for your clue');
+    fireEvent.click(within(ask).getByRole('button', { name: 'Stay' }));
+    expect(seen.nav?.screen).toBe('key');
+    fireEvent.click(screen.getByRole('button', { name: 'Leave this game' }));
+    fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Leave' }));
+    expect(seen.nav?.screen).not.toBe('key');
+  });
+
+  it('leaves in one tap on the other team’s turn', () => {
+    phone({ turn: 'moon', clue: { team: 'moon', word: 'storm', number: 3 } });
+    atKey();
+    fireEvent.click(screen.getByRole('button', { name: 'Leave this game' }));
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(seen.nav?.screen).not.toBe('key');
+  });
+});
+
 describe('typed clue', () => {
   const field = () => screen.getByRole('textbox', { name: /Your clue/ });
   const sendBtn = () => screen.getByRole('button', { name: /^Send/ });

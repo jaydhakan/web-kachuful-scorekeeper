@@ -1,4 +1,4 @@
-import { m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import {
   clueGiverOf,
@@ -12,6 +12,8 @@ import { useIshaara } from '@/games/ishaara/state/store';
 import { useClue, type IshaaraClue } from '@/games/ishaara/state/useTable';
 import { clue } from '@/games/ishaara/strings/clue';
 import { icon } from '@/components/ui/IconsMore';
+import { Icon } from '@/components/ui/Icons';
+import { Modal } from '@/components/ui/Modal';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { ClueEntry } from './ClueEntry';
 import { Counts, KeyGrid, Mark, TeamPill, TINT } from './KeyParts';
@@ -99,6 +101,7 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [typing, setTyping] = useState(false);
+  const [asking, setAsking] = useState(false);
   const hide = useRef<HTMLButtonElement>(null);
   useEffect(() => hide.current?.focus(), []);
   // A new state from the server answers whatever the last message was about.
@@ -173,6 +176,11 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
       />
     );
   const finished = g.status === 'finished';
+  // Leaving is always one tap away (ISH-F03); it asks first only while the table waits on this phone's clue.
+  const waitsOnMe = g.status === 'active' && mine && !g.clue && !g.pending;
+  const leave = () => (waitsOnMe ? setAsking(true) : actions.leave());
+  const HEAD_BTN =
+    'press inline-flex min-h-12 shrink-0 items-center gap-2 rounded-[16px] bg-key-surface px-4 text-18 font-semibold shadow-[inset_0_0_0_1px_var(--key-edge)]';
 
   return (
     <m.div
@@ -185,17 +193,40 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
       {/* While typing on a short screen (the keyboard is up) the header and counts make way for the key. */}
       <div className="flex items-center justify-between gap-3 pane:[grid-area:head] [@media(max-height:560px)]:group-data-[typing]:hidden">
         <TeamPill team={team} name={clueGiverOf(g, team)?.name ?? null} />
-        <button
-          ref={hide}
-          type="button"
-          onClick={onHide}
-          aria-label={clue.hideLabel}
-          className="press inline-flex min-h-12 shrink-0 items-center gap-2 rounded-[16px] bg-key-surface px-4 text-18 font-semibold shadow-[inset_0_0_0_1px_var(--key-edge)]"
-        >
-          {icon('eyeOff', 'h-5 w-5')}
-          {clue.hide}
-        </button>
+        <div className="flex shrink-0 gap-2">
+          <button type="button" onClick={leave} aria-label={clue.leaveLabel} className={HEAD_BTN}>
+            <span aria-hidden className="[&_svg]:h-5 [&_svg]:w-5">
+              {Icon.back}
+            </span>
+            <span className="hidden min-[400px]:inline">{clue.leave}</span>
+          </button>
+          <button
+            ref={hide}
+            type="button"
+            onClick={onHide}
+            aria-label={clue.hideLabel}
+            className={HEAD_BTN}
+          >
+            {icon('eyeOff', 'h-5 w-5')}
+            {clue.hide}
+          </button>
+        </div>
       </div>
+      {/* One note: on a phone it sticks under the header; beside the key the grid puts it in its own area. */}
+      {(!live || error) && (
+        <div className="sticky top-0 z-10 grid gap-1 rounded-[14px] bg-key-surface px-4 py-2.5 shadow-[inset_0_0_0_1px_var(--key-edge)] pane:static pane:[grid-area:note]">
+          {!live && (
+            <p role="status" className="text-16 font-semibold text-key-alert">
+              {clue.reconnecting}
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-16 font-semibold text-key-alert">
+              {error}
+            </p>
+          )}
+        </div>
+      )}
       <StatusBand game={g} team={team} line={line} offset={c.clockOffset} />
       {finished && <div className="pane:[grid-area:panel]">{panel}</div>}
       {/* On a phone on its side the key itself shows the counts; the room goes to the clue bar. */}
@@ -215,21 +246,19 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
           onPick={setSelected}
         />
       </div>
-      {(!live || error) && (
-        <div className="grid gap-1 pane:[grid-area:note]">
-          {!live && (
-            <p role="status" className="text-16 font-semibold text-key-alert">
-              {clue.reconnecting}
-            </p>
-          )}
-          {error && (
-            <p role="alert" className="text-16 font-semibold text-key-alert">
-              {error}
-            </p>
-          )}
-        </div>
-      )}
       {!finished && <div className="pane:self-end pane:[grid-area:panel]">{panel}</div>}
+      <AnimatePresence>
+        {asking && (
+          <Modal
+            key="leave"
+            text={clue.leaveAsk}
+            ok={clue.leave}
+            cancel={clue.stay}
+            onCancel={() => setAsking(false)}
+            onOk={() => (setAsking(false), actions.leave())}
+          />
+        )}
+      </AnimatePresence>
     </m.div>
   );
 }
@@ -334,7 +363,7 @@ export function KeyView({ id }: { id: string }) {
         back={actions.leave}
       />
     ) : (
-      <Notice text={clue.load.game} busy />
+      <Notice text={clue.load.game} busy back={actions.leave} />
     );
   if (!shown)
     return (
@@ -359,6 +388,7 @@ export function KeyView({ id }: { id: string }) {
         back={actions.leave}
       />
     );
-  if (c.keyStatus !== 'ready' || !c.key || !c.team) return <Notice text={clue.load.key} busy />;
+  if (c.keyStatus !== 'ready' || !c.key || !c.team)
+    return <Notice text={clue.load.key} busy back={actions.leave} />;
   return <KeyBoard c={c} onHide={() => setShown(false)} />;
 }

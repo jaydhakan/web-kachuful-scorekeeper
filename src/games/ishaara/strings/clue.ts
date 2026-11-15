@@ -65,6 +65,11 @@ export const clue = {
     name ? `${TEAM[team]} clue-giver · ${name}` : `${TEAM[team]} clue-giver`,
   hide: 'Hide',
   hideLabel: 'Hide key',
+  leave: 'Leave',
+  leaveLabel: 'Leave this game',
+  leaveAsk:
+    'The table is waiting for your clue. Leave anyway? The game keeps going, and you can come back.',
+  stay: 'Stay',
 
   load: {
     game: 'Opening the game…',
