@@ -1,10 +1,12 @@
 import './ishaara.css';
 import { authSearch } from '@/lib/entry';
-import { lazy, type MouseEvent, type ReactNode } from 'react';
+import { lazy, useCallback, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { go } from '@/platform/route';
 import { MQ } from '@/theme/breakpoints';
+import { type SeatInvite } from '@/sync/seatInvites';
+import { useSeatInviteJoin } from '@/sync/seatInviteSignals';
 import { signedInAs, useSession } from '@/sync/session';
 import IshaaraShell from './screens/IshaaraShell';
 import { useGameLink } from './state/gameLink';
@@ -41,6 +43,12 @@ function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
 function Root() {
   const { nav, actions } = useIshaara();
   useGameLink(actions.openGame);
+  // An invite's Join, from the banner or a card, opens that game's key gate here without a reload.
+  const joinSeat = useCallback(
+    (inv: SeatInvite) => actions.openGame(inv.gameId, 'clue'),
+    [actions],
+  );
+  useSeatInviteJoin('ishaara', joinSeat);
   const big = useMediaQuery(MQ.big);
   const online = useOnline();
   // A game in progress handles a dropped connection itself (reconnecting), so only the hub is gated.

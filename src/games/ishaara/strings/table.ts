@@ -34,6 +34,7 @@ export const table = {
     open: 'Open',
     yourClues: (team: Team) => `You give ${TEAM[team]}’s clues`,
     hostAndClues: (team: Team) => `You host and give ${TEAM[team]}’s clues`,
+    inviteSeat: (team: Team) => `you’d give ${TEAM[team]}’s clues`,
     openBoard: 'Open the board',
     openKey: 'Open my key',
     watching: (host: string) => (host ? `Watching ${host}’s table` : 'Watching the table'),
@@ -148,6 +149,11 @@ export const table = {
     linkText: 'Open your Ishaara key',
     copied: 'Link copied.',
     copyFailed: 'Couldn’t copy. Use the address above.',
+    cantMake: (name: string) => `${name} can’t make it`,
+    cantMakeBody: (team: Team) =>
+      `Set the game up again with someone else giving ${TEAM[team]}’s clues. This game stays until you cancel it.`,
+    declined: 'Can’t make it',
+    setUpAgain: 'Set up again',
   },
 
   board: {

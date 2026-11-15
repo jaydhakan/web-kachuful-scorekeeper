@@ -3,12 +3,16 @@ import { useState } from 'react';
 import { clueGiverOf, type IshaaraPublic, type Seated, type Team } from '@/games/ishaara/domain';
 import { gameLink } from '@/games/ishaara/state/gameLink';
 import { deleteIshaaraGame } from '@/games/ishaara/state/lists';
+import { invitedGiver, setUpAgain } from '@/games/ishaara/state/setUpAgain';
+import { useIshaara } from '@/games/ishaara/state/store';
+import { useSeatInviteUpdates } from '@/sync/seatInviteSignals';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
 import { table as s } from '@/games/ishaara/strings/table';
 import { Avatar } from '@/components/ui/Avatar';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { Modal } from '@/components/ui/Modal';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
@@ -51,9 +55,11 @@ function CopyLink({ id }: { id: string }) {
 function Givers({
   givers,
   game,
+  declined,
 }: {
   givers: { t: Team; p: Seated | undefined }[];
   game: IshaaraPublic;
+  declined: ReadonlySet<Team>;
 }) {
   const rm = useReducedMotion();
   const both = game.joined.sun && game.joined.moon;
@@ -61,6 +67,7 @@ function Givers({
     <ul className="glass mt-5 overflow-hidden pane:mt-0" aria-live="polite">
       {givers.map(({ t, p }, k) => {
         const joined = game.joined[t];
+        const no = !joined && declined.has(t);
         return (
           <m.li
             key={t}
@@ -89,17 +96,17 @@ function Givers({
             </div>
             <AnimatePresence mode="popLayout" initial={false}>
               <m.span
-                key={joined ? 'joined' : 'waiting'}
+                key={joined ? 'joined' : no ? 'declined' : 'waiting'}
                 initial={rm ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={rm ? { duration: 0.15 } : SPRING_POP}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-16 font-bold ${joined ? 'text-[var(--pos)] shadow-[inset_0_0_0_1.5px_var(--pos)]' : 'text-[var(--tx2)] shadow-[inset_0_0_0_1.5px_var(--hairline-2)]'}`}
+                className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-16 font-bold ${joined ? 'text-[var(--pos)] shadow-[inset_0_0_0_1.5px_var(--pos)]' : no ? 'text-[var(--neg)] shadow-[inset_0_0_0_1.5px_var(--neg)]' : 'text-[var(--tx2)] shadow-[inset_0_0_0_1.5px_var(--hairline-2)]'}`}
               >
                 <span aria-hidden className="[&_svg]:h-4 [&_svg]:w-4">
-                  {joined ? Icon.check : Icon.history}
+                  {joined ? Icon.check : no ? Icon.close : Icon.history}
                 </span>
-                {joined ? w.joined : w.notYet}
+                {joined ? w.joined : no ? w.declined : w.notYet}
               </m.span>
             </AnimatePresence>
           </m.li>
@@ -120,9 +127,21 @@ export const clueUrl = () =>
 export default function Waiting({ game, onLeave }: { game: IshaaraPublic; onLeave: () => void }) {
   const [ask, setAsk] = useState(false);
   const [err, setErr] = useState('');
+  const rm = useReducedMotion();
   const teams: Team[] = ['sun', 'moon'];
   const givers = teams.map((t) => ({ t, p: clueGiverOf(game, t) }));
   const names = givers.map((g) => g.p?.name ?? s.team[g.t]);
+  const { actions } = useIshaara();
+  // A clue-giver who said no (seat invite declined) and hasn't opened their key since.
+  const no = useSeatInviteUpdates(game.id)
+    .filter((u) => u.status === 'declined')
+    .map((u) => invitedGiver(game, u.seat))
+    .filter((p): p is Seated => !!p && !game.joined[p.team]);
+  const again = (p: Seated) => {
+    setUpAgain(game, p);
+    actions.leave();
+    actions.go('setup');
+  };
   const cancel = async () => {
     setAsk(false);
     try {
@@ -144,7 +163,7 @@ export default function Waiting({ game, onLeave }: { game: IshaaraPublic; onLeav
           <span className="text-15 font-medium text-[var(--tx2)]">{s.setup.stepOf(3)}</span>
         }
         title={w.title}
-        aside={<Givers givers={givers} game={game} />}
+        aside={<Givers givers={givers} game={game} declined={new Set(no.map((p) => p.team))} />}
         bar={
           <div className="flex w-full flex-col gap-1">
             <p role="status" className="text-center text-15 text-[var(--tx2)]">
@@ -160,6 +179,35 @@ export default function Waiting({ game, onLeave }: { game: IshaaraPublic; onLeav
           </div>
         }
       >
+        <AnimatePresence initial={false}>
+          {no[0] && (
+            <m.div
+              key={no[0].id}
+              role="status"
+              initial={rm ? { opacity: 0 } : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={rm ? { duration: 0.15 } : SPRING_POP}
+              className="glass mb-5 flex flex-col gap-3 p-4 shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--neg)_55%,transparent)]"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar
+                  p={no[0]}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-22 opacity-60"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-19 font-bold [overflow-wrap:anywhere]">
+                    {w.cantMake(no[0].name)}
+                  </p>
+                  <p className="text-15 text-[var(--tx2)]">{w.cantMakeBody(no[0].team)}</p>
+                </div>
+              </div>
+              <PrimaryButton className="w-full" onClick={() => again(no[0])}>
+                {w.setUpAgain}
+              </PrimaryButton>
+            </m.div>
+          )}
+        </AnimatePresence>
         <m.p {...stagger(0)} className="text-22 leading-snug [text-wrap:balance]">
           <b>{w.open(names[0], names[1])}</b>{' '}
           <b className="break-all text-[var(--accent-tx)]">{clueUrl()}</b> {w.onPhone}
