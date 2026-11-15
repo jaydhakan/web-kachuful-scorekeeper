@@ -17,6 +17,8 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { MQ } from '@/theme/breakpoints';
 import { KtAccountChip } from './KtAccount';
 
 // One centred column on a phone and tablet; from the rail up two panes use the width (KT-F05).
@@ -126,6 +128,8 @@ function Recent({ current }: { current: string | null }) {
 export default function Home() {
   const { state, actions } = useKt();
   const g = state.game;
+  // One New Game: in the hero pane from the rail up, in the bottom bar below it.
+  const wide = useMediaQuery(MQ.rail);
   const links: { key: KtHubPage | 'rules'; icon: ReactNode; go: () => void }[] = [
     { key: 'history', icon: Icon.history, go: () => actions.openPage({ page: 'history' }) },
     {
@@ -172,11 +176,13 @@ export default function Home() {
                 {s.home.pitch}
               </p>
             </m.div>
-            <m.div {...stagger(1, 0.1)} className="hidden rail:block">
-              <PrimaryButton className="w-60" onClick={actions.startSetup}>
-                {s.home.newGame}
-              </PrimaryButton>
-            </m.div>
+            {wide && (
+              <m.div {...stagger(1, 0.1)}>
+                <PrimaryButton className="w-60" onClick={actions.startSetup}>
+                  {s.home.newGame}
+                </PrimaryButton>
+              </m.div>
+            )}
             {g && (
               <m.div {...stagger(1, 0.1)} className="w-full rail:max-w-[30rem]">
                 <ResumeCard g={g} />
@@ -219,12 +225,13 @@ export default function Home() {
           </div>
         </div>
       </div>
-      {/* From the rail up New Game sits in the hero pane. */}
-      <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,var(--sab))] pt-[18px] rail:hidden [[data-desk]_&]:bg-none">
-        <PrimaryButton className="mx-auto w-full max-w-[26rem]" onClick={actions.startSetup}>
-          {s.home.newGame}
-        </PrimaryButton>
-      </div>
+      {!wide && (
+        <div className="chrome-bot flex min-h-[96px] items-center px-5 pb-[max(18px,var(--sab))] pt-[18px] [[data-desk]_&]:bg-none">
+          <PrimaryButton className="mx-auto w-full max-w-[26rem]" onClick={actions.startSetup}>
+            {s.home.newGame}
+          </PrimaryButton>
+        </div>
+      )}
     </div>
   );
 }
