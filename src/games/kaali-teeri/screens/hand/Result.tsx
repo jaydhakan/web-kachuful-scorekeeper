@@ -1,4 +1,5 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion, type Variants } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 import { deckTotal, team, type CountedBy } from '@/games/kaali-teeri/domain';
 import { curHand, preview, shownPoints } from '@/games/kaali-teeri/state/select';
 import { useKt } from '@/games/kaali-teeri/state/store';
@@ -176,7 +177,29 @@ export default function Result() {
   );
 }
 
-function Outcome({ made, sweep, over }: { made: boolean; sweep: string; over: number }) {
+type Stamp = 'stamp' | 'tilt' | 'swap' | 'fade';
+
+// A missed verdict tips and settles lower, and keeps that pose between steps (A8).
+const LOW = { rotate: -3, y: 2 };
+
+/** A8: the verdict lands only when it changes; a step that keeps it just swaps the words. */
+const STAMP: Record<Stamp, Variants> = {
+  // Made: pressed onto the page, heavy and quick.
+  stamp: {
+    from: { opacity: 0, scale: 1.6, rotate: -6 },
+    to: { opacity: 1, scale: 1, rotate: 0, y: 0, transition: { ...SPRING_POP, stiffness: 520 } },
+  },
+  tilt: {
+    from: { opacity: 0, rotate: 0, y: -6 },
+    to: { opacity: 1, ...LOW, transition: { type: 'spring', stiffness: 180, damping: 14 } },
+  },
+  swap: { from: { opacity: 0 }, to: { opacity: 1 } },
+  fade: { from: { opacity: 0 }, to: { opacity: 1, transition: { duration: 0.2 } } },
+};
+const SWAP_LOW: Variants = { from: { opacity: 0, ...LOW }, to: { opacity: 1, ...LOW } };
+
+export function Outcome({ made, sweep, over }: { made: boolean; sweep: string; over: number }) {
+  const rm = useReducedMotion();
   const text =
     sweep === 'bidders'
       ? kp.result.sweepBidders
@@ -186,14 +209,21 @@ function Outcome({ made, sweep, over }: { made: boolean; sweep: string; over: nu
           ? kp.result.made(over)
           : kp.result.missed(-over);
   const good = sweep === 'bidders' || (made && sweep === 'none');
+  const was = useRef(good);
+  useEffect(() => {
+    was.current = good;
+  }, [good]);
+  const motion: Stamp = rm ? 'fade' : was.current === good ? 'swap' : good ? 'stamp' : 'tilt';
+  const variants = motion === 'swap' && !good ? SWAP_LOW : STAMP[motion];
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       <m.span
         key={text}
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        data-verdict-motion={motion}
+        variants={variants}
+        initial="from"
+        animate="to"
         exit={{ opacity: 0 }}
-        transition={SPRING_POP}
         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-14 font-extrabold uppercase tracking-[0.005em] ${good ? 'bg-[var(--success-soft)] text-[var(--pos)]' : 'bg-[var(--danger-soft)] text-[var(--neg-tx)]'}`}
       >
         <span aria-hidden>{good ? kp.board.made : kp.board.missed}</span>

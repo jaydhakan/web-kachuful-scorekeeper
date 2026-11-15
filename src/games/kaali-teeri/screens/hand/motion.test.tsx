@@ -5,6 +5,8 @@ import { KtProvider, useKt } from '@/games/kaali-teeri/state/store';
 import type { KtState } from '@/games/kaali-teeri/state/types';
 import PlayedBy from '@/games/kaali-teeri/sheets/PlayedBy';
 import Play from './Play';
+import { Outcome } from './Result';
+import { kp } from '@/games/kaali-teeri/strings/play';
 import Summary from './Summary';
 import { game } from './testkit';
 
@@ -123,5 +125,30 @@ describe('Sweep', () => {
     mount(game(5, 1), true);
     expect(document.querySelector('[data-kt-sweep]')).toBeNull();
     expect(screen.queryByText('Bidding team swept')).toBeNull();
+  });
+});
+
+describe('Made or missed (A8)', () => {
+  // Exiting chips linger in jsdom (no animation frames end), so find the one showing these words.
+  const chip = (words: string) =>
+    [...document.querySelectorAll<HTMLElement>('[data-verdict-motion]')].find((el) =>
+      el.textContent?.includes(words),
+    )!;
+  const at = (made: boolean, over: number) => (
+    <LazyMotion features={domAnimation} strict>
+      <Outcome made={made} sweep="none" over={over} />
+    </LazyMotion>
+  );
+
+  it('stamps when the points cross the bid, tilts on a miss, and only swaps words in between', () => {
+    const { rerender } = render(at(false, -10));
+    rerender(at(true, 0));
+    expect(chip(kp.result.made(0)).dataset.verdictMotion).toBe('stamp');
+    rerender(at(true, 5));
+    expect(chip(kp.result.made(5)).dataset.verdictMotion).toBe('swap');
+    rerender(at(false, -5));
+    expect(chip(kp.result.missed(5)).dataset.verdictMotion).toBe('tilt');
+    rerender(at(false, -15));
+    expect(chip(kp.result.missed(15)).dataset.verdictMotion).toBe('swap');
   });
 });
