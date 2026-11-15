@@ -12,8 +12,9 @@ import { stagger } from '@/components/ui/stagger';
 import { Mark } from './board/marks';
 
 const h = s.home;
+// One column on phones and upright tablets; side by side on a wide screen (ISH-F20), the wordmark beside the lists.
 const ROOT =
-  'absolute inset-0 flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))]';
+  'absolute inset-0 flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))] wide:pl-[max(var(--sal),calc((100%-64rem)/2))] wide:pr-[max(var(--sar),calc((100%-64rem)/2))]';
 
 export type HubLink = 'clues' | 'history' | 'leaderboard' | 'rules';
 
@@ -147,8 +148,11 @@ export default function Home({ onOpen }: { onOpen: (l: HubLink) => void }) {
         aria-label={h.name}
         className="scroll-thin flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden px-5"
       >
-        <div className="mx-auto flex w-full max-w-[26rem] flex-col items-center gap-5 pb-4 pt-12">
-          <m.div {...stagger(0)} className="flex flex-col items-center text-center">
+        <div className="mx-auto flex w-full max-w-[26rem] flex-col items-center gap-5 pb-4 pt-12 wide:grid wide:min-h-full wide:max-w-none wide:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] wide:content-center wide:items-center wide:gap-x-14 wide:pt-6">
+          <m.div
+            {...stagger(0)}
+            className="flex flex-col items-center text-center wide:row-span-3 wide:items-start wide:text-left"
+          >
             <span aria-hidden className="mb-3 flex gap-2 text-28">
               <span className="text-team-sun">
                 <Mark id="sun" />
@@ -157,10 +161,12 @@ export default function Home({ onOpen }: { onOpen: (l: HubLink) => void }) {
                 <Mark id="moon" />
               </span>
             </span>
-            <h1 className="disp text-52 font-extrabold leading-none tracking-[-0.05em] @h-short:text-40">
+            <h1 className="disp text-52 font-extrabold leading-none tracking-[-0.05em] @h-short:text-40 wide:text-72">
               {h.name}
             </h1>
-            <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)]">{h.tagline}</p>
+            <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)] wide:text-20">
+              {h.tagline}
+            </p>
           </m.div>
           <m.div {...stagger(1, 0.1)} className="w-full">
             <InProgress />
