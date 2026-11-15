@@ -20,6 +20,21 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
   signs in once more), backend and package names, then the repos and folders; the database, server paths and service
   name are optional (plan §12). Backend changes go through `backend-requests.md`.
 
+## Seat invites
+
+- **A host who reloads loses "can't make it".** Declines reach the host only on the user stream
+  (`seat-invite-update`, kept in memory by `sync/seatInviteSignals.ts`); the API has no host-side read of sent
+  invites, so the Ishaara waiting screen forgets a decline after a reload. Needs a backend route to fix.
+- **One SSE reader.** `sync/sse.ts` (user stream) and `games/ishaara/sync/events.ts` hold the same fetch-SSE loop;
+  move Ishaara's onto `sse.ts`.
+- **Full e2e suite not run since seat invites landed** (only `seat-invites`, `ishaara-play`, `ishaara-edges`,
+  `ishaara-a11y`, `platform`, `accounts` and `sync`). `signIn` now aborts the user stream on the shared mock unless
+  a test asks for it, and `onlyGame` hides seat invites.
+- **Not verified:** the banner and cards on a real phone, against the real backend, and in the three other themes
+  (checked in Sunset Glass at 390x844 only).
+- **Ishaara's waiting screen draws clue-givers' avatars square** (`Givers` in `screens/Waiting.tsx` passes a
+  className without `rounded-full`); seen while building seat invites, older than them.
+
 ## Motion
 
 - **Check in a browser with motion on:** the winner sequence and the deal in Yerba Sun, Editorial Paper and Emerald

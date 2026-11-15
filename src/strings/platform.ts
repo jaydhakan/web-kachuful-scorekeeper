@@ -67,6 +67,7 @@ export const platform = {
     signInAgain: 'Sign in again',
     signInAgainAria: 'Your session ended. Sign in again',
     menu: 'Menu',
+    invites: (n: number) => `${n} ${n === 1 ? 'invite' : 'invites'}`,
   },
   menu: {
     title: 'Menu',

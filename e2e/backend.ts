@@ -84,9 +84,17 @@ export async function addPlayer(who: Who, displayName: string, email: string) {
   return p as { id: string; displayName: string };
 }
 
-/** Signs in through the app's own screen. */
-export async function signIn(page: Page, who: Who | { email: string; password: string }) {
+/**
+ * Signs in through the app's own screen. The mock is shared by every test at once and each Ishaara game invites
+ * Riya and Kabir, so a page hears no user stream (no invite banners) unless it asks for `userStream`.
+ */
+export async function signIn(
+  page: Page,
+  who: Who | { email: string; password: string },
+  o: { userStream?: boolean } = {},
+) {
   const a = typeof who === 'string' ? ACCOUNTS[who] : who;
+  if (!REAL && !o.userStream) await page.route('**/api/me/events', (r) => r.abort());
   if (!page.url().startsWith('http')) await page.goto('/kachuful');
   await page.getByRole('button', { name: 'Sign in', exact: true }).first().click();
   await page.getByLabel('Email').fill(a.email);

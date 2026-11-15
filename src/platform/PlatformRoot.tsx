@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { SeatInvitesMount } from '@/components/seat-invites/SeatInvitesMount';
 import { EXIT } from '@/components/ui/motion';
 import { platform } from '@/strings/platform';
 import { gameById } from './catalog';
@@ -137,6 +138,7 @@ export function PlatformRoot() {
       >
         <Page id={live ? id : null} />
       </m.div>
+      <SeatInvitesMount />
       <PlatformUpdate game={live ? id : null} />
       <PlatformNotice />
     </>

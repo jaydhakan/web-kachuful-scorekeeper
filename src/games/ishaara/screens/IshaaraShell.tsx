@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { isClueScreen, tableScreen, useIshaara } from '@/games/ishaara/state/store';
 import { useTable } from '@/games/ishaara/state/useTable';
+import { useQuietInvites } from '@/sync/seatInviteSignals';
 import { table as s } from '@/games/ishaara/strings/table';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { whenIdle } from '@/lib/idle';
@@ -131,6 +132,7 @@ export default function IshaaraShell({
   const closeHub = useCallback(() => setHub(null), []);
 
   const clue = isClueScreen(nav.screen);
+  useQuietInvites(nav.screen === 'board' || nav.screen === 'key');
   const open = (l: HubLink) => (l === 'clues' ? actions.go('clue-list') : setHub(l));
 
   let key: string = nav.screen,

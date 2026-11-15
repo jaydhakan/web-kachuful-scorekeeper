@@ -58,7 +58,14 @@ import {
   type KtGame,
 } from '../../src/games/kaali-teeri/domain/index';
 import type { KtGameSummary } from '../../src/games/kaali-teeri/sync/types';
-import { ishaaraRoutes, resetIshaara } from './ishaara';
+import {
+  ishaaraGame,
+  ishaaraRoutes,
+  ishaaraSeatings,
+  ishaaraUserOf,
+  resetIshaara,
+} from './ishaara';
+import { inviteSeat, registerSeatKind, resetSeatInvites, seatInviteRoutes } from './seatInvites';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -268,6 +275,7 @@ export function seed(now = Date.now()) {
   }
   db.activity.sort((a, b) => b.createdAt - a.createdAt);
   resetIshaara(now);
+  resetSeatInvites();
 }
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
@@ -1952,6 +1960,40 @@ ishaaraRoutes({
     const d = dayOf(t, TZ);
     return !span || (d >= span[0] && d < span[1]);
   },
+  // Each clue-giver who isn't the host gets a seat invite: a notification, joined through the key route.
+  onCreated: (game, hostId) => {
+    for (const p of game.players) {
+      const to = p.role === 'clue-giver' ? ishaaraUserOf(p) : null;
+      if (to && to !== hostId) inviteSeat('ishaara', game.id, `clue:${p.team}`, hostId, to);
+    }
+  },
+});
+
+registerSeatKind('ishaara', {
+  host: (id) => ishaaraGame(id)?.hostId ?? null,
+  closed: (id) => ishaaraGame(id)?.game.status === 'finished',
+  table: (id) => ({ name: `${userName(ishaaraGame(id)?.hostId ?? null)}’s game`, seatsTaken: [] }),
+  partner: () => null,
+});
+
+seatInviteRoutes({
+  on,
+  err,
+  STREAM,
+  players: () => [...db.players.values()],
+  playerOfUser: (id) => db.users.get(id)?.playerId ?? null,
+  photoUrl,
+  seatings: () => [
+    ...liveGames().map((g) => ({
+      playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
+      at: g.updatedAt,
+    })),
+    ...liveKt().map((g) => ({
+      playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
+      at: g.updatedAt,
+    })),
+    ...ishaaraSeatings(),
+  ],
 });
 
 /** Connect-style middleware for Vite's dev and preview servers. */
