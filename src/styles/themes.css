@@ -215,11 +215,15 @@
   --team-moon-ink: var(--text-1);
   --word-card: var(--card-bg);
   --word-card-ink: var(--card-fg);
-  --word-blank: #55516e;
+  --word-blank: #57504a;
   --word-blank-ink: #fff;
   --word-trap: #0b0b10;
   --word-trap-ink: #f6efe3;
+  --word-trap-edge: var(--danger);
   --word-edge: transparent;
+  /* The team colours as text on the page (History's winner, counts): the fills are too light on paper themes. */
+  --team-sun-tx: #f5a524;
+  --team-moon-tx: #a3abff;
   /* The blank and trap stripes, the same in every theme (contrast.test.ts measures ink over them). */
   --word-stripe: rgba(255, 255, 255, 0.16);
   /* The theme's accent, not gold: gold is for first place. */
@@ -240,13 +244,14 @@
   --key-text-2: #a6a4a1;
   --key-cta: #ebe8e2;
   --key-cta-ink: #121214;
-  --key-sun: #44300c;
+  --key-sun: #5c3d00;
   --key-sun-ink: #f9c75e;
-  --key-moon: #222a80;
+  --key-sun-edge: #f5a524;
+  --key-moon: #2a34a6;
   --key-moon-ink: #d0d3ff;
-  --key-blank: #2b2b31;
-  --key-blank-ink: #c9c7c4;
-  --key-blank-stripe: rgba(255, 255, 255, 0.08);
+  --key-moon-edge: #8f98ff;
+  --key-blank: #222227;
+  --key-blank-ink: #a3a1a0;
   --key-trap: #000000;
   --key-trap-ink: #ff927f;
   --key-alert: #ff927f;

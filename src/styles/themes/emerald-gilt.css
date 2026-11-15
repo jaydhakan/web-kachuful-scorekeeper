@@ -228,7 +228,10 @@
   --word-blank-ink: #fff;
   --word-trap: #0b0b10;
   --word-trap-ink: #f6efe3;
+  --word-trap-edge: var(--danger);
   --word-edge: rgba(201, 162, 78, 0.6);
+  --team-sun-tx: #f5a524;
+  --team-moon-tx: #a3abff;
   --kt-bid: var(--brand);
   --kt-bid-ink: var(--on-brand);
   --soon-bg: rgba(201, 162, 78, 0.14);

@@ -136,7 +136,11 @@
   --word-blank-ink: var(--panel);
   --word-trap: var(--ink);
   --word-trap-ink: var(--panel);
+  /* The trap is ink here, so its ring is a light coral rather than the page's dark danger red. */
+  --word-trap-edge: #ff7a66;
   --word-edge: var(--ink);
+  --team-sun-tx: #8a5a00;
+  --team-moon-tx: #3f4bc4;
   --kt-bid: var(--brand);
   --kt-bid-ink: var(--on-brand);
   --soon-bg: var(--bg);
