@@ -1,25 +1,20 @@
-import { AnimatePresence, m } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { agoTxt } from '@/lib/format';
 import { useApp } from '@/games/kachuful/state/store';
-import {
-  applyToEveryone,
-  previewTheme,
-  restoreAppearance,
-  themeLabel,
-  useThemeState,
-} from '@/state/theme';
+import { previewTheme, themeLabel, useThemeState } from '@/state/theme';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Section } from '@/components/ui/Page';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ToggleTrack } from '@/components/ui/Toggle';
 import { PRESS, SPRING } from '@/components/ui/motion';
 import { loadAllThemeCss } from '@/theme/themeCss';
-import { THEME_IDS, type Appearance, type ThemeId } from '@/theme/themes';
+import { THEME_IDS, type ThemeId } from '@/theme/themes';
 import { seatColor } from '@/theme/palette';
 import { COLORS } from '@/people';
 import { admin } from '@/strings/admin';
 import { Edge } from '@/components/ui/Edge';
+import { applyThemeWithUndo } from '../applyTheme';
 
 const ap = admin.appearance;
 
@@ -94,34 +89,20 @@ export function AppearancePanel() {
   const [pick, setPick] = useState<ThemeId>(current);
   const [allow, setAllow] = useState(!!th.appearance?.allowUserOverride);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ msg: string; previous: Appearance | null } | null>(null);
   const who = state.session?.player?.displayName ?? state.session?.user.email ?? '';
   const roving = useRovingFocus({ selected: THEME_IDS.indexOf(pick) });
   // A preview never outlives the Admin page.
   useEffect(() => () => previewTheme(null), []);
   // The previews draw every theme side by side, so each needs its own stylesheet.
   useEffect(() => void loadAllThemeCss(), []);
-  // Undo stays on screen for 8 seconds (DESIGN-SYSTEM.md, Switching themes).
-  useEffect(() => {
-    if (!done) return;
-    const id = setTimeout(() => setDone(null), 8000);
-    return () => clearTimeout(id);
-  }, [done]);
+  // The result and its 8s Undo show in the platform's notice slot (DESIGN-SYSTEM.md, Switching themes).
   const apply = async () => {
     setBusy(true);
-    const r = await applyToEveryone(pick, allow, who);
-    setBusy(false);
-    setDone({
-      msg: (r.saved === 'everyone' ? ap.applied : ap.appliedHere)(themeLabel(pick)),
-      previous: r.previous,
+    await applyThemeWithUndo(pick, allow, who, ap, (prev) => {
+      setPick(prev?.theme ?? 'sunset-glass');
+      setAllow(!!prev?.allowUserOverride);
     });
-  };
-  const undo = async () => {
-    const prev = done?.previous ?? null;
-    setDone(null);
-    await restoreAppearance(prev, who);
-    setPick(prev?.theme ?? 'sunset-glass');
-    setAllow(!!prev?.allowUserOverride);
+    setBusy(false);
   };
   const notice = th.remote === 'offline' ? ap.offline : th.remote === 'ok' ? null : ap.deviceOnly;
   const changed = th.appearance?.updatedAt ? Date.parse(th.appearance.updatedAt) : NaN;
@@ -152,9 +133,7 @@ export function AppearancePanel() {
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="text-17 font-bold">{themeLabel(id)}</span>
                 {current === id && (
-                  <span className="mono-label text-[0.6875rem] text-[var(--tx2)]">
-                    {ap.current}
-                  </span>
+                  <span className="mono-label text-13 text-[var(--tx2)]">{ap.current}</span>
                 )}
               </span>
               <span
@@ -204,32 +183,6 @@ export function AppearancePanel() {
           {ap.last(th.appearance.updatedBy, agoTxt(changed))}
         </p>
       )}
-      <div
-        role="status"
-        aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(1rem+var(--sab))] z-[66] flex justify-center px-4"
-      >
-        <AnimatePresence>
-          {done && (
-            <m.div
-              initial={{ opacity: 0, y: 16, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={SPRING}
-              className="mat-toast pointer-events-auto flex min-h-11 max-w-full items-center gap-1 rounded-full pl-4 pr-1 text-15 font-semibold"
-            >
-              <span className="py-1.5">{done.msg}</span>
-              <button
-                type="button"
-                onClick={() => void undo()}
-                className="mat-toast-act press min-h-11 shrink-0 rounded-full px-3 font-extrabold"
-              >
-                {ap.undo}
-              </button>
-            </m.div>
-          )}
-        </AnimatePresence>
-      </div>
     </div>
   );
 }

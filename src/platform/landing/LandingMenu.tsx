@@ -1,11 +1,13 @@
-import { useEffect, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { Icon } from '@/components/ui/Icons';
 import { useSession } from '@/sync/session';
-import { applyToEveryone, chooseOwnTheme, themeLabel, useThemeState } from '@/state/theme';
+import { chooseOwnTheme, previewTheme, themeLabel, useThemeState } from '@/state/theme';
 import { loadAllThemeCss } from '@/theme/themeCss';
 import { THEME_IDS, type ThemeId } from '@/theme/themes';
 import { platform } from '@/strings/platform';
+import { applyThemeWithUndo } from '../applyTheme';
 import { go } from '../route';
 import { PersonDot } from './PersonDot';
 
@@ -47,16 +49,28 @@ function Row({
   );
 }
 
-/** The theme row: admins set everyone's, players pick their own while the admin allows it, everyone else sees none. */
+/**
+ * The theme row: admins set everyone's, players pick their own while the admin allows it, everyone else sees none.
+ * An admin's tap only previews on this device; one deliberate Apply changes everyone's, with Undo after.
+ */
 function Themes({ admin, who, signedIn }: { admin: boolean; who: string; signedIn: boolean }) {
   const th = useThemeState();
   const allow = !!th.appearance?.allowUserOverride;
+  const [busy, setBusy] = useState(false);
   // Each swatch is drawn in its own theme, so every theme's stylesheet is needed.
   useEffect(() => void loadAllThemeCss(), []);
+  // A preview never outlives the menu.
+  useEffect(() => () => previewTheme(null), []);
   if (!admin && !allow) return null;
-  const current = admin ? (th.appearance?.theme ?? th.shown) : th.user;
+  const everyone = th.appearance?.theme ?? th.shown;
+  const current = admin ? (th.preview ?? everyone) : th.user;
   const pick = (id: ThemeId) =>
-    admin ? void applyToEveryone(id, allow, who) : chooseOwnTheme(id, signedIn);
+    admin ? previewTheme(id === everyone ? null : id) : chooseOwnTheme(id, signedIn);
+  const apply = async (id: ThemeId) => {
+    setBusy(true);
+    await applyThemeWithUndo(id, allow, who, s);
+    setBusy(false);
+  };
   return (
     <section aria-labelledby="landing-theme" className="flex flex-col gap-2">
       <div className="flex items-center gap-2 px-2">
@@ -101,6 +115,16 @@ function Themes({ admin, who, signedIn }: { admin: boolean; who: string; signedI
         </button>
       )}
       {admin && <p className="px-2 text-14 text-[var(--tx2)]">{s.themeHint}</p>}
+      {admin && th.preview && (
+        <div className="flex flex-col gap-2 px-2 pt-1">
+          <PrimaryButton className="w-full" disabled={busy} onClick={() => void apply(th.preview!)}>
+            {busy ? s.applying : s.applyTo(themeLabel(th.preview))}
+          </PrimaryButton>
+          <PrimaryButton tone="glass" className="mat-sm w-full" onClick={() => previewTheme(null)}>
+            {s.cancelPreview}
+          </PrimaryButton>
+        </div>
+      )}
     </section>
   );
 }

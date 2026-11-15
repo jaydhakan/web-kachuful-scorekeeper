@@ -29,6 +29,44 @@ export function entryPath(path: string, search: string): string | null {
   return path === '/' ? null : '/' + search;
 }
 
+/** Edit distance, for "did you mean" on a mistyped game path (`/kali-teeri`). */
+function distance(a: string, b: string): number {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j++)
+      row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = row;
+  }
+  return prev[b.length];
+}
+
+/** An address that names no page: what was asked for, and the game it most likely meant (or null). */
+export interface Unknown {
+  path: string;
+  guess: GameId | null;
+}
+
+/** The game an unknown first segment is closest to, within two edits once dashes and case are ignored. */
+export function guessGame(path: string): GameId | null {
+  const seg = (path.split('/').find(Boolean) ?? '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!seg) return null;
+  let best: [GameId | null, number] = [null, 3];
+  for (const id of GAME_IDS) {
+    const d = distance(seg, id.replace(/-/g, ''));
+    if (d < best[1]) best = [id, d];
+  }
+  return best[0];
+}
+
+let unknown: Unknown | null = null;
+/** The unknown address this visit started on: the landing page says so instead of appearing silently. */
+export const unknownAddress = () => unknown;
+/** Forgets it: dismissed, or the visitor has moved on to a page. */
+export function clearUnknown() {
+  unknown = null;
+}
+
 let current: GameId | null = null;
 const subs = new Set<() => void>();
 let pending: { id: GameId | null; search: string } | null = null;
@@ -40,6 +78,7 @@ function set(id: GameId | null) {
 }
 
 function push(id: GameId | null, search = '') {
+  unknown = null;
   history.pushState(null, '', pathOf(id) + search);
   set(id);
 }
@@ -57,6 +96,9 @@ function onPop() {
 /** Reads (and tidies) the address once, before the first render. */
 export function startRoute() {
   const fix = entryPath(location.pathname, location.search);
+  const asked = location.pathname;
+  if (fix && asked !== '/' && !gameFromPath(asked))
+    unknown = { path: asked, guess: guessGame(asked) };
   if (fix) history.replaceState(history.state, '', fix + location.hash);
   current = gameFromPath(location.pathname);
   window.removeEventListener('popstate', onPop);

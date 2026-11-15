@@ -12,6 +12,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { stagger } from '@/components/ui/stagger';
 import { icon } from '@/components/ui/IconsMore';
 import { authError } from '../AuthPages';
+import { InlineError } from '../InlineError';
 import { ad, adminError, allPlayers, Chevron, LinkBox, useLoad } from './shared';
 import { PlayerTag } from '@/components/ui/PlayerTag';
 import { Avatar } from '@/components/ui/Avatar';
@@ -73,6 +74,7 @@ export function People() {
   const [link, setLink] = useState<{ url: string; note: string } | null>(null);
   const [err, setErr] = useState('');
   const [open, setOpen] = useState<AdminUserRow | null>(null);
+  const [actErr, setActErr] = useState('');
   const [off, setOff] = useState<AdminUserRow | null>(null);
   const [kill, setKill] = useState<{ kind: DeleteKind; r: AdminUserRow } | null>(null);
   if (rows instanceof Error) return <ErrorState msg={authError(rows)} onRetry={reload} />;
@@ -88,12 +90,16 @@ export function People() {
       setErr(adminError(x));
     }
   };
+  // Failures show inline (in the open sheet, else above the list); a sheet closes only when its action worked.
   const act = async (f: () => Promise<unknown>) => {
+    setActErr('');
     try {
       await f();
       reload();
+      return true;
     } catch (x) {
-      actions.say(adminError(x));
+      setActErr(adminError(x));
+      return false;
     }
   };
   const groups: [string, AdminUserRow[]][] = [
@@ -110,6 +116,7 @@ export function People() {
       >
         {icon('envelope')} {ad.invite}
       </PrimaryButton>
+      {actErr && !open && <InlineError msg={actErr} className="mb-4" />}
       {rows.length === 0 ? (
         <EmptyState icon="cards" title={ad.noPeople} />
       ) : (
@@ -123,7 +130,7 @@ export function People() {
               >
                 <ul className="flex flex-col gap-2">
                   {list.map((r) => (
-                    <Row key={keyOf(r)} r={r} i={i++} onOpen={() => setOpen(r)} />
+                    <Row key={keyOf(r)} r={r} i={i++} onOpen={() => (setActErr(''), setOpen(r))} />
                   ))}
                 </ul>
               </Section>
@@ -136,6 +143,7 @@ export function People() {
             {open.player?.displayName ? `${open.player.displayName} · ` : ''}
             {status(open)}
           </p>
+          {actErr && <InlineError msg={actErr} className="mb-4" />}
           <div className="flex flex-col gap-2">
             {open.invite && (
               <>
@@ -153,7 +161,9 @@ export function People() {
                 <PrimaryButton
                   tone="glass"
                   onClick={() =>
-                    void act(() => ep.revokeInvite(open.invite!.email)).then(() => setOpen(null))
+                    void act(() => ep.revokeInvite(open.invite!.email)).then(
+                      (ok) => ok && setOpen(null),
+                    )
                   }
                 >
                   {ad.revoke}
@@ -177,7 +187,9 @@ export function People() {
                   onClick={() =>
                     open.active
                       ? (setOff(open), setOpen(null))
-                      : void act(() => ep.setActive(open.user!.id, true)).then(() => setOpen(null))
+                      : void act(() => ep.setActive(open.user!.id, true)).then(
+                          (ok) => ok && setOpen(null),
+                        )
                   }
                 >
                   {open.active ? ad.deactivate : ad.activate}

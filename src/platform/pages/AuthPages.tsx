@@ -9,12 +9,13 @@ import { sessionOf, signIn } from '@/sync/account';
 import { takePrefs } from '@/sync/prefs';
 import { ep } from '@/sync/endpoints';
 import type { Player, PlayerSummary } from '@/sync/types';
-import { EmptyState, Page, Skeleton } from '@/components/ui/Page';
+import { Page, Skeleton } from '@/components/ui/Page';
 import { Field, LookPicker, PasswordField } from '@/components/ui/Field';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE, REDUCED, SPRING } from '@/components/ui/motion';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { LinkGone, offlineError } from './LinkGone';
 
 const a = t.hub.auth;
 
@@ -198,7 +199,7 @@ function Welcome({ player, onDone }: { player: Player; onDone: () => void }) {
 
 type InviteState =
   | { k: 'loading' }
-  | { k: 'gone'; msg: string }
+  | { k: 'gone'; msg: string; offline: boolean }
   | { k: 'ready'; email: string; player: PlayerSummary | null };
 
 export function InvitePage({ token }: { token: string }) {
@@ -215,20 +216,24 @@ export function InvitePage({ token }: { token: string }) {
   const [joined, setJoined] = useState<Player | null>(null);
   const pw = usePasswordPair();
   const [id] = useState(uuid);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let live = true;
+    setSt({ k: 'loading' });
     ep.invite(token)
       .then((r) => {
         if (!live) return;
         setSt({ k: 'ready', email: r.email, player: r.player });
         setClaim(r.player);
       })
-      .catch((e: unknown) => live && setSt({ k: 'gone', msg: authError(e) }));
+      .catch(
+        (e: unknown) => live && setSt({ k: 'gone', msg: authError(e), offline: offlineError(e) }),
+      );
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, attempt]);
 
   const { actions } = useApp();
 
@@ -242,7 +247,7 @@ export function InvitePage({ token }: { token: string }) {
   if (st.k === 'gone')
     return (
       <Page title={a.inviteTitle}>
-        <EmptyState icon="hourglass" title={st.msg} />
+        <LinkGone msg={st.msg} offline={st.offline} onRetry={() => setAttempt((n) => n + 1)} />
       </Page>
     );
 
@@ -388,19 +393,21 @@ export function InvitePage({ token }: { token: string }) {
 export function ResetPage({ token }: { token: string }) {
   const { actions } = useApp();
   const [email, setEmail] = useState<string | null>(null);
-  const [gone, setGone] = useState('');
+  const [gone, setGone] = useState<{ msg: string; offline: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [attempt, setAttempt] = useState(0);
   const pw = usePasswordPair();
   useEffect(() => {
+    setGone(null);
     ep.reset(token)
       .then((r) => setEmail(r.email))
-      .catch((e: unknown) => setGone(authError(e)));
-  }, [token]);
+      .catch((e: unknown) => setGone({ msg: authError(e), offline: offlineError(e) }));
+  }, [token, attempt]);
   if (gone)
     return (
       <Page title={a.resetTitle}>
-        <EmptyState icon="hourglass" title={gone} />
+        <LinkGone {...gone} onRetry={() => setAttempt((n) => n + 1)} />
       </Page>
     );
   if (!email)

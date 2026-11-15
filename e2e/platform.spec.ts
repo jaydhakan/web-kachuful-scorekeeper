@@ -80,3 +80,41 @@ for (const theme of ['sunset-glass', 'yerba-sun', 'editorial-paper', 'emerald-gi
     }
   });
 }
+
+test('a mistyped address says so and offers the game it meant', async ({ page }) => {
+  await page.goto('/kali-teeri');
+  await expect(heading(page)).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  const line = page.getByRole('status').filter({ hasText: 'No page at /kali-teeri' });
+  await expect(line).toContainText('Did you mean Kaali Teeri?');
+  await line.getByRole('link', { name: 'Open Kaali Teeri' }).click();
+  await expect(page).toHaveURL(/\/kaali-teeri$/);
+});
+
+for (const [w, h] of [
+  [360, 800],
+  [768, 1024],
+] as const)
+  test(`landing at ${w}×${h}: labels on one line, the title spans the page`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/');
+    await expect(heading(page)).toBeVisible();
+    // Header chips and tile pills are one line high: a wrapped label would make them taller (PL-F08).
+    const tall = await page
+      .locator('header a, header button, li a span.whitespace-nowrap')
+      .evaluateAll((els) =>
+        els
+          .map((e) => [(e.textContent ?? '').trim(), Math.round(e.getBoundingClientRect().height)])
+          .filter(([, hgt]) => (hgt as number) > 52),
+      );
+    expect(tall).toEqual([]);
+    // The title spans the page instead of a narrow column (PL-F06).
+    expect((await heading(page).boundingBox())!.width).toBeGreaterThan(w * 0.6);
+    if (w === 768) {
+      // Three games in one row, none alone on a second.
+      const tops = await page
+        .locator('section[aria-labelledby="landing-games"] li')
+        .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
+      expect(new Set(tops).size).toBe(1);
+    }
+  });

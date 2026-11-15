@@ -16,9 +16,17 @@ import { EXIT } from '@/components/ui/motion';
 import { platform } from '@/strings/platform';
 import { gameById } from './catalog';
 import { Arrived, GROW_MS, OpenGameCover, useOpening } from './landing/OpenGame';
+import { PlatformNotice } from './PlatformNotice';
+import { PlatformUpdate } from './PlatformUpdate';
 import { go, useGame, type GameId } from './route';
 
-const Landing = lazy(() => import('./landing/Landing'));
+// Like the games', a retry needs a fresh lazy(): React keeps a failed one failed.
+const landings = new Map<number, ComponentType>();
+const landingOf = (attempt: number) => {
+  let C = landings.get(attempt);
+  if (!C) landings.set(attempt, (C = lazy(() => import('./landing/Landing'))));
+  return C;
+};
 
 // One lazy component per game, made once, so going back and forth never re-suspends a game already loaded.
 // A retry gets a fresh one, since React keeps a failed lazy() failed.
@@ -30,16 +38,16 @@ const rootOf = (id: GameId, attempt: number) => {
   return C;
 };
 
-/** A game's chunk that can't be fetched (offline, never cached) says so with Retry, instead of a blank page. */
+/** A chunk that can't be fetched (offline, never cached) says so with Retry, instead of a blank page. */
 class LoadBoundary extends Component<
-  { onRetry: () => void; children: ReactNode },
+  { onRetry: () => void; landing?: boolean; children: ReactNode },
   { failed: boolean }
 > {
   state = { failed: false };
   static getDerivedStateFromError = () => ({ failed: true });
   render() {
     if (!this.state.failed) return this.props.children;
-    const s = platform.loadFailed;
+    const s = this.props.landing ? platform.landingFailed : platform.loadFailed;
     return (
       <div className="app-root scr-bg grid h-full w-full place-content-center gap-4 p-6 text-center">
         <h1 className="text-24 font-bold">{s.title}</h1>
@@ -52,9 +60,11 @@ class LoadBoundary extends Component<
         >
           {s.retry}
         </PrimaryButton>
-        <button type="button" className="min-h-11 text-16 underline" onClick={() => go(null)}>
-          {s.home}
-        </button>
+        {!this.props.landing && (
+          <button type="button" className="min-h-11 text-16 underline" onClick={() => go(null)}>
+            {platform.loadFailed.home}
+          </button>
+        )}
       </div>
     );
   }
@@ -133,28 +143,30 @@ export function PlatformRoot() {
         <Page id={live ? id : null} />
       </m.div>
       <OpenGameCover />
+      <PlatformUpdate game={live ? id : null} />
+      <PlatformNotice />
     </>
   );
 }
+
+const Spinner = () => (
+  <div className="app-root scr-bg relative h-full w-full">
+    <Loader />
+  </div>
+);
 
 function Page({ id }: { id: GameId | null }) {
   const [attempt, setAttempt] = useState(0);
   if (!id) {
     return (
-      <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
-        <Landing />
-      </Suspense>
+      <LoadBoundary landing key={`landing-${attempt}`} onRetry={() => setAttempt((a) => a + 1)}>
+        <Suspense fallback={<Spinner />}>{createElement(landingOf(attempt))}</Suspense>
+      </LoadBoundary>
     );
   }
   return (
     <LoadBoundary key={`${id}-${attempt}`} onRetry={() => setAttempt((a) => a + 1)}>
-      <Suspense
-        fallback={
-          <div className="app-root scr-bg relative h-full w-full">
-            <Loader />
-          </div>
-        }
-      >
+      <Suspense fallback={<Spinner />}>
         {/* Cached per game and attempt (rootOf), so this never remounts a game on a re-render. */}
         {createElement(rootOf(id, attempt))}
         <Arrived />

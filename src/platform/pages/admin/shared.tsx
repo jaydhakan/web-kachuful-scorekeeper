@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { canShareLink, copyText, shareLink } from '@/lib/clip';
 import { useApp } from '@/games/kachuful/state/store';
 import { ApiError } from '@/sync/api';
 import { ep } from '@/sync/endpoints';
 import type { Player } from '@/sync/types';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { platform } from '@/strings/platform';
 import { authError } from '../AuthPages';
+import { InlineError } from '../InlineError';
 import { admin } from '@/strings/admin';
 
 export const ad = admin;
@@ -16,15 +18,26 @@ export const adminError = (e: unknown) =>
 /** A link to hand over: copy, or the system share sheet. */
 export function LinkBox({ url, note }: { url: string; note: string }) {
   const { actions } = useApp();
+  const code = useRef<HTMLElement>(null);
+  const [failed, setFailed] = useState(false);
+  // No clipboard: select the link so a long press (or Ctrl+C) copies it, and say so beside it.
+  const copy = async () => {
+    if (await copyText(url)) return actions.say(ad.copied);
+    setFailed(true);
+    const r = document.createRange();
+    if (code.current) r.selectNodeContents(code.current);
+    getSelection()?.removeAllRanges();
+    getSelection()?.addRange(r);
+  };
   return (
     <div className="glass flex flex-col gap-3 p-4">
       <p className="text-15 text-[var(--tx2)]">{note}</p>
-      <code className="block select-all break-all rounded-xl bg-shade/30 p-3 text-14">{url}</code>
+      <code ref={code} className="block select-all break-all rounded-xl bg-shade/30 p-3 text-14">
+        {url}
+      </code>
+      {failed && <InlineError msg={platform.admin.copyFailed} />}
       <div className="flex gap-2">
-        <PrimaryButton
-          className="flex-1"
-          onClick={async () => actions.say((await copyText(url)) ? ad.copied : url)}
-        >
+        <PrimaryButton className="flex-1" onClick={() => void copy()}>
           {ad.copy}
         </PrimaryButton>
         {canShareLink() && (

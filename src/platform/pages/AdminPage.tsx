@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { useApp } from '@/games/kachuful/state/store';
 import { Chip, ChipRow, EmptyState, Page } from '@/components/ui/Page';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { platform } from '@/strings/platform';
+import { go } from '../route';
 import { AppearancePanel } from './AppearancePanel';
 import { MergeCompare } from './admin/MergeCompare';
 import { Overview } from './admin/Overview';
 import { People } from './admin/People';
 import { Players } from './admin/Players';
 import { ad } from './admin/shared';
-import { t } from '@/strings';
 
 type Tab = 'overview' | 'people' | 'players' | 'settings';
 
 /** Overview first (what needs the admin), then people, players and the app-wide settings. */
 export function AdminPage() {
   const { state } = useApp();
+  const locked = platform.adminLocked;
   const [tab, setTab] = useState<Tab>('overview');
   const [compare, setCompare] = useState<{ a: string; b: string } | null>(null);
   // Bumped after a merge so the open tab loads again.
@@ -21,7 +24,12 @@ export function AdminPage() {
   if (state.session?.user.role !== 'admin')
     return (
       <Page title={ad.title}>
-        <EmptyState icon="locked" title={t.hub.auth.errors.server} />
+        <EmptyState
+          icon="locked"
+          title={locked.title}
+          body={locked.body}
+          action={<PrimaryButton onClick={() => go(null)}>{platform.allGames}</PrimaryButton>}
+        />
       </Page>
     );
   const tabs: [Tab, string][] = [
