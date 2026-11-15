@@ -163,3 +163,30 @@ test.describe('accessibility (axe)', () => {
     await scan(page, 'winner');
   });
 });
+
+test('Back from setup asks before dropping seated players; an untouched setup leaves at once', async ({
+  page,
+}) => {
+  await page.goto('/kachuful');
+  await btn(page, 'New Game').click();
+  await btn(page, 'Back').click();
+  await expect(btn(page, 'New Game')).toBeVisible();
+
+  await btn(page, 'New Game').click();
+  await btn(page, '3 players').click();
+  await btn(page, 'Next').click();
+  const input = await nameField(page);
+  await input.fill('Aarav');
+  await input.press('Enter');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await btn(page, 'Back').click();
+  await btn(page, 'Back').click();
+  const ask = page.getByRole('alertdialog');
+  await expect(ask).toContainText('Leave setup?');
+  await ask.getByRole('button', { name: 'Cancel' }).click();
+  await expect(btn(page, 'Next')).toBeVisible();
+  await btn(page, 'Back').click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Leave setup' }).click();
+  await expect(btn(page, 'New Game')).toBeVisible();
+});

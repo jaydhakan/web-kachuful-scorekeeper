@@ -1,9 +1,28 @@
 import { archive } from '@/state/archive';
 import { ep } from './endpoints';
+import { getSession } from './session';
 
-/** Uploads not yet accepted by the server. */
-export const pendingUploads = () =>
-  archive.all('outbox').filter((o) => o.kind === 'putGame').length;
+/**
+ * Games of this account, in every game that syncs, with changes the server hasn't accepted yet: what signing out
+ * with "Remove from this device" would put at risk. A refused upload (blocked) waits in the inbox instead.
+ */
+export function pendingUploads(userId = getSession()?.user.id): number {
+  if (!userId) return 0;
+  const blocked = new Set(
+    archive
+      .all('outbox')
+      .filter((o) => o.blocked)
+      .map((o) => o.key),
+  );
+  return [...archive.games(), ...archive.ktGames()].filter(
+    (r) =>
+      r.account === userId &&
+      !r.conflictOf &&
+      r.game.id !== 'demo' &&
+      r.syncedRev !== r.game.rev &&
+      !blocked.has(r.syncId),
+  ).length;
+}
 
 /**
  * Ends the session on the server (best effort when offline) and forgets server data on this device. `remove` also

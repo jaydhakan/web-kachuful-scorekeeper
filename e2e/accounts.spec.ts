@@ -26,6 +26,22 @@ test('a wrong password says so; the right one signs in and shows the account', a
   await expect(btn(page, 'Admin')).toBeVisible();
 });
 
+test('sign-in opened from another game returns there, after signing in and on Back', async ({
+  page,
+}) => {
+  await page.goto('/kachuful?open=signin&from=ishaara');
+  await page.getByLabel('Email').fill(ACCOUNTS.admin.email);
+  await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
+  await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/ishaara$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Ishaara' })).toBeVisible();
+
+  await page.goto('/kachuful?open=account&from=landing');
+  await expect(page.getByRole('heading', { name: 'Me' })).toBeVisible();
+  await btn(page, 'Back').first().click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test('admin invites someone, who opens the link, makes a player and sets a password', async ({
   page,
   browser,

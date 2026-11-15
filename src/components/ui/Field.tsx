@@ -36,15 +36,44 @@ export function Field({ label, value, onChange, hint, error, end, ...rest }: Fie
         />
         {end && <div className="absolute inset-y-0 right-1 flex items-center">{end}</div>}
       </div>
-      {(error || hint) && (
-        <div
-          id={id + '-d'}
-          role={error ? 'alert' : undefined}
-          className={`mt-1.5 text-14 ${error ? 'text-[var(--warn)]' : 'text-[var(--tx2)]'}`}
-        >
-          {error || hint}
-        </div>
+      {error ? (
+        <FormError id={id + '-d'} className="mt-1.5">
+          {error}
+        </FormError>
+      ) : (
+        hint && (
+          <div id={id + '-d'} className="mt-1.5 text-14 text-[var(--tx2)]">
+            {hint}
+          </div>
+        )
       )}
+    </div>
+  );
+}
+
+/**
+ * An error said in the danger colour with a warning mark, so it never rests on colour alone (the warning colour is
+ * the accent's twin in three themes). For a field's error and for a form's own message above its submit.
+ */
+export function FormError({
+  id,
+  className = '',
+  children,
+}: {
+  id?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      id={id}
+      role="alert"
+      className={`flex items-start gap-1.5 text-14 font-semibold text-[var(--neg-tx)] ${className}`}
+    >
+      <span aria-hidden className="mt-0.5 shrink-0">
+        {icon('warn', 'h-4 w-4')}
+      </span>
+      <span className="min-w-0">{children}</span>
     </div>
   );
 }
@@ -102,12 +131,12 @@ export function LookPicker({
         ))}
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {COLORS.map((c) => (
+        {COLORS.map((c, i) => (
           <button
             key={c}
             type="button"
             aria-pressed={c === color}
-            aria-label={c}
+            aria-label={t.hub.auth.colourNames[i] ?? c}
             onClick={() => onChange({ emoji, color: c })}
             className={`press-sm h-11 w-11 rounded-full ${c === color ? 'shadow-[0_0_0_3px_var(--tx)]' : ''}`}
             style={{ background: c }}

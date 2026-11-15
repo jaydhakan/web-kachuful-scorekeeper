@@ -26,13 +26,14 @@ export function ComingUp({
       ) : (
         <ol
           className="grid gap-2.5"
-          style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}
+          // A column is never narrower than its longest word, so a dealer's name breaks only at spaces.
+          style={{ gridTemplateColumns: `repeat(${count}, minmax(min-content, 1fr))` }}
         >
           {Array.from({ length: left }, (_, k) => {
             const i = from + 1 + k,
               r = roundAt(g, i);
             return (
-              <li key={i} className="min-w-0 rounded-[14px] bg-ov/5 px-3 py-2.5">
+              <li key={i} className="rounded-[14px] bg-ov/5 px-2.5 py-2.5">
                 <div className="flex flex-wrap items-center gap-1 text-13 text-[var(--tx2)]">
                   {t.desk.roundN(i + 1)}
                   {r.cards === g.maxCards && (
@@ -47,7 +48,7 @@ export function ComingUp({
                     <TrumpMark trump={r.trump} inline />
                   </span>
                 </div>
-                <div className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
+                <div className="break-words text-13 text-[var(--tx2)]">
                   {t.desk.deals(g.players[r.dealerIndex].name)}
                 </div>
               </li>

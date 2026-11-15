@@ -4,6 +4,8 @@ import { PRESS, SPRING } from './motion';
 
 interface PrimaryButtonProps extends HTMLMotionProps<'button'> {
   tone?: 'accent' | 'danger' | 'glass';
+  /** Working: a second tap does nothing, and the button says so (aria-busy) with a spinner beside its label. */
+  busy?: boolean;
 }
 
 // Each theme paints these materials (src/styles/themes.css); the button only picks one.
@@ -22,6 +24,7 @@ export function PrimaryButton({
   disabled,
   className = '',
   tone = 'accent',
+  busy = false,
   ...rest
 }: PrimaryButtonProps) {
   const x = useSpring(0, { stiffness: 300, damping: 24 }),
@@ -44,10 +47,11 @@ export function PrimaryButton({
       ref={ref}
       onPointerMove={move}
       onPointerLeave={leave}
-      onClick={onClick}
+      onClick={busy ? (e) => e.preventDefault() : onClick}
       disabled={disabled}
+      aria-busy={busy || undefined}
       style={{ x, y }}
-      whileTap={disabled ? undefined : PRESS}
+      whileTap={disabled || busy ? undefined : PRESS}
       transition={SPRING}
       className={`mat-cta mat-tone-${tone} relative isolate flex h-[60px] items-center justify-center gap-2 rounded-[20px] text-18 font-bold tracking-[-0.01em] disabled:cursor-default ${disabled ? 'text-[var(--tx2)]' : `mat-cta-on ${INK[tone]}`} ${className}`}
       {...rest}
@@ -55,6 +59,12 @@ export function PrimaryButton({
       {/* Enabling cross-fades two pre-painted fills; colours and shadows never animate. */}
       <span aria-hidden className={`${layer} mat-fill-off ${disabled ? '' : 'opacity-0'}`} />
       <span aria-hidden className={`${layer} ${FILL[tone]} ${disabled ? 'opacity-0' : ''}`} />
+      {busy && (
+        <span
+          aria-hidden
+          className="h-5 w-5 shrink-0 animate-spin rounded-full border-[2.5px] border-current border-t-transparent opacity-80 motion-reduce:animate-none"
+        />
+      )}
       {children as ReactNode}
     </m.button>
   );

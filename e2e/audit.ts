@@ -113,16 +113,21 @@ export async function auditScreen(
       )
         smallTargets.push(`${label(el)} ${Math.round(hit.width)}×${Math.round(hit.height)}`);
       if (!ownText(el)) continue;
-      // A word whose range has boxes on two lines was broken inside it (overflow-wrap, break-all). Each part of a
-      // hyphenated word counts alone: wrapping after "clue-" is ordinary line breaking.
+      // A word whose first and last letters sit on different lines was broken inside it (overflow-wrap,
+      // break-all). Hyphens and soft hyphens are ordinary break points, so each part counts as its own word.
       for (const n of el.childNodes) {
         if (n.nodeType !== 3) continue;
-        for (const m of (n.textContent || '').matchAll(/[^\s\-‐]{2,}/g)) {
-          const wr = document.createRange();
-          wr.setStart(n, m.index);
-          wr.setEnd(n, m.index + m[0].length);
-          const tops = new Set([...wr.getClientRects()].map((b) => Math.round(b.top)));
-          if (tops.size > 1) brokenWords.push(m[0]);
+        const top = (i: number) => {
+          const r = document.createRange();
+          r.setStart(n, i);
+          r.setEnd(n, i + 1);
+          return Math.round(r.getBoundingClientRect().top);
+        };
+        const text = n.textContent || '';
+        for (const m of text.matchAll(/[^\s\-\u2010\u00ad]{2,}/g)) {
+          // Chrome reports the letter after a soft hyphen at the drawn hyphen, so start one letter in.
+          const from = m.index + (text[m.index - 1] === '\u00ad' && m[0].length > 2 ? 1 : 0);
+          if (top(from) !== top(m.index + m[0].length - 1)) brokenWords.push(m[0]);
         }
       }
       const txt = (el.textContent || '').trim();

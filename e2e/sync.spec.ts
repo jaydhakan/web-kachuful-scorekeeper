@@ -40,6 +40,10 @@ test('a game scored offline uploads when the connection comes back', async ({ pa
   ).toBeVisible();
   await btn(page, 'Deal!').click();
   await skipDeal(page);
+  // The round screen carries the sync mark beside the scoreboard (KF-F02).
+  await expect(
+    page.getByRole('img', { name: /^(Synced|Syncing|\d+ waiting to sync)/ }),
+  ).toBeVisible();
   await context.setOffline(true);
   await playRound(page);
   const id = await syncIdOf(page);

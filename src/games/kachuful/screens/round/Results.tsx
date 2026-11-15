@@ -88,7 +88,8 @@ export function Results() {
                       />
                     )}
                   </AnimatePresence>
-                  <div className="flex min-w-[7.5rem] flex-1 items-center gap-2">
+                  {/* No min width: the name's longest word sets it, so the controls wrap under before a name breaks. */}
+                  <div className="flex flex-1 items-center gap-2">
                     <span className="relative shrink-0">
                       <Avatar
                         p={p}
@@ -103,7 +104,7 @@ export function Results() {
                         </i>
                       )}
                     </span>
-                    <div className="min-w-0 flex-1">
+                    <div className="flex-1">
                       <div className="break-words text-16 font-bold @[26rem]:text-18 leading-[1.2] tracking-[-0.015em] [text-wrap:balance]">
                         {p.name}
                       </div>
