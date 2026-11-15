@@ -10,6 +10,7 @@ import {
   type Card,
   type Rank,
   type Seat,
+  type SpGame,
   type SpHand,
   type SpPublic,
   type SpRules,
@@ -151,5 +152,57 @@ export function doneHand(h: {
     teamTricks: [h.teamA, 13 - h.teamA],
     nilTricks: h.nil ?? h.bids.map(() => null),
     phase: 'done',
+  };
+}
+
+export interface KitEntry {
+  bids: (number | null)[];
+  teamA?: number;
+  nil?: (number | null)[];
+  blind?: boolean[];
+  phase?: SpHand['phase'];
+}
+
+/** A table-mode game from its hands, dealt clockwise from `first`, one hand every 10 minutes from T0. */
+export function kitGame(
+  entries: KitEntry[],
+  extra: Partial<SpGame> & { first?: Seat } = {},
+): SpGame {
+  const first = extra.first ?? 0;
+  const hands: SpHand[] = entries.map((e, i) => {
+    const phase = e.phase ?? 'done';
+    return {
+      index: i,
+      dealer: ((first + i) % 4) as Seat,
+      bids: e.bids,
+      blind: e.blind ?? [false, false, false, false],
+      teamTricks: e.teamA === undefined ? null : [e.teamA, 13 - e.teamA],
+      nilTricks: e.nil ?? [null, null, null, null],
+      phase,
+      ...(phase === 'done' && { doneAt: T0 + (i + 1) * 600_000 }),
+    };
+  });
+  const updatedAt = T0 + Math.max(1, entries.length) * 600_000;
+  return {
+    kind: 'spades',
+    schemaVersion: 1,
+    id: 'g-1',
+    syncId: '80000000-0000-4000-8000-000000000001',
+    rev: entries.length + 1,
+    createdAt: T0,
+    updatedAt,
+    players: WHO.map((w, i) => ({
+      id: `p${i}`,
+      name: w.name,
+      emoji: w.emoji,
+      color: w.color,
+      playerId: w.playerId,
+    })),
+    firstDealerIndex: first,
+    direction: 'cw',
+    rules: rulesWith(),
+    hands,
+    status: 'active',
+    ...extra,
   };
 }
