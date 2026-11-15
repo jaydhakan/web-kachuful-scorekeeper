@@ -68,7 +68,7 @@ export function TableMiddle({
       aria-hidden
       className={`flex items-center text-[var(--ctr-fg)] ${flat ? 'gap-2' : 'flex-col gap-0.5'}`}
     >
-      {!flat && <span className="mono-label text-[0.6875rem] leading-4">{kicker}</span>}
+      {!flat && <span className="mono-label text-13 leading-4">{kicker}</span>}
       <m.span
         key={String(amount)}
         {...(won ? land : tick)}

@@ -116,7 +116,7 @@ function Recent({ current }: { current: string | null }) {
     );
   return (
     <section aria-labelledby="kt-recent" className="w-full">
-      <h2 id="kt-recent" className="mono-label mb-1.5 px-1 text-12 text-[var(--tx2)]">
+      <h2 id="kt-recent" className="mono-label mb-1.5 px-1 text-13 text-[var(--tx2)]">
         {s.home.recent}
       </h2>
       <div className="glass overflow-hidden">{body}</div>

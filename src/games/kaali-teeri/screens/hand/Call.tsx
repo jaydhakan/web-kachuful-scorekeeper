@@ -37,7 +37,7 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
       // On a phone on its side the suits sit beside the bid, so all four fit (KT-F02's two-pane layout).
       aside={
         <>
-          <h2 className="mono-label mb-2.5 mt-5 px-1 pane:mt-0 text-12 text-[var(--accent-tx)]">
+          <h2 className="mono-label mb-2.5 mt-5 px-1 pane:mt-0 text-13 text-[var(--accent-tx)]">
             {s.trump.pick(p.name)}
           </h2>
           <div role="group" aria-label={s.trump.group} className="grid grid-cols-2 gap-3">
@@ -86,7 +86,7 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
           className="mat-av grid h-12 w-12 shrink-0 place-items-center rounded-full text-28"
         />
         <p className="min-w-0 flex-1 leading-tight">
-          <span className="mono-label block text-12 text-[var(--accent-tx)]">{s.trump.bidWon}</span>
+          <span className="mono-label block text-13 text-[var(--accent-tx)]">{s.trump.bidWon}</span>
           <span className="disp block text-24 font-extrabold tracking-[-0.02em] break-words">
             {p.name}
           </span>
@@ -156,7 +156,7 @@ function CardsStep({ g, h, onTrump }: { g: KtGame; h: KtHand; onTrump: () => voi
       {/* Dense: the heading and who leads stack beside the trump chip, saving a row for the keys. */}
       <div className={dense ? 'flex items-center justify-between gap-2' : ''}>
         <div className="min-w-0">
-          <h2 className="mono-label px-1 text-12 text-[var(--accent-tx)]">{s.call.head(count)}</h2>
+          <h2 className="mono-label px-1 text-13 text-[var(--accent-tx)]">{s.call.head(count)}</h2>
           {dense && (
             <p className="min-w-0 px-1 text-15 text-[var(--tx2)] break-words">
               {s.call.leads(p.name)}

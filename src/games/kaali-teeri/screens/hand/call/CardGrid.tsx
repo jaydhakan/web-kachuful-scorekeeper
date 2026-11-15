@@ -99,7 +99,7 @@ const Label = ({
     className={
       dense
         ? 'sr-only'
-        : `mono-label mb-2 px-1 text-12 text-[var(--accent-tx)] ${first ? '' : 'mt-4'}`
+        : `mono-label mb-2 px-1 text-13 text-[var(--accent-tx)] ${first ? '' : 'mt-4'}`
     }
   >
     {children}

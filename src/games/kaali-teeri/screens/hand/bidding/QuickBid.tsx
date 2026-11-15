@@ -55,7 +55,7 @@ export function QuickBid({ g, h }: { g: KtGame; h: KtHand }) {
         </div>
       }
     >
-      <h2 className="mono-label mb-1 px-1 text-12 text-[var(--accent-tx)] @h-short:sr-only">
+      <h2 className="mono-label mb-1 px-1 text-13 text-[var(--accent-tx)] @h-short:sr-only">
         {s.quick.who}
       </h2>
       <BidTable
