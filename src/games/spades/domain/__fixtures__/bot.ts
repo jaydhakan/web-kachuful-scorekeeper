@@ -20,7 +20,7 @@ const pick = <T>(rnd: () => number, xs: readonly T[]): T => xs[Math.floor(rnd() 
 const anySeat = (rnd: () => number) => pick(rnd, SEATS);
 
 /** A rough bid: aces and kings, plus spades from the queen up. */
-function guessBid(hand: readonly Card[]): number {
+export function guessBid(hand: readonly Card[]): number {
   return hand.filter(
     (c) => c.rank === 'A' || c.rank === 'K' || (c.suit === 'spades' && c.rank === 'Q'),
   ).length;
