@@ -45,6 +45,9 @@ describe('the board', () => {
     expect(card('RIVER')).toHaveAccessibleName('RIVER, face down');
     fireEvent.click(card('KITE'));
     expect(card('KITE')).toHaveAttribute('aria-pressed', 'true');
+    // The pick's ring is not the focus ring (ISH-F18).
+    expect(card('KITE').className).toContain('outline-[var(--tx)]');
+    expect(card('KITE').className).not.toContain('outline-[var(--focus)]');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('button', { name: 'Confirm' })).toBeNull();
     fireEvent.click(card('KITE'));

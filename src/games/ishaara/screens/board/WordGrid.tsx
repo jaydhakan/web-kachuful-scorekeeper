@@ -42,6 +42,17 @@ const RING: Record<Identity, string> = {
   blank: 'border-word-blank',
   trap: 'border-word-trap',
 };
+/**
+ * Three marks that must not look alike (ISH-F18): keyboard focus keeps the global gold ring; the picked card gets a
+ * heavier ring in the text colour; the card just turned is outlined in the colour of what it was.
+ */
+const PICKED = 'z-10 outline outline-[4px] outline-offset-2 outline-[var(--tx)]';
+const LIT: Record<Identity, string> = {
+  sun: 'outline-team-sun',
+  moon: 'outline-team-moon',
+  blank: 'outline-[var(--tx2)]',
+  trap: 'outline-word-trap-edge',
+};
 /** The end-of-game wave: each card waits for its diagonal (row + column), 40ms apart. */
 const WAVE_STEP = 0.04;
 
@@ -131,7 +142,7 @@ export function WordGrid({
                     ? { x: { delay: 0.38, duration: 0.36, ease: EASE }, default: SPRING_POP }
                     : SPRING_POP
                 }
-                className={`${CELL} h-full w-full ${FACE[id ?? 'down']} ${sel || isLit ? 'z-10 outline outline-[3px] outline-offset-2 outline-[var(--focus)]' : ''} ${live ? 'fine:hover:shadow-[inset_0_0_0_2px_var(--focus)]' : 'cursor-default'}`}
+                className={`${CELL} h-full w-full ${FACE[id ?? 'down']} ${sel ? PICKED : isLit && id ? `z-10 outline outline-[3px] outline-offset-2 ${LIT[id]}` : ''} ${live ? 'fine:hover:shadow-[inset_0_0_0_2px_var(--focus)]' : 'cursor-default'}`}
               >
                 <m.span
                   key={id ?? 'down'}
