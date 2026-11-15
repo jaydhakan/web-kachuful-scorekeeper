@@ -66,6 +66,52 @@ for (const [w, h] of [
   });
 }
 
+// KT-F05: on a large screen Home is two panes (New Game beside the hub links, not pinned to the bottom edge),
+// and the public viewer puts the standings beside the hands played.
+test.describe('large screen', () => {
+  test.use({ viewport: { width: 1366, height: 768 } });
+
+  test('Home puts New Game in the hero pane, beside the hub links', async ({ page }) => {
+    await page.goto('/kaali-teeri');
+    const start = ktBtn(page, 'New Game');
+    const history = page.getByRole('button', { name: 'History', exact: true });
+    const [a, b] = [await start.boundingBox(), await history.boundingBox()];
+    expect(a!.x + a!.width).toBeLessThan(b!.x);
+    expect(a!.y + a!.height).toBeLessThan(768 * 0.8);
+  });
+
+  test('the live viewer shows the standings beside the hands', async ({ page }) => {
+    await page.goto('/kaali-teeri');
+    await ktStart(page, NAMES.slice(0, 4));
+    const saved = JSON.parse((await page.evaluate(() => localStorage.getItem('kaaliteeri.v1')))!);
+    const g = saved.game ?? saved;
+    await page.route('**/api/public/live/tok', (r) =>
+      r.fulfill({
+        json: {
+          kind: 'kaali-teeri',
+          game: g,
+          summary: {
+            id: g.syncId,
+            kind: 'kaali-teeri',
+            owner: { id: null, name: 'Jay' },
+            players: [],
+          },
+          updatedAt: Date.now(),
+          scorerSeenAt: Date.now(),
+        },
+      }),
+    );
+    await page.route('**/api/public/live/tok/events', (r) => r.abort());
+    await page.goto('/kaali-teeri?live=tok');
+    const standings = page.getByRole('heading', { name: 'Standings' });
+    const hands = page.getByRole('heading', { name: 'Hands' });
+    await expect(standings).toBeVisible();
+    const [s, h] = [await standings.boundingBox(), await hands.boundingBox()];
+    expect(h!.x).toBeGreaterThan(s!.x + 300);
+    expect(Math.abs(h!.y - s!.y)).toBeLessThan(200);
+  });
+});
+
 // KT-F03: long names wrap at spaces, never inside a word, on the bidding and points screens and the score panel.
 for (const [w, h] of [
   [360, 800],

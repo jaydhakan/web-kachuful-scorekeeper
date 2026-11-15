@@ -6,6 +6,8 @@ export const ktShell = {
   tagline: 'Three of Spades scorekeeper',
   menu: 'Menu',
   home: {
+    pitch:
+      'Bids, trump, the called partners and every hand’s points, scored at the table on one screen.',
     resume: 'Resume game',
     finished: 'Game finished',
     won: (name: string, pts: number) => `${name} won with ${pts}`,

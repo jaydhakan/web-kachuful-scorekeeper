@@ -76,17 +76,19 @@ function Standings({ g }: { g: KtGame }) {
           key={s.p.id}
           layout={!rm}
           transition={SPRING}
-          className="glass flex min-h-14 items-center gap-3 px-4"
+          className="glass flex min-h-14 items-center gap-3 px-4 rail:min-h-16"
         >
           <RankMark rank={s.rank} final={g.status === 'finished'} />
           <Dot p={s.p} s={36} />
-          <span className="min-w-0 flex-1 text-17 font-bold break-words">{s.p.name}</span>
+          <span className="min-w-0 flex-1 break-words text-17 font-bold rail:text-20">
+            {s.p.name}
+          </span>
           {/* Keyed on the total, so a changed score fades in (opacity only). */}
           <m.span
             key={s.t}
             initial={{ opacity: 0.3 }}
             animate={{ opacity: 1 }}
-            className="disp text-22 font-extrabold"
+            className="disp text-22 font-extrabold rail:text-28"
           >
             {s.t}
           </m.span>
@@ -168,7 +170,7 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
   }, [kind, token]);
 
   const open = (
-    <PrimaryButton className="mt-8 w-full" onClick={onClose}>
+    <PrimaryButton className="mt-8 w-full rail:w-80" onClick={onClose}>
       {v.open}
     </PrimaryButton>
   );
@@ -218,35 +220,38 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
             ? v.quiet(Math.round((Date.now() - seen) / 60e3))
             : v.updated(agoTxt(st.updatedAt ?? seen));
     }
+    // On a large screen (often a TV) the table sits beside the hands played (KT-F05).
     body = (
-      <>
-        {kind === 'live' && watchers > 0 && (
-          <p className="text-14 font-bold text-[var(--tx2)]">{v.watching(watchers)}</p>
-        )}
-        {kind === 'live' && over && st.recapToken && (
-          <PrimaryButton
-            className="mt-4 w-full"
-            onClick={() => setCur({ kind: 'recap', token: st.recapToken! })}
-          >
-            {v.seeRecap}
-          </PrimaryButton>
-        )}
-        {kind === 'live' && !over && h.phase !== 'done' && (
-          <div aria-live="polite" className="glass mt-4 p-4">
-            <div className="disp text-20 font-extrabold">{v.hand(h.index + 1)}</div>
-            <p className="mt-1 text-15 text-[var(--tx2)]">
-              {v.deals(g.players[h.dealerIndex]?.name ?? '')} · {handLine(g, h)}
-            </p>
-          </div>
-        )}
-        <Section title={over ? v.final : v.standings}>
-          <Standings g={g} />
-        </Section>
+      <div className="rail:mt-6 rail:grid rail:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] rail:items-start rail:gap-10">
+        <div>
+          {kind === 'live' && watchers > 0 && (
+            <p className="text-14 font-bold text-[var(--tx2)]">{v.watching(watchers)}</p>
+          )}
+          {kind === 'live' && over && st.recapToken && (
+            <PrimaryButton
+              className="mt-4 w-full"
+              onClick={() => setCur({ kind: 'recap', token: st.recapToken! })}
+            >
+              {v.seeRecap}
+            </PrimaryButton>
+          )}
+          {kind === 'live' && !over && h.phase !== 'done' && (
+            <div aria-live="polite" className="glass mt-4 p-4 rail:p-5">
+              <div className="disp text-20 font-extrabold rail:text-24">{v.hand(h.index + 1)}</div>
+              <p className="mt-1 text-15 text-[var(--tx2)] rail:text-17">
+                {v.deals(g.players[h.dealerIndex]?.name ?? '')} · {handLine(g, h)}
+              </p>
+            </div>
+          )}
+          <Section title={over ? v.final : v.standings}>
+            <Standings g={g} />
+          </Section>
+        </div>
         <Section title={v.hands}>
           {done.length ? (
             <ol className="flex flex-col gap-1.5">
               {[...done].reverse().map((d) => (
-                <li key={d.index} className="glass px-4 py-3 text-15">
+                <li key={d.index} className="glass px-4 py-3 text-15 rail:text-16">
                   <span className="font-bold">{v.hand(d.index + 1)}</span>
                   <span className="text-[var(--tx2)]"> · {handLine(g, d)}</span>
                 </li>
@@ -256,7 +261,7 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
             <p className="text-15 text-[var(--tx2)]">{v.noHands}</p>
           )}
         </Section>
-      </>
+      </div>
     );
   }
   return (
@@ -264,9 +269,11 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
       data-game="kaali-teeri"
       className="app-root scr-bg grain relative h-full w-full overflow-y-auto"
     >
-      <main className="mx-auto w-full max-w-[40rem] px-4 pb-[calc(var(--sab)+2rem)] pt-[calc(var(--sat)+1.5rem)]">
-        {eyebrow && <p className="text-13 font-bold text-[var(--accent-tx)]">{eyebrow}</p>}
-        <h1 className="disp text-30 font-extrabold tracking-[-0.025em]">{title}</h1>
+      <main className="mx-auto w-full max-w-[40rem] px-4 pb-[calc(var(--sab)+2rem)] pt-[calc(var(--sat)+1.5rem)] rail:max-w-[76rem] rail:px-10 rail:pt-10">
+        {eyebrow && (
+          <p className="text-13 font-bold text-[var(--accent-tx)] rail:text-15">{eyebrow}</p>
+        )}
+        <h1 className="disp text-30 font-extrabold tracking-[-0.025em] rail:text-48">{title}</h1>
         {body}
         {open}
       </main>
