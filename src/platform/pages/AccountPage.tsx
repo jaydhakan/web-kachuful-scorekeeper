@@ -86,7 +86,7 @@ export function AccountPage() {
       : []),
   ];
   return (
-    <Page title={ac.title}>
+    <Page title={ac.title} wide>
       {s.stale && (
         <button
           type="button"
@@ -96,91 +96,98 @@ export function AccountPage() {
           {icon('warn')} {ac.stale}
         </button>
       )}
-      {p ? (
-        <>
-          <Hero
-            p={p}
-            email={s.user.email}
-            onPhoto={() => setOpen('photo')}
-            onEdit={() => setOpen('edit')}
-          />
-          <MeStats id={p.id} />
-          <button
-            type="button"
-            onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
-            className="press glass mb-6 flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold"
-          >
-            <span className="flex-1">{ac.viewPlayer}</span>
-            <span aria-hidden className="text-[var(--tx2)]">
-              {Icon.chev}
-            </span>
-          </button>
-        </>
-      ) : (
-        <div className="mb-6 flex flex-col items-center gap-1 text-center">
-          <p className="text-15 text-[var(--tx2)]">{ac.noPlayer}</p>
-          <p className="text-14 text-[var(--tx2)] [overflow-wrap:anywhere]">{s.user.email}</p>
-        </div>
-      )}
-      <Section title={ac.sync} aside={<SyncDot />}>
-        <div className="glass flex flex-col gap-3 p-4">
-          <p className="text-15 text-[var(--tx2)]">
-            {status.lastSyncAt ? ac.lastSync(agoTxt(status.lastSyncAt)) : ac.neverSynced}
-          </p>
-          <div className="grid gap-2 roomy:grid-cols-2">
-            <PrimaryButton
-              className="w-full px-5"
-              onClick={() => void allSync().then((g) => g.syncNow())}
-            >
-              {ac.syncNow}
-            </PrimaryButton>
-            <PrimaryButton
-              tone="glass"
-              className="w-full px-5"
-              onClick={() => actions.open({ screen: 'import' })}
-            >
-              {ac.upload}
-            </PrimaryButton>
-          </div>
-        </div>
-      </Section>
-      {inbox > 0 && (
-        <Section title={ac.inbox(inbox)}>
-          {asks.length > 0 && (
-            <div className={local ? 'mb-2' : ''}>
-              <ClaimsList items={asks} onDone={claims.reload} />
-            </div>
-          )}
-          <InboxList />
-        </Section>
-      )}
-      <Section title={ac.settings}>
-        <ul className="glass overflow-hidden">
-          {settings.map(([ic, label, go], i) => (
-            <li key={label} className={i ? 'border-t border-ov/10' : ''}>
+      {/* From 1024 wide: who you are on the left, sync and settings on the right (PL-F09). */}
+      <div className="rail:grid rail:grid-cols-2 rail:items-start rail:gap-x-8">
+        <div>
+          {p ? (
+            <>
+              <Hero
+                p={p}
+                email={s.user.email}
+                onPhoto={() => setOpen('photo')}
+                onEdit={() => setOpen('edit')}
+              />
+              <MeStats id={p.id} />
               <button
                 type="button"
-                onClick={go}
-                className="press flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold"
+                onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}
+                className="press glass mb-6 flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold"
               >
-                <span
-                  aria-hidden
-                  className="grid h-6 w-6 place-items-center text-[var(--accent-tx)]"
-                >
-                  {ic}
-                </span>
-                <span className="flex-1">{label}</span>
+                <span className="flex-1">{ac.viewPlayer}</span>
                 <span aria-hidden className="text-[var(--tx2)]">
                   {Icon.chev}
                 </span>
               </button>
-            </li>
-          ))}
-        </ul>
-      </Section>
-      <PrimaryButton tone="danger" className="w-full px-4" onClick={() => setAsk(true)}>
-        {ac.signOut}
-      </PrimaryButton>
+            </>
+          ) : (
+            <div className="mb-6 flex flex-col items-center gap-1 text-center">
+              <p className="text-15 text-[var(--tx2)]">{ac.noPlayer}</p>
+              <p className="text-14 text-[var(--tx2)] [overflow-wrap:anywhere]">{s.user.email}</p>
+            </div>
+          )}
+        </div>
+        <div>
+          <Section title={ac.sync} aside={<SyncDot />}>
+            <div className="glass flex flex-col gap-3 p-4">
+              <p className="text-15 text-[var(--tx2)]">
+                {status.lastSyncAt ? ac.lastSync(agoTxt(status.lastSyncAt)) : ac.neverSynced}
+              </p>
+              <div className="grid gap-2 roomy:grid-cols-2">
+                <PrimaryButton
+                  className="w-full px-5"
+                  onClick={() => void allSync().then((g) => g.syncNow())}
+                >
+                  {ac.syncNow}
+                </PrimaryButton>
+                <PrimaryButton
+                  tone="glass"
+                  className="w-full px-5"
+                  onClick={() => actions.open({ screen: 'import' })}
+                >
+                  {ac.upload}
+                </PrimaryButton>
+              </div>
+            </div>
+          </Section>
+          {inbox > 0 && (
+            <Section title={ac.inbox(inbox)}>
+              {asks.length > 0 && (
+                <div className={local ? 'mb-2' : ''}>
+                  <ClaimsList items={asks} onDone={claims.reload} />
+                </div>
+              )}
+              <InboxList />
+            </Section>
+          )}
+          <Section title={ac.settings}>
+            <ul className="glass overflow-hidden">
+              {settings.map(([ic, label, go], i) => (
+                <li key={label} className={i ? 'border-t border-ov/10' : ''}>
+                  <button
+                    type="button"
+                    onClick={go}
+                    className="press flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold"
+                  >
+                    <span
+                      aria-hidden
+                      className="grid h-6 w-6 place-items-center text-[var(--accent-tx)]"
+                    >
+                      {ic}
+                    </span>
+                    <span className="flex-1">{label}</span>
+                    <span aria-hidden className="text-[var(--tx2)]">
+                      {Icon.chev}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </Section>
+          <PrimaryButton tone="danger" className="w-full px-4" onClick={() => setAsk(true)}>
+            {ac.signOut}
+          </PrimaryButton>
+        </div>
+      </div>
       <AnimatePresence>
         {open === 'photo' && p && (
           <Sheet key="photo" title={ac.photo} onClose={close}>

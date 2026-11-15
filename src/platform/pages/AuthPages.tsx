@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { COLORS, EMOJIS, nameKey, NAME_MAX, tidyName } from '@/people';
 import { uuid } from '@/lib/ids';
 import { passwordOk } from '@/lib/password';
@@ -52,38 +52,60 @@ export function SignInPage() {
     }
   };
   return (
-    <Page title={a.signInTitle}>
-      <p className="mb-6 text-16 leading-[1.45] text-[var(--tx2)]">{a.signInBody}</p>
-      <form onSubmit={submit} noValidate>
-        <Field
-          label={a.email}
-          type="email"
-          inputMode="email"
-          autoComplete="username"
-          autoCapitalize="off"
-          spellCheck={false}
-          enterKeyHint="next"
-          value={email}
-          onChange={setEmail}
-        />
-        <PasswordField
-          label={a.password}
-          autoComplete="current-password"
-          enterKeyHint="go"
-          value={pw}
-          onChange={setPw}
-          error={err}
-        />
-        <PrimaryButton
-          type="submit"
-          className="mt-2 w-full"
-          disabled={busy || !email.trim() || !pw}
-        >
-          {busy ? a.busy : a.signIn}
-        </PrimaryButton>
-      </form>
-      <p className="mt-6 text-center text-15 text-[var(--tx2)]">{a.forgot}</p>
+    <Page title={a.signInTitle} wide>
+      <AuthSplit
+        intro={
+          <p className="mb-6 text-16 leading-[1.45] text-[var(--tx2)] rail:text-20">
+            {a.signInBody}
+          </p>
+        }
+      >
+        <form onSubmit={submit} noValidate>
+          <Field
+            label={a.email}
+            type="email"
+            inputMode="email"
+            autoComplete="username"
+            autoCapitalize="off"
+            spellCheck={false}
+            enterKeyHint="next"
+            value={email}
+            onChange={setEmail}
+          />
+          <PasswordField
+            label={a.password}
+            autoComplete="current-password"
+            enterKeyHint="go"
+            value={pw}
+            onChange={setPw}
+            error={err}
+          />
+          <PrimaryButton
+            type="submit"
+            className="mt-2 w-full"
+            disabled={busy || !email.trim() || !pw}
+          >
+            {busy ? a.busy : a.signIn}
+          </PrimaryButton>
+        </form>
+        <p className="mt-6 text-center text-15 text-[var(--tx2)]">{a.forgot}</p>
+      </AuthSplit>
     </Page>
+  );
+}
+
+/**
+ * From 1024 wide: what an account gives beside a 26rem form, instead of fields stretched across 44rem (PL-F09).
+ * Below that, one column as before.
+ */
+function AuthSplit({ intro, children }: { intro: ReactNode; children: ReactNode }) {
+  return (
+    <div className="rail:grid rail:grid-cols-[minmax(0,1fr)_26rem] rail:items-start rail:gap-12">
+      <div>{intro}</div>
+      <div className="rail:rounded-[24px] rail:bg-[var(--glass)] rail:p-6 rail:shadow-[inset_0_0_0_1px_var(--hairline-2)]">
+        {children}
+      </div>
+    </div>
   );
 }
 
