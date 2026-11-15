@@ -102,7 +102,7 @@ test('signing out asks what to keep, then shows Sign in again', async ({ page })
   await btn(page, 'Sign out').click();
   await btn(page, 'Keep games on this phone').click();
   await expect(page.getByText('Signed out')).toBeVisible();
-  await expect(page.getByLabel('Sign in', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign in', exact: true }).first()).toBeVisible();
 });
 
 test("an invite to a player's email offers that player, who claims their history", async ({
