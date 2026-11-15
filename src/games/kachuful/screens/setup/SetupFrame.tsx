@@ -4,11 +4,14 @@ import { t } from '@/strings';
 
 export { TableSlot } from '@/components/seating/SetupFrame';
 
-/** Kachuful's setup frame: Back steps through setup to Home. */
+/** Kachuful's setup frame: Back steps through setup to Home, asking first once anyone is seated. */
 export function SetupFrame(p: SetupFrameProps) {
-  const { actions } = useSetup();
-  const back = () =>
-    p.step === 1 ? actions.go('home', -1) : actions.setupPatch({ step: (p.step - 1) as 1 | 2 });
+  const { su, actions } = useSetup();
+  const back = () => {
+    if (p.step > 1) actions.setupPatch({ step: (p.step - 1) as 1 | 2 });
+    else if (su.seats.some(Boolean)) actions.ask('leaveSetup');
+    else actions.go('home', -1);
+  };
   return (
     <Frame
       {...p}

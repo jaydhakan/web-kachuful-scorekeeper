@@ -19,7 +19,8 @@ export function ConfirmModal({ kind }: { kind: ModalKind }) {
       onCancel={() => actions.ask(null)}
       onOk={() => {
         actions.ask(null);
-        if (empty) actions.discardGame();
+        if (kind === 'leaveSetup') actions.go('home', -1);
+        else if (empty) actions.discardGame();
         else actions.finishGame();
       }}
     />

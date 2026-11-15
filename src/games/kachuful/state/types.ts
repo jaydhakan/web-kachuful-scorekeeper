@@ -64,7 +64,7 @@ export type SheetState =
   /** Seats the next empty seat; `name` opens on that known player's email. */
   | { type: 'addPlayer'; name?: string };
 
-export type ModalKind = 'endGame';
+export type ModalKind = 'endGame' | 'leaveSetup';
 
 export interface Toast {
   id: number;
