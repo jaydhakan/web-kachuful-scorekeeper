@@ -1,12 +1,19 @@
-import { AnimatePresence } from 'framer-motion';
-import { useMemo, useState, useSyncExternalStore, type MouseEvent } from 'react';
+import { AnimatePresence, useReducedMotion } from 'framer-motion';
+import {
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type MouseEvent,
+  type PointerEvent,
+} from 'react';
 import { BaithakMark } from '@/components/ui/BaithakMark';
 import { Icon } from '@/components/ui/Icons';
 import { agoTxt } from '@/lib/format';
 import { useSession } from '@/sync/session';
 import { platform } from '@/strings/platform';
-import { GAMES, type GameEntry, type Resume } from '../catalog';
-import { go } from '../route';
+import { GAMES, gameById, type GameEntry, type Resume } from '../catalog';
+import { clearUnknown, go, unknownAddress, type Unknown } from '../route';
 import { LandingMenu, openInKachuful } from './LandingMenu';
 import { openGame } from './OpenGame';
 import { PersonDot } from './PersonDot';
@@ -43,27 +50,42 @@ function follow(e: MouseEvent<HTMLAnchorElement>, g: GameEntry, grow = false) {
 
 function Header({ onMenu }: { onMenu: () => void }) {
   const session = useSession();
+  const stale = !!session?.stale;
+  const name = session?.player?.displayName;
+  const live = !!session && !stale;
+  // Signed in, the chip is the avatar; the name joins it from the large layout up, never an email address.
+  const label = !session
+    ? undefined
+    : stale
+      ? s.signInAgainAria
+      : s.account(name ?? s.accountNoName);
+  const open = live ? 'account' : 'signin';
   return (
     <header className="flex min-h-14 items-center justify-between gap-2">
-      <span className="flex items-center gap-2.5" role="img" aria-label={platform.name}>
+      <span className="flex shrink-0 items-center gap-2.5" role="img" aria-label={platform.name}>
         <BaithakMark className="h-9 w-9 big:h-11 big:w-11" />
         <Wordmark className="h-7 w-auto big:h-9" />
       </span>
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <a
-          href={`/kachuful?open=${session ? 'account' : 'signin'}`}
-          onClick={(e) => openInKachuful(e, session ? 'account' : 'signin')}
-          aria-label={
-            session ? s.account(session.player?.displayName ?? session.user.email) : undefined
-          }
-          className={`mat-ibtn press inline-flex min-h-12 max-w-[11rem] items-center gap-2 !rounded-full text-16 font-bold ${session ? 'pl-1.5 pr-4' : 'px-5'}`}
+          href={`/kachuful?open=${open}`}
+          onClick={(e) => openInKachuful(e, open)}
+          aria-label={label}
+          className={`mat-ibtn press inline-flex min-h-12 min-w-12 items-center gap-2 whitespace-nowrap !rounded-full text-16 font-bold ${live ? 'p-1.5 big:pr-4' : 'px-5'}`}
         >
-          {session ? (
+          {live ? (
             <>
-              <PersonDot session={session} className="h-9 w-9 text-20" />
-              <span aria-hidden className="leading-tight [overflow-wrap:anywhere]">
-                {session.player?.displayName ?? session.user.email}
+              <PersonDot session={session} className="h-9 w-9 shrink-0 text-20" />
+              <span aria-hidden className="hidden big:block">
+                {name ?? s.accountNoName}
               </span>
+            </>
+          ) : stale ? (
+            <>
+              <span aria-hidden className="text-[var(--warning)]">
+                {Icon.warn}
+              </span>
+              <span aria-hidden>{s.signInAgain}</span>
             </>
           ) : (
             s.signIn
@@ -73,12 +95,46 @@ function Header({ onMenu }: { onMenu: () => void }) {
           type="button"
           aria-label={s.menu}
           onClick={onMenu}
-          className="mat-ibtn press grid h-12 w-12 place-items-center rounded-2xl"
+          className="mat-ibtn press grid h-12 w-12 shrink-0 place-items-center rounded-2xl"
         >
           {Icon.menu}
         </button>
       </div>
     </header>
+  );
+}
+
+/** A mistyped or outdated address: says so, and offers the game it most likely meant. */
+function UnknownLine({ u, onDone }: { u: Unknown; onDone: () => void }) {
+  const guess = u.guess ? gameById(u.guess) : null;
+  return (
+    <div
+      role="status"
+      className="glass flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 pl-4 pr-1.5 text-15"
+    >
+      <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+        {guess ? s.unknownGuess(u.path, guess.name) : s.unknown(u.path)}
+      </span>
+      <span className="flex items-center gap-1">
+        {guess && (
+          <a
+            href={guess.path}
+            onClick={(e) => follow(e, guess)}
+            className="press inline-flex min-h-11 items-center rounded-full px-3 font-bold text-[var(--accent-tx)] underline"
+          >
+            {s.openGuess(guess.name)}
+          </a>
+        )}
+        <button
+          type="button"
+          aria-label={s.dismiss}
+          onClick={onDone}
+          className="press grid h-11 w-11 place-items-center rounded-full text-[var(--tx2)]"
+        >
+          {Icon.close}
+        </button>
+      </span>
+    </div>
   );
 }
 
@@ -120,30 +176,57 @@ function ResumePanel({ rows }: { rows: [GameEntry, Resume][] }) {
   );
 }
 
-function GameCard({ g, signedIn }: { g: GameEntry; signedIn: boolean }) {
+/** A few degrees toward where the tile was pressed (A10), as a real card tips under a finger. */
+function useTilt() {
+  const reduced = !!useReducedMotion();
+  const [tilt, setTilt] = useState<[number, number] | null>(null);
+  const style: CSSProperties | undefined = reduced
+    ? undefined
+    : {
+        transform: `perspective(900px) rotateX(${tilt?.[0] ?? 0}deg) rotateY(${tilt?.[1] ?? 0}deg)`,
+        transition: 'scale 0.16s var(--ease), transform 0.22s var(--ease)',
+      };
+  const down = (e: PointerEvent<HTMLElement>) => {
+    if (reduced || e.button !== 0) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5,
+      y = (e.clientY - r.top) / r.height - 0.5;
+    setTilt([-y * 5, x * 5]);
+  };
+  const up = () => setTilt(null);
+  return { style, onPointerDown: down, onPointerUp: up, onPointerLeave: up, onPointerCancel: up };
+}
+
+function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; online: boolean }) {
   const soon = g.status === 'soon';
   const locked = !soon && g.signedInOnly && !signedIn;
+  // Ishaara runs on the server: offline its tile says so rather than offering Play.
+  const offline = !soon && !locked && g.signedInOnly && !online;
+  const tilt = useTilt();
   const body = (
     <>
       <div
         data-tile-art
-        className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none"
+        className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh]"
       >
         <TileArt
           game={g.id}
           className={`block h-full w-full ${soon ? 'opacity-60 grayscale' : ''}`}
         />
       </div>
-      <div className="flex min-w-0 flex-col justify-center gap-1 big:px-5 big:pt-4">
-        <h3 className="disp text-22 font-bold tracking-[-0.02em] big:text-28">{g.name}</h3>
+      <div className="flex min-w-0 flex-col justify-center gap-1 big:px-5 big:pt-4 tp:px-4 tp:pt-3">
+        <h3 className="disp text-22 font-bold tracking-[-0.02em] big:text-28 tp:text-24">
+          {g.name}
+        </h3>
+        <span className="mono-label text-13 text-[var(--accent-tx)]">{g.kind}</span>
         <p
-          className={`text-15 leading-[1.35] big:text-17 ${soon ? 'text-[var(--dis)]' : 'text-[var(--tx2)]'}`}
+          className={`text-15 leading-[1.35] big:text-17 tp:text-15 ${soon ? 'text-[var(--dis)]' : 'text-[var(--tx2)]'}`}
         >
           {g.pitch}
         </p>
       </div>
-      <div className="col-span-2 flex items-center justify-between gap-2 big:mt-auto big:px-5 big:pb-5">
-        <span className="inline-flex min-h-9 items-center gap-2 rounded-full px-3 text-14 font-semibold text-[var(--tx2)] shadow-[inset_0_0_0_1px_var(--hairline-2)]">
+      <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 big:mt-auto big:px-5 big:pb-5 tp:px-4 tp:pb-4">
+        <span className="inline-flex min-h-9 items-center gap-2 whitespace-nowrap rounded-full px-3 text-14 font-semibold text-[var(--tx2)] shadow-[inset_0_0_0_1px_var(--hairline-2)]">
           <span aria-hidden>{Icon.players}</span>
           {g.players}
         </span>
@@ -152,10 +235,11 @@ function GameCard({ g, signedIn }: { g: GameEntry; signedIn: boolean }) {
             {s.soon}
           </span>
         ) : (
-          <span className="mat-ibtn inline-flex min-h-11 items-center gap-2 !rounded-full px-4 text-17 font-bold">
+          <span className="mat-ibtn ml-auto inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap !rounded-full px-4 text-17 font-bold tp:w-full">
             {locked && <span aria-hidden>{Icon.lock}</span>}
-            {locked ? s.signInToPlay : s.play}
-            {!locked && <span aria-hidden>{Icon.arrow}</span>}
+            {offline && <span aria-hidden>{Icon.cloud}</span>}
+            {locked ? s.signInToPlay : offline ? s.needsConnection : s.play}
+            {!locked && !offline && <span aria-hidden>{Icon.arrow}</span>}
           </span>
         )}
       </div>
@@ -176,6 +260,7 @@ function GameCard({ g, signedIn }: { g: GameEntry; signedIn: boolean }) {
       href={locked ? '/kachuful?open=signin' : g.path}
       onClick={(e) => (locked ? openInKachuful(e, 'signin') : follow(e, g, true))}
       className={`${box} press`}
+      {...tilt}
     >
       {body}
     </a>
@@ -187,6 +272,7 @@ export default function Landing() {
   const session = useSession();
   const online = useOnline();
   const [menu, setMenu] = useState(false);
+  const [unknown, setUnknown] = useState(unknownAddress);
   // Read once per visit: the landing page shows while no game is running, so nothing changes these meanwhile.
   const resumes = useMemo(
     () =>
@@ -210,13 +296,28 @@ export default function Landing() {
               {s.offline}
             </p>
           )}
+          {unknown && (
+            <UnknownLine
+              u={unknown}
+              onDone={() => {
+                clearUnknown();
+                setUnknown(null);
+              }}
+            />
+          )}
           <main className="flex flex-col gap-5 big:gap-10">
-            <div className="flex flex-col gap-5 big:grid big:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] big:items-center big:gap-12">
-              <div className="flex flex-col gap-3">
+            {/* Two columns only beside a resume panel, from the rail up; an upright tablet stacks them. */}
+            <div
+              className={`flex flex-col gap-5 ${resumes.length ? 'rail:grid rail:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] rail:items-center rail:gap-12' : ''}`}
+            >
+              <div className="flex flex-col gap-2 big:gap-3">
                 <h1 className="disp text-36 font-bold leading-none tracking-[-0.03em] big:text-64">
                   {s.title}
                 </h1>
-                <p className="hidden max-w-[44ch] text-18 leading-[1.45] text-[var(--tx2)] big:block">
+                <p className="text-16 leading-[1.4] text-[var(--tx2)] big:hidden">
+                  {platform.tagline}
+                </p>
+                <p className="hidden max-w-[52ch] text-18 leading-[1.45] text-[var(--tx2)] big:block">
                   {s.intro}
                 </p>
               </div>
@@ -226,10 +327,10 @@ export default function Landing() {
               <h2 id="landing-games" className="mono-label text-13 text-[var(--accent-tx)]">
                 {s.games}
               </h2>
-              <ul className="grid gap-3 big:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] big:gap-6">
+              <ul className="grid gap-3 big:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] big:gap-6 tp:grid-cols-3 tp:gap-4">
                 {GAMES.map((g) => (
                   <li key={g.id}>
-                    <GameCard g={g} signedIn={!!session && !session.stale} />
+                    <GameCard g={g} signedIn={!!session && !session.stale} online={online} />
                   </li>
                 ))}
               </ul>
