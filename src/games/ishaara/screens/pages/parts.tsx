@@ -5,6 +5,7 @@ import { ipg } from '@/games/ishaara/strings/pages';
 import { PageFrame, type PageProps } from '@/components/ui/PageParts';
 import type { Face } from '@/components/ui/Avatar';
 import { FitWord } from '../board/FitWord';
+import { Mark as BoardMark, TEAM_TX } from '../board/marks';
 
 /** A player as the pages draw them: a registry id with a face and a name. */
 export interface Who extends Face {
@@ -34,39 +35,13 @@ export function IshPage(props: Omit<PageProps, 'onBack'>) {
   return <PageFrame onBack={back} {...props} />;
 }
 
-/**
- * The shape that says what a card is, so identity is never colour alone: Sun a dot, Moon a crescent, blank stripes,
- * the trap a cross. It takes the current text colour.
- */
+/** The board's one drawing of the marks, at the pages' default size. */
 export function Mark({ id, className = 'h-4 w-4' }: { id: Identity; className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 16 16" className={`shrink-0 ${className}`} fill="currentColor">
-      {id === 'sun' && <circle cx="8" cy="8" r="5" />}
-      {id === 'moon' && <path d="M10.5 2.2A6 6 0 1 0 13.8 11 5 5 0 0 1 10.5 2.2Z" />}
-      {id === 'blank' && (
-        <path
-          d="M2 10 10 2M2 14 14 2M6 14l8-8"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          fill="none"
-        />
-      )}
-      {id === 'trap' && (
-        <path
-          d="M3.5 3.5l9 9M12.5 3.5l-9 9"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          fill="none"
-        />
-      )}
-    </svg>
-  );
+  return <BoardMark id={id} className={className} />;
 }
 
-/** A team's colour as text, for its mark on a plain surface. */
-export const TEAM_TEXT: Record<Team, string> = { sun: 'text-team-sun', moon: 'text-team-moon' };
+/** A team's colour as text, for its mark on a plain surface (the text-safe shade, 4.5:1 in every theme). */
+export const TEAM_TEXT = TEAM_TX;
 
 /** A card face for each identity: its colour and the ink that reads on it. */
 export const CARD_FACE: Record<Identity, string> = {
