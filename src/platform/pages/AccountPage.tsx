@@ -12,7 +12,7 @@ import { useArchive } from '@/state/useArchive';
 import { useThemeState } from '@/state/theme';
 import { ep } from '@/sync/endpoints';
 import { pendingUploads, signOutDevice } from '@/sync/signout';
-import { syncNow } from '@/games/kachuful/sync/engine';
+import { allSync } from '@/platform/catalog';
 import { useSyncStatus } from '@/sync/status';
 import { useRemote } from '@/sync/useRemote';
 import { PhotoPicker } from '@/components/PhotoPicker';
@@ -127,8 +127,11 @@ export function AccountPage() {
           <p className="text-15 text-[var(--tx2)]">
             {status.lastSyncAt ? ac.lastSync(agoTxt(status.lastSyncAt)) : ac.neverSynced}
           </p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <PrimaryButton className="w-full px-5" onClick={() => void syncNow()}>
+          <div className="grid gap-2 roomy:grid-cols-2">
+            <PrimaryButton
+              className="w-full px-5"
+              onClick={() => void allSync().then((g) => g.syncNow())}
+            >
               {ac.syncNow}
             </PrimaryButton>
             <PrimaryButton
