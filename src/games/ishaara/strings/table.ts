@@ -215,6 +215,16 @@ export const table = {
     gone: 'This game is gone',
     goneBody: 'It was cancelled, or you’re no longer part of it.',
     retry: 'Try again',
+    leaveTimedNote:
+      'The game keeps going, but the turn’s timer waits until this board is open again.',
+    leaveTimedAsk:
+      'Leave the board? The timer can’t run out while the board is closed, so the turn waits for you.',
+    stay: 'Stay on the board',
+    endNoResult: 'End game without a result',
+    endAsk: 'End this game for everyone? Nobody wins or loses, and it won’t count in History.',
+    endOk: 'End game',
+    keepPlaying: 'Keep playing',
+    endFailed: 'Couldn’t end the game. Try again.',
   },
 
   win: {

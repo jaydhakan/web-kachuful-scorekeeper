@@ -123,6 +123,8 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
 
   return {
     game,
+    // Only the host's device acts on the board; any other signed-in account is watching (ISH-F11, ISH-F22).
+    host: table.me?.host ?? false,
     conn,
     live,
     canSend,
