@@ -38,8 +38,6 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
   the bidding screen out identically" only sets `data-theme`, so Yerba Sun, Editorial Paper and Emerald Gilt are
   measured without their own rules and faces. Switch it to `showTheme` (as the Ishaara test does) and expect width
   slack for pills sized by their label.
-- **Broken-word check covers Ishaara only** (`e2e/audit-rules.ts`). Extend it to every screen once KF-F01 and
-  KT-F03 (names broken mid-word) are fixed.
 - **Ishaara's known bugs are listed in the specs** (`ISH_KNOWN` in `responsive.spec.ts` and `targets.spec.ts`,
   `test.fail` for ISH-F04 and PL-F02, the Yerba Sun excuse in `themes.spec.ts`). Each fix deletes its entry.
 

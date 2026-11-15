@@ -25,8 +25,7 @@ export function violations(
   add('overlap', r.overlaps);
   add('target under 44px', r.smallTargets);
   add('page scrolls sideways', r.pageOverflow);
-  // Only Ishaara is held to this so far; Kachuful and Kaali Teeri join once KF-F01 and KT-F03 are fixed.
-  if (r.screen.startsWith('ish-')) add('word broken mid-word', r.brokenWords);
+  add('word broken mid-word', r.brokenWords);
   // At 360x640 and up in portrait the content and its action fit; a smaller phone may scroll.
   const portraitFits = where.width < where.height && where.width >= 360 && where.height >= 640;
   const mustFit =

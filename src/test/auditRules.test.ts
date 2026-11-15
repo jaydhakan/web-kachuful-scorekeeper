@@ -59,8 +59,9 @@ describe('audit rules', () => {
       1,
     );
     expect(violations({ ...clean('ish-board'), scrolls: ['Words'] }, phone)).toHaveLength(1);
-    // Kachuful's screens are not checked for broken words yet (KF-F01).
-    expect(violations({ ...clean('16-results'), brokenWords: ['Bartholomew'] }, phone)).toEqual([]);
+    expect(
+      violations({ ...clean('16-results'), brokenWords: ['Bartholomew'] }, phone),
+    ).toHaveLength(1);
   });
 
   it('lets sheets scroll', () => {

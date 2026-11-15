@@ -65,10 +65,9 @@ export function ResultsPane({ g }: { g: Game }) {
                   p={p}
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-20 @[24rem]:h-11 @[24rem]:w-11 @[24rem]:text-24"
                 />
-                <div className="min-w-[4.5rem] flex-1">
-                  <div className="text-18 font-bold leading-tight [overflow-wrap:anywhere]">
-                    {p.name}
-                  </div>
+                {/* The longest word of the name is the minimum: the controls wrap under before a name breaks. */}
+                <div className="flex-1">
+                  <div className="break-words text-18 font-bold leading-tight">{p.name}</div>
                   <div className="text-13 text-[var(--tx2)]">
                     {t.results.bid(b)}
                     {k === r.dealerIndex && t.desk.results.dealer}

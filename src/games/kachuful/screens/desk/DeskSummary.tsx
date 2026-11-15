@@ -116,7 +116,7 @@ export function DeskSummary() {
                   key={id}
                   transition={rowMove(climb.length > 0 && anim && !rm)}
                   animate={stage === 1 && d < 0 ? shakeKF : undefined}
-                  className={`relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl py-1 pl-1.5 pr-3.5 dt:min-h-16 dt:gap-3.5 ${lead ? 'bg-[color-mix(in_srgb,var(--medal-gold)_10%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--medal-gold)_50%,transparent)]' : ''}`}
+                  className={`@container relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl py-1 pl-1.5 pr-3.5 dt:min-h-16 dt:gap-3.5 ${lead ? 'bg-[color-mix(in_srgb,var(--medal-gold)_10%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--medal-gold)_50%,transparent)]' : ''}`}
                 >
                   <span
                     className={`disp w-8 shrink-0 text-center text-22 font-extrabold ${rankTone(x.rank)}`}
@@ -144,12 +144,13 @@ export function DeskSummary() {
                     p={x.p}
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22 shadow-[0_8px_22px_color-mix(in_srgb,var(--shade)_45%,transparent)] dt:h-12 dt:w-12 dt:text-26"
                   />
-                  <span className="min-w-0 flex-1 text-20 font-bold leading-tight tracking-[-0.015em] [overflow-wrap:anywhere] dt:text-24">
+                  {/* Breaks at spaces only; on a narrow row the movement note gives way first. */}
+                  <span className="flex-1 break-words text-20 font-bold leading-tight tracking-[-0.015em] dt:text-24">
                     {x.p.name}
                     <StreakBadge s={sk[id]} />
                   </span>
                   <span
-                    className={`hidden w-[5.5rem] shrink-0 text-14 font-bold rail:block ${move > 0 ? 'text-[var(--pos)]' : move < 0 ? 'text-[var(--neg-tx)]' : 'text-[var(--tx2)]'} ${showMove ? '' : 'opacity-0'}`}
+                    className={`hidden w-[5.5rem] shrink-0 text-14 font-bold @[34rem]:block ${move > 0 ? 'text-[var(--pos)]' : move < 0 ? 'text-[var(--neg-tx)]' : 'text-[var(--tx2)]'} ${showMove ? '' : 'opacity-0'}`}
                   >
                     {x.rank === 1 && move === 0
                       ? t.desk.scores.holdsFirst
