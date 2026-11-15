@@ -38,7 +38,8 @@ function leaks(s: SpPublic, hands: Card[][] | null, seat: Seat | null): string |
 }
 
 describe('random games', () => {
-  it('keep every invariant', () => {
+  // 120 whole games: fast alone, but slower than the default 5 s when the full suite runs in parallel.
+  it('keep every invariant', { timeout: 30_000 }, () => {
     for (let seed = 1; seed <= RUNS; seed++) {
       const rnd = seeded(seed * 7919);
       let t: Table = { state: lobby(rulesFor(seed)), hands: null, now: T0 };
