@@ -4,7 +4,8 @@ import { ktReducer } from '@/games/kaali-teeri/state/reducer';
 import { KtProvider, useKt } from '@/games/kaali-teeri/state/store';
 import type { KtState } from '@/games/kaali-teeri/state/types';
 import PlayedBy from '@/games/kaali-teeri/sheets/PlayedBy';
-import Play from './Play';
+import Play, { TrumpCentre } from './Play';
+import { TableMiddle } from './bidding/BidTable';
 import { Outcome } from './Result';
 import { kp } from '@/games/kaali-teeri/strings/play';
 import Summary from './Summary';
@@ -150,5 +151,28 @@ describe('Made or missed (A8)', () => {
     expect(chip(kp.result.missed(5)).dataset.verdictMotion).toBe('tilt');
     rerender(at(false, -15));
     expect(chip(kp.result.missed(15)).dataset.verdictMotion).toBe('swap');
+  });
+});
+
+describe('Bid won and trump (A7)', () => {
+  const wrap = (el: React.ReactNode) => (
+    <LazyMotion features={domAnimation} strict>
+      {el}
+    </LazyMotion>
+  );
+
+  it('the trump grows in from small, and again when another suit is named', () => {
+    const { rerender } = render(wrap(<TrumpCentre suit="spades" />));
+    const first = document.querySelector<HTMLElement>('[data-kt-bloom]')!;
+    expect(first.style.transform).toMatch(/scale\(0\.3\)/);
+    rerender(wrap(<TrumpCentre suit="hearts" />));
+    expect(document.querySelector<HTMLElement>('[data-kt-bloom]')).not.toBe(first);
+  });
+
+  it('a won bid lands from large; an amount still being bid only ticks', () => {
+    render(wrap(<TableMiddle flat={false} won kicker="Bid won" amount={400} who="Meera" />));
+    expect(document.querySelector<HTMLElement>('[data-kt-land]')!.style.transform).toMatch(
+      /scale\(1\.5\)/,
+    );
   });
 });

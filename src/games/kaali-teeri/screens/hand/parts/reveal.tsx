@@ -14,6 +14,27 @@ const FLY_EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 const SEATS = ['kt-play', 'kt-ws'];
 const DOT = 12;
 
+/**
+ * A7: a won bid or a named trump arrives with weight: it grows in from small and settles. Transform and opacity
+ * only; with reduced motion it just appears.
+ */
+export function useLand(kind: 'bid' | 'bloom') {
+  const rm = useReducedMotion();
+  if (rm)
+    return { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.2 } };
+  return kind === 'bid'
+    ? {
+        initial: { opacity: 0, scale: 1.5, y: -6 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+        transition: { type: 'spring' as const, stiffness: 460, damping: 22 },
+      }
+    : {
+        initial: { opacity: 0, scale: 0.3, rotate: -20 },
+        animate: { opacity: 1, scale: 1, rotate: 0 },
+        transition: { type: 'spring' as const, stiffness: 240, damping: 15 },
+      };
+}
+
 type Marks = Pick<KtHand, 'index' | 'playedBy'>;
 const NONE: ReadonlyMap<number, number> = new Map();
 let seq = 0;

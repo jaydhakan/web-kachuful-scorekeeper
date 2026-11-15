@@ -206,6 +206,7 @@ export function KtWorkspace({ g }: { g: KtGame }) {
     <TableMiddle
       flat={false}
       kicker={ktBidding.trump.bidWon}
+      won
       amount={h.bid ?? ''}
       who={bidder?.name ?? ''}
     />

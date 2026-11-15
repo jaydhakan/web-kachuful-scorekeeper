@@ -17,6 +17,7 @@ import { PRESS, SPRING_POP } from '@/components/ui/motion';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
 import { HandFrame, InPane } from './parts/HandFrame';
+import { useLand } from './parts/reveal';
 import { CardGrid, EMPTY_DRAFT, draftCard, suitColor, type Draft } from './call/CardGrid';
 import { Slots } from './call/Slots';
 
@@ -27,6 +28,7 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
   const { actions } = useKt();
   const p = g.players.find((x) => x.id === h.bidder)!;
   const n = partnersFor(g.players.length);
+  const land = useLand('bid');
   return (
     <HandFrame
       g={g}
@@ -89,9 +91,13 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
             {p.name}
           </span>
         </p>
-        <span className="disp tick text-40 font-extrabold leading-none text-[var(--accent-tx)]">
+        <m.span
+          {...land}
+          data-kt-land
+          className="disp tick text-40 font-extrabold leading-none text-[var(--accent-tx)]"
+        >
           {h.bid}
-        </span>
+        </m.span>
       </div>
     </HandFrame>
   );

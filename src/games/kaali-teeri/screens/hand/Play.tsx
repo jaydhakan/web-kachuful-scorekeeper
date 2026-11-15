@@ -13,7 +13,7 @@ import { stagger } from '@/components/ui/stagger';
 import { TR } from '@/theme/trumps';
 import { HandFrame } from './parts/HandFrame';
 import { CardName, FlipCard, RoleBadge, cardText, roleOf } from './parts/bits';
-import { FLIP_S, useFreshMarks, useRevealBadges, useRevealFlight } from './parts/reveal';
+import { FLIP_S, useFreshMarks, useLand, useRevealBadges, useRevealFlight } from './parts/reveal';
 
 /** Plan §3 screen 6: the hand in play. Who played each called card can be marked as it lands, or at the result. */
 export default function Play() {
@@ -141,16 +141,21 @@ function useReveal(g: KtGame | null, h: KtHand | null): string {
 }
 
 export function TrumpCentre({ suit }: { suit: Suit }) {
+  const land = useLand('bloom');
   return (
     <>
-      <div
+      {/* Keyed by suit, so naming another trump blooms again (A7). */}
+      <m.div
+        key={suit}
+        {...land}
+        data-kt-bloom
         aria-hidden
         className="relative text-52 leading-none @[17rem]:text-64 @[19rem]:text-72"
         style={{ color: onFelt(suit), textShadow: `0 0 20px ${HALO}` }}
       >
         <span aria-hidden className="suit-ring" />
         {TR[suit].sym}
-      </div>
+      </m.div>
       <div className="whitespace-nowrap text-14 font-medium text-[var(--ctr-fg)] @[38rem]:text-16">
         {kp.play.trumpCentre(suit)}
       </div>
