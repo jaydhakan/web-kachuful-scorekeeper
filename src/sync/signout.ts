@@ -1,5 +1,6 @@
 import { archive } from '@/state/archive';
 import { ep } from './endpoints';
+import { clearSeatInvites } from './seatInvites';
 import { getSession } from './session';
 
 /**
@@ -31,6 +32,7 @@ export function pendingUploads(userId = getSession()?.user.id): number {
  */
 export async function signOutDevice(remove: boolean) {
   await ep.logout().catch(() => {});
+  clearSeatInvites();
   archive.clear('outbox', 'cache', 'inbox');
   const serverPlayers = archive
     .all('players')
