@@ -59,7 +59,9 @@ describe('Landing, after the design audit', () => {
     history.replaceState(null, '', '/poker/night');
     startRoute();
     const { unmount } = render(<Landing />);
-    expect(screen.getByRole('status')).toHaveTextContent('No page at /poker/night. Here are the games.');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'No page at /poker/night. Here are the games.',
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(screen.queryByRole('status')).toBeNull();
     unmount();
