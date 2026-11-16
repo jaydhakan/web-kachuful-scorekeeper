@@ -1,0 +1,89 @@
+/* The online table's motion that CSS does best (looping rings, the card turn, the hand's glide). Transform and
+   opacity only; each stops, or becomes a short cross-fade, under reduced motion. Colours are theme tokens. */
+
+.sp-flip {
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* The hand: cards glide to their places and spring back from a drag; a drag itself follows the finger with none. */
+.sp-hc {
+  transition:
+    transform 0.42s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.2s ease;
+}
+.sp-hc[data-drag] {
+  transition: none;
+}
+.sp-hc .sp-dim {
+  transition: opacity 0.25s ease;
+}
+.sp-fan {
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sp-glow {
+  transition: opacity 0.4s ease;
+}
+
+/* The turn ring: one soft ping outward, over and over, while it is that seat's turn. */
+.sp-ping {
+  animation: sp-ping 1.4s cubic-bezier(0.32, 0.72, 0, 1) infinite;
+}
+@keyframes sp-ping {
+  from {
+    transform: scale(0.9);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+/* A Nil bidder's halo breathes while the Nil holds. */
+.sp-halo {
+  animation: sp-halo 2.2s ease-in-out infinite;
+}
+@keyframes sp-halo {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* The invited chair's dashed ring turns slowly until someone takes the seat. */
+.sp-turning {
+  animation: sp-turn 6s linear infinite;
+}
+@keyframes sp-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The timer bar shrinks linearly to its deadline (the duration is set inline from the time left). */
+.sp-tfill {
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-ping,
+  .sp-halo,
+  .sp-turning {
+    animation: none;
+  }
+  .sp-hc,
+  .sp-fan {
+    transition: opacity 0.15s ease;
+  }
+  /* No 3D turn: the back simply fades over or away. */
+  .sp-flip {
+    transition: none;
+    transform: none !important;
+  }
+  .sp-back {
+    transform: none !important;
+    transition: opacity 0.15s ease;
+  }
+  [data-face='up'] > .sp-flip > .sp-back {
+    opacity: 0;
+  }
+}
