@@ -81,6 +81,32 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - History lists table-mode games only; `SpHistoryItem` (`table/screens/pages/source.ts`) takes online games too.
   - The local boards (`table/lib/boards.ts`) belong in `domain/` with the stats and achievements (plan §9).
   - Not checked: the desk layout and keyboard by e2e, a real phone, the responsive audit for the scorekeeper.
+- **Online play, left open on 2026-11-16:**
+  - **Tests and audit:**
+    - No e2e plays a whole online hand yet. `spades-online-lobby.spec.ts` stops at the first hand's table.
+    - Add one on the mock (seeded deal, `POST /api/__mock/spades/seed`, test clock) with motion on, covering bids,
+      spades broken, a timeout, the summary and the next deal.
+    - Then run the responsive audit over the lobby and every table phase.
+  - **The online table (`online/table/PlayTable.tsx`) has only run in jsdom and that one e2e:**
+    - check it on a real phone in all four themes;
+    - at 320 px the hand's card strips are about 20 px, against the plan's 25.
+  - **Reconnecting:** `src/sync/sse.ts` doesn't send `Last-Event-ID`, so after a reconnect the link relies on the
+    server sending `state` when the stream opens. Confirm the real backend does.
+  - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show
+    it. That needs a `backend-requests.md` entry.
+  - **Achievements and the stats screens (plan §9)** aren't built. The backend's leaderboard, stats and vs routes
+    exist (`/api/spades/leaderboard`, `/players/{id}/stats|vs`); the app shows only the table-mode leaderboard.
+  - **Known gaps:**
+    - the bid flight shows "0" for a Nil bid;
+    - seat card counts don't count up during the deal;
+    - the timeout for an absent seat is sent by both the link and `PlayTable` (the duplicates are no-ops).
+- **Deploy and devices:**
+  - nginx needs the SSE settings for `/api/me/events` and `/api/spades/tables/*/events` (buffering off, 1-hour read
+    timeout); the config isn't in either repo.
+  - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
+  - Haptics are untested on a real Android phone.
+- **Seat invites:** a host who reloads loses Ishaara's "can't make it" (no host-side read of sent invites), and the
+  server's circle leaves out games the user scored but didn't sit in.
 
 ## Tests
 
