@@ -63,7 +63,7 @@ test('signed in: join with a code, the rules sheet, and Back closes each sheet',
   page,
 }) => {
   await signIn(page, 'riya');
-  await expect(page.getByRole('button', { name: 'Me' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Me', exact: true }).first()).toBeVisible();
   await page.goto('/spades');
   await page.getByRole('button', { name: 'Join with code' }).click();
   const sheet = page.getByRole('dialog', { name: 'Join a table' });
