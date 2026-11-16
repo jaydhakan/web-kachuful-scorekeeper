@@ -60,7 +60,8 @@ export function LeaderboardPage() {
   const signedIn = !!state.session;
   const [scope, setScope] = useState<'global' | 'device'>(signedIn ? 'global' : 'device');
   const [range, setRange] = useState<Range>(() => rangeFor('month', Date.now()));
-  const [metric, setMetric] = useState<Metric>('avgPerRound');
+  // Bid accuracy by default: it reads at a glance and measures the bidding, not the deal (big bids need big hands).
+  const [metric, setMetric] = useState<Metric>('accuracy');
   const [intro] = useState(() => ({ done: false }));
   const f = useDeviceFacts();
   // An empty range offers the whole history in one tap (on the 1st of a month "This month" is empty).
@@ -235,7 +236,11 @@ export function BoardList({
           who: seen ?? data.people?.get(r.playerId) ?? whoIs(data.facts, r.playerId),
           rank: r.qualified ? r.rank : null,
           n: r.value,
-          sub: b.sub(r.games, r.rounds),
+          // An accuracy says what it's a share of: "117 of 162 bids made".
+          sub:
+            metric === 'accuracy'
+              ? b.subBids(Math.round(r.accuracy * r.rounds), r.rounds)
+              : b.sub(r.games, r.rounds),
           delta: r.rankDelta,
           progress: r.qualified
             ? undefined
@@ -243,7 +248,7 @@ export function BoardList({
           badge: <StreakBadge s={data.facts ? lastRun(data.facts, r.playerId) : null} />,
         };
       }),
-    [data, need],
+    [data, need, metric],
   );
   if (!data.rows.length)
     return (

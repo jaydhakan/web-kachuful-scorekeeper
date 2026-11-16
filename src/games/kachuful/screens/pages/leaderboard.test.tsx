@@ -131,3 +131,32 @@ describe('re-sorting a board', () => {
     expect(row()).toBe(before);
   });
 });
+
+describe('the bid accuracy board', () => {
+  it('writes each value as a percentage and says what it is a share of', () => {
+    render(
+      <AppProvider>
+        <BoardList
+          metric="accuracy"
+          podium={false}
+          data={{
+            minRounds: 10,
+            facts: null,
+            rows: [{ ...row('a', 1), value: 0.72, accuracy: 0.72, rounds: 162 }],
+          }}
+        />
+      </AppProvider>,
+    );
+    expect(screen.getByText('72%')).toBeInTheDocument();
+    expect(screen.getByText('117 of 162 bids made')).toBeInTheDocument();
+  });
+
+  it('is the board the leaderboard opens on', () => {
+    render(
+      <AppProvider>
+        <LeaderboardPage />
+      </AppProvider>,
+    );
+    expect(screen.getByRole('button', { name: /^Sort by.*Bid accuracy/ })).toBeInTheDocument();
+  });
+});

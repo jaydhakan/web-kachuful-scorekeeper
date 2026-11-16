@@ -111,7 +111,7 @@ function OptionSheet<T extends string>({
   );
 }
 
-const SKILL: Metric[] = ['avgPerRound', 'accuracy', 'winRate'];
+const SKILL: Metric[] = ['accuracy', 'avgPerRound', 'winRate'];
 
 /** Today, 7 days, this month, last month, all time, or a custom range picked on a calendar. */
 export function RangePick({

@@ -104,8 +104,9 @@ export const hub = {
     metricShort: { avgPerRound: 'Pts / round' },
     metricGroups: { skill: 'Skill', totals: 'Totals' },
     metricHints: {
-      avgPerRound: 'Average points scored in each round played. The fairest measure',
-      accuracy: 'Share of rounds where the bid was made',
+      avgPerRound: 'Average points scored in each round played. Bigger hands allow bigger bids',
+      accuracy:
+        'Share of bids made. The cards you’re dealt can’t help it: the fairest measure of skill',
       winRate: 'Share of finished games won',
       points: 'Every point scored in the range',
       wins: 'Games finished in first place',
@@ -131,6 +132,7 @@ export const hub = {
     device: 'This device',
     you: 'You',
     sub: (games: number, rounds: number) => `${plural(games, 'game')} · ${plural(rounds, 'round')}`,
+    subBids: (made: number, rounds: number) => `${made} of ${plural(rounds, 'bid')} made`,
     unranked: (n: number) => `Not ranked yet · more than ${n} rounds needed`,
     progress: (n: number, of: number) => `${n} / ${of} rounds`,
     showAllUnranked: (n: number) => `Show all ${n}`,
