@@ -137,7 +137,7 @@ export function InviteBanner() {
   const tx = inv && bannerText(inv);
   return (
     <>
-      <p role="status" aria-live="polite" className="sr-only">
+      <p role="status" aria-live="polite" className="sr-only" data-invite-live>
         {said}
       </p>
       <AnimatePresence>

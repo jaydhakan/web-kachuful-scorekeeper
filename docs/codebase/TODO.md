@@ -28,9 +28,6 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
   invites, so the Ishaara waiting screen forgets a decline after a reload. Needs a backend route to fix.
 - **One SSE reader.** `sync/sse.ts` (user stream) and `games/ishaara/sync/events.ts` hold the same fetch-SSE loop;
   move Ishaara's onto `sse.ts`.
-- **Full e2e suite not run since seat invites landed** (only `seat-invites`, `ishaara-play`, `ishaara-edges`,
-  `ishaara-a11y`, `platform`, `accounts` and `sync`). `signIn` now aborts the user stream on the shared mock unless
-  a test asks for it, and `onlyGame` hides seat invites.
 - **Not verified:** the banner and cards on a real phone, against the real backend, and in the three other themes
   (checked in Sunset Glass at 390x844 only).
 - **Ishaara's waiting screen draws clue-givers' avatars square** (`Givers` in `screens/Waiting.tsx` passes a
