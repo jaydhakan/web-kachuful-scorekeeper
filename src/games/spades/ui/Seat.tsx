@@ -16,6 +16,34 @@ export interface SeatTimer {
   warn: boolean;
 }
 
+/** A deal under way: when each of this seat's cards leaves the deck (ms from its start) and how long it flies. */
+export interface SeatDeal {
+  key: number;
+  delays: readonly number[];
+  flight: number;
+}
+
+/** The seat's card count; during a deal it counts up as each card lands, written straight to the DOM. */
+function CardCount({ n, deal }: { n: number; deal: SeatDeal | null }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!deal) {
+      el.textContent = String(n);
+      return;
+    }
+    el.textContent = '0';
+    const ids = deal.delays.map((d, j) =>
+      setTimeout(() => (el.textContent = String(j + 1)), d + deal.flight),
+    );
+    return () => ids.forEach(clearTimeout);
+    // A deal is one run per key; `n` only matters once it's over.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deal?.key, deal ? null : n]);
+  return <span ref={ref} data-cards className="tabular-nums" />;
+}
+
 export interface SeatProps {
   seat: number;
   face: Face | null;
@@ -28,6 +56,8 @@ export interface SeatProps {
   took: number;
   aria: string;
   cardsLeft: number;
+  /** Set while the deal runs, so the count climbs from 0 with the cards. */
+  deal?: SeatDeal | null;
   dealer: boolean;
   turn: boolean;
   away: boolean;
@@ -126,6 +156,7 @@ export function Seat({
   took,
   aria,
   cardsLeft,
+  deal = null,
   dealer,
   turn,
   away,
@@ -268,7 +299,7 @@ export function Seat({
           className="absolute right-1 top-0.5 flex items-center gap-[3px] text-13 font-bold text-[var(--tx2)]"
         >
           <i className="inline-block h-3 w-[9px] rounded-[2px] bg-card-deal shadow-[0_0_0_1px_var(--card-bg)]" />
-          {cardsLeft}
+          <CardCount n={cardsLeft} deal={deal} />
         </span>
       )}
     </div>

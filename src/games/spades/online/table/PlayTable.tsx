@@ -606,6 +606,9 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         away,
       }),
       cardsLeft: dealing ? 13 : left[x],
+      deal: dealing
+        ? { key: dealing.key, delays: dealDelays(dealing.dealer, x), flight: DEAL.flight }
+        : null,
       dealer: t.dealer === x && t.status === 'playing',
       turn,
       away,

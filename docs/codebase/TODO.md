@@ -95,9 +95,6 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - **Achievements count only games scored on this phone** (`domain/achievements.ts`): online tables aren't kept on
     the device and the server has no achievements route, so Nil Breaker (online only) is never earned yet. The
     player page's stats and head-to-head do read the server when signed in.
-  - **Known gaps:**
-    - seat card counts don't count up during the deal;
-    - the timeout for an absent seat is sent by both the link and `PlayTable` (the duplicates are no-ops).
 - **Deploy and devices:**
   - nginx needs the SSE settings for `/api/me/events` and `/api/spades/tables/*/events` (buffering off, 1-hour read
     timeout); the config isn't in either repo.
