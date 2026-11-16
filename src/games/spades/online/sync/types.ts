@@ -7,6 +7,7 @@ import type {
   SpRules,
   SpStatus,
   SpView,
+  SpGame,
 } from '../../domain';
 
 /** The /api/spades/tables/* shapes (backend-requests.md §4). Times are epoch ms. */
@@ -67,6 +68,16 @@ export interface SpTableSummary {
   /** The seat to act. Not in the backend's summary yet, so "Your turn" shows only where it is sent. */
   turn?: Seat | null;
 }
+
+/** A share link's body for a scorekeeper game (kind `spades`): the saved game as the scorer uploaded it. */
+export interface SpGameShareOut {
+  kind: 'spades';
+  game: SpGame;
+  updatedAt: number;
+}
+
+/** Either kind's share-link body, live or recap; `kind` says which. */
+export type SpShareOut = SpLiveOut | SpGameShareOut;
 
 /** `GET /api/public/live/{token}` for a Spades table: the table no seat sees, with account ids taken out. */
 export interface SpLiveOut {

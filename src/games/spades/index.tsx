@@ -53,7 +53,10 @@ export default function Spades() {
     return (
       <LazyPart load={loadTable} props={{ page: view.page }} loading={loading} failed={failed} />
     );
-  if (view.kind === 'online' && (signedIn || view.entry.kind === 'live'))
+  if (
+    view.kind === 'online' &&
+    (signedIn || view.entry.kind === 'live' || view.entry.kind === 'recap')
+  )
     return (
       <LazyPart load={loadOnline} props={{ entry: view.entry }} loading={loading} failed={failed} />
     );

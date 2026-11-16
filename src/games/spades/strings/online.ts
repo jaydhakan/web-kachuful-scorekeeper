@@ -197,6 +197,15 @@ export const online = {
     turn: (name: string) => `${name} to play`,
     reconnecting: 'Reconnecting…',
   },
+  share: {
+    recapTitle: 'Spades · Recap',
+    hands: (n: number) => (n === 1 ? '1 hand played' : `${n} hands played`),
+    won: (team: string) => `${team} won`,
+    draw: 'A draw',
+    cancelled: 'This game was cancelled',
+    bags: (n: number) => `${n} of 10 bags`,
+    teamAria: (team: string, score: number) => `${team}: ${score} points`,
+  },
   play: {
     title: 'The game is on',
     body: 'The table opens here.',

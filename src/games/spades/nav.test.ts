@@ -26,6 +26,10 @@ describe('the routing contract', () => {
       kind: 'online',
       entry: { kind: 'live', token: 'tok_1' },
     });
+    expect(viewOf('?recap=tok_2')).toEqual({
+      kind: 'online',
+      entry: { kind: 'recap', token: 'tok_2' },
+    });
   });
   it('parseOnlineEntry is null where Home should show', () => {
     expect(parseOnlineEntry('')).toBeNull();

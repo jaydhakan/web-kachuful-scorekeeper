@@ -74,8 +74,6 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
 - **Budget:** `tools/bundle.mjs` and `budget.json` have no Spades first-load entry yet (plan §10). Its root chunk is
   6.3 KB gzip (2026-11-16).
 - **Scorekeeper (table mode), left open on 2026-11-16:**
-  - A table-mode live or recap link opens `/spades?live=` / `?recap=`, which routes to online play; the online
-    viewer must render a `kind: 'spades'` body (an `SpGame`) or hand it to a table-mode viewer. None is built.
   - The summary is the scorekeeper's own (`table/screens/hand/Summary.tsx`), not `ui/HandSummary.tsx`: with
     `run` false that one shows 0 for "This hand" (`Counter` shows `from`), and it has no SET stamp. Fold them together.
   - History lists table-mode games only; `SpHistoryItem` (`table/screens/pages/source.ts`) takes online games too.

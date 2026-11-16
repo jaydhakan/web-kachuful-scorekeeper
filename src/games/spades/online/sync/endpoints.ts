@@ -1,7 +1,14 @@
 import { API, ApiError, del, get, patch, post } from '@/sync/api';
 import type { Page } from '@/sync/types';
 import type { SpRules } from '../../domain';
-import type { CreateTableIn, SpActionBody, SpLiveOut, SpTableSummary, SpViewOut } from './types';
+import type {
+  CreateTableIn,
+  SpActionBody,
+  SpLiveOut,
+  SpShareOut,
+  SpTableSummary,
+  SpViewOut,
+} from './types';
 
 const T = '/spades/tables';
 const enc = encodeURIComponent;
@@ -21,6 +28,9 @@ export const spEp = {
   remove: (id: string) => del(`${T}/${enc(id)}`),
   /** A share link's live view: public, no sign-in. */
   live: (token: string) => get<SpLiveOut>(`/public/live/${enc(token)}`),
+  /** A live or recap link of either kind (a scorekeeper game or an online table): public, no sign-in. */
+  share: (token: string, recap: boolean) =>
+    get<SpShareOut>(`/public/${recap ? 'recap' : 'live'}/${enc(token)}`),
 };
 
 /** The table's live stream. */

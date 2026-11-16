@@ -6,7 +6,7 @@ import { ApiError } from '@/sync/api';
 import { spGo } from '../nav';
 import { online as o } from '../strings/online';
 import type { OnlineEntry } from './entry';
-import LiveView from './live/LiveView';
+import ShareView from './live/ShareView';
 import Lobby from './lobby/Lobby';
 import PlayTable from './table/PlayTable';
 import { loadLastRules } from './state/lastSetup';
@@ -168,7 +168,9 @@ const OnlineApp: (props: { entry: OnlineEntry }) => ReactElement | null = ({ ent
     case 'table':
       return <Table key={entry.id} id={entry.id} />;
     case 'live':
-      return <LiveView key={entry.token} token={entry.token} />;
+      return <ShareView key={entry.token} token={entry.token} recap={false} />;
+    case 'recap':
+      return <ShareView key={entry.token} token={entry.token} recap />;
   }
 };
 export default OnlineApp;
