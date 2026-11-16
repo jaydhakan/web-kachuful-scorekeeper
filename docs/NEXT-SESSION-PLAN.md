@@ -449,6 +449,114 @@ Big, joyful, a bit cheeky, never in the way of play.
 Every moment ships with its reduced-motion version, an e2e that runs with motion on, a check in all four themes, and
 a line in `docs/codebase/DESIGN-SYSTEM.md` (Motion) so the next game reuses it.
 
+### D4. Progression and cosmetics: frames, pets, titles, a shop (thinking out loud, to decide together)
+
+Jay's idea (2026-11-16): play earns things you can show off, like Snapchat's streaks and Bitmojis or Among Us skins
+and pets. Reach X points and frames unlock; pets; maybe avatars; something special for whoever is #1 on the
+leaderboard; maybe a shop. Nothing here is decided. This section is the menu and the trade-offs, for a real
+discussion before any of it is built. Avatar auras and the on-fire chip (D2) fold into this.
+
+**Why it fits Baithak.** The same friends play every week. Cosmetics give them something to chase between game nights,
+make every avatar on every screen a little story ("he's had the crown for three weeks"), and reward showing up, not
+just winning. It works because the group is small and private: it's status among friends, not strangers.
+
+#### What could unlock (the catalogue)
+
+| Kind                        | What it is                                                                                                                                                                                                                                    | Where it shows                      | Cost to build |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | :-----------: |
+| **Frames**                  | Rings around the avatar: gilt, neon, flames, frost, petals, a rotating card suit, animated ones at higher tiers.                                                                                                                              | Every avatar, every game            |       S       |
+| **Titles**                  | A line under your name: "The Nil Queen", "Sandbagger", "Mind Reader", "Hook Survivor". Earned from achievements, picked by you.                                                                                                               | Player pages, podium, lobby chairs  |       S       |
+| **Badges**                  | Pick up to 3 achievements to pin on your profile.                                                                                                                                                                                             | Player pages                        |       S       |
+| **Pets**                    | A small companion beside your avatar: a cat, a parrot, a tiny elephant, a chai cup with eyes. It reacts: cheers when you win a trick, sulks when you're set, naps when you're idle. Levels up and grows with play (Tamagotchi-light).         | Your seat at the table, player page |      M–L      |
+| **Victory effects**         | What plays when you win: confetti style, a fireworks colour, a mic-drop, a crown drop.                                                                                                                                                        | Winner screens, podium              |       M       |
+| **Trick and table effects** | Spades: a trail on the card you play, a sweep style when you win a trick. Our own art only.                                                                                                                                                   | Online table                        |       M       |
+| **Emotes / reactions**      | Extra reaction packs for online games (animated emoji, a "GG", a "😤").                                                                                                                                                                       | Online games                        |       S       |
+| **Card backs**              | Our own designs only (never the licensed Emerald Gilt deck art, whose licence is narrow, Part B).                                                                                                                                             | Your hand and dealt cards           |       M       |
+| **Avatar builder**          | A layered 2D avatar (face, hair, glasses, hat, outfit as SVG layers), like a light Bitmoji or Memoji.                                                                                                                                         | Everywhere                          |       L       |
+| **3D avatars**              | Real 3D (three.js or Ready Player Me). **Not recommended now:** a new dependency, a big bundle, battery, and a third-party service seeing player data. A 2.5D look (layered SVG with parallax on tilt) gets most of the feel for little cost. | –                                   |      XL       |
+
+#### How you'd earn things (pick a mix)
+
+- **Levels (XP):** every game gives XP (play a game, make a bid, win, finish an online game). Levels unlock frames and
+  pet stages on a set path ("Level 5: Gilt frame"). Simple, everyone progresses, rewards turning up.
+- **Achievements:** each achievement can carry a reward (Boston → "Boston" title; 10 Nils → the "Ice" frame).
+  Reuses Part A directly.
+- **The crown (being #1):** whoever is #1 on a game's leaderboard this month wears a **crown frame** while they hold
+  it, everywhere, live. Lose the spot, lose the crown. The season champion keeps a **permanent dated trophy**
+  ("Spades champion · Nov 2026").
+- **The belt (head-to-head):** a title belt per game that moves only when someone beats the current holder in a
+  game they both played. Instant rivalry stories ("Arjun has held the Kachuful belt for 9 games"). Very Gen Z.
+- **Play streaks (Snapchat-style):** play on N days in a row (or N weeks in a row with the same crew) and a flame with
+  the count shows by your name; miss one and it resets. Friend streaks: "🔥 12 with Riya".
+- **Seasons pass (free only):** each month a free track of 10 rewards earned by XP. No paid track.
+
+#### A shop?
+
+- **Possible, with a soft currency only:** "chips" earned by playing, spent on cosmetics. A shop gives choice ("I want
+  the parrot, not the frame") and something to save for.
+- **Recommend against real money**, at least now. It needs payments, refunds, tax and app-store rules; it changes a
+  private friends' app into a product; and in India real-money online gaming is now heavily restricted by law, so
+  anything that smells of paying in a card game is a risk to avoid. Cosmetics bought with real money are legal in
+  principle but not worth it here.
+- **Never:** loot boxes, gacha, random paid rewards, pay-to-win, or anything that affects a game's rules or scores.
+  Everything is cosmetic, and a shop item always says exactly what you get.
+- **Never** dark patterns: no fake countdowns, no "only 2 left", no guilt nags. Streak reminders, if any, are opt-in.
+
+#### Making it fair (scorekeeper games are typed in by hand)
+
+- Kachuful, Kaali Teeri and Spades' scorekeeper are **self-reported**: anyone can type a fake game to farm XP.
+  Ishaara and online Spades are **server-run**, so they're trustworthy.
+- So: XP and chips are computed **on the server only**, from synced games (signed out, nothing is earned).
+- Rare items (the crown, the belt, season trophies, top pet stages) come only from **server-run games** or from
+  boards that already apply minimum-games rules.
+- Scorekeeper games earn ordinary XP with a **daily cap**, and only count when the game has 3+ different registry
+  players and some rounds.
+- The admin page gets a way to revoke an unlock and void a game (rare, but needed).
+
+#### How it would be built (when we get there)
+
+- **Data (backend, one migration):**
+  - `xp_ledger(player_id, game_kind, game_id, reason, amount, at)`: append-only, so a balance is always a sum and can
+    be recomputed;
+  - `unlocks(player_id, item, source, at)`;
+  - `equipped(player_id, slot, item)` for the frame, title, pet and effects slots;
+  - `wallet` derived from the ledger, never stored.
+- **The catalogue lives in code**, like achievements (`src/progression/items.ts` mirrored in Python), each item with a
+  rule (level N, achievement X, crown, belt, shop price).
+- **Recomputed by the same engine** as achievements after each game write, so a rule change or a voided game
+  corrects everything.
+- **One place to draw it:** frames and pets go into `components/ui/Avatar.tsx` (used in 71 files), so every game gets
+  them at once. Two rules there:
+  - every animated frame or pet is transform and opacity only, with a static reduced-motion version;
+  - frames load lazily, and an avatar never blocks on its decoration.
+- **Profiles and the server:** what you've equipped travels with the player record (the appearance API already
+  exists: `app/api/appearance`), so other phones see your frame and pet.
+- **UI:**
+  - a **Locker** page on Me (owned items, equip slots, preview on your avatar at the table);
+  - a **Shop** tab if we do one;
+  - the **Unlock card** from D1 plays for every new item, and level-ups get a short "Level 7!" burst.
+
+#### Suggested phasing
+
+| Step | What                                                           | Why first                             |
+| ---- | -------------------------------------------------------------- | ------------------------------------- |
+| C1   | XP, levels and 6–8 **frames** + **titles** from achievements   | cheapest; shows on every avatar       |
+| C2   | **The crown** for #1 and **season trophies**                   | the status everyone sees              |
+| C3   | **Play streaks** and friend streaks                            | brings people back weekly             |
+| C4   | **The belt** per game                                          | rivalry stories                       |
+| C5   | **Pets** (4–6, three growth stages, reactions at the table)    | the most delight, more art work       |
+| C6   | **Chips and a shop** (earn-only), victory and trick effects    | once there are enough items to choose |
+| C7   | **Avatar builder** (layered 2D); 3D only if ever really wanted | biggest art and UI cost               |
+
+#### Questions to settle together
+
+- Levels and XP, achievements as unlocks, or both?
+- The crown and the belt: yes? Per game, or one overall "Baithak" crown?
+- Pets: which animals or objects fit the Baithak vibe (desi touches: a chai cup, a parrot, a tiny elephant)?
+- A shop with earn-only chips: yes, later, or never?
+- Who makes the art: in-house SVG in the design kit (`design/brand`), or commissioned?
+- Play streaks: daily, weekly, or per crew?
+
 ---
 
 ## Questions for Jay before starting
@@ -459,7 +567,9 @@ a line in `docs/codebase/DESIGN-SYSTEM.md` (Motion) so the next game reuses it.
 4. Part B: will you ask the deck's rights holder for the other 48 faces? Until then, keep the mixed deck in Spades or
    use stand-ins for all 52 there?
 5. Part D: which moments first (D3 is my order), and are roast lines and "shame" achievements in or out?
-6. ~~Should this plan be committed?~~ Answered: Jay asked to commit it on its own branch (`docs/next-session-plan`), so
+6. Part D4: cosmetics and progression (frames, titles, crown, belt, streaks, pets, a shop?): the questions at the end
+   of D4.
+7. ~~Should this plan be committed?~~ Answered: Jay asked to commit it on its own branch (`docs/next-session-plan`), so
    another laptop has it. Delete it (and the branch) once the work is done.
 
 ## Session start checklist
