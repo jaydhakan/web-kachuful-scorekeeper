@@ -110,9 +110,9 @@ export type SpAction =
   // Ending (plan D14) and after
   | { type: 'endGame' }
   | { type: 'drawGame' }
-  | { type: 'cancelGame' }
+  | { type: 'cancelGame'; lg: SpLastGroup | null }
   | { type: 'rematch'; id: string; syncId: string; now: number; swap: boolean }
-  | { type: 'undo' }
+  | { type: 'undo'; lg?: SpLastGroup | null }
   | { type: 'openGame'; game: SpGame }
   /** The repair prompt's answer: the unreadable save is set aside and the table starts empty. */
   | { type: 'repaired' }
