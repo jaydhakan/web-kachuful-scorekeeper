@@ -145,7 +145,7 @@ export const play = {
     nil: 'Nil',
     key: (n: number) => (n === 0 ? 'Nil' : String(n)),
     keyAria: (n: number, why: string | null) =>
-      `${n === 0 ? 'Nil' : `Bid ${n}`}${why ? `, not allowed: ${why}` : ''}`,
+      `${n === 0 ? 'Nil' : n}${why ? `, not allowed: ${why}` : ''}`,
     pick: 'Pick a bid',
     go: (n: number) => (n === 0 ? 'Bid Nil · +100 / −100' : `Bid ${n}`),
     partnerAfter: (name: string) => `${name} bids after you.`,

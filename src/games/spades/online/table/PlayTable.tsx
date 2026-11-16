@@ -512,9 +512,9 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     [ctx, me, addFloat, realNames],
   );
   const react = (emoji: string) => {
+    setReactOpen(false);
     if (me === null || Date.now() - lastReact.current < REACT_GAP_MS) return;
     lastReact.current = Date.now();
-    setReactOpen(false);
     addFloat(me, emoji);
     sfx('pop', true);
     void act({ type: 'react', emoji }, false);
