@@ -82,10 +82,10 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - Not checked: the desk layout and keyboard by e2e, a real phone, the responsive audit for the scorekeeper.
 - **Online play, left open on 2026-11-16:**
   - **Tests and audit:**
-    - No e2e plays a whole online hand yet. `spades-online-lobby.spec.ts` stops at the first hand's table.
-    - Add one on the mock (seeded deal, `POST /api/__mock/spades/seed`, test clock) with motion on, covering bids,
-      spades broken, a timeout, the summary and the next deal.
-    - Then run the responsive audit over the lobby and every table phase.
+    - `spades-online-hand.spec.ts` plays one hand with motion on, but sends tricks 2–13 straight to the API, and
+      plays cards by keyboard (a pointer on the overlapping fan lands on the next card). Nothing yet checks the
+      "spades broken" moment, a drag to play, or a played timeout (only a bid's).
+    - Run the responsive audit over the lobby and every table phase.
   - **The online table (`online/table/PlayTable.tsx`) has only run in jsdom and that one e2e:**
     - check it on a real phone in all four themes;
     - at 320 px the hand's card strips are about 20 px, against the plan's 25.
