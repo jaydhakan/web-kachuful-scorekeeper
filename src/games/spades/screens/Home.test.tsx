@@ -183,7 +183,8 @@ describe('Spades root', () => {
     signIn();
     history.replaceState(null, '', '/spades?keep');
     render(<Spades />);
-    expect(await screen.findByRole('heading', { name: 'The scorekeeper is coming' })).toBeVisible();
+    // Setup's title is drawn twice (the large title and its two-pane twin).
+    expect((await screen.findAllByRole('heading', { name: 'Who’s playing?' }))[0]).toBeVisible();
     act(() => {
       history.pushState(null, '', '/spades?join=KQ7M');
       dispatchEvent(new PopStateEvent('popstate'));

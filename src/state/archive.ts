@@ -84,7 +84,10 @@ export type OutboxKind =
   | 'deleteGame'
   // Kaali Teeri's own, so Kachuful's engine never sends them to /api/games.
   | 'putKtGame'
-  | 'deleteKtGame';
+  | 'deleteKtGame'
+  // Spades' table mode, likewise.
+  | 'putSpGame'
+  | 'deleteSpGame';
 
 export interface OutboxItem {
   id: string;

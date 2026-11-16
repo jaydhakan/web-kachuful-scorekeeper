@@ -35,6 +35,17 @@ describe('BidKeys', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Bid 3' }));
     expect(onPick).toHaveBeenCalledWith(3, screen.getByRole('button', { name: 'Bid 3' }));
   });
+  it('key 0 reads its digit by default, or the label given (Spades: Nil)', async () => {
+    const onPick = vi.fn();
+    const { rerender } = render(<BidKeys max={2} label="Bid" onPick={onPick} />);
+    expect(screen.getByRole('button', { name: 'Bid 0' })).toHaveTextContent(/^0$/);
+    rerender(<BidKeys max={2} label="Bid" zeroLabel="Nil" onPick={onPick} />);
+    const nil = screen.getByRole('button', { name: 'Bid 0' });
+    expect(nil).toHaveTextContent(/^Nil$/);
+    expect(screen.getByRole('button', { name: 'Bid 1' })).toHaveTextContent(/^1$/);
+    await userEvent.click(nil);
+    expect(onPick).toHaveBeenCalledWith(0, nil);
+  });
   it('marks a locked key, which can still be tapped (to explain why)', async () => {
     const onPick = vi.fn();
     render(<BidKeys max={3} label="Bid" locked={[1]} describedBy="why" onPick={onPick} />);
