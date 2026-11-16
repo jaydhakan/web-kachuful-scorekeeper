@@ -259,21 +259,24 @@ const STEP = {
   1: {
     av: '[--av:4.5rem] land:[--av:3.25rem] rail:[--av:6rem]',
     h: 'h-28 land:h-[5.5rem] rail:h-40',
-    val: 'text-32 land:text-26 rail:text-44',
+    place: 'text-40 land:text-30 rail:text-56',
+    val: 'text-20 land:text-17 rail:text-26',
     ring: 'border-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]',
     order: 'order-2',
   },
   2: {
     av: '[--av:3.5rem] land:[--av:2.75rem] rail:[--av:4.5rem]',
     h: 'h-[5.25rem] land:h-[4.25rem] rail:h-[7.5rem]',
-    val: 'text-26 land:text-22 rail:text-34',
+    place: 'text-32 land:text-24 rail:text-44',
+    val: 'text-17 land:text-15 rail:text-22',
     ring: 'border-rank-silver',
     order: 'order-1',
   },
   3: {
     av: '[--av:3.5rem] land:[--av:2.75rem] rail:[--av:4.5rem]',
-    h: 'h-16 land:h-[3.25rem] rail:h-[5.5rem]',
-    val: 'text-26 land:text-22 rail:text-34',
+    h: 'h-[4.75rem] land:h-[3.5rem] rail:h-24',
+    place: 'text-32 land:text-24 rail:text-44',
+    val: 'text-17 land:text-15 rail:text-22',
     ring: 'border-rank-bronze',
     order: 'order-3',
   },
@@ -284,7 +287,7 @@ const SHEEN =
 
 /**
  * The board's top three as steps (2nd, 1st, 3rd on screen; 1st, 2nd, 3rd to a keyboard and a screen reader), each
- * player a button to their page and the value they are ranked on written large. A place nobody holds has no step.
+ * player a button to their page; each step reads its place large and the value it ranks on beneath. A place nobody holds has no step.
  */
 function BoardPodium({
   stand,
@@ -372,7 +375,9 @@ function BoardPodium({
             transition={{ duration: STEP_MS / 1000, ease: RISE_EASE, delay: at ?? 0 }}
             className={`relative flex h-full w-full flex-col items-center overflow-hidden rounded-t-2xl px-1 pt-2.5 text-ink-podium land:pt-1.5 rail:pt-4 ${PODIUM_BG[k]}`}
           >
-            <span className={`disp tick font-extrabold leading-none ${s.val}`}>
+            {/* The place is the step's headline, as on a game's winner podium; the value it ranks on sits under it. */}
+            <span className={`disp font-extrabold leading-none ${s.place}`}>{placeName(k)}</span>
+            <span className={`disp tick mt-1 font-extrabold leading-none opacity-80 ${s.val}`}>
               <Counter
                 from={staged ? 0 : tied[0].n}
                 to={tied[0].n}
@@ -382,7 +387,6 @@ function BoardPodium({
                 format={show}
               />
             </span>
-            <span className="mt-1 text-13 font-bold leading-none rail:text-15">{placeName(k)}</span>
             {k === 1 && at != null && (
               <m.span
                 aria-hidden
