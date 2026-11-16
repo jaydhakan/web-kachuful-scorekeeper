@@ -62,8 +62,7 @@ export const spTable = {
     heading: 'Bids, from the dealer’s left',
     waiting: 'Bidding…',
     keysFor: (name: string) => `Bid for ${name}`,
-    key: (v: number, locked: boolean) =>
-      `${v === 0 ? 'Nil' : v}${locked ? ', not allowed' : ''}`,
+    key: (v: number, locked: boolean) => `${v === 0 ? 'Nil' : v}${locked ? ', not allowed' : ''}`,
     blind: (name: string) => `Blind Nil for ${name}`,
     blindBody: 'Declared before looking at the cards: ±200.',
     blindOn: 'Blind Nil is a Nil bid: tap Nil.',
@@ -269,20 +268,33 @@ export const spTable = {
     membersToggle: 'Signed-in members only',
     expires: (when: string) => `Stops working ${when}`,
     expiresSoon: 'Stops working 2 hours after the game ends',
-    signedOut: 'Sign in to share live and recap links. The picture and text work without an account.',
+    signedOut:
+      'Sign in to share live and recap links. The picture and text work without an account.',
     noHand: 'Links open once a hand is scored.',
     notSynced: 'Links open once this game reaches the server, in a moment.',
     offline: 'You’re offline. Links open once this game reaches the server.',
     failed: 'The link couldn’t be made. Try again.',
-    errors: { forbidden: 'Only the scorer can share this game.' } as Record<string, string>,
+    errors: {
+      offline: 'You’re offline. Try again when you’re back online.',
+      not_found: 'The server doesn’t have this game yet. Try again in a moment.',
+      forbidden: 'Only the scorer can make links for this game.',
+      rate_limited: 'Too many tries. Wait a moment and try again.',
+    } as Record<string, string>,
   },
 
   pages: {
     history: 'History',
     leaderboard: 'Leaderboard',
     unavailableTitle: 'History can’t be read',
-    unavailableBody: 'This browser blocked the games saved on this phone. Check its storage settings.',
-    status: { label: 'Show', all: 'All', finished: 'Finished', active: 'In progress', cancelled: 'Cancelled' },
+    unavailableBody:
+      'This browser blocked the games saved on this phone. Check its storage settings.',
+    status: {
+      label: 'Show',
+      all: 'All',
+      finished: 'Finished',
+      active: 'In progress',
+      cancelled: 'Cancelled',
+    },
     filterPlayer: 'Player',
     allPlayers: 'Everyone',
     emptyTitle: 'No games yet',
@@ -326,7 +338,8 @@ export const spTable = {
       noResultsBody: 'Try a longer period.',
       showAll: 'Show all time',
       pairs: 'Best partners',
-      pairLine: (wins: number, games: number) => `${plural(wins, 'win')} in ${plural(games, 'game')}`,
+      pairLine: (wins: number, games: number) =>
+        `${plural(wins, 'win')} in ${plural(games, 'game')}`,
       online: 'Every synced game, at the table and online.',
       local: 'Games on this phone. Sign in to see everyone’s.',
       failed: 'The board didn’t load. Showing this phone’s games.',
