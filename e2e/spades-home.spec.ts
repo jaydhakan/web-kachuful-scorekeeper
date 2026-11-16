@@ -55,7 +55,8 @@ test('a join link opened signed out comes back to its table after sign-in', asyn
   await page.getByLabel('Password', { exact: true }).fill('riya-demo');
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
   await expect(page).toHaveURL(/\/spades\?join=KQ7M$/);
-  await expect(page.getByRole('heading', { name: 'Online tables are coming' })).toBeVisible();
+  // No table has that code: the online app says so, with the way back.
+  await expect(page.getByRole('heading', { name: 'Couldn’t join table KQ7M' })).toBeVisible();
 });
 
 test('signed in: join with a code, the rules sheet, and Back closes each sheet', async ({
@@ -80,7 +81,7 @@ test('signed in: join with a code, the rules sheet, and Back closes each sheet',
   await expect(field).toHaveValue('ZX9P');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/spades\?join=ZX9P$/);
-  await expect(page.getByRole('heading', { name: 'Online tables are coming' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Couldn’t join table ZX9P' })).toBeVisible();
   await page.goBack();
   await expect(home(page)).toBeVisible();
 
