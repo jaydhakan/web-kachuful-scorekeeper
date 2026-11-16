@@ -323,6 +323,7 @@ export const spTable = {
       resume: 'Back to the game',
     },
     board: {
+      title: 'Leaderboard',
       period: 'Period',
       periods: { today: 'Today', week: 'This week', season: 'This month', all: 'All time' },
       sort: 'Rank by',
