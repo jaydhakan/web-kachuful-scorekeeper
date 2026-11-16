@@ -57,6 +57,8 @@ interface BidKeysProps extends BidRange {
   /** The selection's shared layout id, unique on screen. */
   layoutId?: string;
   keyLabel?: (v: number, locked: boolean) => string;
+  /** What key 0 reads ("Nil" in Spades); the digit when omitted. */
+  zeroLabel?: string;
 }
 
 /** A small range of bids as keys, one per value: arrow keys move, Enter or a tap picks. */
@@ -71,8 +73,12 @@ export function BidKeys({
   look = 'dock',
   layoutId = look === 'dock' ? 'pillsel' : 'ws-key',
   keyLabel = (v, lock) => (lock ? t.bidding.locked(v) : t.bidding.bid(v)),
+  zeroLabel,
   ...range
 }: BidKeysProps) {
+  // A word on key 0 is set smaller than the digits so it fits the same square.
+  const face = (v: number) =>
+    v === 0 && zeroLabel ? <span className="text-15 tracking-normal">{zeroLabel}</span> : v;
   const values = bidValues(range);
   const roving = useRovingFocus({
     selected: selected == null ? -1 : values.indexOf(selected),
@@ -170,7 +176,7 @@ export function BidKeys({
                   transition={{ duration: fade, ease: EASE }}
                   className={`pointer-events-none absolute inset-0 grid place-items-center ${round} ${mat(to, false)}`}
                 >
-                  <span className={to && !dock ? 'line-through' : ''}>{v}</span>
+                  <span className={to && !dock ? 'line-through' : ''}>{face(v)}</span>
                 </m.span>
               ))}
             {kept && <Edge tone="saved" />}
@@ -193,7 +199,7 @@ export function BidKeys({
             <span
               className={`relative ${lock && !dock ? 'line-through' : ''} ${turn ? 'opacity-0' : ''}`}
             >
-              {v}
+              {face(v)}
             </span>
             <AnimatePresence initial={false}>
               {lock && !dock && (
