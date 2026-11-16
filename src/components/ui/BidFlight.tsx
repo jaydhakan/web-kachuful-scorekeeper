@@ -18,7 +18,8 @@ let seq = 0;
  * only, never in the way of the next tap, and skipped under reduced motion. Drawn on <body>, so a screen's transform
  * can't offset it.
  */
-export function useBidFlight(table: string) {
+/** `zeroLabel` names a bid of 0 (Spades' "Nil"); without it the flight shows the number, as before. */
+export function useBidFlight(table: string, zeroLabel?: string) {
   const rm = useReducedMotion();
   const [flight, setFlight] = useState<Flight | null>(null);
   const launch = useCallback(
@@ -62,7 +63,7 @@ export function useBidFlight(table: string) {
           onAnimationComplete={() => setFlight((f) => (f?.id === flight.id ? null : f))}
         >
           <span className="mat-key-on absolute inset-0 rounded-[inherit]" />
-          <span className="relative">{flight.v}</span>
+          <span className="relative">{flight.v === 0 && zeroLabel ? zeroLabel : flight.v}</span>
         </m.div>
       )}
     </AnimatePresence>,

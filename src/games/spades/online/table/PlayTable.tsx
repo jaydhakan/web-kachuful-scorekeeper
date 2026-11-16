@@ -122,7 +122,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   const handBox = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const handWidth = useWidth(handBox);
-  const flight = useBidFlight('sp');
+  const flight = useBidFlight('sp', s.bid.nil);
   const live = ctx.status === 'live';
   const dn = dealNo(t);
 

@@ -97,7 +97,6 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - **Achievements and the stats screens (plan §9)** aren't built. The backend's leaderboard, stats and vs routes
     exist (`/api/spades/leaderboard`, `/players/{id}/stats|vs`); the app shows only the table-mode leaderboard.
   - **Known gaps:**
-    - the bid flight shows "0" for a Nil bid;
     - seat card counts don't count up during the deal;
     - the timeout for an absent seat is sent by both the link and `PlayTable` (the duplicates are no-ops).
 - **Deploy and devices:**
