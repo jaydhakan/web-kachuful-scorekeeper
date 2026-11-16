@@ -98,7 +98,7 @@ export function BidPad({ allowed, why, info, disabled, keys, onBid, onBlocked }:
       animate={rm ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
       exit={rm ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.2 } }}
       transition={SPRING_POP}
-      className="mat-sheet pointer-events-auto w-[min(318px,calc(100%-4px))] rounded-[22px] p-3.5 shadow-[0_24px_60px_color-mix(in_srgb,var(--shade)_55%,transparent)]"
+      className="mat-sheet pointer-events-auto w-[min(368px,calc(100%-4px))] rounded-[22px] p-3.5 @container shadow-[0_24px_60px_color-mix(in_srgb,var(--shade)_55%,transparent)]"
     >
       <h3 className="text-18 font-bold">{s.bid.title}</h3>
       <p className="mb-2.5 mt-0.5 min-h-[18px] text-13 text-[var(--tx2)]">{info}</p>
@@ -106,7 +106,7 @@ export function BidPad({ allowed, why, info, disabled, keys, onBid, onBlocked }:
         role="group"
         aria-label={s.bid.group}
         {...roving.group}
-        className="grid grid-cols-7 gap-[5px]"
+        className="grid grid-cols-5 gap-[5px] @[21.25rem]:grid-cols-7"
       >
         {VALUES.map((v, i) => {
           const off = !allowed.includes(v);

@@ -287,10 +287,10 @@ export default function Home({ joinCode = null }: { joinCode?: string | null }) 
           <div className="mx-auto flex w-full max-w-[28rem] flex-col gap-3 big:grid big:min-h-full big:max-w-[64rem] big:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] big:content-center big:items-center big:gap-x-14 big:py-6">
             <m.div
               {...stagger(0)}
-              className="flex flex-col items-center pb-5 pt-2 text-center big:items-start big:pb-0 big:text-left"
+              className="flex flex-col items-center pb-5 pt-2 text-center land:pb-2 land:pt-0 big:items-start big:pb-0 big:text-left"
             >
-              <SpadeMark className="mb-3 h-24 w-24 big:mb-5 big:h-32 big:w-32" />
-              <h1 className="disp text-48 font-bold leading-none tracking-[-0.04em] big:text-72">
+              <SpadeMark className="mb-3 h-24 w-24 land:mb-1.5 land:h-14 land:w-14 big:mb-5 big:h-32 big:w-32" />
+              <h1 className="disp text-48 font-bold leading-none tracking-[-0.04em] land:text-34 big:text-72">
                 {h.name}
               </h1>
               <p className="mt-2 text-16 text-[var(--tx2)] big:mt-3 big:text-20">{h.tagline}</p>

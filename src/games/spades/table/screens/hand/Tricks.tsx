@@ -27,7 +27,7 @@ function Rail({ value, onPick }: { value: number; onPick: (v: number) => void })
       role="group"
       aria-label={s.tricks.rail}
       {...roving.group}
-      className="mt-4 grid grid-cols-7 gap-1.5 @[24rem]:grid-cols-[repeat(14,minmax(0,1fr))]"
+      className="mt-4 grid grid-cols-5 gap-1.5 @[21.5rem]:grid-cols-7 @[43.5rem]:grid-cols-[repeat(14,minmax(0,1fr))]"
     >
       {values.map((v, i) => (
         <m.button

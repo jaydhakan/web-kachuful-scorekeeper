@@ -191,7 +191,7 @@ export default function Lobby({ adopt, reveal, onRevealDone }: LobbyProps) {
             {o.reconnecting}
           </p>
         )}
-        <div className="scroll-thin min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[max(1.5rem,var(--sab))] pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))]">
+        <div className="scroll-thin min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-3 pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))]">
           <div className="mx-auto flex w-full max-w-[28rem] flex-col gap-3.5 pt-2">
             <RoomCode code={table.code} />
             <RulesLine
@@ -248,6 +248,11 @@ export default function Lobby({ adopt, reveal, onRevealDone }: LobbyProps) {
               </section>
             </LayoutGroup>
             <DrawLine view={view} show={reveal && dealerShown} />
+          </div>
+        </div>
+        {/* Pinned under the scroll, so Ready and Draw for deal stay on screen on a short or sideways phone. */}
+        <div className="shrink-0 pb-[max(0.75rem,var(--sab))] pl-[max(1rem,var(--sal))] pr-[max(1rem,var(--sar))] pt-2">
+          <div className="mx-auto flex w-full max-w-[28rem] flex-col gap-2.5">
             {mine && !drawing && (
               <div className="flex gap-2.5">
                 {host && (

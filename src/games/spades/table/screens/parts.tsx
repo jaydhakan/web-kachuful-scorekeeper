@@ -237,7 +237,7 @@ export function ScoreTick({ v, className = 'text-24' }: { v: number; className?:
   const rm = useReducedMotion();
   return (
     <span
-      className={`disp tick relative inline-grid overflow-hidden font-extrabold tracking-[-0.03em] ${className}`}
+      className={`disp tick relative inline-grid shrink-0 overflow-hidden font-extrabold tracking-[-0.03em] ${className}`}
     >
       <AnimatePresence initial={false} mode="popLayout">
         <m.span

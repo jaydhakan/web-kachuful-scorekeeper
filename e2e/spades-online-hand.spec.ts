@@ -1,10 +1,10 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { cardId } from '../src/games/spades/domain/cards';
 import { legalPlays } from '../src/games/spades/domain/legal';
 import { scoreHand } from '../src/games/spades/domain/scoring';
-import type { Action, Seat, SpView } from '../src/games/spades/domain/types';
+import type { Seat } from '../src/games/spades/domain/types';
 import { REAL } from './backend';
-import { accounts, phone } from './spades-helpers';
+import { accounts, act, phone, seatedTable, viewOf } from './spades-helpers';
 
 /**
  * One whole online hand on four phones, with motion on (plan §2.4–§2.5): the dealer's hold-to-deal, every bid on its
@@ -13,24 +13,6 @@ import { accounts, phone } from './spades-helpers';
  */
 test.skip(REAL, 'runs against the mock API');
 test.use({ reducedMotion: 'no-preference' });
-
-const HEADERS = { 'X-Kachuful': '1' };
-
-async function viewOf(page: Page, id: string): Promise<SpView> {
-  const r = await page.request.get(`/api/spades/tables/${id}`);
-  expect(r.ok(), await r.text()).toBe(true);
-  return (await r.json()) as SpView;
-}
-
-/** Sends one action as this phone's account, at the rev it reads first. */
-async function act(page: Page, id: string, action: Action) {
-  const { table } = await viewOf(page, id);
-  const r = await page.request.post(`/api/spades/tables/${id}/actions`, {
-    headers: { ...HEADERS, Origin: new URL(page.url()).origin },
-    data: { ...action, actionId: crypto.randomUUID(), rev: table.rev },
-  });
-  return r;
-}
 
 test('a whole online hand: deal, bids, tricks, the summary and the next deal', async ({
   browser,
@@ -42,26 +24,7 @@ test('a whole online hand: deal, bids, tricks, the summary and the next deal', a
   const [host] = phones;
   await host.request.post('/api/__mock/spades/seed', { data: { seed: 7 } });
 
-  await host.getByRole('button', { name: 'Start a table' }).click();
-  await expect(host).toHaveURL(/\?table=[0-9a-f-]{36}$/);
-  const id = new URL(host.url()).searchParams.get('table')!;
-  const origin = new URL(host.url()).origin;
-  for (const p of phones.slice(1)) {
-    const r = await p.request.post(`/api/spades/tables/${id}/join`, {
-      headers: { ...HEADERS, Origin: origin },
-      data: {},
-    });
-    expect(r.ok(), await r.text()).toBe(true);
-  }
-  for (const p of phones) expect((await act(p, id, { type: 'ready' })).ok()).toBe(true);
-  expect((await act(host, id, { type: 'drawForDeal' })).ok()).toBe(true);
-
-  // Each phone by the seat it holds.
-  const bySeat: Page[] = [];
-  for (const p of phones) {
-    if (p !== host) await p.goto(`/spades?table=${id}`);
-    bySeat[(await viewOf(p, id)).me.seat as Seat] = p;
-  }
+  const { id, bySeat } = await seatedTable(phones);
   for (const p of phones)
     await expect(p.getByRole('heading', { level: 1, name: 'Hand 1' })).toBeVisible({
       timeout: 15_000,

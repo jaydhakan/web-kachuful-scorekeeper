@@ -78,16 +78,15 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - Two hand summaries: the scorekeeper's (`table/screens/hand/Summary.tsx`, tied to its store: edit link, haptics)
     and the online one (`ui/HandSummary.tsx`). They look alike; merge them if they drift.
   - History shows only the newest page of finished online tables (no "Load more" through `nextCursor`).
-  - Not checked: the desk layout and keyboard by e2e, a real phone, the responsive audit for the scorekeeper.
+  - Not checked: the desk layout and keyboard by e2e, or a real phone.
 - **Online play, left open on 2026-11-16:**
   - **Tests and audit:**
     - `spades-online-hand.spec.ts` plays one hand with motion on, but sends tricks 2–13 straight to the API, and
       plays cards by keyboard (a pointer on the overlapping fan lands on the next card). Nothing yet checks the
       "spades broken" moment, a drag to play, or a played timeout (only a bid's).
-    - Run the responsive audit over the lobby and every table phase.
-  - **The online table (`online/table/PlayTable.tsx`) has only run in jsdom and that one e2e:**
-    - check it on a real phone in all four themes;
-    - at 320 px the hand's card strips are about 20 px, against the plan's 25.
+  - **The online table has only run in jsdom and Playwright** (`spades-online-hand`, `spades-responsive` at six
+    phone sizes, Sunset Glass only): check it on a real phone in all four themes. At 320 px the hand's card strips
+    are about 20 px, against the plan's 25 (the responsive spec allows strips under 44 px, plan §10).
   - **Reconnecting:** `src/sync/sse.ts` doesn't send `Last-Event-ID`, so after a reconnect the link relies on the
     server sending `state` when the stream opens. Confirm the real backend does.
   - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show

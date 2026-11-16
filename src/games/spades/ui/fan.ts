@@ -32,10 +32,13 @@ export function cardWidth(width: number, maxCw = CARD_MAX): number {
 
 export function fanLayout(n: number, width: number, maxCw = CARD_MAX): Fan {
   const cw = cardWidth(width, maxCw);
-  const room = width - 20;
-  const step = n > 1 ? Math.min(cw * 0.66, (room - cw) / (n - 1)) : 0;
   const half = (n - 1) / 2;
   const tilt = Math.min(2.6, 30 / Math.max(n, 1));
+  // An end card turns about its centre, so its outer corner swings past its box: keep that inside the screen too.
+  const rad = (half * tilt * Math.PI) / 180;
+  const swing = ((cw * CARD_RATIO) / 2) * Math.sin(rad) - (cw / 2) * (1 - Math.cos(rad));
+  const room = width - 2 * Math.max(10, Math.ceil(swing) + 4);
+  const step = n > 1 ? Math.min(cw * 0.66, (room - cw) / (n - 1)) : 0;
   const slots = Array.from({ length: n }, (_, i) => {
     const d = i - half;
     return {

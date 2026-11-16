@@ -1,4 +1,5 @@
-import { expect, request, type Browser } from '@playwright/test';
+import { expect, request, type Browser, type Page } from '@playwright/test';
+import type { Action, Seat, SpView } from '../src/games/spades/domain/types';
 import { signIn } from './backend';
 
 /** Spades' online specs: new accounts in one host's circle, and a signed-in phone per account. Mock only. */
@@ -62,9 +63,16 @@ export async function accounts(baseURL: string): Promise<Account[]> {
   return [host, ...others];
 }
 
-export async function phone(browser: Browser, who: Account, path: string, { motion = false } = {}) {
+export async function phone(
+  browser: Browser,
+  who: Account,
+  path: string,
+  { motion = false, viewport = { width: 390, height: 844 } } = {},
+) {
   const ctx = await browser.newContext({
-    viewport: { width: 390, height: 844 },
+    viewport,
+    isMobile: Math.min(viewport.width, viewport.height) < 500,
+    hasTouch: true,
     reducedMotion: motion ? 'no-preference' : 'reduce',
   });
   const page = await ctx.newPage();
@@ -73,4 +81,51 @@ export async function phone(browser: Browser, who: Account, path: string, { moti
   await expect(page.getByRole('button', { name: 'Me', exact: true })).toBeVisible();
   await page.goto(path);
   return page;
+}
+
+const HEADERS = { 'X-Kachuful': '1' };
+
+/** The table as this phone's account sees it. */
+export async function viewOf(page: Page, id: string): Promise<SpView> {
+  const r = await page.request.get(`/api/spades/tables/${id}`);
+  expect(r.ok(), await r.text()).toBe(true);
+  return (await r.json()) as SpView;
+}
+
+/** Sends one action as this phone's account, at the rev it reads first. */
+export async function act(page: Page, id: string, action: Action) {
+  const { table } = await viewOf(page, id);
+  return page.request.post(`/api/spades/tables/${id}/actions`, {
+    headers: { ...HEADERS, Origin: new URL(page.url()).origin },
+    data: { ...action, actionId: crypto.randomUUID(), rev: table.rev },
+  });
+}
+
+/**
+ * The first phone starts a table from Spades' home, the others join and everyone is ready through the API, and the
+ * host draws for deal; every phone then opens the table. Returns the table and each phone by its seat.
+ */
+export async function seatedTable(phones: Page[], { draw = true } = {}) {
+  const [host] = phones;
+  await host.getByRole('button', { name: 'Start a table' }).click();
+  await expect(host).toHaveURL(/\?table=[0-9a-f-]{36}$/);
+  const id = new URL(host.url()).searchParams.get('table')!;
+  const origin = new URL(host.url()).origin;
+  for (const p of phones.slice(1)) {
+    const r = await p.request.post(`/api/spades/tables/${id}/join`, {
+      headers: { ...HEADERS, Origin: origin },
+      data: {},
+    });
+    expect(r.ok(), await r.text()).toBe(true);
+  }
+  if (draw) {
+    for (const p of phones) expect((await act(p, id, { type: 'ready' })).ok()).toBe(true);
+    expect((await act(host, id, { type: 'drawForDeal' })).ok()).toBe(true);
+  }
+  const bySeat: Page[] = [];
+  for (const p of phones) {
+    if (p !== host) await p.goto(`/spades?table=${id}`);
+    bySeat[(await viewOf(p, id)).me.seat as Seat] = p;
+  }
+  return { id, bySeat };
 }

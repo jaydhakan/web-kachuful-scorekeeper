@@ -119,10 +119,10 @@ function Column({
         {lines.map(([k, v, tone], i) => (
           <Line key={k} k={k} v={v} tone={tone} i={i} fresh={fresh} />
         ))}
-        <div className="flex items-baseline justify-between gap-2 pt-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2 pt-3">
           <dt className="text-14 font-semibold">{s.summary.thisHand}</dt>
           <dd
-            className={`disp tick text-28 font-extrabold ${r.net >= 0 ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}`}
+            className={`disp tick text-24 font-extrabold min-[400px]:text-28 ${r.net >= 0 ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}`}
           >
             <Counter
               from={fresh ? 0 : r.net}
@@ -134,7 +134,7 @@ function Column({
             />
           </dd>
         </div>
-        <div className="flex items-baseline justify-between gap-2 py-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2 py-1">
           <dt className="text-14 text-[var(--tx2)]">{s.summary.total}</dt>
           <dd className="disp tick text-20 font-extrabold">
             <Counter

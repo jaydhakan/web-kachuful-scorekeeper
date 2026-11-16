@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { vibrate } from '@/hooks/useHaptics';
 import {
   bidOrder,
@@ -56,6 +56,12 @@ export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
     return () => clearTimeout(t);
   }, [shake]);
   const whyId = useId();
+  // On a short or sideways phone the list pushes the keys below the fold: bring them up for each bidder.
+  const keysRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (cur === null) return;
+    keysRef.current?.scrollIntoView?.({ block: 'nearest', behavior: rm ? 'auto' : 'smooth' });
+  }, [cur, rm]);
   const canBlind = blindAllowed(g.rules);
   const { locked, why } = cur === null ? { locked: [], why: null } : lockedFor(g, h, cur, blind);
   const pick = (v: number) => {
@@ -135,7 +141,14 @@ export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
         })}
       </ol>
       {cur !== null ? (
-        <section aria-label={s.bids.keysFor(g.players[cur].name)} className="flex flex-col gap-3">
+        <section
+          ref={keysRef}
+          aria-labelledby={`${whyId}-who`}
+          className="flex scroll-mb-3 flex-col gap-3"
+        >
+          <h3 id={`${whyId}-who`} className="text-15 font-bold">
+            {s.bids.keysFor(g.players[cur].name)}
+          </h3>
           <BidKeys
             label={s.bids.keysFor(g.players[cur].name)}
             max={13}

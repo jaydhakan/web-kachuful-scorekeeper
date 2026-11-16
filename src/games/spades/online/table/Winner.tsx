@@ -143,73 +143,80 @@ export function Winner({
   const ended = typeof endedBy === 'function' ? endedBy(table.rules.target) : endedBy;
 
   return (
-    <div className="scr-bg absolute inset-0 overflow-y-auto overflow-x-hidden px-5 pb-[max(1.5rem,var(--sab))] pt-[calc(var(--sat)+3rem)] text-center">
+    <div className="scr-bg absolute inset-0 flex flex-col text-center">
       {!rm && !draw && (
         <Confetti colors={[faces[p]?.color ?? 'gold', faces[q]?.color ?? 'gold', 'gold']} />
       )}
-      <div className="relative z-[56] mx-auto max-w-[26rem]">
-        <m.div
-          {...enter(0.9, { scale: 0.3, rotate: -180 })}
-          aria-hidden
-          className="mx-auto grid h-[88px] w-[88px] place-items-center rounded-full bg-gold-gradient text-[44px] text-ink-gold shadow-[0_0_0_6px_color-mix(in_srgb,var(--medal-gold)_20%,transparent),0_16px_40px_color-mix(in_srgb,var(--medal-gold)_35%,transparent)]"
-        >
-          ♠
-        </m.div>
-        <div data-confetti-origin className="my-6 flex justify-center">
-          {[p, q].map((x, i) => (
-            <m.span
-              key={x}
-              {...enter(0.3, { x: i ? 120 : -120, rotate: i ? 20 : -20 })}
-              aria-hidden
-              className="relative -mx-1.5 grid h-[84px] w-[84px] place-items-center rounded-full text-[42px] shadow-[0_0_0_4px_var(--bg),0_0_0_6px_var(--medal-gold)]"
-              style={faces[x] ? { background: seatColor(faces[x]!.color) } : undefined}
-            >
-              {faces[x] && <AvatarFill p={faces[x]!} />}
-            </m.span>
-          ))}
-        </div>
-        <m.h1
-          {...enter(1.1, { y: 20, scale: 0.9 })}
-          className="disp text-48 font-bold tracking-[-0.04em]"
-        >
-          {draw ? s.winner.draw : s.winner.title(teamLabel(win))}
-        </m.h1>
-        <p className="mt-1 text-16 text-[var(--tx2)]">
-          {s.winner.names(names[p], names[q])}
-          {ended ? ` · ${ended}` : ''}
-        </p>
-        <div className="my-6 flex justify-center gap-7">
-          {([win, lose] as const).map((t, i) => (
-            <div key={t}>
-              <span className="block text-13 font-semibold text-[var(--tx2)]">{teamLabel(t)}</span>
-              <b
-                className={`text-36 font-bold tabular-nums tracking-[-0.03em] ${i === 0 && !draw ? (t === 'a' ? 'text-team-sun-tx' : 'text-team-moon-tx') : ''}`}
+      <div className="relative z-[56] min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-2 pt-[calc(var(--sat)+3rem)] land:pt-[calc(var(--sat)+1rem)]">
+        <div className="mx-auto max-w-[26rem]">
+          <m.div
+            {...enter(0.9, { scale: 0.3, rotate: -180 })}
+            aria-hidden
+            className="mx-auto grid h-[88px] w-[88px] place-items-center rounded-full bg-gold-gradient land:hidden text-[44px] text-ink-gold shadow-[0_0_0_6px_color-mix(in_srgb,var(--medal-gold)_20%,transparent),0_16px_40px_color-mix(in_srgb,var(--medal-gold)_35%,transparent)]"
+          >
+            ♠
+          </m.div>
+          <div data-confetti-origin className="my-6 flex justify-center land:my-2">
+            {[p, q].map((x, i) => (
+              <m.span
+                key={x}
+                {...enter(0.3, { x: i ? 120 : -120, rotate: i ? 20 : -20 })}
+                aria-hidden
+                className="relative -mx-1.5 grid h-[84px] w-[84px] place-items-center rounded-full text-[42px] land:h-14 land:w-14 land:text-28 shadow-[0_0_0_4px_var(--bg),0_0_0_6px_var(--medal-gold)]"
+                style={faces[x] ? { background: seatColor(faces[x]!.color) } : undefined}
               >
-                <Counter from={0} to={scores[t]} run duration={1.2} delay={rm ? 0 : 1.3} />
-              </b>
-            </div>
-          ))}
+                {faces[x] && <AvatarFill p={faces[x]!} />}
+              </m.span>
+            ))}
+          </div>
+          <m.h1
+            {...enter(1.1, { y: 20, scale: 0.9 })}
+            className="disp text-48 font-bold tracking-[-0.04em] land:text-34"
+          >
+            {draw ? s.winner.draw : s.winner.title(teamLabel(win))}
+          </m.h1>
+          <p className="mt-1 text-16 text-[var(--tx2)]">
+            {s.winner.names(names[p], names[q])}
+            {ended ? ` · ${ended}` : ''}
+          </p>
+          <div className="my-6 flex justify-center gap-7 land:my-3">
+            {([win, lose] as const).map((t, i) => (
+              <div key={t}>
+                <span className="block text-13 font-semibold text-[var(--tx2)]">
+                  {teamLabel(t)}
+                </span>
+                <b
+                  className={`text-36 font-bold tabular-nums tracking-[-0.03em] ${i === 0 && !draw ? (t === 'a' ? 'text-team-sun-tx' : 'text-team-moon-tx') : ''}`}
+                >
+                  <Counter from={0} to={scores[t]} run duration={1.2} delay={rm ? 0 : 1.3} />
+                </b>
+              </div>
+            ))}
+          </div>
+          <dl className="mb-2 grid grid-cols-4 gap-2">
+            {[
+              [s.winner.ratio(st.made, st.bid), s.winner.madeStat],
+              [s.winner.ratio(st.nilMade, st.nils), s.winner.nilStat],
+              [String(st.bags), s.winner.bagsStat],
+              [
+                st.best ? s.winner.bestVal(st.best.pts, st.best.hand) : s.summary.dash,
+                s.winner.bestStat,
+              ],
+            ].map(([v, k]) => (
+              <div
+                key={k}
+                className="flex flex-col-reverse rounded-[14px] bg-ov/[.06] px-1.5 py-2.5 text-13 text-[var(--tx2)]"
+              >
+                <dt>{k}</dt>
+                <dd className="text-18 font-bold text-[var(--tx)]">{v}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-        <dl className="mb-5 grid grid-cols-4 gap-2">
-          {[
-            [s.winner.ratio(st.made, st.bid), s.winner.madeStat],
-            [s.winner.ratio(st.nilMade, st.nils), s.winner.nilStat],
-            [String(st.bags), s.winner.bagsStat],
-            [
-              st.best ? s.winner.bestVal(st.best.pts, st.best.hand) : s.summary.dash,
-              s.winner.bestStat,
-            ],
-          ].map(([v, k]) => (
-            <div
-              key={k}
-              className="flex flex-col-reverse rounded-[14px] bg-ov/[.06] px-1.5 py-2.5 text-13 text-[var(--tx2)]"
-            >
-              <dt>{k}</dt>
-              <dd className="text-18 font-bold text-[var(--tx)]">{v}</dd>
-            </div>
-          ))}
-        </dl>
-        <div className="flex flex-col gap-2">
+      </div>
+      {/* Pinned, so Rematch is on screen however much the celebration above has to scroll. */}
+      <div className="relative z-[56] shrink-0 px-5 pb-[max(1rem,var(--sab))] pt-2">
+        <div className="mx-auto flex max-w-[26rem] flex-col gap-2">
           {table.next ? (
             <ActionButton accent onClick={openNext} label={s.winner.join} dataNext={table.next} />
           ) : host ? (
