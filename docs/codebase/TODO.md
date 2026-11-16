@@ -77,7 +77,7 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
 - **Scorekeeper (table mode), left open on 2026-11-16:**
   - Two hand summaries: the scorekeeper's (`table/screens/hand/Summary.tsx`, tied to its store: edit link, haptics)
     and the online one (`ui/HandSummary.tsx`). They look alike; merge them if they drift.
-  - History lists table-mode games only; `SpHistoryItem` (`table/screens/pages/source.ts`) takes online games too.
+  - History shows only the newest page of finished online tables (no "Load more" through `nextCursor`).
   - The local boards (`table/lib/boards.ts`) belong in `domain/` with the stats and achievements (plan §9).
   - Not checked: the desk layout and keyboard by e2e, a real phone, the responsive audit for the scorekeeper.
 - **Online play, left open on 2026-11-16:**

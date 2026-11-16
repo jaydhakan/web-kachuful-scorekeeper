@@ -298,7 +298,7 @@ export const spTable = {
     filterPlayer: 'Player',
     allPlayers: 'Everyone',
     emptyTitle: 'No games yet',
-    emptyBody: 'Score a game at the table and it shows here, hand by hand.',
+    emptyBody: 'Score a game at the table, or finish one online, and it shows here.',
     newGame: 'Keep score',
     noResults: 'No games match these filters',
     clear: 'Clear filters',
@@ -317,6 +317,8 @@ export const spTable = {
     },
     rowLabel: (when: string, line: string) => `${when}: ${line}`,
     online: 'Online game',
+    onlineFailed: 'Online games didn’t load.',
+    retry: 'Try again',
     recap: {
       title: 'Game recap',
       missing: 'This game isn’t on this phone any more.',

@@ -9,18 +9,25 @@ import { AvatarStack, Chip, ChipRow, EmptyState } from '@/components/ui/PagePart
 import { PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { Gate, NoGames, SpPage } from './parts';
-import { fromTableGame, useSpGames, type SpHistoryItem } from './source';
+import { fromTableGame, useOnlineHistory, useSpGames, type SpHistoryItem } from './source';
 
 const p = spTable.pages;
 type Status = 'all' | 'finished' | 'active' | 'cancelled';
 
-/** Every table-mode game on this device, by day, newest first; filters by status and by player. */
+/**
+ * Every scored game on this device and, signed in, this account's finished online tables: by day, newest first, with
+ * filters by status and by player.
+ */
 export default function HistoryPage() {
   const src = useSpGames();
   const { state, actions } = useSp();
   const [status, setStatus] = useState<Status>('all');
   const [who, setWho] = useState<string | null>(null);
-  const items = useMemo(() => src.recs.map(fromTableGame), [src.recs]);
+  const online = useOnlineHistory();
+  const items = useMemo(
+    () => [...src.recs.map(fromTableGame), ...online.items].sort((a, b) => b.at - a.at),
+    [src.recs, online.items],
+  );
   // The people who played most, for the filter chips.
   const people = useMemo(() => {
     const n = new Map<string, { name: string; c: number }>();
@@ -46,6 +53,7 @@ export default function HistoryPage() {
     return out;
   }, [shown]);
   const open = (it: SpHistoryItem) => {
+    if (it.kind === 'online') return spGo(`?table=${encodeURIComponent(it.id)}`);
     const rec = src.recs.find((r) => r.syncId === it.id);
     if (!rec) return;
     if (it.status !== 'active') return actions.openPage({ page: 'game', id: it.id });
@@ -82,6 +90,21 @@ export default function HistoryPage() {
         )
       }
     >
+      {online.status === 'error' && (
+        <p
+          role="status"
+          className="mb-3 flex flex-wrap items-center gap-x-2 text-14 text-[var(--tx2)]"
+        >
+          {p.onlineFailed}
+          <button
+            type="button"
+            onClick={online.retry}
+            className="press min-h-11 px-2 font-bold text-[var(--accent-tx)]"
+          >
+            {p.retry}
+          </button>
+        </p>
+      )}
       <Gate src={src}>
         {() =>
           !items.length ? (

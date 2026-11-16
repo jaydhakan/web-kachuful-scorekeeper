@@ -5,6 +5,9 @@ import { useSp } from '@/games/spades/table/state/store';
 import { hasDone } from '@/games/spades/table/state/select';
 import { archive, type SpGameRec } from '@/state/archive';
 import { useArchive } from '@/state/useArchive';
+import { signedInAs, useSession } from '@/sync/session';
+import { spEp } from '@/games/spades/online/sync/endpoints';
+import type { SpTableSummary } from '@/games/spades/online/sync/types';
 
 const p = spTable.pages;
 
@@ -78,3 +81,67 @@ export const fromTableGame = (r: SpGameRec): SpHistoryItem => ({
   hands: r.game.hands.filter((h) => h.phase === 'done').length,
   winner: r.game.status === 'finished' ? (r.game.result?.winner ?? null) : null,
 });
+
+const seatName = (t: SpTableSummary, x: number) => t.seats[x]?.name ?? '';
+const onlinePair = (t: SpTableSummary, team: TeamId) => {
+  const [x, y] = seatsOf(team);
+  return spTable.pair(seatName(t, x), seatName(t, y));
+};
+
+/** A finished or cancelled online table as a History row, read from the server's summary. */
+export function fromOnlineTable(t: SpTableSummary): SpHistoryItem {
+  const { a, b } = t.scores;
+  const hi = Math.max(a, b),
+    lo = Math.min(a, b);
+  const status: SpGame['status'] = t.status === 'cancelled' ? 'cancelled' : 'finished';
+  const line = !t.hands
+    ? p.line.noHands
+    : status === 'cancelled'
+      ? p.line.cancelled(a, b)
+      : !t.result || t.result.winner === 'draw'
+        ? p.line.draw(a, b)
+        : p.line.won(onlinePair(t, t.result.winner), hi, lo);
+  return {
+    id: t.id,
+    kind: 'online',
+    at: t.finishedAt ?? t.updatedAt,
+    status,
+    line,
+    players: t.seats.map((x, i) =>
+      x
+        ? { id: x.playerId, playerId: x.playerId, name: x.name, emoji: x.emoji, color: x.color }
+        : { id: `empty-${i}`, name: '', emoji: '', color: '' },
+    ),
+    hands: t.hands,
+    winner: status === 'finished' ? (t.result?.winner ?? null) : null,
+  };
+}
+
+export interface SpOnlineHistory {
+  status: 'off' | 'loading' | 'error' | 'ready';
+  items: SpHistoryItem[];
+  retry: () => void;
+}
+
+/** Signed in, this account's finished online tables (the newest page); signed out, none. */
+export function useOnlineHistory(): SpOnlineHistory {
+  const signedIn = !!signedInAs(useSession());
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<Omit<SpOnlineHistory, 'retry'>>({
+    status: signedIn ? 'loading' : 'off',
+    items: [],
+  });
+  useEffect(() => {
+    if (!signedIn) return setState({ status: 'off', items: [] });
+    let on = true;
+    setState((s) => ({ ...s, status: 'loading' }));
+    spEp.tables('finished').then(
+      (r) => on && setState({ status: 'ready', items: r.items.map(fromOnlineTable) }),
+      () => on && setState((s) => ({ ...s, status: 'error' })),
+    );
+    return () => {
+      on = false;
+    };
+  }, [signedIn, attempt]);
+  return { ...state, retry: () => setAttempt((n) => n + 1) };
+}
