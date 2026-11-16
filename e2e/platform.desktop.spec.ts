@@ -4,9 +4,11 @@ import { expect, test } from '@playwright/test';
 test('desk: the landing page lays games out in a row and passes axe', async ({ page }) => {
   await page.goto('/');
   const cards = page.getByRole('list').last().getByRole('listitem');
-  await expect(cards).toHaveCount(3);
-  const [a, b] = [await cards.nth(0).boundingBox(), await cards.nth(1).boundingBox()];
-  expect(a!.y).toBe(b!.y);
+  await expect(cards).toHaveCount(4);
+  const ys = await Promise.all(
+    [0, 1, 2, 3].map(async (i) => (await cards.nth(i).boundingBox())!.y),
+  );
+  expect(new Set(ys).size).toBe(1);
   const r = await new AxeBuilder({ page }).analyze();
   const bad = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(bad.map((v) => `${v.id}: ${v.nodes[0].target.join(' ')}`)).toEqual([]);

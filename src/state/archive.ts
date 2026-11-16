@@ -1,6 +1,7 @@
 import { doneRounds, type Game } from '@/games/kachuful/domain';
 import type { KtGame } from '@/games/kaali-teeri/domain';
 import type { IshaaraPublic } from '@/games/ishaara/domain/types';
+import type { SpGame } from '@/games/spades/domain/types';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,
@@ -33,6 +34,7 @@ export interface GameRecOf<G> {
 
 export type GameRec = GameRecOf<Game>;
 export type KtGameRec = GameRecOf<KtGame>;
+export type SpGameRec = GameRecOf<SpGame>;
 
 /** A finished Ishaara game, read-only: the server ran it, so this copy is only for reading History offline. */
 export interface IshaaraGameRec {
@@ -82,7 +84,10 @@ export type OutboxKind =
   | 'deleteGame'
   // Kaali Teeri's own, so Kachuful's engine never sends them to /api/games.
   | 'putKtGame'
-  | 'deleteKtGame';
+  | 'deleteKtGame'
+  // Spades' table mode, likewise.
+  | 'putSpGame'
+  | 'deleteSpGame';
 
 export interface OutboxItem {
   id: string;
@@ -123,6 +128,7 @@ interface Stores {
   inbox: InboxItem;
   ktGames: KtGameRec;
   ishaaraGames: IshaaraGameRec;
+  spGames: SpGameRec;
 }
 type StoreName = keyof Stores;
 
@@ -134,6 +140,7 @@ const KEY_PATH: { [K in StoreName]: keyof Stores[K] & string } = {
   inbox: 'id',
   ktGames: 'syncId',
   ishaaraGames: 'syncId',
+  spGames: 'syncId',
 };
 const STORES = Object.keys(KEY_PATH) as StoreName[];
 
@@ -155,6 +162,7 @@ export const memoryBackend = (): Backend => ({
     inbox: [],
     ktGames: [],
     ishaaraGames: [],
+    spGames: [],
   }),
   put: async () => {},
   del: async () => {},
@@ -162,10 +170,10 @@ export const memoryBackend = (): Backend => ({
 });
 
 const DB = 'kachuful';
-/** 2 added `ktGames`, 3 `ishaaraGames`. Bump it with every new store; existing stores and rows are never touched. */
-export const DB_VERSION = 3;
+/** 2 added `ktGames`, 3 `ishaaraGames`, 4 `spGames`. Bump it with every new store; existing stores and rows stay. */
+export const DB_VERSION = 4;
 /** Every game's store, each listed by when it ended and when it changed. */
-const GAME_STORES: readonly StoreName[] = ['games', 'ktGames', 'ishaaraGames'];
+const GAME_STORES: readonly StoreName[] = ['games', 'ktGames', 'ishaaraGames', 'spGames'];
 
 /** What an upgrade needs of the database, so it can be tested without a browser. */
 export interface UpgradeDb {
@@ -247,6 +255,7 @@ export class Archive {
     inbox: new Map(),
     ktGames: new Map(),
     ishaaraGames: new Map(),
+    spGames: new Map(),
   };
   private listeners = new Set<Listener>();
   private errorListeners = new Set<(e: WriteError) => void>();
@@ -347,11 +356,15 @@ export class Archive {
   ktGames(): KtGameRec[] {
     return this.listed('ktGames');
   }
+  /** Every Spades game this device knows (table mode, and finished online ones), newest first, without deleted ones. */
+  spGames(): SpGameRec[] {
+    return this.listed('spGames');
+  }
   /** Finished Ishaara games kept for History offline, newest first. */
   ishaaraGames(): IshaaraGameRec[] {
     return this.all('ishaaraGames').sort((a, b) => b.endedAt - a.endedAt);
   }
-  private listed<K extends 'games' | 'ktGames'>(s: K): Stores[K][] {
+  private listed<K extends 'games' | 'ktGames' | 'spGames'>(s: K): Stores[K][] {
     return this.all(s)
       .filter((r) => !r.deleted)
       .sort((a, b) => (b.endedAt ?? b.updatedAt) - (a.endedAt ?? a.updatedAt));

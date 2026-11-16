@@ -1,7 +1,7 @@
 import { COLORS, emailKey, nameKey, pidOf, tidyName, type Player, type Seat } from '@/people';
 import type { Game } from '@/games/kachuful/domain';
 import { uuid } from '@/lib/ids';
-import { archive, type GameRec, type KtGameRec, type PlayerRec } from './archive';
+import { archive, type GameRec, type KtGameRec, type PlayerRec, type SpGameRec } from './archive';
 import { KEYS, storage } from './persistence';
 import type { Player as ServerPlayer } from '@/sync/types';
 
@@ -156,7 +156,11 @@ export function backfillRegistry() {
 }
 
 /** Every game of every kind this device keeps, as who sat down and whose it is: one person, every game. */
-const everyGame = (): (GameRec | KtGameRec)[] => [...archive.games(), ...archive.ktGames()];
+const everyGame = (): (GameRec | KtGameRec | SpGameRec)[] => [
+  ...archive.games(),
+  ...archive.ktGames(),
+  ...archive.spGames(),
+];
 
 export interface Person extends PlayerRec {
   games: number;

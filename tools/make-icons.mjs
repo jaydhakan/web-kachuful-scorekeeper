@@ -1,16 +1,18 @@
 // Renders the icon PNGs and favicon.ico in public/ from their SVG sources. Run after changing an SVG; the output is
-// committed. The OG images have no SVG source in the kit, so they are copied as PNGs and not rendered here.
+// committed. `node tools/make-icons.mjs spades` renders only the games named. Most OG images have no SVG source in the
+// kit, so they are copied as PNGs; a game with `og-image.svg` (Spades) has its preview rendered here too.
 import { chromium } from '@playwright/test';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
 const pub = path.join(root, 'public');
 const brand = path.join(root, 'design/brand');
-const GAMES = ['kachuful', 'kaali-teeri', 'ishaara'];
+const GAMES = ['kachuful', 'kaali-teeri', 'ishaara', 'spades'];
+const only = process.argv.slice(2);
 
-/** [source SVG, output PNG, size], paths from the repo root. */
-const jobs = [
+/** [source SVG, output PNG, width, height (= width)], paths from the repo root. */
+const all = [
   // Kachuful's icons before the platform; kept one release for installed apps.
   ['public/icon.svg', 'public/pwa-192.png', 192],
   ['public/icon.svg', 'public/pwa-512.png', 512],
@@ -28,21 +30,32 @@ const jobs = [
     [`design/brand/games/${g}/icon.svg`, `public/games/${g}/icon-96.png`, 96],
     [`design/brand/games/${g}/icon-maskable.svg`, `public/games/${g}/icon-maskable-512.png`, 512],
     [`design/brand/games/${g}/icon-maskable.svg`, `public/games/${g}/apple-touch-icon.png`, 180],
+    ...(existsSync(path.join(brand, `games/${g}/og-image.svg`))
+      ? [[`design/brand/games/${g}/og-image.svg`, `public/games/${g}/og-image.png`, 1200, 630]]
+      : []),
   ]),
 ];
+const jobs = only.length
+  ? all.filter(([src]) => only.some((g) => src.includes(`/games/${g}/`)))
+  : all;
 
 const browser = await chromium.launch({ channel: 'chrome' });
-for (const [src, out, size] of jobs) {
-  const page = await browser.newPage({ viewport: { width: size, height: size } });
+for (const [src, out, size, tall = size] of jobs) {
+  const page = await browser.newPage({ viewport: { width: size, height: tall } });
   const svg = readFileSync(path.join(root, src), 'utf8');
+  mkdirSync(path.dirname(path.join(root, out)), { recursive: true });
   await page.setContent(
-    `<style>html,body{margin:0;background:transparent}svg{display:block;width:${size}px;height:${size}px}</style>${svg}`,
+    `<style>html,body{margin:0;background:transparent}svg{display:block;width:${size}px;height:${tall}px}</style>${svg}`,
   );
   // Transparent outside a rounded tile; the full-bleed sources paint every pixel anyway.
   await page.screenshot({ path: path.join(root, out), omitBackground: true });
   await page.close();
 }
 await browser.close();
+if (only.length) {
+  console.log(`${jobs.length} icons written for ${only.join(', ')}`);
+  process.exit(0);
+}
 
 /** An .ico holding PNG images as they are (supported by every browser that asks for /favicon.ico). */
 function ico(pngs) {

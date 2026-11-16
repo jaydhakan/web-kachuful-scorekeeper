@@ -45,7 +45,8 @@ const sizes = [
 ];
 
 export default {
-  // Every source but Ishaara's, which builds its own sheet (tailwind.ishaara.config.ts) that loads with its chunk.
+  // Every source but Ishaara's and Spades', which build their own sheets (tailwind.<game>.config.ts) that load with
+  // their chunks.
   content: [
     './index.html',
     './src/*.{ts,tsx}',

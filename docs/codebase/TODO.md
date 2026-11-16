@@ -6,7 +6,8 @@ The open work for this repo, in one place. Add an item when something is left un
 ## Performance
 
 - **First-load budget is over, so `npm run perf:budget` and the CI check job fail.** Measured 2026-11-14: landing JS
-  160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Budgets are in
+  160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Again on
+  2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -19,6 +20,18 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 - **Renames, on hold while the name is "final for now":** session cookie and CSRF header to neutral names (everyone
   signs in once more), backend and package names, then the repos and folders; the database, server paths and service
   name are optional (plan §12). Backend changes go through `backend-requests.md`.
+
+## Seat invites
+
+- **A host who reloads loses "can't make it".** Declines reach the host only on the user stream
+  (`seat-invite-update`, kept in memory by `sync/seatInviteSignals.ts`); the API has no host-side read of sent
+  invites, so the Ishaara waiting screen forgets a decline after a reload. Needs a backend route to fix.
+- **One SSE reader.** `sync/sse.ts` (user stream) and `games/ishaara/sync/events.ts` hold the same fetch-SSE loop;
+  move Ishaara's onto `sse.ts`.
+- **Not verified:** the banner and cards on a real phone, against the real backend, and in the three other themes
+  (checked in Sunset Glass at 390x844 only).
+- **Ishaara's waiting screen draws clue-givers' avatars square** (`Givers` in `screens/Waiting.tsx` passes a
+  className without `rounded-full`); seen while building seat invites, older than them.
 
 ## Motion
 
@@ -44,13 +57,47 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   what else the audit listed. `platform/pages/InlineError.tsx` duplicates `FormError` in `ui/Field.tsx`: fold it.
 - **Me page:** "Sync now" calls every game's sync, but Kaali Teeri's engine is only bound inside Kaali Teeri, so from
   Me it does nothing for Kaali Teeri games. The hero stats name no game.
-- **Ishaara links through sign-in:** a signed-out person who opens `/ishaara?game=<id>` returns to Ishaara's home
-  after signing in, not to that game. `authSearch` would need to carry the game id.
 - **Code passes:** Kachuful had no code pass in the audit (screenshots only); run one.
 - **Not verified:** a real phone (keyboard, safe areas, vibrate); the new motion (A1 to A8, A10, A11) watched with
   motion on, frame by frame (e2e checks it is present); the app's new Ishaara flows against the real backend.
 - **Backend:** `isHost` on Ishaara's game list is on branch `feat/design-audit` in the backend repo (from `ishaara`,
   which is itself not merged into the backend's `main`). Merge and deploy it with this branch.
+
+## Spades
+
+- **Offline-ready toast:** Spades isn't in `OWN_TOAST` (`platform/PlatformUpdate.tsx`), so the platform announces
+  offline-readiness on its pages. Add it once table mode mounts a toast slot that announces it.
+- **Brand art:** `design/brand/games/spades/` has `tile-art.svg` in Sunset Glass only; the other games keep a variant
+  per theme. The app's tile draws from tokens, so this is only for the kit.
+- **Budget:** Spades' first load is 165.9 KB against its 160 (2026-11-16): about 155 KB is the shared base that puts
+  every page over budget (see Performance). Its own part is about 11 KB; the online table is a lazy 27.8 KB chunk.
+- **Scorekeeper (table mode), left open on 2026-11-16:**
+  - Two hand summaries: the scorekeeper's (`table/screens/hand/Summary.tsx`, tied to its store: edit link, haptics)
+    and the online one (`ui/HandSummary.tsx`). They look alike; merge them if they drift.
+  - History shows only the newest page of finished online tables (no "Load more" through `nextCursor`).
+  - Not checked: the desk layout and keyboard by e2e, or a real phone.
+- **Online play, left open on 2026-11-16:**
+  - **Tests and audit:**
+    - `spades-online-hand.spec.ts` plays one hand with motion on, but sends tricks 2–13 straight to the API, and
+      plays cards by keyboard (a pointer on the overlapping fan lands on the next card). Nothing yet checks the
+      "spades broken" moment, a drag to play, or a played timeout (only a bid's).
+  - **The online table has only run in jsdom and Playwright** (`spades-online-hand`, `spades-responsive` at six
+    phone sizes, Sunset Glass only): check it on a real phone in all four themes. At 320 px the hand's card strips
+    are about 20 px, against the plan's 25 (the responsive spec allows strips under 44 px, plan §10).
+  - **Reconnecting:** `src/sync/sse.ts` doesn't send `Last-Event-ID`, so after a reconnect the link relies on the
+    server sending `state` when the stream opens. Confirm the real backend does.
+  - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show
+    it. That needs a `backend-requests.md` entry.
+  - **Achievements count only games scored on this phone** (`domain/achievements.ts`): online tables aren't kept on
+    the device and the server has no achievements route, so Nil Breaker (online only) is never earned yet. The
+    player page's stats and head-to-head do read the server when signed in.
+- **Deploy and devices:**
+  - nginx needs the SSE settings for `/api/me/events` and `/api/spades/tables/*/events` (buffering off, 1-hour read
+    timeout); the config isn't in either repo.
+  - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
+  - Haptics are untested on a real Android phone.
+- **Seat invites:** a host who reloads loses Ishaara's "can't make it" (no host-side read of sent invites), and the
+  server's circle leaves out games the user scored but didn't sit in.
 
 ## Tests
 

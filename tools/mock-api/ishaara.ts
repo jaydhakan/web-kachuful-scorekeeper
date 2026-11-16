@@ -62,6 +62,8 @@ export interface IshaaraKit {
   page<T>(items: T[], cursor: unknown, limit?: number): { items: T[]; nextCursor: string | null };
   /** Whether epoch ms `t` falls in a board period (`today`, `week`, `season`, `all`); null for an unknown one. */
   inPeriod(period: string, t: number): boolean | null;
+  /** A game was created through the route (not a rematch or the seed): seat invites hook in here. */
+  onCreated?(game: IshaaraPublic, hostId: string): void;
 }
 
 interface IshRec {
@@ -344,6 +346,7 @@ export function ishaaraRoutes(k: IshaaraKit) {
       body.rules as IshaaraRules,
       starting,
     );
+    k.onCreated?.(r.game, me!.id);
     return [201, out(r, me!)];
   });
 
@@ -473,6 +476,22 @@ export function ishaaraRoutes(k: IshaaraKit) {
     'public',
   );
 }
+
+/** A game as the seat invites see it: its host and status, or null once deleted. */
+export function ishaaraGame(id: string): { hostId: string; game: IshaaraPublic } | null {
+  const r = games.get(id);
+  return r && !r.deletedAt ? { hostId: r.hostId, game: r.game } : null;
+}
+
+/** The account linked to a seat, if any (who a clue-giver's invite goes to). */
+export const ishaaraUserOf = (s: Seated) => userOfSeat(s);
+
+/** Every live game's seats, for the circle. */
+export const ishaaraSeatings = () =>
+  live().map((r) => ({
+    playerIds: r.game.players.flatMap((p) => (p.playerId ? [p.playerId] : [])),
+    at: r.game.updatedAt,
+  }));
 
 /** Plays a seeded game to its end through the domain, so History and the boards have something to show. */
 function playOut(r: IshRec, how: 'all-found' | 'trap' | 'resign', at: number) {

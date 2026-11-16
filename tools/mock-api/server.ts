@@ -58,7 +58,29 @@ import {
   type KtGame,
 } from '../../src/games/kaali-teeri/domain/index';
 import type { KtGameSummary } from '../../src/games/kaali-teeri/sync/types';
-import { ishaaraRoutes, resetIshaara } from './ishaara';
+import {
+  ishaaraGame,
+  ishaaraRoutes,
+  ishaaraSeatings,
+  ishaaraUserOf,
+  resetIshaara,
+} from './ishaara';
+import { inviteSeat, registerSeatKind, resetSeatInvites, seatInviteRoutes } from './seatInvites';
+import {
+  resetSpades,
+  spadesGame,
+  spadesRoutes,
+  spadesSeatings,
+  spEndedAt,
+  spSummary,
+  type SpRec,
+} from './spades';
+import {
+  resetSpadesOnline,
+  spadesOnlineRoutes,
+  spadesSeatings as spadesOnlineSeatings,
+  spadesSeatKind,
+} from './spadesOnline';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -89,8 +111,9 @@ interface KtRec extends Omit<GameRec, 'payload'> {
   kind: 'kaali-teeri';
   payload: KtGame;
 }
-type AnyRec = GameRec | KtRec;
+type AnyRec = GameRec | KtRec | SpRec;
 const isKt = (r: AnyRec): r is KtRec => 'kind' in r && r.kind === 'kaali-teeri';
+const isSp = (r: AnyRec): r is SpRec => 'kind' in r && r.kind === 'spades';
 
 interface Photo {
   bytes: Buffer;
@@ -268,6 +291,9 @@ export function seed(now = Date.now()) {
   }
   db.activity.sort((a, b) => b.createdAt - a.createdAt);
   resetIshaara(now);
+  resetSpades(now);
+  resetSeatInvites();
+  resetSpadesOnline();
 }
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
@@ -1217,7 +1243,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const w = body as unknown as WireGame;
   const key = keyOf(w);
   if (key !== m[0]) throw err(422, 'invalid_game', { reason: 'id', roundIndex: null });
-  if (db.ktGames.has(key)) throw err(409, 'kind_mismatch');
+  if (db.ktGames.has(key) || spadesGame(key)) throw err(409, 'kind_mismatch');
   const prev = db.games.get(key);
   if (prev?.deletedAt) throw err(410, 'gone');
   const h = hash(JSON.stringify(w));
@@ -1342,7 +1368,7 @@ on('PUT', '/api/kaali-teeri/games/:id', ({ m, body, me }) => {
   if (w.kind !== 'kaali-teeri' || !Array.isArray(w.players) || !Array.isArray(w.hands))
     throw err(422, 'invalid', { fields: { body: 'not a Kaali Teeri game' } });
   if (w.syncId !== m[0]) throw err(422, 'invalid_game', { reason: 'id', handIndex: null });
-  if (db.games.has(m[0])) throw err(409, 'kind_mismatch');
+  if (db.games.has(m[0]) || spadesGame(m[0])) throw err(409, 'kind_mismatch');
   const prev = db.ktGames.get(m[0]);
   if (prev?.deletedAt) throw err(410, 'gone');
   if (prev && prev.ownerId !== me!.id && me!.role !== 'admin') throw err(403, 'forbidden');
@@ -1559,7 +1585,7 @@ on('DELETE', '/api/games/:id', ({ m, me }) => {
 const LIVE_GRACE = 2 * 3600e3;
 /** A live link stops working 2 hours after its game ends. */
 const liveEnd = (r: AnyRec) => {
-  const ended = isKt(r) ? ktSummary(r).finishedAt : gameSummary(r).endedAt;
+  const ended = isKt(r) ? ktSummary(r).finishedAt : isSp(r) ? spEndedAt(r) : gameSummary(r).endedAt;
   return ended == null ? null : ended + LIVE_GRACE;
 };
 const linkOut = (t: string, r: AnyRec) => {
@@ -1574,7 +1600,8 @@ const linkOut = (t: string, r: AnyRec) => {
   };
 };
 /** Share links are one API for every kind of game. */
-const anyGame = (id: string): AnyRec | undefined => db.games.get(id) ?? db.ktGames.get(id);
+const anyGame = (id: string): AnyRec | undefined =>
+  db.games.get(id) ?? db.ktGames.get(id) ?? spadesGame(id);
 on('POST', '/api/games/:id/links', ({ m, body, me }) => {
   const r = anyGame(m[0]);
   if (!r || r.deletedAt) throw err(404, 'not_found');
@@ -1800,8 +1827,9 @@ function linkGame(t: string, kind: 'live' | 'recap', me: UserRec | null = null) 
   if (kind === 'live' && l.membersOnly && !me) throw err(401, 'members_only');
   return r;
 }
-const pub = (r: AnyRec) => (isKt(r) ? ktSummary(r, true) : gameSummary(r, Date.now(), true));
-const kindOf = (r: AnyRec) => (isKt(r) ? 'kaali-teeri' : 'kachuful');
+const pub = (r: AnyRec) =>
+  isKt(r) ? ktSummary(r, true) : isSp(r) ? spSummary(r, true) : gameSummary(r, Date.now(), true);
+const kindOf = (r: AnyRec) => (isKt(r) ? 'kaali-teeri' : isSp(r) ? 'spades' : 'kachuful');
 function liveBody(r: AnyRec) {
   const l = r.links.live ? db.links.get(r.links.live) : undefined;
   return {
@@ -1884,11 +1912,12 @@ for (const [p, kind] of [
     'GET',
     p,
     ({ m, res }) => {
-      // A Kaali Teeri link opens its own game's page; Kachuful's stay as they were.
+      // A Kaali Teeri or Spades link opens its own game's page; Kachuful's stay as they were.
       const id = db.links.get(m[0])?.gameId;
       const kt = !!id && db.ktGames.has(id);
-      const title = kt ? 'Kaali Teeri' : 'Kachuful';
-      const path = kt ? '/kaali-teeri' : '/';
+      const sp = !!id && !!spadesGame(id);
+      const title = kt ? 'Kaali Teeri' : sp ? 'Spades' : 'Kachuful';
+      const path = kt ? '/kaali-teeri' : sp ? '/spades' : '/';
       return raw(
         res,
         'text/html',
@@ -1952,6 +1981,72 @@ ishaaraRoutes({
     const d = dayOf(t, TZ);
     return !span || (d >= span[0] && d < span[1]);
   },
+  // Each clue-giver who isn't the host gets a seat invite: a notification, joined through the key route.
+  onCreated: (game, hostId) => {
+    for (const p of game.players) {
+      const to = p.role === 'clue-giver' ? ishaaraUserOf(p) : null;
+      if (to && to !== hostId) inviteSeat('ishaara', game.id, `clue:${p.team}`, hostId, to);
+    }
+  },
+});
+
+spadesRoutes({
+  on,
+  err,
+  players: () => [...db.players.values()],
+  summaryOf: (id) => summaryOf(id),
+  userName,
+  photoUrl,
+  page,
+  resolve,
+  dayOf: (t) => dayOf(t, TZ),
+  otherKind: (id) => db.games.has(id) || db.ktGames.has(id),
+  drop: (r) => dropGame(r),
+  changed: (r) => {
+    db.version++;
+    notify(r.key, 'game', liveBody(r), r.rev);
+  },
+  dataVersion: () => db.version,
+});
+
+registerSeatKind('ishaara', {
+  host: (id) => ishaaraGame(id)?.hostId ?? null,
+  closed: (id) => ishaaraGame(id)?.game.status === 'finished',
+  table: (id) => ({ name: `${userName(ishaaraGame(id)?.hostId ?? null)}’s game`, seatsTaken: [] }),
+  partner: () => null,
+});
+
+spadesOnlineRoutes({
+  on,
+  err,
+  STREAM,
+  RAW,
+  players: () => [...db.players.values()],
+  photoUrl,
+  page,
+});
+registerSeatKind('spades-online', spadesSeatKind);
+
+seatInviteRoutes({
+  on,
+  err,
+  STREAM,
+  players: () => [...db.players.values()],
+  playerOfUser: (id) => db.users.get(id)?.playerId ?? null,
+  photoUrl,
+  seatings: () => [
+    ...liveGames().map((g) => ({
+      playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
+      at: g.updatedAt,
+    })),
+    ...liveKt().map((g) => ({
+      playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
+      at: g.updatedAt,
+    })),
+    ...ishaaraSeatings(),
+    ...spadesSeatings(),
+    ...spadesOnlineSeatings(),
+  ],
 });
 
 /** Connect-style middleware for Vite's dev and preview servers. */

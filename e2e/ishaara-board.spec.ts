@@ -13,8 +13,10 @@ import {
 // moments, and the moments that move are checked with motion on.
 
 const words = (page: Page) => page.getByRole('list', { name: 'Words', exact: true });
-// The board's own announcer, an sr-only status line (the app has other live regions: theme sync, toasts).
-const live = (page: Page) => page.locator('p.sr-only[role="status"][aria-live="polite"]');
+// The board's own announcer, an sr-only status line (the app has other live regions: theme sync, toasts, and the
+// invite banner's, which is marked).
+const live = (page: Page) =>
+  page.locator('p.sr-only[role="status"][aria-live="polite"]:not([data-invite-live])');
 const box = async (page: Page) => {
   const b = await words(page).boundingBox();
   return b && [b.x, b.y, b.width, b.height].map(Math.round).join(',');

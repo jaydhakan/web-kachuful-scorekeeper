@@ -169,6 +169,7 @@ const precompress = (): Plugin => {
 const LANDING = '/src/platform/landing/Landing.tsx';
 const KF = '/src/games/kachuful/index.tsx';
 const KT = '/src/games/kaali-teeri/index.tsx';
+const SP = '/src/games/spades/index.tsx';
 // First path segment → the modules each UI needs first ([large screen], [phone]).
 const PRELOADS: [string, string[], string[]][] = [
   ['', [LANDING], [LANDING]],
@@ -178,6 +179,7 @@ const PRELOADS: [string, string[], string[]][] = [
     [KF, '/src/games/kachuful/components/PhoneShell.tsx'],
   ],
   ['kaali-teeri', [KT, '/src/games/kaali-teeri/screens/desk/KtDeskShell.tsx'], [KT]],
+  ['spades', [SP], [SP]],
 ];
 
 const SHELLS = [
@@ -242,6 +244,7 @@ export default defineConfig(({ mode }) => ({
   preview: mode === 'mock' ? {} : { proxy: apiProxy },
   plugins: [
     ownCss('src/games/ishaara/index.tsx'),
+    ownCss('src/games/spades/index.tsx'),
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),

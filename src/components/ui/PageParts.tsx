@@ -65,7 +65,10 @@ export function PageFrame({
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </div>
         {sub && (
-          <div className={`mx-auto mt-2 w-full ${wide ? 'max-w-[64rem]' : 'max-w-[44rem]'}`}>
+          // The header's left gutter is half the body's (room for Back); this puts a full-bleed chip row on the edge.
+          <div
+            className={`mx-auto mt-2 w-full pl-2 [[data-desk]_&]:pl-0 ${wide ? 'max-w-[64rem]' : 'max-w-[44rem]'}`}
+          >
             {sub}
           </div>
         )}

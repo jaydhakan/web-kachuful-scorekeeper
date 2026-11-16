@@ -1,6 +1,7 @@
 import { demoGame } from '@/games/kachuful/domain';
 import { findPerson, isSeated, lookFor } from '@/components/seating/seatLook';
 import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
+import { kitGame as spKitGame } from '@/games/spades/domain/__fixtures__/kit';
 import { archive, archiveGame, archiveKtGame } from './archive';
 import { KEYS, storage } from './persistence';
 import {
@@ -111,6 +112,23 @@ describe("an account's circle (setup suggestions)", () => {
       games: 1,
       lastPlayedAt: kt.updatedAt,
     });
+  });
+
+  it('counts Spades co-players in the circle and in people()', async () => {
+    await archive.ready;
+    archive.put('players', server('mine', 'Mine'), server('sp-only', 'Sponly'));
+    const g = spKitGame([], { syncId: 'sp-1', updatedAt: 50 });
+    const ids = ['mine', 'sp-only', 'y3', 'y4'];
+    archive.put('spGames', {
+      syncId: g.syncId,
+      game: { ...g, players: g.players.map((p, i) => ({ ...p, playerId: ids[i] })) },
+      updatedAt: 50,
+      endedAt: null,
+      origin: 'local',
+      account: 'u1',
+    });
+    expect(circle('u1', 'mine').map((p) => p.id)).toContain('sp-only');
+    expect(people().find((p) => p.id === 'sp-only')).toMatchObject({ games: 1, lastPlayedAt: 50 });
   });
 
   it('only the admin, the creator and the linked user may change a photo or email', () => {

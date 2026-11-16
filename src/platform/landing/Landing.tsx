@@ -10,6 +10,7 @@ import {
 import { BaithakMark } from '@/components/ui/BaithakMark';
 import { Icon } from '@/components/ui/Icons';
 import { agoTxt } from '@/lib/format';
+import { useSeatInviteCount } from '@/sync/seatInvites';
 import { useSession } from '@/sync/session';
 import { platform } from '@/strings/platform';
 import { GAMES, gameById, type GameEntry, type Resume } from '../catalog';
@@ -167,6 +168,17 @@ function ResumePanel({ rows }: { rows: [GameEntry, Resume][] }) {
   );
 }
 
+/** "1 invite" on a game's tile while seat invites to it wait (Spades, Ishaara); read from the eager count store. */
+function InviteBadge({ game }: { game: string }) {
+  const n = useSeatInviteCount(game);
+  if (!n) return null;
+  return (
+    <span className="mat-fill absolute left-2 top-2 z-[1] rounded-full px-2.5 py-0.5 text-13 font-extrabold text-ink-on-accent shadow-[0_2px_8px_var(--drop)] big:left-3 big:top-3">
+      {s.invites(n)}
+    </span>
+  );
+}
+
 /** A few degrees toward where the tile was pressed (A10), as a real card tips under a finger. */
 function useTilt() {
   const reduced = !!useReducedMotion();
@@ -196,7 +208,8 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
   const tilt = useTilt();
   const body = (
     <>
-      <div className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh]">
+      {!soon && !locked && <InviteBadge game={g.id} />}
+      <div className="h-[5.5rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[var(--r-md)] big:aspect-[16/10] big:h-auto big:w-full big:rounded-none rail:max-h-[26vh] tl:max-h-none">
         <TileArt
           game={g.id}
           className={`block h-full w-full ${soon ? 'opacity-60 grayscale' : ''}`}
@@ -234,7 +247,7 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
     </>
   );
   const box =
-    'glass grid h-full grid-cols-[5.5rem_1fr] gap-x-3.5 gap-y-3 overflow-hidden p-3 big:flex big:flex-col big:gap-3 big:p-0';
+    'glass relative grid h-full grid-cols-[5.5rem_1fr] gap-x-3.5 gap-y-3 overflow-hidden p-3 big:flex big:flex-col big:gap-3 big:p-0';
   if (soon)
     // Not a control: the name, pitch and badge read as text, and the card can't be activated.
     return (
@@ -311,11 +324,12 @@ export default function Landing() {
               </div>
               {resumes.length > 0 && <ResumePanel rows={resumes} />}
             </div>
+            {/* Four games: two by two until a desktop has room for one row, so no tile sits alone. */}
             <section aria-labelledby="landing-games" className="flex flex-col gap-2 big:gap-4">
               <h2 id="landing-games" className="mono-label text-13 text-[var(--accent-tx)]">
                 {s.games}
               </h2>
-              <ul className="grid gap-3 big:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] big:gap-6 tp:grid-cols-3 tp:gap-4">
+              <ul className="grid gap-3 big:grid-cols-2 big:gap-6 tp:gap-4 dt:grid-cols-4">
                 {GAMES.map((g) => (
                   <li key={g.id}>
                     <GameCard g={g} signedIn={!!session && !session.stale} online={online} />

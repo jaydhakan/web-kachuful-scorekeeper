@@ -19,7 +19,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/games/kachuful/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
-import { readEntryLink, returnTo } from '@/lib/entry';
+import { readEntryLink, returnSearch, returnTo } from '@/lib/entry';
 import { go as goTo } from '@/platform/route';
 import {
   KEYS,
@@ -272,7 +272,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     // An account page opened from another game or the landing page returns there once nothing is left above it.
     const leave = (r: Route | undefined) => {
       const to = r && returnTo(r);
-      if (to) goTo(to === 'landing' ? null : to);
+      if (to) goTo(to === 'landing' ? null : to, to === 'landing' ? '' : returnSearch(r));
       return !!to;
     };
     return {

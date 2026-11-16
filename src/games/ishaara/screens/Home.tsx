@@ -9,6 +9,8 @@ import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { SeatInviteCards } from '@/components/seat-invites/InviteCard';
+import { ishaaraSeatTeam } from '@/games/ishaara/state/setUpAgain';
 import { Mark } from './board/marks';
 
 const h = s.home;
@@ -151,7 +153,7 @@ export default function Home({ onOpen }: { onOpen: (l: HubLink) => void }) {
         <div className="mx-auto flex w-full max-w-[26rem] flex-col items-center gap-5 pb-4 pt-12 wide:grid wide:min-h-full wide:max-w-none wide:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] wide:content-center wide:items-center wide:gap-x-14 wide:pt-6">
           <m.div
             {...stagger(0)}
-            className="flex flex-col items-center text-center wide:row-span-3 wide:items-start wide:text-left"
+            className="flex flex-col items-center text-center wide:row-span-4 wide:items-start wide:text-left"
           >
             <span aria-hidden className="mb-3 flex gap-2 text-28">
               <span className="text-team-sun">
@@ -167,6 +169,15 @@ export default function Home({ onOpen }: { onOpen: (l: HubLink) => void }) {
             <p className="mt-2 text-16 tracking-[0.02em] text-[var(--tx2)] wide:text-20">
               {h.tagline}
             </p>
+          </m.div>
+          <m.div {...stagger(1, 0.05)} className="w-full empty:hidden">
+            <SeatInviteCards
+              game="ishaara"
+              seatLabel={(inv) => {
+                const t = ishaaraSeatTeam(inv.seat);
+                return t ? h.inviteSeat(t) : undefined;
+              }}
+            />
           </m.div>
           <m.div {...stagger(1, 0.1)} className="w-full">
             <InProgress />

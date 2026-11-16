@@ -1,5 +1,6 @@
 import { archive } from '@/state/archive';
 import { ep } from './endpoints';
+import { clearSeatInvites } from './seatInvites';
 import { getSession } from './session';
 
 /**
@@ -14,7 +15,7 @@ export function pendingUploads(userId = getSession()?.user.id): number {
       .filter((o) => o.blocked)
       .map((o) => o.key),
   );
-  return [...archive.games(), ...archive.ktGames()].filter(
+  return [...archive.games(), ...archive.ktGames(), ...archive.spGames()].filter(
     (r) =>
       r.account === userId &&
       !r.conflictOf &&
@@ -31,6 +32,7 @@ export function pendingUploads(userId = getSession()?.user.id): number {
  */
 export async function signOutDevice(remove: boolean) {
   await ep.logout().catch(() => {});
+  clearSeatInvites();
   archive.clear('outbox', 'cache', 'inbox');
   const serverPlayers = archive
     .all('players')
@@ -47,6 +49,11 @@ export async function signOutDevice(remove: boolean) {
       .filter((g) => g.origin === 'remote' || g.syncedRev === g.game.rev)
       .map((g) => g.syncId);
     archive.del('ktGames', ...ktRemote);
+    const spRemote = archive
+      .all('spGames')
+      .filter((g) => g.origin === 'remote' || g.syncedRev === g.game.rev)
+      .map((g) => g.syncId);
+    archive.del('spGames', ...spRemote);
     // Ishaara runs on the server, so every copy here is the server's.
     archive.clear('ishaaraGames');
   }

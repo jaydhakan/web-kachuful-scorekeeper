@@ -1,0 +1,81 @@
+{
+  "kind": "spades",
+  "schemaVersion": 1,
+  "id": "sp1763316000000",
+  "syncId": "8a3c1f52-7d1e-4b6a-9c0f-2e5d7b9a1c34",
+  "rev": 14,
+  "createdAt": 1763316000000,
+  "updatedAt": 1763317500000,
+  "players": [
+    {
+      "id": "pmi1a2b0",
+      "name": "Riya",
+      "emoji": "🐯",
+      "color": "#60a5fa",
+      "playerId": "00000000-0000-4000-8000-000000000001"
+    },
+    {
+      "id": "pmi1a2b1",
+      "name": "Arjun",
+      "emoji": "🦊",
+      "color": "#ff8a65",
+      "playerId": "00000000-0000-4000-8000-000000000002"
+    },
+    {
+      "id": "pmi1a2b2",
+      "name": "Dev",
+      "emoji": "🐵",
+      "color": "#f87171",
+      "playerId": "00000000-0000-4000-8000-000000000003"
+    },
+    {
+      "id": "pmi1a2b3",
+      "name": "Meera",
+      "emoji": "🦉",
+      "color": "#2dd4bf",
+      "playerId": "00000000-0000-4000-8000-000000000004"
+    }
+  ],
+  "firstDealerIndex": 0,
+  "direction": "cw",
+  "rules": {
+    "target": 200,
+    "timerSec": null,
+    "nil": true,
+    "blindNil": false,
+    "minTeamBid": null,
+    "mercy": null
+  },
+  "hands": [
+    {
+      "index": 0,
+      "dealer": 0,
+      "bids": [3, 4, 2, 3],
+      "blind": [false, false, false, false],
+      "teamTricks": [6, 7],
+      "nilTricks": [null, null, null, null],
+      "phase": "done",
+      "doneAt": 1763316600000
+    },
+    {
+      "index": 1,
+      "dealer": 1,
+      "bids": [0, 3, 4, 4],
+      "blind": [false, false, false, false],
+      "teamTricks": [5, 8],
+      "nilTricks": [0, null, null, null],
+      "phase": "done",
+      "doneAt": 1763317200000
+    },
+    {
+      "index": 2,
+      "dealer": 2,
+      "bids": [null, null, null, 2],
+      "blind": [false, false, false, false],
+      "teamTricks": null,
+      "nilTricks": [null, null, null, null],
+      "phase": "bidding"
+    }
+  ],
+  "status": "active"
+}

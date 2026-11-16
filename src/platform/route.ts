@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from 'react';
 
 /** The games the site can host; the first path segment names one (`/kachuful`, `/kaali-teeri`). */
-export type GameId = 'kachuful' | 'kaali-teeri' | 'ishaara';
-export const GAME_IDS: readonly GameId[] = ['kachuful', 'kaali-teeri', 'ishaara'];
+export type GameId = 'kachuful' | 'kaali-teeri' | 'ishaara' | 'spades';
+export const GAME_IDS: readonly GameId[] = ['kachuful', 'kaali-teeri', 'ishaara', 'spades'];
 
 const isGame = (s: string): s is GameId => (GAME_IDS as readonly string[]).includes(s);
 

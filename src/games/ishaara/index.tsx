@@ -1,13 +1,15 @@
 import './ishaara.css';
 import { authSearch } from '@/lib/entry';
-import { lazy, type MouseEvent, type ReactNode } from 'react';
+import { lazy, useCallback, type MouseEvent, type ReactNode } from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { go } from '@/platform/route';
 import { MQ } from '@/theme/breakpoints';
+import { type SeatInvite } from '@/sync/seatInvites';
+import { useSeatInviteJoin } from '@/sync/seatInviteSignals';
 import { signedInAs, useSession } from '@/sync/session';
 import IshaaraShell from './screens/IshaaraShell';
-import { useGameLink } from './state/gameLink';
+import { gameInSearch, useGameLink } from './state/gameLink';
 import { IshaaraProvider, useIshaara } from './state/store';
 import { useOnline } from './state/useTable';
 import { shell } from './strings/shell';
@@ -35,12 +37,24 @@ function Gate({ title, body, children }: { title: string; body: string; children
 function toSignIn(e: MouseEvent<HTMLAnchorElement>) {
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
-  go('kachuful', authSearch('signin', 'ishaara'));
+  go('kachuful', signInSearch());
 }
+
+// A game link followed signed out (`/ishaara?game=<id>`) reopens that game once signed in.
+const signInSearch = () => {
+  const id = gameInSearch(location.search);
+  return authSearch('signin', 'ishaara', id ? `?game=${id}` : undefined);
+};
 
 function Root() {
   const { nav, actions } = useIshaara();
   useGameLink(actions.openGame);
+  // An invite's Join, from the banner or a card, opens that game's key gate here without a reload.
+  const joinSeat = useCallback(
+    (inv: SeatInvite) => actions.openGame(inv.gameId, 'clue'),
+    [actions],
+  );
+  useSeatInviteJoin('ishaara', joinSeat);
   const big = useMediaQuery(MQ.big);
   const online = useOnline();
   // A game in progress handles a dropped connection itself (reconnecting), so only the hub is gated.
@@ -65,7 +79,7 @@ function IshaaraRoot() {
     return (
       <Gate title={shell.signIn.title} body={shell.signIn.body}>
         <a
-          href={`/kachuful${authSearch('signin', 'ishaara')}`}
+          href={`/kachuful${signInSearch()}`}
           onClick={toSignIn}
           className="mat-cta mat-cta-on mat-tone-accent mat-fill press relative isolate inline-flex h-[60px] min-w-[16rem] items-center justify-center gap-2 rounded-[20px] px-6 text-18 font-bold tracking-[-0.01em] text-ink-on-accent"
         >

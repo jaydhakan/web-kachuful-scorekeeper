@@ -279,8 +279,8 @@ describe('golden fixtures for the backend', () => {
       expect(existsSync(DIR)).toBe(true);
       expect(
         readdirSync(DIR)
-          // kt-* and ishaara-* belong to the other games, each checked by its own export test.
-          .filter((f) => f.endsWith('.json') && !/^(kt|ishaara)-/.test(f))
+          // kt-*, ishaara-* and spades-* belong to the other games, each checked by its own export test.
+          .filter((f) => f.endsWith('.json') && !/^(kt|ishaara|spades)-/.test(f))
           .sort(),
       ).toEqual(
         Object.keys(all)

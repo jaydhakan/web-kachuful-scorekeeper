@@ -72,8 +72,12 @@ describe('the platform notice slot (PL-F12)', () => {
 });
 
 describe('every game’s sync, for Me and signing out (PL-F12)', () => {
-  it('each game scored on this device has a sync entry; the server’s game has none', () => {
-    expect(GAMES.filter((g) => g.sync).map((g) => g.id)).toEqual(['kachuful', 'kaali-teeri']);
+  it('each game scored on this device has a sync entry (Spades for its table mode); Ishaara has none', () => {
+    expect(GAMES.filter((g) => g.sync).map((g) => g.id)).toEqual([
+      'kachuful',
+      'kaali-teeri',
+      'spades',
+    ]);
   });
 
   it('counts pending games across games, not only Kachuful', async () => {
