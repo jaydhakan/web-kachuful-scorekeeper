@@ -169,7 +169,8 @@ describe('Spades root', () => {
     await u().click(within(card).getByRole('button', { name: 'Join' }));
     await waitFor(() => expect(location.search).toBe('?table=g1'));
     expect(ep.accept).toHaveBeenCalledWith('i1');
-    expect(await screen.findByRole('heading', { name: 'Online tables are coming' })).toBeVisible();
+    // No server here: the online table opens, and says it couldn't load.
+    expect(await screen.findByRole('heading', { name: 'The table didn’t load' })).toBeVisible();
   });
 
   it('sends a signed-out join link to Home, asking for sign-in with the code', () => {
@@ -187,7 +188,7 @@ describe('Spades root', () => {
       history.pushState(null, '', '/spades?join=KQ7M');
       dispatchEvent(new PopStateEvent('popstate'));
     });
-    expect(await screen.findByRole('heading', { name: 'Online tables are coming' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Couldn’t join table KQ7M' })).toBeVisible();
     await u().click(screen.getByRole('button', { name: 'Back to Spades' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Spades' })).toBeInTheDocument();
   });
@@ -195,6 +196,8 @@ describe('Spades root', () => {
   it('a live link opens online play signed out', async () => {
     history.replaceState(null, '', '/spades?live=tok');
     render(<Spades />);
-    expect(await screen.findByRole('heading', { name: 'Online tables are coming' })).toBeVisible();
+    expect(
+      await screen.findByRole('heading', { name: 'The live table didn’t load.' }),
+    ).toBeVisible();
   });
 });
