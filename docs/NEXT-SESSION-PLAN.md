@@ -391,7 +391,7 @@ Big, joyful, a bit cheeky, never in the way of play.
 | **MVP of the night**  | At game end, after the winner, one player gets a spotlight card for the stat they owned (best bid accuracy, most Nils, best clue), with a one-line caption.                                                   |   M    |
 | **Roast lines**       | Funny, kind, stat-based captions on the winner screen and in the daily recap: "Dev bid 0 six times and still got set." A small pool of templates per game, never about anyone's name or looks.                |   S    |
 | **Daily recap story** | The morning after a game night, Home shows a vertical, tap-through "story" (like Instagram stories): yesterday's winners, awards, best moment, MVP. Shareable as an image.                                    |   L    |
-| **Avatar auras**      | Cosmetic rings earned through achievements: flames for a hot streak, a gold halo for a season champion, a frosty ring after a cold streak. Shown on every avatar for a week.                                  |   M    |
+| **Streak marks**      | A small flame by the name of anyone on a hot streak, frost after a cold one, for a week. (Bigger identity ideas, such as ranks, the crown, the belt and Player Cards, are in D4.)                             |   S    |
 | **On-fire chip**      | A small animated flame next to a player who won 3 in a row this week, everywhere their avatar shows.                                                                                                          |   S    |
 | **Emoji rain**        | In online games, a reaction sent by 3+ players within 2 s turns into an emoji rain on every phone.                                                                                                            |   S    |
 | **Overtake moment**   | When you pass someone on the leaderboard, your row slides past theirs with a whoosh and "You passed Kabir".                                                                                                   |   S    |
@@ -444,118 +444,162 @@ Big, joyful, a bit cheeky, never in the way of play.
 4. **The Kaali Teeri partner spotlight and gavel slam.**
 5. **Ishaara: trap glitch and mind meld.**
 6. **Platform: VS intro, MVP, roast lines, overtake, emoji rain.**
-7. **Bigger ones:** the daily recap story and avatar auras.
+7. **Bigger ones:** the daily recap story (identity and progression are D4).
 
 Every moment ships with its reduced-motion version, an e2e that runs with motion on, a check in all four themes, and
 a line in `docs/codebase/DESIGN-SYSTEM.md` (Motion) so the next game reuses it.
 
-### D4. Progression and cosmetics: frames, pets, titles, a shop (thinking out loud, to decide together)
+### D4. Progression and identity, designed for Baithak (a game designer's proposal)
 
-Jay's idea (2026-11-16): play earns things you can show off, like Snapchat's streaks and Bitmojis or Among Us skins
-and pets. Reach X points and frames unlock; pets; maybe avatars; something special for whoever is #1 on the
-leaderboard; maybe a shop. Nothing here is decided. This section is the menu and the trade-offs, for a real
-discussion before any of it is built. Avatar auras and the on-fire chip (D2) fold into this.
+Jay's prompt (2026-11-16): play should earn things worth showing off, like Snapchat streaks or Among Us skins; maybe
+something special for #1; maybe a shop. Frames and pets were only examples. This section starts from what is special
+about Baithak and its screens, and proposes systems that fit it. Nothing is decided; it's the menu for tomorrow.
 
-**Why it fits Baithak.** The same friends play every week. Cosmetics give them something to chase between game nights,
-make every avatar on every screen a little story ("he's had the crown for three weeks"), and reward showing up, not
-just winning. It works because the group is small and private: it's status among friends, not strangers.
+#### D4.1 First principles (what our games are really like)
 
-#### What could unlock (the catalogue)
+1. **The shared screen.** Kachuful, Kaali Teeri and Spades' scorekeeper run on **one phone that the whole table
+   looks at**; only online Spades and Ishaara put a screen in every hand. So the best rewards are ones the **whole
+   room sees together**: on the table, the winner screen, the podium, the TV-sized share link. Personal flair hidden
+   on someone's own profile is worth much less here.
+2. **The same crew, every week.** Baithak is a private group of friends, not strangers. Status means "among us",
+   history means "our nights". The fun is **stories and banter**, not grinding.
+3. **The games are about calling your shot.** Kachuful (exact bids), Spades (contracts, Nil), Kaali Teeri (the
+   auction), Ishaara (a clue for N). Every game has a moment of "I said I'd do it, and I did". Progression should
+   celebrate _calls_, not just wins.
+4. **It's a sitting room (baithak).** Chai, banter, a carrom board in the corner, a cricket match on the TV. A desi,
+   warm, slightly cheeky tone is our identity; the four themes already give the look.
+5. **Trust differs by game.** Scorekeeper games are typed in by hand; online Spades and Ishaara are run by the server.
+   Anything rare must come from trusted data (D4.6).
 
-| Kind                        | What it is                                                                                                                                                                                                                                    | Where it shows                      | Cost to build |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | :-----------: |
-| **Frames**                  | Rings around the avatar: gilt, neon, flames, frost, petals, a rotating card suit, animated ones at higher tiers.                                                                                                                              | Every avatar, every game            |       S       |
-| **Titles**                  | A line under your name: "The Nil Queen", "Sandbagger", "Mind Reader", "Hook Survivor". Earned from achievements, picked by you.                                                                                                               | Player pages, podium, lobby chairs  |       S       |
-| **Badges**                  | Pick up to 3 achievements to pin on your profile.                                                                                                                                                                                             | Player pages                        |       S       |
-| **Pets**                    | A small companion beside your avatar: a cat, a parrot, a tiny elephant, a chai cup with eyes. It reacts: cheers when you win a trick, sulks when you're set, naps when you're idle. Levels up and grows with play (Tamagotchi-light).         | Your seat at the table, player page |      M–L      |
-| **Victory effects**         | What plays when you win: confetti style, a fireworks colour, a mic-drop, a crown drop.                                                                                                                                                        | Winner screens, podium              |       M       |
-| **Trick and table effects** | Spades: a trail on the card you play, a sweep style when you win a trick. Our own art only.                                                                                                                                                   | Online table                        |       M       |
-| **Emotes / reactions**      | Extra reaction packs for online games (animated emoji, a "GG", a "😤").                                                                                                                                                                       | Online games                        |       S       |
-| **Card backs**              | Our own designs only (never the licensed Emerald Gilt deck art, whose licence is narrow, Part B).                                                                                                                                             | Your hand and dealt cards           |       M       |
-| **Avatar builder**          | A layered 2D avatar (face, hair, glasses, hat, outfit as SVG layers), like a light Bitmoji or Memoji.                                                                                                                                         | Everywhere                          |       L       |
-| **3D avatars**              | Real 3D (three.js or Ready Player Me). **Not recommended now:** a new dependency, a big bundle, battery, and a third-party service seeing player data. A 2.5D look (layered SVG with parallax on tilt) gets most of the feel for little cost. | –                                   |      XL       |
+From these, six pillars, in the order I'd build them.
 
-#### How you'd earn things (pick a mix)
+#### D4.2 Pillar 1: The Record Book and the Hall of Fame (per crew, per game)
 
-- **Levels (XP):** every game gives XP (play a game, make a bid, win, finish an online game). Levels unlock frames and
-  pet stages on a set path ("Level 5: Gilt frame"). Simple, everyone progresses, rewards turning up.
-- **Achievements:** each achievement can carry a reward (Boston → "Boston" title; 10 Nils → the "Ice" frame).
-  Reuses Part A directly.
-- **The crown (being #1):** whoever is #1 on a game's leaderboard this month wears a **crown frame** while they hold
-  it, everywhere, live. Lose the spot, lose the crown. The season champion keeps a **permanent dated trophy**
-  ("Spades champion · Nov 2026").
-- **The belt (head-to-head):** a title belt per game that moves only when someone beats the current holder in a
-  game they both played. Instant rivalry stories ("Arjun has held the Kachuful belt for 9 games"). Very Gen Z.
-- **Play streaks (Snapchat-style):** play on N days in a row (or N weeks in a row with the same crew) and a flame with
-  the count shows by your name; miss one and it resets. Friend streaks: "🔥 12 with Riya".
-- **Seasons pass (free only):** each month a free track of 10 rewards earned by XP. No paid track.
+- **What:** every game keeps **records** for its crew: highest Kachuful bid made, longest made-bid streak, biggest
+  comeback, most Nils in a night, first Boston, highest Kaali Teeri bid won, fastest Ishaara win, longest belt reign.
+  Each record has a holder, a value, a date and the game it happened in.
+- **The moment:** when a record falls mid-game, the shared screen stops for 2 s: **"NEW RECORD"**, the old holder's
+  name slides off a brass plaque and the new one is engraved on it (a mask sweep), with the old mark struck through.
+  Everyone at the table sees it; the old holder gets roasted on the spot.
+- **Where it lives:** a **Hall of Fame** page per game (plaques on a wall, theme-coloured: gilt in Emerald Gilt,
+  newsprint in Editorial Paper), linked from the leaderboard and each player page ("Holds 3 records").
+- **Why first:** pure data we already have (the boards' facts), group-facing, endlessly replayable, cheap. It is the
+  most "us" feature possible.
 
-#### A shop?
+#### D4.3 Pillar 2: Mastery ranks with desi names (per game)
 
-- **Possible, with a soft currency only:** "chips" earned by playing, spent on cosmetics. A shop gives choice ("I want
-  the parrot, not the frame") and something to save for.
-- **Recommend against real money**, at least now. It needs payments, refunds, tax and app-store rules; it changes a
-  private friends' app into a product; and in India real-money online gaming is now heavily restricted by law, so
-  anything that smells of paying in a card game is a risk to avoid. Cosmetics bought with real money are legal in
-  principle but not worth it here.
-- **Never:** loot boxes, gacha, random paid rewards, pay-to-win, or anything that affects a game's rules or scores.
-  Everything is cosmetic, and a shop item always says exactly what you get.
-- **Never** dark patterns: no fake countdowns, no "only 2 left", no guilt nags. Streak reminders, if any, are opt-in.
+- **What:** a named rank per game earned from **skill, not volume**, so it means something (computed from rolling
+  stats, like bid accuracy over the last 100 rounds, with a minimum to rank):
+  - Kachuful: Naya → Bidder → Hook Dodger → Sharp Shooter → **Kachuful Ustaad**
+  - Spades: Rookie → Trick Taker → Bag Watcher → Nil Ninja → **Spade Badshah**
+  - Kaali Teeri: Caller → Partner → Kingmaker → **Kaali Sultan**
+  - Ishaara: Hinter → Guesser → Mind Reader → **Ishaara Guru**
+- **Where it shows:** a small rank mark beside the name at the table (seats, lobby chairs, podium, player page). On the
+  shared screen the table sees each other's rank at setup ("two Ustaads at this table").
+- **Ranks can drop** (rolling window), which keeps them honest and creates "back to Ustaad" moments. The promotion
+  gets the D1 unlock card; a demotion only shows quietly on your own page.
 
-#### Making it fair (scorekeeper games are typed in by hand)
+#### D4.4 Pillar 3: Player Cards, our own collectible (it's a card app)
 
-- Kachuful, Kaali Teeri and Spades' scorekeeper are **self-reported**: anyone can type a fake game to farm XP.
-  Ishaara and online Spades are **server-run**, so they're trustworthy.
-- So: XP and chips are computed **on the server only**, from synced games (signed out, nothing is earned).
-- Rare items (the crown, the belt, season trophies, top pet stages) come only from **server-run games** or from
-  boards that already apply minimum-games rules.
-- Scorekeeper games earn ordinary XP with a **daily cap**, and only count when the game has 3+ different registry
-  players and some rounds.
-- The admin page gets a way to revoke an unlock and void a game (rare, but needed).
+- **What:** every player gets a **Baithak card** per game, like a FIFA Ultimate Team card but a playing card: the
+  avatar in the middle, the rank as the card's "rank" corner (the Ustaad is an Ace), and four stats with our
+  vocabulary:
+  - **CALL** (bid accuracy), **BOLD** (average bid size), **CLUTCH** (results in close finishes), **FORM** (last 10
+    games); per game the four change (Spades: CALL, NIL, BAGS, PARTNER).
+- **Tiers by season:** the card's finish changes with your season: plain ivory → silver → gold → **emerald gilt** for
+  the champion (our own art; never the licensed deck). A season's best players get a special **"Table of the Month"**
+  card, kept forever.
+- **Where it shows:** the player page header, the VS intro (D2) flips two cards face to face, the podium can show the
+  top three cards, and it's **shareable as an image** (the group chat will do the rest).
+- **Why it fits:** we're a card-game app, the theme system already draws cards beautifully, and it turns dry stats
+  into something people screenshot.
 
-#### How it would be built (when we get there)
+#### D4.5 Pillar 4: Crew progression, "the Baithak" itself grows
 
-- **Data (backend, one migration):**
-  - `xp_ledger(player_id, game_kind, game_id, reason, amount, at)`: append-only, so a balance is always a sum and can
-    be recomputed;
-  - `unlocks(player_id, item, source, at)`;
-  - `equipped(player_id, slot, item)` for the frame, title, pet and effects slots;
-  - `wallet` derived from the ledger, never stored.
-- **The catalogue lives in code**, like achievements (`src/progression/items.ts` mirrored in Python), each item with a
-  rule (level N, achievement X, crown, belt, shop price).
-- **Recomputed by the same engine** as achievements after each game write, so a rule change or a voided game
-  corrects everything.
-- **One place to draw it:** frames and pets go into `components/ui/Avatar.tsx` (used in 71 files), so every game gets
-  them at once. Two rules there:
-  - every animated frame or pet is transform and opacity only, with a static reduced-motion version;
-  - frames load lazily, and an avatar never blocks on its decoration.
-- **Profiles and the server:** what you've equipped travels with the player record (the appearance API already
-  exists: `app/api/appearance`), so other phones see your frame and pet.
-- **UI:**
-  - a **Locker** page on Me (owned items, equip slots, preview on your avatar at the table);
-  - a **Shop** tab if we do one;
-  - the **Unlock card** from D1 plays for every new item, and level-ups get a short "Level 7!" burst.
+- **What:** progression for the **group**, not one person. Every game the crew plays fills the crew's
+  "Baithak" meter; at milestones the **room** on Home and behind the table gains something: a brass lamp, a carrom
+  board in the corner, a ceiling fan that turns, a radio, fairy lights, a framed photo wall of the season champions.
+- **Where it shows:** the landing page's backdrop and the felt's surroundings (a subtle scene layer, theme-tinted),
+  and a "Our Baithak" page with the milestones and the crew's totals ("1,240 rounds together").
+- **Why it fits:** it rewards _showing up together_, which is the point of the app; nobody can farm it alone; it makes
+  the app feel like _our_ room. Unique: no other score app does this.
+- **Care:** scene layers must be lazy, light SVG, transform-only animations (the fan), with a static reduced-motion
+  version; never behind game controls; they must not hurt contrast.
 
-#### Suggested phasing
+#### D4.6 Pillar 5: Status that moves, the crown and the belt
 
-| Step | What                                                           | Why first                             |
-| ---- | -------------------------------------------------------------- | ------------------------------------- |
-| C1   | XP, levels and 6–8 **frames** + **titles** from achievements   | cheapest; shows on every avatar       |
-| C2   | **The crown** for #1 and **season trophies**                   | the status everyone sees              |
-| C3   | **Play streaks** and friend streaks                            | brings people back weekly             |
-| C4   | **The belt** per game                                          | rivalry stories                       |
-| C5   | **Pets** (4–6, three growth stages, reactions at the table)    | the most delight, more art work       |
-| C6   | **Chips and a shop** (earn-only), victory and trick effects    | once there are enough items to choose |
-| C7   | **Avatar builder** (layered 2D); 3D only if ever really wanted | biggest art and UI cost               |
+- **The crown:** whoever is **#1 on a game's board this month** wears a crown mark beside their name, live,
+  everywhere in that game. Lose the spot, lose the crown, with a "crown stolen" moment on the shared screen.
+  The season champion's crown becomes a **permanent trophy** on their card and in the Hall of Fame.
+- **The belt:** one title belt per game that only changes hands when someone **beats the holder in a game they both
+  played**. The holder's seat shows the belt; reigns are records (Pillar 1). Instant rivalries.
+- **Nemesis and partner chemistry:** the app names your nemesis (who beats you most) and your best partner (Spades,
+  Kaali Teeri); when you sit together the VS intro says so.
 
-#### Questions to settle together
+#### D4.7 Pillar 6: Live flavour, commentary and calls
 
-- Levels and XP, achievements as unlocks, or both?
-- The crown and the belt: yes? Per game, or one overall "Baithak" crown?
-- Pets: which animals or objects fit the Baithak vibe (desi touches: a chai cup, a parrot, a tiny elephant)?
-- A shop with earn-only chips: yes, later, or never?
-- Who makes the art: in-house SVG in the design kit (`design/brand`), or commissioned?
-- Play streaks: daily, weekly, or per crew?
+- **Live commentary:** a cricket-commentator ticker on the shared screen and the live link, generated from game events
+  with a pool of Hinglish lines: "Dev goes for Blind Nil! Brave, brave man." / "Third set in a row for Riya, someone
+  get her a chai." Kind roasts only, never about anyone's name or looks; on/off in settings.
+- **Signature calls:** each player picks a catchphrase line (from a curated list: "Ho gaya!", "Kya baat hai!",
+  "Aaj nahi chhodunga") that plays as text (and sound, if on) when they make a big call (a high bid made, a Nil made,
+  a 4-clue found). Unlocked through mastery ranks. No voice recording (privacy, moderation).
+- **Predictions (online games and live links):** before a hand, people waiting can tap a quick prediction ("Will
+  Riya make Nil?"); correct calls earn **Kismat** points that only feed a fun "Oracle" board. No stakes, no money.
+
+#### D4.8 Personal flair (smaller, later)
+
+Kept small because of the shared screen: a **title** under your name (from achievements: "The Nil Queen", "Hook
+Survivor"), **3 pinned badges** on your card, your **seat glow colour**, a **victory line** on the winner screen, and,
+for online games where everyone has their own phone, **card backs and table felts** in our own art. Animated frames,
+pets and 3D avatars are **not recommended**: low visibility on a shared screen, high art and bundle cost, and 3D needs
+a new dependency and possibly a third-party service.
+
+#### D4.9 Earning, a shop, and fairness
+
+- **Earning:** most things come from **doing** (records, ranks, seasons, the crown and belt) rather than a currency.
+  That keeps it about skill and stories.
+- **A shop:** only if, later, flair grows enough to need choice; then an **earn-only** currency ("chips") from
+  playing. **No real money** (payments, store rules, and India's restrictions on real-money gaming make it a risk with
+  no upside for a private app). **Never** loot boxes, gacha, pay-to-win, fake countdowns or guilt nags.
+- **Fairness:** everything is computed **on the server** from synced games. **Rare status** (the crown, the belt,
+  season cards, Hall of Fame records for online play) comes from **server-run games** or from boards with minimums;
+  hand-typed games count with sanity checks (3+ registry players, real rounds, a daily cap on anything farmable) and
+  an admin "void this game" action that recomputes everything.
+
+#### D4.10 How it would be built
+
+- **Shared engine (Part A) does most of it:** records, ranks, crown and belt are "facts → derived state", like
+  achievements, recomputed after each game write; codes and rules live in TS + Python with golden fixtures.
+- **Data:** `records(game_kind, crew, code, holder, value, game_id, at)`, `ranks(player_id, game_kind, rank, as_of)`,
+  `belts(game_kind, holder, since_game_id)`, `crew_progress(crew, points, milestones)`. A "crew" today is the circle
+  the server already computes for seat invites (`last_seen_at`, shared games); confirm it's the right unit.
+- **UI pieces:** `PlayerCard` (canvas-exportable), `RecordPlaque` + the "NEW RECORD" moment, `RankMark`, the crown and
+  belt marks (added once in `components/ui/Avatar.tsx` / name labels, so every game shows them), the Baithak room
+  scene layer, the commentary ticker, the predictions sheet.
+- **Budget:** every new page and scene is a lazy chunk; the first load must not grow (it is already over, §C4).
+
+#### D4.11 Suggested order
+
+| Step | What                                                              | Why this order                                 |
+| ---- | ----------------------------------------------------------------- | ---------------------------------------------- |
+| R1   | **Record Book + Hall of Fame + the NEW RECORD moment**            | cheapest, most "us", uses data we already have |
+| R2   | **Mastery ranks** (desi names) on seats and podium                | identity on the shared screen                  |
+| R3   | **The crown and the belt**                                        | status that moves; drama every week            |
+| R4   | **Player Cards** (and the VS intro face-off)                      | the screenshot magnet                          |
+| R5   | **Live commentary** and **signature calls**                       | flavour at the table                           |
+| R6   | **The Baithak room** (crew progression)                           | the signature feature; needs the most art      |
+| R7   | **Predictions**, titles and personal flair; a shop only if needed | last, once there's enough to choose from       |
+
+#### D4.12 Questions to settle together
+
+- Which pillars excite you most? Is the order right?
+- The rank names: keep them desi (Ustaad, Badshah, Sultan, Guru) or make them neutral?
+- Commentary in Hinglish, English, or both (a setting)?
+- Is "the crew" the circle the server already knows (people who sat together), or should a crew be something people
+  create and name ("Friday Baithak")?
+- Who draws the Baithak room and the Player Card frames: in-house SVG in `design/brand`, or commissioned art?
+- A shop at all, ever?
 
 ---
 
@@ -567,8 +611,8 @@ just winning. It works because the group is small and private: it's status among
 4. Part B: will you ask the deck's rights holder for the other 48 faces? Until then, keep the mixed deck in Spades or
    use stand-ins for all 52 there?
 5. Part D: which moments first (D3 is my order), and are roast lines and "shame" achievements in or out?
-6. Part D4: cosmetics and progression (frames, titles, crown, belt, streaks, pets, a shop?): the questions at the end
-   of D4.
+6. Part D4: progression and identity (records, desi mastery ranks, Player Cards, the Baithak room, the crown and
+   belt, commentary): the questions in D4.12.
 7. ~~Should this plan be committed?~~ Answered: Jay asked to commit it on its own branch (`docs/next-session-plan`), so
    another laptop has it. Delete it (and the branch) once the work is done.
 
