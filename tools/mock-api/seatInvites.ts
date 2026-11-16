@@ -53,6 +53,8 @@ export interface SeatKindRules {
   accept?(gameId: string, seat: string, userId: string): 'ok' | 'filled';
   /** A seat is being offered: refuse a bad one with an error. */
   check?(gameId: string, seat: string, toUser: string): void;
+  /** An invite to this game was made or moved on (Spades sends each seat a new table frame). */
+  changed?(gameId: string): void;
 }
 
 interface Rec {
@@ -121,6 +123,7 @@ function settle(r: Rec, status: Status) {
   r.respondedAt = now();
   tell(r.to, 'seat-invite-gone', { id: r.id, status });
   tell(r.from, 'seat-invite-update', { id: r.id, status, gameId: r.gameId, seat: r.seat });
+  kinds.get(r.kind)?.changed?.(r.gameId);
 }
 
 /** Expiry, worked out on read: 30 minutes, or the kind says the seat can't be taken up any more. */
@@ -150,7 +153,17 @@ export function inviteSeat(kind: Kind, gameId: string, seat: string, from: strin
   invites.set(r.id, r);
   tell(to, 'seat-invite', out(r));
   tell(from, 'seat-invite-update', { id: r.id, status: 'pending', gameId, seat });
+  kinds.get(kind)?.changed?.(gameId);
   return r;
+}
+
+/** A game's live pending invites (expiry worked out on read), for a kind that shows them on its seats. */
+export function pendingSeatInvites(kind: Kind, gameId: string) {
+  return [...invites.values()]
+    .filter((r) => r.kind === kind && r.gameId === gameId && r.status === 'pending')
+    .map(fresh)
+    .filter((r) => r.status === 'pending')
+    .map((r) => ({ id: r.id, seat: r.seat, to: r.to }));
 }
 
 /** The host's circle (§1.2): players they made, played with, and their own, linked to an account, not them. */

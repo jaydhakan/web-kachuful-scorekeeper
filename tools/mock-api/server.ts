@@ -75,6 +75,12 @@ import {
   spSummary,
   type SpRec,
 } from './spades';
+import {
+  resetSpadesOnline,
+  spadesOnlineRoutes,
+  spadesSeatings as spadesOnlineSeatings,
+  spadesSeatKind,
+} from './spadesOnline';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -287,6 +293,7 @@ export function seed(now = Date.now()) {
   resetIshaara(now);
   resetSpades(now);
   resetSeatInvites();
+  resetSpadesOnline();
 }
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
@@ -2009,6 +2016,17 @@ registerSeatKind('ishaara', {
   partner: () => null,
 });
 
+spadesOnlineRoutes({
+  on,
+  err,
+  STREAM,
+  RAW,
+  players: () => [...db.players.values()],
+  photoUrl,
+  page,
+});
+registerSeatKind('spades-online', spadesSeatKind);
+
 seatInviteRoutes({
   on,
   err,
@@ -2027,6 +2045,7 @@ seatInviteRoutes({
     })),
     ...ishaaraSeatings(),
     ...spadesSeatings(),
+    ...spadesOnlineSeatings(),
   ],
 });
 

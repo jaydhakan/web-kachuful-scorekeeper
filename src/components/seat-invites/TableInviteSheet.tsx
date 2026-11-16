@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import { AvatarFill } from '@/components/ui/Avatar';
 import { Sheet } from '@/components/ui/Sheet';
 import { agoTxt } from '@/lib/format';
@@ -19,6 +19,8 @@ export interface TableInviteSheetProps {
   title?: string;
   /** One line under the title ("They will be your partner."); the invite note follows it. */
   subtitle?: string;
+  /** A row above the circle (Spades' "Move here"). */
+  lead?: ReactNode;
 }
 
 /** Online now first, then the rest of the circle by who was played with last. */
@@ -92,6 +94,7 @@ export function TableInviteSheet({
   exclude = [],
   title = s.title,
   subtitle,
+  lead,
 }: TableInviteSheetProps) {
   const [items, setItems] = useState<CircleMember[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -194,6 +197,7 @@ export function TableInviteSheet({
         {subtitle ? `${subtitle} ` : ''}
         {s.subtitle}
       </p>
+      {lead}
       {anyone && (
         <>
           <label htmlFor={searchId} className="sr-only">

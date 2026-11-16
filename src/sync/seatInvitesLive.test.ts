@@ -66,7 +66,8 @@ describe('following seat invites', () => {
     await flush();
     expect(lists).toBe(1);
     expect(open()).toBe(1);
-    expect(serverNow() - Date.now()).toBeGreaterThan(-5_000);
+    // The list's serverNow sets the offset, so the store's clock reads the server's time, whatever today is.
+    expect(Math.abs(serverNow() - (T0 + 1000))).toBeLessThan(5_000);
     stop();
     expect(open()).toBe(0);
   });
