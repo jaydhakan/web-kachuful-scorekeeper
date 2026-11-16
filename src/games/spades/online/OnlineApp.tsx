@@ -8,8 +8,7 @@ import { online as o } from '../strings/online';
 import type { OnlineEntry } from './entry';
 import LiveView from './live/LiveView';
 import Lobby from './lobby/Lobby';
-// The merge swaps this for `./table/PlayTable` (same default export, no props).
-import PlayTable from './PlayPlaceholder';
+import PlayTable from './table/PlayTable';
 import { loadLastRules } from './state/lastSetup';
 import { TableContext } from './state/tableContext';
 import { useTableLink } from './state/useTableLink';
