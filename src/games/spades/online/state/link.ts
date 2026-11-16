@@ -189,7 +189,7 @@ export class TableLink {
   }
 
   /** Takes a view unless it is older than the one shown; the same rev still brings new invites. */
-  adopt(v: SpViewOut) {
+  adopt = (v: SpViewOut) => {
     if (this.stopped) return;
     const cur = this.s.view;
     const p: Partial<LinkState> = { clockOffset: v.serverNow - Date.now() };
@@ -198,7 +198,7 @@ export class TableLink {
       p.invites = marks(v);
     }
     this.set(p);
-  }
+  };
 
   private setPresence(seats: boolean[]) {
     const now = Date.now() + this.s.clockOffset;

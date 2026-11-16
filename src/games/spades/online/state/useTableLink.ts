@@ -2,11 +2,14 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { isOver } from '../../domain';
 import { TableLink, type LinkDeps } from './link';
+import type { SpViewOut } from '../sync/types';
 import type { TableCtx } from './tableContext';
 
 export interface TableLinkCtx extends TableCtx {
   /** Asks the server again (the error state's Try again). */
   reload: () => void;
+  /** Takes a view from a route outside the link (the rules PATCH, join), unless it is older. */
+  adopt: (v: SpViewOut) => void;
 }
 
 /**
@@ -35,6 +38,7 @@ export function useTableLink(id: string, deps?: LinkDeps): TableLinkCtx {
       act: link.act,
       onReaction: link.onReaction,
       reload: link.reload,
+      adopt: link.adopt,
     }),
     [s, link],
   );
