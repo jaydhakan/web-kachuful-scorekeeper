@@ -219,7 +219,7 @@ export default function LeaderboardPage() {
                           />
                         </span>
                         <span className="flex min-w-0 flex-col">
-                          <span className="truncate text-16 font-bold">
+                          <span className="min-w-0 [overflow-wrap:anywhere] text-16 font-bold">
                             {spTable.pair(x.a, x.b)}
                           </span>
                           <span className="text-13 text-[var(--tx2)]">

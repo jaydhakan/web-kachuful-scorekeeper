@@ -33,7 +33,7 @@ export function Board({ g, onEdit }: { g: SpGame; onEdit?: (i: number) => void }
               <th key={t} scope="colgroup" colSpan={3} className={`${th} !text-center`}>
                 <span className={`inline-flex items-center gap-1 ${TEAM_TONE[t].text}`}>
                   <span aria-hidden className={`h-2 w-2 rounded-full ${TEAM_TONE[t].dot}`} />
-                  <span className="max-w-[8rem] truncate">{teamNames(g, t)}</span>
+                  <span className="min-w-0 [overflow-wrap:anywhere]">{teamNames(g, t)}</span>
                 </span>
               </th>
             ))}

@@ -41,7 +41,7 @@ function Rail({ value, onPick }: { value: number; onPick: (v: number) => void })
             if (v !== value) vibrate(6);
             onPick(v);
           }}
-          className={`tick grid min-h-11 min-w-0 place-items-center rounded-xl text-16 font-bold transition-colors duration-150 ${v === value ? TEAM_TONE.a.fill : 'mat-fill-s'}`}
+          className={`tick grid min-h-11 min-w-0 place-items-center rounded-xl text-16 font-bold ${v === value ? TEAM_TONE.a.fill : 'mat-fill-s'}`}
         >
           {v}
         </m.button>

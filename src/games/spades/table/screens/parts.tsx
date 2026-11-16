@@ -221,7 +221,7 @@ export function TeamBar({ g, onOpen }: { g: SpGame; onOpen: () => void }) {
           <span className="flex min-w-0 items-baseline justify-between gap-2">
             <span className="flex min-w-0 items-center gap-1.5 text-13 font-bold">
               <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${TEAM_TONE[k].dot}`} />
-              <span className="truncate">{teamNames(g, k)}</span>
+              <span className="min-w-0 [overflow-wrap:anywhere]">{teamNames(g, k)}</span>
             </span>
             <ScoreTick v={t[k].score} />
           </span>

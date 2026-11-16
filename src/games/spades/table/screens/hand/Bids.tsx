@@ -101,13 +101,13 @@ export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
               key={k}
               aria-current={now ? 'step' : undefined}
               aria-label={s.bids.rowLabel(p.name, s.team(t), text, now)}
-              className={`glass flex min-h-14 items-center gap-3 px-3 py-2 transition-[box-shadow] duration-200 ${now ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
+              className={`glass flex min-h-14 items-center gap-3 px-3 py-2 ${now ? 'shadow-[inset_0_0_0_2px_var(--accent)]' : ''}`}
             >
               <span className={`rounded-full ${TEAM_TONE[t].ring}`}>
                 <Dot p={p} s={40} />
               </span>
               <span className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-16 font-bold">{p.name}</span>
+                <span className="min-w-0 [overflow-wrap:anywhere] text-16 font-bold">{p.name}</span>
                 <TeamBand t={t} />
               </span>
               <span aria-hidden className="relative grid min-w-[4rem] justify-items-end">

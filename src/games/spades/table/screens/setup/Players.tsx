@@ -49,7 +49,7 @@ export default function Players() {
               </span>
               <span className="flex min-w-0 flex-col">
                 <span className="text-16 font-bold">{s.lastGroup}</span>
-                <span className="truncate text-13 text-[var(--tx2)]">
+                <span className="min-w-0 [overflow-wrap:anywhere] text-13 text-[var(--tx2)]">
                   {s.lastGroupBody(lg.players.map((p) => p.name).join(', '))}
                 </span>
               </span>

@@ -62,7 +62,7 @@ function ScorePanel() {
           <div key={k} className="glass flex flex-col px-4 py-3">
             <dt className={`flex items-center gap-1.5 text-14 font-semibold ${TEAM_TONE[k].text}`}>
               <span aria-hidden className={`h-2 w-2 rounded-full ${TEAM_TONE[k].dot}`} />
-              <span className="truncate">{teamNames(g, k)}</span>
+              <span className="min-w-0 [overflow-wrap:anywhere]">{teamNames(g, k)}</span>
             </dt>
             <dd className="disp tick text-40 font-extrabold">{t[k].score}</dd>
           </div>
