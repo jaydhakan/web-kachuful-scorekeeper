@@ -74,8 +74,8 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
 - **Budget:** `tools/bundle.mjs` and `budget.json` have no Spades first-load entry yet (plan §10). Its root chunk is
   6.3 KB gzip (2026-11-16).
 - **Scorekeeper (table mode), left open on 2026-11-16:**
-  - The summary is the scorekeeper's own (`table/screens/hand/Summary.tsx`), not `ui/HandSummary.tsx`: with
-    `run` false that one shows 0 for "This hand" (`Counter` shows `from`), and it has no SET stamp. Fold them together.
+  - Two hand summaries: the scorekeeper's (`table/screens/hand/Summary.tsx`, tied to its store: edit link, haptics)
+    and the online one (`ui/HandSummary.tsx`). They look alike; merge them if they drift.
   - History lists table-mode games only; `SpHistoryItem` (`table/screens/pages/source.ts`) takes online games too.
   - The local boards (`table/lib/boards.ts`) belong in `domain/` with the stats and achievements (plan §9).
   - Not checked: the desk layout and keyboard by e2e, a real phone, the responsive audit for the scorekeeper.

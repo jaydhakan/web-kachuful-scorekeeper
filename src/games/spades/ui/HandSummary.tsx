@@ -1,6 +1,7 @@
 import { m, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { Counter } from '@/components/ui/Counter';
+import { REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { BAG_LIMIT, scoreHand, type TeamScore } from '@/games/spades/domain/scoring';
 import { seatsOf } from '@/games/spades/domain/seats';
 import type { Scores } from '@/games/spades/domain/standings';
@@ -47,6 +48,7 @@ const TONE: Record<Tone, string> = {
   gold: 'text-[var(--gold-tx)]',
 };
 const DOT: Record<TeamId, string> = { a: 'bg-team-sun', b: 'bg-team-moon' };
+const signed = (v: number) => s.sign(Math.round(v));
 
 function teamLines(
   r: TeamScore,
@@ -131,18 +133,21 @@ export function HandSummary({
       <div className="grid grid-cols-2 gap-2.5">
         {(['a', 'b'] as const).map((t) => {
           const r = res[t];
+          const lines = teamLines(r, hand, names);
+          // The SET stamp lands once the lines are in; reduced motion fades it in where it rests.
+          const stampAt = 0.2 + lines.length * 0.045 + 0.2;
           return (
             <section
               key={t}
               aria-label={teamNames[t]}
-              className="min-w-0 rounded-[18px] bg-ov/[.06] p-3 shadow-[inset_0_0_0_1px_var(--hairline)]"
+              className="relative isolate min-w-0 overflow-hidden rounded-[18px] bg-ov/[.06] p-3 shadow-[inset_0_0_0_1px_var(--hairline)]"
             >
               <h3 className="mb-2 flex items-center gap-1.5 text-15 font-bold">
                 <span aria-hidden className={`h-[9px] w-[9px] rounded-full ${DOT[t]}`} />
                 {teamNames[t]}
               </h3>
               <dl>
-                {teamLines(r, hand, names).map((l) => (
+                {lines.map((l) => (
                   <m.div
                     key={l.k}
                     {...rise(row++)}
@@ -154,15 +159,26 @@ export function HandSummary({
                 ))}
                 <m.div {...rise(row++)} className="mt-2 flex items-baseline justify-between">
                   <dt className="text-13 text-[var(--tx2)]">{s.summary.thisHand}</dt>
-                  <dd className="text-32 font-bold tabular-nums tracking-[-0.03em]" data-net={t}>
-                    <Counter from={0} to={r.net} run={run} duration={0.9} delay={rm ? 0 : 0.7} />
+                  <dd
+                    className={`text-32 font-bold tabular-nums tracking-[-0.03em] ${r.net >= 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}`}
+                    data-net={t}
+                  >
+                    {/* Settled (run off), each number rests on its final value rather than its start. */}
+                    <Counter
+                      from={run ? 0 : r.net}
+                      to={r.net}
+                      run={run}
+                      duration={0.9}
+                      delay={rm ? 0 : 0.7}
+                      format={signed}
+                    />
                   </dd>
                 </m.div>
                 <div className="flex justify-between py-1 text-14">
                   <dt className="text-[var(--tx2)]">{s.summary.total}</dt>
                   <dd className="font-bold tabular-nums" data-total={t}>
                     <Counter
-                      from={before[t]}
+                      from={run ? before[t] : after[t]}
                       to={after[t]}
                       run={run}
                       duration={0.9}
@@ -177,6 +193,26 @@ export function HandSummary({
                   </dd>
                 </div>
               </dl>
+              {r.made === false && (
+                <m.span
+                  aria-hidden
+                  data-stamp={t}
+                  initial={
+                    run ? (rm ? { opacity: 0 } : { opacity: 0, scale: 1.6, rotate: -18 }) : false
+                  }
+                  animate={{ opacity: 1, scale: 1, rotate: -12 }}
+                  transition={
+                    run
+                      ? rm
+                        ? { duration: REDUCED, delay: stampAt }
+                        : { ...SPRING_POP, delay: stampAt }
+                      : undefined
+                  }
+                  className="pointer-events-none absolute right-2 top-2 rounded-md border-2 border-[var(--neg-tx)] px-1.5 py-0.5 text-13 font-extrabold tracking-[0.08em] text-[var(--neg-tx)] opacity-90"
+                >
+                  {s.team.set(-10 * r.contract)}
+                </m.span>
+              )}
             </section>
           );
         })}

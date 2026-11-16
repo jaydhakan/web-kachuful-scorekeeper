@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { dealSeeded } from '@/games/spades/domain/cards';
 import { scoreHand } from '@/games/spades/domain/scoring';
+import { play } from '@/games/spades/strings/play';
 import type { Card, Seat } from '@/games/spades/domain/types';
 import { storage } from '@/state/persistence';
 import { SP_KEYS } from '@/games/spades/state/keys';
@@ -193,12 +194,8 @@ describe('PlayTable', () => {
       const res = scoreHand(fake.state.history[0]);
       await waitFor(
         () => {
-          expect(sheet.querySelector('[data-net="a"]')?.textContent).toBe(
-            String(res.a.net).replace('-', '−'),
-          );
-          expect(sheet.querySelector('[data-net="b"]')?.textContent).toBe(
-            String(res.b.net).replace('-', '−'),
-          );
+          expect(sheet.querySelector('[data-net="a"]')?.textContent).toBe(play.sign(res.a.net));
+          expect(sheet.querySelector('[data-net="b"]')?.textContent).toBe(play.sign(res.b.net));
         },
         { timeout: 3000 },
       );
