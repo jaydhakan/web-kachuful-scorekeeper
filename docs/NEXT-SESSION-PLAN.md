@@ -11,10 +11,10 @@ was checked against `main` in both repos on 2026-11-16.
 
 **Repos** (both on `main` only, pushed, no other branches, local and GitHub):
 
-| Repo     | Path                                                     | Last commit                                   |
-| -------- | -------------------------------------------------------- | --------------------------------------------- |
-| Frontend | `~/workspace/personal/web-kachuful-scorekeeper`          | `3fe89e0` leaderboard opens on bid accuracy   |
-| Backend  | `~/workspace/personal/backend-kachuful-scorekeeper`      | `413fbd0` merge: Spades                       |
+| Repo     | Path                                                | Last commit                                 |
+| -------- | --------------------------------------------------- | ------------------------------------------- |
+| Frontend | `~/workspace/personal/web-kachuful-scorekeeper`     | `3fe89e0` leaderboard opens on bid accuracy |
+| Backend  | `~/workspace/personal/backend-kachuful-scorekeeper` | `413fbd0` merge: Spades                     |
 
 **Deployed:** the backend is live at `https://play.vectanix.com` and reports version `413fbd0`, so pushing `main`
 deploys it. The frontend's deploy is **unconfirmed**: `/spades` answered 200 but with the generic "Baithak" title, so
@@ -27,12 +27,12 @@ in-memory API. All Vite scripts use `--configLoader runner` (no more config warn
 
 **Games** (all at their own path, registered in `src/platform/catalog.ts`):
 
-| Game        | Kind                          | Where its rules live                         |
-| ----------- | ----------------------------- | -------------------------------------------- |
-| Kachuful    | scorekeeper                   | `src/games/kachuful/domain`                  |
-| Kaali Teeri | scorekeeper (auction + calls) | `src/games/kaali-teeri/domain`               |
-| Ishaara     | server-run word game (online) | `src/games/ishaara/domain`, server mirror    |
-| Spades      | online (4 phones) + scorekeeper | `src/games/spades/domain`, server mirror   |
+| Game        | Kind                            | Where its rules live                      |
+| ----------- | ------------------------------- | ----------------------------------------- |
+| Kachuful    | scorekeeper                     | `src/games/kachuful/domain`               |
+| Kaali Teeri | scorekeeper (auction + calls)   | `src/games/kaali-teeri/domain`            |
+| Ishaara     | server-run word game (online)   | `src/games/ishaara/domain`, server mirror |
+| Spades      | online (4 phones) + scorekeeper | `src/games/spades/domain`, server mirror  |
 
 **How Jay wants work done** (memory: `sequential-work-after-spades-wave`): one thing at a time, in the main chat, no
 subagents or worktrees unless he says so. Report progress as a % every ~5%. Conventional Commits, no co-author
@@ -58,32 +58,32 @@ both repos. Nothing stops the other games having it; it is simply unbuilt.
 
 **Frontend**
 
-| Piece                    | Where                                                        | What it does                                                                                     |
-| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| Catalogue                | `games/kachuful/domain/achievements.ts` (408 lines)          | ~70 achievements in 5 groups: `round`, `game`, `career`, `daily`, `season`; `big` ones get a burst |
-| Ladders                  | same file, `LADDERS`, `ladderCounts`, `nextLevel`            | levelled tracks (hot streaks, wins 1/2/3/5, games 10…500, rounds, bids made, points, crew)       |
-| Awards                   | `games/kachuful/domain/awards.ts` (287 lines)                | daily awards (`day_star`, `day_sharp` …), seasons (monthly, min 50 rounds), Wrapped, `chase`      |
-| Facts                    | `games/kachuful/domain/timeline.ts`                          | one flat list of round and game facts every stat is computed from                               |
-| Profile                  | `games/kachuful/domain/profile.ts`                           | profile stats, calendar heatmap, points over time, opponents, head-to-head                       |
-| Strings                  | `games/kachuful/strings/achievements.ts`                     | each code's name and description                                                                 |
-| Pages                    | `games/kachuful/screens/pages/`                              | `AchievementsPage`, `AwardsPage`, `ActivityPage`, `WrappedPage`, `PlayerPage`, `H2HPage` …         |
-| In-game moments          | `components/AchievementReel.tsx`, `lastRoundMoments`         | what a game earned, big moments first; round moments shown as they happen                        |
+| Piece           | Where                                                | What it does                                                                                       |
+| --------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Catalogue       | `games/kachuful/domain/achievements.ts` (408 lines)  | ~70 achievements in 5 groups: `round`, `game`, `career`, `daily`, `season`; `big` ones get a burst |
+| Ladders         | same file, `LADDERS`, `ladderCounts`, `nextLevel`    | levelled tracks (hot streaks, wins 1/2/3/5, games 10…500, rounds, bids made, points, crew)         |
+| Awards          | `games/kachuful/domain/awards.ts` (287 lines)        | daily awards (`day_star`, `day_sharp` …), seasons (monthly, min 50 rounds), Wrapped, `chase`       |
+| Facts           | `games/kachuful/domain/timeline.ts`                  | one flat list of round and game facts every stat is computed from                                  |
+| Profile         | `games/kachuful/domain/profile.ts`                   | profile stats, calendar heatmap, points over time, opponents, head-to-head                         |
+| Strings         | `games/kachuful/strings/achievements.ts`             | each code's name and description                                                                   |
+| Pages           | `games/kachuful/screens/pages/`                      | `AchievementsPage`, `AwardsPage`, `ActivityPage`, `WrappedPage`, `PlayerPage`, `H2HPage` …         |
+| In-game moments | `components/AchievementReel.tsx`, `lastRoundMoments` | what a game earned, big moments first; round moments shown as they happen                          |
 
 **Backend**
 
-| Piece              | Where                                                      | Notes                                                                                        |
-| ------------------ | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Rules mirror       | `app/domain/achievements.py`, `app/domain/awards.py`       | Python copy of the catalogue and rules; parity via golden fixtures                           |
-| Engine             | `app/services/achievements.py` (`AchievementsEngine`)      | after every game write: recomputes that game's and players' achievements, keeps `earned_at`   |
-| Called from        | `app/services/games.py` (L356, L470), `merge.py`           | Kachuful game saves and player merges only                                                   |
-| Tables             | `achievements`, `activity`, `closed_periods` (`app/db/models.py` L854+) | see below                                                                          |
-| Jobs               | `app/jobs/close_day.py` (00:05), `close_season.py`          | freeze a day's / month's awards and write feed items                                         |
+| Piece        | Where                                                                   | Notes                                                                                       |
+| ------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Rules mirror | `app/domain/achievements.py`, `app/domain/awards.py`                    | Python copy of the catalogue and rules; parity via golden fixtures                          |
+| Engine       | `app/services/achievements.py` (`AchievementsEngine`)                   | after every game write: recomputes that game's and players' achievements, keeps `earned_at` |
+| Called from  | `app/services/games.py` (L356, L470), `merge.py`                        | Kachuful game saves and player merges only                                                  |
+| Tables       | `achievements`, `activity`, `closed_periods` (`app/db/models.py` L854+) | see below                                                                                   |
+| Jobs         | `app/jobs/close_day.py` (00:05), `close_season.py`                      | freeze a day's / month's awards and write feed items                                        |
 
 The tables are almost game-agnostic already:
 
 - `achievements(player_id, code, game_id → games.id, round_index, period, earned_at, data)`, unique on
   `(player_id, code, game_id, round_index, period)`. `games` holds **every** kind (`kind IN ('kachuful',
-  'kaali-teeri', 'ishaara', 'spades', 'spades-online')`), so `game_id` can point at any game. **But** `code` has no
+'kaali-teeri', 'ishaara', 'spades', 'spades-online')`), so `game_id` can point at any game. **But** `code` has no
   game, and a career or period row has no `game_id`, so "Kaali Teeri's achievements" can't be told apart.
 - `activity(kind, player_id, game_id, achievement_id, data)`: the feed; same gap.
 - `closed_periods(period PK, kind 'day'|'season', data)`: a day closes once **for the whole app**; a second game's
@@ -91,25 +91,25 @@ The tables are almost game-agnostic already:
 
 ### A3. What the other games have today
 
-| Feature                         | Kachuful | Kaali Teeri | Ishaara | Spades                                      |
-| ------------------------------- | :------: | :---------: | :-----: | ------------------------------------------- |
-| History, game recap             |    ✓     |      ✓      |    ✓    | ✓ (online tables too)                       |
-| Leaderboard + podium            |    ✓     |      ✓      |    ✓    | ✓                                           |
-| Player page                     |    ✓     |      ✓      |    ✓    | ✓ (stats, partners, vs you)                 |
-| Head-to-head page               |    ✓     |      ✓      |    ✓    | inside the player page                      |
-| Achievements                    |  ✓ ~70   |      –      |    –    | **10, device only** (`domain/achievements.ts`, shown on the player page) |
-| Ladders (levels)                |    ✓     |      –      |    –    | –                                           |
-| Daily awards / seasons          |    ✓     |      –      |    –    | –                                           |
-| Activity feed                   |    ✓     |      –      |    –    | –                                           |
-| Wrapped (year in review)        |    ✓     |      –      |    –    | –                                           |
-| In-game "you earned it" moment  |    ✓     |      –      |    –    | –                                           |
+| Feature                        | Kachuful | Kaali Teeri | Ishaara | Spades                                                                   |
+| ------------------------------ | :------: | :---------: | :-----: | ------------------------------------------------------------------------ |
+| History, game recap            |    ✓     |      ✓      |    ✓    | ✓ (online tables too)                                                    |
+| Leaderboard + podium           |    ✓     |      ✓      |    ✓    | ✓                                                                        |
+| Player page                    |    ✓     |      ✓      |    ✓    | ✓ (stats, partners, vs you)                                              |
+| Head-to-head page              |    ✓     |      ✓      |    ✓    | inside the player page                                                   |
+| Achievements                   |  ✓ ~70   |      –      |    –    | **10, device only** (`domain/achievements.ts`, shown on the player page) |
+| Ladders (levels)               |    ✓     |      –      |    –    | –                                                                        |
+| Daily awards / seasons         |    ✓     |      –      |    –    | –                                                                        |
+| Activity feed                  |    ✓     |      –      |    –    | –                                                                        |
+| Wrapped (year in review)       |    ✓     |      –      |    –    | –                                                                        |
+| In-game "you earned it" moment |    ✓     |      –      |    –    | –                                                                        |
 
 ### A4. The approach (recommended)
 
 **Build one shared progression kit and give each game its own catalogue**, instead of copying Kachuful three times.
 
 1. **Shared kit (frontend, `src/progression/`)**: game-agnostic types (`AchievementDef { code, emoji, group, big?,
-   ladder? }`, `Earned`, `Ladder`, `nextLevel`), the UI (achievement grid with locked/earned states, ladder progress,
+ladder? }`, `Earned`, `Ladder`, `nextLevel`), the UI (achievement grid with locked/earned states, ladder progress,
    the unlock burst, the activity feed card, the awards card) and a tiny registry so each game plugs in
    `{ catalogue, strings, compute(facts) }`. Kachuful's pages move onto the kit **without changing what they show**
    (do this first, behind its existing tests; it proves the kit).
@@ -140,23 +140,23 @@ flag them as such in the UI.
 
 **Spades** (rules: `src/games/spades/domain`; the 10 that exist now are marked ✓)
 
-| Code              | Name           | Group  | Earned for                                              |
-| ----------------- | -------------- | ------ | ------------------------------------------------------- |
-| `boston` ✓        | Boston         | hand   | your team takes all 13 tricks (big)                     |
-| `ice_cold` ✓      | Ice Cold       | hand   | a Nil made                                              |
-| `blindside` ✓     | Blindside      | hand   | a Blind Nil made (big)                                  |
-| `nil_breaker` ✓   | Nil Breaker    | hand   | an opponent's Nil fails (online only: needs the tricks) |
-| `set_them` ✓      | Set Them       | hand   | the other team is set                                   |
-| `sandbagged` ✓    | Sandbagged     | hand   | your team takes the 10-bag penalty (shame)              |
-| `comeback` ✓      | Comeback       | game   | a win after trailing by 150                             |
-| `exact` ✓         | Exact          | game   | a win with every hand made exactly                      |
-| `mercy` ✓         | Mercy          | game   | a win by the mercy rule                                 |
-| `perfect_pair` ✓  | Perfect Pair   | career | 10 wins with one partner                                |
-| `double_nil`      | Double Trouble | hand   | both partners make Nil in the same hand (big)           |
-| `last_trick`      | Last Gasp      | hand   | make your contract on the 13th trick                    |
-| `cut_king`        | Trump Card     | hand   | cut an Ace with a 2 of spades (online)                  |
-| `shutout`         | Shutout        | game   | win while the other team never got above 0              |
-| ladders           | –              | career | games 10/50/100, wins 1/5/25, Nils made 1/10/25, Bostons 1/5 |
+| Code             | Name           | Group  | Earned for                                                   |
+| ---------------- | -------------- | ------ | ------------------------------------------------------------ |
+| `boston` ✓       | Boston         | hand   | your team takes all 13 tricks (big)                          |
+| `ice_cold` ✓     | Ice Cold       | hand   | a Nil made                                                   |
+| `blindside` ✓    | Blindside      | hand   | a Blind Nil made (big)                                       |
+| `nil_breaker` ✓  | Nil Breaker    | hand   | an opponent's Nil fails (online only: needs the tricks)      |
+| `set_them` ✓     | Set Them       | hand   | the other team is set                                        |
+| `sandbagged` ✓   | Sandbagged     | hand   | your team takes the 10-bag penalty (shame)                   |
+| `comeback` ✓     | Comeback       | game   | a win after trailing by 150                                  |
+| `exact` ✓        | Exact          | game   | a win with every hand made exactly                           |
+| `mercy` ✓        | Mercy          | game   | a win by the mercy rule                                      |
+| `perfect_pair` ✓ | Perfect Pair   | career | 10 wins with one partner                                     |
+| `double_nil`     | Double Trouble | hand   | both partners make Nil in the same hand (big)                |
+| `last_trick`     | Last Gasp      | hand   | make your contract on the 13th trick                         |
+| `cut_king`       | Trump Card     | hand   | cut an Ace with a 2 of spades (online)                       |
+| `shutout`        | Shutout        | game   | win while the other team never got above 0                   |
+| ladders          | –              | career | games 10/50/100, wins 1/5/25, Nils made 1/10/25, Bostons 1/5 |
 
 Daily awards: Boston of the day, Sharpest pair (most contracts made), Sandbagger of the day (shame).
 Seasons: monthly, champion pair by win rate (min games), sharpest bidder by bids made %.
@@ -166,51 +166,51 @@ SET stamp and Nil halos already set the visual language).
 **Kaali Teeri** (rules: auction to a `minBid`, step 5/10, the bidder calls partner cards, partners revealed as the
 called cards are played; `TARGET = 1000`; 4–10 players, 1–2 decks). Verify thresholds in `domain/scoring.ts`.
 
-| Code              | Name            | Group  | Earned for                                                  |
-| ----------------- | --------------- | ------ | ----------------------------------------------------------- |
-| `top_bid`         | High Roller     | hand   | win the auction at the table's highest bid of the night     |
-| `made_it`         | Called It       | hand   | as bidder, make your bid                                    |
-| `max_bid_made`    | All In          | hand   | make the maximum possible bid (big)                         |
-| `set_bidder`      | Giant Killer    | hand   | in the opposition, defeat a bid ≥ some threshold            |
-| `secret_partner`  | Undercover      | hand   | as a called partner, win the hand without being suspected (the last called card revealed late) |
-| `solo`            | Lone Wolf       | hand   | the bidder wins when the called cards were the bidder's own |
-| `clean_sweep`     | Clean Sweep     | hand   | the bidding side takes every point                          |
-| `forced_win`      | Stuck With It   | hand   | win a hand you were forced to bid (shame-turned-glory)      |
-| `first_to_1000`   | Thousandaire    | game   | first to the target                                         |
-| `comeback`        | Comeback        | game   | win after being last at the halfway point                   |
-| ladders           | –               | career | games, wins, bids made, partnerships won                    |
+| Code             | Name          | Group  | Earned for                                                                                     |
+| ---------------- | ------------- | ------ | ---------------------------------------------------------------------------------------------- |
+| `top_bid`        | High Roller   | hand   | win the auction at the table's highest bid of the night                                        |
+| `made_it`        | Called It     | hand   | as bidder, make your bid                                                                       |
+| `max_bid_made`   | All In        | hand   | make the maximum possible bid (big)                                                            |
+| `set_bidder`     | Giant Killer  | hand   | in the opposition, defeat a bid ≥ some threshold                                               |
+| `secret_partner` | Undercover    | hand   | as a called partner, win the hand without being suspected (the last called card revealed late) |
+| `solo`           | Lone Wolf     | hand   | the bidder wins when the called cards were the bidder's own                                    |
+| `clean_sweep`    | Clean Sweep   | hand   | the bidding side takes every point                                                             |
+| `forced_win`     | Stuck With It | hand   | win a hand you were forced to bid (shame-turned-glory)                                         |
+| `first_to_1000`  | Thousandaire  | game   | first to the target                                                                            |
+| `comeback`       | Comeback      | game   | win after being last at the halfway point                                                      |
+| ladders          | –             | career | games, wins, bids made, partnerships won                                                       |
 
 Daily: Biggest bid of the day, Best partner (most hands won as a called partner). Seasons: points per game.
 
 **Ishaara** (server-run; teams Sun/Moon, clue-giver gives one word + number, the trap card ends the game,
 `EndedBy = all-found | trap | resign | abandoned`). Clue-giver and guesser roles count separately.
 
-| Code              | Name             | Group  | Earned for                                               |
-| ----------------- | ---------------- | ------ | -------------------------------------------------------- |
-| `mind_meld`       | Mind Meld        | turn   | a clue for 3+ fully found in one turn (big at 4+)        |
-| `one_word_four`   | One Word, Four Cards | turn | a single clue for 4 that the team finds                 |
-| `bonus_card`      | Overtime         | turn   | the team uses the +1 guess to find a leftover card       |
-| `flawless`        | Flawless         | game   | win with no wrong guesses                                |
-| `trap_dodger`     | Tightrope        | game   | win when only the trap and one other card were left      |
-| `trapped`         | Trapped          | game   | your guess hit the trap (shame)                          |
-| `speedrun`        | Speedrun         | game   | win in 4 turns or fewer                                  |
-| `comeback`        | Comeback         | game   | win from 4+ cards behind                                 |
-| ladders           | –                | career | games, wins, clues given, cards found                    |
+| Code            | Name                 | Group  | Earned for                                          |
+| --------------- | -------------------- | ------ | --------------------------------------------------- |
+| `mind_meld`     | Mind Meld            | turn   | a clue for 3+ fully found in one turn (big at 4+)   |
+| `one_word_four` | One Word, Four Cards | turn   | a single clue for 4 that the team finds             |
+| `bonus_card`    | Overtime             | turn   | the team uses the +1 guess to find a leftover card  |
+| `flawless`      | Flawless             | game   | win with no wrong guesses                           |
+| `trap_dodger`   | Tightrope            | game   | win when only the trap and one other card were left |
+| `trapped`       | Trapped              | game   | your guess hit the trap (shame)                     |
+| `speedrun`      | Speedrun             | game   | win in 4 turns or fewer                             |
+| `comeback`      | Comeback             | game   | win from 4+ cards behind                            |
+| ladders         | –                    | career | games, wins, clues given, cards found               |
 
 Daily: Best clue-giver (cards found per clue), Sharpest guesser. Seasons: win rate (min games).
 
 ### A6. Build order (phases, with rough weights for progress reporting)
 
-| #  | Phase                                                                                   | Weight |
-| -- | --------------------------------------------------------------------------------------- | -----: |
-| P0 | Agree catalogues and the DB approach with Jay (A4.4, A5); write `backend-requests.md`    |     5% |
-| P1 | Shared kit `src/progression/`; move Kachuful onto it, no visual change, all tests green |    15% |
-| P2 | Backend migration (`game_kind`), engine generalised, Kachuful unchanged (`make verify`) |    10% |
-| P3 | **Spades**: catalogue v2 front + Python mirror + fixtures, engine hooks (scorekeeper save, online hand/game end), backfill job, Achievements page, live moment in the summary | 20% |
-| P4 | **Kaali Teeri**: the same                                                                |    15% |
-| P5 | **Ishaara**: the same (server-run, so only the server computes; the app reads)          |    15% |
-| P6 | Daily awards and seasons per game (`close_day` / `close_season` take a game)             |    10% |
-| P7 | Activity feed across games on Me; e2e per game; TODO and docs; deploy both              |    10% |
+| #   | Phase                                                                                                                                                                         | Weight |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----: |
+| P0  | Agree catalogues and the DB approach with Jay (A4.4, A5); write `backend-requests.md`                                                                                         |     5% |
+| P1  | Shared kit `src/progression/`; move Kachuful onto it, no visual change, all tests green                                                                                       |    15% |
+| P2  | Backend migration (`game_kind`), engine generalised, Kachuful unchanged (`make verify`)                                                                                       |    10% |
+| P3  | **Spades**: catalogue v2 front + Python mirror + fixtures, engine hooks (scorekeeper save, online hand/game end), backfill job, Achievements page, live moment in the summary |    20% |
+| P4  | **Kaali Teeri**: the same                                                                                                                                                     |    15% |
+| P5  | **Ishaara**: the same (server-run, so only the server computes; the app reads)                                                                                                |    15% |
+| P6  | Daily awards and seasons per game (`close_day` / `close_season` take a game)                                                                                                  |    10% |
+| P7  | Activity feed across games on Me; e2e per game; TODO and docs; deploy both                                                                                                    |    10% |
 
 Wrapped for every game is a later, separate project.
 
@@ -237,7 +237,7 @@ Wrapped for every game is a later, separate project.
 - **Missing: 48 of 52 faces.** Every A, 2–10 and J, plus Q♠ Q♦ Q♣ and K♥.
 - **Nothing is broken today.** Every missing face has our **own stand-in** drawing (`standins/card-*.svg`, ivory face,
   gold rule, outlined rank and pip, 240 KB for all 48), wired in `styles/themes/emerald-gilt.css` (`.card-standin
-  [data-card=…]`). Spades' `SpCard` already layers: flat face → stand-in → photo (`--art-card-<rank>-<suit>`), so in
+[data-card=…]`). Spades' `SpCard` already layers: flat face → stand-in → photo (`--art-card-<rank>-<suit>`), so in
   Emerald Gilt Spades shows 4 photo faces and 48 stand-ins. The stand-ins' corner index sits in the left ~20% of the
   card, so it stays readable in the hand's narrow strips.
 - **Spades needs the full deck far more than the other games**: Kachuful and Kaali Teeri mostly show a trump or a
@@ -246,12 +246,12 @@ Wrapped for every game is a later, separate project.
 
 ### B2. Options
 
-| Option | What                                                                 | Pros                          | Cons                                               |
-| ------ | -------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------- |
-| 1      | **Ask the rights holder for the other 48 faces** (same terms)        | the real deck, consistent     | depends on them; licence covers the app only       |
-| 2      | Redraw the 12 court cards (J/Q/K) in-house in the deck's style; keep pips as stand-ins | ours, usable anywhere | design time; must not copy their artwork           |
-| 3      | Keep stand-ins, but polish them (court figures, gilt corner, texture) | quick, consistent            | photo 4 still stand out; maybe drop them in Spades |
-| 4      | In Spades only, use stand-ins for **all** 52 (ignore the 4 photos)    | a uniform hand today          | loses the real art there                           |
+| Option | What                                                                                   | Pros                      | Cons                                               |
+| ------ | -------------------------------------------------------------------------------------- | ------------------------- | -------------------------------------------------- |
+| 1      | **Ask the rights holder for the other 48 faces** (same terms)                          | the real deck, consistent | depends on them; licence covers the app only       |
+| 2      | Redraw the 12 court cards (J/Q/K) in-house in the deck's style; keep pips as stand-ins | ours, usable anywhere     | design time; must not copy their artwork           |
+| 3      | Keep stand-ins, but polish them (court figures, gilt corner, texture)                  | quick, consistent         | photo 4 still stand out; maybe drop them in Spades |
+| 4      | In Spades only, use stand-ins for **all** 52 (ignore the 4 photos)                     | a uniform hand today      | loses the real art there                           |
 
 **Recommendation:** ask for the 48 now (Option 1); until they arrive, do Option 4 for Spades **only if** the mixed
 hand looks wrong on a real phone (check first), and never substitute another suit's card (SOURCE.md rule).
@@ -385,55 +385,55 @@ Big, joyful, a bit cheeky, never in the way of play.
 
 **Platform-wide (every game)**
 
-| Idea                       | What it is                                                                                           | Effort |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- | :----: |
-| **VS intro**               | When a game starts, the players slide in from the sides like a fighting-game VS screen, with their win rate and a "rivalry" tag if two of them are close head-to-head ("Riya 12–11 Arjun"). 1.5 s, skippable. | M |
-| **MVP of the night**       | At game end, after the winner, one player gets a spotlight card for the stat they owned (best bid accuracy, most Nils, best clue), with a one-line caption. | M |
-| **Roast lines**            | Funny, kind, stat-based captions on the winner screen and in the daily recap: "Dev bid 0 six times and still got set." A small pool of templates per game, never about anyone's name or looks. | S |
-| **Daily recap story**      | The morning after a game night, Home shows a vertical, tap-through "story" (like Instagram stories): yesterday's winners, awards, best moment, MVP. Shareable as an image. | L |
-| **Avatar auras**           | Cosmetic rings earned through achievements: flames for a hot streak, a gold halo for a season champion, a frosty ring after a cold streak. Shown on every avatar for a week. | M |
-| **On-fire chip**           | A small animated flame next to a player who won 3 in a row this week, everywhere their avatar shows. | S |
-| **Emoji rain**             | In online games, a reaction sent by 3+ players within 2 s turns into an emoji rain on every phone. | S |
-| **Overtake moment**        | When you pass someone on the leaderboard, your row slides past theirs with a whoosh and "You passed Kabir". | S |
-| **App badge**              | The installed app's icon shows a number for pending invites and "your turn" (the Badging API; no notification needed). | S |
-| **Shuffle refresh**        | Pull to refresh on History and boards shows a riffle-shuffle of three cards instead of a spinner. | S |
+| Idea                  | What it is                                                                                                                                                                                                    | Effort |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----: |
+| **VS intro**          | When a game starts, the players slide in from the sides like a fighting-game VS screen, with their win rate and a "rivalry" tag if two of them are close head-to-head ("Riya 12–11 Arjun"). 1.5 s, skippable. |   M    |
+| **MVP of the night**  | At game end, after the winner, one player gets a spotlight card for the stat they owned (best bid accuracy, most Nils, best clue), with a one-line caption.                                                   |   M    |
+| **Roast lines**       | Funny, kind, stat-based captions on the winner screen and in the daily recap: "Dev bid 0 six times and still got set." A small pool of templates per game, never about anyone's name or looks.                |   S    |
+| **Daily recap story** | The morning after a game night, Home shows a vertical, tap-through "story" (like Instagram stories): yesterday's winners, awards, best moment, MVP. Shareable as an image.                                    |   L    |
+| **Avatar auras**      | Cosmetic rings earned through achievements: flames for a hot streak, a gold halo for a season champion, a frosty ring after a cold streak. Shown on every avatar for a week.                                  |   M    |
+| **On-fire chip**      | A small animated flame next to a player who won 3 in a row this week, everywhere their avatar shows.                                                                                                          |   S    |
+| **Emoji rain**        | In online games, a reaction sent by 3+ players within 2 s turns into an emoji rain on every phone.                                                                                                            |   S    |
+| **Overtake moment**   | When you pass someone on the leaderboard, your row slides past theirs with a whoosh and "You passed Kabir".                                                                                                   |   S    |
+| **App badge**         | The installed app's icon shows a number for pending invites and "your turn" (the Badging API; no notification needed).                                                                                        |   S    |
+| **Shuffle refresh**   | Pull to refresh on History and boards shows a riffle-shuffle of three cards instead of a spinner.                                                                                                             |   S    |
 
 **Kachuful**
 
-| Idea                    | What it is                                                                                            | Effort |
-| ----------------------- | ----------------------------------------------------------------------------------------------------- | :----: |
-| **The hook moment**     | When the last bidder's forbidden number greys out, it cracks and swings like it's on a hook, with a "clink". | S |
-| **Everyone made it**    | A round where every bid is made: fireworks from every avatar at once and "Clean round!".              | S |
-| **Grand slam**          | Already an achievement; give it the full-screen Unlock plus a slow-motion number count-up.            | S |
-| **Cold streak frost**   | After 3 misses in a row, a player's row frosts over (an ice overlay fading in); one made bid shatters it. | M |
+| Idea                  | What it is                                                                                                   | Effort |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ | :----: |
+| **The hook moment**   | When the last bidder's forbidden number greys out, it cracks and swings like it's on a hook, with a "clink". |   S    |
+| **Everyone made it**  | A round where every bid is made: fireworks from every avatar at once and "Clean round!".                     |   S    |
+| **Grand slam**        | Already an achievement; give it the full-screen Unlock plus a slow-motion number count-up.                   |   S    |
+| **Cold streak frost** | After 3 misses in a row, a player's row frosts over (an ice overlay fading in); one made bid shatters it.    |   M    |
 
 **Spades** (beyond D1)
 
-| Idea                    | What it is                                                                                            | Effort |
-| ----------------------- | ----------------------------------------------------------------------------------------------------- | :----: |
-| **Bag meter boom**      | When a team's bags hit 10, the bag meter overfills, pops, and a "−100" drops onto their score with a thud. | S |
-| **Blind Nil drama**     | When someone declares Blind Nil, their cards stay face down with a shimmering gold edge, and a heartbeat sound plays softly while they play. | S |
-| **Partner high-five**   | When a team makes its contract, partners can double-tap their partner's avatar; if both do within 2 s, a high-five animation plays on both phones. | M |
-| **Last trick slow-mo**  | When the hand's result depends on the last trick, it plays at half speed with a zoom on the table.    | M |
-| **Set shake**           | A set team's score bar shakes and cracks briefly when the SET stamp lands (the stamp exists).         | S |
-| **Rematch handshake**   | "Rematch" fills a progress ring as each player taps it; at four, the cards fly back into the deck and reshuffle. | M |
+| Idea                   | What it is                                                                                                                                         | Effort |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | :----: |
+| **Bag meter boom**     | When a team's bags hit 10, the bag meter overfills, pops, and a "−100" drops onto their score with a thud.                                         |   S    |
+| **Blind Nil drama**    | When someone declares Blind Nil, their cards stay face down with a shimmering gold edge, and a heartbeat sound plays softly while they play.       |   S    |
+| **Partner high-five**  | When a team makes its contract, partners can double-tap their partner's avatar; if both do within 2 s, a high-five animation plays on both phones. |   M    |
+| **Last trick slow-mo** | When the hand's result depends on the last trick, it plays at half speed with a zoom on the table.                                                 |   M    |
+| **Set shake**          | A set team's score bar shakes and cracks briefly when the SET stamp lands (the stamp exists).                                                      |   S    |
+| **Rematch handshake**  | "Rematch" fills a progress ring as each player taps it; at four, the cards fly back into the deck and reshuffle.                                   |   M    |
 
 **Kaali Teeri** (beyond D1)
 
-| Idea                    | What it is                                                                                            | Effort |
-| ----------------------- | ----------------------------------------------------------------------------------------------------- | :----: |
-| **Gavel slam**          | When the auction ends, a gavel swings down on the winning bid with a "SOLD!" stamp.                    | S |
-| **Suspense meter**      | Before partners are known, a "Who's with the bidder?" bar shows how many called cards are still hidden. | S |
-| **Thousand club**       | Reaching 1000 points: the score counts up in gold with a coin shower.                                   | S |
+| Idea               | What it is                                                                                              | Effort |
+| ------------------ | ------------------------------------------------------------------------------------------------------- | :----: |
+| **Gavel slam**     | When the auction ends, a gavel swings down on the winning bid with a "SOLD!" stamp.                     |   S    |
+| **Suspense meter** | Before partners are known, a "Who's with the bidder?" bar shows how many called cards are still hidden. |   S    |
+| **Thousand club**  | Reaching 1000 points: the score counts up in gold with a coin shower.                                   |   S    |
 
 **Ishaara**
 
-| Idea                    | What it is                                                                                            | Effort |
-| ----------------------- | ----------------------------------------------------------------------------------------------------- | :----: |
-| **Mind meld wave**      | When a clue for 3+ is found in a row, a glowing line connects the found cards in order, then pulses.  | M |
-| **Trap glitch**         | Hitting the trap glitches the board: cards jitter (small translate steps), a red flash, and a static sound, then "TRAPPED". | S |
-| **Thinking aura**       | While the clue-giver is typing, their avatar on the board breathes with a soft glow, so the table knows they're on it. | S |
-| **Photo finish**        | When both teams need one card, a countdown banner and a heartbeat play until a card turns.             | S |
+| Idea               | What it is                                                                                                                  | Effort |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- | :----: |
+| **Mind meld wave** | When a clue for 3+ is found in a row, a glowing line connects the found cards in order, then pulses.                        |   M    |
+| **Trap glitch**    | Hitting the trap glitches the board: cards jitter (small translate steps), a red flash, and a static sound, then "TRAPPED". |   S    |
+| **Thinking aura**  | While the clue-giver is typing, their avatar on the board breathes with a soft glow, so the table knows they're on it.      |   S    |
+| **Photo finish**   | When both teams need one card, a countdown banner and a heartbeat play until a card turns.                                  |   S    |
 
 ### D3. Suggested order
 
