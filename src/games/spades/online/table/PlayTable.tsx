@@ -48,7 +48,7 @@ import { Felt, type TrickPlay } from './Felt';
 import { dealNo, handDone, momentsBetween, playsOf, type Moment } from './moments';
 import { cardsLeft, lastHandScore, nilState, placeOf, teamNumbers } from './present';
 import { BoardBody, KeysBody, LastTrickBody, MenuBody, PrefsBody } from './Sheets';
-import { useAutoTimeout, useServerNow } from './useTimers';
+import { useServerNow } from './useTimers';
 import { Cancelled, Winner } from './Winner';
 
 /** A trick stays on the felt this long after its last card lands, before it is gathered to the winner. */
@@ -280,7 +280,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     holding === null;
   const myHand = view.me.hand ? view.me.hand.filter((c) => !mine(c)) : null;
 
-  useAutoTimeout(t, me, ctx.clockOffset, ctx.presence, ctx.act);
+  // Timeouts are sent by the table link (state/link.ts), which every seated phone runs.
 
   // ---------- acting ----------
   const act = useCallback(
