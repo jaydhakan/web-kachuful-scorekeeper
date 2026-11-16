@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, type Plugin, type ProxyOptions } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
@@ -220,9 +220,31 @@ const phoneFrame = (id: string, g: Graph) =>
     ? 'Scaffold'
     : null;
 
-// The real backend behind the dev and preview servers, so the app and the API share one origin.
-const API_TARGET = process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000';
-const apiProxy = { '^/(api|r|l)/': { target: API_TARGET } };
+// The backend behind the dev and preview servers, so the app and the API share one origin: production by default,
+// a local one with `npm run dev:local` (or KACHUFUL_API). Signed in, writes made here are real.
+const PROD_API = 'https://play.vectanix.com';
+const API_TARGET = process.env.KACHUFUL_API ?? PROD_API;
+const apiOrigin = new URL(API_TARGET).origin;
+const remote = apiOrigin.startsWith('https:');
+const apiProxy: Record<string, ProxyOptions> = {
+  '^/(api|r|l)/': {
+    target: API_TARGET,
+    changeOrigin: true,
+    // The server only takes writes from its own origin (CSRF), and its session cookie is Secure, which a browser on
+    // http://localhost may refuse: speak as that origin and hand the cookie back without the flag.
+    configure: remote
+      ? (proxy) => {
+          proxy.on('proxyReq', (req) => {
+            if (req.getHeader('origin')) req.setHeader('origin', apiOrigin);
+          });
+          proxy.on('proxyRes', (res) => {
+            const set = res.headers['set-cookie'];
+            if (set) res.headers['set-cookie'] = set.map((c) => c.replace(/;\s*secure/gi, ''));
+          });
+        }
+      : undefined,
+  },
+};
 
 export default defineConfig(({ mode }) => ({
   server: mode === 'mock' ? {} : { proxy: apiProxy },

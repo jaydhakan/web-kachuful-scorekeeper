@@ -48,6 +48,8 @@ const collect = {
 const dist = mkdtempSync(path.join(tmpdir(), 'kachuful-bundle-'));
 await build({
   root,
+  // Loads vite.config.ts through Vite's module runner, which reads its extensionless TypeScript imports as they are.
+  configLoader: 'runner',
   logLevel: 'warn',
   plugins: [collect],
   build: { outDir: dist, emptyOutDir: true },
