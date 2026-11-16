@@ -6,7 +6,8 @@ The open work for this repo, in one place. Add an item when something is left un
 ## Performance
 
 - **First-load budget is over, so `npm run perf:budget` and the CI check job fail.** Measured 2026-11-14: landing JS
-  160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Budgets are in
+  160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Again on
+  2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -71,8 +72,8 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   offline-readiness on its pages. Add it once table mode mounts a toast slot that announces it.
 - **Brand art:** `design/brand/games/spades/` has `tile-art.svg` in Sunset Glass only; the other games keep a variant
   per theme. The app's tile draws from tokens, so this is only for the kit.
-- **Budget:** `tools/bundle.mjs` and `budget.json` have no Spades first-load entry yet (plan §10). Its root chunk is
-  6.3 KB gzip (2026-11-16).
+- **Budget:** Spades' first load is 165.9 KB against its 160 (2026-11-16): about 155 KB is the shared base that puts
+  every page over budget (see Performance). Its own part is about 11 KB; the online table is a lazy 27.8 KB chunk.
 - **Scorekeeper (table mode), left open on 2026-11-16:**
   - Two hand summaries: the scorekeeper's (`table/screens/hand/Summary.tsx`, tied to its store: edit link, haptics)
     and the online one (`ui/HandSummary.tsx`). They look alike; merge them if they drift.

@@ -70,11 +70,14 @@ const loads = {
   landing: closure([shell('/src/platform/landing/Landing.tsx')], new Set(base)),
   phone: closure([shell('/src/games/kachuful/components/PhoneShell.tsx')], new Set(base)),
   'large screen': closure([shell('/src/games/kachuful/screens/desk/DeskShell.tsx')], new Set(base)),
+  // Spades loads its root lazily from the landing page; this is that path's first load.
+  spades: closure([shell('/src/games/spades/index.tsx')], new Set(base)),
 };
 const jsBudget = {
   landing: budget.landingJsKb,
   phone: budget.initialJsKb,
   'large screen': budget.largeScreenJsKb,
+  spades: budget.spadesJsKb,
 };
 const eager = new Set(Object.values(loads).flatMap((l) => [...l]));
 const css = readFileSync(path.join(dist, 'index.html'), 'utf8').match(

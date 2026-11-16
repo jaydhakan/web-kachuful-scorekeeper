@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { uuid } from '@/lib/ids';
@@ -8,11 +8,14 @@ import { online as o } from '../strings/online';
 import type { OnlineEntry } from './entry';
 import ShareView from './live/ShareView';
 import Lobby from './lobby/Lobby';
-import PlayTable from './table/PlayTable';
 import { loadLastRules } from './state/lastSetup';
 import { TableContext } from './state/tableContext';
 import { useTableLink } from './state/useTableLink';
 import { reasonOf, spEp, viewOfError } from './sync/endpoints';
+
+// The table is its own chunk so the lobby opens light; a table's address fetches it while the lobby fills.
+const loadPlayTable = () => import('./table/PlayTable');
+const PlayTable = lazy(loadPlayTable);
 
 function Loading({ label }: { label: string }) {
   return (
@@ -136,6 +139,9 @@ function Table({ id }: { id: string }) {
   const [revealed, setRevealed] = useState(false);
   if (status === 'lobby' && !sawLobby) setSawLobby(true);
   const onRevealDone = useCallback(() => setRevealed(true), []);
+  useEffect(() => {
+    void loadPlayTable();
+  }, []);
 
   if (ctx.status === 'gone') return <Problem title={o.error.goneTitle} body={o.error.goneBody} />;
   if (!ctx.view) {
@@ -151,7 +157,12 @@ function Table({ id }: { id: string }) {
     screen = <Problem title={o.error.goneTitle} body={o.error.goneBody} />;
   else if (t.status === 'lobby' || drawnHere)
     screen = <Lobby adopt={ctx.adopt} reveal={drawnHere} onRevealDone={onRevealDone} />;
-  else screen = <PlayTable />;
+  else
+    screen = (
+      <Suspense fallback={<Loading label={o.open.loading} />}>
+        <PlayTable />
+      </Suspense>
+    );
   return <TableContext.Provider value={ctx}>{screen}</TableContext.Provider>;
 }
 
