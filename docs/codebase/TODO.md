@@ -78,7 +78,6 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - Two hand summaries: the scorekeeper's (`table/screens/hand/Summary.tsx`, tied to its store: edit link, haptics)
     and the online one (`ui/HandSummary.tsx`). They look alike; merge them if they drift.
   - History shows only the newest page of finished online tables (no "Load more" through `nextCursor`).
-  - The local boards (`table/lib/boards.ts`) belong in `domain/` with the stats and achievements (plan §9).
   - Not checked: the desk layout and keyboard by e2e, a real phone, the responsive audit for the scorekeeper.
 - **Online play, left open on 2026-11-16:**
   - **Tests and audit:**
@@ -93,8 +92,9 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
     server sending `state` when the stream opens. Confirm the real backend does.
   - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show
     it. That needs a `backend-requests.md` entry.
-  - **Achievements and the stats screens (plan §9)** aren't built. The backend's leaderboard, stats and vs routes
-    exist (`/api/spades/leaderboard`, `/players/{id}/stats|vs`); the app shows only the table-mode leaderboard.
+  - **Achievements count only games scored on this phone** (`domain/achievements.ts`): online tables aren't kept on
+    the device and the server has no achievements route, so Nil Breaker (online only) is never earned yet. The
+    player page's stats and head-to-head do read the server when signed in.
   - **Known gaps:**
     - seat card counts don't count up during the deal;
     - the timeout for an absent seat is sent by both the link and `PlayTable` (the duplicates are no-ops).

@@ -3,9 +3,9 @@
  * game gives each player a row; a cancelled or unfinished one gives none; a draw is played, not won. Signed out the
  * app shows these; the mock API serves the same numbers. Pure, with relative imports so the mock can load it.
  */
-import { handLines, partnerOf, scoresOf, teamOf, totals } from '../../domain/index';
-import type { Seat, SpGame, SpHand, TeamId } from '../../domain/types';
-import { pidOf } from '../../../../people/pid';
+import { handLines, partnerOf, scoresOf, teamOf, totals } from './index';
+import type { Seat, SpGame, SpHand, TeamId } from './types';
+import { pidOf } from '../../../people/pid';
 
 export const SP_PERIODS = ['today', 'week', 'season', 'all'] as const;
 export type SpPeriod = (typeof SP_PERIODS)[number];

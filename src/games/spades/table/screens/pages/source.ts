@@ -4,7 +4,9 @@ import { spTable } from '@/games/spades/strings/table';
 import { useSp } from '@/games/spades/table/state/store';
 import { hasDone } from '@/games/spades/table/state/select';
 import { archive, type SpGameRec } from '@/state/archive';
-import { useArchive } from '@/state/useArchive';
+import { useArchive, useArchiveVersion } from '@/state/useArchive';
+import { pidOf } from '@/people/pid';
+import { resolveId } from '@/state/registry';
 import { signedInAs, useSession } from '@/sync/session';
 import { spEp } from '@/games/spades/online/sync/endpoints';
 import type { SpTableSummary } from '@/games/spades/online/sync/types';
@@ -144,4 +146,46 @@ export function useOnlineHistory(): SpOnlineHistory {
     };
   }, [signedIn, attempt]);
   return { ...state, retry: () => setAttempt((n) => n + 1) };
+}
+
+/** How a player looks on a board or their page. */
+export interface Who {
+  id: string;
+  playerId?: string;
+  name: string;
+  emoji: string;
+  color: string;
+}
+
+/** A player's look by board id: the registry's current one, else their latest seat in these games. */
+export function useWho(games: readonly SpGame[]): (k: string) => Who {
+  const v = useArchiveVersion();
+  return useMemo(() => {
+    const seats = new Map<string, Who>();
+    for (const g of games)
+      for (const q of g.players) {
+        const k = pidOf(q);
+        if (!seats.has(k))
+          seats.set(k, {
+            id: k,
+            playerId: q.playerId,
+            name: q.name,
+            emoji: q.emoji,
+            color: q.color,
+          });
+      }
+    return (k: string): Who => {
+      const reg = k.startsWith('name:') ? undefined : archive.get('players', resolveId(k));
+      return reg
+        ? { id: k, playerId: reg.id, name: reg.displayName, emoji: reg.emoji, color: reg.color }
+        : (seats.get(k) ?? {
+            id: k,
+            name: k.replace(/^name:/, ''),
+            emoji: '🙂',
+            color: 'var(--tx2)',
+          });
+    };
+    // The registry is read once per archive version.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [games, v]);
 }

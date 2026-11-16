@@ -7,12 +7,9 @@ import {
   spLeaderboard,
   type SpPeriod,
   type SpSort,
-} from '@/games/spades/table/lib/boards';
+} from '@/games/spades/domain/boards';
 import { useSpLeaderboard } from '@/games/spades/table/sync/boards';
-import { pidOf } from '@/people/pid';
-import { archive } from '@/state/archive';
-import { resolveId } from '@/state/registry';
-import { useArchiveVersion } from '@/state/useArchive';
+import { useSp } from '@/games/spades/table/state/store';
 import { signedInAs, useSession } from '@/sync/session';
 import { Avatar } from '@/components/ui/Avatar';
 import { Chip, ChipRow, EmptyState, Skeleton } from '@/components/ui/PageParts';
@@ -20,17 +17,10 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { Seg } from '@/components/ui/Seg';
 import { Gate, NoGames, SpPage } from './parts';
-import { useSpGames } from './source';
+import { useSpGames, useWho, type Who } from './source';
 
 const b = spTable.pages.board;
 
-interface Who {
-  id: string;
-  playerId?: string;
-  name: string;
-  emoji: string;
-  color: string;
-}
 interface Row {
   id: string;
   who: Who;
@@ -45,45 +35,17 @@ const write = (sort: SpSort, v: number) => (sort === 'wins' ? String(Math.round(
 /** Players ranked by wins, win % (from three games) or bids made; signed in from the server, else this phone's games. */
 export default function LeaderboardPage() {
   const src = useSpGames();
+  const { actions } = useSp();
   const [period, setPeriod] = useState<SpPeriod>('season');
   const [sort, setSort] = useState<SpSort>('wins');
   const me = signedInAs(useSession())?.player?.id;
-  const v = useArchiveVersion();
   const remote = useSpLeaderboard(period, sort);
   const server = remote.online && remote.data ? remote.data : null;
   const local = useMemo(
     () => spLeaderboard(src.games, { period, sort }),
     [src.games, period, sort],
   );
-  // A seat's look: the registry's current one, else its latest seat at this device's table.
-  const seen = useMemo(() => {
-    const seats = new Map<string, Who>();
-    for (const g of src.games)
-      for (const q of g.players) {
-        const k = pidOf(q);
-        if (!seats.has(k))
-          seats.set(k, {
-            id: k,
-            playerId: q.playerId,
-            name: q.name,
-            emoji: q.emoji,
-            color: q.color,
-          });
-      }
-    return (k: string): Who => {
-      const reg = k.startsWith('name:') ? undefined : archive.get('players', resolveId(k));
-      return reg
-        ? { id: k, playerId: reg.id, name: reg.displayName, emoji: reg.emoji, color: reg.color }
-        : (seats.get(k) ?? {
-            id: k,
-            name: k.replace(/^name:/, ''),
-            emoji: '🙂',
-            color: 'var(--tx2)',
-          });
-    };
-    // The registry is read once per archive version.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src.games, v]);
+  const seen = useWho(src.games);
   const rows: Row[] = server
     ? server.rows.map((r) => ({
         id: r.player.id,
@@ -192,7 +154,7 @@ export default function LeaderboardPage() {
                 show={show}
                 you={you}
                 celebrate={`spades:${server ? 'global' : 'device'}:${sort}:${period}`}
-                onOpen={() => {}}
+                onOpen={(id) => actions.openPage({ page: 'player', id })}
                 label={b.row}
                 unrankedShort={b.unrankedShort}
                 unrankedTitle={b.unranked(MIN_RATED_GAMES)}

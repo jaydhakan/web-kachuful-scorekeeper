@@ -1,5 +1,5 @@
-import { kitGame, T0, WHO } from '@/games/spades/domain/__fixtures__/kit';
-import type { SpGame } from '@/games/spades/domain/types';
+import { kitGame, T0, WHO } from './__fixtures__/kit';
+import type { SpGame } from './types';
 import {
   MIN_RATED_GAMES,
   pairsOf,

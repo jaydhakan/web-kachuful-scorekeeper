@@ -13,7 +13,7 @@ import type {
 /**
  * Spades' online boards (both kinds): the server's numbers over every synced game, cache first (the last answer shows
  * at once, then refreshes with If-None-Match). Signed out, or with no id to ask about, nothing is fetched and
- * `online` is false, so a page shows the device's own numbers (table/lib/boards.ts) instead.
+ * `online` is false, so a page shows the device's own numbers (domain/boards.ts) instead.
  */
 export interface SpBoard<T> extends Remote<T> {
   /** Signed in: these numbers come from the server; false means use the device's own. */

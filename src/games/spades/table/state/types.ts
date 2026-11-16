@@ -43,7 +43,7 @@ export type SpSheet =
 export type SpModal = 'end' | 'draw' | 'cancel';
 
 /** A page opened over the screens: a finished game's recap from History. */
-export type SpRoute = { page: 'game'; id: string };
+export type SpRoute = { page: 'game'; id: string } | { page: 'player'; id: string };
 
 export interface SpToast {
   id: number;

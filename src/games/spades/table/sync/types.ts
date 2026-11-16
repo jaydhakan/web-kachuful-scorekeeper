@@ -1,6 +1,6 @@
 import type { SpGame, SpResult, TeamId } from '@/games/spades/domain/types';
 import type { PlayerSummary, Tombstone } from '@/sync/types';
-import type { SpPeriod, SpSort, SpTotals } from '../lib/boards';
+import type { SpPeriod, SpSort, SpTotals } from '../../domain/boards';
 
 /** The /api/spades/* table-mode shapes as built (backend app/schemas/spades.py). Times are epoch ms. */
 

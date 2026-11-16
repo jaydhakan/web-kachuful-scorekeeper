@@ -1,6 +1,6 @@
 /**
  * Spades table mode's routes for the in-memory API (`/api/spades/*`, kind `spades`), with Kaali Teeri's upload
- * semantics. Uploads are checked with the app's domain and the boards come from table/lib/boards.ts, the same rules
+ * semantics. Uploads are checked with the app's domain and the boards come from domain/boards.ts, the same rules
  * as the server's stats. Online tables (`spades-online`) are not here.
  */
 import { createHash } from 'node:crypto';
@@ -26,7 +26,7 @@ import {
   spPlayerStats,
   type SpPeriod,
   type SpSort,
-} from '../../src/games/spades/table/lib/boards';
+} from '../../src/games/spades/domain/boards';
 import type { SpGameSummary } from '../../src/games/spades/table/sync/types';
 import type { Player, PlayerSummary } from '../../src/sync/types';
 
