@@ -173,7 +173,7 @@ test('four phones: create, join by code, invites (one declined first), ready, dr
   await draw.click();
 
   for (const p of [host, zed, ria, kai])
-    await expect(p.getByRole('heading', { name: 'The game is on' })).toBeVisible({
+    await expect(p.getByRole('heading', { level: 1, name: 'Hand 1' })).toBeVisible({
       timeout: 10_000,
     });
 
