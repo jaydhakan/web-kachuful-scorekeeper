@@ -13,7 +13,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 import { TEAM_TONE, teamNames } from '../parts';
-import { Overlays, useBlocked, useScreen } from '../Screens';
+import { Leaving, Overlays, useBlocked, useScreen } from '../Screens';
 
 const d = spTable.desk;
 
@@ -156,7 +156,7 @@ export default function DeskShell({ page }: { page: TablePage | null }) {
                 transition={{ duration: 0.4, ease: EASE }}
                 className="absolute inset-0"
               >
-                {content}
+                <Leaving>{content}</Leaving>
               </m.div>
             </AnimatePresence>
           </main>

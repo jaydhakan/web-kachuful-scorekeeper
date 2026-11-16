@@ -1,4 +1,4 @@
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useIsPresent, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
 import type { TablePage } from '@/games/spades/nav';
 import { useSp } from '@/games/spades/table/state/store';
@@ -73,6 +73,16 @@ export function Overlays() {
   );
 }
 
+/** A screen on its way out is inert: no taps, no focus, and gone from the accessibility tree while it fades. */
+export function Leaving({ children }: { children: ReactNode }) {
+  const present = useIsPresent();
+  return (
+    <div className="absolute inset-0" {...(!present && { inert: '' as const })}>
+      {children}
+    </div>
+  );
+}
+
 export function useBlocked() {
   const { state } = useSp();
   const updateDue = useServiceWorker().needRefresh;
@@ -115,7 +125,7 @@ export default function Shell({ page }: { page: TablePage | null }) {
             transition={{ duration: 0.42, ease: EASE }}
             className="absolute inset-0"
           >
-            {content}
+            <Leaving>{content}</Leaving>
           </m.div>
         </AnimatePresence>
       </m.div>
