@@ -43,7 +43,8 @@ export function useScreen(page: TablePage | null): { key: string; content: React
       return { key: `tricks-${h.index}`, content: <Tricks g={game} h={h} /> };
     return { key: `sum-${h.index}`, content: <Summary g={game} h={h} /> };
   }
-  return { key: `setup-${state.setup?.step ?? 1}`, content: wait(<Setup />) };
+  // One key for both steps: a leaving copy re-renders from the store, so a key per step would show the new step twice.
+  return { key: 'setup', content: wait(<Setup />) };
 }
 
 /** Sheets, the confirmations, the toast and the unreadable-save prompt, over either shell. */

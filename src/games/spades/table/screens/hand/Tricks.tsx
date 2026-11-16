@@ -94,7 +94,8 @@ function NilAsk({ g, h, e, t }: { g: SpGame; h: SpHand; e: SpEntry; t: TeamId })
  */
 export default function Tricks({ g, h }: { g: SpGame; h: SpHand }) {
   const { state, actions } = useSp();
-  const e = entryOf(state)!;
+  // From the props' game: a screen leaving after Save still renders, while the store has moved on.
+  const e = entryOf({ game: g, entry: state.entry })!;
   const pv = preview(g, h, e);
   const ok = entryOk(h, e);
   return (
