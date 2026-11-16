@@ -1,6 +1,6 @@
 # Architecture
 
-Baithak is an offline-first PWA hosting several table games (Kachuful, Kaali Teeri, Ishaara): Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`../backend-kachuful-scorekeeper`; the API as built is the contract).
+Baithak is an offline-first PWA hosting several table games (Kachuful, Kaali Teeri, Ishaara, Spades): Vite + React 18 + strict TypeScript + Tailwind 3 + Framer Motion. Signed out, everything lives on the device and nothing touches the network. Signed in, games sync to the backend (`../backend-kachuful-scorekeeper`; the API as built is the contract).
 
 ## Layers
 
@@ -24,6 +24,11 @@ src/games/ishaara/   the word game the server runs: domain/ (rules engine applyA
                 (store.tsx nav, useTable / useClue over link.ts, lists, words), sync/ (endpoints, events), screens/
                 (setup/, Waiting, board/, Win, clue/, pages/; desk/ is the lazy large-screen
                 shell at `MQ.big`: the same board logic (`board/useBoard`) in a desk layout with arrow-key focus), strings/
+src/games/spades/   partnership Spades, two ways: domain/ (rules engine applyAction, bidding, legal plays, scoring,
+                standings, timer, viewFor; never random, the backend mirrors it and the golden fixtures come from here),
+                online/ (the server's game: lobby/, table/PlayTable (its own lazy chunk), live/ share links, state/link.ts,
+                sync/), table/ (the offline scorekeeper: state/, screens/, sheets/, sync/ engine on /api/spades/games),
+                ui/ (cards, hand, seats, team bar, bid pad, hand summary), sheets/, sound/, strings/; index.tsx routes
 src/platform/   route.ts (the first path segment names the game; go(), useGame), catalog.ts (GAMES: name, status, lazy
                 root, peek() for the resume line), PlatformRoot (landing or the game, a load error with Retry), meta.ts
                 (each page's preview tags), landing/; pages/ holds the account, sign-in, admin and credits pages
@@ -66,6 +71,8 @@ One `useReducer` in `AppProvider`. Actions are a discriminated union (`games/kac
 Keys (shapes unchanged from the prototype): `kachuful.v1` (the game), `kachuful.lastGroup`, `kachuful.recentNames`, `kachuful.undo`, `kachuful.screen`, `kachuful.achSeen` (achievements already shown), `kachuful.device` and `kachuful.session` (signed in), plus `kachuful.v1.backup` for an unreadable save. The full list is `KEYS` in `src/state/persistence.ts`.
 
 Kaali Teeri (`games/kaali-teeri/state/persistence.ts`, through the same `storage`): `kaaliteeri.v1`, `kaaliteeri.undo`, `kaaliteeri.screen`, `kaaliteeri.lastGroup`, `kaaliteeri.prefs` (`{quick, countedBy}`, this device's) and `kaaliteeri.v1.backup`. Its saves start at schema 1 (`games/kaali-teeri/state/migrations.ts`, no steps yet); a save without a version is unreadable, since none was ever written. `peek()` reads `kaaliteeri.v1` for the landing card without the domain.
+
+Spades' scorekeeper (`games/spades/table/state/persistence.ts`, names in `KEYS` as `sp*`): `spades.v1`, `spades.undo`, `spades.screen`, `spades.lastGroup`, `spades.prefs`, `spades.lastSetup` (the online host's last rules) and `spades.v1.backup`. Saves start at schema 1 (`table/state/migrations.ts`, no steps yet). Online tables store nothing on the device.
 
 `schemaVersion` is written into the saved game. A save without it is the prototype's shape (version 0). `migrations[n]` upgrades version n to n + 1 (`games/kachuful/state/migrations.ts`); add one when the saved shape changes. A save from a newer app, or one that fails the shape check, is treated as unreadable: the raw text is backed up, saving pauses, and the player chooses Reset or Keep backup. Quota errors drop the oldest undo snapshots first, then warn.
 
@@ -151,6 +158,21 @@ Words come from the packs (lazy JSON chunks) plus custom words, avoiding `ishaar
 remembers the last seats and rules. Signed out, the landing card and `/ishaara` say "Sign in to play"; offline, the hub
 says "Ishaara needs a connection" and History reads the device's copies. The mock API runs the same domain for e2e
 (`tools/mock-api/ishaara.ts`, with a test clock at `POST /api/__mock/ishaara/clock`).
+
+**Spades.** Two kinds share one domain (`games/spades/domain`). The scorekeeper (`spades`) is a saved game like Kaali
+Teeri's: `table/sync/engine.ts` on `/api/spades/games/*`, finished games in `spGames` (archive version 4). Online play
+(`spades-online`) is the server's: signed-in seats only, the server deals (`secrets.SystemRandom`) and applies every
+action through the same rules (the Python mirror passes `contract/fixtures/spades-*`). `online/state/link.ts` follows
+one table on `/api/spades/tables/{id}` and its event stream; every frame is `viewFor(seat)`, so a phone holds only its
+own hand and an early Blind Nil stays hidden from the others. Actions carry a fresh `actionId` and the `rev` shown; a
+409 carries the current view, which the link adopts. Any seated phone may send `timeout` once a deadline passes (a
+settled turn makes it a no-op). Live and recap links (`/spades?live=`, `?recap=`) open `online/live/ShareView`: an
+online table streams, a scorekeeper game polls every 15 s. The mock API runs the same domain (`tools/mock-api/spades*.ts`,
+with a seeded deal at `POST /api/__mock/spades/seed` and a test clock at `/clock`).
+
+**Seat invites.** A host can invite a circle member to an empty seat in Spades or Ishaara (`sync/seatInvites*.ts`,
+`components/seat-invites/`). Invitees hear of it on the user stream (`GET /api/me/events`, read by `sync/sse.ts`) as a
+banner, a card on the game's home and a badge on the landing tile; expiry is worked out on read.
 
 **Sync.** `games/kachuful/sync/engine.ts` runs only while signed in: on start, coming online, becoming visible, 1.5 s after a change, every minute while work waits and a full pull every 10 minutes (backing off to 5 min, or the server's `retryAfter` after a 429). It pulls with one `bootstrap` call (then `updatedSince`, the newest server `updatedAt` seen minus 5 s), pushes new players, then games whose players the server knows. A game goes up as it is to `PUT /api/games/{syncId}`. A stale upload keeps the copy with more finished rounds and saves the other as a conflict copy; a rejected game stays local with the reason in the inbox; a deleted one (410 or a tombstone) leaves the device. `409 same_player` takes the server's player and rewrites the games. Server reads use `useRemote`: the cached answer renders first, then refreshes with `If-None-Match`; closed days and seasons are never asked for again.
 
