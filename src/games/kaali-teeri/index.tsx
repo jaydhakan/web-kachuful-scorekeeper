@@ -1,10 +1,10 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
 import { Loader } from '@/components/ui/Loader';
 import { KtProvider } from './state/store';
 import KtShell from './screens/KtShell';
-import { readKtViewerLink } from './screens/viewer/entry';
+import { readKtViewerLink, settleKtViewerLink } from './screens/viewer/entry';
 
 // Only tablets and desktops download the large-screen shell; the phone shell stays in the first load.
 const KtDeskShell = lazy(() => import('./screens/desk/KtDeskShell'));
@@ -27,6 +27,7 @@ function KtAppShell() {
 export default function KaaliTeeri() {
   // `?live=` / `?recap=` open the public viewer first; its button goes on to the app.
   const [link, setLink] = useState(readKtViewerLink);
+  useEffect(settleKtViewerLink, []);
   return (
     <KtProvider>
       {link ? (

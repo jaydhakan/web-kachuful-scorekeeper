@@ -19,7 +19,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/games/kachuful/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
-import { readEntryLink, returnSearch, returnTo } from '@/lib/entry';
+import { readEntryLink, returnSearch, returnTo, settleEntryLink } from '@/lib/entry';
 import { go as goTo } from '@/platform/route';
 import {
   KEYS,
@@ -131,6 +131,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       nav: entry ? [entry] : [],
     };
   });
+  useEffect(settleEntryLink, []);
   const vib = useHaptics();
   const ref = useRef(state);
   ref.current = state;

@@ -51,7 +51,8 @@ let taken: { href: string; route: Route } | null = null;
 
 export function readEntryLink(): Route | null {
   if (typeof location === 'undefined') return null;
-  // StrictMode runs the store's initialiser twice; the second run must see the link the first one removed.
+  // Until the store has mounted (settleEntryLink), every render of its initialiser sees the link: StrictMode runs it
+  // twice, and a render React throws away runs it again.
   if (taken?.href === location.href) return taken.route;
   const q = new URLSearchParams(location.search);
   for (const [k, screen] of Object.entries(KINDS)) {
@@ -91,4 +92,12 @@ export function readEntryLink(): Route | null {
     return taken.route;
   }
   return null;
+}
+
+/**
+ * The store that read the link has mounted: forget it, so a later visit to the same address (`/kachuful` once the
+ * query is gone) opens the game, not the page the link asked for.
+ */
+export function settleEntryLink() {
+  taken = null;
 }

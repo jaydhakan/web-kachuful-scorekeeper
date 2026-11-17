@@ -1,4 +1,4 @@
-import { authSearch, readEntryLink, returnSearch, returnTo } from './entry';
+import { authSearch, readEntryLink, returnSearch, returnTo, settleEntryLink } from './entry';
 
 describe('readEntryLink', () => {
   it('opens a token link and removes it from the address', () => {
@@ -50,6 +50,17 @@ describe('readEntryLink', () => {
     expect(returnSearch({ screen: 'signin', params: { from: 'spades' } })).toBe('');
     // The landing page has nothing to reopen.
     expect(authSearch('signin', 'landing', '?join=KQ7M')).toBe('?open=signin&from=landing');
+  });
+  it('gives the link to every render until the store mounts, then never again at that address', () => {
+    history.replaceState(null, '', '/kachuful?open=signin&from=landing');
+    const first = readEntryLink();
+    expect(first).toEqual({ screen: 'signin', params: { from: 'landing' } });
+    // StrictMode's second run, or a render React discarded, still sees it.
+    expect(readEntryLink()).toEqual(first);
+    settleEntryLink();
+    // Back on /kachuful later (from a tile): the game, not Sign in again.
+    expect(location.pathname + location.search).toBe('/kachuful');
+    expect(readEntryLink()).toBeNull();
   });
   it('ignores anything else', () => {
     history.replaceState(null, '', '/kachuful?open=admin');
