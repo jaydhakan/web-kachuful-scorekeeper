@@ -29,9 +29,11 @@ export const home = {
     open: 'Open the scorekeeper',
   },
   links: {
-    nav: 'History, leaderboard and rules',
+    nav: 'History, leaderboard, awards and rules',
     history: 'History',
     leaderboard: 'Leaderboard',
+    awards: 'Awards',
+    activity: 'Activity',
     rules: 'Rules',
   },
   join: {

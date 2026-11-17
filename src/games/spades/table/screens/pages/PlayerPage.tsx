@@ -9,6 +9,10 @@ import { EmptyState, Section, Skeleton } from '@/components/ui/PageParts';
 import { stagger } from '@/components/ui/stagger';
 import { Gate, SpPage } from './parts';
 import { useSpGames, useWho } from './source';
+import { useSpProgressionEnv } from './ProgressionPages';
+import { useEarned } from '@/components/progression/useProgressionData';
+import { byCode } from '@/progression/catalogue';
+import { useSp } from '@/games/spades/table/state/store';
 
 const b = spTable.pages.board;
 const p = spTable.pages.player;
@@ -43,6 +47,14 @@ export default function PlayerPage({ id }: { id: string }) {
   const vsRemote = useSpHeadToHead(meHere ? meId : null, meHere ? serverId : null);
   const vs = meHere ? (vsRemote.data ?? (meId ? spHeadToHead(src.games, meId, id) : null)) : null;
   const lookup = useWho(src.games);
+  const { actions } = useSp();
+  const env = useSpProgressionEnv(src);
+  const { all, remote: achRemote } = useEarned(env);
+  const achId = env.signedIn ? serverId : id;
+  const earnedCodes = useMemo(
+    () => [...new Set((all ?? []).filter((e) => e.playerId === achId).map((e) => e.code))],
+    [all, achId],
+  );
   const waiting = remote.online && !remote.data && remote.loading;
   const failed = remote.online && !remote.data && !!remote.error;
   const ratio = (a: number, n: number) => (n ? p.ratio(a, n) : undefined);
@@ -117,6 +129,57 @@ export default function PlayerPage({ id }: { id: string }) {
                   </dl>
                 </Section>
               )}
+
+              <Section
+                title={p.achievements}
+                aside={
+                  <button
+                    type="button"
+                    aria-label={p.achSeeAllLabel(who.name)}
+                    onClick={() => actions.openPage({ page: 'achievements', id: achId ?? id })}
+                    className="press min-h-11 px-2 text-14 font-bold text-[var(--accent-tx)]"
+                  >
+                    {p.achSeeAll}
+                  </button>
+                }
+              >
+                {all === null ? (
+                  achRemote.error ? (
+                    <p role="alert" className="text-14 text-[var(--warn)]">
+                      {p.achFailed}
+                    </p>
+                  ) : (
+                    <div role="status" aria-label={p.achLoading}>
+                      <Skeleton rows={1} h={48} />
+                    </div>
+                  )
+                ) : earnedCodes.length ? (
+                  <>
+                    <p className="mb-2 text-13 font-bold text-[var(--tx2)]">
+                      {p.achCount(earnedCodes.length, env.prog.catalogue.length)}
+                    </p>
+                    <ul className="flex flex-wrap gap-2">
+                      {earnedCodes.slice(0, 12).map((code, i) => (
+                        <m.li
+                          key={code}
+                          {...stagger(Math.min(i, 8))}
+                          data-earned={code}
+                          className="glass flex min-h-11 items-center gap-2 px-3 py-1.5"
+                        >
+                          <span aria-hidden className="text-20">
+                            {byCode(env.prog).get(code)?.emoji}
+                          </span>
+                          <span className="text-14 font-bold">
+                            {env.prog.strings.achievements[code]?.name ?? code}
+                          </span>
+                        </m.li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="text-14 text-[var(--tx2)]">{p.achNone}</p>
+                )}
+              </Section>
 
               <Section title={p.partners}>
                 {partners.length ? (
