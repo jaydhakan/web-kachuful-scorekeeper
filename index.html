@@ -13,9 +13,27 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <!-- page-meta -->
+    <script>
+      // The landing page's outline paints before any script has loaded (index.css, 0. Boot skeleton).
+      if (location.pathname === '/') document.documentElement.setAttribute('data-boot', 'landing');
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot app-root scr-bg" aria-hidden="true">
+        <div class="boot-col">
+          <div class="boot-head">
+            <i class="boot-bar boot-brand"></i><i class="boot-bar boot-pill"></i>
+          </div>
+          <i class="boot-bar boot-title"></i>
+          <i class="boot-bar boot-sub"></i>
+          <div class="boot-tiles">
+            <i class="glass boot-tile"></i><i class="glass boot-tile"></i
+            ><i class="glass boot-tile"></i><i class="glass boot-tile"></i>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

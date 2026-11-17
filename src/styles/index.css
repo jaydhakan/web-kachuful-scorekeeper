@@ -462,6 +462,97 @@ input {
   }
 }
 
+/* 0. Boot skeleton (index.html): the landing page's outline in its own materials, painted before any script runs and
+   replaced by the page itself, so a cold start never shows bare background. Shapes only: no text to drift. */
+.boot {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+html[data-boot='landing'] .boot {
+  display: block;
+}
+.boot-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: calc(var(--sat) + 0.875rem) max(1.25rem, var(--sar)) 2.5rem max(1.25rem, var(--sal));
+}
+.boot-head {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.boot-bar,
+.boot-tile {
+  display: block;
+  animation: boot-pulse 1.6s ease-in-out infinite;
+}
+.boot-bar {
+  border-radius: 999px;
+  background: var(--hairline-2);
+}
+.boot-brand {
+  width: 8.5rem;
+  height: 2rem;
+}
+.boot-pill {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+.boot-title {
+  width: 13rem;
+  height: 2.25rem;
+  margin-top: 0.75rem;
+}
+.boot-sub {
+  width: 18rem;
+  max-width: 85%;
+  height: 1rem;
+}
+.boot-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.boot-tile {
+  height: 10.75rem;
+}
+@media (min-width: 768px) and (min-height: 501px) {
+  .boot-col {
+    gap: 1.25rem;
+    padding: calc(var(--sat) + 2rem) max(2.75rem, var(--sar)) 2.5rem max(2.75rem, var(--sal));
+  }
+  .boot-title {
+    width: 22rem;
+    height: 4rem;
+  }
+  .boot-tiles {
+    flex-direction: row;
+    gap: 1.5rem;
+    margin-top: 5rem;
+  }
+  .boot-tile {
+    flex: 1;
+    height: 28rem;
+  }
+}
+@keyframes boot-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-bar,
+  .boot-tile {
+    animation: none;
+  }
+}
+
 /* 2. Squash-and-stretch loader: only appears if the wait passes 400ms, so a quick load never flashes it. */
 .sq-loader {
   opacity: 0;
