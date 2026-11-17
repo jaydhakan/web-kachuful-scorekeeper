@@ -32,6 +32,9 @@ src/games/spades/   partnership Spades, two ways: domain/ (rules engine applyAct
 src/platform/   route.ts (the first path segment names the game; go(), useGame), catalog.ts (GAMES: name, status, lazy
                 root, peek() for the resume line), PlatformRoot (landing or the game, a load error with Retry), meta.ts
                 (each page's preview tags), landing/; pages/ holds the account, sign-in, admin and credits pages
+src/progression/   the achievements kit every game shares, pure: types (AchievementDef with group, big, shame; Earned;
+                Ladder; Award), rules (win streaks, games, crew, night owl, wooden spoon, win-rate seasons), ladders,
+                Kolkata day and month ranges, and registry.ts (each game's `GameProgression`, a lazy chunk of its own)
 src/people/     Player, Direction, avatar colours and emoji, name and email keys, pidOf: one players registry for all games
 src/state       persistence.ts (the only localStorage access), archive.ts (IndexedDB), registry.ts (players),
                 prefs, theme store, useArchive
@@ -43,7 +46,8 @@ src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, T
                 (ServiceWorkerHost, UpdateGate, AccountChip, PhotoPicker, SyncDot, RemoteGate, ThemeSync); seating/ is
                 Setup 2 for any game (useSeating, SeatingPicker, SeatingTable, AddPlayerForm, seat sheets, same-person check)
                 plus SetupFrame and useSeatDrag; desk/ holds the large-screen parts both games use (DeskParts, Drawer,
-                StepTracker, RailItem)
+                StepTracker, RailItem); progression/ holds the shared Achievements, Awards and Activity pages, the
+                winner's reel and the moment pop, which a game shows inside its `ProgressionScope`
 src/strings     user-visible strings shared by the app (`t`, hub, admin; messages.ts is plain text used by domain/reducer);
                 a game's own strings sit in its strings/
 src/theme       theme registry, colour-name map, palette, trump themes (look: src/styles/themes.css)
@@ -51,6 +55,17 @@ src/lib         format helpers, table geometry, clock, entry links, the share im
 ```
 
 Dependencies point downward only: `domain` imports nothing from the UI; `state` imports `domain`; components import `state` and `domain`. Games never import each other. Shared code (`src/` outside `games/`) still reaches into Kachuful in a few places (`Game` in the archive and API types, `persistence.ts`); the account pages also still live inside Kachuful's shell, and the landing page links to them with `/kachuful?open=account`.
+
+## Achievements and awards
+
+Every game plugs into `src/progression/registry.ts`: its catalogue, strings, ladders, how its seasons rank (Kachuful
+on points per round, the others on win rate) and, for a game scored on the device, `device` rules over its facts.
+Each game's rules live in its `domain/achievements.ts` and `awards.ts`; the backend mirrors them and checks parity
+with golden fixtures the app writes (`EXPORT_FIXTURES=1`, see the backend's `tests/fixtures/VERSION.md`). Signed in,
+the pages read the server (`?game=`); signed out, Kachuful, Kaali Teeri and the Spades scorekeeper work it out on the
+device, and Ishaara and online Spades show nothing. Live moments pop as a hand or turn ends (Spades online and
+Ishaara from the public state, so every phone shows the same). The Me page counts each game's achievements and
+shows every game's feed (`?game=all`).
 
 ## Paths and games
 

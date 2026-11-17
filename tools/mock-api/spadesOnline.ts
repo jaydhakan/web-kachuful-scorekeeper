@@ -539,6 +539,9 @@ export const spadesSeatings = () =>
     at: r.state.updatedAt,
   }));
 
+/** Every table's public state, not deleted: what achievements and awards are worked out from. */
+export const spadesTablesStored = (): SpPublic[] => live().map((r) => r.state);
+
 /** Forgets every table, stream, the seed and the clock skew (the server's seed()). */
 export function resetSpadesOnline() {
   for (const set of streams.values()) for (const f of set) f.res.end();

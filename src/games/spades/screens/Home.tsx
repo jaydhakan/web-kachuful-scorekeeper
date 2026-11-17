@@ -200,11 +200,13 @@ function KeepCard() {
   );
 }
 
-function Links({ onRules }: { onRules: () => void }) {
+function Links({ onRules, signedIn }: { onRules: () => void; signedIn: boolean }) {
   const page = (p: TablePage) => () => spGo(`?keep&page=${p}`);
   const links: [string, () => void][] = [
     [h.links.history, page('history')],
     [h.links.leaderboard, page('leaderboard')],
+    [h.links.awards, page('awards')],
+    ...(signedIn ? [[h.links.activity, page('activity')] as [string, () => void]] : []),
     [h.links.rules, onRules],
   ];
   return (
@@ -254,7 +256,7 @@ function RulesSheet({ onClose }: { onClose: () => void }) {
 type SheetName = 'join' | 'rules';
 
 /**
- * Spades' home: invites, Play online, what's in progress, Keep score, and History · Leaderboard · Rules. One DOM
+ * Spades' home: invites, Play online, what's in progress, Keep score, and History · Leaderboard · Awards · Rules. One DOM
  * at every size; from tablet width the hero sits beside the cards. `joinCode` is a `?join=` link opened signed out.
  */
 export default function Home({ joinCode = null }: { joinCode?: string | null }) {
@@ -319,7 +321,7 @@ export default function Home({ joinCode = null }: { joinCode?: string | null }) 
                 <KeepCard />
               </m.div>
               <m.div {...stagger(5, 0.04)}>
-                <Links onRules={() => setSheet('rules')} />
+                <Links onRules={() => setSheet('rules')} signedIn={signedIn} />
               </m.div>
             </div>
           </div>

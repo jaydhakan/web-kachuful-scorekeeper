@@ -136,6 +136,8 @@ export const ipg = {
     vs: 'Head to head',
     vsNone: 'Nobody else on the board yet.',
     vsLabel: (a: string, b: string) => `${a} and ${b}, head to head`,
+    achievements: 'Achievements',
+    achievementsSub: 'Turn moments, wins and ladders',
   },
   h2h: {
     title: 'Head to head',

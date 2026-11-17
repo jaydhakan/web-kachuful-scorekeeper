@@ -263,13 +263,17 @@ export function saveUserTheme(id: string | null, unsent = false) {
 export const userThemeUnsent = () => storage.get<boolean>(KEYS.themeUserUnsent, false) === true;
 
 /** When this player's achievements were last opened here, or null the first time. */
-export const loadAchSeen = (playerId: string): number | null =>
-  storage.get<Record<string, number>>(KEYS.achSeen, {})[playerId] ?? null;
+// Kachuful's entries are keyed by player alone, as they always were; another game's by `<game>:<player>`.
+const seenKey = (playerId: string, game?: string) =>
+  game && game !== 'kachuful' ? `${game}:${playerId}` : playerId;
 
-export const saveAchSeen = (playerId: string, at: number) =>
+export const loadAchSeen = (playerId: string, game?: string): number | null =>
+  storage.get<Record<string, number>>(KEYS.achSeen, {})[seenKey(playerId, game)] ?? null;
+
+export const saveAchSeen = (playerId: string, at: number, game?: string) =>
   storage.set(KEYS.achSeen, {
     ...storage.get<Record<string, number>>(KEYS.achSeen, {}),
-    [playerId]: at,
+    [seenKey(playerId, game)]: at,
   });
 
 /** Whether first place on this board (a key naming the game, player and filters) was already celebrated here. */

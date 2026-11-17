@@ -6,6 +6,7 @@ import type { IshaaraSummaryOut } from '@/games/ishaara/sync/types';
 import { table as s } from '@/games/ishaara/strings/table';
 import { go } from '@/platform/route';
 import { Icon } from '@/components/ui/Icons';
+import { icon } from '@/components/ui/IconsMore';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
@@ -18,7 +19,7 @@ const h = s.home;
 const ROOT =
   'absolute inset-0 flex flex-col pt-[var(--sat)] pl-[max(var(--sal),calc((100%-40rem)/2))] pr-[max(var(--sar),calc((100%-40rem)/2))] wide:pl-[max(var(--sal),calc((100%-64rem)/2))] wide:pr-[max(var(--sar),calc((100%-64rem)/2))]';
 
-export type HubLink = 'clues' | 'history' | 'leaderboard' | 'rules';
+export type HubLink = 'clues' | 'history' | 'leaderboard' | 'awards' | 'activity' | 'rules';
 
 const rowText = (g: IshaaraSummaryOut) => (
   <span className="min-w-0 flex-1">
@@ -140,6 +141,8 @@ export default function Home({ onOpen }: { onOpen: (l: HubLink) => void }) {
     { key: 'clues', label: h.clueGames, icon: Icon.key },
     { key: 'history', label: h.history, icon: Icon.history },
     { key: 'leaderboard', label: h.leaderboard, icon: Icon.trophy },
+    { key: 'awards', label: h.awards, icon: icon('medal') },
+    { key: 'activity', label: h.activity, icon: icon('news') },
     { key: 'rules', label: h.rules, icon: Icon.rules },
   ];
   return (

@@ -5,6 +5,7 @@ import { spTable } from '@/games/spades/strings/table';
 import { useSp } from '@/games/spades/table/state/store';
 import { hasDone } from '@/games/spades/table/state/select';
 import { go } from '@/platform/route';
+import { signedInAs, useSession } from '@/sync/session';
 import { Icon } from '@/components/ui/Icons';
 import { MenuButton, MenuRow } from '@/components/ui/MenuRows';
 import { stagger } from '@/components/ui/stagger';
@@ -13,7 +14,7 @@ const s = spTable.menu;
 type Row = [ReactElement, string, () => void];
 
 /**
- * This game (Scoreboard, Rules, Share, Undo), then Spades; at the foot New game and the three ways to stop a game,
+ * This game (Scoreboard, Rules, Share, Undo), then Spades (with Awards, and Activity signed in); at the foot New game and the three ways to stop a game,
  * each behind a confirmation (plan D14). End game and Call it a draw need a scored hand.
  */
 export default function Menu() {
@@ -21,6 +22,7 @@ export default function Menu() {
   const g = state.game;
   const inGame = state.screen === 'game' && g?.status === 'active';
   const scored = hasDone(g);
+  const signedIn = !!signedInAs(useSession());
   const close = () => actions.openSheet(null);
   const ask = (k: 'end' | 'draw' | 'cancel') => {
     close();
@@ -43,6 +45,8 @@ export default function Menu() {
     ...(inGame ? [] : [[Icon.rules, s.rules, () => actions.openSheet({ type: 'rules' })] as Row]),
     [Icon.history, s.history, () => spGo('?keep&page=history')],
     [Icon.boards, s.leaderboard, () => spGo('?keep&page=leaderboard')],
+    [Icon.awards, s.awards, () => spGo('?keep&page=awards')],
+    ...(signedIn ? [[Icon.activity, s.activity, () => spGo('?keep&page=activity')] as Row] : []),
     [Icon.home, s.home, () => spGo('')],
     [Icon.cards, s.allGames, () => go(null)],
   ];

@@ -131,3 +131,66 @@ describe('signing out', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });
+
+describe('the Me screen’s every-game sections', () => {
+  const page = <T,>(items: T[]) => ({ items, nextCursor: null });
+
+  it('counts each game’s achievements I hold, once per code, out of its catalogue', async () => {
+    vi.spyOn(ep, 'player').mockResolvedValue(profile(1));
+    vi.spyOn(ep, 'activity').mockResolvedValue(page([]));
+    vi.spyOn(ep, 'achievements').mockImplementation(async (_id, _c, game) =>
+      page(
+        game === 'spades'
+          ? ([{ code: 'boston' }, { code: 'boston' }, { code: 'winner' }] as never[])
+          : [],
+      ),
+    );
+    await show(true);
+    const spades = await screen.findByRole('button', { name: /^Spades: 2 of \d+ achievements$/ });
+    expect(spades).toHaveTextContent(/^Spades2 \/ \d+$/);
+    expect(screen.getByRole('button', { name: /^Ishaara: 0 of \d+ achievements$/ })).toBeVisible();
+  });
+
+  it('shows the newest few items from every game, each naming its game, and links to the whole feed', async () => {
+    vi.spyOn(ep, 'player').mockResolvedValue(profile(1));
+    vi.spyOn(ep, 'achievements').mockResolvedValue(page([]));
+    const who = { id: 'p1', displayName: 'Jay', emoji: '🦊', color: 'c1', photoUrl: null };
+    const items = [1, 2, 3, 4].map((id) => ({
+      id,
+      kind: 'achievement' as const,
+      gameKind: id === 1 ? ('ishaara' as const) : ('spades' as const),
+      player: who,
+      game: null,
+      data: { code: id === 1 ? 'mind_meld' : 'boston' },
+      createdAt: Date.now(),
+    }));
+    vi.spyOn(ep, 'activity').mockResolvedValue(page(items) as never);
+    await show(true);
+    expect(await screen.findByText('Jay earned Mind meld')).toBeInTheDocument();
+    expect(screen.getByText('in Ishaara')).toBeInTheDocument();
+    expect(screen.getAllByText('Jay earned Boston')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'See all activity' })).toBeVisible();
+    expect(ep.activity).toHaveBeenCalledWith(null, 'all');
+  });
+
+  it('says so when nothing has happened yet', async () => {
+    vi.spyOn(ep, 'player').mockResolvedValue(profile(1));
+    vi.spyOn(ep, 'achievements').mockResolvedValue(page([]));
+    vi.spyOn(ep, 'activity').mockResolvedValue(page([]));
+    await show(true);
+    expect(await screen.findByText('Nothing yet')).toBeInTheDocument();
+  });
+
+  it('offers a retry when the counts fail to load', async () => {
+    vi.spyOn(ep, 'player').mockResolvedValue(profile(1));
+    vi.spyOn(ep, 'activity').mockResolvedValue(page([]));
+    const ach = vi.spyOn(ep, 'achievements').mockRejectedValue(new Error('offline'));
+    await show(true);
+    const retry = await screen.findByRole('button', { name: /Try again|Retry/ });
+    ach.mockResolvedValue(page([]));
+    await setup().click(retry);
+    expect(
+      await screen.findByRole('button', { name: /^Kachuful: 0 of \d+ achievements$/ }),
+    ).toBeVisible();
+  });
+});

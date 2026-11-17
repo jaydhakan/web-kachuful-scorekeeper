@@ -202,6 +202,10 @@ export const play = {
     reaction: (name: string, emoji: string) => `${name}: ${emoji}`,
   },
 
+  pops: {
+    /** A moment earned by someone no longer at the table. */
+    someone: 'Someone',
+  },
   toast: {
     nilBroken: (name: string) => `${name}’s Nil is broken`,
     nilMade: (name: string, blind: boolean) => `${name} made ${blind ? 'Blind ' : ''}Nil!`,

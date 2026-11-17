@@ -19,6 +19,8 @@ import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { t } from '@/strings';
 
+// Its rules and catalogue are a chunk of their own, after the podium.
+const WinnerReel = lazy(() => import('./WinnerReel'));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((x) => ({ default: x.Confetti })),
 );
@@ -152,6 +154,9 @@ export default function Winner() {
                 </m.li>
               ))}
             </ol>
+            <Suspense fallback={null}>
+              <WinnerReel g={g} />
+            </Suspense>
             <div className="mt-3 flex flex-wrap justify-center gap-x-2">
               <button type="button" onClick={actions.startSetup} className={QUIET}>
                 {end.winner.newGame}

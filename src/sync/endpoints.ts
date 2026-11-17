@@ -1,4 +1,4 @@
-import { Bytes, call, del, get, patch, post, put, type CallOpts } from './api';
+import { Bytes, call, del, get, patch, post, put, query, type CallOpts } from './api';
 import type {
   Achievement,
   Activity,
@@ -11,6 +11,8 @@ import type {
   DeletionPreview,
   Bootstrap,
   Daily,
+  GameSeasonResp,
+  LaddersResp,
   GameSummary,
   HeadToHead,
   Leaderboard,
@@ -33,6 +35,7 @@ import type {
   WrappedResp,
 } from './types';
 import type { Metric } from '@/games/kachuful/domain';
+import type { GameId } from '@/platform/route';
 
 export type PlayerEdit = Partial<
   Pick<Player, 'displayName' | 'email' | 'firstName' | 'lastName' | 'emoji' | 'color'>
@@ -51,6 +54,9 @@ export interface AppearanceDto {
 
 /** `PATCH /api/me/preferences`: fields sent replace the stored ones, `null` clears one, fields left out stay. */
 export type PrefsPatch = Partial<Pick<Preferences, 'theme' | 'setup'>>;
+
+/** `?game=` names the game; Kachuful's calls leave it out, as before every game had awards (both mean Kachuful). */
+const gameOf = (game?: GameId | 'all') => (game === 'kachuful' ? undefined : game);
 
 /** One function per API endpoint, typed as built. */
 export const ep = {
@@ -179,17 +185,32 @@ export const ep = {
       undefined,
       o,
     ),
-  daily: (date: string, o?: CallOpts) =>
-    call<Daily>('GET', `/awards/daily?date=${date}`, undefined, o),
-  season: (month: string, o?: CallOpts) =>
-    call<SeasonResp>('GET', `/seasons/${month}`, undefined, o),
-  seasons: (o?: CallOpts) =>
-    call<{ season: string; champion: PlayerSummary | null }[]>('GET', '/seasons', undefined, o),
+  daily: (date: string, o?: CallOpts, game?: GameId) =>
+    call<Daily>('GET', '/awards/daily' + query({ date, game: gameOf(game) }), undefined, o),
+  /** Kachuful's month has points standings (`SeasonResp`); every other game's ranks on win rate. */
+  season: <G extends GameId = 'kachuful'>(month: string, o?: CallOpts, game?: G) =>
+    call<G extends 'kachuful' ? SeasonResp : GameSeasonResp>(
+      'GET',
+      `/seasons/${month}` + query({ game: gameOf(game) }),
+      undefined,
+      o,
+    ),
+  seasons: (o?: CallOpts, game?: GameId) =>
+    call<{ season: string; champion: PlayerSummary | null }[]>(
+      'GET',
+      '/seasons' + query({ game: gameOf(game) }),
+      undefined,
+      o,
+    ),
   wrapped: (year: number, playerId: string, o?: CallOpts) =>
     call<WrappedResp>('GET', `/wrapped/${year}/${playerId}`, undefined, o),
-  activity: (cursor?: string | null) => get<Page<Activity>>('/activity', { cursor }),
-  achievements: (playerId?: string, cursor?: string | null) =>
-    get<Page<Achievement>>('/achievements', { playerId, cursor, limit: 200 }),
+  /** `all` is every game's feed together (the Me page). */
+  activity: (cursor?: string | null, game?: GameId | 'all') =>
+    get<Page<Activity>>('/activity', { cursor, game: gameOf(game) }),
+  achievements: (playerId?: string, cursor?: string | null, game?: GameId) =>
+    get<Page<Achievement>>('/achievements', { playerId, cursor, limit: 200, game: gameOf(game) }),
+  ladders: (game: GameId, playerId: string, o?: CallOpts) =>
+    call<LaddersResp>('GET', '/achievements/ladders' + query({ game, playerId }), undefined, o),
 
   // §6.7 public
   live: (token: string) => get<LiveResp>(`/public/live/${token}`),

@@ -29,6 +29,8 @@ const Setup = lazy(loadSetup);
 const Deal = lazy(() => import('../setup/Deal'));
 const Winner = lazy(() => import('../Winner'));
 const Pages = lazy(() => import('../pages/Pages'));
+const loadMoments = () => import('../MomentCards');
+const MomentCards = lazy(loadMoments);
 
 // The toast sits at the top, centred on the content (under the top bar on an upright tablet), where it never covers
 // an action; the banner too, clear of the rail. Same offsets as Kachuful's desk.
@@ -56,7 +58,10 @@ export default function KtDeskShell() {
   const dealing = !!deal && screen === 'game' && !!game;
   const blocked = !!(sheet || modal || dealing || state.corrupt || updateDue || keys);
   const inGame = !!game && (screen === 'game' || screen === 'winner');
-  useEffect(() => whenIdle(() => void loadSetup()), []);
+  useEffect(() => whenIdle(() => void loadSetup().then(loadMoments)), []);
+  // Mounted from the first hand confirmed on, so a batch of cards can leave before the next.
+  const [moments, setMoments] = useState(false);
+  if (state.pops && !moments) setMoments(true);
   useShortcuts(
     {
       '?': () => setKeys(true),
@@ -170,6 +175,11 @@ export default function KtDeskShell() {
       </m.div>
       <KtServiceWorker />
       <Toast toast={toast} onUndo={actions.undo} onDismiss={actions.dismissToast} />
+      {moments && (
+        <Suspense fallback={null}>
+          <MomentCards />
+        </Suspense>
+      )}
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>
         {keys && (

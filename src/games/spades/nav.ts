@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { parseOnlineEntry, type OnlineEntry } from './online/entry';
 
 /** The pages table mode opens straight to from Home (`?keep&page=history`). */
-export type TablePage = 'history' | 'leaderboard';
+export type TablePage = 'history' | 'leaderboard' | 'awards' | 'activity';
 
 /** What `/spades` shows for an address: Home, table mode (`?keep`), or online play. */
 export type SpView =
@@ -10,7 +10,7 @@ export type SpView =
   | { kind: 'table'; page: TablePage | null }
   | { kind: 'online'; entry: OnlineEntry };
 
-const PAGES: readonly string[] = ['history', 'leaderboard'];
+const PAGES: readonly string[] = ['history', 'leaderboard', 'awards', 'activity'];
 
 export function viewOf(search: string): SpView {
   const q = new URLSearchParams(search);

@@ -1,6 +1,7 @@
 /** The API's shapes as built. Times are epoch ms, ids UUID strings. */
 import type { Direction } from '@/people';
 import type { Decks, Game, Trump, Wrapped } from '@/games/kachuful/domain';
+import type { GameId } from '@/platform/route';
 
 export type Role = 'admin' | 'member';
 
@@ -125,6 +126,7 @@ export const isTombstone = (g: GameSummary | Tombstone): g is Tombstone =>
  */
 export const newsworthy = (a: Activity) =>
   a.kind !== 'achievement' ||
+  (a.gameKind ?? 'kachuful') !== 'kachuful' ||
   !(
     typeof a.data.code === 'string' &&
     (a.data.code === 'hot_3' || a.data.code.startsWith('cold_'))
@@ -132,6 +134,8 @@ export const newsworthy = (a: Activity) =>
 
 export interface Achievement {
   id: string;
+  /** Which game's catalogue the code is from; a server older than every game's achievements leaves it out. */
+  gameKind?: GameId;
   code: string;
   playerId: string;
   gameId: string | null;
@@ -225,9 +229,38 @@ export interface SeasonResp {
   awards: AwardRow[];
 }
 
+/** A standings row of a month ranked on win rate (`value`, 0–1): every game but Kachuful. */
+export interface GameSeasonRow {
+  rank: number | null;
+  qualified: boolean;
+  player: PlayerSummary;
+  value: number;
+  games: number;
+  wins: number;
+}
+
+/** GET /api/seasons/{month}?game= for every game but Kachuful (`GameSeasonOut`). */
+export interface GameSeasonResp {
+  season: string;
+  final: boolean;
+  gameKind: GameId;
+  minGames: number;
+  standings: GameSeasonRow[];
+  awards: AwardRow[];
+}
+
+/** GET /api/achievements/ladders: each ladder's count, by the ladder ids of that game's rules. */
+export interface LaddersResp {
+  gameKind: GameId;
+  playerId: string;
+  counts: Record<string, number>;
+}
+
 export interface Activity {
   id: number;
   kind: 'achievement' | 'game_finished' | 'season_closed' | 'player_joined';
+  /** The game the item is about (`game` is the finished game's summary); left out by an older server. */
+  gameKind?: GameId;
   player: PlayerSummary | null;
   game: GameSummary | null;
   data: Record<string, unknown>;

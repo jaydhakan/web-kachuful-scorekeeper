@@ -25,6 +25,13 @@ describe('Winner', () => {
     ]);
   });
 
+  it('flips in what the game earned, winners and first wins among them', async () => {
+    renderKt(<Winner />, finishedDemo());
+    const reel = await screen.findByRole('list', { name: 'Achievements' });
+    expect(within(reel).getAllByText('Winner')).toHaveLength(2);
+    expect(within(reel).getAllByText('Wooden Spoon').length).toBeGreaterThan(0);
+  });
+
   it('says how a lone winner bid', () => {
     const g = finishedDemo();
     renderKt(<Winner />, { ...g, hands: g.hands.slice(0, 3) });

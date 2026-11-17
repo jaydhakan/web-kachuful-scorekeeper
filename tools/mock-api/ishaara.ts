@@ -650,3 +650,12 @@ export function resetIshaara(at = Date.now()) {
   });
   skew = 0;
 }
+
+/** Finished games that earn something (not abandoned, not deleted), for the progression mock. */
+export const ishaaraFinished = (): IshaaraPublic[] =>
+  live()
+    .map((r) => r.game)
+    .filter((g) => g.status === 'finished' && g.endedBy !== 'abandoned');
+
+/** A registry player as the feed shows them. */
+export const ishaaraSummaryOf = (playerId: string): PlayerSummary => kit.summaryOf(playerId);
