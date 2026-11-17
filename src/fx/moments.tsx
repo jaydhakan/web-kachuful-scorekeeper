@@ -140,12 +140,16 @@ export class MomentQueue {
     const ac = new AbortController();
     let end = () => undefined as void;
     const over = new Promise<void>((r) => (end = r));
-    this.now = { m, ac, end };
+    // Abort only a moment cut short: one that finished keeps its last frame (a stamp stays down).
+    const stop = () => {
+      ac.abort();
+      end();
+    };
+    this.now = { m, ac, end: stop };
     this.emit();
-    const timer = setTimeout(end, ceiling(m));
+    const timer = setTimeout(stop, ceiling(m));
     void Promise.race([this.run(m, ac), over]).then(() => {
       clearTimeout(timer);
-      ac.abort();
       this.now = null;
       this.emit();
       this.next();
