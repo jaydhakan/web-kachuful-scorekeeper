@@ -31,7 +31,7 @@ const Win = lazy(() => import('./Win'));
 const ClueHome = lazy(() => import('./clue/ClueHome'));
 const HubPage = lazy(() => import('./pages/HubPage'));
 
-type Hub = 'history' | 'leaderboard' | 'rules';
+type Hub = Exclude<HubLink, 'clues'>;
 
 /** A hub page over whatever is under it, which stays mounted (and inert) so a game in progress keeps its link. */
 function Over({ page, onBack }: { page: Hub; onBack: () => void }) {

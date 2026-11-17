@@ -12,6 +12,7 @@ import { table as s } from '@/games/ishaara/strings/table';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { momentText, type Moment } from './Notes';
 import { useServerNow } from './useServerNow';
+import { useTurnMoments } from './useTurnMoments';
 
 const b = s.board;
 /** How long a reveal moment or a turn notice stays before the board settles. */
@@ -84,6 +85,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   useAutoTimeout(table, active);
   const ticking = !!game && (game.deadline !== null || !!game.pending || !!game.undo);
   const serverNow = useServerNow(clockOffset, ticking);
+  const moments = useTurnMoments(game);
 
   // Each new state: what turned, what to say, and whether the selection still stands.
   useEffect(() => {
@@ -197,6 +199,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     picker,
     endDisabled,
     onFinished,
+    moments,
   };
 }
 

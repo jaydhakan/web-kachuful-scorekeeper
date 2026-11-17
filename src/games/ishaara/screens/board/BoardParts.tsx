@@ -4,6 +4,7 @@ import { table as s } from '@/games/ishaara/strings/table';
 import { Icon } from '@/components/ui/Icons';
 import { Modal } from '@/components/ui/Modal';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { MomentPop } from '@/components/progression/MomentPop';
 import { BoardMenu } from './BoardMenu';
 import { ConfirmBar, EndNote, MomentNote, NoticeNote, PenaltyNote } from './Notes';
 import type { BoardView } from './useBoard';
@@ -166,6 +167,7 @@ export function BoardOverlays({
       <p role="status" aria-live="polite" className="sr-only">
         {v.said}
       </p>
+      <MomentPop pops={v.moments.pops} onDone={v.moments.done} />
       <AnimatePresence>
         {menu && (
           <BoardMenu
