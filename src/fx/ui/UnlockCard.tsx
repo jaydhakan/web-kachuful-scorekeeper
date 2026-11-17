@@ -103,11 +103,20 @@ export function UnlockCard({
       runs.push({ cancel: () => clearTimeout(t) });
       await wait(LEAVE_AT);
       if (!live) return;
+      // Into the earner's own seat when it is on screen (online, on their phone); else it lifts away.
+      const seat = card.mine
+        ? document.querySelector('[data-seat-me] [data-seat-avatar]')?.getBoundingClientRect()
+        : null;
+      const from = drop.current?.getBoundingClientRect();
+      const away =
+        seat && from && seat.width > 0
+          ? `translate(${seat.left + seat.width / 2 - (from.left + from.width / 2)}px,${seat.top + seat.height / 2 - (from.top + from.height / 2)}px) scale(.15)`
+          : 'translateY(-45%) scale(.3)';
       const out = anim(
         drop.current,
         [
           { transform: 'translateY(0) scale(1)', opacity: 1 },
-          { transform: 'translateY(-45%) scale(.3)', opacity: 0 },
+          { transform: away, opacity: 0 },
         ],
         { duration: LEAVE_MS, easing: TRAVEL, fill: 'both' },
       );

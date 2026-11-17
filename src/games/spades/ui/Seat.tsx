@@ -233,6 +233,7 @@ export function Seat({
   return (
     <div
       data-seat={seat}
+      data-seat-me={me || undefined}
       role="group"
       aria-label={aria}
       className={`pointer-events-none absolute z-[3] w-[92px] -translate-x-1/2 -translate-y-1/2 text-center ${className}`}
