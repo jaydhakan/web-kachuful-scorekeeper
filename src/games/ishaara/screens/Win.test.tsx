@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { clue, pick, started, act as play, TABLE } from '@/games/ishaara/domain/__fixtures__/kit';
 import type { IshaaraPublic } from '@/games/ishaara/domain';
 import { IshaaraProvider } from '@/games/ishaara/state/store';
+import { ep } from '@/sync/endpoints';
+import { ApiError } from '@/sync/api';
 import Win, { clueLog } from './Win';
 
 const show = (g: IshaaraPublic) =>
@@ -75,5 +77,47 @@ describe('the result', () => {
     await waitFor(() => expect(posted).toHaveLength(1));
     expect(posted[0].url).toMatch(new RegExp(`/api/ishaara/games/${g.id}/rematch$`));
     expect(posted[0].body.words).toHaveLength(25);
+  });
+});
+
+describe('the reel', () => {
+  afterEach(() => vi.restoreAllMocks());
+  const row = (g: IshaaraPublic, code: string, playerId: string, gameId = g.id) => ({
+    id: code + playerId,
+    code,
+    playerId,
+    gameId,
+    roundIndex: null,
+    period: null,
+    earnedAt: g.finishedAt!,
+    data: {},
+    gameKind: 'ishaara' as const,
+  });
+
+  it("shows this game's achievements from the server, with who earned them", async () => {
+    const g = trapGame().state;
+    const riya = g.players[0].playerId!;
+    vi.spyOn(ep, 'achievements').mockResolvedValue({
+      items: [row(g, 'lucky_escape', riya), row(g, 'winner', riya, 'another-game')],
+      nextCursor: null,
+    } as never);
+    show(g);
+    const reel = await screen.findByRole('list', { name: 'Achievements' });
+    expect(within(reel).getByText('Lucky escape')).toBeInTheDocument();
+    expect(within(reel).getByText('Riya')).toBeInTheDocument();
+    expect(within(reel).queryByText('Winner')).toBeNull();
+    expect(vi.mocked(ep.achievements).mock.calls[0][2]).toBe('ishaara');
+  });
+
+  it('says when they could not load, and tries again', async () => {
+    const g = trapGame().state;
+    const spy = vi.spyOn(ep, 'achievements').mockRejectedValue(new ApiError(500, 'internal'));
+    show(g);
+    expect(await screen.findByText('Couldn’t load this game’s achievements.')).toBeInTheDocument();
+    spy.mockResolvedValue({ items: [], nextCursor: null });
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await waitFor(() =>
+      expect(screen.queryByText('Couldn’t load this game’s achievements.')).toBeNull(),
+    );
   });
 });

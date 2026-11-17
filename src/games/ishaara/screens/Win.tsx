@@ -19,6 +19,7 @@ import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { Mark, TEAM_FILL } from './board/marks';
 import { WordGrid } from './board/WordGrid';
+import { GameReel } from './GameReel';
 
 const w = s.win;
 
@@ -168,6 +169,8 @@ export default function Win({ game }: { game: IshaaraPublic }) {
                 </div>
               </div>
             </section>
+
+            <GameReel game={game} />
 
             {game.solution && (
               <m.section {...stagger(1)} aria-labelledby="ish-key" className="mt-6">
