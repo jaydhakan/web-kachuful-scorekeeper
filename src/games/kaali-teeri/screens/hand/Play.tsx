@@ -13,6 +13,7 @@ import { stagger } from '@/components/ui/stagger';
 import { TR } from '@/theme/trumps';
 import { HandFrame } from './parts/HandFrame';
 import { CardName, FlipCard, RoleBadge, cardText, roleOf } from './parts/bits';
+import { LastPartner } from './parts/lastPartner';
 import { FLIP_S, useFreshMarks, useLand, useRevealBadges, useRevealFlight } from './parts/reveal';
 
 /** Plan §3 screen 6: the hand in play. Who played each called card can be marked as it lands, or at the result. */
@@ -108,6 +109,7 @@ export function CalledCards({ g, h, id, className = 'mt-3 pane:mt-0' }: CalledCa
         ))}
       </div>
       {node}
+      <LastPartner g={g} h={h} fresh={fresh} />
     </section>
   );
 }

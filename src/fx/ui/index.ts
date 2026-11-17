@@ -3,5 +3,6 @@ import './moments.css';
 
 export { default as EmojiRain } from './EmojiRain';
 export { MomentPop } from './MomentPop';
+export { SeatSpotlight, type SeatPoint } from './SeatSpotlight';
 export { Stamp } from './Stamp';
 export { UnlockCard } from './UnlockCard';

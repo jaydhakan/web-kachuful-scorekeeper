@@ -41,6 +41,8 @@ export const kp = {
     by: (name: string) => name,
     change: (card: string, name: string) => `${card}: played by ${name}. Change`,
     hidden: (card: string) => `${card}, not played yet. Played by…`,
+    /** The last partner's spotlight (K1). */
+    withLine: (name: string, bidder: string) => `${name} is with ${bidder}!`,
     joined: (name: string, bidder: string) =>
       name === bidder ? `${bidder} played their own called card` : `${name} is ${bidder}’s partner`,
     stillHidden: (n: number) =>
