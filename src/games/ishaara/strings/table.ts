@@ -23,6 +23,8 @@ export const table = {
     clueGames: 'Your clue games',
     history: 'History',
     leaderboard: 'Leaderboard',
+    awards: 'Awards',
+    activity: 'Activity',
     rules: 'How to play',
     allGames: 'All games',
     inProgress: 'In progress',

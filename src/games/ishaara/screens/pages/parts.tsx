@@ -19,7 +19,10 @@ export type HubRoute =
   | { page: 'leaderboard' }
   | { page: 'player'; who: Who }
   | { page: 'h2h'; a: Who; b: Who }
-  | { page: 'rules' };
+  | { page: 'rules' }
+  | { page: 'awards' }
+  | { page: 'achievements'; id?: string }
+  | { page: 'activity' };
 
 export interface HubNav {
   open: (r: HubRoute) => void;
