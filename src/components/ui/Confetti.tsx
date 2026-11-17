@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { confettiCount, MAX_STEP_MS, stepConfetti, type ConfettiPiece } from '@/lib/confettiCount';
 import { colorValue } from '@/theme/palette';
-import { reducedMotion } from '@/fx/waapi';
+import { reducedMotion, timeScale } from '@/fx/waapi';
 import { reveal } from './podiumReveal';
 
 interface ConfettiProps {
@@ -100,7 +100,7 @@ export function Confetti({ colors, onDone, origin, count }: ConfettiProps) {
         last = t;
       }
       // The life runs on the same clamped clock as the flight, so a background tab pauses both.
-      const dt = Math.min(t - last, MAX_STEP_MS);
+      const dt = Math.min(t - last, MAX_STEP_MS) * timeScale();
       last = t;
       age += dt;
       const k = age / LIFE_MS;

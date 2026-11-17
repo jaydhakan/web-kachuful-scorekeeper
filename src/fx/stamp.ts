@@ -1,5 +1,5 @@
 import { STAMP_MS } from '@/components/ui/motion';
-import { OUT, POP, REDUCED_MS, reducedMotion } from './waapi';
+import { OUT, POP, REDUCED_MS, reducedMotion, timeScale } from './waapi';
 
 /** A running effect: `done` always resolves (finished, cancelled or skipped). */
 export interface Played {
@@ -12,6 +12,7 @@ const SETTLE_MS = 140;
 const run = (el: Element, frames: Keyframe[], o: KeyframeAnimationOptions): Played => {
   if (typeof (el as HTMLElement).animate !== 'function') return NONE;
   const a = (el as HTMLElement).animate(frames, o);
+  a.playbackRate = timeScale();
   return { done: a.finished.then(noop, noop), cancel: () => a.cancel() };
 };
 const noop = () => undefined;

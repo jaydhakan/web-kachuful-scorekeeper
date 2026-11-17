@@ -19,6 +19,13 @@ let forced: boolean | null = null;
 export const forceReducedMotion = (v: boolean | null) => {
   forced = v;
 };
+let rate = 1;
+/** The moments lab's speed (0.25 to watch a moment slowly); 1 everywhere else. */
+export const setTimeScale = (r: number) => {
+  rate = r;
+};
+export const timeScale = () => rate;
+
 export const reducedMotion = () =>
   forced ??
   (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -88,6 +95,7 @@ export function anim(
       iterations: o.iterations ?? 1,
     });
   }
+  a.playbackRate = rate;
   return {
     done: a.finished.then(
       () => undefined,
@@ -98,4 +106,4 @@ export function anim(
 }
 
 /** A promise that waits. */
-export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms / rate));
