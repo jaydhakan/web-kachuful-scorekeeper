@@ -13,4 +13,6 @@ export const fx = {
   spadesNote: 'Spades has its own sound setting at the table, and it wins there.',
   vibrate: 'Vibration',
   vibrateHint: 'Android phones only: iPhones don’t let web apps vibrate.',
+  /** The tap layer over a moment that holds the screen. */
+  skip: 'Skip',
 } as const;
