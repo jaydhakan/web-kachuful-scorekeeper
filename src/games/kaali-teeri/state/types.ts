@@ -109,6 +109,8 @@ export interface KtState {
   fresh: boolean;
   /** The saved game couldn't be read: saving waits until the player chooses Reset or Keep backup. */
   corrupt: boolean;
+  /** A hand just confirmed: its moments drop in as cards (worked out where they show). */
+  pops: { id: number; hand: number } | null;
 }
 
 /** Everything the Edit sheet sets on a done hand; totals recompute from it. */
@@ -137,6 +139,7 @@ export type KtAction =
   | { type: 'say'; msg: string; undo?: boolean }
   | { type: 'toastDone' }
   | { type: 'bannerDone' }
+  | { type: 'popsDone' }
   | { type: 'dealDone' }
   | { type: 'setFresh'; v: boolean }
   // Setup

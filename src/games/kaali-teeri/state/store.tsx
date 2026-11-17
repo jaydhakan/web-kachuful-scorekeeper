@@ -58,6 +58,8 @@ export interface KtActions {
   dismissToast(): void;
   dealDone(): void;
   setFresh(v: boolean): void;
+  /** The hand's moment cards have been read. */
+  popsDone(): void;
   // Setup
   startSetup(): void;
   setupStep(step: 1 | 2 | 3): void;
@@ -211,6 +213,7 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
       dismissToast: () => dispatch({ type: 'toastDone' }),
       dealDone: () => dispatch({ type: 'dealDone' }),
       setFresh: (v) => dispatch({ type: 'setFresh', v }),
+      popsDone: () => dispatch({ type: 'popsDone' }),
       startSetup: () => nav({ type: 'startSetup', lg: loadKtLastGroup() }),
       setupStep: (step) => nav({ type: 'setupStep', step }),
       setupCount: (n) => dispatch({ type: 'setupCount', n }),
