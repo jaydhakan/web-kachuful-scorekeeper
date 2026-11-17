@@ -148,8 +148,34 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
     winner's avatar only when the signed-in player has newly taken first place on that board (remembered per board in
     `baithak.boardTop`). A filter change swaps the podium in place. Reduced motion: everything in place.
 
+17. **Every podium's light and crown** (`ui/PodiumLight.tsx`): on items 5 and 16, a soft light crosses to first place
+    as its step rises (900ms on a winner screen, 600ms on a board) and the crown drops on each winner with
+    `SPRING_POP` once they have landed. The season close plays it once per device as a ceremony with its title
+    ("Season · November") and Replay the reveal (`SeasonPodium.tsx`, `baithak.seasonShown`).
+
 Rules: transform and opacity only (plus `clip-path` for the fill); entrances ease out (`cubic-bezier(.22,1,.36,1)`),
 in-place changes ease in and out; nothing blocks a tap.
+
+### Moments (the grammar every game reuses)
+
+Big news speaks with three materials: **the card** (dealt: drops, turns over `FLIP_MS` 450ms), **the stamp** (a
+verdict: `stamp()` and `<Stamp>`, scale 1.6 to 1 and −8° over `STAMP_MS` 360ms with `POP`, a 3px settle) and **the
+light** (`sheen()`, once, never a loop). Tokens are in `ui/motion.ts` (`TRAVEL`, `FLIP_MS`, `STAMP_MS`,
+`BEAT_HOLD_MS`, `MOMENT_MAX_MS` 2.5s, `GAME_END_MAX_MS` 4s) with CSS-string twins in `fx/waapi.ts`.
+
+- **Tiers.** A *Tick* is feedback (≤ 300ms). A *Beat* is one element on the table (0.8–1.6s; the rest keeps working).
+  A *Moment* may take the screen as an overlay (≤ 2.5s): one at a time, two a hand, through the moment queue
+  (`fx/moments.tsx`, priority game end > verdict > big unlock > small unlock), and a tap anywhere skips it.
+- **Derived from state**, never a clock: a moment comes from two consecutive game states, with an id, so every phone
+  plays it from the same frame and a reconnect never replays it.
+- **Fire-and-forget on Web Animations** (`fx/waapi.ts`), Framer only for springs and gestures; never transform a
+  `.glass` element for more than 300ms.
+- **Reduced motion keeps the information**: the stamp in place, the card face up, a banner shown still for its
+  length; no confetti, shake or flash. Sound and vibration follow "Sounds and vibration" (Me), not motion.
+- **Lazy**: the moments' code and their sheet (`src/fx/ui`, `tailwind.moments.config.ts`) load with the first one
+  that plays; no first load carries them.
+- **The lab**: `/?lab=moments` in dev builds shows every moment with Replay, 0.25×, reduced motion, the four themes
+  and phone or desk sizes. Add a new moment there first.
 
 ## Contrast
 
