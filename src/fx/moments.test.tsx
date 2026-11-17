@@ -62,6 +62,39 @@ describe('the moment queue', () => {
     expect(log).toEqual(['end', 'boston', 'big', 'small']);
   });
 
+  it('forgets what it cleared before it played, so a remounted screen can push it again', async () => {
+    const { q, log, make, finish } = rig();
+    q.push(make('now', PRIORITY.verdict));
+    await flush();
+    q.push(make('later', PRIORITY.smallUnlock));
+    q.clear();
+    await flush();
+    expect(q.push(make('now', PRIORITY.verdict))).toBe('duplicate');
+    expect(q.push(make('later', PRIORITY.smallUnlock))).toBe('queued');
+    await flush();
+    await finish('later');
+    expect(log).toEqual(['now', 'now:aborted', 'later']);
+  });
+
+  it('plays a moment pushed under StrictMode once', async () => {
+    const { StrictMode, useEffect } = await import('react');
+    const { q, log, make } = rig();
+    function Pusher() {
+      const m = make('strict', PRIORITY.bigUnlock);
+      useEffect(() => void q.push(m));
+      return null;
+    }
+    render(
+      <StrictMode>
+        <MomentsProvider queue={q}>
+          <Pusher />
+        </MomentsProvider>
+      </StrictMode>,
+    );
+    await flush();
+    expect(log).toEqual(['strict']);
+  });
+
   it('caps a hand at two Moments; a new scope starts again, and a game end is never capped', async () => {
     const { q, log, make, finish } = rig();
     q.push(make('a', PRIORITY.bigUnlock, 'hand:1'));

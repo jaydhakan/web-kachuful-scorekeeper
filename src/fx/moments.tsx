@@ -119,8 +119,12 @@ export class MomentQueue {
     this.now?.end();
   }
 
-  /** Drops everything waiting and ends the current one: the screen is going away. */
+  /**
+   * Drops everything waiting and ends the current one: the screen is going away. What never started is forgotten,
+   * so the screen coming back (a remount, StrictMode's double mount) can push it again.
+   */
   clear() {
+    for (const { m } of this.pending) seen.delete(m.id);
     this.pending = [];
     this.skip();
   }
