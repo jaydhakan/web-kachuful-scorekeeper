@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { AvatarFill, type Face } from '@/components/ui/Avatar';
 import { Confetti } from '@/components/ui/Confetti';
 import { Counter } from '@/components/ui/Counter';
@@ -47,6 +47,8 @@ export function teamStats(t: SpPublic, team: TeamId): TeamStats {
 }
 
 const SPRING = { type: 'spring', stiffness: 380, damping: 22 } as const;
+// The reel brings the catalogue with it: its own chunk, after the winner is on screen.
+const Reel = lazy(() => import('@/games/spades/progress/OnlineReel'));
 
 export function Winner({
   table,
@@ -212,6 +214,9 @@ export function Winner({
               </div>
             ))}
           </dl>
+          <Suspense fallback={null}>
+            <Reel table={table} />
+          </Suspense>
         </div>
       </div>
       {/* Pinned, so Rematch is on screen however much the celebration above has to scroll. */}

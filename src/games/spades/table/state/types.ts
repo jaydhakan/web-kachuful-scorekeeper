@@ -42,8 +42,13 @@ export type SpSheet =
 /** End game, Call it a draw and Cancel game each ask first (plan D14). */
 export type SpModal = 'end' | 'draw' | 'cancel';
 
-/** A page opened over the screens: a finished game's recap from History. */
-export type SpRoute = { page: 'game'; id: string } | { page: 'player'; id: string };
+/** A page opened over the screens: a game's recap, a player, the achievements (one player's or everyone's), awards or the feed. */
+export type SpRoute =
+  | { page: 'game'; id: string }
+  | { page: 'player'; id: string }
+  | { page: 'achievements'; id?: string }
+  | { page: 'awards' }
+  | { page: 'activity' };
 
 export interface SpToast {
   id: number;
