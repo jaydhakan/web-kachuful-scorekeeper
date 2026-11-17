@@ -20,7 +20,7 @@ const keyOf = (m: TurnMoment) => `${m.turn}|${m.code}|${m.team}`;
  * over when the board opened never pops (a reload replays nothing); the server's rows are the record.
  */
 export function useTurnMoments(game: IshaaraPublic | null) {
-  const [pops, setPops] = useState<{ id: number; cards: PopCard[] } | null>(null);
+  const [pops, setPops] = useState<{ id: number; cards: PopCard[]; keys: string[] } | null>(null);
   const seen = useRef<Set<string> | null>(null);
   // Only unmounting drops a batch: a newer state arriving while the catalogue loads must not.
   const mounted = useRef(true);
@@ -37,12 +37,25 @@ export function useTurnMoments(game: IshaaraPublic | null) {
       seen.current = new Set(ms.map(keyOf));
       return;
     }
+    // An undo reopens a turn: its moments leave the screen and may pop again once it really ends.
+    const now = new Set(ms.map(keyOf));
+    for (const k of [...seen.current]) if (!now.has(k)) seen.current.delete(k);
+    setPops((p) => {
+      if (!p || p.keys.every((k) => now.has(k))) return p;
+      const keep = p.keys.map((k) => now.has(k));
+      const cards = p.cards.filter((_, i) => keep[i]);
+      return cards.length ? { ...p, cards, keys: p.keys.filter((_, i) => keep[i]) } : null;
+    });
     const fresh = ms.filter((m) => !seen.current!.has(keyOf(m)));
     if (!fresh.length) return;
     for (const m of fresh) seen.current.add(keyOf(m));
     void loadProgression('ishaara').then((prog) => {
       if (mounted.current)
-        setPops({ id: game.rev, cards: fresh.map((m) => popCard(prog, m.code, s.team[m.team])) });
+        setPops({
+          id: game.rev,
+          cards: fresh.map((m) => popCard(prog, m.code, s.team[m.team])),
+          keys: fresh.map(keyOf),
+        });
     });
   }, [game]);
   const done = useCallback(() => setPops(null), []);

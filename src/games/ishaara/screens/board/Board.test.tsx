@@ -258,6 +258,17 @@ describe('turn moments', () => {
     expect(screen.getByText('Sun · Overtime')).toBeInTheDocument();
   });
 
+  it('takes a turn’s moments back off the table when the guess that ended it is undone', async () => {
+    let k = pick(pick(pick(clue(started(), 'stream', 3), 0), 1), 2);
+    const r = show(table(k.state));
+    k = pick(k, 3);
+    rerun(r, k.state);
+    expect(await screen.findByText('Sun · Overtime')).toBeInTheDocument();
+    rerun(r, play(k, TABLE, { type: 'undoLast' }).state);
+    expect(screen.queryByText('Sun · Overtime')).toBeNull();
+    expect(screen.queryByText('Sun · Mind meld')).toBeNull();
+  });
+
   it('never replays what was over before the board opened', async () => {
     const k = pick(pick(pick(pick(clue(started(), 'stream', 3), 0), 1), 2), 3);
     const r = show(table(k.state));
