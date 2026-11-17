@@ -41,8 +41,9 @@ export function MomentPop({ pops, onDone }: { pops: Batch | null; onDone: () => 
       waits: Promise<void>[] = [],
       ids: string[] = [];
     for (const c of pops.cards) {
-      if (c.tier !== 'big') {
-        rest.push(c);
+      // A big moment someone else earned (online, on this player's own phone) is a compact card here.
+      if (c.tier !== 'big' || c.mine === false) {
+        rest.push(c.tier === 'big' ? { ...c, tier: undefined } : c);
         continue;
       }
       let finish = () => undefined as void;

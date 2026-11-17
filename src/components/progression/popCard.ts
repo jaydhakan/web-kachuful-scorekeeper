@@ -10,6 +10,8 @@ export interface PopCard {
   /** For the big card, which sets the two apart: who earned it, and what. */
   who?: string;
   what?: string;
+  /** Online, on each player's own phone: false when someone else earned it, so a big one shows as a compact card. */
+  mine?: boolean;
 }
 
 /** A moment's card: "Asha · Boston". */

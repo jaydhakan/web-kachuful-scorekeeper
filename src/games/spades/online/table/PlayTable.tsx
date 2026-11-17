@@ -1214,7 +1214,15 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         )}
       </AnimatePresence>
       <ToastPill toast={toast} />
-      {popHand !== null && <HandPops key={popHand} game={t} index={popHand} nameOf={nameOf} />}
+      {popHand !== null && (
+        <HandPops
+          key={popHand}
+          game={t}
+          index={popHand}
+          nameOf={nameOf}
+          me={me === null ? null : (t.seats[me]?.who?.playerId ?? null)}
+        />
+      )}
       <p aria-live="polite" className="sr-only">
         {said}
       </p>

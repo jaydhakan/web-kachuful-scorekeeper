@@ -13,11 +13,14 @@ export function HandPops({
   game,
   index,
   nameOf,
+  me,
 }: {
   /** A table-mode game, or an online table's public state. */
   game: SpGame | SpPublic;
   index: number;
   nameOf: (id: string) => string;
+  /** Online: the player holding this phone, so others' big moments show compact here. */
+  me?: string | null;
 }) {
   const [pops, setPops] = useState<{ id: string; cards: PopCard[] } | null>(null);
   useEffect(() => {
@@ -25,7 +28,7 @@ export function HandPops({
     // A pop is decoration: if its chunk can't load (offline, say), the hand simply shows without it.
     load().then(
       (m) => {
-        const cards = m.handPopCards(game, index, nameOf);
+        const cards = m.handPopCards(game, index, nameOf, me);
         if (on && cards.length) setPops({ id: `${game.id}:${index}`, cards });
       },
       () => undefined,
