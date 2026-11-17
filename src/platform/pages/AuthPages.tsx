@@ -15,6 +15,8 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE, REDUCED, SPRING } from '@/components/ui/motion';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { returnTo } from '@/lib/entry';
+import { say } from '@/platform/notice';
 import { LinkGone, offlineError } from './LinkGone';
 
 const a = t.hub.auth;
@@ -30,7 +32,7 @@ export function authError(e: unknown): string {
 }
 
 export function SignInPage() {
-  const { actions } = useApp();
+  const { state, actions } = useApp();
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
@@ -43,7 +45,10 @@ export function SignInPage() {
     try {
       const s = await signIn(email, pw);
       actions.setSession(s);
-      // No toast: the account chip on Home already says who is signed in.
+      // Back on another page (the landing page, a game) a line says it worked, so the return doesn't read as a
+      // reload; here in Kachuful the account chip on Home already says who is signed in.
+      const top = state.nav.at(-1);
+      if (top && returnTo(top)) say(s.player ? a.signedInAs(s.player.displayName) : a.signedIn);
       actions.back();
     } catch (x) {
       setErr(authError(x));
