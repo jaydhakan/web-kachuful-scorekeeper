@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icons';
 import { EASE } from '@/components/ui/motion';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { FACE, Mark } from './marks';
+import { secsUntil, useServerClock } from '@/hooks/useServerClock';
 import type { Notice } from './useBoard';
 
 const b = s.board;
@@ -153,18 +154,21 @@ export function EndNote({
 export function PenaltyNote({
   name,
   picker,
-  skipIn,
+  skipAt,
+  offset,
   canSend,
   onSkip,
 }: {
   name: string;
   picker: Team;
-  /** Ms until Skip opens; 0 or less once it may be tapped. */
-  skipIn: number;
+  /** When Skip opens, on the server's clock. */
+  skipAt: number;
+  offset: number;
   canSend: boolean;
   onSkip: () => void;
 }) {
-  const open = skipIn <= 0;
+  const secs = useServerClock(offset, true, (now) => secsUntil(skipAt, now));
+  const open = secs <= 0;
   return (
     <m.div {...IN} className="glass flex flex-col gap-3 p-4">
       <p className="flex items-start gap-2 text-17 font-bold leading-snug">
@@ -180,7 +184,7 @@ export function PenaltyNote({
         disabled={!open || !canSend}
         className="!h-12 w-full !text-16"
       >
-        {open ? b.skip : b.skipIn(s.clock(skipIn))}
+        {open ? b.skip : b.skipIn(s.clock(secs * 1000))}
       </PrimaryButton>
     </m.div>
   );

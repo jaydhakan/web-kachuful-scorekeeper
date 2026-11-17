@@ -6,6 +6,7 @@ import {
   useState,
   type KeyboardEvent,
   type PointerEvent,
+  type ReactNode,
 } from 'react';
 import { cardId, displaySort, rankValue, sameCard } from '@/games/spades/domain/cards';
 import { playProblem, type PlayProblem } from '@/games/spades/domain/legal';
@@ -85,7 +86,7 @@ export interface HandProps {
   width: number;
   maxCw?: number;
   /** Shown under the fan: "YOUR TURN · 24s". */
-  turnText?: string | null;
+  turnText?: ReactNode;
 }
 
 interface Drag {

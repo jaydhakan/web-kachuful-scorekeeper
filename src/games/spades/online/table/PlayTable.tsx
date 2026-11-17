@@ -18,6 +18,7 @@ import { Loader } from '@/components/ui/Loader';
 import { Modal } from '@/components/ui/Modal';
 import { Sheet } from '@/components/ui/Sheet';
 import { TableInviteSheet } from '@/components/seat-invites/TableInviteSheet';
+import { Countdown, secsUntil, useServerClock } from '@/hooks/useServerClock';
 import { vibrate } from '@/hooks/useHaptics';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -49,7 +50,6 @@ import { Felt, type TrickPlay } from './Felt';
 import { dealNo, handDone, momentsBetween, playsOf, type Moment } from './moments';
 import { cardsLeft, lastHandScore, nilState, placeOf, teamNumbers } from './present';
 import { BoardBody, KeysBody, LastTrickBody, MenuBody, PrefsBody } from './Sheets';
-import { useServerNow } from './useTimers';
 import { Cancelled, Winner } from './Winner';
 
 /** A trick stays on the felt this long after its last card lands, before it is gathered to the winner. */
@@ -265,12 +265,20 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   const myTurn = inHand && me !== null && t.turn === me && !t.paused;
   const ticking =
     t.status === 'playing' && (t.deadline !== null || t.phase === 'deal' || t.phase === 'handEnd');
-  const now = useServerNow(ctx.clockOffset, ticking);
-  const secsLeft = t.deadline !== null ? Math.max(0, Math.ceil((t.deadline - now) / 1000)) : null;
-  const lateDeal =
-    (t.phase === 'deal' || t.phase === 'handEnd') &&
-    t.turnStartedAt !== null &&
-    now >= t.turnStartedAt + DEAL_ANYONE_MS;
+  // Read off the server's clock; each re-renders the table only when it changes (the seconds are a leaf below).
+  const urgency = useServerClock(ctx.clockOffset, ticking, (now) => {
+    if (t.deadline === null) return 'calm';
+    const secs = secsUntil(t.deadline, now);
+    return secs > 0 && secs <= 5 ? 'last5' : secs <= 10 ? 'warn' : 'calm';
+  });
+  const lateDeal = useServerClock(
+    ctx.clockOffset,
+    ticking,
+    (now) =>
+      (t.phase === 'deal' || t.phase === 'handEnd') &&
+      t.turnStartedAt !== null &&
+      now >= t.turnStartedAt + DEAL_ANYONE_MS,
+  );
   const canDeal =
     t.status === 'playing' &&
     (t.phase === 'deal' || t.phase === 'handEnd') &&
@@ -424,18 +432,12 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   }, [turnKey]);
   const warned = useRef<number | null>(null);
   useEffect(() => {
-    if (
-      myTurn &&
-      secsLeft !== null &&
-      secsLeft <= 5 &&
-      secsLeft > 0 &&
-      warned.current !== t.deadline
-    ) {
+    if (myTurn && urgency === 'last5' && warned.current !== t.deadline) {
       warned.current = t.deadline;
       sfx('tick', true);
       vibrate(10);
     }
-  }, [myTurn, secsLeft, t.deadline]);
+  }, [myTurn, urgency, t.deadline]);
 
   // ---------- the trick on the felt: hold, gather, count ----------
   useEffect(() => {
@@ -585,7 +587,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
             deadline: t.deadline,
             totalMs: t.seats[x].away ? AWAY_TIMER_MS : (t.rules.timerSec ?? 30) * 1000,
             clockOffset: ctx.clockOffset,
-            warn: (secsLeft ?? 99) <= 10,
+            warn: urgency !== 'calm',
           }
         : null;
     const team =
@@ -852,7 +854,15 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
           width={handWidth}
           maxCw={land ? 56 : undefined}
           turnText={
-            myTurn ? (secsLeft !== null ? s.hand.yourTurnSecs(secsLeft) : s.hand.yourTurn) : null
+            myTurn ? (
+              t.deadline !== null ? (
+                <Countdown deadline={t.deadline} offset={ctx.clockOffset}>
+                  {(secs) => s.hand.yourTurnSecs(secs)}
+                </Countdown>
+              ) : (
+                s.hand.yourTurn
+              )
+            ) : null
           }
         />
       )}

@@ -11,7 +11,7 @@ import { useAutoTimeout, type IshaaraTable } from '@/games/ishaara/state/useTabl
 import { table as s } from '@/games/ishaara/strings/table';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { momentText, type Moment } from './Notes';
-import { useServerNow } from './useServerNow';
+import { useServerClock } from '@/hooks/useServerClock';
 import { useTurnMoments } from './useTurnMoments';
 
 const b = s.board;
@@ -83,8 +83,6 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   const active = game?.status === 'active';
   useWakeLock(!!game && game.status !== 'finished');
   useAutoTimeout(table, active);
-  const ticking = !!game && (game.deadline !== null || !!game.pending || !!game.undo);
-  const serverNow = useServerNow(clockOffset, ticking);
   const moments = useTurnMoments(game);
 
   // Each new state: what turned, what to say, and whether the selection still stands.
@@ -163,7 +161,13 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     setSelected(null);
     await act({ type: 'guess', card });
   };
-  const undo = game?.undo && serverNow < game.undo.until && active ? game.undo : null;
+  // The clock re-renders the board only when the undo window closes; the timers below are leaves of their own.
+  const undoOpen = useServerClock(
+    clockOffset,
+    !!game?.undo && active,
+    (now) => !!game?.undo && now < game.undo.until,
+  );
+  const undo = undoOpen && active ? (game?.undo ?? null) : null;
   const pending = game?.pending ?? null;
   const picker = pending ? other(pending.penaltyFor) : null;
   const endDisabled = !canSend || !game || game.guessedThisTurn < 1;
@@ -178,7 +182,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     active,
     finished,
     endedOnCard,
-    serverNow,
+    clockOffset,
     selected,
     setSelected,
     moment,

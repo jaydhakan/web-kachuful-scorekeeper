@@ -17,7 +17,7 @@ const b = s.board;
  * or goes; a taller note (the penalty wait, while picks are off) rises over the board instead.
  */
 export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
-  const { game, moment, notice, pending, picker, selected, canSend, finished, serverNow } = v;
+  const { game, moment, notice, pending, picker, selected, canSend, finished, clockOffset } = v;
   if (!game) return null;
   let note;
   if (finished) note = null;
@@ -28,7 +28,8 @@ export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
         key="penalty"
         name={clueGiverOf(game, picker)?.name ?? s.team[picker]}
         picker={picker}
-        skipIn={pending.since + SKIP_AFTER_MS - serverNow}
+        skipAt={pending.since + SKIP_AFTER_MS}
+        offset={clockOffset}
         canSend={canSend}
         onSkip={() => void v.act({ type: 'skip' })}
       />

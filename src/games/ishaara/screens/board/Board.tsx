@@ -68,7 +68,7 @@ export interface BoardProps {
  */
 export function Board({ table, onLeave, onRules, onFinished }: BoardProps) {
   const v = useBoard(table, onFinished);
-  const { game, live, active, serverNow } = v;
+  const { game, live, active, clockOffset } = v;
   if (!game) return null;
 
   return (
@@ -84,13 +84,13 @@ export function Board({ table, onLeave, onRules, onFinished }: BoardProps) {
               </IconButton>
               <TurnBanner game={game} />
               <span className="flex min-w-12 justify-end">
-                <TurnTimer deadline={active ? game.deadline : null} serverNow={serverNow} />
+                <TurnTimer deadline={active ? game.deadline : null} offset={clockOffset} />
               </span>
             </div>
             <TimerBar
               deadline={active ? game.deadline : null}
               totalMs={turnMs(v)}
-              serverNow={serverNow}
+              offset={clockOffset}
             />
             <ClueCard game={game} nudge={v.nudge} />
             {/* A phone on its side keeps the count in the clue card, to leave room for End turn. */}

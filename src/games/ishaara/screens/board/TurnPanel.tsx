@@ -4,6 +4,7 @@ import { clueGiverOf, wordsLeft, type IshaaraPublic, type Team } from '@/games/i
 import { table as s } from '@/games/ishaara/strings/table';
 import { Icon } from '@/components/ui/Icons';
 import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
+import { secsUntil, useServerClock } from '@/hooks/useServerClock';
 import { Mark, TEAM_FILL, TeamCount, TeamPill } from './marks';
 import type { Handoff } from './useBoard';
 
@@ -23,19 +24,21 @@ export function TurnBanner({ game }: { game: IshaaraPublic }) {
 }
 
 /** The turn's countdown from the server's deadline; nothing while the timer is off or the clue isn't in. */
-export function TurnTimer({ deadline, serverNow }: { deadline: number | null; serverNow: number }) {
+export function TurnTimer({ deadline, offset }: { deadline: number | null; offset: number }) {
   const rm = useReducedMotion();
+  const secs = useServerClock(offset, deadline !== null, (now) =>
+    deadline === null ? 0 : secsUntil(deadline, now),
+  );
   if (deadline === null) return null;
-  const left = Math.max(0, deadline - serverNow);
+  const left = secs * 1000;
   const urgent = left <= URGENT_MS;
   const txt = left > 0 ? s.clock(left) : b.timesUp;
-  const sec = Math.ceil(left / 1000);
   return (
     <m.span
       role="timer"
       aria-label={b.timeLeft(s.clock(left))}
       // One pulse a second in the last ten: a transform, so it stays off the layout; none under reduced motion.
-      key={urgent && !rm ? sec : 'calm'}
+      key={urgent && !rm ? secs : 'calm'}
       initial={urgent && !rm ? { scale: 1.1 } : false}
       animate={{ scale: 1 }}
       transition={{ duration: 0.4, ease: EASE }}
@@ -53,14 +56,18 @@ export function TurnTimer({ deadline, serverNow }: { deadline: number | null; se
 export function TimerBar({
   deadline,
   totalMs,
-  serverNow,
+  offset,
 }: {
   deadline: number | null;
   totalMs: number | null;
-  serverNow: number;
+  offset: number;
 }) {
+  // Once a second, with a one-second linear transition, so the bar drains smoothly without a re-render per frame.
+  const secs = useServerClock(offset, deadline !== null, (now) =>
+    deadline === null ? 0 : secsUntil(deadline, now),
+  );
   if (deadline === null || !totalMs) return null;
-  const left = Math.max(0, deadline - serverNow);
+  const left = secs * 1000;
   const k = Math.min(1, left / totalMs);
   return (
     <div aria-hidden data-timer-bar className="h-1.5 overflow-hidden rounded-full bg-ov/10">
