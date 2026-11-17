@@ -238,3 +238,29 @@ describe('waiting, turn notices and the end', () => {
     expect(screen.queryByRole('button', { name: 'See the result' })).toBeNull();
   });
 });
+
+describe('turn moments', () => {
+  const rerun = (r: ReturnType<typeof show>, g: IshaaraPublic) =>
+    r.rerender(<Board table={table(g)} onLeave={noop} onRules={noop} onFinished={noop} />);
+
+  it('pops Mind Meld and Overtime once the turn is over, not while it is played', async () => {
+    let k = pick(pick(clue(started(), 'stream', 3), 0), 1);
+    const r = show(table(k.state));
+    k = pick(k, 2);
+    rerun(r, k.state);
+    expect(screen.queryByText(/Mind meld/)).toBeNull();
+    // The bonus guess finds another: the turn is over.
+    k = pick(k, 3);
+    rerun(r, k.state);
+    expect(await screen.findByText('Sun · Mind meld')).toBeInTheDocument();
+    expect(screen.getByText('Sun · Overtime')).toBeInTheDocument();
+  });
+
+  it('never replays what was over before the board opened', async () => {
+    const k = pick(pick(pick(pick(clue(started(), 'stream', 3), 0), 1), 2), 3);
+    const r = show(table(k.state));
+    rerun(r, { ...k.state, rev: k.state.rev + 1 });
+    await act(() => new Promise((ok) => setTimeout(ok, 20)));
+    expect(screen.queryByText(/Mind meld/)).toBeNull();
+  });
+});
