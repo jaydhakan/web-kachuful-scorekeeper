@@ -190,6 +190,7 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   const [fresh] = useState(() => state.fresh && !rm);
   // The hand's moments pop on its first showing only, reduced motion or not.
   const [first] = useState(() => state.fresh);
+  const [bostonOver, setBostonOver] = useState(false);
   const nameOf = useCallback(
     (id: string) => g.players.find((p) => pidOf(p) === id)?.name ?? '',
     [g.players],
@@ -263,10 +264,16 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
       </HandFrame>
       {first && boston && (
         <Suspense fallback={null}>
-          <BostonMoment id={`boston:${g.id}:${h.index}`} team={boston} name={s.team(boston)} />
+          <BostonMoment
+            id={`boston:${g.id}:${h.index}`}
+            team={boston}
+            name={s.team(boston)}
+            onEnd={() => setBostonOver(true)}
+          />
         </Suspense>
       )}
-      {first && <HandPops game={g} index={h.index} nameOf={nameOf} />}
+      {/* The hand's cards follow its Boston, never land on it. */}
+      {first && (!boston || bostonOver) && <HandPops game={g} index={h.index} nameOf={nameOf} />}
     </>
   );
 }

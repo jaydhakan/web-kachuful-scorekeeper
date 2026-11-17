@@ -200,7 +200,20 @@ export function Boston({ team, name, them, from, reduced, signal, onSkip, onDone
  * A Boston that plays itself through the moment queue once mounted, for a screen that only shows it (the
  * scorekeeper's hand summary). Sound and haptic follow the platform setting.
  */
-export function BostonMoment({ id, team, name }: { id: string; team: TeamId; name: string }) {
+export function BostonMoment({
+  id,
+  team,
+  name,
+  onEnd,
+}: {
+  id: string;
+  team: TeamId;
+  name: string;
+  /** Once it has played, been skipped, or been seen before. */
+  onEnd: () => void;
+}) {
+  const ended = useRef(onEnd);
+  ended.current = onEnd;
   const q = useMoments();
   const [on, setOn] = useState<{ reduced: boolean; signal: AbortSignal; done: () => void } | null>(
     null,
@@ -209,8 +222,10 @@ export function BostonMoment({ id, team, name }: { id: string; team: TeamId; nam
     const show =
       (reduced: boolean) =>
       ({ signal }: { signal: AbortSignal }) =>
-        new Promise<void>((done) => setOn({ reduced, signal, done: () => (setOn(null), done()) }));
-    q.push({
+        new Promise<void>((done) =>
+          setOn({ reduced, signal, done: () => (setOn(null), done()) }),
+        ).finally(() => ended.current());
+    const r = q.push({
       id,
       tier: 'moment',
       priority: PRIORITY.verdict,
@@ -220,6 +235,7 @@ export function BostonMoment({ id, team, name }: { id: string; team: TeamId; nam
       play: show(false),
       reduced: show(true),
     });
+    if (r === 'duplicate' || r === 'capped') ended.current();
     return () => q.cancel(id);
   }, [q, id]);
   if (!on) return null;

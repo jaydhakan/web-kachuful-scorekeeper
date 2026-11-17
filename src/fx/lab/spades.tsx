@@ -153,7 +153,7 @@ export const SPADES: LabEntry[] = [
     note: 'On the hand summary: the stamp and confetti only.',
     Demo: () => (
       <div className="relative h-full">
-        <BostonMoment id="lab:boston" team="b" name="Moon" />
+        <BostonMoment id="lab:boston" team="b" name="Moon" onEnd={() => undefined} />
       </div>
     ),
   },
