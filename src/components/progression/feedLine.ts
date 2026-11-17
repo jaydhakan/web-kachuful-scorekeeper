@@ -1,8 +1,10 @@
 import { sgnN } from '@/lib/format';
 import type { Activity } from '@/sync/types';
 import { t } from '@/strings';
+import { progression as ps } from '@/strings/progression';
 
 const ac = t.hub.activity;
+const f = ps.feed;
 
 /** Each game's summary as the feed sends it, loosely: only what the line reads. */
 interface Loose {
@@ -23,11 +25,11 @@ const both = (names: (string | undefined)[]) => names.filter(Boolean).join(' & '
 export function finishedLine(a: Activity): string {
   const g = a.game as unknown as Loose | null;
   if (!g) return ac.finished('', '');
-  if (a.gameKind === 'ishaara') return g.winner ? ac.teamWon(ac.ishaaraTeam[g.winner]) : ac.ended;
+  if (a.gameKind === 'ishaara') return g.winner ? f.teamWon(f.ishaaraTeam[g.winner]) : f.ended;
   if (a.gameKind === 'spades') {
     const w = g.result?.winner;
-    if (w === 'draw') return ac.drawn;
-    if (w !== 'a' && w !== 'b') return ac.ended;
+    if (w === 'draw') return f.drawn;
+    if (w !== 'a' && w !== 'b') return f.ended;
     const names =
       g.kind === 'spades-online'
         ? both((g.seats ?? []).filter((_, i) => (i % 2 === 0) === (w === 'a')).map((s) => s?.name))
@@ -36,5 +38,5 @@ export function finishedLine(a: Activity): string {
     return ac.finished(names, score);
   }
   const top = g.players?.find((p) => p.place === 1);
-  return top ? ac.finished(top.name, top.points == null ? '' : sgnN(top.points)) : ac.ended;
+  return top ? ac.finished(top.name, top.points == null ? '' : sgnN(top.points)) : f.ended;
 }

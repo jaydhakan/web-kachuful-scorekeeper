@@ -13,8 +13,8 @@ import { Section } from '@/components/ui/Page';
 import { ProgressRing } from '@/components/ui/Stats';
 import { t } from '@/strings';
 import { platform } from '@/strings/platform';
+import { progression as ps } from '@/strings/progression';
 
-const ac = t.hub.account;
 const GAMES: readonly GameId[] = ['kachuful', 'kaali-teeri', 'spades', 'ishaara'];
 const PREVIEW = 3;
 
@@ -39,7 +39,7 @@ export function MeAchievements({ id }: { id: string }) {
   const cats = useEveryCatalogue(true);
   const r = useRemote(`me:ach:${id}`, () => myCounts(id));
   return (
-    <Section title={ac.everyGame}>
+    <Section title={ps.everyGame}>
       <RemoteGate r={cats ? r : { ...r, data: null, error: null }} rows={GAMES.length}>
         {(counts) => (
           <ul className="glass overflow-hidden">
@@ -51,7 +51,7 @@ export function MeAchievements({ id }: { id: string }) {
                 <li key={g} className={i ? 'border-t border-ov/10' : ''}>
                   <button
                     type="button"
-                    aria-label={ac.gameAchSaid(name, n, of)}
+                    aria-label={ps.gameAchSaid(name, n, of)}
                     onClick={() =>
                       actions.open({ screen: 'achievements', params: { id, game: g } })
                     }
@@ -108,7 +108,7 @@ export function MeActivity() {
                   onClick={() => actions.open({ screen: 'activity', params: { game: 'all' } })}
                   className="press glass mt-2 flex min-h-12 w-full items-center gap-3 px-4 text-left text-15 font-bold"
                 >
-                  <span className="flex-1">{t.hub.activity.seeAll}</span>
+                  <span className="flex-1">{ps.feed.seeAll}</span>
                   <span aria-hidden className="text-[var(--tx2)]">
                     {Icon.chev}
                   </span>

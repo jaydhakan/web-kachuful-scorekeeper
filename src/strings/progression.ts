@@ -5,6 +5,19 @@
 const games = (n: number) => `${n} ${n === 1 ? 'game' : 'games'}`;
 
 export const progression = {
+  /** The Me page: each game's achievements I hold. */
+  everyGame: 'Achievements in every game',
+  gameAchSaid: (game: string, n: number, of: number) => `${game}: ${n} of ${of} achievements`,
+  feed: {
+    /** Ishaara: a team, not a person, wins. */
+    teamWon: (team: string) => `Team ${team} won a game`,
+    ishaaraTeam: { sun: 'Sun', moon: 'Moon' } as Record<'sun' | 'moon', string>,
+    drawn: 'A game ended in a draw',
+    ended: 'A game ended',
+    /** The every-game feed: the game the item is from, for screen readers and the row's tag. */
+    from: (game: string) => `in ${game}`,
+    seeAll: 'See all activity',
+  },
   /** Read with the 🙃 tag on a "shame" achievement. */
   shame: 'Just for laughs',
   winRate: {

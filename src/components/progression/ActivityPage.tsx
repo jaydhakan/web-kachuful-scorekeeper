@@ -12,6 +12,7 @@ import { EmptyState, PageFrame } from '@/components/ui/PageParts';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
 import { platform } from '@/strings/platform';
+import { progression as ps } from '@/strings/progression';
 import { icon } from '@/components/ui/IconsMore';
 import { useProgressionEnv } from './env';
 import { finishedLine } from './feedLine';
@@ -157,7 +158,7 @@ export function ActivityRow({ a, every = false }: { a: Activity; every?: boolean
         <span className="block text-15 [overflow-wrap:anywhere]">{text}</span>
         {from && (
           <span className="block text-13 text-[var(--tx2)]">
-            <span className="sr-only">{ac.from(from)}</span>
+            <span className="sr-only">{ps.feed.from(from)}</span>
             <span aria-hidden>{from}</span>
           </span>
         )}
