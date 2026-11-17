@@ -4,6 +4,7 @@ import {
   gamePlayerRows,
   handRows,
   headToHead,
+  mvpOf,
   playerKey,
   playerStats,
   summary,
@@ -296,5 +297,25 @@ describe('demo game', () => {
     expect(g.hands.filter((h) => h.phase === 'done').length).toBeGreaterThan(2);
     expect(g.hands.at(-1)!.phase).not.toBe('done');
     expect(g.hands.some((h) => h.mode === 'auction')).toBe(true);
+  });
+});
+
+describe('the player of the game', () => {
+  it('is whoever made the most bids as the bidder, points breaking a tie', () => {
+    const rows = gamePlayerRows(A);
+    const most = Math.max(...rows.map((r) => r.bidsMade));
+    const top = rows.filter((r) => r.bidsMade === most).sort((x, y) => y.points - x.points)[0];
+    expect(mvpOf(A)).toEqual({ playerId: top.playerId, n: most, of: top.handsBid });
+  });
+
+  it('is nobody when no bid was made', () => {
+    const lost = kitGame({
+      id: 'X',
+      players: ['a', 'b', 'c', 'd'],
+      start: T0,
+      finished: true,
+      hands: [{ bidder: 0, bid: 200, playedBy: [1], team: 100 }],
+    });
+    expect(mvpOf(lost)).toBeNull();
   });
 });

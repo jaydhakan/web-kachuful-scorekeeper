@@ -625,6 +625,8 @@ export const hub = {
   },
   game: {
     title: 'Game',
+    /** The end-of-game reel's first card: who owned the game, and the stat that says so. */
+    mvp: 'Player of the game',
     notFound: 'This game is not on this device',
     notFoundBody: 'It may have been deleted, or it was played on another device.',
     finishedOn: (d: string) => `Finished ${d}`,

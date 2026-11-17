@@ -5,6 +5,8 @@ import {
   KT_LADDERS,
   ktFacts,
 } from '@/games/kaali-teeri/domain/achievements';
+import { mvpOf } from '@/games/kaali-teeri/domain/stats';
+import { end } from '@/games/kaali-teeri/strings/end';
 import type { KtGame } from '@/games/kaali-teeri/domain/types';
 import { achievements, ladders } from '@/games/kaali-teeri/strings/achievements';
 import { pidOf } from '@/people/pid';
@@ -41,14 +43,16 @@ export default function WinnerReel({ g, max = 12 }: { g: KtGame; max?: number })
     id: g.syncId,
     startedAt: g.createdAt,
   });
+  const best = mvpOf(g);
+  const mvp = best && { who: person(best.playerId), line: end.winner.mvp(best.n, best.of) };
   // Careers count every game here: wait for the archive rather than reshuffle the cards.
   if (src.status === 'loading') return null;
   return (
     <>
-      {items.length > 0 && (
+      {(items.length > 0 || mvp) && (
         <>
           <h2 className={HEADING}>{t.hub.game.achievements}</h2>
-          <AchievementReel prog={CAT} items={items} max={max} />
+          <AchievementReel prog={CAT} items={items} max={max} mvp={mvp} />
         </>
       )}
       <LevelUps prog={CAT} ups={ups} person={person} heading={HEADING} />

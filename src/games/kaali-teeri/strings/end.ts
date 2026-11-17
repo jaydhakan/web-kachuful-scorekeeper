@@ -10,6 +10,9 @@ export const end = {
   hands: (n: number) => `${n} ${n === 1 ? 'hand' : 'hands'}`,
 
   winner: {
+    /** The player of the game's line in the reel. */
+    mvp: (made: number, of: number) =>
+      `Made ${made} of ${of} ${of === 1 ? 'bid' : 'bids'} as the bidder`,
     /** Under the headline: the hands played and how the winner's own bids went. */
     sub: (hands: number, made: number, bid: number) =>
       bid > 0
