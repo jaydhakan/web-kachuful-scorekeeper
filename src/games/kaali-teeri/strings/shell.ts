@@ -29,6 +29,8 @@ export const ktShell = {
     history: 'History',
     leaderboard: 'Leaderboard',
     stats: 'Player stats',
+    awards: 'Awards',
+    activity: 'Activity',
     rules: 'How to play',
   } satisfies Record<KtHubPage | 'rules', unknown>,
   sheets: {

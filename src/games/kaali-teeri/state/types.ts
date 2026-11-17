@@ -64,11 +64,13 @@ export type KtSheet =
   | { type: 'addPlayer'; name?: string };
 
 /** Home's hub links. */
-export type KtHubPage = 'history' | 'leaderboard' | 'stats';
+export type KtHubPage = 'history' | 'leaderboard' | 'stats' | 'awards' | 'activity';
 
 /** A page opened over the game screens; ids are player keys (`playerKey`) and game sync ids. */
 export type KtRoute =
-  | { page: 'history' | 'leaderboard' | 'players' }
+  | { page: 'history' | 'leaderboard' | 'players' | 'awards' | 'activity' }
+  /** One player's achievements, or everyone's. */
+  | { page: 'achievements'; id?: string }
   | { page: 'game'; id: string }
   | { page: 'player'; id: string }
   | { page: 'h2h'; a: string; b: string };

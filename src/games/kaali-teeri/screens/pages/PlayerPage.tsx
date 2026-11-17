@@ -6,6 +6,7 @@ import { kpg } from '@/games/kaali-teeri/strings/pages';
 import { dayLabel } from '@/lib/dates';
 import { fmt } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
+import { Icon } from '@/components/ui/Icons';
 import { EmptyState, Section } from '@/components/ui/PageParts';
 import { Gate, KtPage, RowButton, Tile, Tiles, useWho } from './parts';
 import { useKtGames } from './source';
@@ -31,6 +32,23 @@ export function PlayerPage({ id }: { id: string }) {
     <KtPage wide eyebrow={p.eyebrow} title={w.name}>
       <div className="mb-5 flex justify-center">
         <Avatar p={w} className="grid h-24 w-24 place-items-center rounded-full text-52" />
+      </div>
+      <div className="mb-5">
+        <RowButton onClick={() => actions.openPage({ page: 'achievements', id })}>
+          <span
+            aria-hidden
+            className="grid h-6 w-6 shrink-0 text-[var(--gold-tx)] [&_svg]:h-6 [&_svg]:w-6"
+          >
+            {Icon.awards}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-17 font-bold">{p.achievements}</span>
+            <span className="block text-14 text-[var(--tx2)]">{p.achievementsSub}</span>
+          </span>
+          <span aria-hidden className="text-[var(--dis)]">
+            {Icon.chev}
+          </span>
+        </RowButton>
       </div>
       <Gate src={src}>
         {() =>
