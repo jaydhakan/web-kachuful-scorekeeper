@@ -3,6 +3,7 @@ import { Podium, type PodiumStanding } from '@/components/ui/Podium';
 import { revealPlan } from '@/components/ui/podiumReveal';
 import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { COLORS } from '@/people/avatars';
+import EmojiRain from '../EmojiRain';
 import { MomentPop } from '@/components/progression/MomentPop';
 import type { PopCard } from '@/components/progression/popCard';
 import type { LabEntry } from './registry';
@@ -80,6 +81,15 @@ const SMALLS = [
   card('🧊', 'Arjun', 'Ice Cold'),
 ];
 
+function Rain() {
+  const [on, setOn] = useState(true);
+  return (
+    <div className="relative h-full">
+      {on && <EmojiRain emoji="🔥" onDone={() => setOn(false)} />}
+    </div>
+  );
+}
+
 export const PLATFORM: LabEntry[] = [
   {
     id: 'podium-ceremony',
@@ -128,5 +138,13 @@ export const PLATFORM: LabEntry[] = [
         ]}
       />
     ),
+  },
+  {
+    id: 'rain',
+    group: 'Platform',
+    title: 'A3 Emoji rain',
+    tier: 'beat',
+    note: 'Online Spades: three players send the same reaction within 2s. 24 drops, 1.6s, behind the hand. Reduced: one big emoji, still.',
+    Demo: Rain,
   },
 ];
