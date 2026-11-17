@@ -29,6 +29,7 @@ import {
   type Place,
   type RevealPlan,
 } from './podiumReveal';
+import { Crown, LIGHT_MS, Spotlight } from './PodiumLight';
 import { PODIUM_BG, rankTone } from './rankTones';
 
 const Confetti = lazy(() => import('./Confetti').then((x) => ({ default: x.Confetti })));
@@ -319,8 +320,9 @@ function BoardPodium({
         key={k}
         // A shared step is as many players wide, so nobody's name is squeezed.
         style={{ flexGrow: tied.length }}
-        className={`flex min-w-0 max-w-[14rem] basis-0 flex-col items-center justify-end ${s.order} ${s.av}`}
+        className={`relative isolate flex min-w-0 max-w-[14rem] basis-0 flex-col items-center justify-end ${s.order} ${s.av}`}
       >
+        {k === 1 && <Spotlight at={at == null ? null : at * 1000} ms={LIGHT_MS.board} />}
         <div className="mb-2 flex w-full items-end justify-center gap-1.5">
           {tied.map((e, i) => (
             <m.button
@@ -348,6 +350,7 @@ function BoardPodium({
                 }}
               >
                 <AvatarFill p={e.who} />
+                {k === 1 && <Crown at={at == null ? null : (lands + LAND_MS / 1000) * 1000} />}
               </span>
               <span className="mt-1.5 max-w-full text-13 font-bold leading-tight [overflow-wrap:anywhere] rail:text-15">
                 {e.who.name}
@@ -406,7 +409,7 @@ function BoardPodium({
     <ol
       data-board-podium
       aria-label={b.podium}
-      className="mx-auto mb-4 flex w-full max-w-[30rem] items-end justify-center gap-2 border-b border-ov/[.14] pt-2 pane:mb-0 wide:sticky wide:top-0 rail:gap-3"
+      className="mx-auto mb-4 flex w-full max-w-[30rem] items-end justify-center gap-2 border-b border-ov/[.14] pt-7 pane:mb-0 wide:sticky wide:top-0 rail:gap-3"
     >
       {([1, 2, 3] as const).map(step)}
     </ol>
