@@ -7,7 +7,7 @@ import type { MomentTier } from '../moments';
  */
 export interface LabEntry {
   id: string;
-  group: 'Foundations' | 'Platform' | 'Spades';
+  group: 'Foundations' | 'Platform' | 'Spades' | 'Kaali Teeri' | 'Ishaara';
   title: string;
   tier: MomentTier;
   /** What to look for. */

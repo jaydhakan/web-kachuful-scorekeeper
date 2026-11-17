@@ -71,7 +71,7 @@ export default function MomentsLab() {
     <div className="grid min-h-dvh grid-cols-[15rem_minmax(0,1fr)] gap-6 bg-[var(--bg)] p-4 text-[var(--tx)]">
       <nav aria-label="Moments" className="flex flex-col gap-1">
         <h1 className="disp mb-2 text-24 font-extrabold">Moments lab</h1>
-        {(['Foundations', 'Platform', 'Spades'] as const).map((g) => (
+        {(['Foundations', 'Platform', 'Spades', 'Kaali Teeri', 'Ishaara'] as const).map((g) => (
           <section key={g} className="mb-2">
             <h2 className="mono-label mb-1 text-12 text-[var(--tx2)]">{g}</h2>
             {ENTRIES.filter((e) => e.group === g).map((e) => (
