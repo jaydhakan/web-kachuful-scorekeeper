@@ -132,4 +132,13 @@ export const progressionText: Omit<ProgressionStrings, 'achievements' | 'ladders
 };
 
 /** Who a pop card names: partners who earned the same thing in one hand share it. */
+/** The player of the game: the reel's first card, and its line. */
+export const mvpText = {
+  title: 'Player of the game',
+  line: (kind: 'nils' | 'bids', n: number) =>
+    kind === 'nils'
+      ? `Made ${n} ${n === 1 ? 'Nil' : 'Nils'}`
+      : `Bid ${n} ${n === 1 ? 'trick' : 'tricks'} and made them`,
+};
+
 export const popNames = (names: string[]) => [...new Set(names)].join(' & ');

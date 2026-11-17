@@ -276,6 +276,10 @@ export const table = {
     key: 'The full key',
     keyLabel: 'The full key, every card',
     achievements: 'Achievements',
+    /** The player of the game: the clue-giver whose clues found the most of their team's words. */
+    mvpTitle: 'Player of the game',
+    mvpLine: (found: number, clues: number) =>
+      `${found} ${found === 1 ? 'word' : 'words'} found from ${clues} ${clues === 1 ? 'clue' : 'clues'}`,
     achievementsLoading: 'Looking for this game’s achievements',
     achievementsFailed: 'Couldn’t load this game’s achievements.',
     retry: 'Try again',

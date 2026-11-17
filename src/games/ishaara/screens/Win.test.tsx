@@ -103,8 +103,10 @@ describe('the reel', () => {
     } as never);
     show(g);
     const reel = await screen.findByRole('list', { name: 'Achievements' });
-    expect(within(reel).getByText('Lucky escape')).toBeInTheDocument();
-    expect(within(reel).getByText('Riya')).toBeInTheDocument();
+    const card = within(reel).getByText('Lucky escape').closest('li')!;
+    expect(within(card).getByText('Riya')).toBeInTheDocument();
+    // The reel opens on the player of the game.
+    expect(within(reel).getByText('Player of the game')).toBeInTheDocument();
     expect(within(reel).queryByText('Winner')).toBeNull();
     expect(vi.mocked(ep.achievements).mock.calls[0][2]).toBe('ishaara');
   });
