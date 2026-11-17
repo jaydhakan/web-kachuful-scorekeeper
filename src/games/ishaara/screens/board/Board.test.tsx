@@ -252,6 +252,8 @@ describe('turn moments', () => {
     // The bonus guess finds another: the turn is over.
     k = pick(k, 3);
     rerun(r, k.state);
+    // The live stream's copy of the same state, right behind the action's answer, must not drop the batch.
+    rerun(r, { ...k.state });
     expect(await screen.findByText('Sun · Mind meld')).toBeInTheDocument();
     expect(screen.getByText('Sun · Overtime')).toBeInTheDocument();
   });

@@ -22,6 +22,14 @@ const keyOf = (m: TurnMoment) => `${m.turn}|${m.code}|${m.team}`;
 export function useTurnMoments(game: IshaaraPublic | null) {
   const [pops, setPops] = useState<{ id: number; cards: PopCard[] } | null>(null);
   const seen = useRef<Set<string> | null>(null);
+  // Only unmounting drops a batch: a newer state arriving while the catalogue loads must not.
+  const mounted = useRef(true);
+  useEffect(
+    () => () => {
+      mounted.current = false;
+    },
+    [],
+  );
   useEffect(() => {
     if (!game) return;
     const ms = endedMoments(game);
@@ -32,14 +40,10 @@ export function useTurnMoments(game: IshaaraPublic | null) {
     const fresh = ms.filter((m) => !seen.current!.has(keyOf(m)));
     if (!fresh.length) return;
     for (const m of fresh) seen.current.add(keyOf(m));
-    let live = true;
     void loadProgression('ishaara').then((prog) => {
-      if (live)
+      if (mounted.current)
         setPops({ id: game.rev, cards: fresh.map((m) => popCard(prog, m.code, s.team[m.team])) });
     });
-    return () => {
-      live = false;
-    };
   }, [game]);
   const done = useCallback(() => setPops(null), []);
   return { pops, done };
