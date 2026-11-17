@@ -1,7 +1,7 @@
 import { animate } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { fmt } from '@/lib/format';
-import { reducedMotion, TRAVEL } from '@/fx/waapi';
+import { reducedMotion } from '@/fx/reduced';
 import { EASE } from './motion';
 
 interface CounterProps {
@@ -62,7 +62,7 @@ export function Counter({
             {
               duration: duration * 1000 + 250,
               delay: delay * 1000,
-              easing: TRAVEL,
+              easing: 'cubic-bezier(.65,0,.35,1)',
             },
           )
         : undefined;

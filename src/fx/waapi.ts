@@ -1,4 +1,7 @@
 import { BEAT_HOLD_MS } from '@/components/ui/motion';
+import { reducedMotion, timeScale } from './reduced';
+
+export { forceReducedMotion, reducedMotion, setTimeScale, timeScale } from './reduced';
 
 /**
  * Choreography on Web Animations for every game: transform and opacity, measured once at the moment they start.
@@ -13,22 +16,6 @@ export const POP = 'cubic-bezier(.34,1.56,.64,1)';
 /** Something crossing the table: a spotlight, a stack of tricks. */
 export const TRAVEL = 'cubic-bezier(.65,0,.35,1)';
 export const REDUCED_MS = 160;
-
-let forced: boolean | null = null;
-/** The moments lab's reduced-motion switch; null follows the system again. */
-export const forceReducedMotion = (v: boolean | null) => {
-  forced = v;
-};
-let rate = 1;
-/** The moments lab's speed (0.25 to watch a moment slowly); 1 everywhere else. */
-export const setTimeScale = (r: number) => {
-  rate = r;
-};
-export const timeScale = () => rate;
-
-export const reducedMotion = () =>
-  forced ??
-  (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 export interface AnimOpts {
   duration?: number;
@@ -95,7 +82,7 @@ export function anim(
       iterations: o.iterations ?? 1,
     });
   }
-  a.playbackRate = rate;
+  a.playbackRate = timeScale();
   return {
     done: a.finished.then(
       () => undefined,
@@ -106,4 +93,4 @@ export function anim(
 }
 
 /** A promise that waits. */
-export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms / rate));
+export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms / timeScale()));

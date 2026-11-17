@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { confettiCount, MAX_STEP_MS, stepConfetti, type ConfettiPiece } from '@/lib/confettiCount';
 import { colorValue } from '@/theme/palette';
-import { reducedMotion, timeScale } from '@/fx/waapi';
+import { reducedMotion, timeScale } from '@/fx/reduced';
 import { reveal } from './podiumReveal';
 
 interface ConfettiProps {
