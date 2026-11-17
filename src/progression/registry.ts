@@ -37,7 +37,7 @@ export interface DeviceProgression<F> {
   ladderCounts(f: F, playerId: string): Record<string, number>;
   /** A 'YYYY-MM-DD' day's awards. */
   daily(f: F, day: string): Award[];
-  /** A 'YYYY-MM' month's standings and awards. */
+  /** A 'YYYY-MM' month's standings and awards; a win-rate game's rows are `WinRateRow`s (`winRateSeason` makes them). */
   season(f: F, month: string): SeasonResult;
   /** Months with play, newest first. */
   months(f: F): string[];
