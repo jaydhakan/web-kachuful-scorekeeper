@@ -6,7 +6,6 @@ import { vibrate } from '@/hooks/useHaptics';
 import { palette } from '@/theme/palette';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
-import { anim, EASE as CSS_EASE } from '@/fx/waapi';
 import { Avatar } from '@/components/ui/Avatar';
 
 const LOOK: Record<StreakKind, { color: string; bits: string[] }> = {
@@ -31,6 +30,19 @@ function bitPath(k: number, kind: StreakKind) {
     delay: 0.08 + (k % 5) * 0.04,
   };
 }
+
+const CSS_EASE = 'cubic-bezier(.32,.72,0,1)';
+/**
+ * Web Animations without `fx/waapi`: the large screen loads this up front, and only motion-on players reach here (the
+ * caller renders none of it under reduced motion), so it needs no still version.
+ */
+const anim = (el: Element | null | undefined, frames: Keyframe[], o: KeyframeAnimationOptions) => {
+  const a =
+    typeof (el as HTMLElement | null)?.animate === 'function'
+      ? (el as HTMLElement).animate(frames, o)
+      : null;
+  return { cancel: () => a?.cancel() };
+};
 
 /** The burst: each bit flies out on Web Animations (off the main thread), its path fixed by its index. */
 function Bits({ kind, bits }: { kind: StreakKind; bits: string[] }) {
