@@ -117,6 +117,19 @@ export class MomentQueue {
     return 'queued';
   }
 
+  /** Resolves once no Moment is playing or waiting: small cards wait for it, so they never land on a Moment. */
+  idle(): Promise<void> {
+    const quiet = () => !this.now && !this.pending.length && !this.scheduled;
+    if (quiet()) return Promise.resolve();
+    return new Promise((r) => {
+      const off = this.subscribe(() => {
+        if (!quiet()) return;
+        off();
+        r();
+      });
+    });
+  }
+
   /** Takes back a Moment that hasn't started (its screen went away) and forgets it; one playing is left to end. */
   cancel(id: string) {
     const n = this.pending.length;

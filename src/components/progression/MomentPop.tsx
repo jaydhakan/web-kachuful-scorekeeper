@@ -78,20 +78,23 @@ export function MomentPop({ pops, onDone }: { pops: Batch | null; onDone: () => 
       if (res === 'capped') rest.push({ ...c, tier: undefined });
       else if (res !== 'duplicate') waits.push(over);
     }
-    void Promise.all(waits).then(() => {
-      if (!live) return;
-      if (!rest.length) return done.current();
-      const extra = rest.length - SMALL_MAX;
-      const cards =
-        extra > 0
-          ? [...rest.slice(0, SMALL_MAX), { k: 'more', emoji: '✨', text: s.more(extra) }]
-          : rest;
-      setSmall({ id: pops.id, cards });
-      // Small cards are quiet unless Sounds is "All"; a 🙃 one sounds its own way.
-      const sound = rest.some((c) => c.tier === 'shame') ? 'womp' : 'chime';
-      void import('@/fx/sound').then((m) => m.cue(sound, 'beat'));
-      timer = window.setTimeout(() => done.current(), READ_MS + cards.length * 250);
-    });
+    // Small cards wait for every Moment on the page (a Boston, another game's card), not only this batch's.
+    void Promise.all(waits)
+      .then(() => q.idle())
+      .then(() => {
+        if (!live) return;
+        if (!rest.length) return done.current();
+        const extra = rest.length - SMALL_MAX;
+        const cards =
+          extra > 0
+            ? [...rest.slice(0, SMALL_MAX), { k: 'more', emoji: '✨', text: s.more(extra) }]
+            : rest;
+        setSmall({ id: pops.id, cards });
+        // Small cards are quiet unless Sounds is "All"; a 🙃 one sounds its own way.
+        const sound = rest.some((c) => c.tier === 'shame') ? 'womp' : 'chime';
+        void import('@/fx/sound').then((m) => m.cue(sound, 'beat'));
+        timer = window.setTimeout(() => done.current(), READ_MS + cards.length * 250);
+      });
     return () => {
       live = false;
       clearTimeout(timer);

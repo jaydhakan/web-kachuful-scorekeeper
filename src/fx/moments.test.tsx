@@ -88,6 +88,20 @@ describe('the moment queue', () => {
     expect(log).toEqual(['a']);
   });
 
+  it('says when it is idle: nothing playing and nothing waiting', async () => {
+    const { q, make, finish } = rig();
+    let quiet = false;
+    await q.idle();
+    q.push(make('a', PRIORITY.verdict));
+    q.push(make('b', PRIORITY.smallUnlock));
+    void q.idle().then(() => (quiet = true));
+    await flush();
+    await finish('a');
+    expect(quiet).toBe(false);
+    await finish('b');
+    expect(quiet).toBe(true);
+  });
+
   it('plays a moment pushed under StrictMode once', async () => {
     const { StrictMode, useEffect } = await import('react');
     const { q, log, make } = rig();
