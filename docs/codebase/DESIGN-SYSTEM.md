@@ -140,8 +140,11 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
     fades and settles (scale .96 to 1, 200ms).
 14. **Platform**: a game rises in (400ms) however it is opened, from its tile, Resume, Back or an address; an
     accepted invite gets a short welcome once.
-15. **Kaali Teeri**: when a called card is played, the bidding team's colour runs from the card to that seat and the
-    role badge settles; a sweep fans the hand's cards toward the winning side before the totals count.
+15. **Kaali Teeri**: when a called card is played, a dot in the bidding team's colour runs from the card to that seat
+    and the role badge settles; the hand's last partner is spotlit (the table dims, a light travels from the bidder,
+    a ring snaps on, "Kabir is with Meera!" inks in; `fx/ui/SeatSpotlight.tsx`). A sweep is announced over the result
+    line and lights the sweeping side's rows before the totals count; SOLD stamps over a won bid and a total that
+    crosses 1,000 turns gold with "1000" stamped on it.
 16. **Leaderboard podium** (every game's board, `ui/RankBoard.tsx`; the first board of a visit only): 3rd, 2nd, then
     1st, 260ms apart (`BOARD_GAP_MS`), each step sliding up with its player landing on it and its value counting up
     over 500ms; one sheen crosses the gold step; the rows fade in as the winner lands. Confetti bursts from the
@@ -151,7 +154,11 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
 17. **Every podium's light and crown** (`ui/PodiumLight.tsx`): on items 5 and 16, a soft light crosses to first place
     as its step rises (900ms on a winner screen, 600ms on a board) and the crown drops on each winner with
     `SPRING_POP` once they have landed. The season close plays it once per device as a ceremony with its title
-    ("Season · November") and Replay the reveal (`SeasonPodium.tsx`, `baithak.seasonShown`).
+    ("Season · November") and Replay the reveal (`SeasonPodium.tsx`, `baithak.seasonShown`); until then, each
+    leaderboard says the season is decided (`SeasonNews.tsx`).
+18. **Spades and Ishaara**: Boston (the tricks fly into one stack, BOSTON stamped above it), Blind Nil's outer ring,
+    "Last trick decides it", the felt's shake and the shattering ♠ chip; Ishaara's trap (one jitter, one red flash,
+    TRAPPED), mind meld (the found cards pulse in order) and photo finish ("Next card wins").
 
 Rules: transform and opacity only (plus `clip-path` for the fill); entrances ease out (`cubic-bezier(.22,1,.36,1)`),
 in-place changes ease in and out; nothing blocks a tap.
