@@ -1,3 +1,4 @@
+import { savingData } from '@/lib/idle';
 import { preloadable, preloadAll } from '@/lib/preloadable';
 import { isBig } from '@/theme/breakpoints';
 import type { BoardProps } from './screens/board/Board';
@@ -26,4 +27,5 @@ export function prepare(search: string) {
 }
 
 /** What a player opens next from Home, warmed once idle. */
-export const warmNext = () => preloadAll(Setup, HubPage, Waiting);
+export const warmNext = () =>
+  savingData() ? Promise.resolve() : preloadAll(Setup, HubPage, Waiting);

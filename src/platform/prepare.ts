@@ -1,3 +1,4 @@
+import { savingData, whenIdle } from '@/lib/idle';
 import { preloadable, type Preloadable } from '@/lib/preloadable';
 import { gameById } from './catalog';
 import type { GameId } from './route';
@@ -24,4 +25,31 @@ export function preparePage(id: GameId | null, search = ''): Promise<unknown> {
       .load()
       .then((m) => m.prepare(search)),
   ]).catch(() => {});
+}
+
+/**
+ * Link handlers that start fetching a page as soon as the visitor shows intent: a finger landing on it, a pointer
+ * resting over it, or focus reaching it. By the time the tap ends the page is often ready.
+ */
+export const warmOn = (id: GameId | null, search = '') => {
+  const warm = () => void preparePage(id, search);
+  return { onPointerDown: warm, onPointerEnter: warm, onFocus: warm };
+};
+
+/** Once the page is idle, fetches each game's first screen in turn, so a tap on its tile opens it at once. */
+export function warmGames(ids: readonly GameId[]): () => void {
+  if (savingData()) return () => {};
+  let stopped = false;
+  const cancel = whenIdle(() => {
+    void (async () => {
+      for (const id of ids) {
+        if (stopped) return;
+        await preparePage(id);
+      }
+    })();
+  });
+  return () => {
+    stopped = true;
+    cancel();
+  };
 }

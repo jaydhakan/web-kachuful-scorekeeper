@@ -1,3 +1,4 @@
+import { savingData } from '@/lib/idle';
 import { preloadable, preloadAll } from '@/lib/preloadable';
 import { signedInAs } from '@/sync/session';
 import { isBig } from '@/theme/breakpoints';
@@ -14,16 +15,22 @@ export const Winner = preloadable(() => import('./table/screens/Winner'));
 export const Pages = preloadable(() => import('./table/screens/pages/Pages'));
 
 /** Everything the first screen at `search` needs, fetched together, before the platform shows the game. */
+// The scorekeeper's first screen: its shell, and Setup, where it opens when no game is saved.
+const tableFirst = () => [partOf(loadTable), Setup, ...(isBig() ? [DeskShell] : [])];
+
 export function prepare(search: string) {
   const view = viewOf(search);
-  if (view.kind === 'table')
-    return preloadAll(partOf(loadTable), ...(isBig() ? [DeskShell] : []));
-  if (view.kind === 'online' && (signedInAs() || view.entry.kind === 'live' || view.entry.kind === 'recap'))
+  if (view.kind === 'table') return preloadAll(...tableFirst());
+  if (
+    view.kind === 'online' &&
+    (signedInAs() || view.entry.kind === 'live' || view.entry.kind === 'recap')
+  )
     return preloadAll(partOf(loadOnline));
   return Promise.resolve();
 }
 
-/** The scorekeeper, warmed from Home once idle: its button then opens it at once. */
-export const warmTable = () => preloadAll(partOf(loadTable), ...(isBig() ? [DeskShell] : []));
+/** What Home opens, warmed once it is idle so its buttons open at once: the scorekeeper, and online play signed in. */
+export const warmModes = (signedIn: boolean) =>
+  preloadAll(...tableFirst(), ...(signedIn ? [partOf(loadOnline)] : []));
 /** What the scorekeeper opens next, warmed once it is idle. */
-export const warmNext = () => preloadAll(Setup, Winner, Pages);
+export const warmNext = () => (savingData() ? Promise.resolve() : preloadAll(Setup, Winner, Pages));

@@ -1,3 +1,4 @@
+import { savingData } from '@/lib/idle';
 import { preloadable, preloadAll } from '@/lib/preloadable';
 import { KEYS, storage } from '@/state/persistence';
 import { isBig } from '@/theme/breakpoints';
@@ -22,4 +23,5 @@ export function prepare(search: string) {
 }
 
 /** What a player opens next, warmed once the game is idle so the first tap never waits. */
-export const warmNext = () => preloadAll(Setup, Pages, Winner, Deal);
+export const warmNext = () =>
+  savingData() ? Promise.resolve() : preloadAll(Setup, Pages, Winner, Deal);
