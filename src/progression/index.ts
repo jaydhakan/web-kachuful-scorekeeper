@@ -4,3 +4,6 @@ export * from './ladders';
 export * from './awards';
 export * from './rules';
 export * from './registry';
+export * from './catalogue';
+export * from './cards';
+export * from './reel';

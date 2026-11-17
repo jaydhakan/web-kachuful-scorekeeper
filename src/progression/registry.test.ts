@@ -1,5 +1,5 @@
 import { GAME_IDS } from '@/platform/route';
-import { GROUPS } from './types';
+import { GROUPS } from './cards';
 import { loadProgression, peekProgression } from './registry';
 
 describe.each(GAME_IDS)('%s progression', (id) => {

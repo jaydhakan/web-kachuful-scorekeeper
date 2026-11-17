@@ -80,12 +80,3 @@ export async function loadProgression(id: GameId): Promise<GameProgression> {
 
 /** A game's progression if it has loaded already. */
 export const peekProgression = (id: GameId): GameProgression | undefined => loaded.get(id);
-
-const codes = new WeakMap<GameProgression, Map<string, AchievementDef>>();
-
-/** The catalogue as a map by code. */
-export const byCode = (p: GameProgression): Map<string, AchievementDef> => {
-  let m = codes.get(p);
-  if (!m) codes.set(p, (m = new Map(p.catalogue.map((x) => [x.code, x]))));
-  return m;
-};

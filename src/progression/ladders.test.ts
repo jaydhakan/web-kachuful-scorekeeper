@@ -1,4 +1,6 @@
-import { cardsOf, levelUps, nearestLevel, nextLevel, reelOrder } from './ladders';
+import { cardsOf } from './cards';
+import { levelUps, reelOrder } from './reel';
+import { nearestLevel, nextLevel } from './ladders';
 import type { AchievementDef, Earned, Ladder } from './types';
 
 const games: Ladder = { id: 'games', codes: ['games_10', 'games_50'], steps: [10, 50] };

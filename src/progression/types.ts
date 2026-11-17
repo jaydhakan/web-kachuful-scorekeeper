@@ -5,8 +5,6 @@ export type { GameId };
 /** `moment` is a round in Kachuful, a hand in Spades and Kaali Teeri, a turn in Ishaara. */
 export type AchievementGroup = 'moment' | 'game' | 'career' | 'daily' | 'season';
 
-export const GROUPS: AchievementGroup[] = ['moment', 'game', 'career', 'daily', 'season'];
-
 export interface AchievementDef {
   code: string;
   emoji: string;
