@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { GameProgression } from '@/progression/registry';
 import { WIN_STREAK } from '@/progression/rules';
@@ -136,6 +136,40 @@ describe('the shared pages, for a game ranked on win rate', () => {
     const champ = screen.getByText('Season Champion').closest('button')!;
     expect(within(champ).getByText('70%')).toBeInTheDocument();
     expect(season.mock.calls[0][2]).toBe('spades');
+  });
+
+  it('reveals a season that has just closed once on this device, and replays it on asking', async () => {
+    const now = new Date();
+    const last = monthOf(new Date(now.getFullYear(), now.getMonth() - 1, 15).getTime());
+    const env = envOf(false, {
+      device: bindDevice(
+        {
+          ...prog.device!,
+          months: () => [last],
+          season: (_f, month) => ({
+            season: month,
+            standings: [
+              { playerId: 'a', rank: 1, qualified: true, value: 0.7, games: 10 },
+              { playerId: 'b', rank: 2, qualified: true, value: 0.6, games: 10 },
+            ],
+            awards: [],
+          }),
+        },
+        [],
+      ),
+    });
+    await show(env, <AwardsPage />);
+    // The page opens on the closed season, with the ceremony's title and the champion crowned.
+    const title = await screen.findByRole('heading', { name: /^Season · / });
+    expect(document.querySelector('[data-season-podium="ceremony"] [data-crown]')).not.toBeNull();
+    await userEvent
+      .setup({ pointerEventsCheck: 0 })
+      .click(screen.getByRole('button', { name: 'Replay the reveal' }));
+    expect(await screen.findByRole('heading', { name: title.textContent! })).toBeInTheDocument();
+    // Seen once: the next visit opens on the day, as usual.
+    cleanup();
+    await show(env, <AwardsPage />);
+    expect(screen.queryByRole('heading', { name: /^Season · / })).not.toBeInTheDocument();
   });
 
   it("says why a day is empty in the game's own words", async () => {

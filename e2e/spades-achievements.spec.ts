@@ -48,7 +48,12 @@ test('a Boston pops as the hand is saved, shows on the winner reel, and shows on
   await tap(page, 'Start the game');
 
   await boston(page, ['Arjun', 'Dev', 'Meera', 'Riya']);
-  // Partners who earn the same thing share one card.
+  // BOSTON stamps over the summary first (still, under reduced motion); a tap skips it.
+  const stamp = page.locator('[data-boston="a"]');
+  await expect(stamp).toContainText('Team A took all 13 tricks');
+  await stamp.getByRole('button', { name: 'Skip' }).click();
+  await expect(stamp).toHaveCount(0);
+  // Then the hand's cards: partners who earn the same thing share one card.
   await expect(page.getByText('Riya & Dev · Boston')).toBeVisible();
   await expect(page.getByText('Riya & Dev · Set Them')).toBeVisible();
 
