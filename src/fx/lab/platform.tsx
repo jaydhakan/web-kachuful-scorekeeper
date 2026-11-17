@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Podium, type PodiumStanding } from '@/components/ui/Podium';
+import { revealPlan } from '@/components/ui/podiumReveal';
+import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
+import { COLORS } from '@/people/avatars';
 import { MomentPop } from '@/components/progression/MomentPop';
 import type { PopCard } from '@/components/progression/popCard';
 import type { LabEntry } from './registry';
@@ -24,6 +28,49 @@ function Pops({ cards }: { cards: PopCard[] }) {
   );
 }
 
+const P = ['Riya', 'Dev', 'Asha', 'Kabir', 'Meera'].map((name, i) => ({
+  id: name,
+  name,
+  emoji: ['🦊', '🐯', '🦉', '🐼', '🦁'][i],
+  color: COLORS[i],
+}));
+const STANDINGS: PodiumStanding[] = P.slice(0, 4).map((p, i) => ({
+  ...p,
+  rank: i + 1,
+  total: 120 - i * 17,
+}));
+function Ceremony() {
+  const plan = revealPlan(STANDINGS.map((x) => x.rank));
+  return (
+    <div className="flex h-full flex-col justify-end p-4 [--pu:1px]">
+      <Podium standings={STANDINGS} reveal={plan} />
+    </div>
+  );
+}
+const BOARD: BoardEntry[] = P.map((p, i) => ({
+  id: p.id,
+  who: p,
+  rank: i + 1,
+  n: 0.72 - i * 0.07,
+  sub: `${12 - i} games`,
+}));
+function Board() {
+  const [, force] = useState(0);
+  useEffect(() => force(1), []);
+  return (
+    <div className="h-full overflow-auto p-4">
+      <RankBoard
+        entries={BOARD}
+        show={(n) => `${Math.round(n * 100)}%`}
+        onOpen={() => undefined}
+        label={(r, n, v) => `${r} ${n} ${v}`}
+        unrankedShort="—"
+        unrankedTitle="Not ranked yet"
+      />
+    </div>
+  );
+}
+
 const BIG = card('💯', 'Riya', 'Grand Slam', 'big');
 const SMALLS = [
   card('🥷', 'Dev', 'Ninja'),
@@ -34,6 +81,22 @@ const SMALLS = [
 ];
 
 export const PLATFORM: LabEntry[] = [
+  {
+    id: 'podium-ceremony',
+    group: 'Platform',
+    title: 'A2 Podium, ceremony',
+    tier: 'moment',
+    note: 'A winner screen: steps rise third to first, the light lands on first, the crown drops, confetti from the winner (the screen adds it). Reduced: all in place.',
+    Demo: Ceremony,
+  },
+  {
+    id: 'podium-board',
+    group: 'Platform',
+    title: 'A2 Podium, board',
+    tier: 'beat',
+    note: 'The first board of a visit: the same rise, a 600ms light and the crown; no title, about 2s.',
+    Demo: Board,
+  },
   {
     id: 'unlock-big',
     group: 'Platform',
