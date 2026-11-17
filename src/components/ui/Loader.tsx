@@ -2,7 +2,7 @@ import { t } from '@/strings';
 
 /**
  * The squash-and-stretch loader (DESIGN-SYSTEM.md, Motion) for a screen still downloading. It stays invisible for the
- * first 300ms, so a quick load shows nothing at all. No percentage: nothing reports real progress, and a made-up
+ * first 400ms, so a quick load shows nothing at all. No percentage: nothing reports real progress, and a made-up
  * number would mislead.
  */
 export function Loader() {

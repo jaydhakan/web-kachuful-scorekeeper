@@ -462,10 +462,59 @@ input {
   }
 }
 
-/* 2. Squash-and-stretch loader: only appears if the wait passes 300ms. */
+/* 2. Squash-and-stretch loader: only appears if the wait passes 400ms, so a quick load never flashes it. */
 .sq-loader {
   opacity: 0;
-  animation: sq-show 0.2s ease-out 0.3s forwards;
+  animation: sq-show 0.25s ease-out 0.4s forwards;
+}
+/* 2b. Page progress: a slim bar over the page still on screen while the next one loads, also only past 400ms. It
+   creeps towards the end and never claims to arrive: nothing reports real progress. */
+.nav-progress {
+  opacity: 0;
+  transform: scaleX(0.08);
+  transform-origin: 0 50%;
+  animation:
+    sq-show 0.25s ease-out 0.4s forwards,
+    nav-creep 8s cubic-bezier(0.1, 0.6, 0.2, 1) 0.4s both;
+}
+@keyframes nav-creep {
+  from {
+    transform: scaleX(0.08);
+  }
+  to {
+    transform: scaleX(0.92);
+  }
+}
+/* 2c. A page moved to rises in (a game) or settles in (the landing page) over the one it replaces (PlatformRoot).
+   Filled backwards only: once it ends nothing holds a transform on the page, which would become the containing block
+   of every fixed sheet and toast inside it. */
+.page-in-game {
+  animation: page-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.page-in-landing {
+  animation: page-settle 0.24s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes page-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-in-game,
+  .page-in-landing {
+    animation: none;
+  }
+  .nav-progress {
+    transform: none;
+    animation: sq-show 0.25s ease-out 0.4s forwards;
+  }
 }
 .sq-ball {
   animation: sq-bounce 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
