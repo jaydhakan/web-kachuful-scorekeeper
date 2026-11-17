@@ -1,6 +1,8 @@
 import '@/games/spades/ui/play.css';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -19,6 +21,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Sheet } from '@/components/ui/Sheet';
 import { TableInviteSheet } from '@/components/seat-invites/TableInviteSheet';
 import { Countdown, secsUntil, useServerClock } from '@/hooks/useServerClock';
+import { rainOf, type Reaction } from '@/fx/rain';
 import { vibrate } from '@/hooks/useHaptics';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -50,6 +53,8 @@ import { Felt, type TrickPlay } from './Felt';
 import { dealNo, handDone, momentsBetween, playsOf, type Moment } from './moments';
 import { cardsLeft, lastHandScore, nilState, placeOf, teamNumbers } from './present';
 import { BoardBody, KeysBody, LastTrickBody, MenuBody, PrefsBody } from './Sheets';
+
+const EmojiRain = lazy(() => import('@/fx/EmojiRain'));
 import { Cancelled, Winner } from './Winner';
 
 /** A trick stays on the felt this long after its last card lands, before it is gathered to the winner. */
@@ -509,9 +514,15 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   // ---------- reactions ----------
   const [reactOpen, setReactOpen] = useState(false);
   const lastReact = useRef(0);
+  // Three players sending the same reaction within two seconds make it rain (A3), on every phone alike.
+  const recent = useRef<Reaction[]>([]);
+  const [rain, setRain] = useState<{ emoji: string; key: number } | null>(null);
   const addFloat = useCallback((seat: Seat, emoji: string) => {
     setFloats((f) => [...f.slice(-6), { id: Date.now() + Math.random(), seat, emoji }]);
-  }, []);
+    const o = rainOf(recent.current, { seat, emoji, at: Date.now() });
+    recent.current = o.recent;
+    if (o.rain) setRain({ emoji: o.rain, key: Date.now() });
+  }, [setRain]);
   useEffect(
     () =>
       ctx.onReaction((r) => {
@@ -971,6 +982,11 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
             {s.menu.inviteSeat}
           </button>
         </div>
+      )}
+      {rain && (
+        <Suspense fallback={null}>
+          <EmojiRain key={rain.key} emoji={rain.emoji} onDone={() => setRain(null)} />
+        </Suspense>
       )}
       <Floats
         floats={floats}
