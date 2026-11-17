@@ -139,7 +139,7 @@ function SmallCards({ batch }: { batch: Batch | null }) {
                 ease: [0.22, 1, 0.36, 1],
                 delay: rm ? 0 : i * 0.12,
               }}
-              className={`badge-pop max-w-full rounded-2xl border px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${
+              className={`badge-pop max-w-full rounded-2xl text-[var(--toast-fg)] border px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${
                 c.tier === 'shame'
                   ? 'border-[var(--medal-silver-lo)] bg-[color-mix(in_srgb,var(--medal-silver-lo)_28%,var(--toast-bg))]'
                   : 'border-ov/10 bg-toast'
