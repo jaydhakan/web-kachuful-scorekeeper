@@ -70,7 +70,7 @@ export function Counter({
       c.stop();
       w?.cancel();
     };
-  }, [run, from, to, duration, delay, format]);
+  }, [run, from, to, duration, delay, format, swell]);
   return (
     <span ref={ref} className={swell === 'scale' ? 'inline-block' : undefined}>
       {format(from)}
