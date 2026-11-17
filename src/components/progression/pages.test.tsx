@@ -9,6 +9,8 @@ import { ep } from '@/sync/endpoints';
 import { AchievementsPage } from './AchievementsPage';
 import { ActivityPage } from './ActivityPage';
 import { AwardsPage } from './AwardsPage';
+import { SeasonNews } from './SeasonNews';
+import { saveSeasonShown } from '@/state/persistence';
 import { bindDevice, ProgressionScope, type ProgressionEnv } from './env';
 
 const ok = <T,>(data: T) => ({ data, status: 200, etag: null });
@@ -170,6 +172,34 @@ describe('the shared pages, for a game ranked on win rate', () => {
     cleanup();
     await show(env, <AwardsPage />);
     expect(screen.queryByRole('heading', { name: /^Season · / })).not.toBeInTheDocument();
+  });
+
+  it('says on the leaderboard that a season is decided, until its reveal has been seen', async () => {
+    const now = new Date();
+    const last = monthOf(new Date(now.getFullYear(), now.getMonth() - 1, 15).getTime());
+    const env = envOf(false, {
+      device: bindDevice(
+        {
+          ...prog.device!,
+          months: () => [last],
+          season: (_f, month) => ({
+            season: month,
+            standings: [{ playerId: 'a', rank: 1, qualified: true, value: 0.7, games: 10 }],
+            awards: [],
+          }),
+        },
+        [],
+      ),
+    });
+    const open = vi.fn();
+    await archive.ready;
+    const { unmount } = render(<SeasonNews env={env} onOpen={open} />);
+    await userEvent.click(screen.getByRole('button', { name: /season is decided/ }));
+    expect(open).toHaveBeenCalled();
+    unmount();
+    saveSeasonShown('spades', last);
+    render(<SeasonNews env={env} onOpen={open} />);
+    expect(screen.queryByRole('button', { name: /season is decided/ })).not.toBeInTheDocument();
   });
 
   it("says why a day is empty in the game's own words", async () => {

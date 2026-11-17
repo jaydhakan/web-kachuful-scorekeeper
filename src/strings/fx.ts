@@ -22,4 +22,7 @@ export const fx = {
   /** The season close's ceremony: its title, and the button that plays it again. */
   ceremony: (month: string) => `Season · ${month}`,
   replay: 'Replay the reveal',
+  /** On a leaderboard once a month has closed, until its reveal has been seen. */
+  seasonDecided: (month: string) => `${month}’s season is decided`,
+  seasonReveal: 'See who takes the crown',
 } as const;

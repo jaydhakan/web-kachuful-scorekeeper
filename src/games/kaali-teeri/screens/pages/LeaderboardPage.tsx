@@ -20,6 +20,8 @@ import { Seg } from '@/components/ui/Seg';
 import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { signedInAs, useSession } from '@/sync/session';
 import { Gate, KtPage, NoGames, useWho, type Who } from './parts';
+import { SeasonNews } from '@/components/progression/SeasonNews';
+import { useKtProgressionEnv } from './ProgressionPages';
 import { useKtGames } from './source';
 
 const b = kpg.board;
@@ -60,6 +62,7 @@ export function LeaderboardPage() {
   const [period, setPeriod] = useState<KtPeriod>('season');
   const [sort, setSort] = useState<KtSort>('points');
   const { actions } = useKt();
+  const env = useKtProgressionEnv();
   const me = signedInAs(useSession())?.player?.id;
   const [intro] = useState(() => ({ done: false }));
   const show = useCallback((v: number) => write(sort, v), [sort]);
@@ -118,6 +121,7 @@ export function LeaderboardPage() {
         </div>
       }
     >
+      <SeasonNews env={env} onOpen={() => actions.openPage({ page: 'awards' })} />
       <Gate src={src} rows={5}>
         {() =>
           !src.games.length && !server ? (

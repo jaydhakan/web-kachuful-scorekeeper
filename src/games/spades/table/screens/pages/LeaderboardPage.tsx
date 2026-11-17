@@ -17,6 +17,8 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { Seg } from '@/components/ui/Seg';
 import { Gate, NoGames, SpPage } from './parts';
+import { SeasonNews } from '@/components/progression/SeasonNews';
+import { useSpProgressionEnv } from './ProgressionPages';
 import { useSpGames, useWho, type Who } from './source';
 
 const b = spTable.pages.board;
@@ -36,6 +38,7 @@ const write = (sort: SpSort, v: number) => (sort === 'wins' ? String(Math.round(
 export default function LeaderboardPage() {
   const src = useSpGames();
   const { actions } = useSp();
+  const env = useSpProgressionEnv(src);
   const [period, setPeriod] = useState<SpPeriod>('season');
   const [sort, setSort] = useState<SpSort>('wins');
   const me = signedInAs(useSession())?.player?.id;
@@ -121,6 +124,7 @@ export default function LeaderboardPage() {
         </div>
       }
     >
+      <SeasonNews env={env} onOpen={() => actions.openPage({ page: 'awards' })} />
       <Gate src={src}>
         {() =>
           waiting ? (
