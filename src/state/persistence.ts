@@ -41,6 +41,8 @@ export const KEYS = {
   spLastSetup: 'spades.lastSetup',
   /** Boards on which this player was last seen in first place, so taking the top is celebrated once, not per visit. */
   boardTop: 'baithak.boardTop',
+  /** This device's sounds and vibration for every game (`src/fx/prefs.ts`): `{ sounds, vibrate }`. */
+  fx: 'baithak.fx',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';

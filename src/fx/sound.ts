@@ -3,6 +3,8 @@
  * nothing plays until the first tap unlocks audio or while the page is hidden. `sfx` follows Spades' own `mode`
  * (everyone's sounds, only those about them, or none; Spades plan D13).
  */
+import { readFx, type SoundLevel } from './prefs';
+
 export type SoundMode = 'all' | 'mine' | 'off';
 export type SoundName =
   | 'riffle'
@@ -16,7 +18,38 @@ export type SoundName =
   | 'tick'
   | 'pop'
   | 'thud'
-  | 'err';
+  | 'err'
+  | 'chime'
+  | 'womp'
+  | 'gavel'
+  | 'roll'
+  | 'glitch'
+  | 'boom'
+  | 'heartbeat';
+
+/** Which kind of event a sound belongs to (WOW-MOMENTS-PLAN §2.1); the platform's "Big moments" plays only `moment`. */
+export type SoundTier = 'moment' | 'beat' | 'tick';
+export const SOUND_TIER: Record<SoundName, SoundTier> = {
+  riffle: 'beat',
+  deal: 'tick',
+  snap: 'tick',
+  sweep: 'tick',
+  bag: 'tick',
+  burst: 'beat',
+  crack: 'beat',
+  cheer: 'moment',
+  tick: 'tick',
+  pop: 'tick',
+  thud: 'beat',
+  err: 'tick',
+  chime: 'moment',
+  womp: 'beat',
+  gavel: 'beat',
+  roll: 'beat',
+  glitch: 'moment',
+  boom: 'moment',
+  heartbeat: 'beat',
+};
 
 const MASTER = 0.55;
 
@@ -101,14 +134,15 @@ function tone(
   a: AudioContext,
   freq: number,
   dur: number,
-  o: { type?: OscillatorType; vol?: number; delay?: number } = {},
+  o: { type?: OscillatorType; vol?: number; delay?: number; to?: number } = {},
 ) {
-  const { type = 'sine', vol = 0.06, delay = 0 } = o;
+  const { type = 'sine', vol = 0.06, delay = 0, to } = o;
   const osc = a.createOscillator();
   const g = a.createGain();
   const t = a.currentTime + delay;
   osc.type = type;
-  osc.frequency.value = freq;
+  osc.frequency.setValueAtTime(freq, t);
+  if (to) osc.frequency.exponentialRampToValueAtTime(to, t + dur);
   g.gain.setValueAtTime(0.0001, t);
   g.gain.linearRampToValueAtTime(vol, t + 0.01);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -151,14 +185,44 @@ const SYNTH: Record<SoundName, (a: AudioContext) => void> = {
     noise(a, 0.1, { freq: 300, type: 'lowpass', vol: 0.1 });
   },
   err: (a) => tone(a, 150, 0.12, { type: 'square', vol: 0.03 }),
+  // The moments' sounds (motion-preview.html), each under 0.8s.
+  chime: (a) => {
+    tone(a, 880, 0.3, { vol: 0.09 });
+    tone(a, 1318, 0.45, { vol: 0.08, delay: 0.12 });
+  },
+  womp: (a) => {
+    tone(a, 330, 0.28, { type: 'sawtooth', vol: 0.03, to: 250 });
+    tone(a, 250, 0.5, { type: 'sawtooth', vol: 0.035, to: 110, delay: 0.28 });
+  },
+  gavel: (a) => {
+    noise(a, 0.05, { freq: 2400, q: 4, vol: 0.25 });
+    noise(a, 0.06, { freq: 2000, q: 4, vol: 0.3, delay: 0.14 });
+  },
+  roll: (a) => {
+    for (let i = 0; i < 12; i++)
+      noise(a, 0.04, { freq: 1600, vol: 0.025 + i * 0.006, delay: i * 0.045 });
+    noise(a, 0.14, { freq: 700, vol: 0.2, delay: 0.58 });
+    tone(a, 98, 0.22, { vol: 0.15, to: 60, delay: 0.58 });
+  },
+  glitch: (a) => {
+    for (let i = 0; i < 7; i++)
+      noise(a, 0.03, { freq: 400 + Math.random() * 3600, q: 5, vol: 0.11, delay: i * 0.04 });
+  },
+  boom: (a) => {
+    tone(a, 130, 0.7, { vol: 0.22, to: 38 });
+    noise(a, 0.35, { freq: 300, q: 0.8, vol: 0.09 });
+    tone(a, 660, 0.4, { type: 'triangle', vol: 0.04, delay: 0.1 });
+  },
+  heartbeat: (a) => {
+    tone(a, 64, 0.16, { vol: 0.25, to: 48 });
+    tone(a, 58, 0.2, { vol: 0.2, to: 44, delay: 0.22 });
+  },
 };
 
 /** Whether a sound plays under the current mode; `mine` marks a sound about this phone's player. */
 export const audible = (m: SoundMode, mine: boolean) => m === 'all' || (m === 'mine' && mine);
 
-/** Plays one sound if the mode allows it, audio is unlocked and the page is visible. Never throws. */
-export function sfx(name: SoundName, mine = false) {
-  if (!audible(mode, mine)) return;
+function play(name: SoundName) {
   if (typeof document !== 'undefined' && document.hidden) return;
   const a = audio();
   if (!a) return;
@@ -167,4 +231,22 @@ export function sfx(name: SoundName, mine = false) {
   } catch {
     /* a closed or interrupted context: stay quiet */
   }
+}
+
+/** Plays one sound if Spades' mode allows it, audio is unlocked and the page is visible. Never throws. */
+export function sfx(name: SoundName, mine = false) {
+  if (audible(mode, mine)) play(name);
+}
+
+/** Whether the platform setting lets a sound of this tier play: "Big moments" keeps only the moments. */
+export const tierAudible = (level: SoundLevel, tier: SoundTier) =>
+  level === 'all' || (level === 'moments' && tier === 'moment');
+
+/**
+ * Plays a sound under the platform's Sounds setting (every game but Spades, whose own mode wins there). `tier`
+ * overrides the sound's own, for a sound used at a smaller moment (a small unlock's chime is a beat).
+ */
+export function cue(name: SoundName, tier: SoundTier = SOUND_TIER[name]) {
+  armAudio();
+  if (tierAudible(readFx().sounds, tier)) play(name);
 }
