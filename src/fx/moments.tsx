@@ -9,7 +9,7 @@ import {
 import { GAME_END_MAX_MS, MOMENT_MAX_MS } from '@/components/ui/motion';
 import { vibrate, type Haptic } from '@/hooks/useHaptics';
 import { fx as s } from '@/strings/fx';
-import { armAudio, cue, type SoundName, type SoundTier } from './sound';
+import type { SoundName, SoundTier } from './sound';
 import { reducedMotion } from './waapi';
 
 /** WOW-MOMENTS-PLAN §2.1: a Moment may take the screen (one at a time, capped); Beats and Ticks never wait. */
@@ -50,6 +50,9 @@ export interface QueueOpts {
   vibrate?: (p: Haptic) => void;
 }
 
+// The synth loads with the first moment that makes a sound, not with every screen that can show one.
+const lazyCue = (name: SoundName, tier: SoundTier) =>
+  void import('./sound').then((m) => m.cue(name, tier));
 const GRACE_MS = 500;
 const SEEN_MAX = 500;
 // Ids already played, for the page's life: a screen that remounts (a reconnect, a game reopened) never replays one.
@@ -78,7 +81,7 @@ export class MomentQueue {
   constructor(o: QueueOpts = {}) {
     this.cap = o.cap ?? 2;
     this.isReduced = o.reduced ?? reducedMotion;
-    this.sound = o.playSound ?? cue;
+    this.sound = o.playSound ?? lazyCue;
     this.buzz = o.vibrate ?? vibrate;
   }
 
@@ -112,6 +115,13 @@ export class MomentQueue {
       });
     }
     return 'queued';
+  }
+
+  /** Takes back a Moment that hasn't started (its screen went away) and forgets it; one playing is left to end. */
+  cancel(id: string) {
+    const n = this.pending.length;
+    this.pending = this.pending.filter((p) => p.m.id !== id);
+    if (this.pending.length < n) seen.delete(id);
   }
 
   /** Ends the Moment on screen (the tap layer); the next one starts. */
@@ -189,7 +199,7 @@ export function MomentsProvider({
 }) {
   const [q] = useState(() => queue ?? new MomentQueue());
   useEffect(() => {
-    armAudio();
+    void import('./sound').then((m) => m.armAudio());
     return () => q.clear();
   }, [q]);
   return (
@@ -200,11 +210,21 @@ export function MomentsProvider({
   );
 }
 
+let page: MomentQueue | null = null;
+/** The page's queue, for screens without a provider: every game's pops and verdicts share it, so they never overlap. */
+export const pageMoments = () => (page ??= new MomentQueue());
+
+/** The screen's queue (its `MomentsProvider`), else the page's. */
 export function useMoments(): MomentQueue {
-  const q = useContext(Ctx);
-  if (!q) throw new Error('useMoments needs a MomentsProvider');
-  return q;
+  return useContext(Ctx) ?? pageMoments();
 }
+
+/**
+ * Where a Moment's overlay mounts: the moments lab's stage, else the body, so a sheet's transform or overflow never
+ * clips it.
+ */
+export const momentRoot = () =>
+  document.querySelector<HTMLElement>('[data-moment-root]') ?? document.body;
 
 /** The Moment on screen, for a screen that dims or holds something while it plays. */
 export function useCurrentMoment(): MomentSpec | null {

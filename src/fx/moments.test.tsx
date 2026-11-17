@@ -76,6 +76,18 @@ describe('the moment queue', () => {
     expect(log).toEqual(['now', 'now:aborted', 'later']);
   });
 
+  it('takes back a Moment that has not started, and leaves one playing', async () => {
+    const { q, log, make } = rig();
+    q.push(make('a', PRIORITY.verdict));
+    await flush();
+    q.push(make('b', PRIORITY.smallUnlock));
+    q.cancel('a');
+    q.cancel('b');
+    expect(q.current?.id).toBe('a');
+    expect(q.push(make('b', PRIORITY.smallUnlock))).toBe('queued');
+    expect(log).toEqual(['a']);
+  });
+
   it('plays a moment pushed under StrictMode once', async () => {
     const { StrictMode, useEffect } = await import('react');
     const { q, log, make } = rig();
