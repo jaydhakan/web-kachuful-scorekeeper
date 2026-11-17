@@ -232,6 +232,16 @@ describe('win-rate standings', () => {
     ]);
   });
 
+  it('order the unranked as the server does: by rate, then more games', () => {
+    const rows = winRateStandings(
+      [...record('a', 1, 4, 0), ...record('b', 3, 3, 10), ...record('c', 2, 4, 20)],
+      from,
+      to,
+      8,
+    );
+    expect(rows.map((r) => r.playerId)).toEqual(['b', 'c', 'a']);
+  });
+
   it('count only games that ended in the window', () => {
     const rows = winRateStandings(record('a', 2, 4, 0), T0 + 2 * H, to, 1);
     expect(rows[0]).toMatchObject({ games: 2, wins: 0 });

@@ -147,8 +147,8 @@ export function careerCounts(
 
 /**
  * A window's standings by win rate: ranked once a player has `minGames`, best rate first. Equal rates go to more
- * games; the same rate and games share a rank (the player id only orders the rows). The unranked follow, most games
- * first.
+ * games; the same rate and games share a rank (the player id only orders the rows). The unranked follow in the same
+ * order, as the server's do.
  */
 export function winRateStandings(
   facts: readonly PlayerGameFact[],
@@ -172,17 +172,14 @@ export function winRateStandings(
     games: r.games,
     wins: r.wins,
   }));
-  const q = rows
-    .filter((r) => r.qualified)
-    .sort((a, b) => b.value - a.value || b.games - a.games || (a.playerId < b.playerId ? -1 : 1));
+  const order = (a: WinRateRow, b: WinRateRow) =>
+    b.value - a.value || b.games - a.games || (a.playerId < b.playerId ? -1 : 1);
+  const q = rows.filter((r) => r.qualified).sort(order);
   q.forEach((r, k) => {
     const prev = q[k - 1];
     r.rank = prev && prev.value === r.value && prev.games === r.games ? prev.rank : k + 1;
   });
-  const rest = rows
-    .filter((r) => !r.qualified)
-    .sort((a, b) => b.games - a.games || (a.playerId < b.playerId ? -1 : 1));
-  return [...q, ...rest];
+  return [...q, ...rows.filter((r) => !r.qualified).sort(order)];
 }
 
 /** Champion, runner-up and third: everyone ranked 1, 2 or 3 (a tie shares the place). */
