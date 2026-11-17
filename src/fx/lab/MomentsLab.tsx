@@ -26,7 +26,9 @@ export default function MomentsLab() {
   );
   const [run, setRun] = useState(0);
   const [speed, setSpeed] = useState<Speed>('1');
-  const [reduced, setReduced] = useState<'off' | 'on'>('off');
+  const [reduced, setReduced] = useState<'off' | 'on'>(() =>
+    matchMedia('(prefers-reduced-motion: reduce)').matches ? 'on' : 'off',
+  );
   const [size, setSize] = useState<Size>('phone');
   const [theme, setTheme] = useState<ThemeId>(
     () => (document.documentElement.getAttribute('data-theme') as ThemeId) ?? 'sunset-glass',
@@ -157,6 +159,7 @@ export default function MomentsLab() {
           {/* A transform makes the stage the containing block for fixed layers (a moment's skip layer, rain). */}
           <div
             data-lab-stage
+            data-moment-root
             className="felt relative isolate overflow-hidden rounded-2xl border border-ov/15 [transform:translateZ(0)]"
             style={{ width: box.w, height: box.h, maxWidth: '100%' }}
           >

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Confetti } from '@/components/ui/Confetti';
 import { Stamp } from '@/components/ui/Stamp';
+import { palette } from '@/theme/palette';
 import { PRIORITY, useMoments } from '../moments';
 import { cue, SOUND_TIER, type SoundName } from '../sound';
 import { sheen, stamp } from '../stamp';
@@ -49,7 +50,13 @@ function ConfettiDemo() {
       <span data-confetti-origin className="text-48">
         🏆
       </span>
-      {on && <Confetti colors={['gold', 'accent']} count={80} onDone={() => setOn(false)} />}
+      {on && (
+        <Confetti
+          colors={[palette['gold-light'], palette['accent-hearts'], palette['accent-diamonds']]}
+          count={80}
+          onDone={() => setOn(false)}
+        />
+      )}
     </div>
   );
 }
