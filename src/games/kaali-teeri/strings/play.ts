@@ -110,6 +110,7 @@ export const kp = {
     bidsFirst: (name: string) => `${name} bids first`,
     endGame: 'End game',
     nextHand: 'Next hand',
+    seeWinner: 'See the winner',
     announce: (rows: { name: string; d: string; t: string }[]) =>
       rows.map((r) => `${r.name} ${r.d}, ${r.t}`).join('; '),
   },

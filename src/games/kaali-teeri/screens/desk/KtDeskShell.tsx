@@ -103,7 +103,9 @@ export default function KtDeskShell() {
       key = `sum-${h.index}`;
       content = (
         <>
-          <ScreenKeys map={{ enter: actions.nextHand }} />
+          <ScreenKeys
+            map={{ enter: game.status === 'finished' ? actions.seeWinner : actions.nextHand }}
+          />
           <KtDeskSummary />
         </>
       );

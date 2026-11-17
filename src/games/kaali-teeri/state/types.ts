@@ -176,6 +176,8 @@ export type KtAction =
   | { type: 'confirmHand' }
   // Between hands and after
   | { type: 'nextHand' }
+  /** A game won on its last hand: from that hand's summary to the winner. */
+  | { type: 'seeWinner' }
   | { type: 'finishGame' }
   | { type: 'abandon' }
   | { type: 'editHand'; i: number; edit: KtHandEdit }

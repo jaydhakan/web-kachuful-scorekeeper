@@ -25,13 +25,20 @@ function Body({ g, h }: { g: KtGame; h: KtHand }) {
         eyebrow={kp.summary.nextShort(h.index + 1)}
         title={kp.summary.title(h.index + 1)}
         actions={
-          <>
-            <GhostButton onClick={() => actions.ask('finish')}>{kp.summary.endGame}</GhostButton>
-            <PrimaryButton className="h-12 px-6" onClick={actions.nextHand}>
-              {kp.summary.nextHand}
+          g.status === 'finished' ? (
+            <PrimaryButton className="h-12 px-6" onClick={actions.seeWinner}>
+              {kp.summary.seeWinner}
               <Kbd className="ml-2">↵</Kbd>
             </PrimaryButton>
-          </>
+          ) : (
+            <>
+              <GhostButton onClick={() => actions.ask('finish')}>{kp.summary.endGame}</GhostButton>
+              <PrimaryButton className="h-12 px-6" onClick={actions.nextHand}>
+                {kp.summary.nextHand}
+                <Kbd className="ml-2">↵</Kbd>
+              </PrimaryButton>
+            </>
+          )
         }
       />
       <div className="grid min-h-0 flex-1 gap-6 rail:grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)]">

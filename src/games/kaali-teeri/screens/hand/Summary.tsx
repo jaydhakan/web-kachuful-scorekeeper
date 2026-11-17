@@ -308,14 +308,20 @@ function SummaryBody({
         </Glass>
       }
       bar={
-        <>
-          <PrimaryButton tone="glass" className="px-5" onClick={onEnd}>
-            {kp.summary.endGame}
+        g.status === 'finished' ? (
+          <PrimaryButton className="flex-1" onClick={actions.seeWinner}>
+            {kp.summary.seeWinner}
           </PrimaryButton>
-          <PrimaryButton className="flex-1" onClick={onNext}>
-            {kp.summary.nextHand}
-          </PrimaryButton>
-        </>
+        ) : (
+          <>
+            <PrimaryButton tone="glass" className="px-5" onClick={onEnd}>
+              {kp.summary.endGame}
+            </PrimaryButton>
+            <PrimaryButton className="flex-1" onClick={onNext}>
+              {kp.summary.nextHand}
+            </PrimaryButton>
+          </>
+        )
       }
     >
       <ResultLine d={d} h={h} />

@@ -37,7 +37,8 @@ test('a hand’s moments drop in once it is confirmed, the winner screen shows t
     await ktBtn(page, 'Next hand').click();
     await sweep(page, n);
   }
-  // The last hand's moments go to the winner screen's reel, with the game's.
+  // The last hand's summary first, then the winner: its moments go to the reel, with the game's.
+  await ktBtn(page, 'See the winner').click();
   const reel = page.getByRole('list', { name: 'Achievements' });
   await expect(reel.getByText('Thousandaire').first()).toBeVisible();
 
