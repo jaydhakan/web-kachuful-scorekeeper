@@ -39,6 +39,7 @@ import { BidPad } from '@/games/spades/ui/BidPad';
 import { boxOf, type Box } from '@/games/spades/ui/fx';
 import { Hand } from '@/games/spades/ui/Hand';
 import { HandSummary } from '@/games/spades/ui/HandSummary';
+import { HandPops } from '@/games/spades/progress/HandPops';
 import { usePrefs } from '@/games/spades/ui/prefs';
 import type { SeatProps } from '@/games/spades/ui/Seat';
 import { cardName } from '@/games/spades/ui/SpCard';
@@ -176,6 +177,12 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   }, [toast]);
 
   const [sheet, setSheet] = useState<SheetKind>(null);
+  // The hand whose moments pop with its summary: set as a hand ends here, not on a reopened table.
+  const [popHand, setPopHand] = useState<number | null>(null);
+  const nameOf = useCallback(
+    (id: string) => t.seats.find((x) => x.who?.playerId === id)?.who?.name ?? s.pops.someone,
+    [t.seats],
+  );
   const [confirm, setConfirm] = useState<Confirm>(null);
   const [inviteSeat, setInviteSeat] = useState<Seat | null>(null);
 
@@ -459,10 +466,12 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   useEffect(() => {
     if (!ended || stage?.deal === dn) return;
     setStage({ deal: dn, s: 'stamps' });
+    const hand = t.history.at(-1)?.index ?? null;
     const id = setTimeout(
       () => {
         setStage({ deal: dn, s: 'summary' });
         setSheet('summary');
+        setPopHand(hand);
       },
       rm ? 300 : STAMP_MS,
     );
@@ -1098,6 +1107,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         )}
       </AnimatePresence>
       <ToastPill toast={toast} />
+      {popHand !== null && <HandPops key={popHand} game={t} index={popHand} nameOf={nameOf} />}
       <p aria-live="polite" className="sr-only">
         {said}
       </p>

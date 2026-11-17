@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   dealerFor,
   gameResult,
@@ -18,6 +18,8 @@ import { EASE, REDUCED, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { vibrate } from '@/hooks/useHaptics';
 import { TEAM_TONE } from '../parts';
 import { HandFrame } from './HandFrame';
+import { HandPops } from '@/games/spades/progress/HandPops';
+import { pidOf } from '@/people/pid';
 
 const signed = (v: number) => s.sgn(Math.round(v));
 
@@ -180,6 +182,12 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   const rm = useReducedMotion();
   // Counted up on its first showing only; reopening the summary later shows it settled.
   const [fresh] = useState(() => state.fresh && !rm);
+  // The hand's moments pop on its first showing only, reduced motion or not.
+  const [first] = useState(() => state.fresh);
+  const nameOf = useCallback(
+    (id: string) => g.players.find((p) => pidOf(p) === id)?.name ?? '',
+    [g.players],
+  );
   useEffect(() => {
     if (state.fresh) actions.setFresh(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, as the summary opens
@@ -190,59 +198,62 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   const over = g.status === 'finished';
   const next = g.players[dealerFor(g, h.index + 1)].name;
   return (
-    <HandFrame
-      g={g}
-      h={h}
-      bar={
-        over ? (
-          <PrimaryButton className="w-full" onClick={() => actions.go('winner')}>
-            {s.summary.winner}
-          </PrimaryButton>
-        ) : (
-          <PrimaryButton className="w-full flex-col !gap-0" onClick={actions.nextHand}>
-            <span>{s.summary.next}</span>
-            <span className="text-13 font-medium opacity-80">{s.summary.nextDeals(next)}</span>
-          </PrimaryButton>
-        )
-      }
-    >
-      <m.h2
-        initial={fresh ? { opacity: 0, y: 6 } : false}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: EASE }}
-        className="disp mb-1 text-26 font-extrabold tracking-[-0.03em]"
+    <>
+      <HandFrame
+        g={g}
+        h={h}
+        bar={
+          over ? (
+            <PrimaryButton className="w-full" onClick={() => actions.go('winner')}>
+              {s.summary.winner}
+            </PrimaryButton>
+          ) : (
+            <PrimaryButton className="w-full flex-col !gap-0" onClick={actions.nextHand}>
+              <span>{s.summary.next}</span>
+              <span className="text-13 font-medium opacity-80">{s.summary.nextDeals(next)}</span>
+            </PrimaryButton>
+          )
+        }
       >
-        {s.summary.title(h.index + 1)}
-      </m.h2>
-      <p
-        className={`mb-3 text-15 ${over ? 'font-bold text-[var(--gold-tx)]' : 'text-[var(--tx2)]'}`}
-        role="status"
-      >
-        {verdict(g)}
-      </p>
-      <div className="grid grid-cols-1 gap-2 min-[340px]:grid-cols-2">
-        {(['a', 'b'] as const).map((t) => (
-          <Column
-            key={t}
-            g={g}
-            h={h}
-            t={t}
-            r={line[t]}
-            before={before[t]}
-            after={line.after[t]}
-            fresh={fresh}
-          />
-        ))}
-      </div>
-      <div className="mt-3 flex justify-center">
-        <button
-          type="button"
-          onClick={() => actions.openSheet({ type: 'edit', i: h.index })}
-          className="press min-h-12 px-4 text-15 font-semibold text-[var(--accent-tx)] underline decoration-ov/25 underline-offset-4"
+        <m.h2
+          initial={fresh ? { opacity: 0, y: 6 } : false}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASE }}
+          className="disp mb-1 text-26 font-extrabold tracking-[-0.03em]"
         >
-          {s.summary.edit}
-        </button>
-      </div>
-    </HandFrame>
+          {s.summary.title(h.index + 1)}
+        </m.h2>
+        <p
+          className={`mb-3 text-15 ${over ? 'font-bold text-[var(--gold-tx)]' : 'text-[var(--tx2)]'}`}
+          role="status"
+        >
+          {verdict(g)}
+        </p>
+        <div className="grid grid-cols-1 gap-2 min-[340px]:grid-cols-2">
+          {(['a', 'b'] as const).map((t) => (
+            <Column
+              key={t}
+              g={g}
+              h={h}
+              t={t}
+              r={line[t]}
+              before={before[t]}
+              after={line.after[t]}
+              fresh={fresh}
+            />
+          ))}
+        </div>
+        <div className="mt-3 flex justify-center">
+          <button
+            type="button"
+            onClick={() => actions.openSheet({ type: 'edit', i: h.index })}
+            className="press min-h-12 px-4 text-15 font-semibold text-[var(--accent-tx)] underline decoration-ov/25 underline-offset-4"
+          >
+            {s.summary.edit}
+          </button>
+        </div>
+      </HandFrame>
+      {first && <HandPops game={g} index={h.index} nameOf={nameOf} />}
+    </>
   );
 }

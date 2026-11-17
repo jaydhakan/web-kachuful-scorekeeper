@@ -16,8 +16,12 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { REDUCED, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { TEAM_TONE, teamNames } from './parts';
+import { useSpGames, useWho } from './pages/source';
+import { signedInAs, useSession } from '@/sync/session';
 
 const s = spTable.winner;
+// The reel brings the catalogue with it: its own chunk, after the winner is on screen.
+const Reel = lazy(() => import('@/games/spades/progress/SpReel'));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((x) => ({ default: x.Confetti })),
 );
@@ -78,6 +82,9 @@ export default function Winner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, as the screen opens
   }, []);
   const [party, setParty] = useState(fresh && !rm);
+  const signedIn = !!signedInAs(useSession());
+  const src = useSpGames();
+  const who = useWho(src.games);
   const header = (
     <IconButton chrome label={s.home} onClick={() => spGo('')}>
       {Icon.back}
@@ -201,6 +208,13 @@ export default function Winner() {
               ))}
             </dl>
           )}
+          <Suspense fallback={null}>
+            <Reel
+              game={g}
+              device={!signedIn && src.status === 'ready' ? src.games : undefined}
+              person={who}
+            />
+          </Suspense>
           <div className="mt-4 flex flex-wrap justify-center gap-x-1">
             <button type="button" onClick={actions.startSetup} className={QUIET}>
               {s.newGame}
