@@ -22,6 +22,9 @@ import { Sheet } from '@/components/ui/Sheet';
 import { TableInviteSheet } from '@/components/seat-invites/TableInviteSheet';
 import { Countdown, secsUntil, useServerClock } from '@/hooks/useServerClock';
 import { rainOf, type Reaction } from '@/fx/rain';
+import { PRIORITY, useMoments } from '@/fx/moments';
+import { sheen } from '@/fx/stamp';
+import { seatsOf } from '@/games/spades/domain/seats';
 import { vibrate } from '@/hooks/useHaptics';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -40,7 +43,7 @@ import { useTable, type TableCtx } from '@/games/spades/online/state/tableContex
 import { armAudio, setSoundMode, sfx } from '@/games/spades/sound/sfx';
 import { play as s } from '@/games/spades/strings/play';
 import { BidPad } from '@/games/spades/ui/BidPad';
-import { boxOf, type Box } from '@/games/spades/ui/fx';
+import { anim, boxOf, OUT, type Box } from '@/games/spades/ui/fx';
 import { Hand } from '@/games/spades/ui/Hand';
 import { HandSummary } from '@/games/spades/ui/HandSummary';
 import { HandPops } from '@/games/spades/progress/HandPops';
@@ -51,15 +54,27 @@ import { TeamBar, type TeamLine } from '@/games/spades/ui/TeamBar';
 import { DEAL, DealLayer, HoldToDeal, LookGate, dealDelays } from './Deal';
 import { Felt, type TrickPlay } from './Felt';
 import { dealNo, handDone, momentsBetween, playsOf, type Moment } from './moments';
-import { cardsLeft, lastHandScore, nilState, placeOf, teamNumbers } from './present';
+import {
+  bostonOf,
+  cardsLeft,
+  lastHandScore,
+  lastTrickDecides,
+  nilState,
+  placeOf,
+  teamNumbers,
+} from './present';
 import { BoardBody, KeysBody, LastTrickBody, MenuBody, PrefsBody } from './Sheets';
 
 const EmojiRain = lazy(() => import('@/fx/EmojiRain'));
+const Boston = lazy(() => import('@/games/spades/ui/Boston').then((m) => ({ default: m.Boston })));
+const BOSTON_HAPTIC = [40, 30, 60];
 import { Cancelled, Winner } from './Winner';
 
 /** A trick stays on the felt this long after its last card lands, before it is gathered to the winner. */
 export const TRICK_HOLD_MS = 900;
 const FLIGHT_MS = 460;
+/** The trick that decides the hand is held this much longer before it is gathered (S3). */
+const LAST_TRICK_MS = 400;
 /** The hand's end: the halos resolve and any SET stamps before the summary opens. */
 const STAMP_MS = 1300;
 const REACT_GAP_MS = 2000;
@@ -202,8 +217,8 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   const [dealing, setDealing] = useState<{ key: number; dealer: Seat; from: Box | null } | null>(
     null,
   );
-  const [stage, setStage] = useState<{ deal: number; s: 'stamps' | 'summary' } | null>(() =>
-    handDone(t) ? { deal: dn, s: 'summary' } : null,
+  const [stage, setStage] = useState<{ deal: number; s: 'stamps' | 'boston' | 'summary' } | null>(
+    () => (handDone(t) ? { deal: dn, s: 'summary' } : null),
   );
   const [winnerShown, setWinnerShown] = useState(t.status === 'finished');
   const [floats, setFloats] = useState<Float[]>([]);
@@ -240,14 +255,16 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
           ...t.trick,
           ...(pending && !pendingIn && me !== null ? [{ seat: me, card: pending.card }] : []),
         ];
-  const plays: TrickPlay[] = rawPlays.map((p) => {
+  // With 12 tricks gathered, the 13th may decide the hand: its last card flies slower and the trick holds longer.
+  const decider = Math.min(shown, server) === 12 && lastTrickDecides(t, 12);
+  const plays: TrickPlay[] = rawPlays.map((p, i) => {
     const k = keyOf(p.seat, p.card);
     const fly = seen.current!.has(k)
       ? null
       : p.seat === me && pending && mine(p.card)
         ? { box: pending.from }
         : { seat: p.seat };
-    return { ...p, place: placeOf(p.seat, viewer), fly };
+    return { ...p, place: placeOf(p.seat, viewer), fly, slow: decider && i === 3 && !!fly };
   });
   const leader = rawPlays.length ? trickWinner(rawPlays) : null;
   const led = ledSuit(rawPlays);
@@ -378,7 +395,11 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
           ...b,
           [mo.seat]: { text, nil: mo.bid === 0, key: Date.now() + mo.seat },
         }));
-        if (mo.seat !== me) sfx('pop');
+        if (mo.bid === 0 && mo.blind) {
+          // Blind Nil (S2): one heartbeat on every phone, and one light across the declarer's hand on theirs.
+          sfx('heartbeat', me !== null && teamOf(mo.seat) === teamOf(me));
+          if (mo.seat === me) sheen(root.current?.querySelector<HTMLElement>('[data-hand]'));
+        } else if (mo.seat !== me) sfx('pop');
         say.current(s.announce.bid(name(mo.seat), mo.bid, mo.blind));
         break;
       }
@@ -456,7 +477,11 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       return;
     }
     setSweeping(false);
-    const id = setTimeout(() => setSweeping(true), rm ? TRICK_HOLD_MS : FLIGHT_MS + TRICK_HOLD_MS);
+    const longer = holding === 12 && lastTrickDecides(t, 12) ? LAST_TRICK_MS : 0;
+    const id = setTimeout(
+      () => setSweeping(true),
+      longer + (rm ? TRICK_HOLD_MS : FLIGHT_MS * (longer ? 1.5 : 1) + TRICK_HOLD_MS),
+    );
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [holding, dn]);
@@ -469,16 +494,48 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     setShown(holding + 1);
   };
 
-  // ---------- the hand's end: halos and stamps, then the summary ----------
+  // ---------- the hand's end: halos and stamps, a Boston if there was one, then the summary ----------
+  const moments = useMoments();
+  const [boston, setBoston] = useState<{
+    team: TeamId;
+    reduced: boolean;
+    signal: AbortSignal;
+    done: () => void;
+  } | null>(null);
   useEffect(() => {
     if (!ended || stage?.deal === dn) return;
     setStage({ deal: dn, s: 'stamps' });
-    const hand = t.history.at(-1)?.index ?? null;
+    const last = t.history.at(-1);
+    const hand = last?.index ?? null;
+    const summary = () => {
+      setStage({ deal: dn, s: 'summary' });
+      setSheet('summary');
+      setPopHand(hand);
+    };
     const id = setTimeout(
       () => {
-        setStage({ deal: dn, s: 'summary' });
-        setSheet('summary');
-        setPopHand(hand);
+        const team = bostonOf(last);
+        if (!team) return summary();
+        // Only the summary waits for it: no timer runs at a hand's end.
+        setStage({ deal: dn, s: 'boston' });
+        const mine = me !== null && teamOf(me) === team;
+        const show =
+          (reduced: boolean) =>
+          ({ signal }: { signal: AbortSignal }) =>
+            new Promise<void>((done) =>
+              setBoston({ team, reduced, signal, done: () => (setBoston(null), done()) }),
+            ).finally(summary);
+        const r = moments.push({
+          id: `boston:${t.id}:${hand}`,
+          tier: 'moment',
+          priority: PRIORITY.verdict,
+          scope: `hand:${t.id}:${hand}`,
+          sound: () => sfx('boom', mine),
+          haptic: mine ? BOSTON_HAPTIC : undefined,
+          play: show(false),
+          reduced: show(true),
+        });
+        if (r === 'duplicate' || r === 'capped') summary();
       },
       rm ? 300 : STAMP_MS,
     );
@@ -517,12 +574,15 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   // Three players sending the same reaction within two seconds make it rain (A3), on every phone alike.
   const recent = useRef<Reaction[]>([]);
   const [rain, setRain] = useState<{ emoji: string; key: number } | null>(null);
-  const addFloat = useCallback((seat: Seat, emoji: string) => {
-    setFloats((f) => [...f.slice(-6), { id: Date.now() + Math.random(), seat, emoji }]);
-    const o = rainOf(recent.current, { seat, emoji, at: Date.now() });
-    recent.current = o.recent;
-    if (o.rain) setRain({ emoji: o.rain, key: Date.now() });
-  }, [setRain]);
+  const addFloat = useCallback(
+    (seat: Seat, emoji: string) => {
+      setFloats((f) => [...f.slice(-6), { id: Date.now() + Math.random(), seat, emoji }]);
+      const o = rainOf(recent.current, { seat, emoji, at: Date.now() });
+      recent.current = o.recent;
+      if (o.rain) setRain({ emoji: o.rain, key: Date.now() });
+    },
+    [setFloats, setRain],
+  );
   useEffect(
     () =>
       ctx.onReaction((r) => {
@@ -635,6 +695,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       turn,
       away,
       nil: nils[x],
+      blind: t.bids[x] === 0 && !!t.blind[x],
       timer,
       invited: !!ctx.invites[x],
       bubble: bubbles[x] ?? null,
@@ -983,6 +1044,26 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
           </button>
         </div>
       )}
+      {decider && <LastTrickNote />}
+      {boston && (
+        <Suspense fallback={null}>
+          <Boston
+            team={boston.team}
+            name={teamNames[boston.team]}
+            them={me !== null && teamOf(me) !== boston.team}
+            from={seatsOf(boston.team).flatMap((x) => {
+              const r = feltRef.current
+                ?.querySelector(`[data-seat="${x}"] [data-seat-avatar]`)
+                ?.getBoundingClientRect();
+              return r ? [{ x: r.left + r.width / 2, y: r.top + r.height / 2 }] : [];
+            })}
+            reduced={boston.reduced}
+            signal={boston.signal}
+            onSkip={() => moments.skip()}
+            onDone={boston.done}
+          />
+        </Suspense>
+      )}
       {rain && (
         <Suspense fallback={null}>
           <EmojiRain key={rain.key} emoji={rain.emoji} onDone={() => setRain(null)} />
@@ -1281,5 +1362,32 @@ function Floats({
         </m.span>
       ))}
     </div>
+  );
+}
+
+/** "Last trick decides it": a line that settles over the felt while the 13th trick is played (S3). */
+function LastTrickNote() {
+  const ref = useRef<HTMLParagraphElement>(null);
+  useLayoutEffect(
+    () =>
+      anim(
+        ref.current,
+        [
+          { opacity: 0, transform: 'translate(-50%, -8px)' },
+          { opacity: 1, transform: 'translate(-50%, 0)' },
+        ],
+        { duration: 320, easing: OUT, fill: 'both' },
+      ).cancel,
+    [],
+  );
+  return (
+    <p
+      ref={ref}
+      role="status"
+      data-last-trick
+      className="pointer-events-none absolute left-1/2 top-[23%] z-[6] -translate-x-1/2 whitespace-nowrap rounded-full border border-[color-mix(in_srgb,var(--medal-gold)_60%,transparent)] bg-[color-mix(in_srgb,var(--bg)_82%,transparent)] px-4 py-[7px] text-15 font-bold"
+    >
+      {s.moment.lastTrick}
+    </p>
   );
 }

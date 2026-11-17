@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   dealerFor,
   gameResult,
@@ -20,7 +20,11 @@ import { TEAM_TONE } from '../parts';
 import { HandFrame } from './HandFrame';
 import { HandPops } from '@/games/spades/progress/HandPops';
 import { pidOf } from '@/people/pid';
+import { bostonOf } from '@/games/spades/online/table/present';
 
+const BostonMoment = lazy(() =>
+  import('@/games/spades/ui/Boston').then((m) => ({ default: m.BostonMoment })),
+);
 const signed = (v: number) => s.sgn(Math.round(v));
 
 /** The headline under the title: who won, a tie at the target, or what the game is played to. */
@@ -198,6 +202,8 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   if (!data) return null;
   const { line, before } = data;
   const over = g.status === 'finished';
+  // A team that took all 13: BOSTON stamps over the summary, once, as it first opens (S1; no trick piles here).
+  const boston = bostonOf(h);
   const next = g.players[dealerFor(g, h.index + 1)].name;
   return (
     <>
@@ -255,6 +261,11 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
           </button>
         </div>
       </HandFrame>
+      {first && boston && (
+        <Suspense fallback={null}>
+          <BostonMoment id={`boston:${g.id}:${h.index}`} team={boston} name={s.team(boston)} />
+        </Suspense>
+      )}
       {first && <HandPops game={g} index={h.index} nameOf={nameOf} />}
     </>
   );

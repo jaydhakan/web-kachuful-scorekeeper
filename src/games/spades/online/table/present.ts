@@ -93,6 +93,26 @@ export function nilState(t: SpPublic, seat: Seat, shown: number, ended: boolean)
   return ended && handDone(t) ? 'made' : 'live';
 }
 
+/** The team that took all 13 tricks of a finished hand (a Boston, WOW-MOMENTS-PLAN S1), or null. */
+export const bostonOf = (h: Pick<SpHand, 'teamTricks'> | undefined): TeamId | null =>
+  h?.teamTricks?.[0] === 13 ? 'a' : h?.teamTricks?.[1] === 13 ? 'b' : null;
+
+/**
+ * With 12 tricks gathered, whether the 13th decides the hand (S3): a team's bidders one trick short of their
+ * contract, or a Nil still alive. A Nil bidder's tricks never count toward the contract (domain/scoring).
+ */
+export function lastTrickDecides(t: Pick<SpPublic, 'bids' | 'tricks'>, gathered: number): boolean {
+  if (gathered !== 12 || t.tricks.length < 12) return false;
+  const won = wonBy(t.tricks, 12);
+  if (SEATS.some((s) => t.bids[s] === 0 && won[s] === 0)) return true;
+  return (['a', 'b'] as const).some((team) => {
+    const bidders = SEATS.filter((s) => teamOf(s) === team && (t.bids[s] ?? 0) > 0);
+    const contract = bidders.reduce<number>((n, s) => n + (t.bids[s] ?? 0), 0);
+    const took = bidders.reduce<number>((n, s) => n + won[s], 0);
+    return bidders.length > 0 && took === contract - 1;
+  });
+}
+
 /** The finished hand's score for each team, with the bags carried into it. */
 export function lastHandScore(t: SpPublic): Record<TeamId, TeamScore> | null {
   const h = t.history[t.history.length - 1];

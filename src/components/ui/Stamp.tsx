@@ -5,6 +5,9 @@ const TONE = {
   gold: 'text-[var(--gold-tx)]',
   pos: 'text-[var(--pos)]',
   silver: 'text-[var(--medal-silver)]',
+  /** The two sides of a team game (Spades, Ishaara). */
+  sun: 'text-[var(--team-sun-tx)]',
+  moon: 'text-[var(--team-moon-tx)]',
 } as const;
 
 /**
