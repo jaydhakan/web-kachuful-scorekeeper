@@ -186,7 +186,7 @@ function Thousand({ stamped }: { stamped: boolean }) {
     <span
       ref={ref}
       aria-hidden
-      className="absolute -top-3 right-0 rotate-[-10deg] rounded-md border-2 border-current bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] px-1 text-12 font-extrabold leading-tight tracking-[0.06em]"
+      className="absolute -top-3 right-0 rotate-[-10deg] rounded-md border-2 border-current bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] px-1 text-13 font-extrabold leading-tight tracking-[0.06em]"
     >
       {TARGET}
     </span>
