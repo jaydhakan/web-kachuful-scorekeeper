@@ -28,6 +28,8 @@ export interface AnimOpts {
   delay?: number;
   easing?: string;
   fill?: FillMode;
+  /** Times it plays (reduced motion plays its still version once). */
+  iterations?: number;
 }
 
 const opacityOf = (f: Keyframe | undefined) => Number(f?.opacity ?? 1);
@@ -83,6 +85,7 @@ export function anim(
       delay: o.delay ?? 0,
       easing: o.easing ?? EASE,
       fill: o.fill ?? 'none',
+      iterations: o.iterations ?? 1,
     });
   }
   return {
@@ -94,5 +97,5 @@ export function anim(
   };
 }
 
-/** A promise that waits; resolves at once under reduced motion when `skipReduced`. */
+/** A promise that waits. */
 export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
