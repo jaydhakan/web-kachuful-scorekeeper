@@ -1,28 +1,125 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect } from 'react';
-import { SPRING_POP } from '@/components/ui/motion';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { PRIORITY, useMoments, type MomentCtx } from '@/fx/moments';
+import { anim, OUT } from '@/fx/waapi';
+import { fx as s } from '@/strings/fx';
 import type { PopCard } from './popCard';
 
-const HOLD_MS = 2500;
+// Only a big moment needs the card (and its confetti and sheen); every game's screen can show the small ones.
+const UnlockCard = lazy(() => import('./UnlockCard').then((m) => ({ default: m.UnlockCard })));
+
+/** Small cards shown at once; the rest of a batch is one "+N more" line. */
+const SMALL_MAX = 3;
+/** How long the small cards are read, plus a little per card. */
+const READ_MS = 2200;
+const UNLOCK_HAPTIC = [12, 40, 18];
+
+type Big = { card: PopCard; reduced: boolean; signal: AbortSignal; done: () => void };
+type Batch = { id: number | string; cards: PopCard[] };
 
 /**
- * Moments just earned as cards that drop in under the top bar and leave on their own; they never take focus or
- * block a tap. A new `pops` object is a new batch (null shows nothing); `onDone` fires once it has been read.
+ * A batch of moments just earned (WOW-MOMENTS-PLAN A1). Big ones play first, one at a time, as the full unlock card
+ * through the moment queue (two a batch; past that they join the small cards). Then the small cards drop in under
+ * the top bar, at most three and "+N more", and leave on their own; a 🙃 one is silver and wobbles. Small cards
+ * never take focus or block a tap. A new `pops` object is a new batch (null shows nothing); `onDone` fires once
+ * the batch has been read.
  */
-export function MomentPop({
-  pops,
-  onDone,
-}: {
-  pops: { id: number | string; cards: PopCard[] } | null;
-  onDone: () => void;
-}) {
-  const rm = useReducedMotion();
-  const n = pops?.cards.length ?? 0;
+export function MomentPop({ pops, onDone }: { pops: Batch | null; onDone: () => void }) {
+  const q = useMoments();
+  const [big, setBig] = useState<Big | null>(null);
+  const [small, setSmall] = useState<Batch | null>(null);
+  const done = useRef(onDone);
+  done.current = onDone;
+
   useEffect(() => {
-    if (!pops) return;
-    const tm = setTimeout(onDone, HOLD_MS + n * 250);
-    return () => clearTimeout(tm);
-  }, [pops, n, onDone]);
+    if (!pops) {
+      setSmall(null);
+      return;
+    }
+    let live = true,
+      timer = 0;
+    const scope = `pops:${pops.id}`,
+      rest: PopCard[] = [],
+      waits: Promise<void>[] = [],
+      ids: string[] = [];
+    for (const c of pops.cards) {
+      if (c.tier !== 'big') {
+        rest.push(c);
+        continue;
+      }
+      let finish = () => undefined as void;
+      const over = new Promise<void>((r) => (finish = r));
+      const show =
+        (reduced: boolean) =>
+        ({ signal }: MomentCtx) =>
+          new Promise<void>((r) =>
+            setBig({
+              card: c,
+              reduced,
+              signal,
+              done: () => {
+                setBig(null);
+                r();
+              },
+            }),
+          ).finally(finish);
+      const id = `unlock:${scope}:${c.k}`;
+      const res = q.push({
+        id,
+        tier: 'moment',
+        priority: PRIORITY.bigUnlock,
+        scope,
+        sound: 'chime',
+        haptic: UNLOCK_HAPTIC,
+        play: show(false),
+        reduced: show(true),
+      });
+      ids.push(id);
+      if (res === 'capped') rest.push({ ...c, tier: undefined });
+      else if (res !== 'duplicate') waits.push(over);
+    }
+    void Promise.all(waits).then(() => {
+      if (!live) return;
+      if (!rest.length) return done.current();
+      const extra = rest.length - SMALL_MAX;
+      const cards =
+        extra > 0
+          ? [...rest.slice(0, SMALL_MAX), { k: 'more', emoji: '✨', text: s.more(extra) }]
+          : rest;
+      setSmall({ id: pops.id, cards });
+      // Small cards are quiet unless Sounds is "All"; a 🙃 one sounds its own way.
+      const sound = rest.some((c) => c.tier === 'shame') ? 'womp' : 'chime';
+      void import('@/fx/sound').then((m) => m.cue(sound, 'beat'));
+      timer = window.setTimeout(() => done.current(), READ_MS + cards.length * 250);
+    });
+    return () => {
+      live = false;
+      clearTimeout(timer);
+      ids.forEach((id) => q.cancel(id));
+    };
+  }, [pops, q]);
+
+  return (
+    <>
+      {big && (
+        <Suspense fallback={null}>
+          <UnlockCard
+            key={big.card.k}
+            card={big.card}
+            reduced={big.reduced}
+            signal={big.signal}
+            onSkip={() => q.skip()}
+            onDone={big.done}
+          />
+        </Suspense>
+      )}
+      <SmallCards batch={small} />
+    </>
+  );
+}
+
+function SmallCards({ batch }: { batch: Batch | null }) {
+  const rm = useReducedMotion();
   return (
     <div
       role="status"
@@ -30,23 +127,52 @@ export function MomentPop({
       className="pointer-events-none absolute left-[var(--toast-x,0px)] top-[calc(var(--toast-top,calc(var(--sat)+0.375rem))+3.25rem)] z-[57] flex w-[var(--toast-w,100%)] flex-col items-center gap-1.5 px-4"
     >
       <AnimatePresence>
-        {pops &&
-          pops.cards.map((c, i) => (
+        {batch &&
+          batch.cards.map((c, i) => (
             <m.div
-              key={`${pops.id}-${c.k}`}
-              initial={rm ? { opacity: 0 } : { opacity: 0, y: -28, rotate: -4, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+              key={`${batch.id}-${c.k}`}
+              data-pop={c.tier ?? 'small'}
+              initial={rm ? { opacity: 0 } : { opacity: 0, y: '-100%' }}
+              animate={{ opacity: 1, y: 0 }}
               exit={rm ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.95 }}
-              transition={{ ...SPRING_POP, delay: rm ? 0 : i * 0.12 }}
-              className="badge-pop flex max-w-full items-center gap-2 rounded-2xl border border-ov/10 bg-toast px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_color-mix(in_srgb,var(--shade)_70%,transparent)]"
+              transition={{
+                duration: rm ? 0.15 : 0.32,
+                ease: [0.22, 1, 0.36, 1],
+                delay: rm ? 0 : i * 0.12,
+              }}
+              className={`badge-pop max-w-full rounded-2xl border px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_color-mix(in_srgb,var(--shade)_70%,transparent)] ${
+                c.tier === 'shame'
+                  ? 'border-[var(--medal-silver-lo)] bg-[color-mix(in_srgb,var(--medal-silver-lo)_28%,var(--toast-bg))]'
+                  : 'border-ov/10 bg-toast'
+              }`}
             >
-              <span aria-hidden className="text-22">
-                {c.emoji}
-              </span>
-              <span className="[overflow-wrap:anywhere]">{c.text}</span>
+              <Wobble on={c.tier === 'shame'} delay={i * 120 + 320}>
+                <span aria-hidden className="text-22">
+                  {c.emoji}
+                </span>
+                <span className="[overflow-wrap:anywhere]">{c.text}</span>
+              </Wobble>
             </m.div>
           ))}
       </AnimatePresence>
     </div>
+  );
+}
+
+/** A 🙃 card wobbles once it lands (±3°, two cycles); still under reduced motion. */
+function Wobble({ on, delay, children }: { on: boolean; delay: number; children: ReactNode }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!on) return;
+    return anim(
+      ref.current,
+      [0, -3, 3, -3, 3, 0].map((d) => ({ transform: `rotate(${d}deg)` })),
+      { duration: 360, delay, easing: OUT },
+    ).cancel;
+  }, [on, delay]);
+  return (
+    <span ref={ref} className="flex items-center gap-2">
+      {children}
+    </span>
   );
 }

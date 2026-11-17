@@ -15,4 +15,8 @@ export const fx = {
   vibrateHint: 'Android phones only: iPhones don’t let web apps vibrate.',
   /** The tap layer over a moment that holds the screen. */
   skip: 'Skip',
+  /** The big unlock card's kicker, and the card that stands for the rest of a batch. */
+  unlocked: 'Unlocked',
+  unlockedBy: (who: string, what: string) => `${who} unlocked ${what}`,
+  more: (n: number) => `+${n} more`,
 } as const;

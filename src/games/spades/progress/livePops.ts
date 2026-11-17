@@ -26,5 +26,9 @@ export function handPopCards(
   return [...who]
     .sort(([a], [b]) => order(a) - order(b))
     .slice(0, MAX_CARDS)
-    .map(([code, names]) => popCard(progression, code, popNames(names)));
+    .map(([code, names]) => {
+      const c = popCard(progression, code, popNames(names));
+      // A Boston has its own Moment on the table (BOSTON stamped); its card would say it twice.
+      return code === 'boston' ? { ...c, tier: undefined } : c;
+    });
 }

@@ -7,9 +7,11 @@ import { reveal } from '@/components/ui/podiumReveal';
 import { MomentPop } from '@/components/progression/MomentPop';
 import { t } from '@/strings';
 
+const STREAK = /^(hot|cold)_/;
+
 /**
- * The round's smaller achievements as cards that drop in under the top bar, after any full-screen streak burst,
- * and leave on their own. They never take focus or block a tap.
+ * The round's achievements, after any full-screen streak burst: the big ones dealt as the unlock card, the rest as
+ * cards that drop in under the top bar and leave on their own, never taking focus or blocking a tap.
  */
 export function BadgePop() {
   const { state, actions } = useApp();
@@ -24,11 +26,18 @@ export function BadgePop() {
       pops && {
         id: pops.id,
         cards: [
-          ...pops.items.map((x) => ({
-            k: x.code + x.name,
-            emoji: ACH.get(x.code)?.emoji ?? '🏅',
-            text: `${x.name} · ${achName(x.code)}`,
-          })),
+          ...pops.items.map((x) => {
+            const def = ACH.get(x.code);
+            return {
+              k: x.code + x.name,
+              emoji: def?.emoji ?? '🏅',
+              text: `${x.name} · ${achName(x.code)}`,
+              who: x.name,
+              what: achName(x.code),
+              // Streaks have their own full-screen burst (a card when it can't play); the rest of the big ones are dealt.
+              ...(def?.big && !STREAK.test(x.code) ? { tier: 'big' as const } : {}),
+            };
+          }),
           ...(pops.more ? [{ k: 'more', emoji: '✨', text: t.hub.pops.more(pops.more) }] : []),
         ],
       },
