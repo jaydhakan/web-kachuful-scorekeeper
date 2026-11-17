@@ -10,8 +10,8 @@ The open work for this repo, in one place. Add an item when something is left un
   2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. On 2026-11-17 with every game's
   achievements: landing 165.5, phone 162.8, large screen 191.1, Spades 166.5, CSS 24.2. Of the large screen's +1.2,
   about 0.6 is the shared winner's reel and catalogue now being two chunks of their own; grouping them with
-  `howWon` pulled the icons in too, so it was left. After the wow moments (2026-11-17): landing 165.5, phone 162.9,
-  large screen 189.6, Spades 166.6, CSS 24.3; the moments themselves are one lazy chunk with their own sheet
+  `howWon` pulled the icons in too, so it was left. After every wow moment (2026-11-18): landing 165.6, phone 162.9,
+  large screen 189.7, Spades 166.6, CSS 24.4; the moments themselves are one lazy chunk with their own sheet
   (`src/fx/ui`). Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
@@ -113,32 +113,21 @@ Every game has them since 2026-11-17 (plan in git history: `docs/ACHIEVEMENTS-PL
 
 ## Wow moments
 
-Plan: `docs/WOW-MOMENTS-PLAN.md` (untracked, kept for the next session). Built 2026-11-17: the foundations (sound,
-vibration, the moment queue, stamp and sheen, the lab at `/?lab=moments` in dev), A1 the unlock card, A2 every
-podium's light and crown with the season ceremony (and Kaali Teeri's staged winner, K4), A3 emoji rain, A4 the player
-of the game in Kaali Teeri's reel, and Spades S1–S4.
+All of them were built by 2026-11-18. The plan was a working doc and is deleted; the grammar, tiers and every moment
+are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment is in the dev-only lab at
+`/?lab=moments`.
 
-- **Fix first: 7 e2e failures from the full run (stopped at 231 tests, 2026-11-17), not yet investigated:**
-  `spades-responsive.spec.ts:70` (the Spades scorekeeper flow, all six sizes; likely the new Boston overlay or the
-  pops now waiting for it, in the way of the flow) and `me-every-game.spec.ts:30`. Rerun each alone with
-  `npx playwright test <spec>:<line> --workers=1`. The rest of the suite (about 40 tests) didn't run.
-- **Next session:** Kaali Teeri K1–K3 (the last partner, SOLD, reaching 1,000 with its skipped-summary fix) and
-  Ishaara I1–I3 (trapped, mind meld, photo finish), on branch `feat/wow-moments`.
-- **Online unlock cards:** the earner should get the big card and the other phones a compact one; pops don't carry
-  who holds the phone yet (`fx/ui/MomentPop.tsx`). The big card fades up instead of shrinking into the earner's seat.
-- **Season ceremony** plays on the game's Awards page (opening on the closed season, once per device); the plan also
-  wanted it on the leaderboard's first visit after a month closes.
-- **Player of the game** is in Kaali Teeri's reel only. Kachuful already shows it as its winner highlights; Spades and
-  Ishaara (team games) need a per-player stat first.
-- **e2e covers** the unlock card (motion on and off), the scorekeeper's Boston, the podium's crown and light, and the
-  season ceremony (unit). Not by e2e: the online Boston, Blind Nil, the last trick and the crack (online play sends
-  tricks through the API), and emoji rain (unit test of the trigger only). All were checked in the lab with motion
-  on and reduced, in all four themes for the unlock card, podium and Boston.
-- **Not done from §3.6:** the hand flip by CSS `animation-delay` (`Hand.tsx`), Ishaara's confetti replaying on a
-  reopened game (`Win.tsx`), DESIGN-SYSTEM.md item 15 (a Kaali Teeri card fan that doesn't exist).
-- **Not verified on a device:** a DevTools recording of Boston and the unlock card on a mid-range Android phone (no
-  frame over 50ms), and a look on an iPhone. The lab's 0.25× slows Web Animations, waits and confetti, not Framer's
-  springs (the crown).
+- **Not verified on a device:** a DevTools recording of Boston, the unlock card and the trap on a mid-range Android
+  phone (no frame over 50ms), and a look on an iPhone (and whether its silent switch mutes the Web Audio sounds).
+- **e2e can't bring about** an online Boston, the last trick that decides a hand, or spades breaking: they depend on
+  the deal. Covered by unit tests of their triggers (`online/table/present.test.ts`) and the lab; the scorekeeper's
+  Boston, Blind Nil and emoji rain are covered by e2e. A mock control that deals a chosen hand would cover the rest.
+- **The lab's 0.25×** slows Web Animations, waits and confetti, not Framer springs (the crown, the small cards).
+- **CSS first load is 163 bytes (gzip) over `main` before the moments** (the crown, podium light, season card and
+  Kaali Teeri's stamps on first-load screens); the moments' own code and sheet are lazy (`src/fx/ui`).
+- **Sign-in on iPhones:** fixed 2026-11-18 (the session was lost when sign-in returned to the landing page or
+  another game; Safari's quick `history.go` raced Kachuful's unmount). The e2e suite runs on Chromium only, which
+  never hit the race; consider a WebKit project for `accounts.spec.ts` (needs `npx playwright install webkit` in CI).
 
 ## Tests
 
