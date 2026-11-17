@@ -254,7 +254,12 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
                 )}
               </AnimatePresence>
               <div className="disp tick min-w-[3.25rem] shrink-0 text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:text-28">
-                <Counter from={fresh ? pt[id] : ct[id]} to={ct[id]} run={fresh && stage >= 2} />
+                <Counter
+                  swell="scale"
+                  from={fresh ? pt[id] : ct[id]}
+                  to={ct[id]}
+                  run={fresh && stage >= 2}
+                />
               </div>
             </Glass>
           </m.div>

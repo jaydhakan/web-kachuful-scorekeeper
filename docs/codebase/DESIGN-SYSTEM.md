@@ -121,7 +121,8 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
    completes; then the trophy, rows and stats, and only then any badge cards. Timings are in
    `ui/podiumReveal.ts`. Confetti steps by elapsed time, so 60Hz and 120Hz screens draw the same flight. Leaving for
    Home, a chip of the winner flies to the History entry (`FiledAway.tsx`).
-6. **Variable-weight score**: count-ups swell from light to heavy, then settle.
+6. **Variable-weight score**: a single hero number (a winner's total, Wrapped) swells from light to heavy as it
+   counts, then settles. Rows that count together (summaries, a podium) swell by `scale` instead (`Counter`'s `swell`).
 7. **Turn light**: a lit arc on the rim points at the active seat and turns to the next one.
 8. **Feedback**: Results rows flash made or missed; Yerba Sun keys press in; toasts flick away.
 9. **Trump reveal (Emerald Gilt)**: on top of item 1, the real back is held longer (`--reveal-hold`, 700ms), the card

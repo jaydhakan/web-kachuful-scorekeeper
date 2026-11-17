@@ -379,6 +379,7 @@ function BoardPodium({
             <span className={`disp font-extrabold leading-none ${s.place}`}>{placeName(k)}</span>
             <span className={`disp tick mt-1 font-extrabold leading-none opacity-80 ${s.val}`}>
               <Counter
+                swell="scale"
                 from={staged ? 0 : tied[0].n}
                 to={tied[0].n}
                 run={staged}

@@ -1,6 +1,7 @@
 import { animate } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { fmt } from '@/lib/format';
+import { reducedMotion, TRAVEL } from '@/fx/waapi';
 import { EASE } from './motion';
 
 interface CounterProps {
@@ -12,6 +13,11 @@ interface CounterProps {
   delay?: number;
   /** How a value on the way is written; whole numbers by default. Give a stable function. */
   format?: (v: number) => string;
+  /**
+   * How it swells while counting: `weight` (light to heavy; for a single hero number) or `scale` (for rows, where
+   * several count at once and re-laying out text every frame would be costly).
+   */
+  swell?: 'weight' | 'scale';
 }
 
 const whole = (v: number) => fmt(Math.round(v));
@@ -24,6 +30,7 @@ export function Counter({
   duration = 0.6,
   delay = 0,
   format = whole,
+  swell = 'weight',
 }: CounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
@@ -41,19 +48,21 @@ export function Counter({
         el.textContent = format(v);
       },
     });
-    // Variable-weight score (DESIGN-SYSTEM.md, Motion): the number swells from light to heavy as it counts, then
-    // settles on its own weight. Off under reduced motion; a theme whose face has one weight simply doesn't change.
+    // Variable-weight score (DESIGN-SYSTEM.md, Motion): a hero number swells from light to heavy as it counts, then
+    // settles on its own weight; a theme whose face has one weight simply doesn't change. Rows swell by scale.
     const w =
-      from !== to && !matchMedia('(prefers-reduced-motion: reduce)').matches
+      from !== to && !reducedMotion()
         ? el.animate?.(
-            [
-              { fontWeight: 300, letterSpacing: '0.03em' },
-              { fontWeight: 800, letterSpacing: '-0.02em', offset: 0.7 },
-            ],
+            swell === 'weight'
+              ? [
+                  { fontWeight: 300, letterSpacing: '0.03em' },
+                  { fontWeight: 800, letterSpacing: '-0.02em', offset: 0.7 },
+                ]
+              : [{ transform: 'scale(.92)' }, { transform: 'scale(1.08)', offset: 0.7 }],
             {
               duration: duration * 1000 + 250,
               delay: delay * 1000,
-              easing: 'cubic-bezier(0.65, 0, 0.35, 1)',
+              easing: TRAVEL,
             },
           )
         : undefined;
@@ -62,5 +71,9 @@ export function Counter({
       w?.cancel();
     };
   }, [run, from, to, duration, delay, format]);
-  return <span ref={ref}>{format(from)}</span>;
+  return (
+    <span ref={ref} className={swell === 'scale' ? 'inline-block' : undefined}>
+      {format(from)}
+    </span>
+  );
 }

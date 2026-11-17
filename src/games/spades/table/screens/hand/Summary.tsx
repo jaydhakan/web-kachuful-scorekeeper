@@ -127,6 +127,7 @@ function Column({
             className={`disp tick text-24 font-extrabold min-[400px]:text-28 ${r.net >= 0 ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}`}
           >
             <Counter
+              swell="scale"
               from={fresh ? 0 : r.net}
               to={r.net}
               run={fresh}
@@ -140,6 +141,7 @@ function Column({
           <dt className="text-14 text-[var(--tx2)]">{s.summary.total}</dt>
           <dd className="disp tick text-20 font-extrabold">
             <Counter
+              swell="scale"
               from={fresh ? before : after}
               to={after}
               run={fresh}
