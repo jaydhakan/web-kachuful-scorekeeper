@@ -1,6 +1,5 @@
 import { m } from 'framer-motion';
 import { useMemo } from 'react';
-import { SP_ACHIEVEMENTS, spAchievements } from '@/games/spades/domain/achievements';
 import { spHeadToHead, spPlayerStats } from '@/games/spades/domain/boards';
 import { spTable } from '@/games/spades/strings/table';
 import { useSpHeadToHead, useSpPlayerStats } from '@/games/spades/table/sync/boards';
@@ -13,7 +12,6 @@ import { useSpGames, useWho } from './source';
 
 const b = spTable.pages.board;
 const p = spTable.pages.player;
-const ach = spTable.pages.ach;
 
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -27,7 +25,7 @@ function Tile({ label, value, sub }: { label: string; value: string; sub?: strin
 
 /**
  * One player's page from the leaderboard: their totals, partners by win rate, how they do with and against you, and
- * their achievements. Signed in, the numbers come from the server; achievements always count this phone's games.
+ * their achievements. Signed in, the numbers come from the server.
  */
 export default function PlayerPage({ id }: { id: string }) {
   const src = useSpGames();
@@ -44,7 +42,6 @@ export default function PlayerPage({ id }: { id: string }) {
   const meHere = !!meId && meId !== serverId;
   const vsRemote = useSpHeadToHead(meHere ? meId : null, meHere ? serverId : null);
   const vs = meHere ? (vsRemote.data ?? (meId ? spHeadToHead(src.games, meId, id) : null)) : null;
-  const earned = useMemo(() => spAchievements(src.games, id), [src.games, id]);
   const lookup = useWho(src.games);
   const waiting = remote.online && !remote.data && remote.loading;
   const failed = remote.online && !remote.data && !!remote.error;
@@ -71,7 +68,7 @@ export default function PlayerPage({ id }: { id: string }) {
             <div role="status" aria-label={p.loading}>
               <Skeleton rows={4} h={88} />
             </div>
-          ) : !t.games && !earned.length ? (
+          ) : !t.games ? (
             <EmptyState icon="cards" title={p.missing} />
           ) : (
             <>
@@ -158,48 +155,6 @@ export default function PlayerPage({ id }: { id: string }) {
                 ) : (
                   <p className="text-14 text-[var(--tx2)]">{p.noPartners}</p>
                 )}
-              </Section>
-
-              <Section
-                title={p.achievements}
-                aside={
-                  <span className="text-13 font-bold text-[var(--tx2)]">
-                    {p.earned(earned.length, SP_ACHIEVEMENTS.length)}
-                  </span>
-                }
-              >
-                <ul className="grid grid-cols-2 gap-2 min-[560px]:grid-cols-3">
-                  {SP_ACHIEVEMENTS.map((k, i) => {
-                    const e = earned.find((x) => x.id === k);
-                    const [name, what] = ach[k];
-                    return (
-                      <m.li
-                        key={k}
-                        {...stagger(Math.min(i, 8))}
-                        aria-label={p.achAria(name, what, e?.count ?? 0)}
-                        className={`glass flex min-h-[4.5rem] flex-col justify-center gap-0.5 px-3 py-2 ${e ? '' : 'opacity-55'}`}
-                        data-earned={e ? k : undefined}
-                      >
-                        <span aria-hidden className="flex items-baseline justify-between gap-2">
-                          <span
-                            className={`text-15 font-extrabold ${e ? 'text-[var(--gold-tx)]' : ''}`}
-                          >
-                            {name}
-                          </span>
-                          {e && (
-                            <span className="text-13 font-bold tabular-nums text-[var(--tx2)]">
-                              {p.times(e.count)}
-                            </span>
-                          )}
-                        </span>
-                        <span aria-hidden className="text-13 text-[var(--tx2)]">
-                          {e ? what : `${what} · ${p.locked}`}
-                        </span>
-                      </m.li>
-                    );
-                  })}
-                </ul>
-                <p className="mt-2 text-13 text-[var(--tx2)]">{p.achLocal}</p>
               </Section>
             </>
           )

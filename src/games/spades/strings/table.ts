@@ -376,30 +376,12 @@ export const spTable = {
       againstLine: (you: number, them: number, draws: number) =>
         `You ${you} · them ${them}${draws ? ` · ${plural(draws, 'draw')}` : ''}`,
       achievements: 'Achievements',
-      earned: (n: number, of: number) => `${n} of ${of}`,
-      times: (n: number) => (n > 1 ? `×${n}` : ''),
-      locked: 'Not yet earned',
-      achAria: (name: string, what: string, n: number) =>
-        n ? `${name}: ${what}. Earned ${plural(n, 'time')}.` : `${name}: ${what}. Not yet earned.`,
-      achLocal: 'From games scored on this phone.',
       online: 'Stats from every synced game.',
       local: 'Stats from games on this phone.',
       failed: 'Stats didn’t load. Showing this phone’s games.',
       loading: 'Loading stats…',
       missing: 'No finished games for this player yet.',
     },
-    ach: {
-      boston: ['Boston', 'Took all 13 tricks'],
-      iceCold: ['Ice Cold', 'Made a Nil'],
-      blindside: ['Blindside', 'Made a Blind Nil'],
-      nilBreaker: ['Nil Breaker', 'Broke an opponent’s Nil (online)'],
-      setThem: ['Set Them', 'Set the other team'],
-      comeback: ['Comeback', 'Won from 150 behind'],
-      exact: ['Exact', 'Won with every hand made exactly'],
-      mercy: ['Mercy', 'Won by the mercy rule'],
-      perfectPair: ['Perfect Pair', '10 wins with one partner'],
-      sandbagged: ['Sandbagged', 'Took the 10-bag penalty'],
-    } as Record<string, [string, string]>,
   },
 
   desk: {

@@ -28,7 +28,7 @@ const game = kitGame(
 );
 
 describe("a player's page", () => {
-  it('shows their stats, their partner and the achievements they earned', async () => {
+  it('shows their stats and their partner', async () => {
     await archive.ready;
     archiveSpGame(game);
     const riya = pidOf(game.players[0]);
@@ -43,12 +43,5 @@ describe("a player's page", () => {
     const grid = stats.closest('section')!;
     expect(within(grid).getByText('Win rate').nextSibling?.textContent).toBe('100%');
     expect(screen.getByText(game.players[2].name)).toBeInTheDocument();
-    expect(
-      screen.getByRole('listitem', { name: /^Ice Cold: Made a Nil\. Earned 1 time\./ }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('listitem', { name: /^Boston: .*Not yet earned\./ }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('2 of 10')).toBeInTheDocument();
   });
 });
