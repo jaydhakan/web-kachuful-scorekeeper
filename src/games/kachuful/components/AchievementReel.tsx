@@ -30,7 +30,7 @@ export function useGameAchievements(g: Game) {
   const f = useDeviceFacts();
   return useMemo(() => {
     const rank = (code: string) =>
-      (ACH.get(code)?.big ? 0 : 2) + (ACH.get(code)?.group === 'round' ? 1 : 0);
+      (ACH.get(code)?.big ? 0 : 2) + (ACH.get(code)?.group === 'moment' ? 1 : 0);
     const list = earnedOf(f).filter((e) => e.gameId === g.syncId);
     // One card per player and code: a run reached twice in a game shows once.
     const seen = new Set<string>();

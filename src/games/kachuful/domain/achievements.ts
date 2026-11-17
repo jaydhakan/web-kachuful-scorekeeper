@@ -2,16 +2,21 @@ import { partsIn } from './ranges';
 import { doneRounds } from './rounds';
 import { pidOf, roundFacts, type Facts, type GameFact, type RoundFact } from './timeline';
 import type { Game, Player } from './types';
+import {
+  earnedKey,
+  type AchievementDef,
+  type AchievementGroup,
+  type Earned,
+  type Ladder as KitLadder,
+} from '../../../progression/types';
+import {
+  nearestLevel as nearestOf,
+  nextLevel,
+  type NextLevel as KitNextLevel,
+} from '../../../progression/ladders';
 
-export type AchievementGroup = 'round' | 'game' | 'career' | 'daily' | 'season';
-
-export interface AchievementDef {
-  code: string;
-  emoji: string;
-  group: AchievementGroup;
-  /** Worth the full-screen burst when earned live. */
-  big?: boolean;
-}
+export { earnedKey, nextLevel };
+export type { AchievementDef, AchievementGroup, Earned };
 
 const d = (
   code: string,
@@ -27,22 +32,22 @@ const d = (
 
 /** The catalogue. Names and descriptions are strings, by code. */
 export const ACHIEVEMENTS: AchievementDef[] = [
-  d('hot_3', '🔥', 'round', true),
-  d('hot_5', '🚀', 'round', true),
-  d('hot_8', '🐐', 'round', true),
-  d('hot_12', '💎', 'round', true),
-  d('cold_3', '🥶', 'round', true),
-  d('cold_5', '💀', 'round', true),
-  d('cold_8', '🪦', 'round', true),
-  d('cold_12', '🧟', 'round', true),
-  d('grand_slam', '💯', 'round', true),
-  d('ninja', '🥷', 'round'),
-  d('high_roller', '🎰', 'round'),
-  d('peak_performer', '🏔️', 'round'),
-  d('lone_wolf', '🐺', 'round'),
-  d('odd_one_out', '🫠', 'round'),
-  d('hooked', '🪝', 'round'),
-  d('dealers_revenge', '😈', 'round'),
+  d('hot_3', '🔥', 'moment', true),
+  d('hot_5', '🚀', 'moment', true),
+  d('hot_8', '🐐', 'moment', true),
+  d('hot_12', '💎', 'moment', true),
+  d('cold_3', '🥶', 'moment', true),
+  d('cold_5', '💀', 'moment', true),
+  d('cold_8', '🪦', 'moment', true),
+  d('cold_12', '🧟', 'moment', true),
+  d('grand_slam', '💯', 'moment', true),
+  d('ninja', '🥷', 'moment'),
+  d('high_roller', '🎰', 'moment'),
+  d('peak_performer', '🏔️', 'moment'),
+  d('lone_wolf', '🐺', 'moment'),
+  d('odd_one_out', '🫠', 'moment'),
+  d('hooked', '🪝', 'moment'),
+  d('dealers_revenge', '😈', 'moment'),
   d('winner', '🏆', 'game'),
   d('wire_to_wire', '🏁', 'game'),
   d('comeback', '🔄', 'game', true),
@@ -86,21 +91,6 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 ];
 
 export const ACH = new Map(ACHIEVEMENTS.map((a) => [a.code, a]));
-
-/** One earned achievement (the contract's Achievement, without the server's row id). */
-export interface Earned {
-  code: string;
-  playerId: string;
-  gameId: string | null;
-  roundIndex: number | null;
-  period: string | null;
-  earnedAt: number;
-  data: Record<string, unknown>;
-}
-
-/** Earned at most once per player, code, game, round and period. */
-export const earnedKey = (e: Earned) =>
-  [e.playerId, e.code, e.gameId ?? '', e.roundIndex ?? '', e.period ?? ''].join('|');
 
 const STEPS = [3, 5, 8, 12];
 
@@ -305,11 +295,7 @@ export function careerAchievements(f: Facts): Earned[] {
 export type LadderId = 'hot' | 'cold' | 'wins' | 'games' | 'rounds' | 'made' | 'points' | 'crew';
 
 /** Achievements that are levels of one count, shown as one card; `steps[i]` is the count `codes[i]` needs. */
-export interface Ladder {
-  id: LadderId;
-  codes: string[];
-  steps: number[];
-}
+export type Ladder = KitLadder<LadderId>;
 
 const ladder = (id: LadderId, prefix: string, steps: number[]): Ladder => ({
   id,
@@ -319,7 +305,7 @@ const ladder = (id: LadderId, prefix: string, steps: number[]): Ladder => ({
 
 export const LADDERS: Ladder[] = [
   ladder('hot', 'hot', STEPS),
-  ladder('cold', 'cold', STEPS),
+  { ...ladder('cold', 'cold', STEPS), goal: false },
   { id: 'wins', codes: ['first_win', 'back_to_back', 'hat_trick', 'dynasty'], steps: [1, 2, 3, 5] },
   ladder('games', 'games', CAREER_GAMES),
   ladder('rounds', 'rounds', CAREER_ROUNDS),
@@ -361,33 +347,11 @@ export function ladderCounts(f: Facts, playerId: string): Record<LadderId, numbe
   };
 }
 
-export interface NextLevel {
-  ladder: Ladder;
-  code: string;
-  step: number;
-  count: number;
-}
-
-/** The level a count reaches next, or null once every level is reached. */
-export function nextLevel(ladder: Ladder, count: number): NextLevel | null {
-  const k = ladder.steps.findIndex((s) => count < s);
-  return k < 0 ? null : { ladder, code: ladder.codes[k], step: ladder.steps[k], count };
-}
+export type NextLevel = KitNextLevel<Ladder>;
 
 /** The next level closest to being reached, at least `min` of the way there; a cold streak is never a goal. */
-export function nearestLevel(
-  counts: Partial<Record<LadderId, number>>,
-  min = 0.5,
-): NextLevel | null {
-  let best: NextLevel | null = null;
-  for (const l of LADDERS) {
-    const c = counts[l.id];
-    const n = l.id === 'cold' || c == null ? null : nextLevel(l, c);
-    if (n && n.count / n.step >= min && (!best || n.count / n.step > best.count / best.step))
-      best = n;
-  }
-  return best;
-}
+export const nearestLevel = (counts: Partial<Record<LadderId, number>>, min = 0.5) =>
+  nearestOf(LADDERS, counts, min);
 
 /** Everything earned from a set of games (round, game and career), oldest first. */
 export function allAchievements(f: Facts, tz?: string): Earned[] {

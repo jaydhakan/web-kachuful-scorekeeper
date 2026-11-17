@@ -218,7 +218,7 @@ export const hub = {
   ach: {
     title: 'Achievements',
     groups: {
-      round: 'Round moments',
+      moment: 'Round moments',
       game: 'Game finish',
       career: 'Career',
       daily: 'Daily awards',

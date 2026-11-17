@@ -4,31 +4,11 @@ import { dayOf, dayRange, monthOf, monthRange } from './ranges';
 import type { Facts, RoundFact } from './timeline';
 import type { Trump } from './types';
 import { allAchievements } from './achievements';
+import { best } from '../../../progression/awards';
+import { prevMonth } from '../../../progression/zone';
+import type { Award } from '../../../progression/types';
 
-/** One daily or season award. */
-export interface Award {
-  code: string;
-  playerId: string;
-  value: number;
-  gameId?: string;
-  roundIndex?: number;
-}
-
-/** Everyone tied on the best value wins together; nothing is awarded when no value passes `ok`. */
-function best(
-  vals: [string, number][],
-  code: string,
-  dir: 1 | -1 = 1,
-  ok: (v: number) => boolean = () => true,
-): Award[] {
-  const good = vals.filter(([, v]) => ok(v));
-  if (!good.length) return [];
-  const top = dir === 1 ? Math.max(...good.map(([, v]) => v)) : Math.min(...good.map(([, v]) => v));
-  return good
-    .filter(([, v]) => v === top)
-    .map(([playerId]) => ({ code, playerId, value: top }))
-    .sort((a, b) => (a.playerId < b.playerId ? -1 : 1));
-}
+export type { Award };
 
 /** The single round that is best by `cmp`; the earliest wins a tie. */
 function bestRound(
@@ -101,11 +81,6 @@ export interface Season {
   standings: BoardRow[];
   awards: Award[];
 }
-
-const prevMonth = (m: string) => {
-  const [y, mm] = m.split('-').map(Number);
-  return mm === 1 ? `${y - 1}-12` : `${y}-${String(mm - 1).padStart(2, '0')}`;
-};
 
 /** A calendar month's standings (average per round, more than 50 rounds) and its awards (§8.5). */
 export function season(f: Facts, month: string, tz?: string): Season {

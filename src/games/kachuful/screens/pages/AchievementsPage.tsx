@@ -29,7 +29,7 @@ import { Icon } from '@/components/ui/Icons';
 import { PlayerTag } from '@/components/ui/PlayerTag';
 
 const a = t.hub.ach;
-const GROUPS: AchievementGroup[] = ['round', 'game', 'career', 'daily', 'season'];
+const GROUPS: AchievementGroup[] = ['moment', 'game', 'career', 'daily', 'season'];
 const TOTAL = ACHIEVEMENTS.length;
 // New medals stamp one after another; past the fifth they land together, so a big haul doesn't keep anyone waiting.
 const STAMP_GAP = 0.12;
