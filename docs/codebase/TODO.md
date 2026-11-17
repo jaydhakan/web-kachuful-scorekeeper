@@ -10,7 +10,9 @@ The open work for this repo, in one place. Add an item when something is left un
   2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. On 2026-11-17 with every game's
   achievements: landing 165.5, phone 162.8, large screen 191.1, Spades 166.5, CSS 24.2. Of the large screen's +1.2,
   about 0.6 is the shared winner's reel and catalogue now being two chunks of their own; grouping them with
-  `howWon` pulled the icons in too, so it was left. Budgets are in
+  `howWon` pulled the icons in too, so it was left. After the wow moments (2026-11-17): landing 165.5, phone 162.9,
+  large screen 189.6, Spades 166.6, CSS 24.3; the moments themselves are one lazy chunk with their own sheet
+  (`src/fx/ui`). Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -105,10 +107,38 @@ Every game has them since 2026-11-17 (plan in git history: `docs/ACHIEVEMENTS-PL
   pop showing: the public table no longer has their name (`progress/livePops.ts`, `PlayTable` `nameOf`).
 - **Ishaara's Win reel shows 12 cards**, game finishes first, so with six players a turn's moments can fall off it
   (`screens/GameReel.tsx`).
-- **Big moments pop as cards** like the rest; the full-screen unlock card is wow-moments M1.
 - **Mock API:** Kaali Teeri and Spades uploads answer `earned: []` (the real server returns the rows; the app reads
   them only for Kachuful), and the other games' feeds carry achievements but no `game_finished` items.
 - **Not verified against the real backend:** the Me page's per-game counts and the every-game feed (mock API only).
+
+## Wow moments
+
+Plan: `docs/WOW-MOMENTS-PLAN.md` (untracked, kept for the next session). Built 2026-11-17: the foundations (sound,
+vibration, the moment queue, stamp and sheen, the lab at `/?lab=moments` in dev), A1 the unlock card, A2 every
+podium's light and crown with the season ceremony (and Kaali Teeri's staged winner, K4), A3 emoji rain, A4 the player
+of the game in Kaali Teeri's reel, and Spades S1–S4.
+
+- **Fix first: 7 e2e failures from the full run (stopped at 231 tests, 2026-11-17), not yet investigated:**
+  `spades-responsive.spec.ts:70` (the Spades scorekeeper flow, all six sizes; likely the new Boston overlay or the
+  pops now waiting for it, in the way of the flow) and `me-every-game.spec.ts:30`. Rerun each alone with
+  `npx playwright test <spec>:<line> --workers=1`. The rest of the suite (about 40 tests) didn't run.
+- **Next session:** Kaali Teeri K1–K3 (the last partner, SOLD, reaching 1,000 with its skipped-summary fix) and
+  Ishaara I1–I3 (trapped, mind meld, photo finish), on branch `feat/wow-moments`.
+- **Online unlock cards:** the earner should get the big card and the other phones a compact one; pops don't carry
+  who holds the phone yet (`fx/ui/MomentPop.tsx`). The big card fades up instead of shrinking into the earner's seat.
+- **Season ceremony** plays on the game's Awards page (opening on the closed season, once per device); the plan also
+  wanted it on the leaderboard's first visit after a month closes.
+- **Player of the game** is in Kaali Teeri's reel only. Kachuful already shows it as its winner highlights; Spades and
+  Ishaara (team games) need a per-player stat first.
+- **e2e covers** the unlock card (motion on and off), the scorekeeper's Boston, the podium's crown and light, and the
+  season ceremony (unit). Not by e2e: the online Boston, Blind Nil, the last trick and the crack (online play sends
+  tricks through the API), and emoji rain (unit test of the trigger only). All were checked in the lab with motion
+  on and reduced, in all four themes for the unlock card, podium and Boston.
+- **Not done from §3.6:** the hand flip by CSS `animation-delay` (`Hand.tsx`), Ishaara's confetti replaying on a
+  reopened game (`Win.tsx`), DESIGN-SYSTEM.md item 15 (a Kaali Teeri card fan that doesn't exist).
+- **Not verified on a device:** a DevTools recording of Boston and the unlock card on a mid-range Android phone (no
+  frame over 50ms), and a look on an iPhone. The lab's 0.25× slows Web Animations, waits and confetti, not Framer's
+  springs (the crown).
 
 ## Tests
 
