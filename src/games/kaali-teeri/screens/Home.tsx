@@ -8,6 +8,7 @@ import { ktMessages } from '@/games/kaali-teeri/strings/messages';
 import { ktShell as s } from '@/games/kaali-teeri/strings/shell';
 import { archive } from '@/state/archive';
 import { useArchive } from '@/state/useArchive';
+import { signedInAs, useSession } from '@/sync/session';
 import { agoTxt } from '@/lib/format';
 import { dayLabel } from '@/lib/dates';
 import { Dot } from '@/components/ui/Dot';
@@ -130,6 +131,8 @@ export default function Home() {
   const g = state.game;
   // One New Game: in the hero pane from the rail up, in the bottom bar below it.
   const wide = useMediaQuery(MQ.rail);
+  // The feed is the server's: signed out there is nothing to show.
+  const signedIn = !!signedInAs(useSession());
   const links: { key: KtHubPage | 'rules'; icon: ReactNode; go: () => void }[] = [
     { key: 'history', icon: Icon.history, go: () => actions.openPage({ page: 'history' }) },
     {
@@ -138,6 +141,16 @@ export default function Home() {
       go: () => actions.openPage({ page: 'leaderboard' }),
     },
     { key: 'stats', icon: Icon.players, go: () => actions.openPage({ page: 'players' }) },
+    { key: 'awards', icon: Icon.awards, go: () => actions.openPage({ page: 'awards' }) },
+    ...(signedIn
+      ? [
+          {
+            key: 'activity' as const,
+            icon: Icon.activity,
+            go: () => actions.openPage({ page: 'activity' }),
+          },
+        ]
+      : []),
     { key: 'rules', icon: Icon.rules, go: () => actions.openSheet({ type: 'rules' }) },
   ];
   return (

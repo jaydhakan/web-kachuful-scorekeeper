@@ -1074,3 +1074,23 @@ describe('what the screens read', () => {
     expect(preview(g(started()), 60, 'defenders')).toBe(null);
   });
 });
+
+describe('moment cards', () => {
+  it('a confirmed hand that carries on leaves its moments to pop; read, undone or a new game, they go', () => {
+    const s = playHand(started(4), { def: 0 });
+    expect(s.pops).toEqual({ id: s.noteSeq, hand: 0 });
+    expect(run(s, { type: 'popsDone' }).pops).toBeNull();
+    expect(run(s, { type: 'undo' }).pops).toBeNull();
+    expect(run(s, { type: 'rematch', id: 'kt2', syncId: 'sync-kt2', now: 2_000 }).pops).toBeNull();
+  });
+
+  it('the hand that ends the game leaves them to the winner screen', () => {
+    let s = started(4, { more: [{ type: 'setupLength', length: 'to1000' }] });
+    for (let i = 0; i < 4 && s.screen !== 'winner'; i++) {
+      s = playHand(s, { bidder: 0, bid: 250, def: 0 });
+      if (s.screen !== 'winner') s = run(s, { type: 'nextHand' }, { type: 'dealDone' });
+    }
+    expect(s.screen).toBe('winner');
+    expect(s.pops).toBeNull();
+  });
+});
