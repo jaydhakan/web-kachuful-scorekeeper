@@ -1,5 +1,5 @@
+import { best } from './awards';
 import {
-  best,
   careerCounts,
   climber,
   crew,

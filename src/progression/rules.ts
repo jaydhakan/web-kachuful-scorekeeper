@@ -6,8 +6,6 @@ import { best } from './awards';
 import { monthRange, partsIn, prevMonth } from './zone';
 import type { Award, Earned, Ladder, PlayerGameFact, SeasonResult, WinRateRow } from './types';
 
-export { best };
-
 export const WIN_STREAK: Ladder<'wins'> = {
   id: 'wins',
   codes: ['first_win', 'back_to_back', 'hat_trick', 'dynasty'],
