@@ -6,7 +6,7 @@ import { Modal } from '@/components/ui/Modal';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { MomentPopLazy as MomentPop } from '@/components/progression/MomentPopLazy';
 import { BoardMenu } from './BoardMenu';
-import { ConfirmBar, EndNote, MomentNote, NoticeNote, PenaltyNote } from './Notes';
+import { ConfirmBar, EndNote, MomentNote, NoticeNote, PenaltyNote, PhotoNote } from './Notes';
 import type { BoardView } from './useBoard';
 
 const b = s.board;
@@ -21,7 +21,8 @@ export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
   if (!game) return null;
   let note;
   if (finished) note = null;
-  else if (moment && selected === null) note = <MomentNote key={`m${moment.card}`} mo={moment} />;
+  else if (moment && selected === null)
+    note = <MomentNote key={`m${moment.card}`} mo={moment} meld={!!v.meld} />;
   else if (pending && picker)
     note = (
       <PenaltyNote
@@ -46,6 +47,7 @@ export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
       />
     );
   else if (notice) note = <NoticeNote key={`n${notice.kind}`} n={notice} next={game.turn} />;
+  else if (v.photo) note = <PhotoNote key="photo" />;
   return (
     <div data-note-slot className={`relative shrink-0 ${compact ? 'h-[8.5rem]' : 'h-[4.75rem]'}`}>
       <div className="absolute inset-x-0 bottom-0 z-10">

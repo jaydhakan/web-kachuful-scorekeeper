@@ -248,7 +248,9 @@ describe('turn moments', () => {
     const r = show(table(k.state));
     k = pick(k, 2);
     rerun(r, k.state);
-    expect(screen.queryByText(/Mind meld/)).toBeNull();
+    // The board's own moment says it at once (I2); the achievement's card waits for the turn to end.
+    expect(screen.getByText(/^Mind meld · /)).toBeInTheDocument();
+    expect(screen.queryByText('Sun · Mind meld')).toBeNull();
     // The bonus guess finds another: the turn is over.
     k = pick(k, 3);
     rerun(r, k.state);
@@ -275,5 +277,19 @@ describe('turn moments', () => {
     rerun(r, { ...k.state, rev: k.state.rev + 1 });
     await act(() => new Promise((ok) => setTimeout(ok, 20)));
     expect(screen.queryByText(/Mind meld/)).toBeNull();
+    expect(document.querySelector('[data-photo-finish]')).toBeNull();
+  });
+});
+
+describe('photo finish (I3)', () => {
+  it('says the next card wins once both teams need one more word', () => {
+    const k = started({ starting: 'sun' });
+    // The fixed key: cards 0–8 are Sun's, 9–16 Moon's. All but one of each turned.
+    const revealed = k.state.revealed.map((_, i) =>
+      i < 8 ? 'sun' : i >= 9 && i < 16 ? 'moon' : null,
+    ) as IshaaraPublic['revealed'];
+    show(table({ ...k.state, revealed }));
+    expect(screen.getByText('Next card wins')).toBeInTheDocument();
+    expect(screen.getByText('Both teams need one more word.')).toBeInTheDocument();
   });
 });

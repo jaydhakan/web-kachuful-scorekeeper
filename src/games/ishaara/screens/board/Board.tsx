@@ -38,6 +38,7 @@ export function gridProps(v: BoardView) {
     selected: v.selected,
     lit: v.moment?.card ?? null,
     verdict: v.moment?.kind ?? null,
+    meld: v.meld,
     onPick: v.setSelected,
     onBlocked: v.blocked,
   };

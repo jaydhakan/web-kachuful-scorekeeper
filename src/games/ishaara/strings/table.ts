@@ -159,6 +159,11 @@ export const table = {
   },
 
   board: {
+    /** The board's beats (WOW-MOMENTS-PLAN I1–I3). */
+    meld: 'Mind meld',
+    photoFinish: 'Next card wins',
+    photoFinishWhy: 'Both teams need one more word.',
+    trapped: 'Trapped',
     menu: 'Menu',
     turn: (t: Team) => `${TEAM[t]}’s turn`,
     timeLeft: (s: string) => `${s} left on the timer`,

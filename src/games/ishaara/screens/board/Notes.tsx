@@ -74,14 +74,31 @@ export function momentText(mo: Moment): string {
 }
 
 /** The reveal moment: the card's own colour and shape with what it means, for a couple of seconds. */
-export function MomentNote({ mo }: { mo: Moment }) {
+export function MomentNote({ mo, meld = false }: { mo: Moment; meld?: boolean }) {
   return (
     <m.p
       {...IN}
       className={`flex min-h-14 items-center gap-3 rounded-[18px] px-5 py-3 text-17 font-extrabold uppercase leading-tight dt:text-22 ${FACE[mo.id]}`}
     >
       <Mark id={mo.id} className="h-5 w-5" />
-      <span className="min-w-0 flex-1">{momentText(mo)}</span>
+      <span className="min-w-0 flex-1">
+        {meld ? `${b.meld} · ${momentText(mo)}` : momentText(mo)}
+      </span>
+    </m.p>
+  );
+}
+
+/** I3: both teams need one more word. A steady line in the note slot until something else needs it. */
+export function PhotoNote() {
+  return (
+    <m.p
+      {...IN}
+      role="status"
+      data-photo-finish
+      className="glass flex min-h-14 flex-col justify-center rounded-[18px] px-5 py-2.5 leading-tight shadow-[inset_0_0_0_2px_var(--medal-gold)]"
+    >
+      <span className="text-17 font-extrabold uppercase dt:text-22">{b.photoFinish}</span>
+      <span className="text-14 text-[var(--tx2)] dt:text-17">{b.photoFinishWhy}</span>
     </m.p>
   );
 }

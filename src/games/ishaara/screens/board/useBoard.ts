@@ -12,6 +12,7 @@ import { table as s } from '@/games/ishaara/strings/table';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { momentText, type Moment } from './Notes';
 import { useServerClock } from '@/hooks/useServerClock';
+import { mindMeld, photoFinish } from './beats';
 import { useTurnMoments } from './useTurnMoments';
 
 const b = s.board;
@@ -71,6 +72,8 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   const { game, conn, busy, clockOffset, send } = table;
   const [selected, setSelected] = useState<number | null>(null);
   const [moment, setMoment] = useState<Moment | null>(null);
+  // I2: the cards of a clue for 3+ just fully found, pulsed in the order they were found.
+  const [meld, setMeld] = useState<{ cards: number[]; key: number } | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [handoff, setHandoff] = useState<Handoff | null>(null);
   // Bumped by a tap on an inert board, so the clue card can say why.
@@ -91,9 +94,12 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     prev.current = game;
     if (!game || !p || game.rev === p.rev) return;
     const d = diffReveal(p, game);
+    const melded = mindMeld(game);
+    if (d && 'moment' in d && melded && !mindMeld(p)) setMeld({ cards: melded, key: game.rev });
+    else if (d) setMeld(null);
     if (d && 'moment' in d) {
       setMoment(d.moment);
-      setSaid(momentText(d.moment));
+      setSaid(melded && !mindMeld(p) ? `${b.meld}. ${momentText(d.moment)}` : momentText(d.moment));
     } else if (d) setSaid(b.announce.undone(d.undone.toUpperCase()));
     const n = noticeOf(p, game);
     if (n && n.kind !== 'undo') setNotice(n);
@@ -113,6 +119,15 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
       sel !== null && (game.revealed[sel] !== null || !game.clue || game.pending) ? null : sel,
     );
   }, [game]);
+
+  // I3: one heartbeat as both teams come down to their last word (a beat: heard when Sounds is All).
+  const photo = !!game && photoFinish(game);
+  const beat = useRef<string | null>(null);
+  useEffect(() => {
+    if (!photo || !game || beat.current === game.id) return;
+    beat.current = game.id;
+    void import('@/fx/sound').then((m) => m.cue('heartbeat'));
+  }, [photo, game]);
 
   // A moment fades after a while. At the end a trap waits for "See the result", a found-all win holds a few
   // seconds over the turned key, and a resignation moves on at once.
@@ -186,6 +201,8 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     selected,
     setSelected,
     moment,
+    meld,
+    photo,
     notice,
     handoff,
     nudge,
