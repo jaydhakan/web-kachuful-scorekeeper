@@ -11,9 +11,9 @@ import Home from './screens/Home';
 import { LazyPart } from './screens/LazyPart';
 import { home as h } from './strings/home';
 
-// Each mode is its own chunk: Home never downloads the scorekeeper or the online table until one is opened.
-const loadTable = () => import('./table/TableApp');
-const loadOnline = () => import('./online/OnlineApp');
+import { loadOnline, loadTable } from './chunks';
+
+export { prepare } from './chunks';
 
 const loading = (
   <div className="app-root scr-bg relative h-full w-full">

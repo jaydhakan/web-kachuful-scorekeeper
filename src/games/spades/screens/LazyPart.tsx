@@ -1,23 +1,14 @@
-import {
-  Component,
-  createElement,
-  lazy,
-  Suspense,
-  useState,
-  type ComponentType,
-  type ReactNode,
-} from 'react';
+import { Component, createElement, Suspense, useState, type ComponentType, type ReactNode } from 'react';
+import { preloadable, type Preloadable } from '@/lib/preloadable';
 
 type Load<P> = () => Promise<{ default: ComponentType<P> }>;
 
-// One lazy() per loader and attempt: React keeps a failed lazy() failed, so a retry needs a fresh one.
-const made = new Map<unknown, Map<number, ComponentType<never>>>();
-function lazyOf<P>(load: Load<P>, attempt: number): ComponentType<P> {
-  let byAttempt = made.get(load);
-  if (!byAttempt) made.set(load, (byAttempt = new Map()));
-  let C = byAttempt.get(attempt);
-  if (!C) byAttempt.set(attempt, (C = lazy(load) as unknown as ComponentType<never>));
-  return C as unknown as ComponentType<P>;
+// One preloadable per loader, so prepare() and the screen share it: a part warmed ahead renders with no fallback.
+const parts = new Map<unknown, Preloadable<never>>();
+export function partOf<P extends object>(load: Load<P>): Preloadable<P> {
+  let C = parts.get(load);
+  if (!C) parts.set(load, (C = preloadable(load) as unknown as Preloadable<never>));
+  return C as unknown as Preloadable<P>;
 }
 
 class Boundary extends Component<{ failed: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -44,9 +35,14 @@ export function LazyPart<P extends object>({
   failed: (retry: () => void) => ReactNode;
 }) {
   const [attempt, setAttempt] = useState(0);
+  const part = partOf(load);
+  const retry = () => {
+    part.reset();
+    setAttempt((a) => a + 1);
+  };
   return (
-    <Boundary key={attempt} failed={failed(() => setAttempt((a) => a + 1))}>
-      <Suspense fallback={loading}>{createElement(lazyOf(load, attempt), props)}</Suspense>
+    <Boundary key={attempt} failed={failed(retry)}>
+      <Suspense fallback={loading}>{createElement(part, props)}</Suspense>
     </Boundary>
   );
 }

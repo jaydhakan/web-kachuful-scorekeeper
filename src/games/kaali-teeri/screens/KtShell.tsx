@@ -5,6 +5,7 @@ import { useKt } from '@/games/kaali-teeri/state/store';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { whenIdle } from '@/lib/idle';
+import { Deal, Pages, Setup, warmNext, Winner } from '@/games/kaali-teeri/chunks';
 import { TR } from '@/theme/trumps';
 import { Banner } from '@/components/ui/Banner';
 import { Loader } from '@/components/ui/Loader';
@@ -18,12 +19,6 @@ import SheetHost from '@/games/kaali-teeri/sheets/SheetHost';
 import Confirm from '@/games/kaali-teeri/sheets/Confirm';
 import { KtServiceWorker as ServiceWorker } from './KtServiceWorker';
 
-// Never the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
-const loadSetup = () => import('./setup/Setup');
-const Setup = lazy(loadSetup);
-const Deal = lazy(() => import('./setup/Deal'));
-const Winner = lazy(() => import('./Winner'));
-const Pages = lazy(() => import('./pages/Pages'));
 const loadMoments = () => import('./MomentCards');
 const MomentCards = lazy(loadMoments);
 
@@ -39,7 +34,8 @@ export default function KtShell() {
   const updateDue = useServiceWorker().needRefresh;
   const dealing = !!deal && screen === 'game' && !!game;
   const blocked = !!(sheet || modal || dealing || state.corrupt || updateDue);
-  useEffect(() => whenIdle(() => void loadSetup().then(loadMoments)), []);
+  // Never the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
+  useEffect(() => whenIdle(() => void warmNext().then(loadMoments)), []);
   // Mounted from the first hand confirmed on, so a batch of cards can leave before the next.
   const [moments, setMoments] = useState(false);
   if (state.pops && !moments) setMoments(true);

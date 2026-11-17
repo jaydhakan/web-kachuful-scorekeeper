@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
 import { Loader } from '@/components/ui/Loader';
@@ -7,9 +7,10 @@ import KtShell from './screens/KtShell';
 import { readKtViewerLink, settleKtViewerLink } from './screens/viewer/entry';
 
 // Only tablets and desktops download the large-screen shell; the phone shell stays in the first load.
-const KtDeskShell = lazy(() => import('./screens/desk/KtDeskShell'));
-// Only a shared link opens it, so it stays out of the app's first load.
-const Viewer = lazy(() => import('./screens/viewer/Viewer'));
+// Only tablets and desktops fetch the large-screen UI, and only a shared link the viewer (chunks.ts).
+import { KtDeskShell, Viewer } from './chunks';
+
+export { prepare } from './chunks';
 
 /** Phones (and phones on their side) get the phone UI; tablets and desktops the large-screen one. */
 function KtAppShell() {

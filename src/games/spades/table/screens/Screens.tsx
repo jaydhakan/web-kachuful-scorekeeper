@@ -1,11 +1,12 @@
 import { AnimatePresence, m, useIsPresent, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
+import { Suspense, useEffect, useRef, type ReactNode } from 'react';
 import type { TablePage } from '@/games/spades/nav';
 import { useSp } from '@/games/spades/table/state/store';
 import { curHand } from '@/games/spades/table/state/select';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { whenIdle } from '@/lib/idle';
+import { Pages, Setup, warmNext, Winner } from '@/games/spades/chunks';
 import { Loader } from '@/components/ui/Loader';
 import { Modal } from '@/components/ui/Modal';
 import { Toast } from '@/components/ui/Toast';
@@ -17,18 +18,14 @@ import Bids from './hand/Bids';
 import Summary from './hand/Summary';
 import Tricks from './hand/Tricks';
 
-// Never the first thing on screen in a game in progress: fetched once the page is idle.
-const loadSetup = () => import('./setup/Setup');
-const Setup = lazy(loadSetup);
-const Winner = lazy(() => import('./Winner'));
-const Pages = lazy(() => import('./pages/Pages'));
 
 /** The screen for the state (and a page from the address), with the key its transition runs on. */
 export function useScreen(page: TablePage | null): { key: string; content: ReactNode } {
   const { state } = useSp();
   const { game, screen } = state;
   const route = state.pages.at(-1);
-  useEffect(() => whenIdle(() => void loadSetup()), []);
+  // Never the first thing on screen in a game in progress: fetched once the page is idle.
+  useEffect(() => whenIdle(() => void warmNext()), []);
   const wait = (c: ReactNode) => <Suspense fallback={<Loader />}>{c}</Suspense>;
   if (route || page)
     return {
