@@ -7,7 +7,10 @@ The open work for this repo, in one place. Add an item when something is left un
 
 - **First-load budget is over, so `npm run perf:budget` and the CI check job fail.** Measured 2026-11-14: landing JS
   160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Again on
-  2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. Budgets are in
+  2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. On 2026-11-17 with every game's
+  achievements: landing 165.5, phone 162.8, large screen 191.1, Spades 166.5, CSS 24.2. Of the large screen's +1.2,
+  about 0.6 is the shared winner's reel and catalogue now being two chunks of their own; grouping them with
+  `howWon` pulled the icons in too, so it was left. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -88,16 +91,24 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
     server sending `state` when the stream opens. Confirm the real backend does.
   - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show
     it. That needs a `backend-requests.md` entry.
-  - **Achievements count only games scored on this phone** (`domain/achievements.ts`): online tables aren't kept on
-    the device and the server has no achievements route, so Nil Breaker (online only) is never earned yet. The
-    player page's stats and head-to-head do read the server when signed in.
 - **Deploy and devices:**
-  - nginx needs the SSE settings for `/api/me/events` and `/api/spades/tables/*/events` (buffering off, 1-hour read
-    timeout); the config isn't in either repo.
   - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
   - Haptics are untested on a real Android phone.
 - **Seat invites:** a host who reloads loses Ishaara's "can't make it" (no host-side read of sent invites), and the
   server's circle leaves out games the user scored but didn't sit in.
+
+## Achievements and awards
+
+Every game has them since 2026-11-17 (plan in git history: `docs/ACHIEVEMENTS-PLAN.md` on `feat/achievements-every-game`).
+
+- **Spades online pop names "Someone"** for a player who left the table in the moment between a hand ending and its
+  pop showing: the public table no longer has their name (`progress/livePops.ts`, `PlayTable` `nameOf`).
+- **Ishaara's Win reel shows 12 cards**, game finishes first, so with six players a turn's moments can fall off it
+  (`screens/GameReel.tsx`).
+- **Big moments pop as cards** like the rest; the full-screen unlock card is wow-moments M1.
+- **Mock API:** Kaali Teeri and Spades uploads answer `earned: []` (the real server returns the rows; the app reads
+  them only for Kachuful), and the other games' feeds carry achievements but no `game_finished` items.
+- **Not verified against the real backend:** the Me page's per-game counts and the every-game feed (mock API only).
 
 ## Tests
 
