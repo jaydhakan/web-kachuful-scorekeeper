@@ -112,6 +112,9 @@ for (const [w, h] of SIZES) {
         .getByRole('button', { name: '13 tricks' })
         .click();
       await tap('Save hand');
+      // Team A took all 13: the Boston plays over the summary first; a tap skips it, as at the table.
+      await page.locator('[data-boston]').getByRole('button', { name: 'Skip' }).click();
+      await expect(page.locator('[data-boston]')).toHaveCount(0);
       await shot('sp-summary', page.getByRole('button', { name: /Next hand/ }));
       await tap(/Next hand/);
       for (const [who, v] of [
