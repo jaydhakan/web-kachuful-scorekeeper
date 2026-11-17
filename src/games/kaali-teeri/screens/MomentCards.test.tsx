@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useEffect } from 'react';
 import { kitGame, T0 } from '@/games/kaali-teeri/domain/__fixtures__/kit';
 import { useKt } from '@/games/kaali-teeri/state/store';
@@ -29,11 +30,11 @@ describe('the hand’s moment cards', () => {
       </>,
       atResult(250),
     );
+    // The big one is dealt as the unlock card first; a tap skips it, and the rest drop in as small cards.
+    expect(await screen.findByText('Riya, Kabir unlocked Clean Sweep')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Skip' }));
     const cards = await screen.findAllByText(/ · /);
-    expect(cards.map((c) => c.textContent)).toEqual([
-      'Riya, Kabir · Clean Sweep',
-      'Riya · High Roller',
-    ]);
+    expect(cards.map((c) => c.textContent)).toEqual(['Riya · High Roller']);
   });
 
   it('a 🙃 one shows too; a hand with nothing to say shows nothing', async () => {

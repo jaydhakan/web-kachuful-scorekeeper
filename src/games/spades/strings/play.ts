@@ -206,6 +206,15 @@ export const play = {
     /** A moment earned by someone no longer at the table. */
     someone: 'Someone',
   },
+  /** The table's big moments (WOW-MOMENTS-PLAN S1–S3). */
+  moment: {
+    boston: 'Boston',
+    /** Under the stamp: the team that took all 13, and the other side's quieter line. */
+    bostonUs: (team: string) => `${team} took all 13 tricks`,
+    bostonThem: (team: string) => `Bostoned by ${team}`,
+    lastTrick: 'Last trick decides it',
+    blindNil: (name: string) => `${name} goes Blind Nil`,
+  },
   toast: {
     nilBroken: (name: string) => `${name}’s Nil is broken`,
     nilMade: (name: string, blind: boolean) => `${name} made ${blind ? 'Blind ' : ''}Nil!`,

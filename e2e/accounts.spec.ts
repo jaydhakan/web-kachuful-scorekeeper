@@ -35,6 +35,12 @@ test('sign-in opened from another game returns there, after signing in and on Ba
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
   await expect(page).toHaveURL(/\/ishaara$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Ishaara' })).toBeVisible();
+  // Signed in for real: the session reached the game it returned to and was saved, not lost on the way.
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('kachuful.session') ?? 'null')?.user?.email,
+    ),
+  ).toBe(ACCOUNTS.admin.email);
 
   await page.goto('/kachuful?open=account&from=landing');
   await expect(page.getByRole('heading', { name: 'Me', exact: true })).toBeVisible();
@@ -224,4 +230,25 @@ test('the admin deletes an account after seeing what goes and typing the email',
   await expect(
     page.getByRole('button', { name: new RegExp(email.replace('.', '\\.')) }),
   ).toHaveCount(0);
+});
+
+test('signing in from the landing page’s menu, as on a phone, comes back signed in', async ({
+  page,
+}) => {
+  await page.route('**/api/me/events', (r) => r.abort());
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page.getByRole('dialog').getByRole('link', { name: /^Sign in/ }).click();
+  await page.getByLabel('Email').fill(ACCOUNTS.admin.email);
+  await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
+  await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.getByRole('button', { name: 'Menu' }).click();
+  const menu = page.getByRole('dialog');
+  await expect(menu.getByRole('link', { name: /admin@kachuful\.test/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Sign in/ })).toHaveCount(0);
+  // And it survives a reload: the session was saved.
+  await page.reload();
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await expect(menu.getByRole('link', { name: /admin@kachuful\.test/ })).toBeVisible();
 });

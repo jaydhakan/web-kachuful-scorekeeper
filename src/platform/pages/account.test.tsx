@@ -5,6 +5,7 @@ import { archive } from '@/state/archive';
 import { recFromServer } from '@/state/registry';
 import { KEYS } from '@/state/persistence';
 import { ep } from '@/sync/endpoints';
+import { resetFxForTests } from '@/fx/prefs';
 import type { Player } from '@/sync/types';
 import { AccountPage } from './AccountPage';
 
@@ -106,6 +107,38 @@ describe('the Me screen', () => {
     await u.click(within(sheet).getByRole('button', { name: 'Change password' }));
     await waitFor(() => expect(change).toHaveBeenCalledWith('old-one', 'new-one-2'));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+});
+
+describe('sounds and vibration', () => {
+  beforeEach(() => resetFxForTests());
+
+  it('defaults to Big moments and vibration on, and keeps a change on this device', async () => {
+    await show();
+    const u = setup();
+    const sounds = screen.getByRole('group', { name: 'Sounds' });
+    expect(within(sounds).getByRole('button', { name: 'Big moments' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    const vib = screen.getByRole('switch', { name: /Vibration/ });
+    expect(vib).toHaveAttribute('aria-checked', 'true');
+    await u.click(within(sounds).getByRole('button', { name: 'Off' }));
+    await u.click(vib);
+    expect(vib).toHaveAttribute('aria-checked', 'false');
+    expect(JSON.parse(localStorage.getItem(KEYS.fx) ?? 'null')).toEqual({
+      sounds: 'off',
+      vibrate: false,
+    });
+  });
+
+  it('is there signed out too', () => {
+    render(
+      <AppProvider>
+        <AccountPage />
+      </AppProvider>,
+    );
+    expect(screen.getByRole('group', { name: 'Sounds' })).toBeInTheDocument();
   });
 });
 

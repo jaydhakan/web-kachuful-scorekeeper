@@ -9,15 +9,12 @@ import { useHubNav, type HubRoute } from './parts';
 
 type ProgressRoute = Extract<HubRoute, { page: 'awards' | 'achievements' | 'activity' }>;
 
-/**
- * Awards, Achievements and Activity: the shared pages on Ishaara's progression and hub stack. The server works
- * everything out (Ishaara has no device rules), so signed out they show nothing.
- */
-export function ProgressPage({ r }: { r: ProgressRoute }) {
+/** Ishaara's side of the shared progression pages: the server works everything out, so signed out it has nothing. */
+export function useIshProgressionEnv(): ProgressionEnv {
   const nav = useHubNav();
   const session = signedInAs(useSession());
   const me = session?.player?.id ?? null;
-  const env = useMemo<ProgressionEnv>(
+  return useMemo<ProgressionEnv>(
     () => ({
       prog: progression,
       signedIn: !!session,
@@ -31,6 +28,14 @@ export function ProgressPage({ r }: { r: ProgressRoute }) {
     }),
     [nav, session, me],
   );
+}
+
+/**
+ * Awards, Achievements and Activity: the shared pages on Ishaara's progression and hub stack. The server works
+ * everything out (Ishaara has no device rules), so signed out they show nothing.
+ */
+export function ProgressPage({ r }: { r: ProgressRoute }) {
+  const env = useIshProgressionEnv();
   return (
     <ProgressionScope env={env}>
       {r.page === 'awards' ? (

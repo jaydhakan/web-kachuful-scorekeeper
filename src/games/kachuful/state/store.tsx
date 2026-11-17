@@ -352,7 +352,12 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         nav({ type: 'navReset', routes });
       },
       openGame: (game) => nav({ type: 'openGame', game }),
-      setSession: (session) => dispatch({ type: 'session', session }),
+      setSession: (session) => {
+        // Published at once, not by the effect below: sign-in opened from another page returns there in the same
+        // tap, which unmounts this store before that effect runs, and the session would be lost.
+        setSharedSession(session);
+        dispatch({ type: 'session', session });
+      },
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
     };
   }, [vib]);

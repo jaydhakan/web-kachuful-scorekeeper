@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useContext, useState } from 'react';
+import { useContext, useLayoutEffect, useRef, useState } from 'react';
 import { SUITS, validCalled, type KtGame, type KtHand } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import { curHand } from '@/games/kaali-teeri/state/select';
@@ -12,10 +12,33 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
 import { HandFrame, InPane } from './parts/HandFrame';
 import { useLand } from './parts/reveal';
+import { stamp } from '@/fx/stamp';
 import { CardGrid, EMPTY_DRAFT, draftCard, suitColor, type Draft } from './call/CardGrid';
 import { Slots } from './call/Slots';
 
 const s = ktBidding;
+
+/** "SOLD" lands above the won bid as it settles, with the gavel (a beat: heard when Sounds is All). */
+function Sold() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const p = stamp(ref.current, { angle: -8, delay: 260 });
+    const t = setTimeout(() => void import('@/fx/sound').then((m) => m.cue('gavel')), 260);
+    return () => {
+      p.cancel();
+      clearTimeout(t);
+    };
+  }, []);
+  return (
+    <span
+      ref={ref}
+      data-kt-sold
+      className="absolute -top-5 right-0 rotate-[-8deg] rounded-md border-2 border-current bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] px-1 text-13 font-extrabold leading-tight tracking-[0.08em] uppercase text-[var(--gold-tx)]"
+    >
+      {s.trump.sold}
+    </span>
+  );
+}
 
 /** Step one: the bid that was won, then the four suits as big targets. */
 function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void }) {
@@ -23,6 +46,8 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
   const p = g.players.find((x) => x.id === h.bidder)!;
   const n = g.rules.partners;
   const land = useLand('bid');
+  // The auction just closed (no trump named yet): SOLD stamps over the amount once, not on coming back (K2).
+  const [sold] = useState(() => !h.trump);
   return (
     <HandFrame
       g={g}
@@ -85,13 +110,16 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
             {p.name}
           </span>
         </p>
-        <m.span
-          {...land}
-          data-kt-land
-          className="disp tick text-40 font-extrabold leading-none text-[var(--accent-tx)]"
-        >
-          {h.bid}
-        </m.span>
+        <span className="relative">
+          {sold && <Sold />}
+          <m.span
+            {...land}
+            data-kt-land
+            className="disp tick block text-40 font-extrabold leading-none text-[var(--accent-tx)]"
+          >
+            {h.bid}
+          </m.span>
+        </span>
       </div>
     </HandFrame>
   );

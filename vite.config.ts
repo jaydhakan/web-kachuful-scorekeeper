@@ -267,6 +267,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     ownCss('src/games/ishaara/index.tsx'),
     ownCss('src/games/spades/index.tsx'),
+    ownCss('src/fx/ui/index.ts'),
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),

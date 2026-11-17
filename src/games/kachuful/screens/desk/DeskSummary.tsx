@@ -168,7 +168,12 @@ export function DeskSummary() {
                   <span
                     className={`disp tick w-[4.5rem] shrink-0 text-right text-32 font-extrabold tracking-[-0.03em] dt:w-[5.25rem] dt:text-40 ${ct[id] < 0 ? 'text-[var(--neg-tx)]' : ''}`}
                   >
-                    <Counter from={anim ? pt[id] : ct[id]} to={ct[id]} run={anim && stage >= 2} />
+                    <Counter
+                      swell="scale"
+                      from={anim ? pt[id] : ct[id]}
+                      to={ct[id]}
+                      run={anim && stage >= 2}
+                    />
                   </span>
                   {lead && newLead && anim && !rm && (
                     <m.span

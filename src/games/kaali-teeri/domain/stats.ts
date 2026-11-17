@@ -100,6 +100,25 @@ export function gamePlayerRows(g: KtGame) {
   });
 }
 
+/** The player of the game, for the end-of-game reel (WOW-MOMENTS-PLAN A4): bids made of bids won at auction. */
+export interface KtMvp {
+  playerId: string;
+  n: number;
+  of: number;
+}
+
+/** Most bids made as the bidder, points breaking a tie; null if no bid was made (a partner wins only with one). */
+export function mvpOf(g: KtGame): KtMvp | null {
+  const best = gamePlayerRows(g).reduce<ReturnType<typeof gamePlayerRows>[number] | null>(
+    (a, r) =>
+      !a || r.bidsMade > a.bidsMade || (r.bidsMade === a.bidsMade && r.points > a.points) ? r : a,
+    null,
+  );
+  return best && best.bidsMade > 0
+    ? { playerId: best.playerId, n: best.bidsMade, of: best.handsBid }
+    : null;
+}
+
 export interface KtSummary {
   kind: 'kaali-teeri';
   status: KtGame['status'];

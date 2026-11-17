@@ -483,8 +483,9 @@ function confirmHand(s: KtState): KtState {
     },
     { undo: true },
   );
-  if (c.game.status === 'finished')
-    return { ...c, pops: null, fresh: true, dir: 1, screen: 'winner' };
+  // Reaching 1,000 ends the game, but the hand that did it is shown first: its summary, then See the winner. Its
+  // moments wait for the winner screen's reel.
+  if (c.game.status === 'finished') return { ...c, pops: null, dir: 1, screen: 'game' };
   // The winner screen's reel shows a last hand's moments; any other hand's drop in as cards.
   const n = say({ ...c, dir: 1, screen: 'game' }, m.toasts.handSaved(h.index + 1), true);
   return { ...n, pops: { id: n.noteSeq, hand: h.index } };
@@ -713,6 +714,10 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
 
     case 'nextHand':
       return nextHand(s);
+    case 'seeWinner':
+      return s.game?.status === 'finished' && s.screen === 'game'
+        ? { ...s, fresh: true, dir: 1, screen: 'winner' }
+        : s;
     case 'finishGame':
       if (!live(s) || !hasDone(s.game)) return s;
       return { ...finished(s), modal: null, fresh: true, dir: 1, screen: 'winner' };

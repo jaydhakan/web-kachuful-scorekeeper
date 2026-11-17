@@ -1,5 +1,5 @@
-import { m, useReducedMotion } from 'framer-motion';
-import { useState, type ReactNode } from 'react';
+import { m } from 'framer-motion';
+import { useEffect, useState, type ReactNode } from 'react';
 import { byCode } from '@/progression/catalogue';
 import type { GameProgression } from '@/progression/registry';
 import type { Award, SeasonResult, StandingRow } from '@/progression/types';
@@ -11,19 +11,20 @@ import { Icon } from '@/components/ui/Icons';
 import { IconButton } from '@/components/ui/IconButton';
 import { Seg } from '@/components/ui/Seg';
 import { pct } from '@/components/ui/Stats';
-import { SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RemotePending } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
-import { PODIUM_BG } from '@/components/ui/rankTones';
 import { Medal } from '@/components/ui/Medal';
 import { Edge } from '@/components/ui/Edge';
 import { icon } from '@/components/ui/IconsMore';
 import { PlayerTag } from '@/components/ui/PlayerTag';
 import { useProgressionEnv } from './env';
 import { useDaily, useSeason, useSeasons, type Champ } from './useProgressionData';
+import { fx } from '@/strings/fx';
+import { SeasonPodium } from './SeasonPodium';
 import { WinRateStandings } from './WinRateStandings';
+import { saveSeasonShown, wasSeasonShown } from '@/state/persistence';
 
 const aw = t.hub.awards;
 
@@ -103,6 +104,19 @@ export function AwardsPage<R extends StandingRow = StandingRow>({
     picked ??
     (months.length && !months.includes(thisMonth) ? [...months].sort().reverse()[0] : thisMonth);
   const { s, remote: rSeason } = useSeason<R>(env, month, tab === 'season');
+  // The newest closed season, the first time this device sees it: the page opens on it and plays the ceremony.
+  const [ceremony, setCeremony] = useState<{ key: number; month: string } | null>(null);
+  const newest = champions.reduce<string | null>(
+    (m, c) => (c.playerId && (!m || c.season > m) ? c.season : m),
+    null,
+  );
+  useEffect(() => {
+    if (!newest || wasSeasonShown(prog.id, newest)) return;
+    saveSeasonShown(prog.id, newest);
+    setTab('season');
+    setMonth(newest);
+    setCeremony({ key: 1, month: newest });
+  }, [newest, prog.id]);
   const pick = (m: string) => {
     setMonth(m);
     document.getElementById('season-top')?.scrollIntoView({ block: 'start' });
@@ -191,7 +205,27 @@ export function AwardsPage<R extends StandingRow = StandingRow>({
             <div className="mt-4">
               {month === thisMonth && <p className="mb-3 text-13 text-[var(--tx2)]">{aw.live}</p>}
               {month === thisMonth && me && slots.chase?.(s, me)}
-              <Podium s={s} />
+              <SeasonPodium
+                key={ceremony?.month === month ? ceremony.key : 0}
+                s={s}
+                ceremony={
+                  ceremony?.month === month
+                    ? { key: ceremony.key, title: fx.ceremony(monthLabel(parseDay(month + '-01'))) }
+                    : null
+                }
+              />
+              {month < thisMonth && s.standings.some((r) => r.qualified && r.rank === 1) && (
+                <div className="-mt-3 mb-5 flex justify-center">
+                  <button
+                    type="button"
+                    data-replay-season
+                    onClick={() => setCeremony((c) => ({ key: (c?.key ?? 0) + 1, month }))}
+                    className="press min-h-11 px-4 text-15 font-semibold text-[var(--accent-tx)] underline decoration-ov/25 underline-offset-[5px]"
+                  >
+                    {fx.replay}
+                  </button>
+                </div>
+              )}
               {s.awards.length > 0 && (
                 <ul className="mb-6 flex flex-col gap-2">
                   {s.awards.map((a, i) => (
@@ -333,33 +367,3 @@ function Explore({ links: more }: { links: ExploreLink[] }) {
 }
 
 /** The month's top three on rising steps, with confetti-free celebration under reduced motion. */
-function Podium({ s }: { s: SeasonResult }) {
-  const { person } = useProgressionEnv();
-  const rm = useReducedMotion();
-  const top = s.standings.filter((r) => r.qualified && r.rank && r.rank <= 3).slice(0, 3);
-  if (!top.length) return null;
-  const order = top.length === 3 ? [top[1], top[0], top[2]] : top;
-  return (
-    <div aria-hidden className="mb-6 flex items-end justify-center gap-3">
-      {order.map((r) => {
-        const w = person(r.playerId),
-          k = top.indexOf(r);
-        return (
-          <div key={r.playerId} className="flex w-24 flex-col items-center gap-1 text-center">
-            {k === 0 && <span className="text-[var(--gold-tx)]">{icon('crown', 'h-7 w-7')}</span>}
-            <Avatar p={w} className="grid h-12 w-12 place-items-center rounded-full text-26" />
-            <span className="text-14 font-bold [overflow-wrap:anywhere]">{w.name}</span>
-            <m.span
-              initial={rm ? false : { scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{ ...SPRING_POP, delay: 0.15 * (2 - k) }}
-              className={`disp grid w-full origin-bottom place-items-start justify-center rounded-t-xl pt-1 text-24 font-extrabold text-ink-podium ${PODIUM_BG[r.rank as 1 | 2 | 3]} ${['h-20', 'h-14', 'h-10'][k]}`}
-            >
-              {r.rank}
-            </m.span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}

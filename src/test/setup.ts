@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { motion } from 'framer-motion';
 import { afterEach, beforeEach } from 'vitest';
+import { forgetMoments, pageMoments } from '@/fx/moments';
 import { storage } from '@/state/persistence';
 import { resetArchive } from '@/state/archive';
 import { startRoute } from '@/platform/route';
@@ -40,4 +41,9 @@ beforeEach(() => {
   resetArchive();
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  // The page-wide moment queue outlives a test: end what it plays and forget what it saw.
+  pageMoments().clear();
+  forgetMoments();
+});

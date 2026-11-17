@@ -21,7 +21,11 @@ test('a clue for 3 found in full pops on the board, shows on the result and on A
 
   // Three of the team's own for a clue of 3, then the bonus guess finds a fourth: the turn is over.
   await giveClue(phones[t], 'zephyr', 3);
-  for (const w of (await faceDown(page, key, t)).slice(0, 4)) await guess(page, w);
+  const own = (await faceDown(page, key, t)).slice(0, 4);
+  for (const w of own.slice(0, 3)) await guess(page, w);
+  // The third card says it on the board at once (I2); the achievement's card waits for the turn to end.
+  await expect(page.getByText(/^Mind meld · /)).toBeVisible();
+  await guess(page, own[3]);
   await expect(page.getByText(`${TEAM[t]} · Mind meld`)).toBeVisible();
   await expect(page.getByText(`${TEAM[t]} · Overtime`)).toBeVisible();
 

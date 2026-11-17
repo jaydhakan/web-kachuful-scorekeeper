@@ -165,6 +165,7 @@ export function HandSummary({
                   >
                     {/* Settled (run off), each number rests on its final value rather than its start. */}
                     <Counter
+                      swell="scale"
                       from={run ? 0 : r.net}
                       to={r.net}
                       run={run}
@@ -178,6 +179,7 @@ export function HandSummary({
                   <dt className="text-[var(--tx2)]">{s.summary.total}</dt>
                   <dd className="font-bold tabular-nums" data-total={t}>
                     <Counter
+                      swell="scale"
                       from={run ? before[t] : after[t]}
                       to={after[t]}
                       run={run}

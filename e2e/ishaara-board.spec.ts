@@ -49,6 +49,8 @@ test('the trap holds on the board until the table taps "See the result"', async 
   await page.getByRole('button', { name: `${trap}, face down`, exact: true }).click();
   await ishBtn(page, 'Confirm').click();
   await expect(ishBtn(page, 'See the result')).toBeVisible();
+  // TRAPPED stamps on the card (I1; still, under reduced motion).
+  await expect(words(page).locator('[data-trapped]')).toHaveText(/trapped/i);
   // Well past the old 2.4 s: still on the board.
   await page.waitForTimeout(3500);
   await expect(ishBtn(page, 'See the result')).toBeVisible();
@@ -116,6 +118,23 @@ test.describe('with motion on', () => {
     // A resignation goes straight to the result, without the board's end note.
     await expect(page.locator(`[data-win-hero="${other(t)}"]`)).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('canvas')).toBeAttached();
+    await close();
+  });
+});
+
+test.describe('with motion on', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('the trap jitters the board, flashes once and stamps TRAPPED', async ({ page, browser }) => {
+    test.setTimeout(60_000);
+    const { phones, key, t, close } = await readyGame(page, browser);
+    await giveClue(phones[t], 'Quasar', 2);
+    const trap = (await faceDown(page, key, 'trap'))[0];
+    await page.getByRole('button', { name: `${trap}, face down`, exact: true }).click();
+    await ishBtn(page, 'Confirm').click();
+    await expect(page.locator('[data-trap-flash]')).toHaveCount(1);
+    await expect(words(page).locator('[data-trapped]')).toHaveText(/trapped/i);
+    await expect(ishBtn(page, 'See the result')).toBeVisible();
     await close();
   });
 });

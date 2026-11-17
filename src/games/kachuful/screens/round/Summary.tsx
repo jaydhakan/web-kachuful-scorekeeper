@@ -335,7 +335,12 @@ export function Summary() {
                 </AnimatePresence>
                 {stage === 1 && shown && d > 0 && !rm && <Spark color={palette.positive} />}
                 <div className="disp min-w-[3.25rem] text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:min-w-[70px] @[26rem]:text-28">
-                  <Counter from={anim ? pt[id] : ct[id]} to={ct[id]} run={anim && stage >= 2} />
+                  <Counter
+                    swell="scale"
+                    from={anim ? pt[id] : ct[id]}
+                    to={ct[id]}
+                    run={anim && stage >= 2}
+                  />
                 </div>
                 {lead && (
                   <>

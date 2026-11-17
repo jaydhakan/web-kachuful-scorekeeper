@@ -356,7 +356,7 @@
     --sheet-bg: var(--surface-1);
     --toast-bg: var(--surface-3);
   }
-  [data-theme='sunset-glass'] :is(.glass, .mat-blur) {
+  [data-theme='sunset-glass'] :is(.glass, .mat-blur, .mat-toast) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -367,7 +367,7 @@
   --sheet-bg: var(--surface-1);
   --toast-bg: var(--surface-3);
 }
-[data-lite] :is(.glass, .mat-blur) {
+[data-lite] :is(.glass, .mat-blur, .mat-toast) {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }

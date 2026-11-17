@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   dealerFor,
   gameResult,
@@ -20,7 +20,11 @@ import { TEAM_TONE } from '../parts';
 import { HandFrame } from './HandFrame';
 import { HandPops } from '@/games/spades/progress/HandPops';
 import { pidOf } from '@/people/pid';
+import { bostonOf } from '@/games/spades/online/table/present';
 
+const BostonMoment = lazy(() =>
+  import('@/games/spades/ui/Boston').then((m) => ({ default: m.BostonMoment })),
+);
 const signed = (v: number) => s.sgn(Math.round(v));
 
 /** The headline under the title: who won, a tie at the target, or what the game is played to. */
@@ -127,6 +131,7 @@ function Column({
             className={`disp tick text-24 font-extrabold min-[400px]:text-28 ${r.net >= 0 ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}`}
           >
             <Counter
+              swell="scale"
               from={fresh ? 0 : r.net}
               to={r.net}
               run={fresh}
@@ -140,6 +145,7 @@ function Column({
           <dt className="text-14 text-[var(--tx2)]">{s.summary.total}</dt>
           <dd className="disp tick text-20 font-extrabold">
             <Counter
+              swell="scale"
               from={fresh ? before : after}
               to={after}
               run={fresh}
@@ -184,6 +190,7 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   const [fresh] = useState(() => state.fresh && !rm);
   // The hand's moments pop on its first showing only, reduced motion or not.
   const [first] = useState(() => state.fresh);
+  const [bostonOver, setBostonOver] = useState(false);
   const nameOf = useCallback(
     (id: string) => g.players.find((p) => pidOf(p) === id)?.name ?? '',
     [g.players],
@@ -196,6 +203,8 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   if (!data) return null;
   const { line, before } = data;
   const over = g.status === 'finished';
+  // A team that took all 13: BOSTON stamps over the summary, once, as it first opens (S1; no trick piles here).
+  const boston = bostonOf(h);
   const next = g.players[dealerFor(g, h.index + 1)].name;
   return (
     <>
@@ -253,7 +262,18 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
           </button>
         </div>
       </HandFrame>
-      {first && <HandPops game={g} index={h.index} nameOf={nameOf} />}
+      {first && boston && (
+        <Suspense fallback={null}>
+          <BostonMoment
+            id={`boston:${g.id}:${h.index}`}
+            team={boston}
+            name={s.team(boston)}
+            onEnd={() => setBostonOver(true)}
+          />
+        </Suspense>
+      )}
+      {/* The hand's cards follow its Boston, never land on it. */}
+      {first && (!boston || bostonOver) && <HandPops game={g} index={h.index} nameOf={nameOf} />}
     </>
   );
 }

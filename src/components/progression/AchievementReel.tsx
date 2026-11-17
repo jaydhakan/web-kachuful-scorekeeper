@@ -10,6 +10,8 @@ import { PlayerTag } from '@/components/ui/PlayerTag';
 import type { Person } from './env';
 
 export type ReelItem = { e: Earned; who: Person };
+/** The player of the game (WOW-MOMENTS-PLAN A4): the reel's first card, gold, with the stat they owned. */
+export type ReelMvp = { who: Person; title: string; line: string };
 
 /**
  * A finished game's achievements as cards flipping in one by one (order them with `reelOrder`); a tap turns a card
@@ -19,21 +21,40 @@ export function AchievementReel({
   prog,
   items: all,
   max = 12,
+  mvp,
 }: {
   prog: CatalogueView;
   items: ReelItem[];
   max?: number;
+  mvp?: ReelMvp | null;
 }) {
   const items = all.slice(0, max);
   const rm = useReducedMotion();
   const [open, setOpen] = useState<string | null>(null);
-  if (!items.length) return null;
+  if (!items.length && !mvp) return null;
+  const lead = mvp ? 1 : 0;
   const names = prog.strings.achievements;
   return (
     <ul
       aria-label={t.hub.game.achievements}
       className="grid grid-cols-2 gap-2.5 [perspective:900px] md:grid-cols-3 wide:grid-cols-3"
     >
+      {mvp && (
+        <m.li
+          data-mvp
+          initial={rm ? { opacity: 0 } : { opacity: 0, rotateY: -100 }}
+          animate={{ opacity: 1, rotateY: 0 }}
+          transition={{ type: 'spring', stiffness: 240, damping: 22, delay: 0.2 }}
+          className="col-span-2 md:col-span-1 wide:col-span-1"
+        >
+          <div className="glass relative flex min-h-[6.5rem] w-full flex-col items-start gap-1 overflow-hidden p-3">
+            <Edge tone="gold" />
+            <span className="mono-label text-12 text-[var(--gold-tx)]">{mvp.title}</span>
+            <PlayerTag p={mvp.who} name={mvp.who.name} s={22} />
+            <span className="text-13 text-[var(--tx2)]">{mvp.line}</span>
+          </div>
+        </m.li>
+      )}
       {items.map(({ e, who }, i) => {
         const k = e.playerId + e.code,
           flipped = open === k;
@@ -46,7 +67,7 @@ export function AchievementReel({
               type: 'spring',
               stiffness: 240,
               damping: 22,
-              delay: (rm ? 0.03 : 0.12) * i + 0.2,
+              delay: (rm ? 0.03 : 0.12) * (i + lead) + 0.2,
             }}
           >
             <button

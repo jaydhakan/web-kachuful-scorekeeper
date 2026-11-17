@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import type { StreakKind } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { vibrate } from '@/hooks/useHaptics';
@@ -15,6 +15,8 @@ const LOOK: Record<StreakKind, { color: string; bits: string[] }> = {
 /** How long each step holds the screen; longer runs get a little longer. */
 const HOLD_MS = [2300, 2700, 3200, 3600];
 const BITS = 16;
+/** Snow's shiver takes 0.5s of each 1.1s cycle; the rest is still. */
+const SHIVER = 0.5 / 1.1;
 const POP = { type: 'spring', stiffness: 380, damping: 13, mass: 0.9 } as const;
 
 /** Where particle k flies to: embers rise, snow drifts down. Fixed per index, so a render is pure. */
@@ -27,6 +29,87 @@ function bitPath(k: number, kind: StreakKind) {
     r: ((k * 53) % 120) - 60,
     delay: 0.08 + (k % 5) * 0.04,
   };
+}
+
+const CSS_EASE = 'cubic-bezier(.32,.72,0,1)';
+/**
+ * Web Animations without `fx/waapi`: the large screen loads this up front, and only motion-on players reach here (the
+ * caller renders none of it under reduced motion), so it needs no still version.
+ */
+const anim = (el: Element | null | undefined, frames: Keyframe[], o: KeyframeAnimationOptions) => {
+  const a =
+    typeof (el as HTMLElement | null)?.animate === 'function'
+      ? (el as HTMLElement).animate(frames, o)
+      : null;
+  return { cancel: () => a?.cancel() };
+};
+
+/** The burst: each bit flies out on Web Animations (off the main thread), its path fixed by its index. */
+function Bits({ kind, bits }: { kind: StreakKind; bits: string[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const runs = Array.from(ref.current?.children ?? []).flatMap((el, k) => {
+      const b = bitPath(k, kind),
+        o = { duration: 1500, delay: b.delay * 1000, fill: 'both' as const };
+      return [
+        anim(
+          el,
+          [
+            { transform: 'translate(0,0) rotate(0deg)' },
+            { transform: `translate(${b.x}px,${b.y}px) rotate(${b.r}deg)` },
+          ],
+          { ...o, easing: CSS_EASE },
+        ),
+        anim(
+          el.firstElementChild,
+          [
+            { opacity: 0, transform: 'scale(.4)', easing: CSS_EASE },
+            { opacity: 1, transform: 'scale(1.15)', easing: CSS_EASE },
+            { opacity: 1, transform: 'scale(1)', easing: CSS_EASE },
+            { opacity: 0, transform: 'scale(.8)' },
+          ],
+          { ...o, easing: 'linear' },
+        ),
+      ];
+    });
+    return () => runs.forEach((r) => r.cancel());
+  }, [kind]);
+  return (
+    <div ref={ref} aria-hidden className="contents">
+      {Array.from({ length: BITS }, (_, k) => (
+        <span key={k} className="absolute">
+          <span className="block text-26 opacity-0">{bits[k % bits.length]}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** The emoji bobs (embers) or shivers (snow) for two cycles, then rests. */
+function Bob({ kind, children }: { kind: StreakKind; children: ReactNode }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const hot = kind === 'hot';
+    const r = anim(
+      ref.current,
+      hot
+        ? [
+            { transform: 'translateY(0)' },
+            { transform: 'translateY(-10px)' },
+            { transform: 'translateY(0)' },
+          ]
+        : [0, -3, 3, -2, 2, 0]
+            .map((x, k) => ({ transform: `translateX(${x}px)`, offset: (k / 5) * SHIVER }))
+            .concat({ transform: 'translateX(0)', offset: 1 }),
+      { duration: 1100, delay: 600, easing: hot ? CSS_EASE : 'linear', iterations: 2 },
+    );
+    return r.cancel;
+  }, [kind]);
+  return (
+    <span ref={ref} className="inline-block">
+      {children}
+    </span>
+  );
 }
 
 /**
@@ -140,52 +223,22 @@ export function StreakCelebration() {
                     style={{ borderColor: look.color }}
                   />
                 ))}
-                {Array.from({ length: BITS }, (_, k) => {
-                  const b = bitPath(k, e.kind);
-                  return (
-                    <m.span
-                      key={k}
-                      aria-hidden
-                      initial={{ x: 0, y: 0, opacity: 0, scale: 0.4, rotate: 0 }}
-                      animate={{
-                        x: b.x,
-                        y: b.y,
-                        opacity: [0, 1, 1, 0],
-                        scale: [0.4, 1.15, 1, 0.8],
-                        rotate: b.r,
-                      }}
-                      transition={{ duration: 1.5, delay: b.delay, ease: EASE }}
-                      className="absolute text-26"
-                    >
-                      {look.bits[k % look.bits.length]}
-                    </m.span>
-                  );
-                })}
+                <Bits kind={e.kind} bits={look.bits} />
               </>
             )}
+            {/* A painted shadow, not a filter: the emoji above it moves, and a filtered layer repaints every frame. */}
+            <span
+              aria-hidden
+              className="absolute bottom-[14%] h-[12%] w-[46%] rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--shade)_45%,transparent),transparent)]"
+            />
             <m.span
               aria-hidden
               initial={rm ? false : { scale: 0.4, opacity: 0, rotate: -35 }}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
               transition={POP}
-              className="relative text-96 leading-none drop-shadow-[0_12px_30px_color-mix(in_srgb,var(--shade)_55%,transparent)] @h-tiny:text-64 big:text-148"
+              className="relative text-96 leading-none @h-tiny:text-64 big:text-148"
             >
-              {rm ? (
-                words.emoji
-              ) : (
-                <m.span
-                  className="inline-block"
-                  animate={e.kind === 'hot' ? { y: [0, -10, 0] } : { x: [0, -3, 3, -2, 2, 0] }}
-                  transition={{
-                    duration: e.kind === 'hot' ? 1.1 : 0.5,
-                    delay: 0.6,
-                    repeat: Infinity,
-                    repeatDelay: e.kind === 'hot' ? 0 : 0.6,
-                  }}
-                >
-                  {words.emoji}
-                </m.span>
-              )}
+              {rm ? words.emoji : <Bob kind={e.kind}>{words.emoji}</Bob>}
             </m.span>
           </div>
           <div id={textId} className="relative">

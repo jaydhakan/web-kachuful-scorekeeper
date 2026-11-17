@@ -41,6 +41,10 @@ export const KEYS = {
   spLastSetup: 'spades.lastSetup',
   /** Boards on which this player was last seen in first place, so taking the top is celebrated once, not per visit. */
   boardTop: 'baithak.boardTop',
+  /** This device's sounds and vibration for every game (`src/fx/prefs.ts`): `{ sounds, vibrate }`. */
+  fx: 'baithak.fx',
+  /** Per game, the newest closed season whose podium this device has revealed: `{ [game]: 'YYYY-MM' }`. */
+  seasonShown: 'baithak.seasonShown',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -275,6 +279,16 @@ export const saveAchSeen = (playerId: string, at: number, game?: string) =>
     ...storage.get<Record<string, number>>(KEYS.achSeen, {}),
     [seenKey(playerId, game)]: at,
   });
+
+/** Whether this closed season's podium was already revealed on this device (once per season, per game). */
+export const wasSeasonShown = (game: string, month: string): boolean =>
+  (storage.get<Record<string, string>>(KEYS.seasonShown, {})[game] ?? '') >= month;
+
+export function saveSeasonShown(game: string, month: string) {
+  const all = storage.get<Record<string, string>>(KEYS.seasonShown, {});
+  if ((all[game] ?? '') >= month) return;
+  storage.set(KEYS.seasonShown, { ...all, [game]: month });
+}
 
 /** Whether first place on this board (a key naming the game, player and filters) was already celebrated here. */
 export const wasBoardTop = (board: string): boolean =>

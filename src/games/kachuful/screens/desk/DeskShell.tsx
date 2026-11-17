@@ -10,7 +10,6 @@ import { RoundStart } from '@/games/kachuful/screens/round/RoundStart';
 import { SheetHost } from '@/games/kachuful/sheets/SheetHost';
 import { ConfirmModal } from '@/games/kachuful/components/ConfirmModal';
 import { RepairSaveModal } from '@/games/kachuful/components/RepairSaveModal';
-import { StreakCelebration } from '@/games/kachuful/components/StreakCelebration';
 import { BadgePop } from '@/games/kachuful/components/BadgePop';
 import { HostLive } from '@/games/kachuful/components/HostLive';
 import { Banner } from '@/components/ui/Banner';
@@ -32,6 +31,11 @@ const Pages = lazy(() => import('@/games/kachuful/screens/pages/Pages'));
 // Not needed for the first paint; fetched once the page is idle, so New Game still opens at once.
 const loadSetup = () => import('./DeskSetup');
 const DeskSetup = lazy(() => loadSetup().then((m) => ({ default: m.DeskSetup })));
+const loadStreak = () =>
+  import('@/games/kachuful/components/StreakCelebration').then((m) => ({
+    default: m.StreakCelebration,
+  }));
+const StreakCelebration = lazy(loadStreak);
 const RulesDrawer = lazy(() => import('./RulesDrawer').then((m) => ({ default: m.RulesDrawer })));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((m) => ({ default: m.Confetti })),
@@ -61,7 +65,7 @@ export default function DeskShell() {
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
   }, [rm, fresh, actions]);
-  useEffect(() => whenIdle(() => void loadSetup()), []);
+  useEffect(() => whenIdle(() => void Promise.all([loadSetup(), loadStreak()])), []);
   useShortcuts(
     {
       '?': () => setKeys(true),
@@ -167,7 +171,13 @@ export default function DeskShell() {
       </AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
-      <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
+      <AnimatePresence>
+        {state.streakFx && (
+          <Suspense key="streak" fallback={null}>
+            <StreakCelebration />
+          </Suspense>
+        )}
+      </AnimatePresence>
       <BadgePop />
       <HostLive />
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>

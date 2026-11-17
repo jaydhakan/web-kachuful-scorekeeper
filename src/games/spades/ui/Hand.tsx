@@ -6,6 +6,7 @@ import {
   useState,
   type KeyboardEvent,
   type PointerEvent,
+  type ReactNode,
 } from 'react';
 import { cardId, displaySort, rankValue, sameCard } from '@/games/spades/domain/cards';
 import { playProblem, type PlayProblem } from '@/games/spades/domain/legal';
@@ -85,7 +86,7 @@ export interface HandProps {
   width: number;
   maxCw?: number;
   /** Shown under the fan: "YOUR TURN · 24s". */
-  turnText?: string | null;
+  turnText?: ReactNode;
 }
 
 interface Drag {
@@ -148,17 +149,10 @@ export function Hand({
       return;
     }
     if (sorted) return;
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setUpTo(i);
-      if (i >= cards.length) clearInterval(id);
-    }, FLIP_GAP);
+    // Every card turns in this one render; each waits its turn in CSS (flipDelay), so nothing re-renders 13 times.
+    setUpTo(cards.length);
     const done = setTimeout(() => setSorted(true), cards.length * FLIP_GAP + 450);
-    return () => {
-      clearInterval(id);
-      clearTimeout(done);
-    };
+    return () => clearTimeout(done);
     // Runs when the cards become visible or a new hand arrives; card removals don't restart the turn.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reveal, !!cards, handKey]);
@@ -377,7 +371,14 @@ export function Hand({
                 transform: base(i, lift),
               }}
             >
-              <SpCard card={c} down={!up} size="hand" big={fan.cw >= 60} className="w-full" />
+              <SpCard
+                card={c}
+                down={!up}
+                size="hand"
+                big={fan.cw >= 60}
+                flipDelay={up && !sorted ? i * FLIP_GAP : 0}
+                className="w-full"
+              />
               <span
                 aria-hidden
                 className={`sp-dim pointer-events-none absolute inset-0 rounded-[inherit] bg-[color-mix(in_srgb,var(--bg)_55%,transparent)] ${p ? 'opacity-100' : 'opacity-0'}`}

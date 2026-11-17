@@ -6,7 +6,7 @@ import type { KtState } from '@/games/kaali-teeri/state/types';
 import { achievements, ladders } from '@/games/kaali-teeri/strings/achievements';
 import { pidOf } from '@/people/pid';
 import type { CatalogueView } from '@/progression/catalogue';
-import { MomentPop } from '@/components/progression/MomentPop';
+import { MomentPopLazy as MomentPop } from '@/components/progression/MomentPopLazy';
 import { popCard, type PopCard } from '@/components/progression/popCard';
 
 // The catalogue alone: this chunk loads with the first hand confirmed, not the progression pages.

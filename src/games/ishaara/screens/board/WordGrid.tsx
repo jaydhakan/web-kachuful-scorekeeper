@@ -1,4 +1,7 @@
 import { m, useReducedMotion } from 'framer-motion';
+import { useLayoutEffect, useRef, type RefObject } from 'react';
+import { stamp } from '@/fx/stamp';
+import { anim, OUT, reducedMotion } from '@/fx/waapi';
 import type { Identity } from '@/games/ishaara/domain';
 import { table as s } from '@/games/ishaara/strings/table';
 import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
@@ -19,6 +22,8 @@ export interface WordGridProps {
   lit?: number | null;
   /** What the lit card meant: a wrong pick settles with a shake, the trap drops and dims the board around it. */
   verdict?: Moment['kind'] | null;
+  /** I2: a clue for 3+ just fully found: those cards pulse in the order they were found. */
+  meld?: { cards: number[]; key: number } | null;
   /** At the end: what was face down before the key was shown; those cards turn in a diagonal wave. */
   waveFrom?: Array<Identity | null> | null;
   onPick?: (card: number) => void;
@@ -69,6 +74,7 @@ export function WordGrid({
   lit = null,
   verdict = null,
   waveFrom = null,
+  meld = null,
   onPick,
   onBlocked,
   readOnly,
@@ -77,9 +83,13 @@ export function WordGrid({
 }: WordGridProps) {
   const rm = useReducedMotion();
   const trapLit = lit !== null && verdict === 'trap';
+  const grid = useRef<HTMLUListElement>(null);
+  useMeldPulse(grid, meld);
   return (
-    <div className={`@container h-full w-full ${className}`}>
+    <div className={`@container relative h-full w-full ${className}`}>
+      {trapLit && !readOnly && <TrapFx grid={grid} />}
       <ul
+        ref={grid}
         aria-label={readOnly ? s.win.keyLabel : s.board.grid}
         className="grid h-full grid-cols-5 grid-rows-5 gap-1.5 @[40rem]:gap-2.5"
       >
@@ -161,6 +171,7 @@ export function WordGrid({
                   {face}
                 </m.span>
               </m.button>
+              {isLit && verdict === 'trap' && <TrapStamp />}
               {isLit && id && !rm && (
                 <m.span
                   key={`ring${id}`}
@@ -177,5 +188,72 @@ export function WordGrid({
         })}
       </ul>
     </div>
+  );
+}
+
+/** I2: each found card swells and settles, 80ms apart in the order found (on the cell, not its button). */
+function useMeldPulse(grid: RefObject<HTMLUListElement>, meld: WordGridProps['meld']) {
+  useLayoutEffect(() => {
+    if (!meld) return;
+    const runs = meld.cards.map((c, k) =>
+      anim(
+        grid.current?.children[c],
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }],
+        { duration: 260, delay: 420 + k * 80, easing: OUT },
+      ),
+    );
+    return () => runs.forEach((r) => r.cancel());
+  }, [grid, meld]);
+}
+
+/**
+ * I1, trapped: the board jitters once (3px, four steps, 240ms) and one red flash crosses it (0 to .3 to 0 over 200ms,
+ * a single flash, far under photosensitivity limits), with the glitch. Reduced motion: neither; the stamp and the
+ * note carry it.
+ */
+function TrapFx({ grid }: { grid: RefObject<HTMLUListElement> }) {
+  const flash = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    void import('@/fx/sound').then((m) => m.cue('glitch'));
+    if (reducedMotion()) return;
+    const runs = [
+      anim(
+        grid.current,
+        [0, 3, -3, 2, 0].map((x) => ({ transform: `translateX(${x}px)` })),
+        { duration: 240, delay: 380, easing: 'steps(4, end)' },
+      ),
+      anim(flash.current, [{ opacity: 0 }, { opacity: 0.3 }, { opacity: 0 }], {
+        duration: 200,
+        delay: 380,
+        easing: 'linear',
+      }),
+    ];
+    return () => runs.forEach((r) => r.cancel());
+  }, [grid]);
+  return (
+    <span
+      ref={flash}
+      aria-hidden
+      data-trap-flash
+      className="pointer-events-none absolute -inset-2 z-20 rounded-[18px] bg-[var(--danger)] opacity-0"
+    />
+  );
+}
+
+/** "TRAPPED" stamped on the trap card as it lands. */
+function TrapStamp() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(
+    () => stamp(ref.current, { angle: -10, delay: 420, base: 'translate(-50%,-50%)' }).cancel,
+    [],
+  );
+  return (
+    <span
+      ref={ref}
+      data-trapped
+      className="pointer-events-none absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 rotate-[-10deg] whitespace-nowrap rounded-lg border-[3px] border-current bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] px-2 py-0.5 text-15 font-extrabold uppercase tracking-[0.08em] text-[var(--neg-tx)] @[40rem]:text-22"
+    >
+      {s.board.trapped}
+    </span>
   );
 }

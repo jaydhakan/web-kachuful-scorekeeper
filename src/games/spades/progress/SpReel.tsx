@@ -6,6 +6,8 @@ import { levelUps, reelOrder } from '@/progression/reel';
 import { allAchievements, gameAchievements } from '@/games/spades/domain/achievements';
 import type { SpGame } from '@/games/spades/domain/types';
 import { progression } from '@/games/spades/progression';
+import { mvpOf } from '@/games/spades/domain/mvp';
+import { mvpText } from '@/games/spades/strings/achievements';
 import { t } from '@/strings';
 
 const HEADING = 'disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]';
@@ -48,13 +50,19 @@ export default function SpReel({
         : [],
     [device, earned, game.syncId, game.createdAt],
   );
-  if (!items.length && !ups.length) return null;
+  const best = useMemo(() => mvpOf(game), [game]);
+  const mvp = best && {
+    who: person(best.playerId),
+    title: mvpText.title,
+    line: mvpText.line(best.kind, best.n),
+  };
+  if (!items.length && !ups.length && !mvp) return null;
   return (
     <div className="w-full text-left">
-      {items.length > 0 && (
+      {(items.length > 0 || mvp) && (
         <>
           <h2 className={HEADING}>{t.hub.game.achievements}</h2>
-          <AchievementReel prog={progression} items={items} />
+          <AchievementReel prog={progression} items={items} mvp={mvp} />
         </>
       )}
       <LevelUps prog={progression} ups={ups} person={person} heading={HEADING} />

@@ -4,9 +4,9 @@ import { table as s } from '@/games/ishaara/strings/table';
 import { Icon } from '@/components/ui/Icons';
 import { Modal } from '@/components/ui/Modal';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { MomentPop } from '@/components/progression/MomentPop';
+import { MomentPopLazy as MomentPop } from '@/components/progression/MomentPopLazy';
 import { BoardMenu } from './BoardMenu';
-import { ConfirmBar, EndNote, MomentNote, NoticeNote, PenaltyNote } from './Notes';
+import { ConfirmBar, EndNote, MomentNote, NoticeNote, PenaltyNote, PhotoNote } from './Notes';
 import type { BoardView } from './useBoard';
 
 const b = s.board;
@@ -17,18 +17,20 @@ const b = s.board;
  * or goes; a taller note (the penalty wait, while picks are off) rises over the board instead.
  */
 export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
-  const { game, moment, notice, pending, picker, selected, canSend, finished, serverNow } = v;
+  const { game, moment, notice, pending, picker, selected, canSend, finished, clockOffset } = v;
   if (!game) return null;
   let note;
   if (finished) note = null;
-  else if (moment && selected === null) note = <MomentNote key={`m${moment.card}`} mo={moment} />;
+  else if (moment && selected === null)
+    note = <MomentNote key={`m${moment.card}`} mo={moment} meld={!!v.meld} />;
   else if (pending && picker)
     note = (
       <PenaltyNote
         key="penalty"
         name={clueGiverOf(game, picker)?.name ?? s.team[picker]}
         picker={picker}
-        skipIn={pending.since + SKIP_AFTER_MS - serverNow}
+        skipAt={pending.since + SKIP_AFTER_MS}
+        offset={clockOffset}
         canSend={canSend}
         onSkip={() => void v.act({ type: 'skip' })}
       />
@@ -45,6 +47,7 @@ export function BoardNote({ v, compact }: { v: BoardView; compact?: boolean }) {
       />
     );
   else if (notice) note = <NoticeNote key={`n${notice.kind}`} n={notice} next={game.turn} />;
+  else if (v.photo) note = <PhotoNote key="photo" />;
   return (
     <div data-note-slot className={`relative shrink-0 ${compact ? 'h-[8.5rem]' : 'h-[4.75rem]'}`}>
       <div className="absolute inset-x-0 bottom-0 z-10">

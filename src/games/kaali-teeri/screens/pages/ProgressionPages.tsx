@@ -13,7 +13,7 @@ import { useKtGames } from './source';
  * Kaali Teeri's side of the shared pages: who is signed in, its page stack, its players and this device's games (the
  * facts signed out; shown until the server answers signed in).
  */
-function useKtProgressionEnv(): ProgressionEnv {
+export function useKtProgressionEnv(): ProgressionEnv {
   const { actions } = useKt();
   const session = signedInAs(useSession());
   const games = useKtGames().games;

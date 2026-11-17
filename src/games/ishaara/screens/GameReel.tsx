@@ -11,6 +11,7 @@ import { useRemote } from '@/sync/useRemote';
 import { AchievementReel, type ReelItem } from '@/components/progression/AchievementReel';
 import { personOf, type Person } from '@/components/progression/env';
 import { stagger } from '@/components/ui/stagger';
+import { mvpOf } from './mvp';
 
 const w = s.win;
 
@@ -46,6 +47,17 @@ export function GameReel({ game }: { game: IshaaraPublic }) {
       who: seat(e.playerId),
     }));
   }, [r.data, game]);
+  const best = useMemo(() => mvpOf(game), [game]);
+  const mvp = best && {
+    who: (() => {
+      const p = game.players.find((x) => x.playerId === best.playerId);
+      return p
+        ? { id: best.playerId, name: p.name, emoji: p.emoji, color: p.color }
+        : personOf(best.playerId);
+    })(),
+    title: w.mvpTitle,
+    line: w.mvpLine(best.found, best.clues),
+  };
   let body;
   if (!r.data && r.loading)
     body = (
@@ -67,8 +79,8 @@ export function GameReel({ game }: { game: IshaaraPublic }) {
       </div>
     );
   // Nothing earned (an older game, say) takes no room.
-  else if (!items.length) return null;
-  else body = <AchievementReel prog={progression} items={items} max={12} />;
+  else if (!items.length && !mvp) return null;
+  else body = <AchievementReel prog={progression} items={items} max={12} mvp={mvp} />;
   return (
     <m.section {...stagger(1)} aria-labelledby="ish-ach" className="mt-6">
       <h2 id="ish-ach" className="mono-label mb-2 text-13 text-[var(--accent-tx)]">

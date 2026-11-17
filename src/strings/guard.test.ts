@@ -14,7 +14,9 @@ const files = walk(root).filter(
     f.endsWith('.tsx') &&
     !f.endsWith('.test.tsx') &&
     !f.includes(`${path.sep}strings${path.sep}`) &&
-    !f.includes(`${path.sep}test${path.sep}`),
+    !f.includes(`${path.sep}test${path.sep}`) &&
+    // The moments lab is dev-only: no player ever sees it.
+    !f.includes(`${path.sep}fx${path.sep}lab${path.sep}`),
 );
 const TEXT_ATTRS = new Set(['aria-label', 'title', 'placeholder', 'alt', 'label']);
 

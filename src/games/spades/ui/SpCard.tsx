@@ -14,6 +14,8 @@ const TYPE = {
 export const cardName = (c: Card) => t.card.name(c.rank, c.suit);
 
 interface SpCardProps {
+  /** Ms this card's turn waits: a hand turns over left to right by CSS, in one render. */
+  flipDelay?: number;
   card: Card | null;
   /** Face down shows the back; changing it turns the card over (a 3D flip, a cross-fade under reduced motion). */
   down?: boolean;
@@ -41,6 +43,7 @@ export function SpCard({
   style,
   flipRef,
   label = false,
+  flipDelay = 0,
 }: SpCardProps) {
   const ty = TYPE[size];
   const ix = big ? ty.ixBig : ty.ix;
@@ -59,7 +62,10 @@ export function SpCard({
       <span
         ref={flipRef}
         className="sp-flip absolute inset-0 rounded-[11%_/_7.9%] [transform-style:preserve-3d]"
-        style={{ transform: down ? 'rotateY(180deg)' : 'none' }}
+        style={{
+          transform: down ? 'rotateY(180deg)' : 'none',
+          ...(flipDelay ? { transitionDelay: `${flipDelay}ms` } : {}),
+        }}
       >
         <span className="sp-face absolute inset-0 overflow-hidden rounded-[inherit] shadow-[0_2px_6px_-1px_color-mix(in_srgb,var(--shade)_45%,transparent)] [backface-visibility:hidden]">
           {card && (

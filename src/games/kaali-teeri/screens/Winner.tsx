@@ -14,6 +14,7 @@ import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Podium } from '@/components/ui/Podium';
+import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
 import { rankTone } from '@/components/ui/rankTones';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
@@ -49,6 +50,13 @@ export default function Winner() {
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
   }, [rm, fresh, actions]);
+  // A game just finished is revealed third place first, with the light and the crown (WOW-MOMENTS-PLAN A2).
+  const board = g && doneHands(g).length ? finalStandings(g) : [];
+  const { play, plan, named } = useReveal(
+    board.map((x) => x.rank),
+    fresh && board.length > 0,
+  );
+  const after = named ? 0 : plan.done / 1000;
   const home = () => actions.go('home', -1);
   if (!g || !doneHands(g).length)
     return (
@@ -106,9 +114,9 @@ export default function Winner() {
             <div className="[--pu:1px] land:m-auto land:[--pu:min(1px,calc(100cqh/340))]">
               <m.span
                 aria-hidden
-                initial={{ y: -140, scale: 0.5, opacity: 0 }}
+                initial={play ? { y: -140, scale: 0.5, opacity: 0 } : false}
                 animate={{ y: 0, scale: 1, opacity: 1 }}
-                transition={{ ...SPRING_POP, delay: 0.5 }}
+                transition={{ ...SPRING_POP, delay: after }}
                 className="mx-auto block h-[3.25rem] w-[3.25rem] text-[var(--gold-tx)] land:hidden"
               >
                 {icon('trophy', 'h-full w-full')}
@@ -116,10 +124,11 @@ export default function Winner() {
               <h2 className="framed disp mt-1 text-center text-28 font-extrabold leading-tight break-words land:hidden">
                 <InkFill
                   text={t.winner.headline(st.filter((x) => x.rank === 1).map((x) => x.p.name))}
+                  fill={play ? { delay: plan.name / 1000, duration: NAME_MS / 1000 } : 'done'}
                 />
               </h2>
               <p className="mt-2 text-center text-15 text-[var(--tx2)] land:hidden">{subline(g)}</p>
-              <Podium standings={finalStandings(g)} />
+              <Podium standings={board} reveal={play ? plan : null} />
             </div>
           </div>
           <div

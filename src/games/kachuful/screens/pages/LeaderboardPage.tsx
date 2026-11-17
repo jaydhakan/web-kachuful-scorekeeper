@@ -22,6 +22,8 @@ import { useRemote } from '@/sync/useRemote';
 import { RemoteGate } from '@/components/RemoteGate';
 import { t } from '@/strings';
 import type { Face } from '@/components/ui/Avatar';
+import { SeasonNews } from '@/components/progression/SeasonNews';
+import { useProgressionEnv } from '@/games/kachuful/components/useProgressionEnv';
 import { icon } from '@/components/ui/IconsMore';
 
 const b = t.hub.leaderboard;
@@ -56,7 +58,7 @@ export interface BoardData {
 }
 
 export function LeaderboardPage() {
-  const { state } = useApp();
+  const { state, actions } = useApp();
   const signedIn = !!state.session;
   const [scope, setScope] = useState<'global' | 'device'>(signedIn ? 'global' : 'device');
   const [range, setRange] = useState<Range>(() => rangeFor('month', Date.now()));
@@ -64,6 +66,7 @@ export function LeaderboardPage() {
   const [metric, setMetric] = useState<Metric>('accuracy');
   const [intro] = useState(() => ({ done: false }));
   const f = useDeviceFacts();
+  const env = useProgressionEnv(f);
   // An empty range offers the whole history in one tap (on the 1st of a month "This month" is empty).
   const showAll = range.kind === 'all' ? undefined : () => setRange(rangeFor('all', Date.now()));
   const device = useMemo(
@@ -111,6 +114,7 @@ export function LeaderboardPage() {
           </div>
         }
       >
+        <SeasonNews env={env} onOpen={() => actions.open({ screen: 'awards' })} />
         {scope === 'device' ? (
           <BoardList
             data={device}

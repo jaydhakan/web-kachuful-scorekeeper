@@ -97,6 +97,7 @@ export interface KtActions {
   confirmHand(): void;
   // Between hands and after
   nextHand(): void;
+  seeWinner(): void;
   finishGame(): void;
   abandon(): void;
   editHand(i: number, edit: KtHandEdit): void;
@@ -275,6 +276,7 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
         nav({ type: 'confirmHand' });
       },
       nextHand: () => nav({ type: 'nextHand' }),
+      seeWinner: () => nav({ type: 'seeWinner' }),
       finishGame: () => nav({ type: 'finishGame' }),
       abandon: () => nav({ type: 'abandon' }),
       editHand: (i, edit) => dispatch({ type: 'editHand', i, edit }),

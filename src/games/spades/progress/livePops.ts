@@ -15,16 +15,28 @@ export function handPopCards(
   game: SpGame | SpPublic,
   index: number,
   nameOf: (id: string) => string,
+  /** The player holding this phone at an online table; left out on a shared phone, where every card is everyone's. */
+  me?: string | null,
 ): PopCard[] {
   const g = game.kind === 'spades-online' ? tableAsGame(game) : game;
   const cat = byCode(progression);
   const order = (code: string) =>
     (cat.get(code)?.big ? 0 : 1000) + progression.catalogue.findIndex((x) => x.code === code);
   const who = new Map<string, string[]>();
-  for (const e of handMoments(g, index))
+  const ids = new Map<string, string[]>();
+  for (const e of handMoments(g, index)) {
     who.set(e.code, [...(who.get(e.code) ?? []), nameOf(e.playerId)]);
+    ids.set(e.code, [...(ids.get(e.code) ?? []), e.playerId]);
+  }
   return [...who]
     .sort(([a], [b]) => order(a) - order(b))
     .slice(0, MAX_CARDS)
-    .map(([code, names]) => popCard(progression, code, popNames(names)));
+    .map(([code, names]) => {
+      const c = {
+        ...popCard(progression, code, popNames(names)),
+        ...(me != null && { mine: ids.get(code)!.includes(me) }),
+      };
+      // A Boston has its own Moment on the table (BOSTON stamped); its card would say it twice.
+      return code === 'boston' ? { ...c, tier: undefined } : c;
+    });
 }

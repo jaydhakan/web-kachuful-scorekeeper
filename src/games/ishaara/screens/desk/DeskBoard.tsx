@@ -40,7 +40,7 @@ const CONTROL = 'button,a[href],input,textarea,select,[contenteditable],[role="b
  */
 export default function DeskBoard({ table, onLeave, onRules, onFinished }: BoardProps) {
   const v = useBoard(table, onFinished);
-  const { game, live, active, serverNow, selected, setSelected } = v;
+  const { game, live, active, clockOffset, selected, setSelected } = v;
   const roving = useRovingFocus({ selected: selected ?? -1, orientation: 'grid', columns: 5 });
   // Keys stop while the menu or the resign question is up, and while the board animates out.
   const present = useIsPresent();
@@ -92,13 +92,13 @@ export default function DeskBoard({ table, onLeave, onRules, onFinished }: Board
               </IconButton>
               <TurnBanner game={game} />
               <span className="flex min-w-12 justify-end">
-                <TurnTimer deadline={active ? game.deadline : null} serverNow={serverNow} />
+                <TurnTimer deadline={active ? game.deadline : null} offset={clockOffset} />
               </span>
             </div>
             <TimerBar
               deadline={active ? game.deadline : null}
               totalMs={turnMs(v)}
-              serverNow={serverNow}
+              offset={clockOffset}
             />
             <ClueCard game={game} nudge={v.nudge} />
             <div className="hidden pane:block">

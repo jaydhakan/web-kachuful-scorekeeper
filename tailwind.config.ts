@@ -52,6 +52,8 @@ export default {
     './src/*.{ts,tsx}',
     './src/{assets,components,hooks,lib,people,platform,state,strings,styles,sync,test,theme}/**/*.{ts,tsx}',
     './src/games/{kachuful,kaali-teeri}/**/*.{ts,tsx}',
+    // The moments every game shares; not `fx/lab`, which is dev-only and has its own sheet.
+    './src/fx/*.{ts,tsx}',
   ],
   future: { hoverOnlyWhenSupported: true },
   // The legacy `*-opacity-*` utilities are unused; without them a colour class is one short declaration.
