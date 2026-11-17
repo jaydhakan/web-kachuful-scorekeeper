@@ -10,7 +10,7 @@ class Param {
   linearRampToValueAtTime = () => this;
   exponentialRampToValueAtTime = () => this;
 }
-const node = () => ({ connect: <T,>(n: T) => n });
+const node = () => ({ connect: <T>(n: T) => n });
 const source = () => ({
   ...node(),
   type: '',
