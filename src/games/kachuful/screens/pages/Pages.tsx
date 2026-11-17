@@ -4,6 +4,8 @@ import { Page, Skeleton } from '@/components/ui/Page';
 import { AccountPage } from '@/platform/pages/AccountPage';
 import { ActivityPage } from './ActivityPage';
 import { AchievementsPage } from './AchievementsPage';
+import { EveryGameActivity, OtherGameAchievements } from './OtherGamePages';
+import { GAME_IDS, type GameId } from '@/platform/route';
 import { InvitePage, ResetPage, SignInPage } from '@/platform/pages/AuthPages';
 import { CreditsPage } from '@/platform/pages/CreditsPage';
 import { AwardsPage } from './AwardsPage';
@@ -38,7 +40,11 @@ export default function Pages({ route }: { route: Route }) {
     case 'h2h':
       return <H2HPage a={p.a ?? ''} b={p.b ?? ''} />;
     case 'achievements':
-      return <AchievementsPage id={p.id} />;
+      return p.game && p.game !== 'kachuful' && GAME_IDS.includes(p.game as GameId) ? (
+        <OtherGameAchievements game={p.game as GameId} id={p.id} />
+      ) : (
+        <AchievementsPage id={p.id} />
+      );
     case 'awards':
       return <AwardsPage />;
     case 'wrapped':
@@ -66,7 +72,7 @@ export default function Pages({ route }: { route: Route }) {
         </Suspense>
       );
     case 'activity':
-      return <ActivityPage />;
+      return p.game === 'all' ? <EveryGameActivity /> : <ActivityPage />;
     case 'live':
       return <LivePage token={p.token ?? ''} />;
     case 'recap':

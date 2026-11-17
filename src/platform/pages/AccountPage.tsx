@@ -29,6 +29,7 @@ import { HeroStat, HeroStatsSkeleton } from '@/components/ui/HeroStat';
 import { authError } from './AuthPages';
 import { InboxList } from './InboxList';
 import { ClaimsList, useClaims } from './ClaimsList';
+import { MeAchievements, MeActivity } from './MeProgress';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 
@@ -118,6 +119,8 @@ export function AccountPage() {
                   {Icon.chev}
                 </span>
               </button>
+              <MeAchievements id={p.id} />
+              <MeActivity />
             </>
           ) : (
             <div className="mb-6 flex flex-col items-center gap-1 text-center">

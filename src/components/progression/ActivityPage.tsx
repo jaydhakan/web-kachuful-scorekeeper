@@ -1,9 +1,9 @@
 import { m } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { byCode } from '@/progression/catalogue';
-import { peekProgression, type GameProgression } from '@/progression/registry';
+import { loadProgression, peekProgression, type GameProgression } from '@/progression/registry';
 import type { GameId } from '@/progression/types';
-import { agoTxt, sgnN } from '@/lib/format';
+import { agoTxt } from '@/lib/format';
 import { ep } from '@/sync/endpoints';
 import { newsworthy, type Activity } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
@@ -11,8 +11,29 @@ import { RemoteGate } from '@/components/RemoteGate';
 import { EmptyState, PageFrame } from '@/components/ui/PageParts';
 import { stagger } from '@/components/ui/stagger';
 import { t } from '@/strings';
+import { platform } from '@/strings/platform';
 import { icon } from '@/components/ui/IconsMore';
 import { useProgressionEnv } from './env';
+import { finishedLine } from './feedLine';
+
+const EVERY: readonly GameId[] = ['kachuful', 'kaali-teeri', 'spades', 'ishaara'];
+
+/**
+ * Every game's catalogue, for a feed of every game: an item names its achievement from its own game's. True once
+ * all have loaded, or failed (an unknown code then reads as itself).
+ */
+export function useEveryCatalogue(on: boolean) {
+  const [ready, setReady] = useState(() => !on || EVERY.every((g) => peekProgression(g)));
+  useEffect(() => {
+    if (ready) return;
+    let live = true;
+    void Promise.allSettled(EVERY.map(loadProgression)).then(() => live && setReady(true));
+    return () => {
+      live = false;
+    };
+  }, [ready]);
+  return ready;
+}
 
 const ac = t.hub.activity;
 
@@ -23,6 +44,7 @@ const ac = t.hub.activity;
 export function ActivityPage({ game }: { game?: GameId | 'all' }) {
   const env = useProgressionEnv();
   const feed = game ?? env.prog.id;
+  const cats = useEveryCatalogue(feed === 'all');
   const first = useRemote(
     env.signedIn ? (feed === 'kachuful' ? 'activity' : `${feed}:activity`) : null,
     () => ep.activity(null, feed),
@@ -51,7 +73,7 @@ export function ActivityPage({ game }: { game?: GameId | 'all' }) {
     );
   return (
     <PageFrame onBack={env.onBack} title={ac.title}>
-      <RemoteGate r={first}>
+      <RemoteGate r={cats ? first : { ...first, data: null, error: null }}>
         {(p) =>
           !p.items.length ? (
             <EmptyState icon="news" title={ac.empty} />
@@ -60,7 +82,7 @@ export function ActivityPage({ game }: { game?: GameId | 'all' }) {
               <ul className="flex flex-col gap-2">
                 {[...p.items, ...more].filter(newsworthy).map((a, i) => (
                   <m.li key={a.id} {...stagger(Math.min(i, 10))}>
-                    <Row a={a} />
+                    <ActivityRow a={a} every={feed === 'all'} />
                   </m.li>
                 ))}
               </ul>
@@ -98,11 +120,11 @@ export function ActivityPage({ game }: { game?: GameId | 'all' }) {
 const progOf = (a: Activity, own: GameProgression) =>
   !a.gameKind || a.gameKind === own.id ? own : (peekProgression(a.gameKind) ?? null);
 
-function Row({ a }: { a: Activity }) {
+/** One feed item; in a feed of every game (`every`) it says which game it is from. */
+export function ActivityRow({ a, every = false }: { a: Activity; every?: boolean }) {
   const { prog, openGame, openPlayer } = useProgressionEnv();
   const code = typeof a.data.code === 'string' ? a.data.code : null;
   const who = a.player;
-  const top = a.game?.players.find((p) => p.place === 1);
   const p = progOf(a, prog);
   const [emoji, text] =
     a.kind === 'achievement' && code
@@ -111,14 +133,17 @@ function Row({ a }: { a: Activity }) {
           ac.earned(who?.displayName ?? '', p?.strings.achievements[code]?.name ?? code),
         ]
       : a.kind === 'game_finished'
-        ? [icon('flag', 'h-6 w-6'), ac.finished(top?.name ?? '', top ? sgnN(top.points) : '')]
+        ? [icon('flag', 'h-6 w-6'), finishedLine(a)]
         : a.kind === 'player_joined'
           ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
           : [
               icon('crown', 'h-6 w-6 text-[var(--gold-tx)]'),
               ac.season(String(a.data.season ?? '')),
             ];
-  const go = () => (a.game && openGame ? openGame(a) : who ? openPlayer(who.id) : undefined);
+  // A game opens only in its own game's pages; from another game's feed, its player does.
+  const own = (a.gameKind ?? 'kachuful') === prog.id;
+  const go = () => (a.game && openGame && own ? openGame(a) : who ? openPlayer(who.id) : undefined);
+  const from = every ? platform.games[a.gameKind ?? 'kachuful'].name : null;
   return (
     <button
       type="button"
@@ -128,7 +153,15 @@ function Row({ a }: { a: Activity }) {
       <span aria-hidden className="text-24">
         {emoji}
       </span>
-      <span className="min-w-0 flex-1 text-15 [overflow-wrap:anywhere]">{text}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-15 [overflow-wrap:anywhere]">{text}</span>
+        {from && (
+          <span className="block text-13 text-[var(--tx2)]">
+            <span className="sr-only">{ac.from(from)}</span>
+            <span aria-hidden>{from}</span>
+          </span>
+        )}
+      </span>
       <span className="shrink-0 text-13 text-[var(--tx2)]">{agoTxt(a.createdAt)}</span>
     </button>
   );
