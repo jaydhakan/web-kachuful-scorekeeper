@@ -8,6 +8,8 @@ export const EASE = 'cubic-bezier(.32,.72,0,1)';
 export const OUT = 'cubic-bezier(.22,1,.36,1)';
 /** A little overshoot, only where something lands with momentum: a played card, a popping bid, a burst. */
 export const POP = 'cubic-bezier(.34,1.56,.64,1)';
+/** Something crossing the table: a spotlight, a stack of tricks. */
+export const TRAVEL = 'cubic-bezier(.65,0,.35,1)';
 export const REDUCED_MS = 160;
 
 export const reducedMotion = () =>
