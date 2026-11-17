@@ -1,8 +1,7 @@
 import { useLayoutEffect, useRef, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { InkFill } from '@/components/ui/InkFill';
 import { momentRoot } from '../moments';
-import { anim, POP, REDUCED_MS, TRAVEL, wait } from '../waapi';
+import { anim, OUT, POP, REDUCED_MS, TRAVEL, wait } from '../waapi';
 
 export interface SeatPoint {
   x: number;
@@ -47,7 +46,8 @@ export function SeatSpotlight({
     dim = useRef<HTMLDivElement>(null),
     light = useRef<HTMLSpanElement>(null),
     ring = useRef<HTMLSpanElement>(null),
-    say = useRef<HTMLParagraphElement>(null);
+    say = useRef<HTMLParagraphElement>(null),
+    ink = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
     const runs: { cancel: () => void }[] = [];
@@ -98,6 +98,12 @@ export function SeatSpotlight({
             delay: TRAVEL_MS,
             fill: 'both',
           }),
+          // The line inks in from its outline (the headline's fill, DESIGN-SYSTEM.md Motion), left to right.
+          anim(
+            ink.current,
+            [{ clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)' }],
+            { duration: 500, delay: TRAVEL_MS, easing: OUT, fill: 'both' },
+          ),
         );
         await wait(LEAVE_AT);
       }
@@ -168,7 +174,16 @@ export function SeatSpotlight({
         // Centred on the screen, under the seat: a seat at the edge would push it off.
         style={{ left: '50%', top: to.y - o.top + to.r + 22 }}
       >
-        <InkFill text={line} fill={reduced ? 'done' : { delay: TRAVEL_MS / 1000, duration: 0.5 }} />
+        <span className="ink-fill">
+          {line}
+          <span
+            ref={ink}
+            aria-hidden
+            data-fill={line}
+            style={{ WebkitTextStroke: 0 }}
+            className="absolute inset-0 text-[var(--brand)] after:content-[attr(data-fill)]"
+          />
+        </span>
       </p>
     </div>,
     host,
