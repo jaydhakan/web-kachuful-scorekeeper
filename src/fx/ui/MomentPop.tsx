@@ -1,12 +1,10 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
-import { PRIORITY, useMoments, type MomentCtx } from '@/fx/moments';
-import { anim, OUT } from '@/fx/waapi';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { PRIORITY, useMoments, type MomentCtx } from '../moments';
+import { UnlockCard } from './UnlockCard';
+import { anim, OUT } from '../waapi';
 import { fx as s } from '@/strings/fx';
-import type { PopCard } from './popCard';
-
-// Only a big moment needs the card (and its confetti and sheen); every game's screen can show the small ones.
-const UnlockCard = lazy(() => import('./UnlockCard').then((m) => ({ default: m.UnlockCard })));
+import type { PopCard } from '@/components/progression/popCard';
 
 /** Small cards shown at once; the rest of a batch is one "+N more" line. */
 const SMALL_MAX = 3;
@@ -105,16 +103,14 @@ export function MomentPop({ pops, onDone }: { pops: Batch | null; onDone: () => 
   return (
     <>
       {big && (
-        <Suspense fallback={null}>
-          <UnlockCard
-            key={big.card.k}
-            card={big.card}
-            reduced={big.reduced}
-            signal={big.signal}
-            onSkip={() => q.skip()}
-            onDone={big.done}
-          />
-        </Suspense>
+        <UnlockCard
+          key={big.card.k}
+          card={big.card}
+          reduced={big.reduced}
+          signal={big.signal}
+          onSkip={() => q.skip()}
+          onDone={big.done}
+        />
       )}
       <SmallCards batch={small} />
     </>

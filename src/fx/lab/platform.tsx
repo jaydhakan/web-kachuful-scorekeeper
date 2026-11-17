@@ -3,8 +3,8 @@ import { Podium, type PodiumStanding } from '@/components/ui/Podium';
 import { revealPlan } from '@/components/ui/podiumReveal';
 import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { COLORS } from '@/people/avatars';
-import EmojiRain from '../EmojiRain';
-import { MomentPop } from '@/components/progression/MomentPop';
+import { EmojiRain } from '../ui';
+import { MomentPop } from '../ui';
 import type { PopCard } from '@/components/progression/popCard';
 import type { LabEntry } from './registry';
 

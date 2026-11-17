@@ -4,7 +4,7 @@ import { ACH } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { achName } from '@/games/kachuful/strings/achievements';
 import { reveal } from '@/components/ui/podiumReveal';
-import { MomentPop } from '@/components/progression/MomentPop';
+import { MomentPopLazy as MomentPop } from '@/components/progression/MomentPopLazy';
 import { t } from '@/strings';
 
 const STREAK = /^(hot|cold)_/;

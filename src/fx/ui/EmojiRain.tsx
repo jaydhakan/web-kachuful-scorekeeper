@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { BEAT_HOLD_MS } from '@/components/ui/motion';
-import { anim, reducedMotion } from './waapi';
+import { anim, reducedMotion } from '../waapi';
 
 const DROPS = 24;
 const FALL_MS = 1600;

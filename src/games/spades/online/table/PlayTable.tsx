@@ -65,7 +65,7 @@ import {
 } from './present';
 import { BoardBody, KeysBody, LastTrickBody, MenuBody, PrefsBody } from './Sheets';
 
-const EmojiRain = lazy(() => import('@/fx/EmojiRain'));
+const EmojiRain = lazy(() => import('@/fx/ui').then((m) => ({ default: m.EmojiRain })));
 const Boston = lazy(() => import('@/games/spades/ui/Boston').then((m) => ({ default: m.Boston })));
 const BOSTON_HAPTIC = [40, 30, 60];
 import { Cancelled, Winner } from './Winner';

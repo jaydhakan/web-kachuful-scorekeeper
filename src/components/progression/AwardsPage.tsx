@@ -21,6 +21,7 @@ import { icon } from '@/components/ui/IconsMore';
 import { PlayerTag } from '@/components/ui/PlayerTag';
 import { useProgressionEnv } from './env';
 import { useDaily, useSeason, useSeasons, type Champ } from './useProgressionData';
+import { fx } from '@/strings/fx';
 import { SeasonPodium } from './SeasonPodium';
 import { WinRateStandings } from './WinRateStandings';
 import { saveSeasonShown, wasSeasonShown } from '@/state/persistence';
@@ -209,7 +210,7 @@ export function AwardsPage<R extends StandingRow = StandingRow>({
                 s={s}
                 ceremony={
                   ceremony?.month === month
-                    ? { key: ceremony.key, title: aw.ceremony(monthLabel(parseDay(month + '-01'))) }
+                    ? { key: ceremony.key, title: fx.ceremony(monthLabel(parseDay(month + '-01'))) }
                     : null
                 }
               />
@@ -221,7 +222,7 @@ export function AwardsPage<R extends StandingRow = StandingRow>({
                     onClick={() => setCeremony((c) => ({ key: (c?.key ?? 0) + 1, month }))}
                     className="press min-h-11 px-4 text-15 font-semibold text-[var(--accent-tx)] underline decoration-ov/25 underline-offset-[5px]"
                   >
-                    {aw.replay}
+                    {fx.replay}
                   </button>
                 </div>
               )}

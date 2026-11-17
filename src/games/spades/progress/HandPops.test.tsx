@@ -15,7 +15,7 @@ describe('a hand’s moments pop', () => {
   it('as one card per achievement, partners sharing it, big ones first', async () => {
     const names = new Map(game.players.map((p) => [pidOf(p), p.name]));
     render(<HandPops game={game} index={0} nameOf={(id) => names.get(id) ?? ''} />);
-    const pop = screen.getByRole('status');
+    const pop = await screen.findByRole('status');
     expect(await within(pop).findByText('Riya & Dev · Boston')).toBeInTheDocument();
     const cards = within(pop)
       .getAllByText(/ · /)

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Confetti } from '@/components/ui/Confetti';
-import { Stamp } from '@/components/ui/Stamp';
+import { Stamp } from '@/fx/ui';
 import { palette } from '@/theme/palette';
 import { PRIORITY, useMoments } from '../moments';
 import { cue, SOUND_TIER, type SoundName } from '../sound';

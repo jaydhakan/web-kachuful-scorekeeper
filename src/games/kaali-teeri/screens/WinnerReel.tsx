@@ -44,7 +44,11 @@ export default function WinnerReel({ g, max = 12 }: { g: KtGame; max?: number })
     startedAt: g.createdAt,
   });
   const best = mvpOf(g);
-  const mvp = best && { who: person(best.playerId), line: end.winner.mvp(best.n, best.of) };
+  const mvp = best && {
+    who: person(best.playerId),
+    title: end.winner.mvpTitle,
+    line: end.winner.mvp(best.n, best.of),
+  };
   // Careers count every game here: wait for the archive rather than reshuffle the cards.
   if (src.status === 'loading') return null;
   return (

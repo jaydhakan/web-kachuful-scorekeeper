@@ -266,9 +266,6 @@ export const hub = {
     noChampion: 'No champion',
     mostTitles: (name: string, n: number) => `Most titles: ${name} ×${n}`,
     live: 'Live · the month is not over',
-    /** The season close's ceremony: its title, and the button that plays it again. */
-    ceremony: (month: string) => `Season · ${month}`,
-    replay: 'Replay the reveal',
     wrapped: (y: number) => `Your ${y} Wrapped`,
     explore: 'Explore',
     exploreAch: 'Achievements',
@@ -625,8 +622,6 @@ export const hub = {
   },
   game: {
     title: 'Game',
-    /** The end-of-game reel's first card: who owned the game, and the stat that says so. */
-    mvp: 'Player of the game',
     notFound: 'This game is not on this device',
     notFoundBody: 'It may have been deleted, or it was played on another device.',
     finishedOn: (d: string) => `Finished ${d}`,

@@ -19,4 +19,7 @@ export const fx = {
   unlocked: 'Unlocked',
   unlockedBy: (who: string, what: string) => `${who} unlocked ${what}`,
   more: (n: number) => `+${n} more`,
+  /** The season close's ceremony: its title, and the button that plays it again. */
+  ceremony: (month: string) => `Season · ${month}`,
+  replay: 'Replay the reveal',
 } as const;

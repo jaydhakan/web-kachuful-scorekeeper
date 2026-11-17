@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { MomentPop } from '@/components/progression/MomentPop';
+import { MomentPopLazy as MomentPop } from '@/components/progression/MomentPopLazy';
 import type { PopCard } from '@/components/progression/popCard';
 import type { SpGame, SpPublic } from '@/games/spades/domain/types';
 

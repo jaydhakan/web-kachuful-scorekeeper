@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Confetti } from '@/components/ui/Confetti';
-import { Stamp } from '@/components/ui/Stamp';
+import { Stamp } from '@/fx/ui';
 import { PRIORITY, useMoments } from '@/fx/moments';
 import { stamp } from '@/fx/stamp';
 import { anim, TRAVEL, wait } from '@/fx/waapi';

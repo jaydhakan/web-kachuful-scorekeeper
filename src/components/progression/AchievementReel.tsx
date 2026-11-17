@@ -11,7 +11,7 @@ import type { Person } from './env';
 
 export type ReelItem = { e: Earned; who: Person };
 /** The player of the game (WOW-MOMENTS-PLAN A4): the reel's first card, gold, with the stat they owned. */
-export type ReelMvp = { who: Person; line: string };
+export type ReelMvp = { who: Person; title: string; line: string };
 
 /**
  * A finished game's achievements as cards flipping in one by one (order them with `reelOrder`); a tap turns a card
@@ -49,7 +49,7 @@ export function AchievementReel({
         >
           <div className="glass relative flex min-h-[6.5rem] w-full flex-col items-start gap-1 overflow-hidden p-3">
             <Edge tone="gold" />
-            <span className="mono-label text-12 text-[var(--gold-tx)]">{t.hub.game.mvp}</span>
+            <span className="mono-label text-12 text-[var(--gold-tx)]">{mvp.title}</span>
             <PlayerTag p={mvp.who} name={mvp.who.name} s={22} />
             <span className="text-13 text-[var(--tx2)]">{mvp.line}</span>
           </div>

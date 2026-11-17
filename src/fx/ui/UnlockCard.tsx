@@ -2,12 +2,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Confetti } from '@/components/ui/Confetti';
 import { FLIP_MS } from '@/components/ui/motion';
-import { momentRoot } from '@/fx/moments';
+import { momentRoot } from '../moments';
 import { sheen } from '@/fx/stamp';
 import { anim, OUT, REDUCED_MS, TRAVEL, wait, EASE } from '@/fx/waapi';
 import { fx as s } from '@/strings/fx';
 import { palette, themeConfetti } from '@/theme/palette';
-import type { PopCard } from './popCard';
+import type { PopCard } from '@/components/progression/popCard';
 
 /** WOW-MOMENTS-PLAN A1: drop, turn, one sheen, read, then away; ≤ 2.5s in all. */
 const DROP_MS = 420;
