@@ -54,7 +54,6 @@ Sound for Kachuful and Kaali Teeri is built (`src/fx`, `docs/codebase/ARCHITECTU
   - The forbidden-bid `knock` can't be tapped on a phone (the key is natively disabled); it fires only from the desk keyboard path.
   - A live spectator who never taps stays silent: audio unlocks on the first tap and the live pages don't call `armAudio`.
   - Kachuful's Summary has no tap-to-skip, so the plan's `settle` crown is built but unused there; the Sound Board's sequences are hand-copied timings, not the games' own plans.
-- **Failing e2e that predate sound** (also fail on `origin/main`, 2026-11-18): `ishaara-board.spec.ts:128` (trap stamp), `ishaara-play.spec.ts:118` (picking the trap: "See the result" never shows) and `themes.spec.ts:94` yerba-sun (Instrument Sans downloaded under another theme).
 - **Late-night quiet** (decided "on" in REWARDS-PLAN, not built): sounds drop a level after a set hour. Not part of this task.
 
 ## Motion
