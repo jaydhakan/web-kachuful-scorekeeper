@@ -1,0 +1,1834 @@
+<!doctype html>
+<html lang="en" data-theme="sunset-glass" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baithak rewards demo</title>
+<!-- Working doc: never committed. Delete with docs/REWARDS-PLAN.md. A clickable demo, not app code. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:wght@200..800&family=Space+Mono:wght@400;700&family=DM+Mono:wght@400;500&family=Cinzel:wght@400..900&display=swap">
+<style>
+/* ===== Theme tokens: copied at build time from src/styles/themes.css and src/styles/themes/*.css, plus the new cloth tokens (REWARDS-PLAN 4.4) ===== */
+html[data-theme='sunset-glass'] {
+  color-scheme: dark;
+  --font-display: 'Instrument Sans', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'Instrument Sans', system-ui, sans-serif;
+  --display-weight: 700;
+  --display-track: -0.03em;
+  --mono-track: 0.08em;
+  --bg: #14080f;
+  --surface-1: #1e0f1a;
+  --surface-2: #2a1220;
+  --surface-3: #3a1b2e;
+  --panel: rgba(255, 255, 255, 0.09);
+  --hairline: rgba(255, 240, 235, 0.1);
+  --hairline-2: rgba(255, 240, 235, 0.18);
+  --text-1: #fff6f0;
+  --text-2: #f0d2ce;
+  --text-3: #cca8ac;
+  --brand: #ffb86b;
+  --accent-tx: var(--brand);
+  --gold-tx: var(--medal-gold);
+  --focus: var(--brand);
+  --brand-press: #f0a04f;
+  --on-brand: #2a0a14;
+  --brand-soft: rgba(255, 184, 107, 0.16);
+  --felt: #7e2058;
+  --felt-hi: #c03c80;
+  --felt-lo: #40103a;
+  --felt-rim: #ffb4a0;
+  --suit-red: #ffa6b4;
+  --success: #7ee2a8;
+  --success-soft: rgba(126, 226, 168, 0.16);
+  --danger: #ff8c9a;
+  --danger-soft: rgba(255, 140, 154, 0.16);
+  --warning: #ffd08a;
+  --on-success: #2a0a14;
+  --on-danger: #2a0a14;
+  --scrim: rgba(10, 3, 8, 0.55);
+  --g1: rgba(255, 138, 76, 0.34);
+  --g2: rgba(236, 72, 153, 0.42);
+  --g3: rgba(124, 58, 237, 0.48);
+  --ga: #ffb86b;
+  --gb: #ff5e9c;
+  --glow: rgba(255, 110, 140, 0.55);
+  --glass: rgba(255, 255, 255, 0.09);
+  --glass-b: rgba(255, 255, 255, 0.16);
+  --drop: rgba(0, 0, 0, 0.28);
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --card-bg: #fff6f0;
+  --card-fg: #2a0a14;
+  --card-red: #d81b5b;
+  --ink: #fff6f0;
+  --medal-gold: #e2b653;
+  --medal-gold-hi: #f7e7a6;
+  --medal-gold-lo: #a8761e;
+  --medal-silver: #c9d3dd;
+  --medal-silver-hi: #dde5ec;
+  --medal-silver-lo: #8793a0;
+  --medal-bronze: #d08a5b;
+  --medal-bronze-hi: #e3a57e;
+  --medal-bronze-lo: #8f5a38;
+  --on-gold: #3a2808;
+  --seat-1: #e8a87c;
+  --seat-2: #7fb3d5;
+  --seat-3: #e3c766;
+  --seat-4: #8fc9a3;
+  --seat-5: #b49fdc;
+  --seat-6: #e39ab3;
+  --seat-7: #9bc4c0;
+  --seat-8: #a3aee6;
+  --seat-9: #e8978f;
+  --seat-10: #d4a373;
+  --seat-11: #c5d17a;
+  --seat-12: #9eb0ba;
+  --seat-13: #7ccfdc;
+  --seat-14: #f0b860;
+  --fill-primary: linear-gradient(135deg, var(--ga), var(--gb));
+  --team-sun: #f5a524;
+  --team-moon: #4f5bd5;
+  --cloth-saffron: #f0a23b;
+  --cloth-indigo: #6b72d8;
+  --cloth-maroon: #b5445f;
+  --cloth-forest: #5fae82;
+  --cloth-cream: #f6e6d2;
+  --cloth-slate: #8a93a8;
+  --cloth-rose: #e98aa8;
+  --cloth-teal: #4fb7b0;
+  --bw: 1px;
+  --bd: var(--glass-b);
+  --sh: 0 8px 24px var(--drop);
+  --card-bg2: var(--panel);
+  --ambient: radial-gradient(62% 38% at 12% 6%, var(--g1) 0, transparent 72%), radial-gradient(60% 40% at 92% 22%, var(--g2) 0, transparent 70%), radial-gradient(70% 40% at 50% 100%, var(--g3) 0, transparent 70%);
+  --felt-bg: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
+  --felt-edge: inset 0 0 0 2px var(--felt-rim), 0 10px 28px var(--drop);
+}
+html[data-theme='editorial-paper'] {
+  color-scheme: light;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --display-weight: 400;
+  --display-track: -0.01em;
+  --mono-track: 0.06em;
+  --ink: #151412;
+  --bg: #f3efe6;
+  --surface-1: #ebe6da;
+  --surface-2: #e8e2d4;
+  --surface-3: #dad3c2;
+  --panel: #fbf8f0;
+  --hairline: rgba(21, 20, 18, 0.16);
+  --hairline-2: rgba(21, 20, 18, 0.32);
+  --text-1: #151412;
+  --text-2: #46433c;
+  --text-3: #615d54;
+  --brand: #ff4b1f;
+  --accent-tx: #a32a09;
+  --gold-tx: #6e500c;
+  --focus: var(--ink);
+  --brand-press: #e63d12;
+  --on-brand: #151412;
+  --brand-soft: rgba(255, 75, 31, 0.14);
+  --felt: #16352a;
+  --felt-hi: #1f4a39;
+  --felt-lo: #143127;
+  --felt-rim: #151412;
+  --suit-red: #d7261e;
+  --success: #2f6b45;
+  --success-soft: rgba(47, 107, 69, 0.14);
+  --danger: #b3261e;
+  --danger-soft: rgba(179, 38, 30, 0.12);
+  --warning: #b3380e;
+  --on-success: #fbf8f0;
+  --on-danger: #fbf8f0;
+  --scrim: rgba(21, 20, 18, 0.45);
+  --ga: var(--brand);
+  --gb: var(--brand);
+  --glow: rgba(255, 75, 31, 0.22);
+  --glass: var(--panel);
+  --glass-b: var(--ink);
+  --drop: transparent;
+  --r-sm: 2px;
+  --r-md: 2px;
+  --r-lg: 4px;
+  --r-xl: 6px;
+  --card-bg: #fbf8f0;
+  --card-fg: #151412;
+  --card-red: #d7261e;
+  --medal-gold: #c99a2e;
+  --medal-gold-hi: #e3c56e;
+  --medal-gold-lo: #9c7418;
+  --medal-silver: #a7abb0;
+  --medal-silver-hi: #cdd0d4;
+  --medal-silver-lo: #7d8288;
+  --medal-bronze: #b5703f;
+  --medal-bronze-hi: #d09468;
+  --medal-bronze-lo: #8a5129;
+  --on-gold: #151412;
+  --seat-1: #e8a87c;
+  --seat-2: #7fb3d5;
+  --seat-3: #e3c766;
+  --seat-4: #8fc9a3;
+  --seat-5: #b49fdc;
+  --seat-6: #e39ab3;
+  --seat-7: #9bc4c0;
+  --seat-8: #a3aee6;
+  --seat-9: #e8978f;
+  --seat-10: #d4a373;
+  --seat-11: #c5d17a;
+  --seat-12: #9eb0ba;
+  --seat-13: #7ccfdc;
+  --seat-14: #f0b860;
+  --fill-primary: var(--brand);
+  --team-sun: #f5a524;
+  --team-moon: #3f4bc4;
+  --cloth-saffron: #e08a1a;
+  --cloth-indigo: #3d4aa8;
+  --cloth-maroon: #8e2a3a;
+  --cloth-forest: #2f6b45;
+  --cloth-cream: #ece3cf;
+  --cloth-slate: #5a6270;
+  --cloth-rose: #d4688a;
+  --cloth-teal: #1f7f7a;
+  --bw: 1px;
+  --bd: var(--ink);
+  --sh: none;
+  --card-bg2: var(--panel);
+  --ambient: none;
+  --felt-bg: radial-gradient(90% 90% at 40% 25%, var(--felt-hi), var(--felt-lo));
+  --felt-edge: inset 0 0 0 2px var(--felt-rim);
+}
+html[data-theme='emerald-gilt'] {
+  color-scheme: dark;
+  --font-display: 'Cinzel', 'Instrument Sans', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'Cinzel', 'Instrument Sans', Georgia, serif;
+  --display-weight: 700;
+  --display-track: 0.02em;
+  --mono-track: 0.16em;
+  --bg: #0c1a12;
+  --surface-1: #102419;
+  --surface-2: #163021;
+  --surface-3: #1d3b29;
+  --panel: #163021;
+  --hairline: rgba(216, 201, 166, 0.14);
+  --hairline-2: rgba(216, 201, 166, 0.26);
+  --text-1: #f5eedc;
+  --text-2: #d8c9a6;
+  --text-3: #93ae96;
+  --brand: #c9a24e;
+  --accent-tx: var(--brand);
+  --gold-tx: var(--medal-gold);
+  --focus: var(--brand);
+  --brand-press: #b08a3e;
+  --on-brand: #0c1a12;
+  --brand-soft: rgba(201, 162, 78, 0.16);
+  --felt: #123d26;
+  --felt-hi: #1e6b3a;
+  --felt-lo: #0a2616;
+  --felt-rim: var(--brand);
+  --suit-red: #e8606e;
+  --success: #7bd69c;
+  --success-soft: rgba(123, 214, 156, 0.16);
+  --danger: #f07a86;
+  --danger-soft: rgba(240, 122, 134, 0.16);
+  --warning: #f0a860;
+  --on-success: #0c1a12;
+  --on-danger: #0c1a12;
+  --scrim: rgba(4, 10, 6, 0.6);
+  --ga: #ebd08c;
+  --gb: #a8853a;
+  --glow: rgba(201, 162, 78, 0.38);
+  --glass: var(--surface-2);
+  --glass-b: rgba(201, 162, 78, 0.38);
+  --drop: rgba(0, 0, 0, 0.4);
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --card-bg: #faf7f0;
+  --card-fg: #123d26;
+  --card-red: #c21a2e;
+  --ink: #f5eedc;
+  --medal-gold: #d4af5f;
+  --medal-gold-hi: #f0d995;
+  --medal-gold-lo: #8a6a2e;
+  --medal-silver: #c9d3dd;
+  --medal-silver-hi: #dde5ec;
+  --medal-silver-lo: #8793a0;
+  --medal-bronze: #d08a5b;
+  --medal-bronze-hi: #e3a57e;
+  --medal-bronze-lo: #8f5a38;
+  --on-gold: #0c1a12;
+  --seat-1: #d99a6c;
+  --seat-2: #8ec1e3;
+  --seat-3: #e3c25a;
+  --seat-4: #6fcf95;
+  --seat-5: #a88bd0;
+  --seat-6: #e89bb4;
+  --seat-7: #7dbfb0;
+  --seat-8: #afc0d6;
+  --seat-9: #e07a6e;
+  --seat-10: #d4b27c;
+  --seat-11: #c8d86a;
+  --seat-12: #9fb1bd;
+  --seat-13: #6fd0de;
+  --seat-14: #eab55a;
+  --fill-primary: linear-gradient(135deg, var(--ga), var(--brand) 55%, var(--gb));
+  --team-sun: #f5a524;
+  --team-moon: #4f5bd5;
+  --cloth-saffron: #d9a441;
+  --cloth-indigo: #5a64b8;
+  --cloth-maroon: #9c3a4e;
+  --cloth-forest: #3f9a63;
+  --cloth-cream: #efe4c8;
+  --cloth-slate: #7c8a96;
+  --cloth-rose: #d98aa5;
+  --cloth-teal: #3fa89d;
+  --bw: 1px;
+  --bd: var(--glass-b);
+  --sh: 0 6px 20px var(--drop);
+  --card-bg2: var(--surface-2);
+  --ambient: none;
+  --felt-bg: radial-gradient(90% 90% at 50% 32%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
+  --felt-edge: inset 0 0 0 1.5px var(--felt-rim), 0 0 0 5px var(--felt-rim), 0 8px 22px var(--drop);
+}
+html[data-theme='yerba-sun'] {
+  color-scheme: light;
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --display-weight: 800;
+  --display-track: -0.035em;
+  --mono-track: 0.08em;
+  --ink: #2b1a0e;
+  --bg: #fbe7b5;
+  --surface-1: #fff0cb;
+  --surface-2: #f2d690;
+  --surface-3: #e8c97a;
+  --panel: #fff8e6;
+  --hairline: rgba(43, 26, 14, 0.2);
+  --hairline-2: rgba(43, 26, 14, 0.36);
+  --text-1: #2b1a0e;
+  --text-2: #5b4128;
+  --text-3: #6e5232;
+  --brand: #ee6a4b;
+  --accent-tx: #93300f;
+  --gold-tx: #6f4a00;
+  --focus: var(--ink);
+  --brand-press: #da5a3c;
+  --on-brand: #2b1a0e;
+  --brand-soft: rgba(238, 106, 75, 0.2);
+  --felt: #ee6a4b;
+  --felt-hi: #ee6a4b;
+  --felt-lo: #ee6a4b;
+  --felt-rim: #2b1a0e;
+  --suit-red: #6e0f1c;
+  --success: #1e6b45;
+  --success-soft: rgba(30, 107, 69, 0.18);
+  --danger: #a3202f;
+  --danger-soft: rgba(163, 32, 47, 0.16);
+  --warning: #8a2a0e;
+  --on-success: #fff8e6;
+  --on-danger: #fff8e6;
+  --scrim: rgba(43, 26, 14, 0.45);
+  --ga: var(--brand);
+  --gb: var(--brand);
+  --glow: rgba(238, 106, 75, 0.3);
+  --glass: var(--panel);
+  --glass-b: var(--ink);
+  --drop: var(--ink);
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+  --card-bg: #fffbf0;
+  --card-fg: #2b1a0e;
+  --card-red: #b4002f;
+  --medal-gold: #ffc93c;
+  --medal-gold-hi: #ffe08a;
+  --medal-gold-lo: #e0a21b;
+  --medal-silver: #d5d9de;
+  --medal-silver-hi: #eef0f2;
+  --medal-silver-lo: #a9afb6;
+  --medal-bronze: #e8a56a;
+  --medal-bronze-hi: #f4c49a;
+  --medal-bronze-lo: #b8723a;
+  --on-gold: #2b1a0e;
+  --seat-1: #ffb347;
+  --seat-2: #8cc8f0;
+  --seat-3: #fff3d6;
+  --seat-4: #7fd6a8;
+  --seat-5: #c9a6ff;
+  --seat-6: #ff9bb5;
+  --seat-7: #7fdad0;
+  --seat-8: #a9b4ff;
+  --seat-9: #ff8a80;
+  --seat-10: #e8a56a;
+  --seat-11: #d8f07a;
+  --seat-12: #b0c4d0;
+  --seat-13: #7fe3f0;
+  --seat-14: #ffc46b;
+  --fill-primary: var(--brand);
+  --team-sun: #f5a524;
+  --team-moon: #3f4bc4;
+  --cloth-saffron: #f59a23;
+  --cloth-indigo: #3f4bc4;
+  --cloth-maroon: #a3202f;
+  --cloth-forest: #1e6b45;
+  --cloth-cream: #fff3d6;
+  --cloth-slate: #5f6f7d;
+  --cloth-rose: #ff7fa3;
+  --cloth-teal: #1d9a8c;
+  --bw: 2px;
+  --bd: var(--ink);
+  --sh: 3px 3px 0 var(--ink);
+  --card-bg2: var(--panel);
+  --ambient: none;
+  --felt-bg: var(--felt);
+  --felt-edge: inset 0 0 0 2px var(--ink), 3px 3px 0 var(--ink);
+}
+
+
+/* ===== Demo chrome ===== */
+*{box-sizing:border-box}
+html{--f1:11px;--f2:12px;--f3:13px;--f4:15px;--f5:17px;--f6:20px;--f7:28px;--f8:36px;--bar:56px}
+body{margin:0;background:var(--surface-1);color:var(--text-1);font-family:var(--font-body);font-size:var(--f4);line-height:1.35;-webkit-text-size-adjust:100%}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* control bar */
+#bar{position:fixed;inset:0 0 auto 0;height:var(--bar);z-index:60;display:flex;align-items:center;gap:8px;padding:6px 12px;overflow-x:auto;background:var(--surface-2);border-bottom:var(--bw) solid var(--bd);scrollbar-width:thin}
+#bar>*{flex:none}
+.cb{min-height:44px;min-width:44px;padding:0 12px;border-radius:var(--r-md);border:var(--bw) solid var(--hairline-2);background:var(--surface-3);color:var(--text-1);font-size:var(--f3);font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.cb[aria-pressed=true]{background:var(--brand);color:var(--on-brand);border-color:var(--bd)}
+.cb.scene{max-width:230px;overflow:hidden;text-overflow:ellipsis;background:var(--brand);color:var(--on-brand)}
+#bar select{min-height:44px;border-radius:var(--r-md);border:var(--bw) solid var(--hairline-2);background:var(--surface-3);padding:0 8px;font-size:var(--f3);font-weight:600;color:var(--text-1)}
+.grp{display:flex;border:var(--bw) solid var(--hairline-2);border-radius:var(--r-md);overflow:hidden;background:var(--surface-3)}
+.grp button{min-height:44px;min-width:44px;padding:0 10px;font-size:var(--f3);font-weight:600;color:var(--text-2)}
+.grp button[aria-pressed=true]{background:var(--brand);color:var(--on-brand)}
+.lbl{font-size:var(--f1);letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);font-family:var(--font-mono)}
+
+/* page and phone frame */
+#page{min-height:100dvh;padding:calc(var(--bar) + 12px) 12px 12px;display:flex;justify-content:center;align-items:flex-start}
+#frame{position:relative;width:390px;height:min(844px,calc(100dvh - var(--bar) - 24px));min-height:560px;overflow:hidden;border-radius:36px;border:6px solid var(--text-1);background:var(--bg);background-image:var(--ambient);display:flex;flex-direction:column;isolation:isolate}
+html[data-theme=yerba-sun] #frame,html[data-theme=editorial-paper] #frame{border-color:var(--ink)}
+@media (max-width:430px){
+  #page{padding:var(--bar) 0 0}
+  #frame{width:100%;height:calc(100dvh - var(--bar));min-height:0;border-radius:0;border:0}
+}
+#top{flex:none;display:flex;align-items:center;gap:8px;padding:10px 14px 6px}
+#top h1{margin:0;font-family:var(--font-display);font-weight:var(--display-weight);letter-spacing:var(--display-track);font-size:var(--f5);line-height:1.15;flex:1;min-width:0}
+.tag{font-size:var(--f1);letter-spacing:.06em;text-transform:uppercase;font-family:var(--font-mono);padding:3px 7px;border-radius:99px;border:1px dashed var(--hairline-2);color:var(--text-3);white-space:nowrap}
+#scene{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 16px 16px;-webkit-overflow-scrolling:touch}
+#scene>section{display:flex;flex-direction:column;gap:14px}
+/* decision bar */
+#decide{flex:none;padding:8px 12px 10px;border-top:var(--bw) solid var(--hairline-2);background:var(--surface-1);display:flex;flex-direction:column;gap:6px}
+#decide .row{display:flex;gap:8px;align-items:stretch}
+.seg{display:flex;flex:1;border:var(--bw) solid var(--hairline-2);border-radius:var(--r-md);overflow:hidden;background:var(--surface-2)}
+.seg button{flex:1;min-height:44px;min-width:44px;font-size:var(--f3);font-weight:700;color:var(--text-2)}
+.seg button+button{border-left:var(--bw) solid var(--hairline-2)}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--on-brand)}
+.seg button[data-v=cut][aria-pressed=true]{background:var(--danger);color:var(--on-danger)}
+.seg button[data-v=keep][aria-pressed=true]{background:var(--success);color:var(--on-success)}
+#decide input{flex:1;min-height:44px;border-radius:var(--r-md);border:var(--bw) solid var(--hairline-2);background:var(--surface-2);padding:0 12px;font-size:var(--f3);width:100%}
+
+/* generic */
+.card{background:var(--card-bg2);border:var(--bw) solid var(--bd);border-radius:var(--r-lg);box-shadow:var(--sh);padding:12px}
+.card h2,.sec h2{margin:0 0 6px;font-family:var(--font-display);font-weight:var(--display-weight);letter-spacing:var(--display-track);font-size:var(--f5)}
+.sec>h2{font-family:var(--font-display);font-weight:var(--display-weight);letter-spacing:var(--display-track);font-size:var(--f5);margin:0 0 6px}
+.note{font-size:var(--f3);color:var(--text-2);margin:0}
+.fine{font-size:var(--f2);color:var(--text-3);margin:0}
+.btn{min-height:44px;min-width:44px;padding:0 16px;border-radius:var(--r-md);border:var(--bw) solid var(--bd);background:var(--surface-3);color:var(--text-1);font-weight:700;font-size:var(--f3);display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:var(--sh);transition:transform .1s}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.pri{background:var(--fill-primary);color:var(--on-brand)}
+.btn.ghost{background:transparent;box-shadow:none;border-color:var(--hairline-2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:0 12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:8px}
+.grow{flex:1}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;border:var(--bw) solid var(--hairline-2);font-size:var(--f2);font-weight:600;color:var(--text-2);background:var(--surface-2);white-space:nowrap}
+.chip.gold{color:var(--on-gold);background:var(--medal-gold);border-color:var(--medal-gold-lo)}
+.chip.ok{background:var(--success-soft);color:var(--success)}
+.chip.bad{background:var(--danger-soft);color:var(--danger)}
+.chip.warn{background:var(--brand-soft);color:var(--accent-tx)}
+.mono{font-family:var(--font-mono);letter-spacing:var(--mono-track)}
+.hr{height:1px;background:var(--hairline);border:0;margin:2px 0}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:none;min-height:44px;padding:0 14px;border-radius:99px;border:var(--bw) solid var(--hairline-2);font-size:var(--f3);font-weight:700;color:var(--text-2);background:var(--surface-2)}
+.tabs button[aria-pressed=true],.tabs button[aria-selected=true]{background:var(--brand);color:var(--on-brand);border-color:var(--bd)}
+.swatch{width:44px;height:44px;border-radius:99px;border:var(--bw) solid var(--hairline-2)}
+.swatch[aria-pressed=true]{outline:3px solid var(--focus);outline-offset:2px}
+
+/* felt table */
+.tblw{position:relative;margin:0 auto}
+.tbl{position:absolute;left:0;top:0;transform-origin:0 0}
+.felt{position:absolute;background:var(--felt-bg);box-shadow:var(--felt-edge);border-radius:50%}
+.seat{position:absolute}
+.seat .sb{position:absolute;inset:0;will-change:transform}
+.av{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;overflow:visible;line-height:1}
+.av .disc{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--seat)}
+.av .ov{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.av .pip{position:absolute;display:grid;place-items:center;border-radius:50%;background:var(--surface-1);border:1px solid var(--hairline-2);line-height:1;pointer-events:none}
+.av .glyph{position:absolute;pointer-events:none;line-height:1;z-index:3}
+.av .bidc{position:absolute;left:-3px;top:-3px;min-width:15px;height:15px;padding:0 3px;border-radius:99px;background:var(--surface-1);color:var(--text-1);border:1px solid var(--hairline-2);font-size:var(--f1);font-weight:700;display:grid;place-items:center;z-index:2}
+.seat .nm{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;font-size:var(--f1);font-weight:700;color:var(--text-1);white-space:nowrap;text-shadow:0 1px 0 var(--bg)}
+.seat.cur .av::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--brand)}
+.tblcap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:var(--ink);font-size:var(--f2);font-weight:700;letter-spacing:.04em;pointer-events:none;opacity:.9}
+.tblcap b{display:block;font-family:var(--font-display);font-size:var(--f6);font-weight:var(--display-weight)}
+html[data-theme=yerba-sun] .tblcap,html[data-theme=editorial-paper] .tblcap{color:var(--card-bg)}
+html[data-theme=yerba-sun] .tblcap{color:var(--ink)}
+
+/* idle animations (transform / opacity only) */
+@keyframes drip{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+@keyframes flame{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes glint{0%,88%,100%{opacity:0}94%{opacity:1}}
+.idle-drip{animation:drip 1.4s ease-in-out infinite}
+.idle-flame{animation:flame .8s ease-in-out infinite}
+.idle-breathe{animation:breathe 3s ease-in-out infinite}
+html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+
+/* overlay layer for stage moments */
+#ov{position:absolute;inset:0;z-index:30;pointer-events:none}
+#ov.on{pointer-events:auto}
+.scrim{position:absolute;inset:0;background:linear-gradient(var(--scrim),var(--scrim)),linear-gradient(var(--scrim),var(--scrim));opacity:0}
+.skiphint{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:var(--f2);color:var(--text-1);opacity:.75;pointer-events:none}
+.stagebox{position:absolute;display:grid;place-items:center}
+.bust{position:relative;display:block}
+.bust svg{display:block;overflow:visible}
+.bannerline{position:absolute;left:0;right:0;text-align:center;font-family:var(--font-display);font-weight:var(--display-weight);letter-spacing:var(--display-track);color:var(--text-1);padding:0 24px}
+.cf{position:absolute;width:8px;height:12px;border-radius:2px;left:0;top:0}
+
+/* toast, menu */
+#toast{position:absolute;left:12px;right:12px;bottom:128px;z-index:50;display:flex;justify-content:center;pointer-events:none}
+#toast span{background:var(--toast-bg,var(--surface-3));color:var(--text-1);padding:10px 14px;border-radius:var(--r-md);border:var(--bw) solid var(--bd);font-size:var(--f3);font-weight:600;box-shadow:var(--sh);opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;background:var(--surface-3)}
+#toast span.on{opacity:1;transform:none}
+#menu{position:absolute;inset:0;z-index:55;background:var(--scrim);display:none}
+#menu.on{display:block}
+#menu .sheet{position:absolute;left:0;right:0;top:0;max-height:92%;overflow:auto;background:var(--surface-1);border-bottom:var(--bw) solid var(--bd);padding:10px 12px 14px;border-radius:0 0 var(--r-xl) var(--r-xl)}
+#menu .sheet button.it{display:flex;width:100%;align-items:center;gap:10px;min-height:48px;padding:6px 10px;border-radius:var(--r-md);text-align:left;font-size:var(--f4);font-weight:600}
+#menu .sheet button.it[aria-current=true]{background:var(--brand-soft)}
+#menu .sheet .n{width:26px;height:26px;border-radius:99px;display:grid;place-items:center;background:var(--surface-3);font-size:var(--f2);font-weight:700;flex:none}
+#menu .sheet .dv{margin-left:auto;font-size:var(--f1);font-family:var(--font-mono);text-transform:uppercase;color:var(--text-3)}
+#meta{flex:none;display:flex;align-items:center;gap:8px;padding:0 14px 4px}
+#unlockbanner{font-size:var(--f1);color:var(--accent-tx);font-weight:600}
+
+/* rows, leaderboards */
+.rows{display:flex;flex-direction:column;gap:6px}
+.prow{display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 8px;border-radius:var(--r-md);background:var(--surface-2);border:var(--bw) solid var(--hairline)}
+.prow .rk{width:20px;font-weight:700;color:var(--text-3);text-align:center;font-size:var(--f3)}
+.prow .nmx{flex:1;min-width:0}
+.prow .nmx b{display:block;font-size:var(--f4)}
+.prow .nmx small{display:block;font-size:var(--f2);color:var(--text-3)}
+.prow .sc{font-weight:700;font-variant-numeric:tabular-nums;font-size:var(--f5)}
+.slot{position:relative;flex:none}
+
+/* wardrobe & bazaar tiles */
+.shelf{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x proximity}
+.tile{flex:none;width:104px;scroll-snap-align:start;border-radius:var(--r-md);border:var(--bw) solid var(--hairline-2);background:var(--surface-2);padding:6px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-height:44px}
+.tile[aria-pressed=true]{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
+.tile .t1{font-size:var(--f2);font-weight:700;line-height:1.15}
+.tile .t2{font-size:var(--f1);color:var(--text-3)}
+.tile.locked .bust{opacity:.55}
+.rar-common{color:var(--text-3)}.rar-rare{color:var(--trump-spades,var(--accent-tx))}.rar-epic{color:var(--accent-tx)}.rar-legendary{color:var(--gold-tx)}
+.rar{font-size:var(--f1);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.skel{background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));border-radius:var(--r-md);min-height:60px;opacity:.7}
+.statebar{display:flex;gap:6px;align-items:center}
+.statebar .tabs button{min-height:44px;font-size:var(--f2)}
+.meter{height:12px;border-radius:99px;background:var(--surface-3);overflow:hidden;border:var(--bw) solid var(--hairline-2)}
+.meter>i{display:block;height:100%;width:100%;background:var(--fill-primary);transform-origin:0 50%;transform:scaleX(0)}
+.logline{font-size:var(--f2);padding:6px 8px;border-radius:var(--r-sm);background:var(--surface-2);border-left:4px solid var(--hairline-2);display:flex;gap:6px;align-items:baseline}
+.logline b{font-family:var(--font-mono);font-size:var(--f1);text-transform:uppercase;flex:none;min-width:84px}
+.logline.played{border-color:var(--success)}.logline.held{border-color:var(--warning)}.logline.merged{border-color:var(--accent-tx)}.logline.down{border-color:var(--danger)}.logline.beat{border-color:var(--brand)}
+pre.md{white-space:pre-wrap;word-break:break-word;font-size:var(--f2);font-family:var(--font-mono);background:var(--surface-2);border:var(--bw) solid var(--hairline-2);border-radius:var(--r-md);padding:10px;margin:0;max-height:300px;overflow:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.wgrid div{aspect-ratio:1;border-radius:var(--r-sm);display:grid;place-items:center;font-size:var(--f1);font-weight:700;background:var(--card-bg);color:var(--card-fg);border:var(--bw) solid var(--hairline-2)}
+.wgrid div.sun{background:var(--team-sun);color:var(--on-gold)}.wgrid div.moon{background:var(--team-moon);color:var(--card-bg)}.wgrid div.trap{background:var(--ink);color:var(--bg)}
+.up{text-transform:uppercase;letter-spacing:.08em;font-size:var(--f1);font-weight:700;color:var(--text-3);font-family:var(--font-mono)}
+</style>
+</head>
+
+<body>
+<header id="bar" role="toolbar" aria-label="Demo controls">
+  <button class="cb scene" id="sceneBtn" aria-haspopup="dialog" aria-expanded="false">Scenes ▾</button>
+  <button class="cb" id="prevBtn" aria-label="Previous scene">‹</button>
+  <button class="cb" id="nextBtn" aria-label="Next scene">›</button>
+  <label class="lbl" for="themeSel" style="display:flex;align-items:center;gap:6px">Theme
+    <select id="themeSel" aria-label="Theme">
+      <option value="sunset-glass">Sunset Glass</option>
+      <option value="editorial-paper">Editorial Paper</option>
+      <option value="emerald-gilt">Emerald Gilt</option>
+      <option value="yerba-sun">Yerba Sun</option>
+    </select></label>
+  <button class="cb" id="motionBtn" aria-pressed="false">Reduced motion: off</button>
+  <div class="grp" role="group" aria-label="Sound">
+    <button data-snd="all" aria-pressed="true">All</button>
+    <button data-snd="moments" aria-pressed="false">Moments</button>
+    <button data-snd="off" aria-pressed="false">Off</button>
+  </div>
+  <button class="cb" id="quietBtn" aria-pressed="false" title="After 11 pm: ticks off, moments at half volume, no big stingers">Late-night quiet: off</button>
+  <button class="cb" id="decBtn">My decisions</button>
+</header>
+<div id="page">
+  <main id="frame" aria-label="Phone frame, 390 by 844">
+    <div id="top"><h1 id="sceneTitle"></h1><button class="btn pri sm" id="playBtn">▶ Play</button></div>
+    <div id="meta"><span class="tag">DEMO · made-up data</span><span id="unlockbanner">Tap once to unlock sound</span></div>
+    <div id="scene"></div>
+    <div id="decide"></div>
+    <div id="ov" aria-live="polite"></div>
+    <div id="toast" role="status" aria-live="polite"><span></span></div>
+    <div id="menu" role="dialog" aria-label="Scenes"><div class="sheet" id="menuSheet"></div></div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================================================================
+   Baithak rewards demo. Vanilla JS, no deps. Fake data. Animates only transform and opacity (WAAPI + a few CSS idles).
+   Part 1: helpers, state, run control, audio, data, art, avatars, table, stage.
+   ===================================================================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+function h(tag, a, ...k) {
+  const e = document.createElement(tag);
+  if (a) for (const [x, v] of Object.entries(a)) {
+    if (v == null || v === false) continue;
+    if (x === 'class') e.className = v;
+    else if (x === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (x === 'html') e.innerHTML = v;
+    else if (x.startsWith('on')) e.addEventListener(x.slice(2), v);
+    else e.setAttribute(x, v === true ? '' : v);
+  }
+  for (const c of k.flat(9)) { if (c == null || c === false) continue; e.append(c.nodeType ? c : document.createTextNode(c)); }
+  return e;
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+
+/* ---------- state (localStorage wrapped in try/catch, as the app's persistence layer would) ---------- */
+const KEY = 'baithak-rewards-demo:v1';
+const S = { theme: 'sunset-glass', reduced: false, sound: 'all', quiet: false, photo: false, kursiName: 'Kursi', scene: 'avatar', speed: 1 };
+try { S.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch {}
+const DEC = { scenes: {}, picks: { avatar: null, kursi: null } };
+function load() {
+  try {
+    const j = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (j) { Object.assign(S, j.S || {}); Object.assign(DEC.scenes, j.scenes || {}); Object.assign(DEC.picks, j.picks || {}); }
+  } catch {}
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify({ S, scenes: DEC.scenes, picks: DEC.picks })); } catch {}
+}
+
+/* ---------- run control: one scripted sequence at a time; ending it runs its cleanups (the "final state") ---------- */
+class Cancel {}
+let CUR = null;
+function endRun() {
+  const c = CUR; CUR = null;
+  if (!c) return;
+  c.dead = true;
+  c.pend.forEach((p) => { clearTimeout(p.t); p.rej(new Cancel()); });
+  c.pend.clear();
+  [...c.cl].reverse().forEach((f) => { try { f(); } catch (e) { console.error(e); } });
+}
+function begin() {
+  endRun();
+  const r = { dead: false, pend: new Set(), cl: [],
+    wait(ms, speed = 1) {
+      if (r.dead) return Promise.reject(new Cancel());
+      return new Promise((res, rej) => { const p = { rej }; p.t = setTimeout(() => { r.pend.delete(p); res(); }, ms / speed); r.pend.add(p); });
+    },
+    onEnd(f) { r.cl.push(f); },
+    alive() { return !r.dead; } };
+  CUR = r; return r;
+}
+async function go(fn) {
+  const r = begin();
+  try { await fn(r); } catch (e) { if (!(e instanceof Cancel)) console.error(e); }
+  return r;
+}
+
+/* ---------- animation helper: transform/opacity only; reduced motion = still end state or a short fade ---------- */
+function A(el, frames, o = {}) {
+  const first = frames[0], last = frames[frames.length - 1];
+  if (S.reduced) {
+    if (o.effect) return Promise.resolve();
+    if (last.transform !== undefined) el.style.transform = last.transform;
+    if (last.opacity !== undefined) el.style.opacity = last.opacity;
+    if ((first.opacity ?? 1) < (last.opacity ?? 1)) return el.animate([{ opacity: first.opacity }, { opacity: last.opacity }], { duration: 160 }).finished.catch(() => {});
+    return Promise.resolve();
+  }
+  const a = el.animate(frames, { duration: o.dur || 300, delay: o.delay || 0, easing: o.ease || 'cubic-bezier(.2,.8,.2,1)', fill: o.effect ? 'none' : (o.fill || 'both'), iterations: o.iter || 1 });
+  return a.finished.catch(() => {});
+}
+function clearAnims(el) { el.getAnimations().forEach((a) => a.cancel()); el.style.transform = ''; el.style.opacity = ''; }
+let toastT;
+function toast(msg) {
+  const s = $('#toast span'); s.textContent = msg; s.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => s.classList.remove('on'), 2200);
+}
+
+/* ---------- sound: Web Audio, no files. The helpers are fx/sound.ts's tone/noise; every recipe is synthesised ---------- */
+const AU = { ctx: null, out: null, unlocked: false, mul: 1, last: {} };
+const MASTER = 0.55;
+function audio() {
+  if (!AU.unlocked) return null;
+  if (!AU.ctx) {
+    const C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+    try { AU.ctx = new C(); AU.out = AU.ctx.createGain(); AU.out.gain.value = MASTER; AU.out.connect(AU.ctx.destination); } catch { return null; }
+  }
+  if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(() => {});
+  return AU.ctx;
+}
+['pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, () => {
+  if (AU.unlocked) return; AU.unlocked = true; audio(); const b = $('#unlockbanner'); if (b) b.remove();
+}, { capture: true }));
+function noise(a, dur, o = {}) {
+  const { freq = 3000, q = 1, type = 'bandpass', vol = 0.12, attack = 0.002, delay = 0 } = o;
+  const n = Math.max(1, Math.floor(a.sampleRate * dur)), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+  const src = a.createBufferSource(); src.buffer = buf;
+  const f = a.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  const g = a.createGain(), t = a.currentTime + delay, v = vol * AU.mul;
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f).connect(g).connect(AU.out); src.start(t); src.stop(t + dur + 0.05);
+}
+function tone(a, freq, dur, o = {}) {
+  const { type = 'sine', vol = 0.06, delay = 0, to, lp } = o;
+  const osc = a.createOscillator(), g = a.createGain(), t = a.currentTime + delay, v = vol * AU.mul;
+  osc.type = type; osc.frequency.setValueAtTime(freq, t);
+  if (to) osc.frequency.exponentialRampToValueAtTime(to, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  let node = osc;
+  if (lp) { const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; osc.connect(f); node = f; }
+  node.connect(g).connect(AU.out); osc.start(t); osc.stop(t + dur + 0.05);
+}
+/* tiers (SOUND-PLAN 3 + REWARDS-PLAN 11; gavel moves to moment, as SOUND-PLAN 6 says) */
+const TIER = {
+  riffle: 'beat', deal: 'tick', snap: 'tick', sweep: 'tick', bag: 'tick', burst: 'beat', crack: 'beat', cheer: 'moment', tick: 'tick', pop: 'tick', thud: 'beat', err: 'tick', chime: 'moment', womp: 'beat', gavel: 'moment', roll: 'beat', glitch: 'moment', boom: 'moment', heartbeat: 'beat',
+  flick: 'tick', chip: 'tick', knock: 'tick', hook: 'beat', made: 'beat', missed: 'beat', tally: 'beat', rise: 'beat', crown: 'beat', bell: 'moment', spin: 'tick', undo: 'tick', fanfare: 'moment',
+  shehnai: 'moment', ghungroo: 'beat', patakha: 'beat', coin: 'tick', twinkle: 'beat',
+};
+const STINGERS = new Set(['fanfare', 'patakha', 'boom', 'shehnai']);
+const SYNTH = {
+  /* existing, copied from src/fx/sound.ts */
+  snap: (a) => noise(a, 0.06, { freq: 2600, q: 0.7, vol: 0.2 }),
+  deal: (a) => noise(a, 0.035, { freq: 3400, vol: 0.05 }),
+  riffle: (a) => { for (let i = 0; i < 16; i++) noise(a, 0.03, { freq: 3000 + Math.random() * 2000, q: 1.4, vol: 0.07, delay: i * 0.03 }); },
+  sweep: (a) => noise(a, 0.3, { freq: 1400, q: 0.4, type: 'lowpass', vol: 0.1, attack: 0.08 }),
+  bag: (a) => { tone(a, 170, 0.16, { type: 'triangle', vol: 0.1 }); noise(a, 0.08, { freq: 500, type: 'lowpass', vol: 0.08 }); },
+  burst: (a) => { noise(a, 0.4, { freq: 700, q: 0.3, vol: 0.18 }); tone(a, 110, 0.45, { type: 'triangle', vol: 0.09 }); },
+  crack: (a) => { noise(a, 0.3, { freq: 900, q: 0.4, vol: 0.16 }); tone(a, 80, 0.35, { type: 'sawtooth', vol: 0.035 }); },
+  cheer: (a) => [523, 659, 784, 1047].forEach((f, i) => tone(a, f, 0.4, { type: 'triangle', vol: 0.05, delay: i * 0.09 })),
+  tick: (a) => { tone(a, 880, 0.08, { vol: 0.05 }); tone(a, 1320, 0.1, { vol: 0.035, delay: 0.07 }); },
+  pop: (a) => tone(a, 620, 0.07, { vol: 0.045 }),
+  thud: (a) => { tone(a, 95, 0.25, { vol: 0.12 }); noise(a, 0.1, { freq: 300, type: 'lowpass', vol: 0.1 }); },
+  err: (a) => tone(a, 150, 0.12, { type: 'square', vol: 0.03 }),
+  chime: (a) => { tone(a, 880, 0.3, { vol: 0.09 }); tone(a, 1318, 0.45, { vol: 0.08, delay: 0.12 }); },
+  womp: (a) => { tone(a, 330, 0.28, { type: 'sawtooth', vol: 0.03, to: 250 }); tone(a, 250, 0.5, { type: 'sawtooth', vol: 0.035, to: 110, delay: 0.28 }); },
+  gavel: (a) => { noise(a, 0.05, { freq: 2400, q: 4, vol: 0.25 }); noise(a, 0.06, { freq: 2000, q: 4, vol: 0.3, delay: 0.14 }); },
+  roll: (a) => { for (let i = 0; i < 12; i++) noise(a, 0.04, { freq: 1600, vol: 0.025 + i * 0.006, delay: i * 0.045 }); noise(a, 0.14, { freq: 700, vol: 0.2, delay: 0.58 }); tone(a, 98, 0.22, { vol: 0.15, to: 60, delay: 0.58 }); },
+  glitch: (a) => { for (let i = 0; i < 7; i++) noise(a, 0.03, { freq: 400 + Math.random() * 3600, q: 5, vol: 0.11, delay: i * 0.04 }); },
+  boom: (a) => { tone(a, 130, 0.7, { vol: 0.22, to: 38 }); noise(a, 0.35, { freq: 300, q: 0.8, vol: 0.09 }); tone(a, 660, 0.4, { type: 'triangle', vol: 0.04, delay: 0.1 }); },
+  heartbeat: (a) => { tone(a, 64, 0.16, { vol: 0.25, to: 48 }); tone(a, 58, 0.2, { vol: 0.2, to: 44, delay: 0.22 }); },
+  /* SOUND-PLAN 3: the 13 new (flick chip knock hook made missed tally rise crown bell spin undo fanfare) */
+  flick: (a) => { noise(a, 0.05, { freq: 4600, q: 0.9, vol: 0.07 }); noise(a, 0.05, { freq: 3000, q: 0.9, vol: 0.05, delay: 0.012 }); },
+  chip: (a, o) => { const k = 2 ** ((o.pitch || 0) / 12); tone(a, 230 * k, 0.07, { type: 'triangle', vol: 0.08, to: 150 * k }); noise(a, 0.04, { freq: 1900 * k, q: 1.5, vol: 0.05 }); },
+  knock: (a) => { [0, 0.11].forEach((d) => { tone(a, 150, 0.07, { vol: 0.09, to: 90, delay: d }); noise(a, 0.04, { freq: 400, type: 'lowpass', vol: 0.06, delay: d }); }); },
+  hook: (a) => { tone(a, 900, 0.15, { type: 'sawtooth', vol: 0.035, to: 220, lp: 2400 }); tone(a, 110, 0.32, { type: 'triangle', vol: 0.14, delay: 0.14 }); noise(a, 0.05, { freq: 1200, q: 2, vol: 0.05, delay: 0.14 }); },
+  made: (a, o) => { const k = 2 ** ((o.pitch || 0) / 12); tone(a, 587 * k, 0.16, { type: 'triangle', vol: 0.09 }); tone(a, 880 * k, 0.24, { type: 'triangle', vol: 0.09, delay: 0.07 }); },
+  missed: (a, o) => { const k = 2 ** ((o.pitch || 0) / 12); tone(a, 210 * k, 0.22, { type: 'triangle', vol: 0.1, to: 150 * k }); noise(a, 0.08, { freq: 260, type: 'lowpass', vol: 0.08 }); },
+  tally: (a) => { for (let i = 0; i < 9; i++) { const d = i * 0.042 + Math.random() * 0.01; noise(a, 0.04, { freq: 5200 + Math.random() * 2400, q: 6, vol: 0.05, delay: d }); tone(a, 2400 + Math.random() * 900, 0.05, { vol: 0.02, delay: d }); } },
+  rise: (a) => { noise(a, 0.36, { freq: 700, q: 0.8, vol: 0.08, attack: 0.2 }); tone(a, 320, 0.36, { vol: 0.03, to: 920 }); },
+  crown: (a) => { tone(a, 1046, 0.7, { vol: 0.08 }); tone(a, 1568, 0.55, { vol: 0.045, delay: 0.02 }); tone(a, 2093, 0.4, { vol: 0.025, delay: 0.06 }); },
+  bell: (a) => { tone(a, 220, 1.3, { vol: 0.16 }); tone(a, 563, 1.1, { vol: 0.07 }); tone(a, 880, 0.9, { vol: 0.04 }); tone(a, 1190, 0.55, { vol: 0.03 }); noise(a, 0.05, { freq: 1500, q: 2, vol: 0.12 }); },
+  spin: (a) => { let t = 0, g = 0.045; for (let i = 0; i < 11; i++) { noise(a, 0.02, { freq: 2600, q: 3, vol: 0.05, delay: t }); t += g; g *= 1.22; } tone(a, 620, 0.07, { vol: 0.045, delay: t + 0.04 }); },
+  undo: (a) => noise(a, 0.16, { freq: 2200, q: 0.8, vol: 0.06, attack: 0.12 }),
+  fanfare: (a) => { [[0, 118], [0.22, 150], [0.44, 150], [0.66, 118]].forEach(([d, f]) => { tone(a, f, 0.2, { vol: 0.2, to: f * 0.62, delay: d }); noise(a, 0.05, { freq: 500, q: 0.8, vol: 0.1, delay: d }); }); [523, 659, 784].forEach((f, i) => tone(a, f, 0.55, { type: 'sawtooth', vol: 0.035, delay: 0.95 + i * 0.08, lp: 2200 })); },
+  /* REWARDS-PLAN 11: shehnai ghungroo patakha coin twinkle (gavel, bell, fanfare are shared with SOUND-PLAN) */
+  shehnai: (a) => { [0, 4].forEach((det) => { tone(a, 440 + det, 0.5, { type: 'sawtooth', vol: 0.04, to: 880 + det, lp: 2600 }); tone(a, 880 + det, 0.38, { type: 'sawtooth', vol: 0.04, to: 440 + det, delay: 0.52, lp: 2000 }); }); },
+  ghungroo: (a) => { for (let i = 0; i < 8; i++) { const d = i * 0.055, f = 2600 + (i % 3) * 700; tone(a, f, 0.12, { type: 'triangle', vol: 0.03, delay: d }); noise(a, 0.05, { freq: 7000, q: 4, vol: 0.03, delay: d }); } },
+  patakha: (a) => { noise(a, 0.08, { freq: 1800, q: 0.5, vol: 0.3 }); for (let i = 0; i < 16; i++) noise(a, 0.03, { freq: 2500 + Math.random() * 3500, q: 3, vol: 0.07, delay: 0.1 + Math.random() * 0.7 }); },
+  coin: (a) => { tone(a, 1320, 0.05, { vol: 0.05 }); tone(a, 1760, 0.12, { vol: 0.05, delay: 0.035 }); },
+  twinkle: (a) => [1568, 2093, 2637].forEach((f, i) => tone(a, f, 0.14, { vol: 0.04, delay: i * 0.06 })),
+};
+let lastCueTimer;
+function cueChip(name, tier, state) {
+  const c = $('#cuechip'); if (!c) return;
+  c.textContent = '♪ ' + name + ' · ' + tier + (state ? ' · ' + state : ''); c.style.opacity = state === 'muted' ? 0.5 : 1;
+  c.classList.add('on'); clearTimeout(lastCueTimer); lastCueTimer = setTimeout(() => c.classList.remove('on'), 1600);
+}
+/** Plays one cue under the Sounds setting, late-night quiet and a 60ms limiter. Returns what happened. */
+function cue(name, tier = TIER[name], o = {}) {
+  let as = name, state = '';
+  if (S.sound === 'off' || (S.sound === 'moments' && tier !== 'moment')) { cueChip(name, tier, 'muted'); return { played: false, why: 'Sounds setting' }; }
+  if (S.quiet) {
+    if (tier === 'tick') { cueChip(name, tier, 'quiet: off'); return { played: false, why: 'quiet: ticks off' }; }
+    if (name === 'patakha' || name === 'boom') { cueChip(name, tier, 'quiet: off'); return { played: false, why: 'quiet: no big stingers' }; }
+    if (name === 'fanfare' || name === 'shehnai') { as = 'chime'; state = 'quiet: soft chime'; }
+    AU.mul = tier === 'moment' ? 0.5 : 0.6;
+  } else AU.mul = 1;
+  const now = performance.now();
+  if (AU.last[as] && now - AU.last[as] < 60) return { played: false, why: 'limiter' };
+  AU.last[as] = now;
+  const a = audio();
+  cueChip(as, tier, state);
+  if (!a) return { played: false, why: 'tap once to unlock audio' };
+  try { SYNTH[as](a, o); } catch {}
+  return { played: true, as };
+}
+const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];
+
+/* ---------- data (all fake) ---------- */
+const NAMES = [['Riya', '🦊'], ['Dev', '🐯'], ['Asha', '🦉'], ['Kabir', '🐼'], ['Meera', '🐙'], ['Arjun', '🦁'], ['Zoya', '🐸'], ['Vikram', '🐧'], ['Isha', '🦄'], ['Neel', '🐢'], ['Tara', '🐬']];
+const PL = NAMES.map(([n, e], i) => ({ n, e, i }));
+const LOOK = [
+  { outfit: 'sherwani', oc: 'maroon', head: 'safa', hc: 'saffron', neck: 'chain', frame: 'marigold', aura: 'sunrise', badge: 'star' },
+  { outfit: 'whites', oc: 'cream', head: 'cap', hc: 'cream', neck: 'whistle', frame: 'stumps', aura: null, badge: 'one' },
+  { outfit: 'raincoat', oc: 'teal', head: 'umbrella', hc: 'indigo', neck: 'muffler', nc: 'slate', frame: 'raindrops', aura: 'mist', badge: null },
+  { outfit: 'office', oc: 'slate', head: null, neck: 'lanyard', frame: 'sheet', aura: null, badge: 'chai' },
+  { outfit: 'sweater', oc: 'rose', head: 'monkey', hc: 'maroon', neck: 'muffler', nc: 'cream', frame: 'frost', aura: null, badge: null },
+  { outfit: 'hoodie', oc: 'forest', head: null, neck: null, frame: 'plain', aura: null, badge: null },
+  { outfit: 'kurta', oc: 'saffron', head: 'cap', hc: 'forest', neck: null, frame: 'marigold', aura: 'steam', badge: null },
+  { outfit: 'jersey', oc: 'indigo', head: null, neck: 'chain', frame: 'stumps', aura: null, badge: 'star' },
+  { outfit: 'dupatta', oc: 'rose', head: null, neck: null, frame: 'frost', aura: null, badge: null },
+  { outfit: 'nehru', oc: 'teal', head: null, neck: null, frame: 'sheet', aura: null, badge: null },
+  { outfit: 'shawl', oc: 'maroon', head: 'monkey', hc: 'cream', neck: null, frame: 'raindrops', aura: null, badge: null },
+];
+const FRAME_MAIN = { marigold: 'var(--cloth-saffron)', stumps: 'var(--cloth-cream)', raindrops: 'var(--cloth-teal)', sheet: 'var(--cloth-slate)', frost: 'var(--cloth-cream)', plain: 'var(--brand)' };
+const PIPS = { taj: '👑', kursi: '🪑', legend: '🏛️', sitara: '⭐', fire: '🔥' };
+const PIP_ORDER = ['taj', 'kursi', 'legend', 'sitara', 'fire'];
+const BELT_SVG = `<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><rect x="1" y="9" width="22" height="6" rx="2" style="fill:var(--cloth-maroon)"/><rect x="7" y="5.5" width="10" height="13" rx="3" style="fill:var(--medal-gold);stroke:var(--medal-gold-lo)" stroke-width="1"/><circle cx="12" cy="12" r="3" style="fill:var(--medal-gold-hi)"/></svg>`;
+const kursiGlyph = () => (S.kursiName === 'Belt' ? BELT_SVG : '🪑');
+const kursiWord = () => S.kursiName;
+const pipHTML = (k) => (k === 'kursi' ? kursiGlyph() : PIPS[k]);
+
+/* ---------- art: one bust base, layers in the order of REWARDS-PLAN 4.2 ---------- */
+let uidN = 0; const uid = () => 'u' + ++uidN;
+const F = (n) => `var(--cloth-${n})`;
+const Dk = (n) => `color-mix(in srgb, var(--cloth-${n}) 70%, black)`;
+const Lt = (n) => `color-mix(in srgb, var(--cloth-${n}) 70%, white)`;
+const BODY = (c) => `<path d="M6 100C8 75 26 66 50 66S92 75 94 100Z" fill="${c}"/>`;
+const NECKSVG = `<rect x="43" y="54" width="14" height="16" rx="5" style="fill:var(--surface-3)"/>`;
+const OUT = {
+  kurta: (c) => BODY(F(c)) + `<path d="M50 70V100" stroke="${Dk(c)}" stroke-width="1.5"/><path d="M40 66l10 12 10-12" fill="none" stroke="${Dk(c)}" stroke-width="2.2"/>` + [82, 90, 98].map((y) => `<circle cx="50" cy="${y}" r="1.7" fill="${F('cream')}"/>`).join(''),
+  hoodie: (c) => `<path d="M22 78C18 50 36 45 50 45s32 5 28 33Z" fill="${Dk(c)}"/>` + BODY(F(c)) + `<path d="M43 68v14M57 68v14" stroke="${F('cream')}" stroke-width="1.8" stroke-linecap="round"/><path d="M30 100l4-11h32l4 11" fill="none" stroke="${Dk(c)}" stroke-width="1.6"/>`,
+  office: (c) => BODY(F('cream')) + `<path d="M40 66l10 10-3 3zM60 66l-10 10 3 3z" fill="${F('cream')}" stroke="${Dk('slate')}" stroke-width="1"/><path d="M47.5 74h5l1.5 5-4 21-4-21z" fill="${F(c === 'slate' ? 'maroon' : c)}"/>`,
+  whites: (c) => BODY(F(c)) + `<path d="M39 66l11 17 11-17" fill="none" stroke="${F('indigo')}" stroke-width="3"/><path d="M42 66l8 12 8-12" fill="none" stroke="${F('maroon')}" stroke-width="1.5"/>`,
+  jersey: (c) => BODY(F(c)) + `<path d="M40 66l10 9 10-9" fill="none" stroke="${F('cream')}" stroke-width="2.4"/><path d="M12 84h76M13 90h74" stroke="${F('cream')}" stroke-width="1.4" opacity=".5"/><text x="50" y="97" text-anchor="middle" font-size="17" font-weight="800" font-family="var(--font-display),sans-serif" fill="${F('cream')}">7</text>`,
+  nehru: (c) => BODY(F('cream')) + `<path d="M6 100C8 75 24 67 42 66L47 100Z" fill="${F(c)}"/><path d="M94 100C92 75 76 67 58 66L53 100Z" fill="${F(c)}"/><path d="M47 100L42 66M53 100l5-34" stroke="${Dk(c)}" stroke-width="1.4"/>` + [80, 88, 96].map((y) => `<circle cx="49" cy="${y}" r="1.4" fill="${F('cream')}"/>`).join(''),
+  sweater: (c) => BODY(F(c)) + [24, 34, 44, 56, 66, 76].map((x) => `<path d="M${x} 100c-3-6 3-9 0-15s3-9 0-15" fill="none" stroke="${Dk(c)}" stroke-width="1.5" opacity=".7"/>`).join('') + `<ellipse cx="50" cy="66" rx="14" ry="5" fill="none" stroke="${Dk(c)}" stroke-width="3.5"/>`,
+  raincoat: (c) => `<path d="M24 78C20 56 34 52 50 52s30 4 26 26Z" fill="${Dk(c)}"/>` + BODY(F(c)) + `<path d="M50 68v32" stroke="${Dk(c)}" stroke-width="1.6"/><path d="M14 84l12-4" stroke="${Lt(c)}" stroke-width="2" stroke-linecap="round" opacity=".7"/><circle cx="50" cy="78" r="2" fill="${F('cream')}"/>`,
+  shawl: (c) => BODY(F('cream')) + `<path d="M6 100V78C28 68 66 84 94 70V100Z" fill="${F(c)}"/><path d="M6 94C30 86 66 98 94 86" fill="none" stroke="${F('saffron')}" stroke-width="2" stroke-dasharray="3 3"/>`,
+  dupatta: (c) => BODY(F('forest')) + `<path d="M14 72Q50 104 86 72" fill="none" stroke="${F(c)}" stroke-width="10" stroke-linecap="round"/><path d="M14 72Q50 104 86 72" fill="none" stroke="${F('cream')}" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round"/><path d="M80 78l8 22" stroke="${F(c)}" stroke-width="9" stroke-linecap="round"/>`,
+  sherwani: (c) => BODY(F(c)) + `<path d="M43 66h14v6H43z" fill="${F(c)}" stroke="${F('saffron')}" stroke-width="1.2"/><path d="M50 72V100" stroke="${F('saffron')}" stroke-width="1.4"/>` + [78, 85, 92].map((y) => `<circle cx="50" cy="${y}" r="2" fill="${F('saffron')}"/>`).join('') + `<path d="M10 90h24M66 90h24" stroke="${F('saffron')}" stroke-width="1.4" stroke-dasharray="2 2"/>`,
+  lungi: (c) => { const id = uid(); return `<defs><pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${F('cream')}"/><path d="M0 0H8M0 4H8M0 0V8M4 0V8" stroke="${F('teal')}" stroke-width="1.2"/></pattern></defs>` + `<path d="M12 100C13 80 30 70 38 66h24c8 4 25 14 26 34Z" fill="${F('cream')}"/><path d="M38 66c-1 14-6 24-12 34M62 66c1 14 6 24 12 34" fill="none" stroke="${Dk('cream')}" stroke-width="1.3"/><path d="M58 64l28 12-6 26-22-8z" fill="url(#${id})" stroke="${F('teal')}" stroke-width="1"/>`; },
+};
+/* head space: the face disc is a unit circle at the origin; headwear, neckwear, frames and malas are drawn around it */
+const HEAD = {
+  safa: (c) => `<path d="M-1.04 -.15C-1.12 -1 -.5 -1.32 0 -1.32S1.12 -1 1.04 -.15C.5 -.5 -.5 -.5 -1.04 -.15Z" fill="${F(c)}"/><path d="M-.9 -.55Q0 -.85 .9 -.55M-.78 -.85Q0 -1.1 .78 -.85" fill="none" stroke="${Lt(c)}" stroke-width=".07"/><path d="M.1 -1.3C.2 -1.62 .45 -1.75 .55 -1.95" fill="none" style="stroke:var(--medal-gold)" stroke-width=".07" stroke-linecap="round"/><circle cx=".02" cy="-.82" r=".11" style="fill:var(--medal-gold)"/>`,
+  cap: (c) => `<path d="M-.98 -.25C-.95 -1.3 .95 -1.3 .98 -.25Z" fill="${F(c)}" stroke="${Dk(c)}" stroke-width=".05"/><path d="M-.15 -.3Q.9 -.5 1.5 -.2Q.9 -.12 -.15 -.2Z" fill="${Dk(c)}"/><circle cx="0" cy="-1.12" r=".08" fill="${Dk(c)}"/>`,
+  monkey: (c) => `<path d="M-1.02 -.15C-1.08 -1.4 1.08 -1.4 1.02 -.15Z" fill="${F(c)}"/><path d="M-1.06 -.38H1.06V-.1H-1.06Z" fill="${Dk(c)}"/><path d="M-.7 -.38V-.1M-.35 -.38V-.1M0 -.38V-.1M.35 -.38V-.1M.7 -.38V-.1" stroke="${F(c)}" stroke-width=".05"/><circle cx="0" cy="-1.3" r=".24" fill="${F('cream')}"/>`,
+  umbrella: (c) => `<path d="M-1.55 -1.2C-1.45 -2.15 1.45 -2.15 1.55 -1.2Q1.05 -1.4 .52 -1.2Q0 -1.4 -.52 -1.2Q-1.05 -1.4 -1.55 -1.2Z" fill="${F(c)}"/><path d="M0 -1.3V-.6q0 .2 .2 .2" fill="none" style="stroke:var(--text-2)" stroke-width=".07" stroke-linecap="round"/><path d="M-.52 -1.2Q-.6 -1.7 -.2 -2M.52 -1.2Q.6 -1.7 .2 -2" fill="none" stroke="${Lt(c)}" stroke-width=".05"/>`,
+  taj: () => `<g transform="rotate(8)"><path d="M-.82 -.62L-.95 -1.55L-.46 -1.15L0 -1.78L.46 -1.15L.95 -1.55L.82 -.62Z" style="fill:var(--medal-gold);stroke:var(--medal-gold-lo)" stroke-width=".06"/><rect x="-.84" y="-.7" width="1.68" height=".2" rx=".05" style="fill:var(--medal-gold-hi);stroke:var(--medal-gold-lo)" stroke-width=".04"/><circle cx="0" cy="-1.0" r=".12" fill="${F('rose')}"/><circle cx="-.42" cy="-.98" r=".08" fill="${F('indigo')}"/><circle cx=".42" cy="-.98" r=".08" fill="${F('teal')}"/></g>`,
+};
+const NECK = {
+  chain: () => `<path d="M-.78 .82Q0 1.75 .78 .82" fill="none" style="stroke:var(--medal-gold)" stroke-width=".09"/><circle cx="0" cy="1.42" r=".16" style="fill:var(--medal-gold);stroke:var(--medal-gold-lo)" stroke-width=".04"/>`,
+  whistle: () => `<path d="M-.5 .85L0 1.55L.5 .85" fill="none" stroke="${F('cream')}" stroke-width=".07"/><rect x="-.18" y="1.5" width=".44" height=".24" rx=".1" fill="${F('slate')}"/><circle cx=".08" cy="1.62" r=".05" fill="${F('cream')}"/>`,
+  muffler: (c) => `<path d="M-1 .8Q0 1.35 1 .8V1.12Q0 1.7 -1 1.12Z" fill="${F(c)}"/><path d="M.45 1.25L.85 1.2L.95 2L.55 2.05Z" fill="${Dk(c)}"/><path d="M-.6 1.05v.35M0 1.15v.35M.6 1.05v.35" stroke="${Lt(c)}" stroke-width=".05"/>`,
+  lanyard: () => `<path d="M-.5 .82L0 1.6L.5 .82" fill="none" stroke="${F('indigo')}" stroke-width=".09"/><rect x="-.3" y="1.55" width=".6" height=".72" rx=".07" fill="${F('cream')}" stroke="${Dk('slate')}" stroke-width=".04"/><path d="M-.18 1.8H.18M-.18 1.98H.1" stroke="${F('slate')}" stroke-width=".05"/>`,
+};
+const MALA = () => { let s = ''; for (let k = 0; k <= 8; k++) { const t = k / 8, x = -.95 + 1.9 * t, y = .75 + .85 * Math.sin(Math.PI * t); s += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r=".15" fill="${F(k % 2 ? 'saffron' : 'rose')}" stroke="${Dk('maroon')}" stroke-width=".03"/>`; } return s; };
+const FRAME = {
+  marigold: () => `<circle r="1.12" fill="none" stroke="${F('saffron')}" stroke-width=".2" stroke-dasharray=".2 .06" stroke-linecap="round"/><circle r="1.12" fill="none" style="stroke:var(--medal-gold)" stroke-width=".12" stroke-dasharray=".1 .16" stroke-dashoffset=".1"/>`,
+  stumps: () => `<circle r="1.1" fill="none" stroke="${F('cream')}" stroke-width=".14"/><path d="M-.22 -1.28v-.34M0 -1.3v-.38M.22 -1.28v-.34M-.3 -1.6h.6" stroke="${F('cream')}" stroke-width=".07" stroke-linecap="round"/>`,
+  raindrops: () => `<circle r="1.1" fill="none" stroke="${F('teal')}" stroke-width=".13"/>` + [0, 60, 120, 180, 240, 300].map((a) => `<g transform="rotate(${a}) translate(0 -1.28)"><path d="M0 -.16Q.12 .02 0 .08Q-.12 .02 0 -.16Z" fill="${F('teal')}"/></g>`).join(''),
+  sheet: () => `<circle r="1.1" fill="none" stroke="${F('slate')}" stroke-width=".16" stroke-dasharray=".18 .12"/><circle r="1.1" fill="none" stroke="${F('cream')}" stroke-width=".05"/>`,
+  frost: () => `<circle r="1.1" fill="none" stroke="${F('cream')}" stroke-width=".07"/>` + [0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<g transform="rotate(${a}) translate(0 -1.2)"><path d="M0 -.14V.14M-.12 -.07L.12 .07M.12 -.07L-.12 .07" stroke="${F('cream')}" stroke-width=".05"/></g>`).join(''),
+  plain: () => `<circle r="1.1" fill="none" style="stroke:var(--brand)" stroke-width=".14"/>`,
+};
+const AURA = {
+  sunrise: () => { const id = uid(); return `<defs><radialGradient id="${id}"><stop offset="0" style="stop-color:var(--brand);stop-opacity:.85"/><stop offset=".6" style="stop-color:var(--brand);stop-opacity:.25"/><stop offset="1" style="stop-color:var(--brand);stop-opacity:0"/></radialGradient></defs><circle cx="50" cy="46" r="50" fill="url(#${id})"/>`; },
+  mist: () => { const id = uid(); return `<defs><radialGradient id="${id}"><stop offset="0" style="stop-color:var(--cloth-teal);stop-opacity:.7"/><stop offset="1" style="stop-color:var(--cloth-teal);stop-opacity:0"/></radialGradient></defs><circle cx="50" cy="46" r="50" fill="url(#${id})"/>`; },
+  steam: () => `<g fill="none" stroke="${F('cream')}" stroke-width="2.2" stroke-linecap="round" opacity=".7"><path d="M14 60q-6-8 0-16t0-16"/><path d="M86 60q6-8 0-16t0-16"/><path d="M24 40q-5-6 0-12t0-12"/></g>`,
+};
+const BADGE = {
+  star: () => `<g transform="translate(70 86)"><circle r="6" style="fill:var(--medal-gold);stroke:var(--medal-gold-lo)" stroke-width="1"/><path d="M0 -3.6l1.1 2.4 2.6.3-1.9 1.8.5 2.6L0 2.2l-2.3 1.3.5-2.6-1.9-1.8 2.6-.3z" style="fill:var(--on-gold)"/></g>`,
+  one: () => `<g transform="translate(70 86)"><circle r="6" fill="${F('indigo')}"/><text y="3" text-anchor="middle" font-size="8" font-weight="800" fill="${F('cream')}">1</text></g>`,
+  chai: () => `<g transform="translate(70 86)"><circle r="6" fill="${F('cream')}" stroke="${Dk('maroon')}" stroke-width="1"/><path d="M-3 -1h5v3a2.5 2.5 0 0 1-5 0zM2 0h1.2a1.2 1.2 0 0 1 0 2.4H2" fill="none" stroke="${F('maroon')}" stroke-width="1"/></g>`,
+};
+const AURAS = Object.keys(AURA), BADGES = Object.keys(BADGE);
+const photoSil = (id, p) => `<defs><linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--seat-${p.i + 1})"/><stop offset="1" style="stop-color:var(--surface-3)"/></linearGradient><clipPath id="c${id}"><circle cx="50" cy="40" r="22"/></clipPath></defs><g clip-path="url(#c${id})"><rect x="26" y="16" width="48" height="48" fill="url(#g${id})"/><circle cx="50" cy="35" r="8.5" fill="color-mix(in srgb, var(--seat-${p.i + 1}) 45%, black)" opacity=".75"/><path d="M28 66C30 50 70 50 72 66Z" fill="color-mix(in srgb, var(--seat-${p.i + 1}) 45%, black)" opacity=".75"/></g>`;
+
+/** The full stage bust, back to front as REWARDS-PLAN 4.2. `o`: photo, pip, mala, crown, noAura, noOutfit. */
+function bustSVG(p, look, o = {}) {
+  const id = uid();
+  const face = o.photo ? photoSil(id, p) : `<circle cx="50" cy="40" r="22" style="fill:var(--seat-${p.i + 1})"/><text x="50" y="40" dy=".36em" text-anchor="middle" font-size="26">${p.e}</text>`;
+  const headItem = o.crown ? HEAD.taj() : look.head ? HEAD[look.head](look.hc || 'saffron') : '';
+  const neck = look.neck ? NECK[look.neck](look.nc || 'saffron') : '';
+  const pip = o.pip ? `<g transform="translate(70 22)"><circle r="7.5" style="fill:var(--surface-1);stroke:var(--hairline-2)"/><text dy=".35em" text-anchor="middle" font-size="9">${o.pip === 'kursi' ? (S.kursiName === 'Belt' ? '🥋' : '🪑') : PIPS[o.pip]}</text></g>` : '';
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">` +
+    (o.noAura ? '' : look.aura ? AURA[look.aura]() : '') +                                         // 1 aura
+    NECKSVG + (look.outfit && !o.noOutfit ? OUT[look.outfit](look.oc || 'saffron') : '') +        // 2 outfit
+    face +                                                                                          // 3 face disc
+    `<g transform="translate(50 40) scale(22)">` + neck + (o.mala ? MALA() : '') + headItem +     // 4 neckwear, 5 headwear
+    (look.frame ? FRAME[look.frame]() : '') + `</g>` +                                              // 6 frame
+    (look.badge ? BADGE[look.badge]() : '') + pip + `</svg>`;                                      // 7 badge, 8 pip
+}
+function bust(p, size, look, o = {}) { return h('div', { class: 'bust', style: { width: size + 'px', height: size + 'px' }, html: bustSVG(p, look || LOOK[p.i], o) }); }
+/** A little thumbnail of one item worn on a plain base bust (wardrobe, bazaar). */
+const BASE_LOOK = { outfit: 'kurta', oc: 'slate', head: null, neck: null, frame: null, aura: null, badge: null };
+
+/* ---------- the avatar: a face disc, plus (A) hat and accessory, or (D) frame ring and one pip, by size tier ---------- */
+const tierOf = (S2) => (S2 < 32 ? 'dot' : S2 < 48 ? 'seat' : S2 < 72 ? 'hero' : 'stage');
+function avatar(p, size, o = {}) {
+  const look = o.look || LOOK[p.i], model = o.model || 'D', tier = tierOf(size), photo = o.photo ?? S.photo;
+  const el = h('div', { class: 'av', style: { width: size + 'px', height: size + 'px' } });
+  el.style.setProperty('--seat', `var(--seat-${p.i + 1})`);
+  const disc = h('div', { class: 'disc' });
+  if (photo) disc.innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><linearGradient id="pg${p.i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--seat-${p.i + 1})"/><stop offset="1" style="stop-color:var(--surface-3)"/></linearGradient></defs><rect width="100" height="100" fill="url(#pg${p.i})"/><circle cx="50" cy="42" r="19" fill="color-mix(in srgb, var(--seat-${p.i + 1}) 45%, black)" opacity=".75"/><path d="M10 100C12 70 88 70 90 100Z" fill="color-mix(in srgb, var(--seat-${p.i + 1}) 45%, black)" opacity=".75"/></svg>`;
+  else { disc.style.fontSize = Math.round(size * 0.55) + 'px'; disc.textContent = p.e; }
+  el.append(disc);
+  let ov = '';
+  if (model === 'A') {
+    if (look.neck) ov += NECK[look.neck](look.nc || 'saffron');
+    const hw = o.crown ? HEAD.taj() : look.head ? HEAD[look.head](look.hc || 'saffron') : '';
+    ov += hw;
+  } else {
+    if (tier === 'dot' && look.frame) disc.style.boxShadow = `0 0 0 2px ${FRAME_MAIN[look.frame]}`;
+    if (tier !== 'dot' && look.frame) ov += FRAME[look.frame]();
+    if (tier === 'hero' || tier === 'stage') {
+      if (look.neck) ov += NECK[look.neck](look.nc || 'saffron');
+      ov += o.crown ? HEAD.taj() : look.head ? HEAD[look.head](look.hc || 'saffron') : '';
+    } else if (o.crown) ov += '';
+  }
+  if (ov) el.append(h('div', { class: 'ov', html: `<svg viewBox="-1 -1 2 2" width="${size}" height="${size}" style="overflow:visible;position:absolute;inset:0" aria-hidden="true">${ov}</svg>` }));
+  if (model === 'D' && o.pip) {
+    const ps = Math.max(12, Math.round(size * 0.38));
+    el.append(h('div', { class: 'pip', style: { width: ps + 'px', height: ps + 'px', right: -Math.round(ps * 0.25) + 'px', top: -Math.round(ps * 0.25) + 'px', fontSize: Math.round(ps * 0.7) + 'px' }, html: o.pipText || pipHTML(o.pip) }));
+  }
+  if (o.bid != null) el.append(h('div', { class: 'bidc' }, String(o.bid)));
+  return el;
+}
+
+/* ---------- the felt table: the real geometry from lib/tableGeometry.ts ---------- */
+const TD = { full: { W: 340, H: 300, cy: 150, R: 22, rx: 134, ry: 104 }, mini: { W: 320, H: 170, cy: 82, R: 16, rx: 128, ry: 56 } };
+function posAt(sz, ang) { const d = TD[sz], a = ang * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return { x: d.W / 2 + d.rx * Math.sign(c) * Math.abs(c) ** (2 / 3), y: d.cy + d.ry * Math.sign(s) * Math.abs(s) ** (2 / 3) }; }
+const offs = new Map();
+function edgeOffsets(sz, n) {
+  const key = sz + n; if (offs.has(key)) return offs.get(key);
+  const ST = 720, len = [0]; let prev = posAt(sz, 90);
+  for (let i = 1; i <= ST; i++) { const p = posAt(sz, 90 + i * 360 / ST); len.push(len[i - 1] + Math.hypot(p.x - prev.x, p.y - prev.y)); prev = p; }
+  const out = Array.from({ length: n }, (_, k) => { const want = k * len[ST] / n; let i = 1; while (i < ST && len[i] < want) i++; const span = len[i] - len[i - 1] || 1; return (i - 1 + (want - len[i - 1]) / span) * 360 / ST; });
+  offs.set(key, out); return out;
+}
+const seatPos = (sz, n, k) => posAt(sz, 90 + (n >= 8 ? edgeOffsets(sz, n)[k] : k * 360 / n));
+const FITS = [];
+function fitTable(w) { const k = Math.min(1, (w.parentElement ? w.parentElement.clientWidth : 340) / w.dataset.w); w.style.width = w.dataset.w * k + 'px'; w.style.height = w.dataset.h * k + 'px'; w.firstChild.style.transform = `scale(${k})`; w._k = k; }
+function fitAll() { FITS.forEach((w) => { if (w.isConnected) fitTable(w); }); }
+/** Builds a felt table. o: model ('A'|'D'), marks {i:pip}, bids {i:n}, caption, names, cur, photo. Returns {wrap, seats, R}. */
+function table(kind, players, o = {}) {
+  const d = TD[kind], n = players.length, R = d.R * (n >= 11 ? 0.8 : 1), tbl = h('div', { class: 'tbl', style: { width: d.W + 'px', height: d.H + 'px' } });
+  const wrap = h('div', { class: 'tblw', 'data-w': d.W, 'data-h': d.H }, tbl);
+  tbl.append(h('div', { class: 'felt', style: { left: d.W / 2 - d.rx * 1.02 + 'px', top: d.cy - d.ry * 1.06 + 'px', width: d.rx * 2.04 + 'px', height: d.ry * 2.12 + 'px' } }));
+  if (o.caption) tbl.append(h('div', { class: 'tblcap', html: o.caption }));
+  const seats = players.map((p, k) => {
+    const pos = seatPos(kind, n, k), size = 2 * R;
+    const el = h('div', { class: 'seat' + (o.cur === k ? ' cur' : ''), style: { left: pos.x - R + 'px', top: pos.y - R + 'px', width: size + 'px', height: size + 'px' } });
+    const sb = h('div', { class: 'sb' });
+    const av = avatar(p, size, { model: o.model || 'D', pip: o.marks && o.marks[k], bid: o.bids && o.bids[k], photo: o.photo, crown: o.crowns && o.crowns[k] });
+    sb.append(av); el.append(sb);
+    if (n <= 7 && o.names !== false) el.append(h('div', { class: 'nm' }, p.n));
+    tbl.append(el);
+    return { el, sb, av, p, k, size };
+  });
+  FITS.push(wrap); requestAnimationFrame(() => fitTable(wrap));
+  return { wrap, seats, R, tbl, kind };
+}
+/** Replaces a seat's avatar (e.g. to change its pip) without moving anything. */
+function reseat(t, k, o) { const s = t.seats[k]; const av = avatar(s.p, s.size, o); s.av.replaceWith(av); s.av = av; return av; }
+
+/* ---------- seat reactions (REWARDS-PLAN 5.2) ---------- */
+function glyph(seat, txt, o = {}) {
+  const old = $('.glyph', seat.av); if (old) old.remove();
+  if (!txt) return;
+  const g = h('div', { class: 'glyph' + (o.cls ? ' ' + o.cls : ''), style: { left: -Math.round(seat.size * 0.2) + 'px', top: -Math.round(seat.size * 0.3) + 'px', fontSize: Math.max(12, Math.round(seat.size * 0.38)) + 'px' } }, txt);
+  seat.av.append(g);
+  A(g, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1)' }], { dur: 180 });
+  if (!o.persist) setTimeout(() => { A(g, [{ opacity: 1 }, { opacity: 0 }], { dur: 200, fill: 'forwards' }).then(() => g.remove()); if (S.reduced) g.remove(); }, o.ms || 1200);
+}
+function resetSeat(seat) { clearAnims(seat.sb); const g = $('.glyph', seat.av); if (g) g.remove(); $$('.idle-drip,.idle-flame', seat.av).forEach((x) => x.classList.remove('idle-drip', 'idle-flame')); }
+const REACT = {
+  confident: { g: '✓', f: [{ transform: 'translateY(0) scale(1,1)' }, { transform: 'translateY(-6px) scale(.96,1.06)', offset: .4 }, { transform: 'translateY(0) scale(1.1,.9)', offset: .72 }, { transform: 'translateY(0) scale(1,1)' }], dur: 400 },
+  shocked: { g: '💥', f: [{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(0)' }], dur: 240 },
+  smug: { g: '✨', f: [{ transform: 'rotate(0)' }, { transform: 'rotate(3deg)', offset: .45 }, { transform: 'rotate(0)' }], dur: 600 },
+};
+function react(seat, state, o = {}) {
+  resetSeat(seat);
+  if (state === 'sulking') { glyph(seat, '☁️', { persist: true }); return A(seat.sb, [{ transform: 'translateY(0)' }, { transform: 'translateY(3px)' }], { dur: 300 }); }
+  if (state === 'sweating') { glyph(seat, '💦', { persist: true, cls: 'idle-drip' }); return Promise.resolve(); }
+  if (state === 'fire') { glyph(seat, '🔥' + (o.n || 4), { persist: true, cls: 'idle-flame' }); return Promise.resolve(); }
+  const r = REACT[state]; if (!r) return Promise.resolve();
+  glyph(seat, r.g); return A(seat.sb, r.f, { dur: r.dur, effect: true });
+}
+
+/* ---------- stage: dim the table, a bust rises out of a seat (FLIP: transform from the seat's box), settles back ---------- */
+function openStage(r, o = {}) {
+  const ov = $('#ov'); ov.classList.add('on');
+  const scrim = h('div', { class: 'scrim' }); const nodes = [scrim];
+  ov.append(scrim);
+  if (o.hint !== false) { const hn = h('div', { class: 'skiphint' }, 'Tap anywhere to skip'); ov.append(hn); nodes.push(hn); }
+  scrim.addEventListener('pointerdown', () => endRun());
+  A(scrim, [{ opacity: 0 }, { opacity: 1 }], { dur: 200 });
+  const st = { ov, scrim, nodes, add(el) { ov.append(el); nodes.push(el); return el; },
+    rel(el) { const a = ov.getBoundingClientRect(), b = el.getBoundingClientRect(); return { x: b.left - a.left, y: b.top - a.top, w: b.width, h: b.height, cx: b.left - a.left + b.width / 2, cy: b.top - a.top + b.height / 2 }; },
+    size() { const a = ov.getBoundingClientRect(); return { w: a.width, h: a.height }; } };
+  r.onEnd(() => {
+    const list = [...st.nodes];
+    ov.classList.remove('on');
+    const kill = () => list.forEach((n) => n.remove());
+    if (S.reduced) return kill();
+    list.forEach((n) => n.animate([{ opacity: getComputedStyle(n).opacity }, { opacity: 0 }], { duration: 160, fill: 'forwards' }));
+    setTimeout(kill, 170);
+  });
+  return st;
+}
+/** A bust of `size` centred at (cx,cy) in the overlay, FLIP-ed from `seat`'s face. Returns {el, rise(), settle()}. */
+function stageBust(st, seat, size, cx, cy, look, o = {}) {
+  const el = st.add(h('div', { class: 'stagebox', style: { width: size + 'px', height: size + 'px', left: cx - size / 2 + 'px', top: cy - size / 2 + 'px', transformOrigin: '50% 40%', opacity: 0 } }, bust(seat.p, size, look, o)));
+  const from = () => { const s = st.rel(seat.av), fx = cx - size / 2 + size * 0.5, fy = cy - size / 2 + size * 0.4; return `translate(${s.cx - fx}px,${s.cy - fy}px) scale(${s.w / (size * 0.44)})`; };
+  return {
+    el, from,
+    rise: () => { seat.sb.style.opacity = 0; el.style.opacity = 1; return A(el, [{ transform: from(), opacity: 0.2 }, { transform: 'translate(0,0) scale(1)', opacity: 1 }], { dur: 480, ease: 'cubic-bezier(.2,.9,.25,1.15)' }); },
+    settle: () => A(el, [{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: from(), opacity: 0 }], { dur: 380, ease: 'cubic-bezier(.5,0,.8,.4)' }).then(() => { seat.sb.style.opacity = 1; A(seat.sb, [{ opacity: 0 }, { opacity: 1 }], { dur: 120, effect: true }); }),
+    restore: () => { seat.sb.style.opacity = ''; },
+  };
+}
+function confetti(st, cx, cy, n = 26) {
+  if (S.reduced) return;
+  const cols = ['var(--brand)', 'var(--medal-gold)', 'var(--felt-hi)', 'var(--success)', 'var(--seat-2)', 'var(--seat-6)'];
+  for (let i = 0; i < n; i++) {
+    const c = st.add(h('div', { class: 'cf', style: { left: cx + 'px', top: cy + 'px', background: cols[i % cols.length] } }));
+    const dx = rnd(-170, 170), dy = rnd(-230, -40);
+    A(c, [{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) rotate(${rnd(-300, 300)}deg)`, opacity: 1, offset: .55 }, { transform: `translate(${dx * 1.2}px,${dy + 220}px) rotate(${rnd(-500, 500)}deg)`, opacity: 0 }], { dur: rnd(1100, 1700), ease: 'cubic-bezier(.2,.6,.4,1)' }).then(() => c.remove());
+  }
+}
+const sec = (title, ...kids) => h('div', { class: 'sec' }, title ? h('h2', null, title) : null, ...kids);
+const seg = (opts, cur, on, label) => { const d = h('div', { class: 'seg', role: 'group', 'aria-label': label }); opts.forEach(([v, t]) => { const b = h('button', { 'aria-pressed': String(v === cur), onclick: () => { $$('button', d).forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); on(v); } }, t); d.append(b); }); return d; };
+const tabs = (opts, cur, on, label) => { const d = h('div', { class: 'tabs', role: 'group', 'aria-label': label }); opts.forEach(([v, t]) => { const b = h('button', { 'aria-pressed': String(v === cur), onclick: () => { $$('button', d).forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); on(v); } }, t); d.append(b); }); return d; };
+</script>
+
+<script>
+/* =====================================================================================================================
+   Part 2: scenes 1 to 6.
+   ===================================================================================================================== */
+const SC = [];
+const scene = (id, title, build) => SC.push({ id, title, build });
+const slot = (size, el, extra = {}) => h('div', { class: 'slot', style: { width: size + 'px', height: size + 'px', ...extra } }, el);
+const faces = (size, o = {}, n = 6, from = 0) => h('div', { class: 'row', style: { gap: '8px', padding: '14px 4px 12px', flexWrap: 'nowrap' } }, PL.slice(from, from + n).map((p, k) => slot(size, avatar(p, size, { ...o, pip: o.marks && o.marks[k] }))));
+const pickRow = (key, opts, label) => h('div', { class: 'card col' }, h('div', { class: 'up' }, label), seg(opts, DEC.picks[key], (v) => { DEC.picks[key] = v; save(); toast(label + ': ' + v); }, label));
+const kursiNameSeg = () => seg([['Kursi', 'Kursi'], ['Belt', 'The Belt']], S.kursiName, (v) => { S.kursiName = v; DEC.picks.kursi = v; save(); openScene(S.scene, true); }, 'Name of the chair');
+const lblRow = (t, s) => h('div', null, h('div', { class: 'up' }, t), s ? h('p', { class: 'fine' }, s) : null);
+const photoBtn = (after) => { const b = h('button', { class: 'btn ghost sm', 'aria-pressed': String(S.photo), onclick: () => { S.photo = !S.photo; b.setAttribute('aria-pressed', String(S.photo)); b.textContent = (S.photo ? '☑ ' : '☐ ') + 'With photo'; save(); after(); } }, (S.photo ? '☑ ' : '☐ ') + 'With photo'); return b; };
+const tableMarks = { 0: 'kursi', 1: 'sitara', 3: 'taj', 5: 'fire' };
+
+/* ---------- 1. Avatar model, A vs D ---------- */
+scene('avatar', 'Avatar model, A vs D', () => {
+  const root = h('section'); let view = 'both'; const body = h('div', { class: 'col', style: { gap: '14px' } });
+  let winTable = null;
+  const render = () => {
+    body.innerHTML = ''; const showA = view !== 'D', showD = view !== 'A';
+    const cap = (k, t) => h('div', { class: 'row', style: { justifyContent: 'space-between' } }, h('b', null, k), h('span', { class: 'fine' }, t));
+    if (showA) { const t = table('full', PL.slice(0, 6), { model: 'A' }); body.append(h('div', { class: 'card col' }, cap('A · accessories everywhere', 'hat + neckwear on every seat'), t.wrap)); }
+    if (showD) { winTable = table('full', PL.slice(0, 6), { model: 'D', marks: tableMarks }); body.append(h('div', { class: 'card col' }, cap('D · seat token + stage', 'ring + 1 pip; the bust rises at a win'), winTable.wrap, h('button', { class: 'btn pri', onclick: () => play() }, '▶ Kabir wins: the stage bust rises'))); }
+    const lad = h('div', { class: 'card col' }, h('h2', null, 'What is readable at the real sizes'), h('p', { class: 'note' }, 'Shown at 1:1 CSS pixels. 44 = full table seat, 32 = mini table seat, 26 = the 11-player crowded mini table (32 × 0.8). Pinch-zoom the page to look closer.'));
+    [[44, 'seat · full table'], [32, 'seat · mini table'], [26, 'dot · crowded table (11+)']].forEach(([sz, nm]) => {
+      lad.append(h('div', { class: 'up' }, sz + 'px · ' + nm + ' · tier ' + tierOf(sz)));
+      if (showA) lad.append(h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'chip' }, 'A'), faces(sz, { model: 'A' })));
+      if (showD) lad.append(h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'chip' }, 'D'), faces(sz, { model: 'D', marks: tableMarks })));
+    });
+    body.append(lad);
+    const crowd = h('div', { class: 'card col' }, h('h2', null, 'Crowded table: 11 players, seats ×0.8 (26px)'));
+    if (showA) crowd.append(h('div', { class: 'up' }, 'A'), table('mini', PL, { model: 'A', names: false }).wrap);
+    if (showD) crowd.append(h('div', { class: 'up' }, 'D'), table('mini', PL, { model: 'D', names: false, marks: { 0: 'kursi', 2: 'sitara', 4: 'fire', 7: 'taj' } }).wrap);
+    body.append(crowd);
+    const tiers = h('div', { class: 'card col' }, h('h2', null, 'Where each look would show (§4.3)'), h('div', { class: 'row' }, [['dot', 'under 32', 'face · 2px ring · pip'], ['seat', '32–47', '+ full frame · reactions'], ['hero', '48–71', '+ headwear, neckwear'], ['stage', '72+', 'the whole bust']].map(([a, b, c]) => h('span', { class: 'chip' }, a + ' ' + b + ': ' + c))));
+    body.append(tiers);
+  };
+  const play = () => go(async (r) => {
+    if (view === 'A') { toast('A has no stage: the seat avatar is already dressed'); return; }
+    const t = winTable, seat = t.seats[3]; t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' }); await r.wait(S.reduced ? 0 : 350);
+    const st = openStage(r), sz = st.size(), bb = stageBust(st, seat, 200, sz.w / 2, sz.h / 2 - 20, LOOK[3], { photo: S.photo });
+    r.onEnd(bb.restore);
+    await r.wait(150); cue('rise'); await bb.rise(); cue('fanfare'); confetti(st, sz.w / 2, sz.h / 2 - 20);
+    st.add(h('div', { class: 'bannerline', style: { top: sz.h / 2 + 100 + 'px', fontSize: 'var(--f7)' } }, 'Kabir wins!'));
+    await r.wait(1500); await bb.settle(); endRun();
+  });
+  root.append(
+    h('p', { class: 'note' }, 'Decision #1. The same 6-player Kachuful table, drawn both ways. A = hat and accessory on every avatar. D = a plain seat token (face + frame ring + one pip) and a stage bust that rises at a win.'),
+    h('div', { class: 'row' }, seg([['both', 'Both'], ['A', 'A only'], ['D', 'D only']], view, (v) => { view = v; render(); }, 'View'), photoBtn(render)),
+    body, pickRow('avatar', [['A', 'A'], ['D', 'D']], 'My pick, decision #1'));
+  render();
+  return { el: root, play };
+});
+
+/* ---------- 2. Kachuful round result ---------- */
+scene('round', 'Kachuful round result', () => {
+  const root = h('section'); const P6 = PL.slice(0, 6);
+  const BIDS = [3, 2, 0, 1, 1, 1], WON = [3, 1, 0, 1, 1, 1], TOT = [118, 96, 84, 142, 51, 103], PREV = [105, 106, 74, 131, 40, 93];
+  const t = table('full', P6, { model: 'D', marks: { 0: 'kursi', 3: 'sitara' }, bids: BIDS, caption: '<b>♥</b>Round 7 of 13' });
+  const rows = h('div', { class: 'rows' }); const rowEls = [];
+  P6.forEach((p, k) => { const sc = h('span', { class: 'sc' }, String(PREV[k])), dl = h('span', { class: 'chip', style: { opacity: 0 } }, '+0'), gl = h('span', { style: { fontSize: 'var(--f5)', minWidth: '28px' } }, ''); const row = h('div', { class: 'prow' }, h('span', { class: 'rk' }, k + 1), slot(40, avatar(p, 40, { model: 'D' })), h('div', { class: 'nmx' }, h('b', null, p.n), h('small', null, 'bid ' + BIDS[k] + ' · won ' + WON[k])), dl, gl, sc); rows.append(row); rowEls.push({ sc, dl, gl }); });
+  const idle = h('span', { class: 'chip' }, 'Idle animations: 0 of 2');
+  const setIdle = (n) => { idle.textContent = 'Idle animations: ' + n + ' of 2'; };
+  const reset = () => { t.seats.forEach(resetSeat); rowEls.forEach((r, k) => { r.sc.textContent = PREV[k]; r.dl.style.opacity = 0; r.gl.textContent = ''; }); reseat(t, 5, { model: 'D', bid: BIDS[5] }); reseat(t, 3, { model: 'D', pip: 'sitara', bid: BIDS[3] }); setIdle(0); };
+  const stateBtn = (st, k, lbl) => h('button', { class: 'btn sm', onclick: () => { reset(); const s = t.seats[k]; react(s, st, { n: 4 }); if (st === 'fire') reseat(t, k, { model: 'D', pip: 'fire', bid: BIDS[k] }); setIdle(st === 'sweating' || st === 'fire' ? 1 : 0); } }, lbl);
+  const play = () => go(async (r) => {
+    reset();
+    // Before the reveal: live states (at most 2 idle animations on screen)
+    react(t.seats[2], 'sweating'); reseat(t, 5, { model: 'D', pip: 'fire', bid: BIDS[5] }); glyph(t.seats[5], '🔥4', { persist: true, cls: 'idle-flame' }); setIdle(2);
+    t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' });
+    await r.wait(1400);
+    // Stage 1: results land one by one (LAND_GAP 60ms in the app; slower here so you can see it). Reduced: one sound, no staggering.
+    const made = WON.map((w, k) => w === BIDS[k]); const run = []; let step = 0;
+    for (let k = 0; k < 6; k++) {
+      if (k === 2) { const g = $('.glyph', t.seats[2].av); if (g) g.remove(); }
+      if (made[k]) react(t.seats[k], 'confident'); else react(t.seats[k], 'shocked');
+      if (k === 5) { glyph(t.seats[5], '✓'); }
+      rowEls[k].dl.textContent = made[k] ? '+' + (10 + BIDS[k]) : '0'; rowEls[k].dl.style.opacity = 1; rowEls[k].dl.className = 'chip ' + (made[k] ? 'ok' : 'bad'); rowEls[k].gl.textContent = made[k] ? '✓' : '✗';
+      if (!S.reduced) cue(made[k] ? 'made' : 'missed', 'beat', { pitch: made[k] ? PENTA[step++ % PENTA.length] : -4 });
+      await r.wait(S.reduced ? 0 : 320);
+    }
+    setIdle(0);
+    if (S.reduced) cue('womp'); else { await r.wait(200); cue('womp'); }
+    await r.wait(700);
+    // Stage 2: totals count up, stage 4: the reveal
+    cue('tally'); rowEls.forEach((x, k) => { x.sc.textContent = TOT[k]; }); await r.wait(900);
+    react(t.seats[3], 'smug'); cue('crown'); rowEls[3].gl.textContent = '✨';
+    react(t.seats[4], 'sulking'); rowEls[4].gl.textContent = '☁️';
+    toast('Kabir takes the lead · Meera is last (3+ rounds in)');
+  });
+  // Pip ranking demo
+  const have = { taj: false, kursi: true, legend: false, sitara: true, fire: true }; const pipBox = h('div', { class: 'row', style: { gap: '14px', alignItems: 'center' } }), words = h('div', { class: 'note' });
+  const drawPip = () => { pipBox.innerHTML = ''; const top = PIP_ORDER.find((k) => have[k]); pipBox.append(slot(56, avatar(PL[0], 56, { model: 'D', pip: top, look: LOOK[0] }), { margin: '8px' })); words.innerHTML = top ? 'Seat shows <b>one</b> pip: ' + pipHTML(top) + '<br>Hero name line (words): ' + PIP_ORDER.filter((k) => have[k]).map((k) => pipHTML(k) + ' ' + { taj: 'Taj', kursi: kursiWord(), legend: 'Legend', sitara: 'Sitara', fire: 'streak' }[k]).join(' · ') : 'No marks: no pip.'; };
+  const pipTabs = h('div', { class: 'tabs', role: 'group', 'aria-label': 'Marks Riya holds' }, PIP_ORDER.map((k) => { const b = h('button', { 'aria-pressed': String(have[k]), onclick: () => { have[k] = !have[k]; b.setAttribute('aria-pressed', String(have[k])); drawPip(); } }, h('span', { html: pipHTML(k) + ' ' + { taj: 'Taj', kursi: kursiWord(), legend: 'Legend', sitara: 'Sitara', fire: '🔥' }[k].replace('🔥', 'Streak') })); return b; }));
+  drawPip();
+  root.append(
+    h('p', { class: 'note' }, 'Seat tokens react to the round (§5.2). Press Play: before the reveal Asha sweats (bid 0 live) and Arjun is on fire; then results land, Dev is the sole miss, Kabir goes smug as the new leader and Meera sulks in last.'),
+    h('div', { class: 'card col' }, t.wrap, h('div', { class: 'row' }, idle, h('span', { class: 'fine' }, 'Reduced motion: glyph shown, no travel'))),
+    h('div', { class: 'up' }, 'Try one state'), h('div', { class: 'tabs' }, stateBtn('confident', 0, '✓ Confident'), stateBtn('shocked', 1, '💥 Shocked'), stateBtn('sweating', 2, '💦 Sweating'), stateBtn('smug', 3, '✨ Smug'), stateBtn('sulking', 4, '☁️ Sulking'), stateBtn('fire', 5, '🔥 On fire')),
+    h('div', { class: 'card col' }, h('h2', null, 'Summary rows (40px) keep the round\'s glyph'), rows),
+    h('div', { class: 'card col' }, h('h2', null, 'Pips: one per seat, ranked (§3.3)'), h('p', { class: 'note' }, 'Taj > Kursi > Legend > Sitara > streak. Toggle what Riya holds:'), pipTabs, pipBox, words));
+  return { el: root, play };
+});
+
+/* ---------- 3. Stage bust ---------- */
+scene('stage', 'Stage bust', () => {
+  const root = h('section'); let jashn = true; const t = table('full', PL.slice(0, 6), { model: 'D', marks: tableMarks });
+  const busts = h('div', { class: 'row', style: { alignItems: 'flex-end', gap: '12px' } });
+  const drawBusts = () => { busts.innerHTML = ''; [72, 110, 150].forEach((s) => busts.append(h('div', { class: 'col', style: { alignItems: 'center', gap: '2px' } }, bust(PL[3], s, LOOK[3], { photo: S.photo, pip: 'sitara' }), h('span', { class: 'fine' }, s + 'px')))); };
+  const play = () => go(async (r) => {
+    const seat = t.seats[3]; t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' }); await r.wait(S.reduced ? 0 : 350);
+    const st = openStage(r), sz = st.size(), cx = sz.w / 2, cy = sz.h / 2 - 30, SZ = 220;
+    const look = { ...LOOK[3], aura: 'sunrise' };
+    const aura = st.add(h('div', { class: 'stagebox', style: { width: SZ * 1.5 + 'px', height: SZ * 1.5 + 'px', left: cx - SZ * 0.75 + 'px', top: cy - SZ * 0.75 + 'px', opacity: 0 }, html: `<svg viewBox="0 0 100 100" width="100%" height="100%">${AURA.sunrise()}</svg>` }));
+    const bb = stageBust(st, seat, SZ, cx, cy, { ...look, aura: null }, { photo: S.photo });
+    const mala = st.add(h('div', { class: 'stagebox', style: { width: SZ + 'px', height: SZ + 'px', left: cx - SZ / 2 + 'px', top: cy - SZ / 2 + 'px', opacity: 0 }, html: `<svg viewBox="0 0 100 100" width="100%" height="100%"><g transform="translate(50 40) scale(22)">${MALA()}</g></svg>` }));
+    const name = st.add(h('div', { class: 'bannerline', style: { top: cy + SZ / 2 + 8 + 'px', fontSize: 'var(--f7)', opacity: 0 } }, 'Kabir wins the game'));
+    const ceil = st.add(h('div', { style: { position: 'absolute', left: '16px', right: '16px', top: '12px', height: '4px', borderRadius: '99px', background: 'var(--hairline-2)', overflow: 'hidden' } }, h('i', { style: { display: 'block', height: '100%', background: 'var(--brand)', transformOrigin: '0 50%' } })));
+    A($('i', ceil), [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { dur: 3500, ease: 'linear' });
+    r.onEnd(bb.restore);
+    await r.wait(120); cue('rise'); await bb.rise();
+    cue('fanfare'); if (jashn) cue('patakha'); A(aura, [{ opacity: 0 }, { opacity: 1 }], { dur: 500 }); confetti(st, cx, cy);
+    await r.wait(S.reduced ? 0 : 250);
+    A(mala, [{ transform: 'translateY(-60px)', opacity: 0 }, { transform: 'translateY(8px)', opacity: 1, offset: .6 }, { transform: 'translateY(0)', opacity: 1 }], { dur: 600 });
+    A(name, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { dur: 300, delay: 300 });
+    await r.wait(2100); A(aura, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }); A(mala, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }); A(name, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 });
+    await bb.settle(); endRun();
+  });
+  root.append(
+    h('p', { class: 'note' }, 'A game win (§5.1, §12): the winner\'s seat rises out of the table into a bust in full outfit with aura and badge, the mala drops, and it settles back. Tap anywhere to skip. The bar on top is the 3.5 s ceiling (game end is allowed 4 s).'),
+    h('div', { class: 'card col' }, t.wrap, h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: () => play() }, '▶ Kabir wins'), h('button', { class: 'btn ghost sm', 'aria-pressed': 'true', onclick: (e) => { jashn = !jashn; e.currentTarget.setAttribute('aria-pressed', String(jashn)); e.currentTarget.textContent = (jashn ? '☑ ' : '☐ ') + 'Patakha Jashn'; } }, '☑ Patakha Jashn'), photoBtn(drawBusts))),
+    h('div', { class: 'card col' }, h('h2', null, 'The bust at stage sizes'), h('p', { class: 'note' }, 'Back to front: aura, outfit, face, neckwear, headwear, frame, badge, pip. 72px is the smallest the plan calls a stage.'), busts));
+  drawBusts();
+  return { el: root, play };
+});
+
+/* ---------- 4. Kursi chheeni ---------- */
+scene('kursi', 'Kursi chheeni!', () => {
+  const root = h('section'); let holder = 0, defences = 6, days = 9;
+  const mk = () => ({ [holder]: 'kursi', 3: holder === 3 ? 'kursi' : undefined });
+  const t = table('full', PL.slice(0, 6), { model: 'D', marks: { 0: 'kursi' }, caption: '<b>' + kursiGlyph() + '</b>' + kursiWord() });
+  const defEl = h('span', { style: { fontFamily: 'var(--font-display)', fontWeight: 'var(--display-weight)', fontSize: 'var(--f8)', display: 'inline-block', minWidth: '40px', textAlign: 'center' } }, String(defences));
+  const holderEl = h('b', null, PL[holder].n), daysEl = h('span', { class: 'fine' }, days + ' days held');
+  const setDef = (v, dir = -1) => { const old = defEl.cloneNode(true); old.style.cssText += 'position:absolute'; defEl.parentElement.style.position = 'relative'; defEl.textContent = v; defEl.parentElement.append(old); A(old, [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: `translateY(${dir * 16}px)` }], { dur: 250 }).then(() => old.remove()); A(defEl, [{ opacity: 0, transform: `translateY(${-dir * 16}px)` }, { opacity: 1, transform: 'none' }], { dur: 250 }); };
+  const apply = (to) => { const from = holder; holder = to; defences = 0; days = 0; reseat(t, from, { model: 'D', pip: from === 3 ? 'sitara' : undefined }); reseat(t, to, { model: 'D', pip: 'kursi' }); holderEl.textContent = PL[to].n; daysEl.textContent = 'since game 3 · 0 days'; defEl.textContent = '0'; };
+  const reset = () => { endRun(); t.seats.forEach(resetSeat); reseat(t, holder, { model: 'D' }); holder = 0; defences = 6; days = 9; reseat(t, 0, { model: 'D', pip: 'kursi' }); holderEl.textContent = 'Riya'; defEl.textContent = '6'; daysEl.textContent = '9 days held'; };
+  const ctr = h('div', { class: 'card row', style: { justifyContent: 'space-between' } },
+    h('div', { class: 'col', style: { gap: '2px' } }, h('div', { class: 'row', style: { gap: '6px' } }, h('span', { style: { fontSize: 'var(--f6)' }, html: kursiGlyph() }), h('span', null, 'held by '), holderEl), daysEl),
+    h('div', { class: 'col', style: { alignItems: 'center', gap: 0 } }, defEl, h('span', { class: 'up' }, 'defences')));
+  const takeIt = () => go(async (r) => {
+    const from = holder, to = from === 0 ? 1 : 0; const A1 = t.seats[from], B1 = t.seats[to];
+    r.onEnd(() => { apply(to); react(t.seats[from], 'sulking'); });
+    t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' }); await r.wait(S.reduced ? 0 : 350);
+    const st = openStage(r), sz = st.size(); const a = st.rel(A1.av), b = st.rel(B1.av);
+    const ac = st.add(slot(a.w, avatar(PL[from], a.w, { model: 'D' }), { position: 'absolute', left: a.x + 'px', top: a.y + 'px' })), bc = st.add(slot(b.w, avatar(PL[to], b.w, { model: 'D' }), { position: 'absolute', left: b.x + 'px', top: b.y + 'px' }));
+    const light = st.add(h('div', { style: { position: 'absolute', width: '120px', height: '120px', borderRadius: '50%', left: a.cx - 60 + 'px', top: a.cy - 60 + 'px', background: 'radial-gradient(circle, var(--glow), transparent 70%)', opacity: 0 } }));
+    const title = st.add(h('div', { class: 'bannerline', style: { top: '90px', fontSize: 'var(--f8)', opacity: 0 } }, kursiWord() + ' chheeni!'));
+    const sub = st.add(h('div', { class: 'bannerline', style: { top: '124px', fontSize: 'var(--f3)', fontFamily: 'var(--font-body)', fontWeight: 600, opacity: 0 } }, PL[to].n + ' beat ' + PL[from].n + ' in game 4 · ' + PL[from].n + ' held it ' + days + ' days (' + defences + ' defences)'));
+    const chair = st.add(h('div', { style: { position: 'absolute', left: a.cx - 20 + 'px', top: a.cy - 20 + 'px', width: '40px', height: '40px', display: 'grid', placeItems: 'center', fontSize: '34px', zIndex: 3 }, html: kursiGlyph() }));
+    A(light, [{ opacity: 0 }, { opacity: 1 }], { dur: 250 }); r.onEnd(() => {});
+    await r.wait(300);
+    cue('crown', 'beat'); await A(chair, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(0,-18px) rotate(-12deg)' }], { dur: 220 });
+    const dx = b.cx - a.cx, dy = b.cy - a.cy;
+    A(light, [{ transform: 'translate(0,0)' }, { transform: `translate(${dx}px,${dy}px)` }], { dur: 600, ease: 'ease-in-out' });
+    await A(chair, [{ transform: 'translate(0,-18px) rotate(-12deg)' }, { transform: `translate(${dx / 2}px,${Math.min(0, dy) / 2 - 50}px) rotate(10deg)`, offset: .5 }, { transform: `translate(${dx}px,${dy}px) rotate(0) scale(1.2)` }], { dur: 600, ease: 'ease-in-out' });
+    cue('gavel'); A(bc.firstChild, [{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { dur: 260, effect: true });
+    const gav = st.add(h('div', { style: { position: 'absolute', left: b.cx + 14 + 'px', top: b.cy - 36 + 'px', fontSize: '24px' } }, '🔨')); A(gav, [{ opacity: 0, transform: 'rotate(-40deg) scale(.6)' }, { opacity: 1, transform: 'rotate(10deg) scale(1)' }, { opacity: 0, transform: 'rotate(10deg) scale(1)' }], { dur: 600 });
+    A(title, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)' }], { dur: 280 }); A(sub, [{ opacity: 0 }, { opacity: 1 }], { dur: 300, delay: 200 });
+    A(ac.firstChild, [{ transform: 'translateY(0)' }, { transform: 'translateY(3px)' }], { dur: 300 }); const cl = h('div', { style: { position: 'absolute', left: a.x - 2 + 'px', top: a.y - 12 + 'px', fontSize: '16px' } }, '☁️'); st.add(cl); A(cl, [{ opacity: 0 }, { opacity: 1 }], { dur: 200 });
+    A(defEl, [{ opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }], { dur: 400, effect: true });
+    await r.wait(380);
+    const chip = st.add(h('div', { class: 'chip gold', style: { position: 'absolute', left: a.cx - 28 + 'px', top: a.cy + 20 + 'px' } }, '+40 🪙 bounty')); cue('coin'); setTimeout(() => cue('coin'), 90); setTimeout(() => cue('coin'), 180);
+    await A(chip, [{ transform: 'translate(0,0)', opacity: 0 }, { transform: 'translate(0,0)', opacity: 1, offset: .15 }, { transform: `translate(${dx}px,${dy}px)`, opacity: 1 }], { dur: 600 });
+    await r.wait(600); endRun();
+  });
+  const defend = () => go(async (r) => {
+    const s = t.seats[holder]; r.onEnd(() => { defences = Math.max(defences, 0); });
+    t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' });
+    const g = h('div', { style: { position: 'absolute', right: '-12px', top: '-14px', fontSize: '20px', zIndex: 4, pointerEvents: 'none' } }, '✨'); s.av.append(g);
+    cue('twinkle'); const chip = h('div', { class: 'chip gold', style: { position: 'absolute', left: '50%', top: '-6px', zIndex: 4, transform: 'translateX(-50%)' } }, '+10 🪙'); s.av.append(chip);
+    defences++; setDef(defences, 1);
+    A(g, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1.2)' }, { opacity: 0, transform: 'scale(1)' }], { dur: 800 });
+    A(chip, [{ opacity: 0, transform: 'translate(-50%,6px)' }, { opacity: 1, transform: 'translate(-50%,-8px)' }, { opacity: 0, transform: 'translate(-50%,-22px)' }], { dur: 1100 });
+    await r.wait(1200); g.remove(); chip.remove();
+  });
+  root.append(
+    h('p', { class: 'note' }, 'One chair per game. Beat the holder in a game you both sat in and you take it; every game the holder survives is +1 defence. Pick the name and watch both versions.'),
+    h('div', { class: 'card col' }, h('div', { class: 'up' }, 'Decision #3 · the name'), kursiNameSeg()),
+    h('div', { class: 'card col' }, t.wrap, ctr, h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: () => takeIt() }, '▶ ' + kursiWord() + ' chheeni (Dev takes it)'), h('button', { class: 'btn', onclick: () => defend() }, '+1 defence (a Beat)'), h('button', { class: 'btn ghost', onclick: reset }, 'Reset'))),
+    h('div', { class: 'card col' }, h('h2', null, 'Words'), h('p', { class: 'note' }, S.kursiName === 'Kursi' ? '"Kursi chheeni!" · "Riya holds the Kursi · 6 defences" · voice pack: "Kursi gayi!"' : '"Belt chheen liya!" · "Riya holds the Belt · 6 defences" · the Hindi/English mix loses the Kursi/chheeni rhyme.')));
+  return { el: root, play: takeIt };
+});
+
+/* ---------- 5. The line at the deal ---------- */
+scene('deal', 'The line at the deal', () => {
+  const root = h('section'); const EX = [
+    { k: 'A rivalry', who: [1, 2], text: 'Dev has beaten Asha 7 of their last 9', sub: 'from head-to-head: H2H endpoint, or the device archive' },
+    { k: 'A crown at stake', who: [0], text: kursiGlyph() + ' ' + kursiWord() + ': Riya, 6 defences', sub: 'a Taj or ' + kursiWord() + ' holder is at the table', raw: true },
+    { k: 'A bounty', who: [0], text: 'Beat Riya: +40 🪙', sub: 'once per challenger per holder per week' },
+    { k: 'A streak', who: [3], text: 'Kabir: 🔥 4 weeks', sub: 'a weekly streak about to fall or grow' },
+  ];
+  let cur = 0; const t = table('full', PL.slice(0, 6), { model: 'D', marks: { 0: 'kursi', 3: 'fire' }, caption: '<b>Deal</b>Round 1' });
+  const line = h('div', { class: 'card row', style: { minHeight: '64px', flexWrap: 'nowrap', opacity: 0 } }), bar = h('i', null), meter = h('div', { class: 'meter', 'aria-label': 'Deal time, 3 seconds' }, bar), cand = h('div', { class: 'col', style: { gap: '4px' } });
+  const showLine = (i, animate) => { const e = EX[i]; line.innerHTML = ''; line.append(...e.who.map((k) => slot(36, avatar(PL[k], 36, { model: 'D' }))), h('div', { class: 'col', style: { gap: 0 } }, h('b', { style: { fontSize: 'var(--f4)' }, html: e.raw ? e.text : undefined }, e.raw ? null : e.text), h('span', { class: 'fine' }, e.sub))); if (animate) A(line, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { dur: 260 }); else line.style.opacity = 1; cand.querySelectorAll('.chip').forEach((c, j) => c.classList.toggle('gold', j === i)); };
+  EX.forEach((e) => cand.append(h('span', { class: 'chip' }, e.k)));
+  const cardsOn = () => { const cs = []; for (let k = 0; k < 12; k++) { const sIdx = k % 6, s = t.seats[sIdx]; const c = h('div', { style: { position: 'absolute', left: '50%', top: '50%', width: '14px', height: '20px', margin: '-10px 0 0 -7px', borderRadius: '3px', background: 'var(--card-bg)', border: '2px solid var(--brand)', opacity: 0, zIndex: 5 } }); t.tbl.append(c); cs.push([c, s]); } return cs; };
+  const dealLine = async (r, i) => {
+    cur = i; line.style.opacity = 0; reseat(t, 0, { model: 'D', pip: 'kursi' }); bar.style.transform = 'scaleX(0)'; cue('riffle');
+    const cs = S.reduced ? [] : cardsOn();
+    r.onEnd(() => cs.forEach(([c]) => c.remove()));
+    cs.forEach(([c, s], k) => { const dx = s.el.offsetLeft + s.size / 2 - TD.full.W / 2, dy = s.el.offsetTop + s.size / 2 - TD.full.cy; A(c, [{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) rotate(${(k % 3) * 40 - 40}deg)`, opacity: 1, offset: .9 }, { transform: `translate(${dx}px,${dy}px)`, opacity: 0 }], { dur: 400, delay: 150 + k * 190 }); r.wait(150 + k * 190 + 300).then(() => cue('deal')).catch(() => {}); });
+    A(bar, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { dur: 3000, ease: 'linear' }); if (S.reduced) bar.style.transform = 'scaleX(1)';
+    await r.wait(400); showLine(i, true); await r.wait(2600);
+  };
+  const one = (i) => go(async (r) => { t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' }); await dealLine(r, i); });
+  const play = () => go(async (r) => { t.wrap.scrollIntoView({ block: 'center', behavior: S.reduced ? 'auto' : 'smooth' }); for (let i = 0; i < 4; i++) { await dealLine(r, i); await r.wait(500); } });
+  root.append(
+    h('p', { class: 'note' }, 'Round 1\'s deal is 3 s of cards flying. The intel line fills that dead time: at most one line, on screen for the deal\'s duration, so no extra wait. Play cycles through all four; or pick one.'),
+    h('div', { class: 'card col' }, t.wrap, h('div', { class: 'row', style: { justifyContent: 'space-between' } }, h('span', { class: 'up' }, 'Deal · 3.0 s'), h('span', { class: 'fine' }, 'cards fly under reduced motion: not rendered')), meter, line),
+    h('div', { class: 'tabs', role: 'group', 'aria-label': 'Example line' }, EX.map((e, i) => h('button', { onclick: () => one(i) }, e.k))),
+    h('div', { class: 'card col' }, h('h2', null, 'One slot, several candidates'), h('p', { class: 'note' }, 'All of these could be true at the same deal. §6.5 ranks crown at stake > rivalry > streak > milestone, while §6.4 wants the bounty on the same round-1 line.'), cand));
+  line.style.opacity = 0; showLine(0, false); line.style.opacity = 0;
+  return { el: root, play };
+});
+
+/* ---------- 6. Crowns ---------- */
+scene('crowns', 'Crowns', () => {
+  const root = h('section'); let tab = 'board'; const body = h('div', { class: 'col' });
+  const HOLD = { 0: ['taj'], 1: ['kursi', 'sitara'], 3: ['legend'], 5: ['fire'] };
+  const SCORES = [142, 131, 118, 105, 96, 88, 71, 60];
+  let tajHolder = 0, shows = 0; const showsEl = h('span', { class: 'chip warn' }, 'Crown shows tonight: 0 of 3');
+  const word = { taj: 'Taj', kursi: kursiWord(), legend: 'Legend', sitara: 'Sitara', fire: 'Streak' };
+  const board = () => {
+    const rows = h('div', { class: 'rows' });
+    PL.slice(0, 8).forEach((p, k) => { const mk = k === tajHolder ? ['taj'] : (HOLD[k] || []).filter((x) => x !== 'taj'); const top = PIP_ORDER.find((x) => mk.includes(x)); rows.append(h('div', { class: 'prow' }, h('span', { class: 'rk' }, k + 1), slot(40, avatar(p, 40, { model: 'D', pip: top })), h('div', { class: 'nmx' }, h('b', null, p.n), h('small', { html: mk.map((x) => pipHTML(x) + ' ' + word[x]).join(' · ') || '&nbsp;' })), h('span', { class: 'sc' }, String(SCORES[k])))); });
+    const legend = h('div', { class: 'card col' }, h('h2', null, 'The four marks that move'), ...[['sitara', 'Aaj ka Sitara', 'tonight', 'moves most nights; a twinkle, no show'], ['kursi', 'The ' + kursiWord(), 'until taken', 'beat the holder to take it'], ['taj', 'The Taj', 'the month', '#1 in this month\'s standing'], ['legend', 'Legend', 'all-time', 'most season titles; never animated']].map(([k, n, w, d]) => h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, h('span', { style: { fontSize: 'var(--f6)', width: '28px', textAlign: 'center' }, html: pipHTML(k) }), h('div', { class: 'col', style: { gap: 0 } }, h('b', null, n + ' · ' + w), h('span', { class: 'fine' }, d)))));
+    const tajPrev = h('div', { class: 'card col' }, h('h2', null, 'How the Taj reads at each size'), h('div', { class: 'row', style: { alignItems: 'flex-end', gap: '18px' } },
+      h('div', { class: 'col', style: { alignItems: 'center' } }, slot(44, avatar(PL[0], 44, { model: 'D', pip: 'taj' })), h('span', { class: 'fine' }, '44 seat: a pip')),
+      h('div', { class: 'col', style: { alignItems: 'center' } }, slot(56, avatar(PL[0], 56, { model: 'D', crown: true, pip: 'taj' }), { margin: '14px 0 0' }), h('span', { class: 'fine' }, '56 hero')),
+      h('div', { class: 'col', style: { alignItems: 'center', position: 'relative' } }, bust(PL[0], 120, { ...LOOK[0], head: null }, { crown: true }), h('span', { class: 'fine' }, '120 stage · glints every 6 s'))));
+    body.innerHTML = ''; body.append(h('p', { class: 'note' }, 'Kachuful, this month\'s season standing. The pip is each player\'s highest mark; the rest read as words.'), h('div', { class: 'card col' }, rows), legend, tajPrev);
+  };
+  const STAT = {
+    Kachuful: [['Nishanebaaz', 'best accuracy', 'Dev · 78%'], ['Lohe ka', 'most rounds', 'Asha · 212'], ['Charhta Sooraj', 'biggest climb', 'Meera · +4 places'], ['Big Round', 'best round, all-time', 'Kabir · 41'], ['Hot Hand', 'longest streak, all-time', 'Arjun · 9']],
+    Spades: [['Sharpest', 'best made rate', 'Zoya · 81%'], ['Nil ka Nawab', 'most nils made', 'Vikram · 6'], ['Jodi No. 1', 'best pair', 'Riya + Dev'], ['Lohe ka', 'most games', 'Asha · 58'], ['Charhta Sooraj', 'biggest climb', 'Kabir · +3']],
+    'Kaali Teeri': [['Sharpest', 'best bid-made rate', 'Meera · 74%'], ['Kingmaker', 'best partner', 'Arjun · 11'], ['Lohe ka', 'most hands', 'Riya · 140'], ['Charhta Sooraj', 'biggest climb', 'Dev · +5']],
+    Ishaara: [['Ishaaron ka Ustaad', 'best clue-giver', 'Asha · 3.1 avg'], ['Lohe ka', 'most games', 'Kabir · 44'], ['Charhta Sooraj', 'biggest climb', 'Zoya · +2']],
+  };
+  const stat = (g = 'Kachuful') => {
+    body.innerHTML = ''; const list = h('div', { class: 'rows' });
+    const holders = { 'Dev': 1, 'Asha': 2, 'Meera': 4, 'Kabir': 3, 'Arjun': 5, 'Zoya': 6, 'Vikram': 7, 'Riya': 0 };
+    STAT[g].forEach(([n, d, who]) => { const nm = who.split(' ')[0]; const p = PL[holders[nm]]; list.append(h('div', { class: 'prow' }, slot(36, avatar(p, 36, { model: 'D' })), h('div', { class: 'nmx' }, h('b', null, '🏅 ' + n), h('small', null, d)), h('span', { class: 'chip' }, who))); });
+    const words = STAT[g].slice(0, 3).map((x) => x[0]);
+    body.append(tabs(Object.keys(STAT).map((k) => [k, k]), g, stat, 'Game'), h('p', { class: 'note' }, 'The season awards that already exist, shown live during the month. Holders see them as words under the hero name; never a seat pip.'), h('div', { class: 'card col' }, list), h('div', { class: 'card row', style: { flexWrap: 'nowrap' } }, slot(52, avatar(PL[1], 52, { model: 'D', pip: 'sitara' })), h('div', { class: 'col', style: { gap: 0 } }, h('b', { style: { fontSize: 'var(--f5)' } }, 'Dev'), h('span', { class: 'fine' }, '⭐ ' + 'Sitara · ' + kursiGlyph().replace(/<svg.*<\/svg>/, '🥋') + ' ' + kursiWord()), h('span', { class: 'fine', style: { color: 'var(--gold-tx)' } }, '🏅 ' + words[0] + ' · ' + g + ' (words, not a pip)'))));
+  };
+  const chheena = () => {
+    body.innerHTML = '';
+    const idx = { old: tajHolder, nw: tajHolder === 0 ? 1 : 0 };
+    const go2 = () => go(async (r) => {
+      const oldP = PL[idx.old], newP = PL[idx.nw]; const bigShow = shows < 3; shows++; showsEl.textContent = 'Crown shows tonight: ' + Math.min(shows, 3) + ' of 3' + (shows > 3 ? ' (now a Beat)' : '');
+      const finish = () => { tajHolder = idx.nw; };
+      if (!bigShow) { cue('crown'); toast('Taj to ' + newP.n + ' · crown show cap reached, so this is a Beat: pip swap + a toast'); finish(); board(); chheena(); return; }
+      r.onEnd(() => { finish(); });
+      const st = openStage(r), sz = st.size(), SZ = 150, cy = sz.h / 2 - 20, lx = sz.w * 0.27, rx = sz.w * 0.73;
+      const mkb = (p, cx, lk, o) => st.add(h('div', { class: 'stagebox', style: { left: cx - SZ / 2 + 'px', top: cy - SZ / 2 + 'px', width: SZ + 'px', height: SZ + 'px' } }, bust(p, SZ, lk, o)));
+      const lb = mkb(oldP, lx, { ...LOOK[oldP.i], head: null }, {}), rb = mkb(newP, rx, LOOK[newP.i], {});
+      const crown = st.add(h('div', { class: 'stagebox', style: { left: lx - SZ / 2 + 'px', top: cy - SZ / 2 + 'px', width: SZ + 'px', height: SZ + 'px', zIndex: 4 }, html: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="overflow:visible"><g transform="translate(50 40) scale(22)">${HEAD.taj()}</g></svg>` }));
+      const title = st.add(h('div', { class: 'bannerline', style: { top: '90px', fontSize: 'var(--f8)', opacity: 0 } }, 'Taj chheena!'));
+      const ln1 = st.add(h('div', { class: 'bannerline', style: { top: cy + SZ / 2 + 8 + 'px', fontSize: 'var(--f3)', fontFamily: 'var(--font-body)', fontWeight: 600, width: sz.w * 0.5 + 'px', left: lx - sz.w * 0.25 + 'px', padding: 0, opacity: 0 } }, oldP.n + ' held it 9 days'));
+      const ln2 = st.add(h('div', { class: 'bannerline', style: { top: cy + SZ / 2 + 8 + 'px', fontSize: 'var(--f3)', fontFamily: 'var(--font-body)', fontWeight: 600, width: sz.w * 0.5 + 'px', left: rx - sz.w * 0.25 + 'px', padding: 0, opacity: 0 } }, newP.n + ' is #1 this month'));
+      A(lb, [{ opacity: 0 }, { opacity: 1 }], { dur: 200 }); A(rb, [{ opacity: 0 }, { opacity: 1 }], { dur: 200 });
+      await r.wait(450); cue('shehnai');
+      A(title, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)' }], { dur: 300 });
+      await A(crown, [{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(0,-34px) rotate(8deg)' }], { dur: 260 });
+      await A(crown, [{ transform: 'translate(0,-34px) rotate(8deg)' }, { transform: 'translate(0,-40px) rotate(-14deg)' }, { transform: 'translate(0,-34px) rotate(12deg)' }, { transform: 'translate(0,-38px) rotate(-8deg)' }, { transform: 'translate(0,-34px) rotate(8deg)' }], { dur: 520, ease: 'ease-in-out' });
+      A(lb, [{ transform: 'translateY(0)' }, { transform: 'translateY(4px)' }], { dur: 250 }); A(ln1, [{ opacity: 0 }, { opacity: 1 }], { dur: 300 });
+      await A(crown, [{ transform: 'translate(0,-34px) rotate(8deg)' }, { transform: `translate(${(rx - lx) / 2}px,-110px) rotate(180deg)`, offset: .5 }, { transform: `translate(${rx - lx}px,-8px) rotate(368deg) scale(1.05,.95)` }], { dur: 650, ease: 'ease-in-out' });
+      rb.firstChild.innerHTML = bustSVG(newP, LOOK[newP.i], { crown: true }); crown.style.opacity = 0; cue('crown'); A(rb, [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { dur: 300, effect: true }); A(ln2, [{ opacity: 0 }, { opacity: 1 }], { dur: 300 });
+      await r.wait(750); endRun(); board(); chheena();
+    });
+    body.append(h('p', { class: 'note' }, 'Dev passes Riya in the month\'s standing. The crown lifts off the old holder, wobbles in the air, arcs to the new bust; a shehnai stinger plays. The old holder\'s line is proud, not mocking.'), h('div', { class: 'card col' }, h('div', { class: 'row', style: { justifyContent: 'space-around' } }, ...[PL[idx.old], PL[idx.nw]].map((p, i) => h('div', { class: 'col', style: { alignItems: 'center', gap: 0 } }, bust(p, 110, i === 0 ? { ...LOOK[p.i], head: null } : LOOK[p.i], { crown: i === 0 }), h('b', null, p.n), h('span', { class: 'fine' }, i === 0 ? 'holds the Taj · 9 days' : '#1 this month')))), h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: () => go2() }, '▶ Taj chheena!'), showsEl, h('button', { class: 'btn ghost sm', onclick: () => { shows = 0; showsEl.textContent = 'Crown shows tonight: 0 of 3'; } }, 'New night'))));
+    body.append(h('div', { class: 'card col' }, h('h2', null, '§13 rule 4'), h('p', { class: 'note' }, 'At most 3 crown-change shows (Taj, ' + kursiWord() + ') a night, per device. After that a crown change is a Beat: the pip swaps and a one-line toast plays. Press the button 4 times to see it.')));
+    window._chh = go2;
+  };
+  const play = () => { if (tab !== 'taj') { tab = 'taj'; tabBar.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === 2))); chheena(); } window._chh(); };
+  const tabBar = tabs([['board', 'Leaderboard'], ['stat', 'Stat crowns'], ['taj', 'Taj chheena!']], 'board', (v) => { tab = v; endRun(); v === 'board' ? board() : v === 'stat' ? stat() : chheena(); }, 'Crowns view');
+  root.append(tabBar, body); board();
+  return { el: root, play };
+});
+</script>
+
+<script>
+/* =====================================================================================================================
+   Part 3: scenes 7 to 10 (Wardrobe, Bazaar, Sikke, Wrapped).
+   ===================================================================================================================== */
+const SLOT_NAMES = { outfit: 'Libaas', head: 'Sar', neck: 'Gala', frame: 'Ghera', aura: 'Roshni', badge: 'Billa', title: 'Khitaab' };
+const SLOT_HELP = { outfit: 'outfit', head: 'headwear', neck: 'neckwear', frame: 'frame', aura: 'aura', badge: 'badge', title: 'title' };
+const PRICE = { common: 100, rare: 300, epic: 750, legendary: 1800 };
+const ITEMS = [
+  { s: 'outfit', k: 'kurta', n: 'Kurta', r: 'common', oc: 'saffron', free: true, note: 'free at level 2' },
+  { s: 'outfit', k: 'hoodie', n: 'Hoodie', r: 'common', oc: 'forest', note: 'the cousin who codes' },
+  { s: 'outfit', k: 'office', n: 'Office shirt and tie', r: 'common', oc: 'slate', set: ['office'] },
+  { s: 'outfit', k: 'whites', n: 'Cricket whites', r: 'common', oc: 'cream', set: ['cricket'] },
+  { s: 'outfit', k: 'jersey', n: 'Plain jersey, your number', r: 'rare', oc: 'indigo', note: 'you pick the number; no team colours' },
+  { s: 'outfit', k: 'nehru', n: 'Nehru jacket over kurta', r: 'rare', oc: 'teal' },
+  { s: 'outfit', k: 'sweater', n: 'Hand-knit sweater', r: 'rare', oc: 'rose', set: ['sardi'], note: 'mummy ne banaya' },
+  { s: 'outfit', k: 'raincoat', n: 'Raincoat', r: 'rare', oc: 'saffron', set: ['monsoon'] },
+  { s: 'outfit', k: 'shawl', n: 'Shawl drape', r: 'epic', oc: 'maroon' },
+  { s: 'outfit', k: 'dupatta', n: 'Dupatta drape', r: 'epic', oc: 'rose', note: 'anyone can wear either' },
+  { s: 'outfit', k: 'sherwani', n: 'Sherwani', r: 'epic', oc: 'maroon', set: ['shaadi'] },
+  { s: 'outfit', k: 'lungi', n: 'Lungi-banian', r: 'legendary', oc: 'cream', note: 'Sunday mode' },
+  { s: 'head', k: 'safa', n: 'Safa', r: 'rare', hc: 'saffron', set: ['shaadi'] },
+  { s: 'head', k: 'cap', n: 'Cricket cap', r: 'common', hc: 'cream', set: ['cricket'] },
+  { s: 'head', k: 'monkey', n: 'Monkey cap', r: 'common', hc: 'maroon', set: ['sardi'] },
+  { s: 'head', k: 'umbrella', n: 'Umbrella', r: 'rare', hc: 'indigo', set: ['monsoon'] },
+  { s: 'head', k: 'taj', n: 'The Taj', r: 'honour', note: '#1 this month; honour only' },
+  { s: 'neck', k: 'chain', n: 'Gold chain', r: 'rare', set: ['shaadi'] },
+  { s: 'neck', k: 'whistle', n: 'Whistle', r: 'common', set: ['cricket'] },
+  { s: 'neck', k: 'muffler', n: 'Muffler', r: 'common', nc: 'slate', set: ['monsoon', 'sardi'] },
+  { s: 'neck', k: 'lanyard', n: 'ID lanyard', r: 'common', set: ['office'] },
+  { s: 'frame', k: 'marigold', n: 'Marigold-string frame', r: 'rare', set: ['shaadi'] },
+  { s: 'frame', k: 'stumps', n: 'Stumps frame', r: 'common', set: ['cricket'] },
+  { s: 'frame', k: 'raindrops', n: 'Raindrop frame', r: 'common', set: ['monsoon'] },
+  { s: 'frame', k: 'sheet', n: 'Spreadsheet-grid frame', r: 'common', set: ['office'] },
+  { s: 'frame', k: 'frost', n: 'Frost frame', r: 'common', set: ['sardi'] },
+  { s: 'aura', k: 'steam', n: 'Chai steam', r: 'common' },
+  { s: 'aura', k: 'sunrise', n: 'Sunrise glow', r: 'rare' },
+  { s: 'aura', k: 'mist', n: 'Monsoon mist', r: 'rare' },
+  { s: 'badge', k: 'one', n: 'No. 1 pin', r: 'common' },
+  { s: 'badge', k: 'chai', n: 'Chai pin', r: 'common' },
+  { s: 'badge', k: 'star', n: 'Pehle Waale', r: 'rare', note: 'day-one badge' },
+  { s: 'title', k: 'naya', n: 'Naya', r: 'common', free: true },
+  { s: 'title', k: 'regular', n: 'Regular', r: 'common' },
+  { s: 'title', k: 'sitara', n: 'Baithak Ka Sitara', r: 'legendary' },
+];
+const SETS = {
+  shaadi: { n: 'Shaadi', pieces: { outfit: 'sherwani', head: 'safa', neck: 'chain', frame: 'marigold' }, fl: 'a petal puff' },
+  cricket: { n: 'Cricket', pieces: { outfit: 'whites', head: 'cap', neck: 'whistle', frame: 'stumps' }, fl: 'a ball bounces off the frame' },
+  monsoon: { n: 'Monsoon', pieces: { outfit: 'raincoat', head: 'umbrella', neck: 'muffler', frame: 'raindrops' }, fl: 'three raindrops slide down the ring' },
+  office: { n: 'Office', pieces: { outfit: 'office', neck: 'lanyard', frame: 'sheet' }, fl: 'an "Out of office" tag flips' },
+  sardi: { n: 'Sardi', pieces: { outfit: 'sweater', head: 'monkey', neck: 'muffler', frame: 'frost' }, fl: 'a puff of breath' },
+};
+const itemOf = (s, k) => ITEMS.find((i) => i.s === s && i.k === k);
+const priceOf = (i) => i.free ? 0 : PRICE[i.r] || 0;
+const OWNED = new Set(['kurta', 'hoodie', 'whites', 'cap', 'whistle', 'stumps', 'steam', 'one', 'naya', 'raincoat', 'umbrella', 'muffler', 'raindrops']);
+const WALLET = { sikke: 640 };
+const owns = (i) => i.r !== 'honour' && (!!i.free || OWNED.has(i.k));
+const own = (i) => { OWNED.add(i.k); };
+const rarLabel = (r) => h('span', { class: 'rar rar-' + r }, r);
+const lookOf = (w) => ({ outfit: w.outfit, oc: w.oc, head: w.head === 'taj' ? null : w.head, hc: w.hc, neck: w.neck, nc: w.nc, frame: w.frame, aura: w.aura, badge: w.badge });
+function thumbLook(i) { const b = { ...BASE_LOOK }; if (i.s === 'outfit') { b.outfit = i.k; b.oc = i.oc; } else if (i.s === 'head') { if (i.k === 'taj') return { look: b, o: { crown: true } }; b.head = i.k; b.hc = i.hc; } else if (i.s === 'neck') { b.neck = i.k; b.nc = i.nc; } else if (i.s === 'frame') b.frame = i.k; else if (i.s === 'aura') b.aura = i.k; else if (i.s === 'badge') b.badge = i.k; return { look: b, o: {} }; }
+function thumb(i, size = 64, p = PL[0]) { const bg = { background: 'var(--felt-bg)', borderRadius: 'var(--r-md)', overflow: 'hidden', padding: '2px' }; if (i.s === 'title') return h('div', { class: 'bust', style: { width: size + 'px', height: size + 'px', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--display-weight)', fontSize: 'var(--f3)', textAlign: 'center', lineHeight: 1.1, color: 'var(--card-bg)', ...bg } }, '“' + i.n + '”'); const { look, o } = thumbLook(i); const b = bust(p, size - 4, look, { ...o, photo: false }); return h('div', { class: 'bust', style: { width: size + 'px', height: size + 'px', ...bg } }, b); }
+const stateBar = (cur, on) => h('div', { class: 'statebar' }, h('span', { class: 'up' }, 'State'), tabs([['ok', 'Normal'], ['loading', 'Loading'], ['offline', 'Offline'], ['error', 'Error']], cur, on, 'Screen state'));
+function modal(content) { const m = h('div', { class: 'modal' }, h('div', { class: 'box' }, content)); m.addEventListener('pointerdown', (e) => { if (e.target === m) m.remove(); }); $('#frame').append(m); A(m.firstChild, [{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { dur: 220 }); return { close: () => m.remove(), el: m }; }
+const aniText = (el, v) => { el.textContent = v; A(el, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { dur: 200 }); };
+
+/* ---------- 7. Wardrobe ---------- */
+scene('wardrobe', 'Wardrobe', () => {
+  const root = h('section'); const me = PL[0];
+  const W = { outfit: 'kurta', oc: 'saffron', head: 'cap', hc: 'cream', neck: 'whistle', nc: null, frame: 'stumps', aura: 'steam', badge: 'one', title: 'naya' };
+  let slotCur = 'outfit', state = 'ok', done = new Set(), saved = [null, null, null];
+  const prev = h('div', { class: 'col', style: { alignItems: 'center', gap: '8px' } });
+  const felt = h('div', { style: { position: 'relative', width: '100%', height: '260px', borderRadius: 'var(--r-lg)', background: 'var(--felt-bg)', boxShadow: 'var(--felt-edge)', display: 'grid', placeItems: 'center', overflow: 'hidden' } });
+  const fx = h('div', { style: { position: 'absolute', inset: 0, pointerEvents: 'none' } });
+  const tag = h('div', { class: 'chip warn', style: { position: 'absolute', left: '10px', top: '10px', zIndex: 3, maxWidth: 'calc(100% - 20px)', whiteSpace: 'normal' } });
+  const cap = h('div', { class: 'chip gold', style: { position: 'absolute', left: '10px', bottom: '10px', zIndex: 3, opacity: 0 } });
+  const mini = h('div', { class: 'row', style: { gap: '18px', alignItems: 'flex-end', justifyContent: 'center', padding: '10px 0 4px' } });
+  const shelf = h('div', { class: 'shelf' }), sets = h('div', { class: 'col' }), swat = h('div', { class: 'row' }), extra = h('div', { class: 'col' });
+  const notOwned = () => ['outfit', 'head', 'neck', 'frame', 'aura', 'badge', 'title'].map((s) => W[s] && itemOf(s, W[s])).filter((i) => i && !owns(i));
+  const draw = () => {
+    const look = lookOf(W); look.hc = W.hc; look.nc = W.nc || undefined; const crown = W.head === 'taj';
+    felt.innerHTML = ''; const b = bust(me, 220, look, { crown, photo: S.photo }); felt.append(b, fx, tag, cap);
+    const no = notOwned(); tag.textContent = no.length ? 'Not yours yet: ' + no.map((i) => i.n).join(', ') : 'Everything here is yours'; tag.className = 'chip ' + (no.length ? 'warn' : 'ok');
+    cap.textContent = W.outfit === 'lungi' ? 'Sunday mode' : ''; cap.style.opacity = W.outfit === 'lungi' ? 1 : 0;
+    mini.innerHTML = ''; [[26, 'dot'], [32, 'seat'], [44, 'seat'], [52, 'hero']].forEach(([s, t]) => mini.append(h('div', { class: 'col', style: { alignItems: 'center', gap: '6px' } }, slot(s, avatar(me, s, { model: 'D', look: { ...look, head: crown ? null : look.head }, crown })), h('span', { class: 'fine' }, s + ' ' + t))));
+    drawShelf(); drawSets(); drawSwat();
+  };
+  const unlockedTxt = (i) => i.r === 'honour' ? 'honour only' : owns(i) ? (i.free ? 'free' : 'owned') : priceOf(i) + ' 🪙';
+  const drawShelf = () => {
+    shelf.innerHTML = '';
+    const list = ITEMS.filter((i) => i.s === slotCur);
+    if (slotCur !== 'title') shelf.append(h('button', { class: 'tile', 'aria-pressed': String(!W[slotCur]), onclick: () => { W[slotCur] = null; draw(); } }, h('div', { class: 'bust', style: { width: '64px', height: '64px', display: 'grid', placeItems: 'center', fontSize: 'var(--f6)' } }, '∅'), h('span', { class: 't1' }, 'None')));
+    list.forEach((i) => { const o = owns(i), locked = !o; shelf.append(h('button', { class: 'tile' + (locked ? ' locked' : ''), 'aria-pressed': String(W[slotCur] === i.k), 'aria-label': i.n + ', ' + i.r + ', ' + unlockedTxt(i), onclick: () => wear(i) }, thumb(i, 64, me), h('span', { class: 't1' }, i.n), rarLabel(i.r), h('span', { class: 't2' }, (locked ? (i.r === 'honour' ? '🔒 ' : '🔒 ') : '') + unlockedTxt(i)), i.note ? h('span', { class: 't2' }, i.note) : null)); });
+  };
+  const wear = (i) => { W[i.s] = i.k; if (i.oc) W.oc = i.oc; if (i.hc) W.hc = i.hc; if (i.s === 'neck') W.nc = i.nc || null; if (i.s === 'head' && i.hc) W.hc = i.hc; draw(); checkSets(); };
+  const drawSwat = () => {
+    swat.innerHTML = ''; extra.innerHTML = '';
+    if (slotCur === 'outfit' && W.outfit) { const it = itemOf('outfit', W.outfit); extra.append(h('div', { class: 'up' }, 'Colour variants · first free, then 40 🪙 each'), swat); ['saffron', 'indigo', 'maroon', 'forest', 'cream', 'slate', 'rose', 'teal'].slice(0, 6).forEach((c, k) => swat.append(h('button', { class: 'swatch', 'aria-label': c + (k ? ', 40 Sikke' : ', free'), 'aria-pressed': String(W.oc === c), style: { background: `var(--cloth-${c})` }, onclick: () => { W.oc = c; draw(); if (k) toast(c + ' variant: 40 🪙 (try-on is free)'); } }))); }
+    if (W.outfit === 'lungi') extra.append(h('p', { class: 'note' }, 'Lungi-banian: the joke legendary. 1,800 🪙 to look like it\'s Sunday.'));
+  };
+  const have = (p) => Object.entries(p).filter(([s, k]) => W[s] === k).length;
+  const drawSets = () => {
+    sets.innerHTML = '';
+    Object.entries(SETS).forEach(([id, st]) => { const n = Object.keys(st.pieces).length, c = have(st.pieces), full = c === n; sets.append(h('div', { class: 'card row', style: { flexWrap: 'nowrap', gap: '10px' } }, h('div', { class: 'col grow', style: { gap: 0 } }, h('b', null, st.n + (full ? ' · complete ✨' : '')), h('span', { class: 'fine' }, Object.entries(st.pieces).map(([s, k]) => (W[s] === k ? '✓ ' : '· ') + itemOf(s, k).n).join('  ')), h('span', { class: 'fine' }, 'Flourish: ' + st.fl + ' · ' + c + ' of ' + n + ' pieces')), h('button', { class: 'btn sm', onclick: () => { Object.entries(st.pieces).forEach(([s, k]) => { const it = itemOf(s, k); W[s] = k; if (it.oc) W.oc = it.oc; if (it.hc) W.hc = it.hc; if (s === 'neck') W.nc = it.nc || null; }); if (!st.pieces.head) W.head = null; done.delete(id); draw(); checkSets(); } }, 'Wear set'))); });
+  };
+  const checkSets = () => { Object.entries(SETS).forEach(([id, st]) => { const full = have(st.pieces) === Object.keys(st.pieces).length; if (full && !done.has(id)) { done.add(id); setTimeout(() => flourish(id), 50); } if (!full) done.delete(id); }); };
+  const flourish = (id) => go(async (r) => {
+    cue('ghungroo'); cap.textContent = '✨ ' + SETS[id].n + ' set complete'; cap.style.opacity = 1; r.onEnd(() => { fx.innerHTML = ''; });
+    const mk = (css, html) => { const e = h('div', { style: { position: 'absolute', ...css }, html: html || '' }); fx.append(e); return e; };
+    if (id === 'shaadi') for (let i = 0; i < 12; i++) { const p = mk({ left: '50%', top: '40%', width: '8px', height: '12px', borderRadius: '50%', background: i % 2 ? 'var(--cloth-saffron)' : 'var(--cloth-rose)' }); A(p, [{ transform: 'translate(0,0) scale(.4)', opacity: 1 }, { transform: `translate(${rnd(-110, 110)}px,${rnd(-100, 60)}px) rotate(${rnd(-200, 200)}deg) scale(1)`, opacity: 0 }], { dur: 600 }); }
+    if (id === 'cricket') { const b = mk({ left: '64%', top: '0', width: '14px', height: '14px', borderRadius: '50%', background: 'var(--cloth-maroon)', border: '1px solid var(--cloth-cream)' }); A(b, [{ transform: 'translate(0,0)', opacity: 1 }, { transform: 'translate(-24px,64px)', opacity: 1, offset: .45 }, { transform: 'translate(-10px,34px)', opacity: 1, offset: .65 }, { transform: 'translate(40px,150px)', opacity: 0 }], { dur: 600 }); }
+    if (id === 'monsoon') for (let i = 0; i < 3; i++) { const d = mk({ left: 34 + i * 6 + '%', top: '22%', width: '8px', height: '12px', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%', background: 'var(--cloth-teal)' }); A(d, [{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${-14 - i * 8}px,${90 + i * 18}px)`, opacity: 0 }], { dur: 560, delay: i * 90 }); }
+    if (id === 'office') { const t = mk({ left: '50%', top: '14%', marginLeft: '-46px', padding: '2px 8px', background: 'var(--cloth-cream)', color: 'var(--text-1)', border: '1px solid var(--cloth-slate)', borderRadius: '4px', fontSize: 'var(--f2)', fontWeight: 700, color: 'var(--ink)' }, 'Out of office'); A(t, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1)', opacity: 1, offset: .35 }, { transform: 'scaleY(1)', opacity: 1, offset: .8 }, { transform: 'scaleY(1)', opacity: 0 }], { dur: 600 }); }
+    if (id === 'sardi') for (let i = 0; i < 3; i++) { const p = mk({ left: 56 + i * 4 + '%', top: 48 - i * 3 + '%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--cloth-cream)' }); A(p, [{ transform: 'scale(.3)', opacity: .8 }, { transform: 'translate(16px,-10px) scale(1.6)', opacity: 0 }], { dur: 600, delay: i * 80 }); }
+    await r.wait(1600); cap.style.opacity = 0; cap.textContent = '';
+  });
+  const shuffle = () => { const o = ITEMS.filter((i) => owns(i)); ['outfit', 'head', 'neck', 'frame', 'aura', 'badge'].forEach((s) => { const l = o.filter((i) => i.s === s); if (l.length && Math.random() > 0.25) { const i = pick(l); W[s] = i.k; if (i.oc) W.oc = i.oc; if (i.hc) W.hc = i.hc; if (s === 'neck') W.nc = i.nc || null; } else if (s !== 'outfit') W[s] = null; }); draw(); checkSets(); };
+  const savedRow = h('div', { class: 'row' });
+  const drawSaved = () => { savedRow.innerHTML = ''; saved.forEach((v, k) => savedRow.append(h('div', { class: 'col', style: { alignItems: 'center', gap: '2px' } }, h('button', { class: 'btn ghost sm', disabled: state === 'offline' && !v, onclick: () => { if (v) { Object.assign(W, v); draw(); } else { if (state === 'offline') return; saved[k] = { ...W }; drawSaved(); toast('Saved look ' + (k + 1)); } } }, v ? 'Load ' + ['Office night', 'Shaadi season', 'Sunday'][k] : 'Save here'), h('span', { class: 'fine' }, 'Look ' + (k + 1))))); };
+  const body = h('div', { class: 'col', style: { gap: '12px' } });
+  const build = () => {
+    body.innerHTML = '';
+    if (state === 'loading') { body.append(h('div', { class: 'skel', style: { height: '260px' } }), h('div', { class: 'skel' }), h('div', { class: 'skel' })); return; }
+    if (state === 'error') { body.append(h('div', { class: 'card col', role: 'alert' }, h('b', null, 'Couldn\'t load your wardrobe'), h('p', { class: 'note' }, 'The server didn\'t answer. Your look is safe.'), h('button', { class: 'btn pri', onclick: () => { state = 'loading'; build(); setTimeout(() => { state = 'ok'; build(); }, 900); } }, 'Retry'))); return; }
+    if (state === 'offline') body.append(h('div', { class: 'chip warn' }, 'Offline: showing your cached look. Saving is off until you\'re back online.'));
+    body.append(prev, mini, tabs(Object.entries(SLOT_NAMES), slotCur, (v) => { slotCur = v; drawShelf(); drawSwat(); }, 'Slot'), shelf, extra, h('div', { class: 'row' }, h('button', { class: 'btn', onclick: shuffle }, '🎲 Shuffle'), h('span', { class: 'fine' }, 'puts on a random owned look')), h('div', { class: 'up' }, 'Saved looks (3 slots)'), savedRow, h('div', { class: 'up' }, 'The five sets (wear all pieces for a flourish)'), sets, h('div', { class: 'card col' }, h('h2', null, 'Cloth tokens (§4.4)'), h('p', { class: 'note' }, 'Eight new colours per theme; switch theme and the outfits re-tint.'), h('div', { class: 'row' }, ['saffron', 'indigo', 'maroon', 'forest', 'cream', 'slate', 'rose', 'teal'].map((c) => h('div', { class: 'col', style: { alignItems: 'center', gap: '2px' } }, h('div', { style: { width: '30px', height: '30px', borderRadius: '50%', background: `var(--cloth-${c})`, border: '1px solid var(--hairline-2)' } }), h('span', { class: 'fine' }, c))))));
+    prev.innerHTML = ''; prev.append(felt, h('div', { class: 'row' }, photoBtn(draw), h('span', { class: 'fine' }, 'the look at 220px, then what the table sees')));
+    draw(); drawSaved();
+  };
+  root.append(h('p', { class: 'note' }, 'The dressing room (§4.5). Tap any item to try it on, including ones you don\'t own (marked "not yours yet"). Wear the 4 pieces of a set to see its flourish.'), stateBar('ok', (v) => { state = v; build(); }), body);
+  build();
+  const play = () => { const st = SETS.shaadi; Object.entries(st.pieces).forEach(([s, k]) => { const it = itemOf(s, k); W[s] = k; if (it.oc) W.oc = it.oc; if (it.hc) W.hc = it.hc; }); done.delete('shaadi'); if (state === 'ok') { draw(); checkSets(); } else { state = 'ok'; build(); checkSets(); } };
+  return { el: root, play };
+});
+
+/* ---------- 8. Bazaar ---------- */
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function isoWeek(d) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return [t.getUTCFullYear(), Math.ceil(((t - y0) / 864e5 + 1) / 7)]; }
+function nextMonday6IST(now) { const ist = new Date(now.getTime() + 5.5 * 3600e3); const dow = ist.getUTCDay(); let add = (8 - dow) % 7; const t = Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate() + add, 6, 0, 0) - 5.5 * 3600e3; return new Date(t <= now.getTime() ? t + 7 * 864e5 : t); }
+function stockFor(year, week) {
+  const rng = mulberry(year * 100 + week), pool = ITEMS.filter((i) => !i.free && i.r !== 'honour' && i.s !== 'title'); const out = [];
+  const take = (f) => { const l = pool.filter((i) => f(i) && !out.includes(i)); if (l.length) out.push(l[Math.floor(rng() * l.length)]); };
+  take((i) => i.r === 'epic'); if (week % 3 === 0) take((i) => i.r === 'legendary');
+  while (out.length < 6) { const x = rng(); take((i) => i.r === (x < 0.35 ? 'common' : 'rare')); }
+  return out.sort((a, b) => 'common rare epic legendary'.split(' ').indexOf(a.r) - 'common rare epic legendary'.split(' ').indexOf(b.r));
+}
+const FRIENDS = [1, 2, 3, 4, 5];
+scene('bazaar', 'Bazaar', () => {
+  const root = h('section'); let off = 0, state = 'ok'; const now0 = new Date(); let [yr, wk] = isoWeek(now0); const bal = h('span', { class: 'chip gold' }), cd = h('span', { class: 'fine' }), grid = h('div', { class: 'grid2' }), body = h('div', { class: 'col' });
+  const tryBox = h('div', { class: 'card col', style: { display: 'none', alignItems: 'center' } });
+  const money = () => { bal.textContent = '🪙 ' + WALLET.sikke + ' Sikke'; };
+  const tick = () => { const ms = nextMonday6IST(new Date()) - new Date(), d = Math.floor(ms / 864e5), hh = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4), s = Math.floor(ms % 6e4 / 1e3); cd.textContent = 'Monday 06:00 Kolkata in ' + d + 'd ' + hh + 'h ' + m + 'm ' + s + 's'; };
+  const timer = setInterval(tick, 1000);
+  const week = () => { const d = new Date(now0.getTime() + off * 7 * 864e5); return isoWeek(d); };
+  const ownedNow = (i) => i.free || OWNED.has(i.k);
+  const tryOn = (i) => { tryBox.style.display = 'flex'; tryBox.innerHTML = ''; const { look, o } = thumbLook(i); const lk = { ...LOOK[0], ...look, aura: i.s === 'aura' ? i.k : null, badge: i.s === 'badge' ? i.k : null }; tryBox.append(h('div', { class: 'up' }, 'Try-on · ' + i.n), bust(PL[0], 150, { ...LOOK[0], ...(i.s === 'outfit' ? { outfit: i.k, oc: i.oc } : i.s === 'head' ? { head: i.k, hc: i.hc } : i.s === 'neck' ? { neck: i.k, nc: i.nc } : i.s === 'frame' ? { frame: i.k } : i.s === 'aura' ? { aura: i.k } : { badge: i.k }) }, {}), h('span', { class: 'chip ' + (ownedNow(i) ? 'ok' : 'warn') }, ownedNow(i) ? 'yours' : 'not yours yet')); A(tryBox, [{ opacity: 0 }, { opacity: 1 }], { dur: 200 }); tryBox.scrollIntoView({ block: 'nearest', behavior: S.reduced ? 'auto' : 'smooth' }); };
+  const buy = (i) => { const p = priceOf(i), after = WALLET.sikke - p; const m = modal([h('h2', { style: { margin: 0 } }, 'Buy ' + i.n + '?'), h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, thumb(i, 72), h('div', { class: 'col', style: { gap: 0 } }, rarLabel(i.r), h('b', { style: { fontSize: 'var(--f5)' } }, p + ' 🪙'), h('span', { class: 'fine' }, 'Balance ' + WALLET.sikke + ' → ' + (after >= 0 ? after : 'not enough')))), h('p', { class: 'fine' }, 'Safe to tap twice: the server knows if this purchase already went through (idempotent).'), h('div', { class: 'row' }, h('button', { class: 'btn pri grow', disabled: after < 0, onclick: () => { m.close(); WALLET.sikke = after; own(i); money(); draw(); unlockCard(i); } }, after < 0 ? 'Need ' + -after + ' more 🪙' : 'Confirm'), h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Cancel')) ]); };
+  const unlockCard = (i) => go(async (r) => {
+    const st = openStage(r, { hint: true }), sz = st.size(); const w = Math.min(280, sz.w - 40);
+    const card = st.add(h('div', { class: 'card col', style: { position: 'absolute', left: (sz.w - w) / 2 + 'px', top: sz.h / 2 - 190 + 'px', width: w + 'px', alignItems: 'center', gap: '6px', overflow: 'hidden', transformOrigin: '50% 50%', opacity: 0, background: 'var(--surface-1)' } }));
+    const { look } = thumbLook(i); const worn = { ...LOOK[0], ...(i.s === 'outfit' ? { outfit: i.k, oc: i.oc } : i.s === 'head' ? { head: i.k, hc: i.hc } : i.s === 'neck' ? { neck: i.k, nc: i.nc } : i.s === 'frame' ? { frame: i.k } : i.s === 'aura' ? { aura: i.k } : { badge: i.k }) };
+    card.append(h('div', { class: 'up' }, 'New in your wardrobe'), bust(PL[0], 180, worn, {}), h('b', { style: { fontSize: 'var(--f6)', fontFamily: 'var(--font-display)' } }, i.n), rarLabel(i.r), h('span', { class: 'fine' }, 'worn by Riya'));
+    const sheen = h('div', { style: { position: 'absolute', top: 0, bottom: 0, left: 0, width: '40%', background: 'linear-gradient(100deg, transparent, var(--hl, white), transparent)', opacity: 0.5, pointerEvents: 'none', transform: 'translateX(-120%) skewX(-15deg)' } }); card.append(sheen);
+    cue('ghungroo'); await A(card, [{ transform: 'translateY(-120px) rotateY(90deg)', opacity: 0 }, { transform: 'translateY(8px) rotateY(0deg)', opacity: 1, offset: .7 }, { transform: 'translateY(0) rotateY(0)', opacity: 1 }], { dur: 650 });
+    cue('chime'); await A(sheen, [{ transform: 'translateX(-120%) skewX(-15deg)' }, { transform: 'translateX(360%) skewX(-15deg)' }], { dur: 700, ease: 'ease-in-out' }); await r.wait(900); endRun();
+  });
+  const gift = (i) => { let to = null; const rec = h('div', { class: 'row' }); const send = h('button', { class: 'btn pri grow', disabled: true }, 'Send as a gift'); FRIENDS.forEach((k) => { const b = h('button', { class: 'tile', style: { width: '78px' }, 'aria-pressed': 'false', onclick: () => { to = k; $$('button', rec).forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); send.disabled = false; send.textContent = 'Send to ' + PL[k].n; } }, slot(36, avatar(PL[k], 36, { model: 'D' })), h('span', { class: 't1' }, PL[k].n)); rec.append(b); });
+    const m = modal([h('h2', { style: { margin: 0 } }, 'Gift ' + i.n), h('p', { class: 'note' }, 'Items only, never coins. You can\'t gift yourself or anyone outside your circle. It opens at the table, the next time they sit down.'), rec, h('div', { class: 'row' }, send, h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Cancel'))]);
+    send.addEventListener('click', () => { const after = WALLET.sikke - priceOf(i); if (after < 0) { toast('Not enough Sikke for this gift'); return; } WALLET.sikke = after; money(); m.close(); pending = { item: i, to }; draw(); drawGift(); toast('Sent. ' + PL[to].n + ' will see it at the table.'); }); };
+  let pending = null; const giftBox = h('div', { class: 'card col' });
+  const drawGift = () => { giftBox.innerHTML = ''; giftBox.append(h('h2', null, 'Gift opened at the table'), pending ? h('p', { class: 'note' }, PL[0].n + ' sent ' + PL[pending.to].n + ' a ' + pending.item.n + '. It stays wrapped until ' + PL[pending.to].n + ' is seated at a table.') : h('p', { class: 'note' }, 'Gift an item above, then come back here and play the moment.'), h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: () => openGift() }, '▶ ' + (pending ? PL[pending.to].n + ' sits down' : 'Play with a sample gift')))); };
+  const openGift = () => go(async (r) => {
+    const g = pending || { item: itemOf('outfit', 'sherwani'), to: 1 }; const to = g.to, i = g.item;
+    const t = table('mini', [PL[0], PL[to], PL[2], PL[3]], { model: 'D', names: true }); const hold = h('div', { class: 'card col' }, t.wrap); const dlg = modal(hold); dlg.el.style.background = 'transparent'; dlg.el.style.alignItems = 'center'; dlg.el.firstChild.style.background = 'transparent'; dlg.el.firstChild.style.border = '0'; dlg.el.firstChild.style.borderRadius = '0'; dlg.el.firstChild.style.padding = '0'; dlg.el.style.pointerEvents = 'none'; dlg.el.firstChild.style.pointerEvents = 'none';
+    r.onEnd(() => dlg.close()); await r.wait(100);
+    const seat = t.seats[1]; const st = openStage(r), sz = st.size(), cx = sz.w / 2, cy = sz.h / 2 - 10, SZ = 190;
+    const look = { ...LOOK[to], ...(i.s === 'outfit' ? { outfit: i.k, oc: i.oc } : i.s === 'head' ? { head: i.k, hc: i.hc } : i.s === 'neck' ? { neck: i.k } : i.s === 'frame' ? { frame: i.k } : i.s === 'aura' ? { aura: i.k } : { badge: i.k }) };
+    const box = st.add(h('div', { class: 'stagebox', style: { left: cx - 40 + 'px', top: cy - 10 + 'px', width: '80px', height: '80px', opacity: 0 } }, h('div', { style: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '52px', background: 'var(--cloth-maroon)', borderRadius: '6px', border: '2px solid var(--medal-gold)' } }), h('div', { class: 'lid', style: { position: 'absolute', left: '-4px', right: '-4px', bottom: '48px', height: '22px', background: 'var(--cloth-rose)', borderRadius: '6px', border: '2px solid var(--medal-gold)', transformOrigin: '0 100%' } })));
+    const b = stageBust(st, seat, SZ, cx, cy - 20, look, { photo: S.photo }); r.onEnd(b.restore);
+    const line = st.add(h('div', { class: 'bannerline', style: { top: cy + SZ / 2 + 4 + 'px', fontSize: 'var(--f5)', opacity: 0 } }, PL[0].n + ' sent you a ' + i.n)); const sub = st.add(h('div', { class: 'bannerline', style: { top: cy + SZ / 2 + 34 + 'px', fontSize: 'var(--f3)', fontFamily: 'var(--font-body)', opacity: 0 } }, 'from Riya · opened at the table'));
+    await A(box, [{ opacity: 0, transform: 'translateY(30px) scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 300 }); await r.wait(250);
+    cue('ghungroo'); A($('.lid', box), [{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(-26px) rotate(-24deg)' }], { dur: 300 }); await r.wait(250);
+    A(box, [{ opacity: 1 }, { opacity: 0 }], { dur: 250 }); cue('chime'); await b.rise(); A(line, [{ opacity: 0 }, { opacity: 1 }], { dur: 250 }); A(sub, [{ opacity: 0 }, { opacity: 1 }], { dur: 250, delay: 150 });
+    await r.wait(1500); await b.settle(); pending = null; endRun(); drawGift();
+  });
+  const card = (i) => { const o = ownedNow(i); return h('div', { class: 'card col', style: { alignItems: 'center', gap: '4px', padding: '10px' } }, thumb(i, 84), h('b', { style: { fontSize: 'var(--f3)', textAlign: 'center' } }, i.n), h('div', { class: 'row', style: { gap: '6px' } }, rarLabel(i.r), h('span', { class: 'fine' }, SLOT_NAMES[i.s])), h('b', null, o ? 'Owned' : priceOf(i) + ' 🪙'), h('div', { class: 'row', style: { justifyContent: 'center', gap: '4px' } }, h('button', { class: 'btn sm', 'aria-label': 'Try on ' + i.n, onclick: () => tryOn(i) }, 'Try on'), h('button', { class: 'btn sm pri', disabled: o || state === 'offline', onclick: () => buy(i) }, o ? '✓' : 'Buy')), h('button', { class: 'btn sm ghost', disabled: state === 'offline', onclick: () => gift(i) }, '🎁 Gift')); };
+  const draw = () => {
+    money(); body.innerHTML = ''; const [y, w] = week();
+    if (state === 'loading') { body.append(h('div', { class: 'grid2' }, ...[1, 2, 3, 4, 5, 6].map(() => h('div', { class: 'skel', style: { height: '190px' } })))); return; }
+    if (state === 'error') { body.append(h('div', { class: 'card col', role: 'alert' }, h('b', null, 'The Bazaar didn\'t load'), h('p', { class: 'note' }, 'Check your connection and try again.'), h('button', { class: 'btn pri', onclick: () => { state = 'loading'; draw(); setTimeout(() => { state = 'ok'; draw(); }, 900); } }, 'Retry'))); return; }
+    if (state === 'signed') { body.append(h('div', { class: 'card col' }, h('b', null, 'Sign in to shop'), h('p', { class: 'note' }, 'Sikke, the Bazaar and the Wardrobe sync with your account. Signed out, everything else works as before.'))); return; }
+    if (state === 'offline') body.append(h('div', { class: 'chip warn' }, 'Offline: browsing the cache. Buying and gifting are off.'));
+    const stock = stockFor(y, w); grid.innerHTML = ''; stock.forEach((i) => grid.append(card(i)));
+    const hames = ITEMS.filter((i) => i.r === 'common' && !i.free && i.s !== 'title').slice(0, 8);
+    body.append(h('div', { class: 'card col' }, h('div', { class: 'row', style: { justifyContent: 'space-between' } }, h('div', null, h('div', { class: 'up' }, 'Hafte ka Maal · week ' + w), cd), bal), h('div', { class: 'row' }, h('button', { class: 'btn sm ghost', onclick: () => { off++; flip(); } }, '⏭ Jump to next Monday'), h('button', { class: 'btn sm ghost', onclick: () => { off = 0; flip(); } }, 'This week'), h('span', { class: 'fine' }, 'Same stock for everyone (seeded by ISO week)'))), tryBox, grid, h('div', { class: 'up' }, 'Hamesha · always on the shelf'), h('div', { class: 'shelf' }, hames.map((i) => h('button', { class: 'tile', 'aria-label': i.n, onclick: () => tryOn(i) }, thumb(i, 64), h('span', { class: 't1' }, i.n), h('span', { class: 't2' }, ownedNow(i) ? 'owned' : PRICE[i.r] + ' 🪙')))), h('div', { class: 'card row', style: { flexWrap: 'nowrap' } }, thumb(itemOf('outfit', 'kurta'), 56), h('div', { class: 'col grow', style: { gap: 0 } }, h('b', null, 'Your level\'s free item'), h('span', { class: 'fine' }, 'Level 3 · Regular: a kurta in any colour')), h('button', { class: 'btn sm', onclick: () => toast('Claimed (stub in demo)') }, 'Claim')), giftBox);
+    tick(); drawGift();
+  };
+  const flip = () => { draw(); A(grid, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { dur: 300 }); toast('Stock refreshed: week ' + week()[1]); cue('ghungroo'); };
+  root.append(h('p', { class: 'note' }, 'Six items a week, refreshed Monday 06:00 Kolkata; at least one epic, a legendary about every third week. Try on, buy (with a confirm sheet), gift.'), h('div', { class: 'statebar' }, h('span', { class: 'up' }, 'State'), tabs([['ok', 'Normal'], ['loading', 'Loading'], ['offline', 'Offline'], ['error', 'Error'], ['signed', 'Signed out']], 'ok', (v) => { state = v; draw(); }, 'Screen state')), body);
+  draw();
+  return { el: root, play: () => { const l = stockFor(...week()).find((i) => !ownedNow(i) && priceOf(i) <= WALLET.sikke) || stockFor(...week())[0]; if (state !== 'ok') { state = 'ok'; draw(); } buy(l); }, destroy: () => clearInterval(timer) };
+});
+
+/* ---------- 9. Sikke at game end ---------- */
+scene('sikke', 'Sikke at game end', () => {
+  const root = h('section'); const LEVELS = [['Naya', 0], ['Mehmaan', 200], ['Regular', 600], ['Pakka', 1400], ['Ghar Ka', 2800], ['Baithak Ka Sitara', 5000]];
+  const LINES = [['Finished the game', 30, 'finish'], ['Won the game', 25, 'win'], ['Achievement · Hot Hand 5 (game)', 10, 'achievement'], ['Took the ' + kursiWord(), 30, 'kursi'], ['Bounty: beat Riya', 40, 'bounty']];
+  const START = 1340; const lv = (n) => { let i = 0; LEVELS.forEach(([_, t], k) => { if (n >= t) i = k; }); return i; };
+  const tot = h('span', { style: { fontFamily: 'var(--font-display)', fontWeight: 'var(--display-weight)', fontSize: 'var(--f8)', color: 'var(--tally-fg, var(--brand))' } }, '+0'), list = h('div', { class: 'col', style: { gap: '4px' } }), bar = h('i', null), lvlTxt = h('b', null), lvlNum = h('span', { class: 'fine' }), life = h('span', { class: 'chip gold' });
+  const frac = (n) => { const i = lv(n), a = LEVELS[i][1], b = LEVELS[i + 1] ? LEVELS[i + 1][1] : a + 1; return clamp((n - a) / (b - a), 0, 1); };
+  const setLevelText = (n) => { const i = lv(n); lvlTxt.textContent = 'Level ' + (i + 1) + ' · ' + LEVELS[i][0]; lvlNum.textContent = n + ' / ' + (LEVELS[i + 1] ? LEVELS[i + 1][1] : '∞') + ' lifetime Sikke'; life.textContent = '🪙 ' + n; };
+  let barF = frac(START);
+  const setBar = (f, anim = true) => { const from = barF; barF = f; if (anim && !S.reduced) A(bar, [{ transform: `scaleX(${from})` }, { transform: `scaleX(${f})` }], { dur: 600 }); else bar.style.transform = `scaleX(${f})`; bar.style.transform = `scaleX(${f})`; };
+  const reset = () => { list.innerHTML = ''; tot.textContent = '+0'; setLevelText(START); barF = frac(START); bar.style.transform = `scaleX(${barF})`; };
+  const countTo = async (r, from, to, steps = 4) => { for (let k = 1; k <= steps; k++) { tot.textContent = '+' + Math.round(from + (to - from) * k / steps); await r.wait(S.reduced ? 0 : 70); } };
+  const play = () => go(async (r) => {
+    reset(); let sum = 0, lifetime = START, coinTicks = 0; const row = h('div', { class: 'row', style: { justifyContent: 'center' } }, h('span', { class: 'up' }, 'Tonight\'s Sikke'));
+    for (const [t, n] of LINES) {
+      const line = h('div', { class: 'row', style: { justifyContent: 'space-between', flexWrap: 'nowrap', padding: '6px 10px', borderRadius: 'var(--r-md)', background: 'var(--surface-2)', border: 'var(--bw) solid var(--hairline)' } }, h('span', null, t), h('b', { style: { fontVariantNumeric: 'tabular-nums' } }, '+' + n)); list.append(line); A(line, [{ opacity: 0, transform: 'translateX(-10px)' }, { opacity: 1, transform: 'none' }], { dur: 240 });
+      const ticks = Math.min(3, 8 - coinTicks); for (let k = 0; k < ticks; k++) { cue('coin'); coinTicks++; if (!S.reduced) await r.wait(70); }
+      await countTo(r, sum, sum + n); sum += n; lifetime += n;
+      const before = lv(lifetime - n), after = lv(lifetime);
+      if (after > before) { setBar(1); await r.wait(S.reduced ? 0 : 650); cue('ghungroo'); setLevelText(lifetime); barF = 0; bar.style.transform = 'scaleX(0)'; const bonus = 25 * (after + 1); const bl = h('div', { class: 'row', style: { justifyContent: 'space-between', flexWrap: 'nowrap', padding: '6px 10px', borderRadius: 'var(--r-md)', background: 'var(--brand-soft)', border: 'var(--bw) solid var(--brand)' } }, h('span', null, '⬆ Level up: ' + LEVELS[after][0]), h('b', null, '+' + bonus)); list.append(bl); A(bl, [{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }], { dur: 260 }); cue('coin'); await countTo(r, sum, sum + bonus); sum += bonus; lifetime += bonus; setBar(frac(lifetime)); setLevelText(lifetime); }
+      else { setBar(frac(lifetime)); setLevelText(lifetime); }
+      await r.wait(S.reduced ? 0 : 260);
+    }
+    A(tot, [{ transform: 'scale(1)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }], { dur: 350, effect: true });
+  });
+  const night = [['4 games finished', 120], ['1 win', 25], ['2 game-level achievements', 20], ['Took the ' + kursiWord() + ' + 2 defences', 50], ['Tonight\'s Sitara (at the close)', 30], ['Weekly streak, week 3', 30]];
+  root.append(
+    h('p', { class: 'note' }, 'The winner screen, after the game. The numbers are REWARDS-PLAN §9; the level thresholds are my guess (the plan gives no ladder).'),
+    h('div', { class: 'card col', style: { alignItems: 'center' } }, h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, bust(PL[3], 84, LOOK[3], {}), h('div', { class: 'col', style: { gap: 0 } }, h('b', { style: { fontSize: 'var(--f6)', fontFamily: 'var(--font-display)' } }, 'Kabir wins'), h('span', { class: 'fine' }, 'Kachuful · game 4 of tonight'))), tot, list),
+    h('div', { class: 'card col' }, h('div', { class: 'row', style: { justifyContent: 'space-between' } }, lvlTxt, life), h('div', { class: 'meter', role: 'progressbar', 'aria-label': 'Level progress' }, bar), lvlNum, h('p', { class: 'fine' }, 'Levels: ' + LEVELS.map((l) => l[0]).join(' → '))),
+    h('div', { class: 'card col' }, h('h2', null, 'A typical night ≈ 275 🪙'), ...night.map(([a, b]) => h('div', { class: 'row', style: { justifyContent: 'space-between', flexWrap: 'nowrap' } }, h('span', { class: 'note' }, a), h('b', null, '+' + b))), h('hr', { class: 'hr' }), h('div', { class: 'row', style: { gap: '6px' } }, [['common', 100, '2–3 a night'], ['rare', 300, '≈ 1 a night'], ['epic', 750, '≈ every 3 weeks'], ['legendary', 1800, '≈ every 6–7 weeks']].map(([r, p, w]) => h('span', { class: 'chip' }, r + ' ' + p + ' · ' + w))), h('p', { class: 'fine' }, 'Cap: 8 games per game kind per day. Every number gets checked against real history in G3.')));
+  reset();
+  return { el: root, play };
+});
+
+/* ---------- 10. Baithak Wrapped ---------- */
+scene('wrapped', 'Baithak Wrapped', () => {
+  const root = h('section'); let i = 0, auto = false, players = 4, state = 'ok', timer = null; const holder = h('div', { style: { position: 'relative', display: 'flex', flexDirection: 'column', gap: '8px' } });
+  const mk = (cls, ...k) => h('div', { class: 'wc ' + cls }, ...k);
+  const big = (t, s) => [h('div', { class: 'wk' }, s), h('div', { class: 'wb' }, t)];
+  const mv = (g, p, st) => h('div', { class: 'row', style: { flexWrap: 'nowrap', gap: '10px', width: '100%' } }, slot(40, avatar(PL[p], 40, { model: 'D' })), h('div', { class: 'col grow', style: { gap: 0 } }, h('b', null, g), h('span', { class: 'fine wf' }, PL[p].n + ' · ' + st)));
+  const cards = () => {
+    const c = [
+      mk('a', h('div', { class: 'wk' }, 'The night\'s winner'), bust(PL[3], 190, { ...LOOK[3], aura: 'sunrise' }, { mala: true, photo: S.photo }), h('div', { class: 'wb' }, 'Kabir'), h('div', { class: 'wf' }, '3 wins from 4 games · +38 against the table')),
+      mk('b', h('div', { class: 'wk' }, 'The biggest swing'), h('div', { class: 'wb' }, '+41'), h('div', { class: 'wf' }, 'Riya, Kachuful game 2, round 9: bid 6, took all 6.'), slot(64, avatar(PL[0], 64, { model: 'D', pip: 'kursi' }))),
+      mk('c', h('div', { class: 'wk' }, 'MVP of each game'), h('div', { class: 'col', style: { width: '100%' } }, mv('Kachuful', 3, '3 of 4 made · best round 41'), mv('Spades', 2, 'a Boston in the last hand'), mv('Kaali Teeri', 4, 'all-in made, 1 fail'), mv('Ishaara', 6, '2 clues, 5 words found'))),
+      mk('b', h('div', { class: 'wk' }, 'The bid of the night'), h('div', { class: 'wb' }, '7 on 8'), h('div', { class: 'wf' }, 'Arjun called 7 of 8 cards and made it.'), players >= 3 ? h('div', { class: 'wsub' }, h('div', { class: 'wk' }, 'Brave call'), h('div', { class: 'wf' }, 'Dev went for 7 on 8 cards and fell 3 short. Bold is how the good stories start.')) : h('div', { class: 'wf' }, '(The brave call card is off when fewer than 3 played.)')),
+      mk('a', h('div', { class: 'wk' }, 'Crowns that moved'), h('div', { class: 'col', style: { width: '100%' } }, mv(kursiWord() + ' → Dev', 1, 'took it from Riya in game 4'), mv('Sitara → Kabir', 3, 'tonight\'s star'), mv('Taj: unchanged', 0, 'Riya, 9 days')), h('div', { style: { fontSize: '36px' }, html: kursiGlyph() + ' ⭐ 👑' })),
+      mk('c', h('div', { class: 'wk' }, 'Earned tonight'), h('div', { class: 'col', style: { width: '100%' } }, mv('Hot Hand 5', 5, 'Kachuful · game'), mv('Nil Breaker', 7, 'Spades · career'), mv('Giant Killer', 4, 'Kaali Teeri · game'), mv('Mind Meld', 6, 'Ishaara · big'))),
+      mk('b', h('div', { class: 'wk' }, 'Sikke earned tonight'), h('div', { class: 'wb' }, '🪙 275'), h('div', { class: 'wf' }, 'Bought: nothing · Gifted: a Sherwani to Dev'), h('div', { class: 'row', style: { justifyContent: 'center' } }, h('span', { class: 'chip gold' }, 'Level 4 · Pakka'))),
+      mk('a', h('div', { class: 'wk' }, 'The story of the night'), h('div', { class: 'wb wbs' }, 'Riya took the ' + kursiWord() + ' in game 2, defended it twice, and lost it to Dev in the last hand.'), h('div', { class: 'row', style: { justifyContent: 'center' } }, h('button', { class: 'btn', onclick: () => { if (navigator.share) navigator.share({ title: 'Baithak Wrapped', text: 'Our night' }).catch(() => {}); else toast('Share is a stub in the demo (native share in the app)'); } }, '↗ Share'), h('button', { class: 'btn ghost', onclick: () => go2(0) }, 'Replay'))),
+    ];
+    return c;
+  };
+  let list = cards(); const seg2 = h('div', { class: 'row', style: { gap: '4px', flexWrap: 'nowrap' }, 'aria-hidden': 'true' }), dots = h('div', { class: 'row', style: { justifyContent: 'center', gap: 0 } }), stage = h('div', { class: 'wstage' });
+  const drawBars = () => { seg2.innerHTML = ''; list.forEach((_, k) => seg2.append(h('div', { style: { flex: 1, height: '4px', borderRadius: '99px', background: 'var(--hairline-2)', overflow: 'hidden' } }, h('i', { style: { display: 'block', height: '100%', background: 'var(--brand)', transformOrigin: '0 50%', transform: `scaleX(${k < i ? 1 : k === i ? 1 : 0})`, opacity: k <= i ? 1 : 0 } })))); dots.innerHTML = ''; list.forEach((_, k) => dots.append(h('button', { 'aria-label': 'Card ' + (k + 1) + ' of ' + list.length, 'aria-current': String(k === i), style: { width: '44px', height: '44px', display: 'grid', placeItems: 'center' }, onclick: () => go2(k) }, h('span', { style: { width: k === i ? '18px' : '8px', height: '8px', borderRadius: '99px', background: k === i ? 'var(--brand)' : 'var(--hairline-2)', display: 'block', transition: 'width .2s' } })))); };
+  const show = (k, dir = 1) => { i = clamp(k, 0, list.length - 1); stage.innerHTML = ''; const c = list[i]; stage.append(c); A(c, [{ opacity: 0, transform: `translateX(${dir * 24}px)` }, { opacity: 1, transform: 'none' }], { dur: 250 }); const w = $('.wb', c); if (i === 0 || i === 1) cue('twinkle'); if (i === 6) cue('coin'); if (i === 4) cue('crown'); if (i === 3) cue('chime'); drawBars(); clearTimeout(timer); if (auto && !S.reduced && i < list.length - 1) timer = setTimeout(() => go2(i + 1), 5000); };
+  const go2 = (k) => show(k, k >= i ? 1 : -1);
+  stage.append(); const left = h('button', { class: 'wz', style: { left: 0, width: '35%' }, 'aria-label': 'Previous card', onclick: () => go2(i - 1) }), right = h('button', { class: 'wz', style: { right: 0, width: '65%' }, 'aria-label': 'Next card', onclick: () => go2(i + 1) });
+  const wrap = h('div', { class: 'wwrap' }, stage, left, right);
+  const body = h('div', { class: 'col' });
+  const build = () => {
+    body.innerHTML = '';
+    if (state === 'loading') { body.append(h('div', { class: 'card col', style: { alignItems: 'center', minHeight: '240px', justifyContent: 'center' } }, h('b', null, 'Your night is being counted…'), h('p', { class: 'note' }, 'Wrapped lands 3 hours after the last game, or the moment someone taps "End the night".'), h('button', { class: 'btn', onclick: () => { state = 'ok'; build(); } }, 'End the night now'))); return; }
+    if (state === 'error') { body.append(h('div', { class: 'card col', role: 'alert' }, h('b', null, 'We couldn\'t build your night'), h('button', { class: 'btn pri', onclick: () => { state = 'ok'; build(); } }, 'Retry'))); return; }
+    list = cards(); body.append(h('div', null, seg2), wrap, dots); show(i, 1);
+  };
+  root.append(h('p', { class: 'note' }, 'The night\'s 8 cards (§7.2), as a swipeable story. Tap the right side for the next card, the left for the previous, or use the dots. A "night" is games with gaps of 3 hours or less.'),
+    h('div', { class: 'row' }, h('button', { class: 'btn ghost sm', 'aria-pressed': 'false', onclick: (e) => { auto = !auto; if (S.reduced) auto = false; e.currentTarget.textContent = (auto ? '☑' : '☐') + ' Auto-advance (5 s)'; show(i); } }, '☐ Auto-advance (5 s)'), h('button', { class: 'btn ghost sm', onclick: (e) => { players = players === 4 ? 2 : 4; e.currentTarget.textContent = 'Players tonight: ' + players; build(); } }, 'Players tonight: 4')),
+    h('div', { class: 'statebar' }, h('span', { class: 'up' }, 'State'), tabs([['ok', 'Ready'], ['loading', 'Being counted'], ['error', 'Error']], 'ok', (v) => { state = v; build(); }, 'Screen state')), body);
+  build();
+  return { el: root, play: () => { state = 'ok'; build(); go2(0); auto = false; }, destroy: () => clearTimeout(timer) };
+});
+</script>
+
+<script>
+/* =====================================================================================================================
+   Part 4: scenes 11 to 13, the decisions page, boot.
+   ===================================================================================================================== */
+
+/* ---------- 11. Moment budget lab (REWARDS-PLAN 13) ---------- */
+scene('budget', 'Moment budget lab', () => {
+  const root = h('section');
+  const EV = {
+    made: { l: 'Made bid', tier: 'beat', sound: 'made' },
+    bust: { l: 'Bust (missed)', tier: 'beat', sound: 'missed' },
+    ach: { l: 'Achievement', tier: 'small' },
+    big: { l: 'Big achievement', tier: 'moment', prio: 2, ms: 2500, sound: 'ghungroo' },
+    kursi: { l: kursiWord() + ' change', tier: 'moment', prio: 3, ms: 1600, crown: true, sound: 'gavel' },
+    taj: { l: 'Taj change', tier: 'moment', prio: 3, ms: 2200, crown: true, sound: 'shehnai' },
+    end: { l: 'Game end', tier: 'moment', prio: 4, ms: 3500, end: true, sound: 'fanfare' },
+  };
+  const Q = { round: 1, game: 1, mRound: 0, mGame: 0, crown: 0, phase: 'pause', last: {}, held: [], queue: [], playing: null, small: 0, run: 0, speed: 1 };
+  const log = h('div', { class: 'col', style: { gap: '4px' } }), counters = h('div', { class: 'grid2' }), nowBox = h('div', { class: 'card col' }), qBox = h('div', { class: 'row' }), smallBox = h('div', { class: 'row' });
+  const L = (kind, tag, msg) => { const e = h('div', { class: 'logline ' + kind }, h('b', null, tag), h('span', null, msg)); log.prepend(e); while (log.children.length > 16) log.lastChild.remove(); A(e, [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { dur: 160 }); };
+  const draw = () => {
+    counters.innerHTML = ''; const cnt = (t, v, max, extra) => h('div', { class: 'card col', style: { gap: '2px', padding: '8px' } }, h('span', { class: 'up' }, t), h('b', { style: { fontSize: 'var(--f6)', fontFamily: 'var(--font-display)' } }, v + (max != null ? ' / ' + max : '')), extra ? h('span', { class: 'fine' }, extra) : null);
+    counters.append(cnt('Moments this round', Q.mRound, 1, 'round ' + Q.round + ' · scorekeepers: cap 1'), cnt('Moments this game', Q.mGame, 3, 'game ' + Q.game + ' · + the game end, never capped'), cnt('Crown shows tonight', Q.crown, 3, 'then a Beat + a toast'), cnt('Held for a pause', Q.held.length, null, Q.phase === 'input' ? 'input: big shows wait' : 'pause: shows may play'));
+    qBox.innerHTML = ''; qBox.append(h('span', { class: 'up' }, 'Queue'), ...(Q.queue.length ? Q.queue.map((e) => h('span', { class: 'chip warn' }, e.title)) : [h('span', { class: 'fine' }, 'empty')]), ...Q.held.map((e) => h('span', { class: 'chip' }, '⏸ ' + EV[e.id].l)));
+    smallBox.innerHTML = ''; smallBox.append(h('span', { class: 'up' }, 'Small cards'), ...Array.from({ length: Math.min(3, Q.small) }, () => h('span', { class: 'chip ok' }, '🏅')), Q.small > 3 ? h('span', { class: 'chip' }, '+' + (Q.small - 3)) : h('span', { class: 'fine' }, Q.small ? '' : 'none'));
+  };
+  const showNow = (e) => { nowBox.innerHTML = ''; if (!e) { nowBox.append(h('span', { class: 'up' }, 'Now playing'), h('span', { class: 'fine' }, 'nothing: the screen is free')); return null; } const i = h('i', null); const m = h('div', { class: 'meter' }, i); nowBox.append(h('div', { class: 'row', style: { justifyContent: 'space-between' } }, h('span', { class: 'up' }, 'Now playing'), h('span', { class: 'fine' }, 'tap to skip · ceiling ' + (e.end ? '4 s' : '2.5 s'))), h('b', { style: { fontSize: 'var(--f5)' } }, e.title), m); nowBox.style.cursor = 'pointer'; return i; };
+  nowBox.addEventListener('pointerdown', () => { if (Q.playing) Q.playing.skip(); });
+  const pump = async () => {
+    if (Q.playing || !Q.queue.length) return; Q.queue.sort((a, b) => b.prio - a.prio); const e = Q.queue.shift(); const my = ++Q.run; let skipped = false, wake;
+    Q.playing = { skip: () => { skipped = true; wake && wake(); } }; Q.playingEv = e; draw();
+    const bar = showNow(e); Q.nowTitle = nowBox.querySelector('b'); cue(e.sound); if (e.end) { cue('patakha'); } L('played', 'PLAYS', e.title + ' (' + (Math.min(e.ms, e.end ? 4000 : 2500) / 1000).toFixed(1) + ' s' + (e.merged.length ? ', merged ' + e.merged.length + '' : '') + ')');
+    if (bar) A(bar, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { dur: Math.min(e.ms, e.end ? 4000 : 2500) / Q.speed, ease: 'linear' });
+    await new Promise((res) => { wake = res; setTimeout(res, Math.min(e.ms, e.end ? 4000 : 2500) / Q.speed); });
+    if (skipped) L('beat', 'SKIPPED', e.title + ' (one tap)'); Q.playing = null; Q.playingEv = null; Q.nowTitle = null; showNow(null); if (e.end) { Q.mGame = 0; Q.game++; Q.last = {}; } draw(); pump();
+  };
+  const downgrade = (id, why) => { Q.small++; L('down', 'SMALL CARD', EV[id].l + ': ' + why + '. Downgraded, not dropped.'); };
+  const asBeat = (id, why) => { L('beat', 'BEAT', EV[id].l + ': ' + why + '.'); cue('twinkle'); };
+  let run = 0;
+  const attempt = (id, fromHeld) => {
+    const ev = EV[id];
+    if (!ev.end) {
+      if (Q.last[id] != null && Q.round - Q.last[id] < 2) return asBeat(id, 'same kind within 2 rounds → a Beat the second time');
+      if (ev.crown && Q.crown >= 3) { toast('One line: ' + ev.l + ' moved (crown shows used up)'); return asBeat(id, '3 crown shows tonight already → pip swap + a toast'); }
+      const mate = Q.queue.find((q) => EV[q.id].crown && ev.crown) || (ev.crown && Q.playingEv && EV[Q.playingEv.id].crown ? Q.playingEv : null);
+      if (mate) { mate.merged.push(id); mate.title = mate.title + ' + ' + ev.l.replace(' change', ''); if (mate === Q.playingEv && Q.nowTitle) Q.nowTitle.textContent = mate.title; L('merged', 'MERGED', ev.l + ' joins the ' + (mate === Q.playingEv ? 'stage already playing' : 'queued ' + EV[mate.id].l) + ': one stage ("' + mate.title + '"), not two.'); return draw(); }
+      if (Q.mRound >= 1) return downgrade(id, 'round cap is 1');
+      if (Q.mGame >= 3) return downgrade(id, 'game cap is 3');
+      Q.mRound++; Q.mGame++; if (ev.crown) Q.crown++; Q.last[id] = Q.round;
+    }
+    Q.queue.push({ id, prio: ev.prio, ms: ev.ms, end: ev.end, title: ev.l, merged: [] }); L('played', Q.playing ? 'QUEUED' : 'ACCEPTED', ev.l + (fromHeld ? ' (released at the pause)' : '') + ' · priority ' + ev.prio); draw(); pump();
+  };
+  let beatRun = 0;
+  const fire = (id) => {
+    const ev = EV[id];
+    if (ev.tier === 'beat') { beatRun++; if (beatRun === 1) { cue(ev.sound, 'beat', { pitch: 0 }); L('beat', 'BEAT', ev.l + ': plays on the token (hop / shake).'); } else { cue(ev.sound, 'beat', { pitch: PENTA[beatRun % PENTA.length] }); L('merged', 'MERGED', ev.l + ' ×' + beatRun + ' this round: one pitched run, not ' + beatRun + ' sounds.'); } return; }
+    if (ev.tier === 'small') { Q.small++; L('beat', 'SMALL CARD', 'Achievement: a small card (3 shown, then +N)'); return draw(); }
+    if (ev.end) return attempt(id);
+    if (Q.phase === 'input') { Q.held.push({ id }); L('held', 'HELD', ev.l + ': waits for the next pause (the screen is in input).'); return draw(); }
+    attempt(id);
+  };
+  const release = () => { const hs = Q.held.splice(0).sort((a, b) => EV[b.id].prio - EV[a.id].prio); draw(); hs.forEach((e) => attempt(e.id, true)); };
+  const phaseSeg = seg([['pause', 'Pause (summary / winner)'], ['input', 'Input (bidding)']], 'pause', (v) => { Q.phase = v; draw(); if (v === 'pause' && Q.held.length) release(); }, 'Screen phase');
+  const btn = (id, cls) => h('button', { class: 'btn sm ' + (cls || ''), onclick: () => fire(id) }, EV[id].l);
+  const fire10 = () => { const seq = ['made', 'bust', 'made', 'ach', 'big', 'kursi', 'taj', 'ach', 'big', 'bust']; seq.forEach((id, k) => setTimeout(() => fire(id), k * 90 / Q.speed)); };
+  const reset = () => { Q.held = []; Q.queue = []; Q.small = 0; Q.round = 1; Q.game = 1; Q.mRound = 0; Q.mGame = 0; Q.crown = 0; Q.last = {}; beatRun = 0; log.innerHTML = ''; if (Q.playing) Q.playing.skip(); draw(); };
+  root.append(
+    h('p', { class: 'note' }, 'Fire events fast and watch the §13 rules: big shows wait for a pause, 1 Moment a round, 3 a game plus the game end, 3 crown shows a night, the same kind twice within 2 rounds is a Beat, crown shows merge, and over-cap Moments become small cards instead of vanishing.'),
+    h('div', { class: 'card col' }, h('div', { class: 'up' }, 'Where the screen is'), phaseSeg, counters),
+    h('div', { class: 'card col' }, h('div', { class: 'up' }, 'Fire an event'), h('div', { class: 'row' }, btn('made'), btn('bust'), btn('ach'), btn('big', 'pri'), btn('kursi', 'pri'), btn('taj', 'pri'), btn('end', 'pri')), h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: fire10 }, '⚡ Fire 10 at once'), h('button', { class: 'btn', onclick: () => { Q.round++; Q.mRound = 0; beatRun = 0; L('beat', 'ROUND', 'Round ' + Q.round + ': round counters reset'); draw(); } }, 'Next round'), h('button', { class: 'btn ghost', onclick: () => { Q.crown = 0; L('beat', 'NIGHT', 'New night: crown counter reset'); draw(); } }, 'New night'), h('button', { class: 'btn ghost', onclick: reset }, 'Reset all')), seg([['1', 'Real time'], ['4', 'Fast ×4']], '1', (v) => { Q.speed = +v; }, 'Speed')),
+    nowBox, h('div', { class: 'card col' }, qBox, smallBox), h('div', { class: 'up' }, 'What happened'), log);
+  draw(); showNow(null);
+  return { el: root, play: () => { reset(); fire10(); }, destroy: () => { Q.queue = []; if (Q.playing) Q.playing.skip(); } };
+});
+
+/* ---------- 12. Sound board ---------- */
+scene('sounds', 'Sound board', () => {
+  const root = h('section'); let pitch = 0;
+  const G = [
+    ['moment', 'Moment: heard on "Big moments" and "All"', [['bell', 'The last round; "1000 reached"; Taj won at season close; Legend'], ['fanfare', 'The winner on the stage: dhol rolls, then a bright reed triad'], ['gavel', 'SOLD; Kursi chheeni (moved up from beat to moment)'], ['shehnai', 'Taj chheena: a reed glides up, then a cheeky fall']]],
+    ['beat', 'Beat: the round\'s story, "All" only', [['hook', 'The hook catches the dealer'], ['made', 'A made result lands in the reveal (pitch steps up a scale)', 1], ['missed', 'A missed result lands (pitch steps down)', 1], ['tally', 'Totals count up'], ['rise', 'An overtake in the comeback climb'], ['crown', 'A new in-game leader'], ['ghungroo', 'An unlock, a level up, a set completed'], ['patakha', 'A stage win with a Jashn: a crack plus crackle'], ['twinkle', 'Sitara changes']]],
+    ['tick', 'Tick: taps, very quiet, "All" only', [['flick', 'A bid entered; a partner card picked'], ['chip', 'A Kaali Teeri raise (pitch climbs with the bid)', 1], ['knock', 'Pass; a forbidden key'], ['spin', 'The dealer spin slows down'], ['undo', 'Undo'], ['coin', '"+🪙" counting on the winner screen (at most 8)']]],
+    ['existing', 'Already in the app, reused', [['riffle', 'Begin game; the deal starts'], ['deal', 'Each card flies'], ['roll', 'The drum roll before 1st; the last partner'], ['thud', 'Podium lands; confirm a round'], ['chime', 'Achievement; everyone made it'], ['womp', 'Sole miss; a failed bid'], ['boom', 'A top streak; a sweep'], ['pop', 'A seat tap'], ['err', 'Nothing to undo']]],
+  ];
+  const last = h('div', { class: 'chip', style: { alignSelf: 'flex-start' } }, 'Tap a sound');
+  const press = (n, usePitch) => { const t = TIER[n]; const r = cue(n, t, usePitch ? { pitch } : {}); last.textContent = r.played ? '♪ ' + (r.as !== n ? n + ' → ' + r.as : n) + ' · played' : '🔇 ' + n + ' · ' + r.why; last.className = 'chip ' + (r.played ? 'ok' : 'bad'); };
+  const lists = G.map(([tier, title, arr]) => h('div', { class: 'card col' }, h('h2', null, title), ...arr.map(([n, w, p]) => h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, h('button', { class: 'btn sm', style: { minWidth: '104px' }, onclick: () => press(n, !!p), 'aria-label': 'Play ' + n }, '▶ ' + n), h('span', { class: 'fine grow' }, w, p ? ' · pitch slider applies' : '')))));
+  const pitchRow = h('div', { class: 'card col' }, h('label', { for: 'pitch', class: 'up' }, 'Pitch (semitones) for made · missed · chip: ' + pitch), h('input', { type: 'range', id: 'pitch', min: -12, max: 12, step: 1, value: 0, style: { width: '100%', minHeight: '44px' }, oninput: (e) => { pitch = +e.target.value; e.target.previousSibling.textContent = 'Pitch (semitones) for made · missed · chip: ' + pitch; } }), h('div', { class: 'row' }, h('button', { class: 'btn sm', onclick: () => go(async (r) => { for (const p of [0, 2, 4, 7, 9]) { cue('made', 'beat', { pitch: p }); await r.wait(110); } }) }, '▶ the made "tune" (5 steps)'), h('button', { class: 'btn sm', onclick: () => go(async (r) => { for (const p of [0, 3, 6, 9]) { cue('chip', 'tick', { pitch: p }); await r.wait(220); } }) }, '▶ auction heating up')));
+  const A_B = (n) => h('button', { class: 'btn sm', onclick: () => go(async (r) => { const q = S.quiet, snd = S.sound; S.sound = 'all'; S.quiet = false; last.textContent = 'normal: ' + n; cue(n); await r.wait(1900); S.quiet = true; last.textContent = 'late-night quiet: ' + n; const x = cue(n); last.textContent = 'late-night quiet: ' + (x.played ? n + (x.as !== n ? ' → ' + x.as : '') : 'silent (' + x.why + ')'); await r.wait(1200); S.quiet = q; S.sound = snd; }).finally(() => {}) }, 'A/B ' + n);
+  const quiet = h('div', { class: 'card col' }, h('h2', null, 'What late-night quiet does'), h('p', { class: 'note' }, 'After 23:00 local time, on by default (decision 11). The demo\'s switch simulates it. Ticks: off. Beats: ×0.6. Moments: ×0.5. The big stingers: fanfare and shehnai become a soft chime; patakha and boom are skipped.'),
+    h('div', { class: 'col', style: { gap: '4px' } }, [['tick', 'off', 0], ['beat', '×0.6', 0.6], ['moment', '×0.5', 0.5], ['stingers', 'soft / off', 0.2]].map(([t, l, v]) => h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, h('span', { class: 'fine', style: { width: '64px' } }, t), h('div', { class: 'meter grow' }, h('i', { style: { transform: `scaleX(${v})` } })), h('span', { class: 'fine', style: { width: '64px' } }, l)))),
+    h('div', { class: 'row' }, A_B('fanfare'), A_B('bell'), A_B('shehnai'), A_B('flick')));
+  const modes = h('div', { class: 'card col' }, h('h2', null, 'The three Sounds settings'), h('p', { class: 'note' }, 'All: ticks, beats, moments · Big moments: only moments (the default) · Off: nothing. The bar on top sets it. The audio unlocks on your first tap.'));
+  /* "A night in 20 seconds" */
+  const T = [[0, 'spin', 'Dealer spin'], [1.0, 'riffle', 'Begin game'], [1.8, 'deal', 'The deal'], [1.95, 'deal', ''], [2.1, 'deal', ''], [2.8, 'flick', 'A bid goes in'], [3.4, 'hook', 'The hook catches the dealer'], [4.2, 'made', 'Reveal: made, stepping up', { pitch: 0 }], [4.32, 'made', '', { pitch: 2 }], [4.44, 'made', '', { pitch: 4 }], [4.56, 'missed', 'a miss', { pitch: -4 }], [5.2, 'womp', 'Sole miss'], [6.0, 'tally', 'Totals count up'], [7.0, 'crown', 'New leader'], [7.8, 'twinkle', 'Sitara moves'], [8.6, 'chip', 'Auction heats up', { pitch: 0 }], [9.0, 'chip', '', { pitch: 3 }], [9.4, 'chip', '', { pitch: 7 }], [10.2, 'gavel', 'SOLD'], [11.0, 'roll', 'Last partner'], [12.2, 'bell', 'Last round'], [13.4, 'gavel', 'Kursi chheeni'], [14.4, 'shehnai', 'Taj chheena'], [15.8, 'coin', 'Bounty +40', {}], [15.9, 'coin', '', {}], [16.0, 'coin', '', {}], [16.5, 'ghungroo', 'Unlock / level up'], [17.6, 'fanfare', 'The winner on the stage'], [17.8, 'patakha', 'Jashn'], [19.6, 'chime', 'Perfect game']];
+  const tl = h('div', { class: 'col', style: { gap: '2px' } }), rowsT = T.filter((x) => x[2]).map((x) => { const e = h('div', { class: 'logline' }, h('b', null, x[0].toFixed(1) + ' s'), h('span', null, x[2]), h('span', { class: 'chip', style: { marginLeft: 'auto' } }, x[1] + ' · ' + TIER[x[1]])); tl.append(e); return [x[0], e]; });
+  const night = () => go(async (r) => { rowsT.forEach(([, e]) => e.style.opacity = 1); let t0 = 0; r.onEnd(() => rowsT.forEach(([, e]) => { e.style.outline = ''; })); for (const [t, n, lbl, o] of T) { await r.wait((t - t0) * 1000); t0 = t; const x = cue(n, TIER[n], o || {}); const row = rowsT.find(([tt]) => tt === t); rowsT.forEach(([, e]) => { e.style.outline = ''; }); if (row) { row[1].style.outline = '2px solid var(--brand)'; row[1].scrollIntoView({ block: 'nearest' }); row[1].style.opacity = x.played ? 1 : 0.4; } } });
+  root.append(h('p', { class: 'note' }, 'Every sound from SOUND-PLAN §3 and REWARDS-PLAN §11, synthesised live with Web Audio (no files). Grouped by tier; the Sounds setting and late-night quiet on the bar change what you hear.'), last, modes, ...lists, pitchRow, quiet,
+    h('div', { class: 'card col' }, h('h2', null, 'A night in 20 seconds'), h('p', { class: 'note' }, 'Every cue in order. Switch the sound mode to "Moments" and the beats and ticks go dim: that is what the default sounds like.'), h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: night }, '▶ Play the night'), h('button', { class: 'btn ghost', onclick: () => endRun() }, '■ Stop')), tl));
+  return { el: root, play: night };
+});
+
+/* ---------- 13. The gaps fixed ---------- */
+scene('gaps', 'The gaps fixed', () => {
+  const root = h('section'); let tab = 'board'; const body = h('div', { class: 'col' });
+  const SUN = [0, 1, 2], MOON = [3, 4, 5];
+  const WORDS = ['RIVER', 'MOON', 'KITE', 'SALT', 'CLOCK', 'TRAIN', 'BELL', 'FORK', 'MANGO', 'TEA', 'DOOR', 'WAVE', 'COIN', 'LAMP', 'ROOF', 'SOAP', 'DRUM', 'SNOW', 'BRICK', 'OWL', 'ROPE', 'PEN', 'SAIL', 'CAKE', 'HILL'];
+  const KEY = 'sun sun moon blank sun moon sun blank moon trap sun moon sun blank moon moon sun blank sun moon blank moon sun moon blank'.split(' ');
+  const rowOfFaces = (ids, giver, size = 28) => h('div', { class: 'row', style: { gap: '4px', flexWrap: 'nowrap', alignItems: 'center' } }, ids.map((k) => k === giver ? h('div', { class: 'idle-breathe', style: { width: '44px', height: '44px', position: 'relative' } }, slot(44, avatar(PL[k], 44, { model: 'D', look: { ...LOOK[k], frame: 'plain' } }))) : slot(size, avatar(PL[k], size, { model: 'D' }))));
+  const board = () => {
+    body.innerHTML = ''; const giver = 2; const strip = h('div', { class: 'card col', style: { gap: '8px' } });
+    const sunRow = h('div', { class: 'row', style: { flexWrap: 'nowrap', gap: '6px' } }, h('span', { style: { fontSize: 'var(--f5)' } }, '☀'), rowOfFaces(SUN, giver)), moonRow = h('div', { class: 'row', style: { flexWrap: 'nowrap', gap: '6px' } }, rowOfFaces(MOON, -1), h('span', { style: { fontSize: 'var(--f5)' } }, '☾'));
+    const clue = h('div', { class: 'row', style: { justifyContent: 'center' } }, h('span', { class: 'chip' }, 'Asha: 2 · RIVER'));
+    strip.append(h('div', { class: 'row', style: { justifyContent: 'space-between', flexWrap: 'nowrap' } }, sunRow, h('span', { class: 'up' }, 'vs'), moonRow), clue);
+    const grid = h('div', { class: 'wgrid' }, WORDS.map((w, k) => h('div', { class: k % 7 === 0 ? 'sun' : k % 11 === 0 ? 'moon' : '' }, w)));
+    const nod = (ids, kind) => ids.forEach((k, j) => { const s = $$('.av', strip).find((a) => a.querySelector('.disc').textContent === PL[k].e); if (!s) return; if (kind === 'nod') A(s, [{ transform: 'translateY(0)' }, { transform: 'translateY(4px)' }, { transform: 'translateY(0)' }], { dur: 260, delay: j * 60, effect: true }); else A(s, [{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(0)' }], { dur: 260, delay: j * 40, effect: true }); });
+    body.append(h('p', { class: 'note' }, 'Ishaara board: a team strip above the grid (28px faces). The clue-giver is enlarged (44px) and breathes 2% while the clue is pending. Guessers nod on a right pick and shake on a trap.'), strip, grid, h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: () => { nod(SUN.filter((k) => k !== giver), 'nod'); cue('made', 'beat', { pitch: 4 }); } }, '✓ Right pick'), h('button', { class: 'btn', onclick: () => { nod(SUN.filter((k) => k !== giver), 'shake'); cue('missed', 'beat', { pitch: -4 }); } }, '☠ Trap')), h('p', { class: 'fine' }, 'Reduced motion: the breathe stops and the nod and shake are skipped.'));
+  };
+  const phone = () => { body.innerHTML = ''; body.append(h('p', { class: 'note' }, 'Clue phone: only this player\'s own face (it\'s their phone). The key reaches only a clue-giver\'s phone, in memory, never the table device. Nothing for the room.'), h('div', { class: 'card col', style: { alignItems: 'center' } }, h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, slot(56, avatar(PL[2], 56, { model: 'D' }), { margin: '4px' }), h('div', { class: 'col', style: { gap: 0 } }, h('b', null, 'Asha, you give the clue'), h('span', { class: 'fine' }, 'Team Sun · only you can see this'))), h('div', { class: 'wgrid', style: { width: '100%' } }, WORDS.map((w, k) => h('div', { class: KEY[k] === 'sun' ? 'sun' : KEY[k] === 'moon' ? 'moon' : KEY[k] === 'trap' ? 'trap' : '' }, w))))); };
+  const win = () => {
+    body.innerHTML = ''; const box = h('div', { class: 'card col', style: { alignItems: 'center' } }), row = h('div', { class: 'row', style: { alignItems: 'flex-end', justifyContent: 'center', gap: '6px', flexWrap: 'nowrap' } });
+    const mk = () => { row.innerHTML = ''; return [bust(PL[0], 88, LOOK[0], {}), bust(PL[2], 130, { ...LOOK[2], aura: 'sunrise' }, { pip: 'sitara' }), bust(PL[1], 88, LOOK[1], {})].map((b) => { row.append(b); return b; }); };
+    const bs = mk(); box.append(h('div', { class: 'up' }, '☀ Team Sun wins'), row, h('b', null, 'MVP: Asha'), h('span', { class: 'fine' }, '5 clues given, 11 words found · the winning team goes to the stage; the MVP gets the big bust (screens/mvp.ts already picks one)'));
+    const play = () => go(async (r) => { const bb = mk(); bb.forEach((b) => b.style.opacity = 0); cue('rise'); await r.wait(150); for (let k = 0; k < bb.length; k++) { A(bb[k], [{ opacity: 0, transform: 'translateY(40px) scale(.8)' }, { opacity: 1, transform: 'none' }], { dur: 420 }); await r.wait(S.reduced ? 0 : 140); } cue('fanfare'); });
+    body.append(h('p', { class: 'note' }, 'Ishaara win screen: team colours today, no faces. With this plan the winning faces go stage in a row.'), box, h('button', { class: 'btn pri', onclick: play }, '▶ Replay the entrance')); window._gapWin = play;
+  };
+  const spadesSeats = (compact) => { const T2 = [['SUN', [[0, '4', false], [1, 'NIL', true]]], ['MOON', [[3, '3', false], [4, '5', false]]]]; const sz = compact ? 28 : 36; return h('div', { class: 'card row', style: { justifyContent: 'space-around', flexWrap: 'nowrap', gap: '6px' } }, T2.map(([t, ps], k) => h('div', { class: 'col', style: { gap: '2px', alignItems: 'center' } }, h('span', { class: 'up', style: { color: k ? 'var(--team-moon)' : 'var(--team-sun)' } }, t), h('div', { class: 'row', style: { flexWrap: 'nowrap', gap: compact ? '10px' : '12px' } }, ps.map(([pi, bid, nil]) => h('div', { class: compact ? 'row' : 'col', style: { alignItems: 'center', gap: compact ? '4px' : '2px', flexWrap: 'nowrap' } }, h('div', { style: { position: 'relative', padding: '3px', borderRadius: '50%', boxShadow: nil ? '0 0 0 2px var(--brand), 0 0 12px var(--glow)' : `0 0 0 2px var(--team-${k ? 'moon' : 'sun'})` } }, slot(sz, avatar(PL[pi], sz, { model: 'D', look: { ...LOOK[pi], frame: null } })), nil ? h('span', { style: { position: 'absolute', right: '-6px', top: '-8px', fontSize: 'var(--f3)' }, class: 'idle-drip' }, '💦') : null), h('b', { style: { fontSize: 'var(--f3)' } }, bid))))))); };
+  const spades = (which, compact = false) => {
+    body.innerHTML = ''; const strip = spadesSeats(compact);
+    const stepper = (l, v, c) => h('div', { class: 'row', style: { justifyContent: 'space-between', flexWrap: 'nowrap' } }, h('b', { style: { color: c } }, l), h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, h('button', { class: 'btn sm', 'aria-label': 'Fewer ' + l + ' tricks' }, '−'), h('b', { style: { minWidth: '30px', textAlign: 'center', fontSize: 'var(--f6)' } }, v), h('button', { class: 'btn sm', 'aria-label': 'More ' + l + ' tricks' }, '+')));
+    const tabsT = tabs([['tricks', 'Tricks'], ['summary', 'Summary']], which, (v) => spades(v, compact), 'Spades step');
+    const cb = h('button', { class: 'btn ghost sm', 'aria-pressed': String(compact), onclick: () => spades(which, !compact) }, (compact ? '☑' : '☐') + ' Compact (short screens)');
+    const rowsS = h('div', { class: 'rows' }, [[0, 'bid 4 · took 4', '✓', '+14'], [1, 'NIL · took 0', '✓', '+100'], [3, 'bid 3 · took 2', '✗', '−30'], [4, 'bid 5 · took 3', '✗', '−50']].map(([p, s, m, d]) => h('div', { class: 'prow' }, slot(40, avatar(PL[p], 40, { model: 'D' })), h('div', { class: 'nmx' }, h('b', null, PL[p].n), h('small', null, s)), h('span', { style: { fontSize: 'var(--f5)' } }, m), h('span', { class: 'sc' }, d))));
+    body.append(h('p', { class: 'note' }, 'Spades scorekeeper: the Tricks and Summary steps show only names today. A four-seat strip (36px, grouped by team, bid underneath, Nil halo) goes above the existing entry. On short screens it becomes 28px dots with the bid beside them.'), tabsT, cb, strip, which === 'tricks' ? h('div', { class: 'card col' }, h('h2', null, 'Tricks'), stepper('Sun', '8', 'var(--team-sun)'), stepper('Moon', '5', 'var(--team-moon)'), h('p', { class: 'fine' }, 'The existing entry is unchanged: input never moves.')) : h('div', { class: 'card col' }, h('h2', null, 'Hand summary'), rowsS));
+  };
+  const tabBar = tabs([['board', 'Ishaara board'], ['phone', 'Clue phone'], ['win', 'Ishaara win'], ['spades', 'Spades']], 'board', (v) => { tab = v; endRun(); v === 'board' ? board() : v === 'phone' ? phone() : v === 'win' ? win() : spades('tricks'); }, 'Screen');
+  root.append(tabBar, body); board();
+  return { el: root, play: () => { if (tab === 'win') window._gapWin(); else { tab = 'win'; tabBar.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === 2))); win(); window._gapWin(); } } };
+});
+
+/* ---------- decisions page, scene menu, boot ---------- */
+const VERD = { keep: 'Keep', change: 'Change', cut: 'Cut' };
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+function markdown() {
+  const line = (s) => { const d = DEC.scenes[s.id] || {}; const parts = []; if (d.v) parts.push(VERD[d.v]); if (d.p) parts.push('P' + d.p); let t = parts.length ? parts.join(', ') : 'undecided'; if (d.note) t += ' — "' + d.note.replace(/"/g, '\'') + '"'; return t; };
+  const out = ['## Rewards demo decisions (' + today() + ')'];
+  const av = SC.find((s) => s.id === 'avatar'); out.push('- Avatar model: ' + (DEC.picks.avatar || 'no pick') + ' — ' + line(av));
+  out.push('- Kursi name: ' + (DEC.picks.kursi || 'no pick'));
+  SC.forEach((s) => { if (s.id === 'avatar') return; out.push('- ' + (s.id === 'kursi' ? 'Kursi chheeni scene' : s.title) + ': ' + line(s)); });
+  return out.join('\n');
+}
+function buildDecisions() {
+  const root = h('section'), pre = h('pre', { class: 'md', tabindex: '0' }); const refresh = () => { pre.textContent = markdown(); };
+  const copy = async () => { const t = markdown(); try { await navigator.clipboard.writeText(t); toast('Copied. Paste it back into the chat.'); } catch { const ta = h('textarea', { style: { position: 'fixed', opacity: 0 } }); ta.value = t; document.body.append(ta); ta.select(); try { document.execCommand('copy'); toast('Copied. Paste it back into the chat.'); } catch { toast('Select the text below and copy it'); } ta.remove(); } };
+  const list = h('div', { class: 'rows' }, SC.map((s) => { const d = DEC.scenes[s.id] || {}; return h('button', { class: 'prow', style: { textAlign: 'left', width: '100%' }, onclick: () => openScene(s.id) }, h('span', { class: 'rk' }, SC.indexOf(s) + 1), h('div', { class: 'nmx' }, h('b', null, s.title), h('small', null, d.note ? '“' + d.note + '”' : '')), h('span', { class: 'chip ' + (d.v === 'keep' ? 'ok' : d.v === 'cut' ? 'bad' : d.v ? 'warn' : '') }, (d.v ? VERD[d.v] : '—') + (d.p ? ' · P' + d.p : ''))); }));
+  root.append(h('p', { class: 'note' }, 'Everything you decided in the demo. Stored on this device only.'),
+    h('div', { class: 'card col' }, pickPair('avatar', 'Decision #1 · Avatar model', [['A', 'A: accessories everywhere'], ['D', 'D: token + stage']], refresh), pickPair('kursi', 'Decision #3 · Kursi or Belt', [['Kursi', 'Kursi'], ['Belt', 'The Belt']], refresh)),
+    list, h('div', { class: 'row' }, h('button', { class: 'btn pri', onclick: () => { refresh(); copy(); } }, 'Copy as Markdown'), h('button', { class: 'btn ghost', onclick: () => { if (confirm('Clear all decisions?')) { DEC.scenes = {}; DEC.picks = { avatar: null, kursi: null }; save(); openScene('decisions'); } } }, 'Clear all')), pre);
+  refresh(); return { el: root };
+}
+function pickPair(key, label, opts, after) { return h('div', { class: 'col', style: { gap: '4px' } }, h('div', { class: 'up' }, label), seg(opts, DEC.picks[key], (v) => { DEC.picks[key] = v; if (key === 'kursi') S.kursiName = v; save(); after && after(); }, label)); }
+function renderDecide(id) {
+  const bar = $('#decide'); bar.innerHTML = ''; if (id === 'decisions') { bar.style.display = 'none'; return; } bar.style.display = '';
+  const d = DEC.scenes[id] || (DEC.scenes[id] = {});
+  const mkSeg = (opts, key, label, cls) => { const g = h('div', { class: 'seg', role: 'group', 'aria-label': label }); opts.forEach(([v, t]) => { const b = h('button', { 'data-v': v, 'aria-pressed': String(d[key] === v), 'aria-label': label + ' ' + t, onclick: () => { d[key] = d[key] === v ? null : v; $$('button', g).forEach((x) => x.setAttribute('aria-pressed', String(String(d[key]) === x.dataset.v))); save(); refreshMenu(); } }, t); g.append(b); }); return g; };
+  bar.append(h('div', { class: 'row' }, mkSeg([['keep', 'Keep'], ['change', 'Change'], ['cut', 'Cut']], 'v', 'Verdict'), mkSeg([[1, 'P1'], [2, 'P2'], [3, 'P3']], 'p', 'Priority')), h('input', { type: 'text', value: d.note || '', placeholder: 'Notes for this scene…', 'aria-label': 'Notes for this scene', oninput: (e) => { d.note = e.target.value; save(); } }));
+  $$('button', bar).forEach((b) => { if (b.dataset.v && /^\d$/.test(b.dataset.v)) b.dataset.v = b.dataset.v; });
+}
+let curScene = null;
+function openScene(id, keep) {
+  endRun(); if (curScene && curScene.destroy) curScene.destroy();
+  S.scene = id; save(); closeMenu();
+  const root = $('#scene'); const prevScroll = keep ? root.scrollTop : 0; root.innerHTML = ''; FITS.length = 0;
+  let sc; if (id === 'decisions') { sc = buildDecisions(); $('#sceneTitle').textContent = 'My decisions'; $('#playBtn').style.display = 'none'; }
+  else { const def = SC.find((s) => s.id === id) || SC[0]; sc = def.build(); $('#sceneTitle').textContent = (SC.indexOf(def) + 1) + '. ' + def.title; $('#playBtn').style.display = sc.play ? '' : 'none'; S.scene = def.id; }
+  curScene = sc; root.append(sc.el); root.scrollTop = prevScroll; renderDecide(S.scene === 'decisions' || id === 'decisions' ? 'decisions' : S.scene); requestAnimationFrame(fitAll); refreshMenu();
+}
+function refreshMenu() {
+  const sh = $('#menuSheet'); sh.innerHTML = '';
+  SC.forEach((s, k) => { const d = DEC.scenes[s.id] || {}; sh.append(h('button', { class: 'it', 'aria-current': String(S.scene === s.id), onclick: () => openScene(s.id) }, h('span', { class: 'n' }, k + 1), h('span', null, s.title), h('span', { class: 'dv' }, d.v ? VERD[d.v] + (d.p ? ' P' + d.p : '') : ''))); });
+  sh.append(h('button', { class: 'it', onclick: () => openScene('decisions') }, h('span', { class: 'n' }, '✓'), h('span', null, 'My decisions'), h('span', { class: 'dv' }, SC.filter((s) => (DEC.scenes[s.id] || {}).v).length + '/' + SC.length)));
+  $('#sceneBtn').textContent = (S.scene === 'decisions' ? 'My decisions' : (SC.findIndex((s) => s.id === S.scene) + 1) + '. ' + (SC.find((s) => s.id === S.scene) || SC[0]).title) + ' ▾';
+}
+const openMenu = () => { $('#menu').classList.add('on'); $('#sceneBtn').setAttribute('aria-expanded', 'true'); const c = $('#menuSheet [aria-current=true]'); if (c) c.focus(); };
+const closeMenu = () => { $('#menu').classList.remove('on'); $('#sceneBtn').setAttribute('aria-expanded', 'false'); };
+function applyChrome() {
+  document.documentElement.dataset.theme = S.theme; document.documentElement.dataset.motion = S.reduced ? 'reduced' : 'full';
+  $('#themeSel').value = S.theme; const m = $('#motionBtn'); m.setAttribute('aria-pressed', String(S.reduced)); m.textContent = 'Reduced motion: ' + (S.reduced ? 'on' : 'off');
+  $$('[data-snd]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.snd === S.sound)));
+  const q = $('#quietBtn'); q.setAttribute('aria-pressed', String(S.quiet)); q.textContent = 'Late-night quiet: ' + (S.quiet ? 'on' : 'off');
+}
+function boot() {
+  load(); applyChrome();
+  const chip = h('div', { id: 'cuechip', class: 'chip' }); $('#frame').append(chip);
+  $('#themeSel').addEventListener('change', (e) => { S.theme = e.target.value; applyChrome(); save(); requestAnimationFrame(fitAll); });
+  $('#motionBtn').addEventListener('click', () => { S.reduced = !S.reduced; applyChrome(); save(); });
+  $$('[data-snd]').forEach((b) => b.addEventListener('click', () => { S.sound = b.dataset.snd; applyChrome(); save(); }));
+  $('#quietBtn').addEventListener('click', () => { S.quiet = !S.quiet; applyChrome(); save(); });
+  $('#decBtn').addEventListener('click', () => openScene('decisions'));
+  $('#sceneBtn').addEventListener('click', () => ($('#menu').classList.contains('on') ? closeMenu() : openMenu()));
+  $('#menu').addEventListener('pointerdown', (e) => { if (e.target.id === 'menu') closeMenu(); });
+  const step = (d) => { const k = SC.findIndex((s) => s.id === S.scene); openScene(SC[(k + d + SC.length) % SC.length].id); };
+  $('#prevBtn').addEventListener('click', () => step(-1)); $('#nextBtn').addEventListener('click', () => step(1));
+  $('#playBtn').addEventListener('click', () => { if (curScene && curScene.play) curScene.play(); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') { if ($('#menu').classList.contains('on')) closeMenu(); else endRun(); } });
+  addEventListener('resize', () => requestAnimationFrame(fitAll));
+  openScene(S.scene === 'decisions' ? 'decisions' : (SC.some((s) => s.id === S.scene) ? S.scene : SC[0].id));
+}
+boot();
+</script>
+
+<style>
+.modal{position:absolute;inset:0;z-index:40;background:var(--scrim);display:flex;align-items:flex-end}
+.modal .box{width:100%;background:var(--surface-1);border-top:var(--bw) solid var(--bd);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px;display:flex;flex-direction:column;gap:10px;max-height:90%;overflow:auto}
+#cuechip{position:absolute;right:14px;top:50px;z-index:46;opacity:0;pointer-events:none;transition:opacity .15s;background:var(--surface-3)}
+#cuechip.on{opacity:1}
+.wwrap{position:relative}
+.wstage{position:relative;min-height:440px;display:flex}
+.wc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px 16px;border-radius:var(--r-xl);border:var(--bw) solid var(--bd);box-shadow:var(--sh);min-height:440px}
+.wc.a{background:var(--fill-primary);color:var(--on-brand)}
+.wc.b{background:var(--surface-2);color:var(--text-1)}
+.wc.c{background:var(--felt-bg);color:var(--card-bg)}
+html[data-theme=yerba-sun] .wc.c{color:var(--ink)}
+.wc .wk{font-size:var(--f2);letter-spacing:.1em;text-transform:uppercase;font-weight:700;font-family:var(--font-mono);opacity:.85}
+.wc .wb{font-family:var(--font-display);font-weight:var(--display-weight);letter-spacing:var(--display-track);font-size:var(--f8);line-height:1.1}
+.wc .wb.wbs{font-size:var(--f6);line-height:1.3}
+.wc .wf{font-size:var(--f4)}
+.wc .wsub{margin-top:6px;padding:10px 12px;border-radius:var(--r-md);background:var(--brand-soft);border:1px dashed var(--brand)}
+.wc .fine,.wc .wf small{color:inherit;opacity:.85}
+.wc b{color:inherit}
+.wz{position:absolute;top:0;bottom:0;z-index:2;background:transparent;min-width:44px}
+.wc .row,.wc .col{width:100%}
+</style>
+</body>
+</html>
+
