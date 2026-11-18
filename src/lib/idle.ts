@@ -10,3 +10,11 @@ export function whenIdle(fn: () => void, timeout = 2000): () => void {
   const id = setTimeout(fn, 1200);
   return () => clearTimeout(id);
 }
+
+type Connection = { saveData?: boolean; effectiveType?: string };
+
+/** The visitor asked to save data, or is on a 2G link: nothing is fetched on speculation (screens ahead of a tap). */
+export function savingData(): boolean {
+  const c = (navigator as Navigator & { connection?: Connection }).connection;
+  return !!c && (!!c.saveData || /(^|-)2g$/.test(c.effectiveType ?? ''));
+}

@@ -12,7 +12,8 @@ let taken: { href: string; link: KtViewerLink } | null = null;
  */
 export function readKtViewerLink(): KtViewerLink | null {
   if (typeof location === 'undefined') return null;
-  // StrictMode runs initialisers twice; the second run must see the link the first one removed.
+  // Until the page has mounted (settleKtViewerLink), every render sees the link: StrictMode runs initialisers twice,
+  // and a render React throws away runs them again.
   if (taken?.href === location.href) return taken.link;
   const q = new URLSearchParams(location.search);
   for (const kind of ['live', 'recap'] as const) {
@@ -29,4 +30,9 @@ export function readKtViewerLink(): KtViewerLink | null {
     return taken.link;
   }
   return null;
+}
+
+/** The page that read the link has mounted: a later visit to `/kaali-teeri` opens the app, not the viewer again. */
+export function settleKtViewerLink() {
+  taken = null;
 }

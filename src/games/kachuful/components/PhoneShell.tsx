@@ -1,6 +1,7 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react';
 import { whenIdle } from '@/lib/idle';
+import { Pages, Setup, warmNext, Winner } from '@/games/kachuful/chunks';
 import { curRound } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
@@ -24,17 +25,11 @@ import { ServiceWorkerHost } from '@/components/ServiceWorkerHost';
 import { Toast } from '@/components/ui/Toast';
 import { EASE, SPRING_SOFT } from '@/components/ui/motion';
 
-const Winner = lazy(() => import('@/games/kachuful/screens/Winner'));
-const Pages = lazy(() => import('@/games/kachuful/screens/pages/Pages'));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((m) => ({ default: m.Confetti })),
 );
-// Never on the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
-const loadSetup = () =>
-  import('@/games/kachuful/screens/setup/Setup').then((m) => ({ default: m.Setup }));
 const loadStreak = () =>
   import('./StreakCelebration').then((m) => ({ default: m.StreakCelebration }));
-const Setup = lazy(loadSetup);
 const StreakCelebration = lazy(loadStreak);
 
 /** The phone UI (and phones on their side); its own chunk, so tablets and desktops never download it. */
@@ -67,7 +62,8 @@ export default function PhoneShell() {
   };
   const updateDue = useServiceWorker().needRefresh;
   const blocked = !!(sheet || modal || seq || state.corrupt || state.streakFx || updateDue);
-  useEffect(() => whenIdle(() => void Promise.all([loadSetup(), loadStreak()])), []);
+  // Never on the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
+  useEffect(() => whenIdle(() => void Promise.all([warmNext(false), loadStreak()])), []);
   // Confetti is skipped under reduced motion; the podium still marks the moment.
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);

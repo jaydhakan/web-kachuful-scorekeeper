@@ -26,6 +26,8 @@ import { peek, type SpPeek } from '@/games/spades/state/peek';
 import { home as h } from '@/games/spades/strings/home';
 import { LazyPart } from './LazyPart';
 import { Spade, SpadeMark } from './SpadeMark';
+import { warmModes } from '@/games/spades/chunks';
+import { savingData, whenIdle } from '@/lib/idle';
 
 const loadRules = () => import('@/games/spades/sheets/RulesBody');
 const loadActive = () => import('@/games/spades/online/ActiveTables');
@@ -266,6 +268,10 @@ export default function Home({ joinCode = null }: { joinCode?: string | null }) 
   // Read once per visit: nothing changes the saved table game while Home is on screen.
   const [saved] = useState(peek);
   useHistorySync(sheet ? 1 : 0, () => setSheet(null));
+  useEffect(
+    () => (savingData() ? undefined : whenIdle(() => void warmModes(signedIn))),
+    [signedIn],
+  );
   const close = () => setSheet(null);
   // Leaving from a sheet waits for the sheet's history entry to go first, or Back would land on it.
   const next = useRef<string | null>(null);

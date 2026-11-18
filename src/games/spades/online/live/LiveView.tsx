@@ -1,7 +1,6 @@
 import { AnimatePresence, m } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
-import { Loader } from '@/components/ui/Loader';
 import { PlayingCard } from '@/components/ui/PlayingCard';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SPRING_POP } from '@/components/ui/motion';
@@ -21,6 +20,7 @@ import {
 import { online as o } from '../../strings/online';
 import { spEp } from '../sync/endpoints';
 import { followLive } from '../sync/events';
+import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 const s = o.live;
 type Place = 'S' | 'W' | 'N' | 'E';
@@ -121,15 +121,7 @@ export default function LiveView({ token }: { token: string }) {
         </PrimaryButton>
       </main>
     );
-  if (!table)
-    return (
-      <div className="app-root scr-bg relative h-full w-full">
-        <p role="status" className="sr-only">
-          {s.loading}
-        </p>
-        <Loader />
-      </div>
-    );
+  if (!table) return <TableSkeleton kind="felt" hand={false} label={s.loading} />;
 
   const won = tricksWon(table);
   const shown: Play[] = table.trick.length ? table.trick : (lastTrick(table)?.plays ?? []);

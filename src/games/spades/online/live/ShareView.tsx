@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ApiError } from '@/sync/api';
 import {
@@ -16,6 +15,7 @@ import { online as o } from '../../strings/online';
 import { spEp } from '../sync/endpoints';
 import type { SpShareOut } from '../sync/types';
 import LiveView from './LiveView';
+import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 const s = o.live;
 const sh = o.share;
@@ -155,12 +155,5 @@ export default function ShareView({ token, recap }: { token: string; recap: bool
         </PrimaryButton>
       </main>
     );
-  return (
-    <div className="app-root scr-bg relative h-full w-full">
-      <p role="status" className="sr-only">
-        {s.loading}
-      </p>
-      <Loader />
-    </div>
-  );
+  return <TableSkeleton kind="felt" hand={false} label={s.loading} />;
 }

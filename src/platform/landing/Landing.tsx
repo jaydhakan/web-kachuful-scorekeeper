@@ -1,5 +1,6 @@
 import { AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
+  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -15,6 +16,7 @@ import { useSession } from '@/sync/session';
 import { platform } from '@/strings/platform';
 import { GAMES, gameById, type GameEntry, type Resume } from '../catalog';
 import { clearUnknown, go, unknownAddress, type Unknown } from '../route';
+import { warmGames, warmOn } from '../prepare';
 import { kachufulSearch, LandingMenu, openInKachuful } from './LandingMenu';
 import { PersonDot } from './PersonDot';
 import { GameIcon, TileArt } from './TileArt';
@@ -62,6 +64,7 @@ function Header({ onMenu }: { onMenu: () => void }) {
         <a
           href={`/kachuful${kachufulSearch(open)}`}
           onClick={(e) => openInKachuful(e, open)}
+          {...warmOn('kachuful', kachufulSearch(open))}
           aria-label={label}
           className={`mat-ibtn press inline-flex min-h-12 min-w-12 items-center gap-2 whitespace-nowrap !rounded-full text-16 font-bold ${live ? 'p-1.5 big:pr-4' : 'px-5'}`}
         >
@@ -112,6 +115,7 @@ function UnknownLine({ u, onDone }: { u: Unknown; onDone: () => void }) {
           <a
             href={guess.path}
             onClick={(e) => follow(e, guess)}
+            {...warmOn(guess.id)}
             className="press inline-flex min-h-11 items-center rounded-full px-3 font-bold text-[var(--accent-tx)] underline"
           >
             {s.openGuess(guess.name)}
@@ -156,6 +160,7 @@ function ResumePanel({ rows }: { rows: [GameEntry, Resume][] }) {
               href={g.path}
               aria-label={s.resumeAria(g.name)}
               onClick={(e) => follow(e, g)}
+              {...warmOn(g.id)}
               className="mat-cta mat-cta-on mat-tone-accent text-ink-on-accent press relative isolate inline-flex min-h-12 items-center rounded-[18px] px-4 text-16 font-bold"
             >
               <span aria-hidden className="mat-fill absolute inset-0 -z-10 rounded-[inherit]" />
@@ -256,12 +261,19 @@ function GameCard({ g, signedIn, online }: { g: GameEntry; signedIn: boolean; on
       </article>
     );
   // Named by its own text (name, pitch, players, then Play), so what's read is what's shown.
+  const warm = locked ? warmOn('kachuful', kachufulSearch('signin')) : warmOn(g.id);
   return (
     <a
       href={locked ? `/kachuful${kachufulSearch('signin')}` : g.path}
       onClick={(e) => (locked ? openInKachuful(e, 'signin') : follow(e, g))}
       className={`${box} press`}
       {...tilt}
+      onPointerDown={(e) => {
+        warm.onPointerDown();
+        tilt.onPointerDown(e);
+      }}
+      onPointerEnter={warm.onPointerEnter}
+      onFocus={warm.onFocus}
     >
       {body}
     </a>
@@ -283,6 +295,13 @@ export default function Landing() {
       }).sort((a, b) => b[1].updatedAt - a[1].updatedAt),
     [],
   );
+  const signedIn = !!session && !session.stale;
+  // The games a tap is likeliest to open, a saved game first, are fetched once the page is idle.
+  useEffect(() => {
+    const live = GAMES.filter((g) => g.status === 'live' && (signedIn || !g.signedInOnly));
+    const order = [...new Set([...resumes.map(([g]) => g.id), ...live.map((g) => g.id)])];
+    return warmGames(order);
+  }, [resumes, signedIn]);
   return (
     <div className="app-root scr-bg relative h-full w-full">
       <div className="scroll-thin h-full overflow-y-auto overflow-x-hidden">

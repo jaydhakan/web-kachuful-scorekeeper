@@ -12,7 +12,10 @@ The open work for this repo, in one place. Add an item when something is left un
   about 0.6 is the shared winner's reel and catalogue now being two chunks of their own; grouping them with
   `howWon` pulled the icons in too, so it was left. After every wow moment (2026-11-18): landing 165.6, phone 162.9,
   large screen 189.7, Spades 166.6, CSS 24.4; the moments themselves are one lazy chunk with their own sheet
-  (`src/fx/ui`). Budgets are in
+  (`src/fx/ui`). After smooth navigation (2026-11-18): landing 166.9, phone 164.0, large screen 191.2, Spades 168.3,
+  CSS 25.0 (the preload helper, the page hold, progress bar and boot skeleton). The full motion features (~12 KB,
+  `motionMax`) now load beside the first page, before the first render, to fix stuck exits; `tools/bundle.mjs` does
+  not count that chunk, as it is a dynamic import, so the real first load is ~12 KB more than it reports. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -128,6 +131,16 @@ are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment 
 - **Sign-in on iPhones:** fixed 2026-11-18 (the session was lost when sign-in returned to the landing page or
   another game; Safari's quick `history.go` raced Kachuful's unmount). The e2e suite runs on Chromium only, which
   never hit the race; consider a WebKit project for `accounts.spec.ts` (needs `npx playwright install webkit` in CI).
+
+## Smooth navigation
+
+- **Not verified on a real phone:** the page hold, crossfade, progress bar and boot skeleton were measured in Chromium
+  with 4x CPU and slow-4G throttling (Pixel 5 size) and seen at desktop size; check them on an Android phone and an
+  iPhone, in all four themes (only Sunset Glass was looked at).
+- **A game's own address has no outline at a cold start** (`/kachuful`, `/kaali-teeri`, …): it shows the theme's
+  background until the game paints. Each game's Home could get its own `.boot` variant in `index.html`.
+- **Ishaara's table outline is one shape (the 5x5 board)**; its waiting screen looks different. Pick the shape from
+  the table's last known status if that is worth it.
 
 ## Tests
 

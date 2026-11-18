@@ -111,8 +111,10 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
    is held (250ms) before "Trump is …"; then the backs fan out from the deck behind it and the suit settles into the
    table centre. The last round first holds "Last round" for 600ms and deals a third slower. A tap skips it. Reduced
    motion: the face for 600ms, then on.
-2. **Loader**: a squash-and-stretch ball for a lazy screen still loading, invisible for the first 300ms. No
-   percentage, since nothing reports real progress.
+2. **Loader**: a squash-and-stretch ball for a screen still loading with nothing before it (a cold start, a deep
+   link), invisible for the first 400ms. No percentage, since nothing reports real progress. Moving between pages
+   never shows it: the page you're on stays until the next is ready, with a slim progress bar at the top if that
+   takes past 400ms, then they crossfade (`PlatformRoot`, `NavProgress`).
 3. **Bid pop**: the badge springs in with an overshoot; the avatar squashes and stretches.
 4. **Bid flight**: a copy of the tapped key flies to the bidder's seat as the badge pops.
 5. **Winner reveal** (a game just finished; reopened, everything is in place): 3rd, 2nd, then 1st, each step sliding

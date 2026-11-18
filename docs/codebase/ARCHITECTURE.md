@@ -71,6 +71,14 @@ shows every game's feed (`?game=all`).
 
 One app, one service worker, one manifest (`id: '/'`). `main.tsx` calls `startRoute()` before the first render: old links on `/` (`?live=`, `?recap=`, `?invite=`, `?reset=`) move to `/kachuful?…`, an unknown path goes to `/`. `PlatformRoot` shows the landing page or the game the path names, each a lazy chunk; a game's store, sync and archive mount only under its path. `go(id)` pushes the path (dropping a game's open-sheet history entries first), and system Back returns. Each game's `peek()` reads its saved game straight from storage for the landing page's resume line, without loading the game. The build writes one HTML file per page with its own preview tags (`page-meta` in `vite.config.ts`), and `preload-shell` modulepreloads the chunks of the path's game for the screen size.
 
+**Loading and moving between pages.** Nothing on the way to a screen should blank or flash the loader:
+
+- Each game keeps its lazy screens in `src/games/<game>/chunks.ts` as `preloadable()` components (`src/lib/preloadable.ts`): `lazy()` that can be fetched ahead and, once fetched, renders without suspending. Its root exports `prepare(search)`, which fetches in parallel what the first screen at that address needs (the shell for this screen size, Pages for `?open=`, a saved setup), and `warmNext()`, run once idle, for what a player opens next.
+- `platform/prepare.ts` `preparePage(id, search)` fetches a page's root and its `prepare`. `PlatformRoot` keeps the current page on screen until the next one is prepared (a slim `NavProgress` bar past 400ms, capped at 5s), then the new page rises in over it with a CSS animation; the page leaving is inert and hidden from assistive tech for that moment, and reduced motion swaps at once. A game that reads the address live (Spades) ignores it while another page's address is up.
+- The landing page warms every game's first screen once idle (a saved game first), and links warm their page on pointer down, hover or focus (`warmOn`). Nothing is fetched on speculation when the phone asks to save data or is on 2G (`savingData`).
+- A cold start: `index.html` carries the landing page's outline (`.boot`, shown on `/` only), and `main.tsx` awaits the first page's chunks and the full motion features before the first render, so React replaces the outline (or the bare background) with the page itself. The motion features are never swapped after that: a component that gained drag or layout features while leaving never finished its exit.
+- Waiting on the server, an online table shows `TableSkeleton` (felt or grid) instead of a spinner; the loader is for a lazy screen with nothing before it.
+
 ## State
 
 One `useReducer` in `AppProvider`. Actions are a discriminated union (`games/kachuful/state/types.ts`); the reducer is pure apart from `now()` (`lib/clock.ts`). Effects live in the provider and hooks, never in the reducer:

@@ -19,7 +19,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { usePersistence } from '@/games/kachuful/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
-import { readEntryLink, returnSearch, returnTo } from '@/lib/entry';
+import { readEntryLink, returnSearch, returnTo, settleEntryLink } from '@/lib/entry';
 import { go as goTo } from '@/platform/route';
 import {
   KEYS,
@@ -131,6 +131,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       nav: entry ? [entry] : [],
     };
   });
+  useEffect(settleEntryLink, []);
   const vib = useHaptics();
   const ref = useRef(state);
   ref.current = state;
@@ -245,12 +246,25 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     });
   }, []);
 
-  // System Back closes a sheet first, then the top screen.
-  useHistorySync(state.nav.length + (state.sheet ? 1 : 0), () => {
-    const s = ref.current;
-    if (s.sheet) dispatch({ type: 'sheet', sheet: null });
-    else dispatch({ type: 'navPop' });
-  });
+  // System Back closes a sheet or a confirm, then the top page, then steps back through setup (asking first once
+  // anyone is seated, as its Back button does); in a round it opens the menu, as Kaali Teeri and Spades do.
+  const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;
+  const roundDepth = state.screen === 'round' ? 1 : 0;
+  useHistorySync(
+    setupDepth + roundDepth + state.nav.length + (state.sheet ? 1 : 0) + (state.modal ? 1 : 0),
+    () => {
+      const s = ref.current;
+      if (s.sheet) dispatch({ type: 'sheet', sheet: null });
+      else if (s.modal) dispatch({ type: 'modal', modal: null });
+      else if (s.nav.length) dispatch({ type: 'navPop' });
+      else if (s.screen === 'setup' && s.setup && s.setup.step > 1)
+        dispatch({ type: 'setupPatch', patch: { step: (s.setup.step - 1) as 1 | 2 } });
+      else if (s.screen === 'setup' && s.setup?.seats.some(Boolean))
+        dispatch({ type: 'modal', modal: 'leaveSetup' });
+      else if (s.screen === 'setup') dispatch({ type: 'go', screen: 'home', dir: -1 });
+      else if (s.screen === 'round') dispatch({ type: 'sheet', sheet: { type: 'menu' } });
+    },
+  );
 
   const toastId = state.toast?.id;
   useEffect(() => {

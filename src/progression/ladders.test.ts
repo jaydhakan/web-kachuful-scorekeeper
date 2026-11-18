@@ -70,6 +70,27 @@ describe("a game's reel", () => {
       'smalla',
     ]);
   });
+
+  it('among cards of one rank, one the whole table earned goes last, so it never crowds out a winner', () => {
+    const cat = new Map<string, AchievementDef>(
+      [
+        { code: 'winner', emoji: '', group: 'game' as const },
+        { code: 'night_owl', emoji: '', group: 'game' as const },
+        { code: 'first_win', emoji: '', group: 'career' as const },
+      ].map((d) => [d.code, d]),
+    );
+    // Everything earned at the game's end, the night owls (everyone) before the second winner.
+    const end = 100;
+    const list = [
+      won('winner', 'a', end),
+      ...['a', 'b', 'c', 'd', 'e'].map((p) => won('night_owl', p, end)),
+      won('winner', 'b', end),
+      won('first_win', 'b', end),
+    ];
+    const order = reelOrder(cat, list, 'g').map((e) => e.code + e.playerId);
+    expect(order.slice(0, 3)).toEqual(['winnera', 'winnerb', 'first_winb']);
+    expect(order.slice(3).every((c) => c.startsWith('night_owl'))).toBe(true);
+  });
 });
 
 describe('level ups', () => {

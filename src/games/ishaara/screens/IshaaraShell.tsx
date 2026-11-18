@@ -1,6 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
-  lazy,
   Suspense,
   useCallback,
   useEffect,
@@ -15,21 +14,14 @@ import { useQuietInvites } from '@/sync/seatInviteSignals';
 import { table as s } from '@/games/ishaara/strings/table';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
 import { whenIdle } from '@/lib/idle';
+import { Board, ClueHome, HubPage, Setup, Waiting, warmNext, Win } from '@/games/ishaara/chunks';
 import { ErrorState, EmptyState } from '@/components/ui/PageParts';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
 import type { BoardProps } from './board/Board';
 import Home, { type HubLink } from './Home';
-
-// Never the first screen, so out of the first load; setup is fetched once the page is idle.
-const loadSetup = () => import('./setup/Setup');
-const Setup = lazy(loadSetup);
-const Board = lazy(() => import('./board/Board').then((x) => ({ default: x.Board })));
-const Waiting = lazy(() => import('./Waiting'));
-const Win = lazy(() => import('./Win'));
-const ClueHome = lazy(() => import('./clue/ClueHome'));
-const HubPage = lazy(() => import('./pages/HubPage'));
+import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 type Hub = Exclude<HubLink, 'clues'>;
 
@@ -90,7 +82,7 @@ function TableGame({
           </button>
         </Centre>
       );
-    return <Loader />;
+    return <TableSkeleton kind="grid" label={s.board.loading} />;
   }
   // Drawn from the game itself, so a game opened mid-play never flashes the waiting screen first.
   const screen = status === 'finished' && onBoard ? 'board' : tableScreen(t.game.status);
@@ -128,7 +120,8 @@ export default function IshaaraShell({
   const root = useRef<HTMLDivElement>(null);
   useVisualViewport(root);
   const [hub, setHub] = useState<Hub | null>(null);
-  useEffect(() => whenIdle(() => void loadSetup()), []);
+  // Never the first screen, so out of the first load; fetched once the page is idle, before anyone taps.
+  useEffect(() => whenIdle(() => void warmNext()), []);
   const closeHub = useCallback(() => setHub(null), []);
 
   const clue = isClueScreen(nav.screen);

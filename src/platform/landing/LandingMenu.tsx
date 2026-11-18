@@ -11,6 +11,7 @@ import { platform } from '@/strings/platform';
 import { applyThemeWithUndo } from '../applyTheme';
 import { go } from '../route';
 import { PersonDot } from './PersonDot';
+import { warmOn } from '../prepare';
 
 const s = platform.menu;
 
@@ -41,6 +42,7 @@ function Row({
     <a
       href={href}
       onClick={(e) => openInKachuful(e, open)}
+      {...warmOn('kachuful', kachufulSearch(open))}
       className="press flex min-h-12 w-full items-center gap-3.5 rounded-2xl px-2 text-17 font-medium"
     >
       <span aria-hidden className="grid w-7 place-items-center text-[var(--tx2)]">
