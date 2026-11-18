@@ -39,8 +39,8 @@ export default defineConfig({
   ],
   webServer: {
     command: real
-      ? 'npm run build && npm run preview -- --host localhost --port 5173 --strictPort'
-      : `npm run build && npm run preview -- --mode mock --host 127.0.0.1 --port ${port} --strictPort`,
+      ? 'VITE_FX_LOG=1 npm run build && npm run preview -- --host localhost --port 5173 --strictPort'
+      : `VITE_FX_LOG=1 npm run build && npm run preview -- --mode mock --host 127.0.0.1 --port ${port} --strictPort`,
     url: base,
     // Against a real backend the e2e run means the local one, never production (vite.config.ts's default).
     env: real ? { KACHUFUL_API: process.env.KACHUFUL_API ?? 'http://127.0.0.1:8000' } : {},
