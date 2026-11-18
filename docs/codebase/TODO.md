@@ -41,6 +41,14 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
 - **Ishaara's waiting screen draws clue-givers' avatars square** (`Givers` in `screens/Waiting.tsx` passes a
   className without `rounded-full`); seen while building seat invites, older than them.
 
+## Sound
+
+Sound for Kachuful and Kaali Teeri is built (`src/fx`, `docs/codebase/ARCHITECTURE.md`, "Sound and haptics").
+
+- **Jay to approve the recipes on the Sound Board** (`npm run dev`, then `/?lab=moments&tab=sounds`). Nobody has heard them yet: tune a recipe in `fx/sound.ts` and replay from the board.
+- **Real-phone check:** a real game of each on Android, and on an iPhone with the silent switch on (does it mute, as the Me page says?). Also: volume against a table's talk on a phone speaker at mid volume, and the made-result run with 8+ players (if it sounds busy, play it as one chord).
+- **Late-night quiet** (decided "on" in REWARDS-PLAN, not built): sounds drop a level after a set hour. Not part of this task.
+
 ## Motion
 
 - **Check in a browser with motion on:** the winner sequence and the deal in Yerba Sun, Editorial Paper and Emerald
