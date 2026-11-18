@@ -7,18 +7,21 @@ interface RailItemProps {
   /** The filled version, drawn while this is the current page. */
   iconOn?: ReactNode;
   label: string;
+  /** A longer accessible name when the visible label is short (the speaker says its state). */
+  ariaLabel?: string;
   on?: boolean;
   disabled?: boolean;
   onClick: () => void;
 }
 
 /** One destination on the large-screen side rail: icon over label, the current one lit. */
-export function RailItem({ icon, iconOn, label, on, disabled, onClick }: RailItemProps) {
+export function RailItem({ icon, iconOn, label, ariaLabel, on, disabled, onClick }: RailItemProps) {
   return (
     <m.button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
       aria-current={on ? 'page' : undefined}
       whileTap={disabled ? undefined : PRESS_SM}
       transition={SPRING}

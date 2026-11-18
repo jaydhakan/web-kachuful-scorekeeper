@@ -30,10 +30,10 @@ describe('the quick mute', () => {
     ]);
   });
 
-  it('the rail button is a real button with a name that says the state', async () => {
+  it('the rail button is a real rail item with a name that says the state', async () => {
     render(<SoundRailButton onToast={() => undefined} />);
     const b = screen.getByRole('button', { name: /Sounds: Big moments, tap to change/ });
-    expect(b.className).toContain('h-12');
+    expect(b).toHaveTextContent('Sounds');
     await userEvent.click(b);
     expect(saved()).toBe('off');
   });

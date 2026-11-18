@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { nextSoundLevel, useFxPrefs, type SoundLevel } from '@/fx/prefs';
 import { fx as s } from '@/strings/fx';
-import { IconButton } from './IconButton';
+import { RailItem } from '@/components/desk/RailItem';
 import { MenuRow } from './MenuRows';
 
 const NAME: Record<SoundLevel, string> = {
@@ -66,22 +66,15 @@ export function SoundRow({
   );
 }
 
-/** The button on the desk rail (a 48px target, like every rail button). */
-export function SoundRailButton({
-  onToast,
-  className,
-}: {
-  onToast: (message: string) => void;
-  className?: string;
-}) {
+/** The item on the desk rail: the same icon-over-label size as its neighbours. */
+export function SoundRailButton({ onToast }: { onToast: (message: string) => void }) {
   const { sounds, cycle } = useQuickMute(onToast);
   return (
-    <IconButton
+    <RailItem
+      icon={glyph(sounds)}
+      label={s.sounds}
+      ariaLabel={`${s.quick.label(NAME[sounds])}, ${s.quick.hint}`}
       onClick={cycle}
-      label={`${s.quick.label(NAME[sounds])}, ${s.quick.hint}`}
-      className={className}
-    >
-      {glyph(sounds)}
-    </IconButton>
+    />
   );
 }
