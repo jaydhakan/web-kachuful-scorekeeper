@@ -101,9 +101,11 @@ for (const id of THEMES)
     fonts.length = 0;
     await page.reload();
     await page.waitForLoadState('networkidle');
+    // Chrome also fetches the default theme's face (Instrument Sans) at the first paint of any theme, from the shared
+    // stylesheet, before the theme's own sheet applies; what must never arrive is another theme's font.
     const want = {
       'sunset-glass': ['instrument-sans'],
-      'yerba-sun': ['bricolage', 'space-mono'],
+      'yerba-sun': ['instrument-sans', 'bricolage', 'space-mono'],
       'editorial-paper': ['instrument-serif', 'instrument-sans', 'dm-mono'],
       'emerald-gilt': ['cinzel', 'instrument-sans'],
     }[id];
