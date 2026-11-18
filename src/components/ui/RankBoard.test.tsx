@@ -33,7 +33,38 @@ const five = [
   entry('Eli', null, 8),
 ];
 
-beforeEach(() => storage.remove('baithak.boardTop'));
+const scheduled = vi.hoisted(() => ({ schedule: vi.fn(), cancel: vi.fn() }));
+vi.mock('@/fx/sequence', () => ({
+  scheduleCues: (...a: unknown[]) => (scheduled.schedule(...a), { cancel: scheduled.cancel }),
+}));
+
+beforeEach(() => {
+  storage.remove('baithak.boardTop');
+  scheduled.schedule.mockClear();
+  scheduled.cancel.mockClear();
+});
+
+describe('the podium’s sounds', () => {
+  const motion = (on: boolean) => {
+    window.matchMedia = (q: string) =>
+      ({ matches: !on, media: q, addEventListener() {}, removeEventListener() {} }) as never;
+  };
+  it('schedules the board’s thuds and bell once, and cancels them on unmount', () => {
+    motion(true);
+    const { unmount } = render(board(five));
+    expect(scheduled.schedule).toHaveBeenCalledTimes(1);
+    const plan = scheduled.schedule.mock.calls[0][0];
+    expect(plan.cues.map((c: { name: string }) => c.name)).toEqual(['thud', 'thud', 'crown']);
+    unmount();
+    expect(scheduled.cancel).toHaveBeenCalled();
+  });
+
+  it('a board with nobody ranked is silent', () => {
+    motion(true);
+    render(board([entry('Eli', null, 8)]));
+    expect(scheduled.schedule).not.toHaveBeenCalled();
+  });
+});
 
 describe('the podium on a board', () => {
   it('lifts the top three out of the list, first place first for a keyboard and a screen reader', async () => {

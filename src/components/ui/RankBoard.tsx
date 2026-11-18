@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from 'react';
 import { aheadOf, podiumSplit } from '@/lib/boardPodium';
+import { podiumCues } from '@/fx/podiumCues';
+import { scheduleCues } from '@/fx/sequence';
 import { saveBoardTop, wasBoardTop } from '@/state/persistence';
 import { t } from '@/strings';
 import { palette, seatColor, themeConfetti } from '@/theme/palette';
@@ -127,6 +129,13 @@ export function RankBoard({
     play && stand.length
       ? (Math.max(0, ...Object.values(plan.step).map((x) => x ?? 0)) + LAND_AFTER_MS) / 1000
       : 0;
+  // The podium's thuds and bell, from the reveal's own plan; only the staged first board of a visit makes them.
+  useEffect(() => {
+    if (!play || !stand.length) return;
+    const run = scheduleCues(podiumCues(plan, { board: true }));
+    return () => run.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- like `play`, read once at mount
+  }, []);
   // The count-up and sheen belong to the reveal; once it has run, a changed value is simply written.
   const [staged, setStaged] = useState(play);
   useEffect(() => {
