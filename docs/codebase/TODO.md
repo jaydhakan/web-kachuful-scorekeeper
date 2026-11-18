@@ -49,6 +49,12 @@ Sound for Kachuful and Kaali Teeri is built (`src/fx`, `docs/codebase/ARCHITECTU
 
 - **Jay to approve the recipes on the Sound Board** (`npm run dev`, then `/?lab=moments&tab=sounds`). Nobody has heard them yet: tune a recipe in `fx/sound.ts` and replay from the board.
 - **Real-phone check:** a real game of each on Android, and on an iPhone with the silent switch on (does it mute, as the Me page says?). Also: volume against a table's talk on a phone speaker at mid volume, and the made-result run with 8+ players (if it sounds busy, play it as one chord).
+- **Sound, not covered or not done:**
+  - No e2e for Kachuful's hook, the last-round `bell`, the reveal's made/missed run with motion on, or Kaali Teeri's winner and 1000 `bell` (unit tests cover their plans).
+  - The forbidden-bid `knock` can't be tapped on a phone (the key is natively disabled); it fires only from the desk keyboard path.
+  - A live spectator who never taps stays silent: audio unlocks on the first tap and the live pages don't call `armAudio`.
+  - Kachuful's Summary has no tap-to-skip, so the plan's `settle` crown is built but unused there; the Sound Board's sequences are hand-copied timings, not the games' own plans.
+- **Failing e2e that predate sound** (also fail on `origin/main`, 2026-11-18): `ishaara-board.spec.ts:128` (trap stamp), `ishaara-play.spec.ts:118` (picking the trap: "See the result" never shows) and `themes.spec.ts:94` yerba-sun (Instrument Sans downloaded under another theme).
 - **Late-night quiet** (decided "on" in REWARDS-PLAN, not built): sounds drop a level after a set hour. Not part of this task.
 
 ## Motion
