@@ -27,7 +27,7 @@ export function FxSettings() {
             ]}
           />
           <p className="mt-2 text-14 text-[var(--tx2)]">
-            {s.soundsNote[prefs.sounds]} {s.spadesNote}
+            {s.soundsNote[prefs.sounds]} {s.spadesNote} {s.silentSwitch}
           </p>
         </div>
         <m.button

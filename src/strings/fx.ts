@@ -7,10 +7,18 @@ export const fx = {
   soundsOff: 'Off',
   soundsNote: {
     all: 'Every moment makes a sound, the small ones too.',
-    moments: 'Only the rare moments make a sound: a game won, a Boston, a big unlock.',
+    moments: 'Only the rare moments make a sound: a game won, a last round, a SOLD, a big unlock.',
     off: 'No sounds.',
   },
-  spadesNote: 'Spades has its own sound setting at the table, and it wins there.',
+  /** The speaker button in each game's menu and on the desk rail. */
+  quick: {
+    label: (level: string) => `Sounds: ${level}`,
+    toast: (level: string) => `Sounds: ${level}`,
+    hint: 'tap to change',
+  },
+  silentSwitch: 'On iPhone, the silent switch mutes sounds.',
+  spadesNote:
+    'Kachuful and Kaali Teeri use this setting; Spades has its own at the table, and it wins there.',
   vibrate: 'Vibration',
   vibrateHint: 'Android phones only: iPhones don’t let web apps vibrate.',
   /** The tap layer over a moment that holds the screen. */

@@ -12,6 +12,10 @@ export interface FxPrefs {
 export const DEFAULT_FX: FxPrefs = { sounds: 'moments', vibrate: true };
 const LEVELS: readonly string[] = ['all', 'moments', 'off'];
 
+/** The in-game speaker button's order: All, then Big moments, then Off, then round again. */
+export const nextSoundLevel = (l: SoundLevel): SoundLevel =>
+  l === 'all' ? 'moments' : l === 'moments' ? 'off' : 'all';
+
 /** Unknown or corrupt values fall back field by field. */
 export function readFx(): FxPrefs {
   const raw = storage.get<Record<string, unknown> | null>(KEYS.fx, null);
