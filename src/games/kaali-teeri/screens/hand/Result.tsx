@@ -12,7 +12,10 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { PRESS, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
+import { playCue } from '@/fx/feedback';
+import { vibrate } from '@/hooks/useHaptics';
 import { sgnN } from '@/lib/format';
+import { verdictCues, verdictHaptic } from '@/games/kaali-teeri/sound/plans';
 import { HandFrame } from './parts/HandFrame';
 import { CardName, Pill, RoleBadge, cardText, roleOf } from './parts/bits';
 
@@ -215,6 +218,13 @@ export function Outcome({ made, sweep, over }: { made: boolean; sweep: string; o
   }, [good]);
   const motion: Stamp = rm ? 'fade' : was.current === good ? 'swap' : good ? 'stamp' : 'tilt';
   const variants = motion === 'swap' && !good ? SWAP_LOW : STAMP[motion];
+  // Sounds with the stamp or the tilt, only when the verdict lands; reduced motion plays it once on confirm.
+  useEffect(() => {
+    if (motion !== 'stamp' && motion !== 'tilt') return;
+    vibrate(verdictHaptic(good));
+    verdictCues(good).forEach(playCue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one per change of verdict
+  }, [good]);
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       <m.span

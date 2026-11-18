@@ -7,6 +7,7 @@ import { kp } from '@/games/kaali-teeri/strings/play';
 import { GhostButton, Kbd } from '@/components/desk/DeskParts';
 import { RailItem } from '@/components/desk/RailItem';
 import { Icon } from '@/components/ui/Icons';
+import { SoundRailButton } from '@/components/ui/QuickMute';
 import { IconOn } from '@/components/ui/IconsFill';
 import { PRESS_SM } from '@/components/ui/motion';
 import { t } from '@/strings';
@@ -52,6 +53,7 @@ function useNav(onKeys: () => void) {
 /** The side rail from tablet-on-its-side width up. */
 export function KtRail({ onKeys }: { onKeys: () => void }) {
   const n = useNav(onKeys);
+  const { actions } = useKt();
   return (
     <nav
       aria-label={kd.nav.label}
@@ -98,6 +100,7 @@ export function KtRail({ onKeys }: { onKeys: () => void }) {
       />
       <div className="flex-1" />
       <KtAccountRail />
+      <SoundRailButton onToast={actions.say} />
       <RailItem icon={Icon.undo} label={kd.nav.undo} disabled={!n.canUndo} onClick={n.undo} />
       <RailItem icon={Icon.menu} label={kd.nav.menu} onClick={n.menu} />
       <div className="hidden kbd:block">

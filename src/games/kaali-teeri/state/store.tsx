@@ -10,7 +10,10 @@ import {
 } from 'react';
 import type { CardRef, Copy, CountedBy, KtGame, KtMode, Suit } from '@/games/kaali-teeri/domain';
 import { ktMessages } from '@/games/kaali-teeri/strings/messages';
-import { useHaptics } from '@/hooks/useHaptics';
+import { feedback, playCue } from '@/fx/feedback';
+import { reducedMotion } from '@/fx/reduced';
+import { scheduleCues, type CuePlan, type CueRun } from '@/fx/sequence';
+import { vibrate } from '@/hooks/useHaptics';
 import { useHistorySync } from '@/hooks/useHistorySync';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
@@ -31,6 +34,16 @@ import {
   type KtLoaded,
 } from './persistence';
 import { initialKtState, ktReducer, setupRules } from './reducer';
+import {
+  callFeel,
+  confirmCues,
+  quickFeel,
+  randomDealerPlan,
+  SUIT_PITCH,
+  summaryFacts,
+  verdictHaptic,
+  type CallFeel,
+} from '@/games/kaali-teeri/sound/plans';
 import type {
   Dir,
   KtAction,
@@ -42,7 +55,7 @@ import type {
   KtSheet,
   KtState,
 } from './types';
-import type { KtLength } from '@/games/kaali-teeri/domain';
+import { doneHands, type KtLength } from '@/games/kaali-teeri/domain';
 
 /** Everything the Kaali Teeri screens can do; each is ignored when the game's rules don't allow it. */
 export interface KtActions {
@@ -126,9 +139,13 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
     const l = initial ?? loadKt();
     return initialKtState(l.game, l.screen, l.undo, l.prefs, l.corrupt);
   });
-  const vib = useHaptics();
   const ref = useRef(state);
   ref.current = state;
+  // A short sequence of sounds (the random dealer's spin, a forced take's second chip): the newest replaces the last.
+  const seq = useRef<CueRun | null>(null);
+  // The hand a confirm was asked for under reduced motion: its sounds play once the state says it is scored.
+  const confirmed = useRef<string | null>(null);
+  useEffect(() => () => seq.current?.cancel(), []);
 
   useWakeLock(state.game?.status === 'active');
 
@@ -168,6 +185,20 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
 
   useKtSync(ref, dispatch);
 
+  // Reduced motion has no summary stages, so the hand's verdict and top change sound here, once it is scored.
+  useEffect(() => {
+    const g = state.game,
+      key = confirmed.current;
+    if (!g || !key) return;
+    const h = doneHands(g).find((x) => `${g.syncId}:${x.index}` === key);
+    if (!h) return;
+    confirmed.current = null;
+    const f = summaryFacts(g, h);
+    if (!f) return;
+    vibrate(verdictHaptic(f.good));
+    confirmCues(f).forEach(playCue);
+  }, [state.game]);
+
   // System Back closes an open sheet, then the top page, then steps back through setup (step 3 → 2 → 1 → home).
   // Inside a hand it opens the menu (Undo, Home) rather than leaving the game or undoing silently (KT-F06).
   const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;
@@ -199,9 +230,15 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
   const actions = useMemo<KtActions>(() => {
     // Screen changes mount a lot of UI; as transitions React renders them in slices and stays interruptible.
     const nav = (a: KtAction) => startTransition(() => dispatch(a));
-    const tap = (a: KtAction) => {
-      dispatch(a);
-      vib();
+    const play = (plan: CuePlan) => {
+      seq.current?.cancel();
+      seq.current = scheduleCues(plan, { reduced: reducedMotion() });
+    };
+    // Whether the rules take this action now (the reducer is pure): a refused one buzzes as refused.
+    const takes = (a: KtAction) => ktReducer(ref.current, a).game !== ref.current.game;
+    const feel = (f: CallFeel) => {
+      feedback(f.kind, f.pitch === undefined ? {} : { pitch: f.pitch });
+      if (f.then) play({ cues: [f.then] });
     };
     return {
       go: (screen, dir) => nav({ type: 'go', screen, dir }),
@@ -230,7 +267,10 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
       setupDealer: (k) => dispatch({ type: 'setupDealer', k }),
       randomDealer: () => {
         const n = ref.current.setup?.n;
-        if (n) dispatch({ type: 'setupDealer', k: Math.floor(Math.random() * n) });
+        if (!n) return;
+        dispatch({ type: 'setupDealer', k: Math.floor(Math.random() * n) });
+        vibrate(10);
+        play(randomDealerPlan());
       },
       beginGame: () => {
         const su = ref.current.setup;
@@ -256,23 +296,55 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
         // The suggested names are shared by every game's seating (platform plan §5.8).
         pushRecentNames(seats.map((q) => q.name));
         const now = Date.now();
+        feedback('begin');
         nav({ type: 'beginGame', id: 'kt' + now, syncId: uuid(), now, playerIds });
       },
       setMode: (mode) => dispatch({ type: 'setMode', mode }),
-      quickBid: (bidder, bid) => tap({ type: 'quickBid', bidder, bid }),
-      call: (what) => tap({ type: 'call', what }),
-      trump: (suit) => tap({ type: 'trump', suit }),
-      addCard: (card) => tap({ type: 'addCard', card }),
-      removeCard: (i) => dispatch({ type: 'removeCard', i }),
+      quickBid: (bidder, bid) => {
+        const a: KtAction = { type: 'quickBid', bidder, bid };
+        const r = ref.current.game?.rules;
+        if (r && takes(a)) feel(quickFeel(bid, r));
+        else feedback('forbidden');
+        dispatch(a);
+      },
+      call: (what) => {
+        const a: KtAction = { type: 'call', what };
+        const r = ref.current.game?.rules;
+        if (r && takes(a)) feel(callFeel(what, r));
+        else feedback('forbidden');
+        dispatch(a);
+      },
+      trump: (suit) => {
+        dispatch({ type: 'trump', suit });
+        feedback('pick', { pitch: SUIT_PITCH[suit] });
+      },
+      addCard: (card) => {
+        dispatch({ type: 'addCard', card });
+        feedback('pick');
+      },
+      removeCard: (i) => {
+        dispatch({ type: 'removeCard', i });
+        playCue({ name: 'undo' });
+      },
       setCopy: (i, copy) => dispatch({ type: 'setCopy', i, copy }),
-      confirmCall: () => nav({ type: 'confirmCall' }),
-      markPlayed: (i, by) => tap({ type: 'markPlayed', i, by }),
+      confirmCall: () => {
+        feedback('startPlay');
+        nav({ type: 'confirmCall' });
+      },
+      markPlayed: (i, by) => {
+        dispatch({ type: 'markPlayed', i, by });
+        if (by === null) playCue({ name: 'undo' });
+        else feedback('pick');
+      },
       toResult: () => nav({ type: 'toResult' }),
       toPlay: () => nav({ type: 'toPlay' }),
       countedBy: (by) => dispatch({ type: 'countedBy', by }),
       points: (entered) => dispatch({ type: 'points', entered }),
       confirmHand: () => {
-        vib();
+        feedback('confirm');
+        const g = ref.current.game;
+        const h = g?.hands.at(-1);
+        if (reducedMotion() && g && h) confirmed.current = `${g.syncId}:${h.index}`;
         nav({ type: 'confirmHand' });
       },
       nextHand: () => nav({ type: 'nextHand' }),
@@ -284,15 +356,18 @@ export function KtProvider({ children, initial }: { children: ReactNode; initial
         const now = Date.now();
         nav({ type: 'rematch', id: 'kt' + now, syncId: uuid(), now });
       },
-      undo: () => dispatch({ type: 'undo' }),
+      undo: () => {
+        feedback(ref.current.undo.length ? 'undo' : 'err');
+        dispatch({ type: 'undo' });
+      },
       openGame: (game) => nav({ type: 'openGame', game }),
       repairSave: (choice) => {
         resolveKtCorrupt(choice);
         dispatch({ type: 'repaired' });
       },
-      vib,
+      vib: () => feedback('tap'),
     };
-  }, [vib]);
+  }, []);
 
   const value = useMemo(() => ({ state, actions }), [state, actions]);
   return <KtCtx.Provider value={value}>{children}</KtCtx.Provider>;

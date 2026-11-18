@@ -1,9 +1,11 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { doneHands, gamePlayerRows, standings, type KtGame } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import { finalStandings } from '@/games/kaali-teeri/lib/share';
 import { end } from '@/games/kaali-teeri/strings/end';
+import { podiumCues } from '@/fx/podiumCues';
+import { useCuePlan } from '@/games/kaali-teeri/sound/useCuePlan';
 import { fmt } from '@/lib/format';
 import { palette, themeConfetti } from '@/theme/palette';
 import { Dot } from '@/components/ui/Dot';
@@ -56,6 +58,9 @@ export default function Winner() {
     board.map((x) => x.rank),
     fresh && board.length > 0,
   );
+  // The winner's sounds ride the reveal's own plan, once per game; reduced motion plays the fanfare alone.
+  const [announce] = useState(fresh && board.length > 0);
+  useCuePlan(announce && g ? `kt-win:${g.syncId}` : null, podiumCues(plan), { reduced: !!rm });
   const after = named ? 0 : plan.done / 1000;
   const home = () => actions.go('home', -1);
   if (!g || !doneHands(g).length)

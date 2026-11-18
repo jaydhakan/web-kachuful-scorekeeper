@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import type { KtGame, KtHand } from '@/games/kaali-teeri/domain';
 import { kp } from '@/games/kaali-teeri/strings/play';
+import { HAPTIC } from '@/fx/feedback';
 import { useMoments } from '@/fx/moments';
 import type { SeatPoint } from '@/fx/ui';
 import { FLIP_S, FLY_S } from './reveal';
@@ -77,6 +78,7 @@ export function LastPartner({
           priority: 0,
           scope: id,
           sound: 'roll',
+          haptic: HAPTIC.BEAT,
           play: show(false),
           reduced: show(true),
         });

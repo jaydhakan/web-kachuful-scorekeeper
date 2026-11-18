@@ -6,6 +6,7 @@ import { end } from '@/games/kaali-teeri/strings/end';
 import { loadThemeState } from '@/state/persistence';
 import { Icon } from '@/components/ui/Icons';
 import { MenuButton, MenuRow } from '@/components/ui/MenuRows';
+import { SoundRow } from '@/components/ui/QuickMute';
 import { stagger } from '@/components/ui/stagger';
 import { go } from '@/platform/route';
 
@@ -52,6 +53,9 @@ export default function Menu() {
           {rows.map(([ic, label, f], k) => (
             <MenuRow key={label} i={i++} icon={ic} label={label} onClick={f} rule={k > 0} />
           ))}
+          {title === end.menu.sectionApp && (
+            <SoundRow i={i++} rule={rows.length > 0} onToast={actions.say} />
+          )}
         </section>
       ))}
       <m.div {...stagger(i)} className="mt-1 grid grid-cols-2 gap-2">

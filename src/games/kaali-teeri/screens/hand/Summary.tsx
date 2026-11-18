@@ -26,6 +26,13 @@ import { EASE, ENTER, EXIT, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { fmt, sgnN } from '@/lib/format';
 import { palette } from '@/theme/palette';
 import { stamp } from '@/fx/stamp';
+import {
+  summaryFacts,
+  summaryPlan,
+  SUMMARY_STAGES,
+  SWEEP_MS,
+} from '@/games/kaali-teeri/sound/plans';
+import { useCuePlan } from '@/games/kaali-teeri/sound/useCuePlan';
 import { Pill, RoleBadge, roleOf } from './parts/bits';
 
 const rankColor = (rank: number) =>
@@ -39,8 +46,6 @@ const rankColor = (rank: number) =>
 
 // A hand confirmed this long ago or less counts up on arrival; reopening the summary later shows it settled.
 const FRESH_MS = 4000;
-// The sweep's beat: it is announced, alone, before anything counts.
-const SWEEP_MS = 900;
 
 /** Plan §3 screen 8: totals after the hand, this hand's changes, standings and who deals next. */
 export default function Summary() {
@@ -81,10 +86,16 @@ export function useSummaryData(g: KtGame, h: KtHand) {
   useEffect(() => {
     if (!fresh) return;
     const wait = beat ? SWEEP_MS : 0;
-    const ts = [250, 700, 1500].map((ms, k) => setTimeout(() => setStage(k + 1), wait + ms));
+    const ts = SUMMARY_STAGES.map((ms, k) => setTimeout(() => setStage(k + 1), wait + ms));
     if (beat) ts.push(setTimeout(() => setSweeping(false), SWEEP_MS));
     return () => ts.forEach(clearTimeout);
   }, [fresh, beat]);
+  // The count-up's sounds ride the same stage timers; once per scored hand (reduced motion plays them at confirm).
+  const facts = useMemo(() => summaryFacts(g, h), []); // eslint-disable-line react-hooks/exhaustive-deps
+  useCuePlan(
+    fresh && facts ? `kt-sum:${g.syncId}:${h.index}` : null,
+    facts && summaryPlan(facts, beat),
+  );
   const pt = totals(g, before),
     ct = totals(g);
   const list = stage >= 3 ? standings(g) : standings(g, before);

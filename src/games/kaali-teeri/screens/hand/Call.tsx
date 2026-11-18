@@ -12,23 +12,44 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
 import { HandFrame, InPane } from './parts/HandFrame';
 import { useLand } from './parts/reveal';
+import { HAPTIC } from '@/fx/feedback';
+import { PRIORITY, useMoments } from '@/fx/moments';
 import { stamp } from '@/fx/stamp';
 import { CardGrid, EMPTY_DRAFT, draftCard, suitColor, type Draft } from './call/CardGrid';
 import { Slots } from './call/Slots';
 
 const s = ktBidding;
 
-/** "SOLD" lands above the won bid as it settles, with the gavel (a beat: heard when Sounds is All). */
-function Sold() {
+/**
+ * "SOLD" lands above the won bid as it settles, with the gavel: the hand's one Moment (heard on Big moments), pushed
+ * through the queue so it has priority and its haptic, and once per won bid however often the screen remounts.
+ */
+function Sold({ g, h }: { g: KtGame; h: KtHand }) {
   const ref = useRef<HTMLSpanElement>(null);
+  const q = useMoments();
+  const id = `kt-sold:${g.syncId}:${h.index}:${h.bidder}:${h.bid}`;
   useLayoutEffect(() => {
     const p = stamp(ref.current, { angle: -8, delay: 260 });
-    const t = setTimeout(() => void import('@/fx/sound').then((m) => m.cue('gavel')), 260);
+    const t = setTimeout(
+      () =>
+        q.push({
+          id,
+          tier: 'moment',
+          priority: PRIORITY.verdict,
+          scope: `kt-hand:${g.syncId}:${h.index}`,
+          sound: 'gavel',
+          haptic: HAPTIC.BIG,
+          // The stamp is drawn above; the Moment is its sound and buzz, so nothing holds the screen.
+          play: () => undefined,
+        }),
+      260,
+    );
     return () => {
       p.cancel();
       clearTimeout(t);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per won bid
+  }, [id]);
   return (
     <span
       ref={ref}
@@ -111,7 +132,7 @@ function TrumpStep({ g, h, onNext }: { g: KtGame; h: KtHand; onNext: () => void 
           </span>
         </p>
         <span className="relative">
-          {sold && <Sold />}
+          {sold && <Sold g={g} h={h} />}
           <m.span
             {...land}
             data-kt-land
