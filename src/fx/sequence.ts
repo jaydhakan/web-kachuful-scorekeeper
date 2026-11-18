@@ -20,17 +20,18 @@ export interface CueRun {
 /**
  * Plays a plan's cues from the timing the animation uses, so sound and motion can't drift apart. Every cue goes
  * through a timer, even at 0, so cancelling (skip, unmount, a StrictMode effect re-run) always catches it.
- * Reduced motion plays only `reduced`: sound isn't motion, but a staggered run collapses into one.
+ * Reduced motion plays only `reduced`: sound isn't motion, but a staggered run collapses into one. `play` lets the
+ * Sound Board play whatever the setting says.
  */
 export function scheduleCues(
   plan: CuePlan,
-  { reduced = false }: { reduced?: boolean } = {},
+  { reduced = false, play = playCue }: { reduced?: boolean; play?: (c: Cue) => void } = {},
 ): CueRun {
   const timers: ReturnType<typeof setTimeout>[] = [];
   let pending = 0;
   const fire = (c: Cue) => () => {
     pending--;
-    playCue(c);
+    play(c);
   };
   const list: TimedCue[] = reduced
     ? plan.reduced
@@ -45,7 +46,7 @@ export function scheduleCues(
       timers.forEach(clearTimeout);
       timers.length = 0;
       pending = 0;
-      if (o?.settle && unfinished && plan.settle) playCue(plan.settle);
+      if (o?.settle && unfinished && plan.settle) play(plan.settle);
     },
   };
 }
