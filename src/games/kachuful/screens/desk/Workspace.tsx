@@ -15,6 +15,7 @@ import { ResultsPane } from './ResultsPane';
 import { ScorePanel } from './ScorePanel';
 import { StepTracker, type Step } from './StepTracker';
 import { t } from '@/strings';
+import { playCue } from '@/fx/feedback';
 import { useBidFlight } from '@/components/ui/BidFlight';
 
 // One DOM tree for every layout: grid areas move, nothing remounts. Upright: table, score strip, action pane.
@@ -71,8 +72,11 @@ export function Workspace() {
     pending != null && pending !== saved ? 'lock' : allBid && !hookWarn ? 'start' : 'wait';
 
   const confirm = () => {
-    if (primary === 'lock' && pending != null) actions.bid(pending);
-    else if (primary === 'start') actions.phase('playing');
+    if (primary === 'lock' && pending != null) {
+      // No chip flies for a locked-in pick, so its flick plays with the bid.
+      actions.bid(pending);
+      playCue({ name: 'flick' });
+    } else if (primary === 'start') actions.phase('playing');
   };
   const hooked = (k: number) => {
     if (!isD || k !== forb) return false;
@@ -85,7 +89,7 @@ export function Workspace() {
   // A tap or click saves the bid and moves on, as on a phone. Typed digits only pick, so 1 then 0 can make 10.
   const tap = (k: number, el: HTMLElement) => {
     if (hooked(k)) return;
-    flight.launch(el, k, pI);
+    flight.launch(el, k, pI, () => playCue({ name: 'flick' }));
     actions.bid(k);
   };
   const choose = (k: number) => {

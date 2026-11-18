@@ -709,12 +709,16 @@ describe('between hands', () => {
     s = playHand(s, { def: 0 });
     expect(g(s).status).toBe('finished');
     expect(g(s).finishedAt).toBe(g(s).hands[3].doneAt);
-    expect(s.screen).toBe('winner');
-    expect(s.fresh).toBe(true);
+    // The hand that reached 1,000 is shown first (its summary); See the winner goes on from there.
+    expect(s.screen).toBe('game');
     expect(standings(g(s))[0].t).toBe(1000);
     expect(validate(g(s), Infinity)).toBe(null);
     ignored(s, { type: 'nextHand' });
     ignored(s, { type: 'quickBid', bidder: ids(s)[0], bid: 150 });
+    s = run(s, { type: 'seeWinner' });
+    expect(s.screen).toBe('winner');
+    expect(s.fresh).toBe(true);
+    ignored(s, { type: 'seeWinner' });
   });
 
   it('endless games play on past 1000', () => {
@@ -1072,5 +1076,25 @@ describe('what the screens read', () => {
     expect(minNextBid(g(run(s, { type: 'call', what: 250 })))).toBe(null);
     expect(shownPoints(g(playHand(started(), { def: 60 })))).toBe(60);
     expect(preview(g(started()), 60, 'defenders')).toBe(null);
+  });
+});
+
+describe('moment cards', () => {
+  it('a confirmed hand that carries on leaves its moments to pop; read, undone or a new game, they go', () => {
+    const s = playHand(started(4), { def: 0 });
+    expect(s.pops).toEqual({ id: s.noteSeq, hand: 0 });
+    expect(run(s, { type: 'popsDone' }).pops).toBeNull();
+    expect(run(s, { type: 'undo' }).pops).toBeNull();
+    expect(run(s, { type: 'rematch', id: 'kt2', syncId: 'sync-kt2', now: 2_000 }).pops).toBeNull();
+  });
+
+  it('the hand that ends the game leaves them to the winner screen', () => {
+    let s = started(4, { more: [{ type: 'setupLength', length: 'to1000' }] });
+    for (let i = 0; i < 4 && g(s).status !== 'finished'; i++) {
+      s = playHand(s, { bidder: 0, bid: 250, def: 0 });
+      if (g(s).status !== 'finished') s = run(s, { type: 'nextHand' }, { type: 'dealDone' });
+    }
+    expect(s.pops).toBeNull();
+    expect(run(s, { type: 'seeWinner' }).screen).toBe('winner');
   });
 });

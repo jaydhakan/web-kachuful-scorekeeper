@@ -1,42 +1,24 @@
-import { m, useReducedMotion, type Target, type Transition } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion';
 import {
   Component,
   createElement,
-  lazy,
+  startTransition,
   Suspense,
   useEffect,
   useRef,
   useState,
-  type ComponentType,
   type ReactNode,
 } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SeatInvitesMount } from '@/components/seat-invites/SeatInvitesMount';
-import { EXIT } from '@/components/ui/motion';
 import { platform } from '@/strings/platform';
 import { gameById } from './catalog';
+import { NavProgress } from './NavProgress';
 import { PlatformNotice } from './PlatformNotice';
 import { PlatformUpdate } from './PlatformUpdate';
+import { Landing, preparePage, rootOf } from './prepare';
 import { go, useGame, type GameId } from './route';
-
-// Like the games', a retry needs a fresh lazy(): React keeps a failed one failed.
-const landings = new Map<number, ComponentType>();
-const landingOf = (attempt: number) => {
-  let C = landings.get(attempt);
-  if (!C) landings.set(attempt, (C = lazy(() => import('./landing/Landing'))));
-  return C;
-};
-
-// One lazy component per game, made once, so going back and forth never re-suspends a game already loaded.
-// A retry gets a fresh one, since React keeps a failed lazy() failed.
-const roots = new Map<string, ComponentType>();
-const rootOf = (id: GameId, attempt: number) => {
-  const key = `${id}:${attempt}`;
-  let C = roots.get(key);
-  if (!C) roots.set(key, (C = lazy(gameById(id).load)));
-  return C;
-};
 
 /** A chunk that can't be fetched (offline, never cached) says so with Retry, instead of a blank page. */
 class LoadBoundary extends Component<
@@ -84,7 +66,7 @@ function useFocusHeading(key: string) {
     let raf = 0,
       n = 0;
     const tryFocus = () => {
-      const h = document.querySelector<HTMLElement>('#root h1');
+      const h = document.querySelector<HTMLElement>('#root [data-page]:not([inert]) h1');
       if (!h) {
         if (++n < 120) raf = requestAnimationFrame(tryFocus);
         return;
@@ -97,49 +79,103 @@ function useFocusHeading(key: string) {
   }, [key]);
 }
 
-// However it is opened (tile, Resume, Back, address), a game rises in (400ms ease-out). Going back settles the
-// landing page in (240ms).
-const OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
-function enter(game: boolean, reduced: boolean): [Target, Transition] {
-  if (reduced) return [{ opacity: 0 }, { duration: 0.12 }];
-  return game
-    ? [
-        { opacity: 0, y: 16 },
-        { duration: 0.4, ease: OUT },
-      ]
-    : [
-        { opacity: 0, scale: 0.98 },
-        { duration: EXIT, ease: OUT },
-      ];
+// However it is opened (tile, Resume, Back, address), a game rises in (400ms) and the landing page settles in (240ms)
+// over the page it replaces, which stays opaque underneath until it is covered: no frame of bare background. A CSS
+// animation (index.css, `.page-in-*`) ends on the page's own style, where a script-driven one can drop a frame on a
+// slow phone as it hands back. Reduced motion: the pages swap at once.
+const ENTER_MS = { game: 400, landing: 240 };
+
+// Past this, the next page is shown anyway, with its own loader (or its Retry, offline).
+const HOLD_MAX_MS = 5000;
+
+type PageKey = GameId | 'landing';
+
+/**
+ * The page on screen trails the address: a move keeps the current page (with a progress bar past 400ms) until the
+ * next one's chunks have arrived, then swaps, so a tap never lands on a blank screen or a flash of the loader.
+ */
+function useShownPage(target: PageKey): { shown: PageKey; waiting: boolean } {
+  const [shown, setShown] = useState(target);
+  useEffect(() => {
+    if (target === shown) return;
+    let live = true;
+    const show = () => {
+      if (!live) return;
+      live = false;
+      clearTimeout(cap);
+      startTransition(() => setShown(target));
+    };
+    const cap = setTimeout(show, HOLD_MAX_MS);
+    void preparePage(target === 'landing' ? null : target, location.search).then(show);
+    return () => {
+      live = false;
+      clearTimeout(cap);
+    };
+  }, [target, shown]);
+  return { shown, waiting: target !== shown };
 }
 
-// The first page draws at once; only a move between pages animates.
-let drawn = false;
+/**
+ * The pages on screen: the one shown, and for the length of its entrance the one it covers. Worked out while
+ * rendering, so the covered page never leaves the tree for a render (which would remount it and lose its state).
+ */
+function usePageStack(shown: PageKey, reduced: boolean): { stack: PageKey[]; moved: boolean } {
+  const [s, set] = useState<{ shown: PageKey; under: PageKey | null; moved: boolean }>({
+    shown,
+    under: null,
+    moved: false,
+  });
+  let now = s;
+  if (s.shown !== shown) {
+    now = { shown, under: reduced ? null : s.shown, moved: true };
+    set(now);
+  }
+  useEffect(() => {
+    if (!now.under) return;
+    const tm = setTimeout(
+      () => set((x) => ({ ...x, under: null })),
+      ENTER_MS[now.shown === 'landing' ? 'landing' : 'game'],
+    );
+    return () => clearTimeout(tm);
+  }, [now.under, now.shown]);
+  return {
+    stack: now.under && now.under !== shown ? [now.under, shown] : [shown],
+    moved: now.moved,
+  };
+}
 
 /** The site: the landing page at `/`, else the game the path names, each loaded on demand. */
 export function PlatformRoot() {
   const id = useGame();
   const live = !!id && gameById(id).status === 'live';
-  const key = live ? id : 'landing';
   const reduced = !!useReducedMotion();
-  useEffect(() => {
-    drawn = true;
-  }, []);
-  useFocusHeading(key);
-  const [from, transition] = enter(live, reduced);
+  const { shown, waiting } = useShownPage(live ? id : 'landing');
+  const { stack, moved } = usePageStack(shown, reduced);
+  useFocusHeading(shown);
+  const game = shown === 'landing' ? null : shown;
   return (
     <>
-      <m.div
-        key={key}
-        className="relative h-full w-full"
-        initial={drawn ? from : false}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={transition}
-      >
-        <Page id={live ? id : null} />
-      </m.div>
+      <div className="relative h-full w-full">
+        {stack.map((k) => {
+          const leaving = k !== shown;
+          // The first page draws at once; only a move between pages animates.
+          const anim =
+            leaving || reduced || !moved ? '' : `page-in-${k === 'landing' ? 'landing' : 'game'}`;
+          return (
+            <div
+              key={k}
+              data-page
+              className={`absolute inset-0 ${leaving ? 'pointer-events-none z-0' : `z-[1] ${anim}`}`}
+              {...(leaving ? { inert: '' as const, 'aria-hidden': true } : {})}
+            >
+              <Page id={k === 'landing' ? null : k} />
+            </div>
+          );
+        })}
+      </div>
+      {waiting && <NavProgress />}
       <SeatInvitesMount />
-      <PlatformUpdate game={live ? id : null} />
+      <PlatformUpdate game={game} />
       <PlatformNotice />
     </>
   );
@@ -153,19 +189,14 @@ const Spinner = () => (
 
 function Page({ id }: { id: GameId | null }) {
   const [attempt, setAttempt] = useState(0);
-  if (!id) {
-    return (
-      <LoadBoundary landing key={`landing-${attempt}`} onRetry={() => setAttempt((a) => a + 1)}>
-        <Suspense fallback={<Spinner />}>{createElement(landingOf(attempt))}</Suspense>
-      </LoadBoundary>
-    );
-  }
+  const C = id ? rootOf(id) : Landing;
+  const retry = () => {
+    C.reset();
+    setAttempt((a) => a + 1);
+  };
   return (
-    <LoadBoundary key={`${id}-${attempt}`} onRetry={() => setAttempt((a) => a + 1)}>
-      <Suspense fallback={<Spinner />}>
-        {/* Cached per game and attempt (rootOf), so this never remounts a game on a re-render. */}
-        {createElement(rootOf(id, attempt))}
-      </Suspense>
+    <LoadBoundary landing={!id} key={`${id ?? 'landing'}-${attempt}`} onRetry={retry}>
+      <Suspense fallback={<Spinner />}>{createElement(C)}</Suspense>
     </LoadBoundary>
   );
 }

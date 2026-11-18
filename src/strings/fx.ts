@@ -1,0 +1,36 @@
+/** "Sounds and vibration" on the Me page: this device's setting for every game (Spades keeps its own at the table). */
+export const fx = {
+  title: 'Sounds and vibration',
+  sounds: 'Sounds',
+  soundsAll: 'All',
+  soundsMoments: 'Big moments',
+  soundsOff: 'Off',
+  soundsNote: {
+    all: 'Every moment makes a sound, the small ones too.',
+    moments: 'Only the rare moments make a sound: a game won, a last round, a SOLD, a big unlock.',
+    off: 'No sounds.',
+  },
+  /** The speaker button in each game's menu and on the desk rail. */
+  quick: {
+    label: (level: string) => `Sounds: ${level}`,
+    toast: (level: string) => `Sounds: ${level}`,
+    hint: 'tap to change',
+  },
+  silentSwitch: 'On iPhone, the silent switch mutes sounds.',
+  spadesNote:
+    'Kachuful and Kaali Teeri use this setting; Spades has its own at the table, and it wins there.',
+  vibrate: 'Vibration',
+  vibrateHint: 'Android phones only: iPhones don’t let web apps vibrate.',
+  /** The tap layer over a moment that holds the screen. */
+  skip: 'Skip',
+  /** The big unlock card's kicker, and the card that stands for the rest of a batch. */
+  unlocked: 'Unlocked',
+  unlockedBy: (who: string, what: string) => `${who} unlocked ${what}`,
+  more: (n: number) => `+${n} more`,
+  /** The season close's ceremony: its title, and the button that plays it again. */
+  ceremony: (month: string) => `Season · ${month}`,
+  replay: 'Replay the reveal',
+  /** On a leaderboard once a month has closed, until its reveal has been seen. */
+  seasonDecided: (month: string) => `${month}’s season is decided`,
+  seasonReveal: 'See who takes the crown',
+} as const;

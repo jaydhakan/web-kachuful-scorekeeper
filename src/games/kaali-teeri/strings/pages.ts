@@ -104,6 +104,8 @@ export const kpg = {
     partner: 'As a partner',
     recent: 'Recent games',
     opponents: 'Played with',
+    achievements: 'Achievements',
+    achievementsSub: 'Hand moments, game finishes and career',
     tiles: {
       games: 'Games',
       wins: 'Wins',

@@ -218,7 +218,7 @@ export const hub = {
   ach: {
     title: 'Achievements',
     groups: {
-      round: 'Round moments',
+      moment: 'Round moments',
       game: 'Game finish',
       career: 'Career',
       daily: 'Daily awards',
@@ -346,6 +346,8 @@ export const hub = {
     hide: 'Hide password',
     forgot: 'Forgot your password? Ask an admin for a reset link.',
     busy: 'Signing in…',
+    signedInAs: (name: string) => `Signed in as ${name}`,
+    signedIn: 'Signed in',
     errors: {
       bad_credentials: "That email and password don't match.",
       inactive: 'This account is switched off. Ask an admin.',

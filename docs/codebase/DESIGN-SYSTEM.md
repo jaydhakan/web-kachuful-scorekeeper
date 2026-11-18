@@ -111,8 +111,10 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
    is held (250ms) before "Trump is …"; then the backs fan out from the deck behind it and the suit settles into the
    table centre. The last round first holds "Last round" for 600ms and deals a third slower. A tap skips it. Reduced
    motion: the face for 600ms, then on.
-2. **Loader**: a squash-and-stretch ball for a lazy screen still loading, invisible for the first 300ms. No
-   percentage, since nothing reports real progress.
+2. **Loader**: a squash-and-stretch ball for a screen still loading with nothing before it (a cold start, a deep
+   link), invisible for the first 400ms. No percentage, since nothing reports real progress. Moving between pages
+   never shows it: the page you're on stays until the next is ready, with a slim progress bar at the top if that
+   takes past 400ms, then they crossfade (`PlatformRoot`, `NavProgress`).
 3. **Bid pop**: the badge springs in with an overshoot; the avatar squashes and stretches.
 4. **Bid flight**: a copy of the tapped key flies to the bidder's seat as the badge pops.
 5. **Winner reveal** (a game just finished; reopened, everything is in place): 3rd, 2nd, then 1st, each step sliding
@@ -121,7 +123,8 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
    completes; then the trophy, rows and stats, and only then any badge cards. Timings are in
    `ui/podiumReveal.ts`. Confetti steps by elapsed time, so 60Hz and 120Hz screens draw the same flight. Leaving for
    Home, a chip of the winner flies to the History entry (`FiledAway.tsx`).
-6. **Variable-weight score**: count-ups swell from light to heavy, then settle.
+6. **Variable-weight score**: a single hero number (a winner's total, Wrapped) swells from light to heavy as it
+   counts, then settles. Rows that count together (summaries, a podium) swell by `scale` instead (`Counter`'s `swell`).
 7. **Turn light**: a lit arc on the rim points at the active seat and turns to the next one.
 8. **Feedback**: Results rows flash made or missed; Yerba Sun keys press in; toasts flick away.
 9. **Trump reveal (Emerald Gilt)**: on top of item 1, the real back is held longer (`--reveal-hold`, 700ms), the card
@@ -139,16 +142,49 @@ Existing animations all stay. Added, each off or reduced to a fade under `prefer
     fades and settles (scale .96 to 1, 200ms).
 14. **Platform**: a game rises in (400ms) however it is opened, from its tile, Resume, Back or an address; an
     accepted invite gets a short welcome once.
-15. **Kaali Teeri**: when a called card is played, the bidding team's colour runs from the card to that seat and the
-    role badge settles; a sweep fans the hand's cards toward the winning side before the totals count.
+15. **Kaali Teeri**: when a called card is played, a dot in the bidding team's colour runs from the card to that seat
+    and the role badge settles; the hand's last partner is spotlit (the table dims, a light travels from the bidder,
+    a ring snaps on, "Kabir is with Meera!" inks in; `fx/ui/SeatSpotlight.tsx`). A sweep is announced over the result
+    line and lights the sweeping side's rows before the totals count; SOLD stamps over a won bid and a total that
+    crosses 1,000 turns gold with "1000" stamped on it.
 16. **Leaderboard podium** (every game's board, `ui/RankBoard.tsx`; the first board of a visit only): 3rd, 2nd, then
     1st, 260ms apart (`BOARD_GAP_MS`), each step sliding up with its player landing on it and its value counting up
     over 500ms; one sheen crosses the gold step; the rows fade in as the winner lands. Confetti bursts from the
     winner's avatar only when the signed-in player has newly taken first place on that board (remembered per board in
     `baithak.boardTop`). A filter change swaps the podium in place. Reduced motion: everything in place.
 
+17. **Every podium's light and crown** (`ui/PodiumLight.tsx`): on items 5 and 16, a soft light crosses to first place
+    as its step rises (900ms on a winner screen, 600ms on a board) and the crown drops on each winner with
+    `SPRING_POP` once they have landed. The season close plays it once per device as a ceremony with its title
+    ("Season · November") and Replay the reveal (`SeasonPodium.tsx`, `baithak.seasonShown`); until then, each
+    leaderboard says the season is decided (`SeasonNews.tsx`).
+18. **Spades and Ishaara**: Boston (the tricks fly into one stack, BOSTON stamped above it), Blind Nil's outer ring,
+    "Last trick decides it", the felt's shake and the shattering ♠ chip; Ishaara's trap (one jitter, one red flash,
+    TRAPPED), mind meld (the found cards pulse in order) and photo finish ("Next card wins").
+
 Rules: transform and opacity only (plus `clip-path` for the fill); entrances ease out (`cubic-bezier(.22,1,.36,1)`),
 in-place changes ease in and out; nothing blocks a tap.
+
+### Moments (the grammar every game reuses)
+
+Big news speaks with three materials: **the card** (dealt: drops, turns over `FLIP_MS` 450ms), **the stamp** (a
+verdict: `stamp()` and `<Stamp>`, scale 1.6 to 1 and −8° over `STAMP_MS` 360ms with `POP`, a 3px settle) and **the
+light** (`sheen()`, once, never a loop). Tokens are in `ui/motion.ts` (`TRAVEL`, `FLIP_MS`, `STAMP_MS`,
+`BEAT_HOLD_MS`, `MOMENT_MAX_MS` 2.5s, `GAME_END_MAX_MS` 4s) with CSS-string twins in `fx/waapi.ts`.
+
+- **Tiers.** A *Tick* is feedback (≤ 300ms). A *Beat* is one element on the table (0.8–1.6s; the rest keeps working).
+  A *Moment* may take the screen as an overlay (≤ 2.5s): one at a time, two a hand, through the moment queue
+  (`fx/moments.tsx`, priority game end > verdict > big unlock > small unlock), and a tap anywhere skips it.
+- **Derived from state**, never a clock: a moment comes from two consecutive game states, with an id, so every phone
+  plays it from the same frame and a reconnect never replays it.
+- **Fire-and-forget on Web Animations** (`fx/waapi.ts`), Framer only for springs and gestures; never transform a
+  `.glass` element for more than 300ms.
+- **Reduced motion keeps the information**: the stamp in place, the card face up, a banner shown still for its
+  length; no confetti, shake or flash. Sound and vibration follow "Sounds and vibration" (Me), not motion.
+- **Lazy**: the moments' code and their sheet (`src/fx/ui`, `tailwind.moments.config.ts`) load with the first one
+  that plays; no first load carries them.
+- **The lab**: `/?lab=moments` in dev builds shows every moment with Replay, 0.25×, reduced motion, the four themes
+  and phone or desk sizes. Add a new moment there first.
 
 ## Contrast
 

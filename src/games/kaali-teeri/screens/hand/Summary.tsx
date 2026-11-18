@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   dealerFor,
   doneHands,
@@ -7,6 +7,7 @@ import {
   handScore,
   result,
   standings,
+  TARGET,
   totals,
   type KtGame,
   type KtHand,
@@ -24,6 +25,14 @@ import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { EASE, ENTER, EXIT, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { fmt, sgnN } from '@/lib/format';
 import { palette } from '@/theme/palette';
+import { stamp } from '@/fx/stamp';
+import {
+  summaryFacts,
+  summaryPlan,
+  SUMMARY_STAGES,
+  SWEEP_MS,
+} from '@/games/kaali-teeri/sound/plans';
+import { useCuePlan } from '@/games/kaali-teeri/sound/useCuePlan';
 import { Pill, RoleBadge, roleOf } from './parts/bits';
 
 const rankColor = (rank: number) =>
@@ -37,8 +46,6 @@ const rankColor = (rank: number) =>
 
 // A hand confirmed this long ago or less counts up on arrival; reopening the summary later shows it settled.
 const FRESH_MS = 4000;
-// The sweep's beat: it is announced, alone, before anything counts.
-const SWEEP_MS = 900;
 
 /** Plan §3 screen 8: totals after the hand, this hand's changes, standings and who deals next. */
 export default function Summary() {
@@ -79,10 +86,16 @@ export function useSummaryData(g: KtGame, h: KtHand) {
   useEffect(() => {
     if (!fresh) return;
     const wait = beat ? SWEEP_MS : 0;
-    const ts = [250, 700, 1500].map((ms, k) => setTimeout(() => setStage(k + 1), wait + ms));
+    const ts = SUMMARY_STAGES.map((ms, k) => setTimeout(() => setStage(k + 1), wait + ms));
     if (beat) ts.push(setTimeout(() => setSweeping(false), SWEEP_MS));
     return () => ts.forEach(clearTimeout);
   }, [fresh, beat]);
+  // The count-up's sounds ride the same stage timers; once per scored hand (reduced motion plays them at confirm).
+  const facts = useMemo(() => summaryFacts(g, h), []); // eslint-disable-line react-hooks/exhaustive-deps
+  useCuePlan(
+    fresh && facts ? `kt-sum:${g.syncId}:${h.index}` : null,
+    facts && summaryPlan(facts, beat),
+  );
   const pt = totals(g, before),
     ct = totals(g);
   const list = stage >= 3 ? standings(g) : standings(g, before);
@@ -172,6 +185,25 @@ export function ResultLine({ d, h }: { d: Data; h: KtHand }) {
   );
 }
 
+/** "1000" stamped over a total that just crossed it; already there when the summary is reopened. */
+function Thousand({ stamped }: { stamped: boolean }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    if (!stamped) return;
+    const p = stamp(ref.current, { angle: -10 });
+    return p.cancel;
+  }, [stamped]);
+  return (
+    <span
+      ref={ref}
+      aria-hidden
+      className="absolute -top-3 right-0 rotate-[-10deg] rounded-md border-2 border-current bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] px-1 text-13 font-extrabold leading-tight tracking-[0.06em]"
+    >
+      {TARGET}
+    </span>
+  );
+}
+
 /** The standings after the hand: this hand's change and the total counting up. */
 export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
   const { list, delta, res, stage, fresh, beat, sweeping, pt, ct } = d;
@@ -187,6 +219,9 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
           d = delta[id],
           role = roleOf(h, id);
         const swept = res.sweep === 'bidders' ? !!role : res.sweep === 'defenders' && !role;
+        // Crossing 1,000 this hand (K3): once the total has counted up, it turns gold and "1000" stamps on it.
+        const thousand = pt[id] < TARGET && ct[id] >= TARGET,
+          gold = thousand && stage >= 3;
         return (
           <m.div
             layout="position"
@@ -253,8 +288,17 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
                   </m.span>
                 )}
               </AnimatePresence>
-              <div className="disp tick min-w-[3.25rem] shrink-0 text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:text-28">
-                <Counter from={fresh ? pt[id] : ct[id]} to={ct[id]} run={fresh && stage >= 2} />
+              <div
+                data-thousand={thousand ? (gold ? 'gold' : 'counting') : undefined}
+                className={`disp tick relative min-w-[3.25rem] shrink-0 text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:text-28 ${gold ? 'text-[var(--gold-tx)]' : ''}`}
+              >
+                {gold && <Thousand stamped={fresh} />}
+                <Counter
+                  swell="scale"
+                  from={fresh ? pt[id] : ct[id]}
+                  to={ct[id]}
+                  run={fresh && stage >= 2}
+                />
               </div>
             </Glass>
           </m.div>
@@ -303,14 +347,20 @@ function SummaryBody({
         </Glass>
       }
       bar={
-        <>
-          <PrimaryButton tone="glass" className="px-5" onClick={onEnd}>
-            {kp.summary.endGame}
+        g.status === 'finished' ? (
+          <PrimaryButton className="flex-1" onClick={actions.seeWinner}>
+            {kp.summary.seeWinner}
           </PrimaryButton>
-          <PrimaryButton className="flex-1" onClick={onNext}>
-            {kp.summary.nextHand}
-          </PrimaryButton>
-        </>
+        ) : (
+          <>
+            <PrimaryButton tone="glass" className="px-5" onClick={onEnd}>
+              {kp.summary.endGame}
+            </PrimaryButton>
+            <PrimaryButton className="flex-1" onClick={onNext}>
+              {kp.summary.nextHand}
+            </PrimaryButton>
+          </>
+        )
       }
     >
       <ResultLine d={d} h={h} />

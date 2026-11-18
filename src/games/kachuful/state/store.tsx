@@ -15,11 +15,12 @@ import {
   type Outcome,
   type Phase,
 } from '@/games/kachuful/domain';
-import { useHaptics } from '@/hooks/useHaptics';
+import { feedback, HAPTIC, playCue } from '@/fx/feedback';
+import { vibrate } from '@/hooks/useHaptics';
 import { usePersistence } from '@/games/kachuful/hooks/usePersistence';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { uuid } from '@/lib/ids';
-import { readEntryLink, returnSearch, returnTo } from '@/lib/entry';
+import { readEntryLink, returnSearch, returnTo, settleEntryLink } from '@/lib/entry';
 import { go as goTo } from '@/platform/route';
 import {
   KEYS,
@@ -109,6 +110,9 @@ export const useApp = (): AppContextValue => {
   return v;
 };
 
+// Setup taps (a seat, a count, a swap) all feel the same: a pop and a light buzz.
+const vib = () => feedback('tap');
+
 const trumpOf = (s: AppState): Trump =>
   s.game.rounds.length
     ? s.seq
@@ -131,7 +135,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       nav: entry ? [entry] : [],
     };
   });
-  const vib = useHaptics();
+  useEffect(settleEntryLink, []);
   const ref = useRef(state);
   ref.current = state;
   const withEngineRef = useRef<
@@ -245,12 +249,25 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
     });
   }, []);
 
-  // System Back closes a sheet first, then the top screen.
-  useHistorySync(state.nav.length + (state.sheet ? 1 : 0), () => {
-    const s = ref.current;
-    if (s.sheet) dispatch({ type: 'sheet', sheet: null });
-    else dispatch({ type: 'navPop' });
-  });
+  // System Back closes a sheet or a confirm, then the top page, then steps back through setup (asking first once
+  // anyone is seated, as its Back button does); in a round it opens the menu, as Kaali Teeri and Spades do.
+  const setupDepth = state.screen === 'setup' && state.setup ? state.setup.step : 0;
+  const roundDepth = state.screen === 'round' ? 1 : 0;
+  useHistorySync(
+    setupDepth + roundDepth + state.nav.length + (state.sheet ? 1 : 0) + (state.modal ? 1 : 0),
+    () => {
+      const s = ref.current;
+      if (s.sheet) dispatch({ type: 'sheet', sheet: null });
+      else if (s.modal) dispatch({ type: 'modal', modal: null });
+      else if (s.nav.length) dispatch({ type: 'navPop' });
+      else if (s.screen === 'setup' && s.setup && s.setup.step > 1)
+        dispatch({ type: 'setupPatch', patch: { step: (s.setup.step - 1) as 1 | 2 } });
+      else if (s.screen === 'setup' && s.setup?.seats.some(Boolean))
+        dispatch({ type: 'modal', modal: 'leaveSetup' });
+      else if (s.screen === 'setup') dispatch({ type: 'go', screen: 'home', dir: -1 });
+      else if (s.screen === 'round') dispatch({ type: 'sheet', sheet: { type: 'menu' } });
+    },
+  );
 
   const toastId = state.toast?.id;
   useEffect(() => {
@@ -260,8 +277,14 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   }, [toastId]);
 
   const bannerId = state.banner?.id;
+  const chimed = useRef<number>();
   useEffect(() => {
     if (bannerId === undefined) return;
+    // A banner (peak round, back to 3) is news the table should hear once, not on every effect re-run.
+    if (chimed.current !== bannerId) {
+      chimed.current = bannerId;
+      playCue({ name: 'chime', tier: 'beat' });
+    }
     const t = setTimeout(() => dispatch({ type: 'bannerDone' }), 1600);
     return () => clearTimeout(t);
   }, [bannerId]);
@@ -297,6 +320,7 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
           decks: su.decks,
           at: Date.now(),
         };
+        feedback('begin');
         storage.set(KEYS.lastGroup, lg);
         pushRecentNames(names);
         const online = !!ref.current.session;
@@ -307,29 +331,52 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       },
       resume: () => nav({ type: 'resume' }),
       bid: (v) => {
+        // The bid's own sound waits for its chip to land (the screen's `onLand`); what the bid did sounds now.
+        const s = ref.current,
+          before = curRound(s.game);
+        const after = reducer(s, { type: 'bid', v });
         dispatch({ type: 'bid', v });
-        vib();
+        if (curRound(after.game).hookHits > before.hookHits) feedback('forbidden');
+        else if (after.game.ui.hookWarn && !s.game.ui.hookWarn) feedback('hook');
+        else vibrate(HAPTIC.TAP);
       },
       pickSeat: (k) => dispatch({ type: 'pickSeat', k }),
-      phase: (phase, dir) => nav({ type: 'phase', phase, dir }),
+      phase: (phase, dir) => {
+        if (phase === 'playing' && curRound(ref.current.game).phase === 'bidding')
+          feedback('startPlay');
+        nav({ type: 'phase', phase, dir });
+      },
       setResult: (id, v) => {
+        const s = ref.current;
+        const after = reducer(s, { type: 'setResult', id, v });
         dispatch({ type: 'setResult', id, v });
-        vib();
+        // A blocked result changes nothing; one the app filled in because only it could work gets a pop.
+        if (after === s) feedback('err');
+        else {
+          playCue({ name: v, tier: 'tick', gain: 0.6 });
+          vibrate(HAPTIC.TAP);
+          if (after.autoResult) playCue({ name: 'pop', tier: 'tick' });
+        }
       },
       confirmRound: () => {
         const g = ref.current.game;
         if (!resultsState(g, curRound(g)).ok) return;
-        vib();
+        feedback('confirm');
         nav({ type: 'confirmRound' });
       },
       nextRound: () => nav({ type: 'nextRound' }),
       finishGame: () => dispatch({ type: 'finishGame' }),
       rematch: () => {
+        vibrate(HAPTIC.TAP);
+        playCue({ name: 'riffle' });
         const now = Date.now();
         nav({ type: 'rematch', id: 'g' + now, syncId: uuid(), now });
       },
       editRound: (i, bids, results) => dispatch({ type: 'editRound', i, bids, results }),
-      undo: () => dispatch({ type: 'undo' }),
+      undo: () => {
+        feedback(ref.current.undo.length ? 'undo' : 'err');
+        dispatch({ type: 'undo' });
+      },
       openSheet: (sheet) => nav({ type: 'sheet', sheet }),
       ask: (modal) => dispatch({ type: 'modal', modal }),
       discardGame: () => dispatch({ type: 'discardGame' }),
@@ -352,10 +399,15 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
         nav({ type: 'navReset', routes });
       },
       openGame: (game) => nav({ type: 'openGame', game }),
-      setSession: (session) => dispatch({ type: 'session', session }),
+      setSession: (session) => {
+        // Published at once, not by the effect below: sign-in opened from another page returns there in the same
+        // tap, which unmounts this store before that effect runs, and the session would be lost.
+        setSharedSession(session);
+        dispatch({ type: 'session', session });
+      },
       repairSave: (choice) => dispatch({ type: 'replaceGame', game: resolveCorrupt(choice) }),
     };
-  }, [vib]);
+  }, []);
 
   const value = useMemo(() => ({ state, actions, trump: trumpOf(state) }), [state, actions]);
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;

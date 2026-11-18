@@ -4,6 +4,8 @@ import { RemoteGate } from '@/components/RemoteGate';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState, Section } from '@/components/ui/PageParts';
 import { StatTile, TileGrid } from '@/components/ui/Stats';
+import { Icon } from '@/components/ui/Icons';
+import { icon } from '@/components/ui/IconsMore';
 import { whoOf } from './LeaderboardPage';
 import { IshPage, RowButton, useHubNav, type Who } from './parts';
 
@@ -13,10 +15,25 @@ const p = ipg.player,
 /** One player's numbers over every finished game: guessing, clue-giving, and who to compare them with. */
 export function PlayerPage({ who }: { who: Who }) {
   const r = useIshaaraPlayerStats(who.id);
+  const { open } = useHubNav();
   return (
     <IshPage wide eyebrow={p.eyebrow} title={who.name}>
       <div className="mb-5 flex justify-center">
         <Avatar p={who} className="grid h-24 w-24 place-items-center rounded-full text-52" />
+      </div>
+      <div className="mb-5">
+        <RowButton onClick={() => open({ page: 'achievements', id: who.id })}>
+          <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center text-22">
+            {icon('medal', 'h-6 w-6')}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-16 font-bold">{p.achievements}</span>
+            <span className="block text-14 text-[var(--tx2)]">{p.achievementsSub}</span>
+          </span>
+          <span aria-hidden className="text-[var(--dis)]">
+            {Icon.chev}
+          </span>
+        </RowButton>
       </div>
       <RemoteGate r={r}>
         {(s) =>

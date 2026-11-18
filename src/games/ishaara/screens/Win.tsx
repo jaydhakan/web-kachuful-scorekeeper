@@ -19,6 +19,7 @@ import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { Mark, TEAM_FILL } from './board/marks';
 import { WordGrid } from './board/WordGrid';
+import { GameReel } from './GameReel';
 
 const w = s.win;
 
@@ -65,12 +66,17 @@ export function clueLog(g: Pick<IshaaraPublic, 'log'>): ClueRow[] {
   return rows;
 }
 
+const JUST_FINISHED_MS = 90_000;
+
 /** The result: who won and how, the whole key, the clue log, the match score, and Rematch. */
 export default function Win({ game }: { game: IshaaraPublic }) {
   const { actions } = useIshaara();
   const rm = useReducedMotion();
-  // Confetti once, on arriving; never under reduced motion.
-  const [party, setParty] = useState(!rm);
+  // Confetti once, on arriving from the game just won; not for a finished game reopened later, nor under reduced
+  // motion. finishedAt is the server's clock; a minute and a half covers any skew and the trap's hold.
+  const [party, setParty] = useState(
+    () => !rm && !!game.finishedAt && Math.abs(Date.now() - game.finishedAt) < JUST_FINISHED_MS,
+  );
   const headline = useRef<HTMLHeadingElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -168,6 +174,8 @@ export default function Win({ game }: { game: IshaaraPublic }) {
                 </div>
               </div>
             </section>
+
+            <GameReel game={game} />
 
             {game.solution && (
               <m.section {...stagger(1)} aria-labelledby="ish-key" className="mt-6">

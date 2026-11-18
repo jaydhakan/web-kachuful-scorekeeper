@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   dealerFor,
   gameResult,
@@ -18,7 +18,13 @@ import { EASE, REDUCED, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { vibrate } from '@/hooks/useHaptics';
 import { TEAM_TONE } from '../parts';
 import { HandFrame } from './HandFrame';
+import { HandPops } from '@/games/spades/progress/HandPops';
+import { pidOf } from '@/people/pid';
+import { bostonOf } from '@/games/spades/online/table/present';
 
+const BostonMoment = lazy(() =>
+  import('@/games/spades/ui/Boston').then((m) => ({ default: m.BostonMoment })),
+);
 const signed = (v: number) => s.sgn(Math.round(v));
 
 /** The headline under the title: who won, a tie at the target, or what the game is played to. */
@@ -125,6 +131,7 @@ function Column({
             className={`disp tick text-24 font-extrabold min-[400px]:text-28 ${r.net >= 0 ? 'text-[var(--pos)]' : 'text-[var(--neg)]'}`}
           >
             <Counter
+              swell="scale"
               from={fresh ? 0 : r.net}
               to={r.net}
               run={fresh}
@@ -138,6 +145,7 @@ function Column({
           <dt className="text-14 text-[var(--tx2)]">{s.summary.total}</dt>
           <dd className="disp tick text-20 font-extrabold">
             <Counter
+              swell="scale"
               from={fresh ? before : after}
               to={after}
               run={fresh}
@@ -180,6 +188,13 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   const rm = useReducedMotion();
   // Counted up on its first showing only; reopening the summary later shows it settled.
   const [fresh] = useState(() => state.fresh && !rm);
+  // The hand's moments pop on its first showing only, reduced motion or not.
+  const [first] = useState(() => state.fresh);
+  const [bostonOver, setBostonOver] = useState(false);
+  const nameOf = useCallback(
+    (id: string) => g.players.find((p) => pidOf(p) === id)?.name ?? '',
+    [g.players],
+  );
   useEffect(() => {
     if (state.fresh) actions.setFresh(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, as the summary opens
@@ -188,61 +203,77 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
   if (!data) return null;
   const { line, before } = data;
   const over = g.status === 'finished';
+  // A team that took all 13: BOSTON stamps over the summary, once, as it first opens (S1; no trick piles here).
+  const boston = bostonOf(h);
   const next = g.players[dealerFor(g, h.index + 1)].name;
   return (
-    <HandFrame
-      g={g}
-      h={h}
-      bar={
-        over ? (
-          <PrimaryButton className="w-full" onClick={() => actions.go('winner')}>
-            {s.summary.winner}
-          </PrimaryButton>
-        ) : (
-          <PrimaryButton className="w-full flex-col !gap-0" onClick={actions.nextHand}>
-            <span>{s.summary.next}</span>
-            <span className="text-13 font-medium opacity-80">{s.summary.nextDeals(next)}</span>
-          </PrimaryButton>
-        )
-      }
-    >
-      <m.h2
-        initial={fresh ? { opacity: 0, y: 6 } : false}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: EASE }}
-        className="disp mb-1 text-26 font-extrabold tracking-[-0.03em]"
+    <>
+      <HandFrame
+        g={g}
+        h={h}
+        bar={
+          over ? (
+            <PrimaryButton className="w-full" onClick={() => actions.go('winner')}>
+              {s.summary.winner}
+            </PrimaryButton>
+          ) : (
+            <PrimaryButton className="w-full flex-col !gap-0" onClick={actions.nextHand}>
+              <span>{s.summary.next}</span>
+              <span className="text-13 font-medium opacity-80">{s.summary.nextDeals(next)}</span>
+            </PrimaryButton>
+          )
+        }
       >
-        {s.summary.title(h.index + 1)}
-      </m.h2>
-      <p
-        className={`mb-3 text-15 ${over ? 'font-bold text-[var(--gold-tx)]' : 'text-[var(--tx2)]'}`}
-        role="status"
-      >
-        {verdict(g)}
-      </p>
-      <div className="grid grid-cols-1 gap-2 min-[340px]:grid-cols-2">
-        {(['a', 'b'] as const).map((t) => (
-          <Column
-            key={t}
-            g={g}
-            h={h}
-            t={t}
-            r={line[t]}
-            before={before[t]}
-            after={line.after[t]}
-            fresh={fresh}
-          />
-        ))}
-      </div>
-      <div className="mt-3 flex justify-center">
-        <button
-          type="button"
-          onClick={() => actions.openSheet({ type: 'edit', i: h.index })}
-          className="press min-h-12 px-4 text-15 font-semibold text-[var(--accent-tx)] underline decoration-ov/25 underline-offset-4"
+        <m.h2
+          initial={fresh ? { opacity: 0, y: 6 } : false}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASE }}
+          className="disp mb-1 text-26 font-extrabold tracking-[-0.03em]"
         >
-          {s.summary.edit}
-        </button>
-      </div>
-    </HandFrame>
+          {s.summary.title(h.index + 1)}
+        </m.h2>
+        <p
+          className={`mb-3 text-15 ${over ? 'font-bold text-[var(--gold-tx)]' : 'text-[var(--tx2)]'}`}
+          role="status"
+        >
+          {verdict(g)}
+        </p>
+        <div className="grid grid-cols-1 gap-2 min-[340px]:grid-cols-2">
+          {(['a', 'b'] as const).map((t) => (
+            <Column
+              key={t}
+              g={g}
+              h={h}
+              t={t}
+              r={line[t]}
+              before={before[t]}
+              after={line.after[t]}
+              fresh={fresh}
+            />
+          ))}
+        </div>
+        <div className="mt-3 flex justify-center">
+          <button
+            type="button"
+            onClick={() => actions.openSheet({ type: 'edit', i: h.index })}
+            className="press min-h-12 px-4 text-15 font-semibold text-[var(--accent-tx)] underline decoration-ov/25 underline-offset-4"
+          >
+            {s.summary.edit}
+          </button>
+        </div>
+      </HandFrame>
+      {first && boston && (
+        <Suspense fallback={null}>
+          <BostonMoment
+            id={`boston:${g.id}:${h.index}`}
+            team={boston}
+            name={s.team(boston)}
+            onEnd={() => setBostonOver(true)}
+          />
+        </Suspense>
+      )}
+      {/* The hand's cards follow its Boston, never land on it. */}
+      {first && (!boston || bostonOver) && <HandPops game={g} index={h.index} nameOf={nameOf} />}
+    </>
   );
 }

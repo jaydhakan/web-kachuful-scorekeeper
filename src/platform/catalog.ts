@@ -18,6 +18,12 @@ export interface Resume {
   updatedAt: number;
 }
 
+/** A game's root module. */
+export interface GameModule {
+  default: ComponentType;
+  prepare: (search: string) => Promise<unknown>;
+}
+
 export interface GameEntry {
   id: GameId;
   path: `/${string}`;
@@ -29,8 +35,8 @@ export interface GameEntry {
   status: 'live' | 'soon';
   /** Shown to everyone, playable only signed in (Ishaara: the server runs the game). */
   signedInOnly: boolean;
-  /** The game's lazy root. */
-  load: () => Promise<{ default: ComponentType }>;
+  /** The game's lazy root, with `prepare(search)`: what its first screen at that address needs, fetched together. */
+  load: () => Promise<GameModule>;
   peek: () => Resume | null;
   /** Absent for a game the server runs (Ishaara): nothing is ever waiting to upload. Spades' is its table mode. */
   sync?: () => Promise<GameSync>;

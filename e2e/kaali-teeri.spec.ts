@@ -150,6 +150,10 @@ test('first to 1000 ends the game after the hand that reaches it, with the winne
     await soloHand(page, n, 250, 0);
     if (n < 4) await ktBtn(page, 'Next hand').click();
   }
+  // The hand that reached 1,000 is shown first; there is no next hand, only the winner.
+  await expect(page.getByRole('heading', { name: 'After hand 4' })).toBeVisible();
+  await expect(ktBtn(page, 'Next hand')).toHaveCount(0);
+  await ktBtn(page, 'See the winner').click();
   await expect(page.getByRole('heading', { name: /Meera/ }).first()).toBeVisible();
   await expect(page.getByText('1,000').or(page.getByText('1000')).first()).toBeVisible();
   await expect(ktBtn(page, /Rematch/)).toBeVisible();

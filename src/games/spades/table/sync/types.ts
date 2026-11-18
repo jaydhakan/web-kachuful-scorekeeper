@@ -9,7 +9,10 @@ export type { SpPeriod, SpSort, SpTotals };
 /** The game as uploaded: the app's SpGame, every seat with its registry id. */
 export type SpWireGame = SpGame;
 
-/** `PUT /api/spades/games/{id}`: `earned` is always empty. */
+/**
+ * `PUT /api/spades/games/{id}`: `earned` is what the upload added; the app doesn't read it (the hand summary works its
+ * moments out itself).
+ */
 export interface SpPutResp {
   rev: number;
   earned: unknown[];

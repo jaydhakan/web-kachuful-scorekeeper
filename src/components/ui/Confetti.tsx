@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { confettiCount, MAX_STEP_MS, stepConfetti, type ConfettiPiece } from '@/lib/confettiCount';
 import { colorValue } from '@/theme/palette';
+import { reducedMotion, timeScale } from '@/fx/reduced';
 import { reveal } from './podiumReveal';
 
 interface ConfettiProps {
@@ -11,6 +12,8 @@ interface ConfettiProps {
    * podium to name its winner and starts at their avatar, else at the podium, else high and centred.
    */
   origin?: Element | { x: number; y: number } | null;
+  /** Pieces; left out, they grow with the screen (150 to 300). A Beat-sized burst uses about 80. */
+  count?: number;
 }
 
 const LIFE_MS = 2800;
@@ -19,9 +22,14 @@ const MOUNT_GRACE_MS = 500;
 const REVEAL_CAP_MS = 8000;
 
 /** Canvas confetti in the avatar colours; never takes pointer events. */
-export function Confetti({ colors, onDone, origin }: ConfettiProps) {
+export function Confetti({ colors, onDone, origin, count }: ConfettiProps) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
+    // Its own guard: whatever mounts it, reduced motion gets no falling pieces.
+    if (reducedMotion()) {
+      onDone?.();
+      return;
+    }
     const c = ref.current,
       p = c?.parentElement,
       x = c?.getContext('2d');
@@ -58,7 +66,7 @@ export function Confetti({ colors, onDone, origin }: ConfettiProps) {
         : origin && !(origin instanceof Element)
           ? origin
           : { x: pr.left + size.w / 2, y: pr.top + size.h * 0.3 };
-      P = Array.from({ length: confettiCount(size.w, size.h) }, () => ({
+      P = Array.from({ length: count ?? confettiCount(size.w, size.h) }, () => ({
         x: at.x - pr.left + (Math.random() - 0.5) * 80,
         y: at.y - pr.top,
         vx: (Math.random() - 0.5) * 14,
@@ -92,7 +100,7 @@ export function Confetti({ colors, onDone, origin }: ConfettiProps) {
         last = t;
       }
       // The life runs on the same clamped clock as the flight, so a background tab pauses both.
-      const dt = Math.min(t - last, MAX_STEP_MS);
+      const dt = Math.min(t - last, MAX_STEP_MS) * timeScale();
       last = t;
       age += dt;
       const k = age / LIFE_MS;

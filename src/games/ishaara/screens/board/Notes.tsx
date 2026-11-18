@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icons';
 import { EASE } from '@/components/ui/motion';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { FACE, Mark } from './marks';
+import { secsUntil, useServerClock } from '@/hooks/useServerClock';
 import type { Notice } from './useBoard';
 
 const b = s.board;
@@ -73,14 +74,31 @@ export function momentText(mo: Moment): string {
 }
 
 /** The reveal moment: the card's own colour and shape with what it means, for a couple of seconds. */
-export function MomentNote({ mo }: { mo: Moment }) {
+export function MomentNote({ mo, meld = false }: { mo: Moment; meld?: boolean }) {
   return (
     <m.p
       {...IN}
       className={`flex min-h-14 items-center gap-3 rounded-[18px] px-5 py-3 text-17 font-extrabold uppercase leading-tight dt:text-22 ${FACE[mo.id]}`}
     >
       <Mark id={mo.id} className="h-5 w-5" />
-      <span className="min-w-0 flex-1">{momentText(mo)}</span>
+      <span className="min-w-0 flex-1">
+        {meld ? `${b.meld} · ${momentText(mo)}` : momentText(mo)}
+      </span>
+    </m.p>
+  );
+}
+
+/** I3: both teams need one more word. A steady line in the note slot until something else needs it. */
+export function PhotoNote() {
+  return (
+    <m.p
+      {...IN}
+      role="status"
+      data-photo-finish
+      className="glass flex min-h-14 flex-col justify-center rounded-[18px] px-5 py-2.5 leading-tight shadow-[inset_0_0_0_2px_var(--medal-gold)]"
+    >
+      <span className="text-17 font-extrabold uppercase dt:text-22">{b.photoFinish}</span>
+      <span className="text-14 text-[var(--tx2)] dt:text-17">{b.photoFinishWhy}</span>
     </m.p>
   );
 }
@@ -153,18 +171,21 @@ export function EndNote({
 export function PenaltyNote({
   name,
   picker,
-  skipIn,
+  skipAt,
+  offset,
   canSend,
   onSkip,
 }: {
   name: string;
   picker: Team;
-  /** Ms until Skip opens; 0 or less once it may be tapped. */
-  skipIn: number;
+  /** When Skip opens, on the server's clock. */
+  skipAt: number;
+  offset: number;
   canSend: boolean;
   onSkip: () => void;
 }) {
-  const open = skipIn <= 0;
+  const secs = useServerClock(offset, true, (now) => secsUntil(skipAt, now));
+  const open = secs <= 0;
   return (
     <m.div {...IN} className="glass flex flex-col gap-3 p-4">
       <p className="flex items-start gap-2 text-17 font-bold leading-snug">
@@ -180,7 +201,7 @@ export function PenaltyNote({
         disabled={!open || !canSend}
         className="!h-12 w-full !text-16"
       >
-        {open ? b.skip : b.skipIn(s.clock(skipIn))}
+        {open ? b.skip : b.skipIn(s.clock(secs * 1000))}
       </PrimaryButton>
     </m.div>
   );

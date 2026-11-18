@@ -1,9 +1,9 @@
-import { useLayoutEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { cardId } from '@/games/spades/domain/cards';
 import type { Card, Play, Seat } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
 import { anim, boxOf, EASE, mid, OUT, POP, rng, type Box } from '@/games/spades/ui/fx';
-import { Seat as SeatView, type SeatProps } from '@/games/spades/ui/Seat';
+import { Seat as SeatView, Shards, type SeatProps } from '@/games/spades/ui/Seat';
 import { SpCard, cardName } from '@/games/spades/ui/SpCard';
 
 type Place = 0 | 1 | 2 | 3;
@@ -33,6 +33,8 @@ export type FlyFrom = { seat: Seat } | { box: Box };
 export interface TrickPlay extends Play {
   place: Place;
   fly: FlyFrom | null;
+  /** The card that decides the hand flies at 1.5× its length (WOW-MOMENTS-PLAN S3). */
+  slow?: boolean;
 }
 
 function TrickCard({
@@ -82,13 +84,13 @@ function TrickCard({
         },
         { transform: `rotate(${rot}deg)`, opacity: 1 },
       ],
-      { duration: 460, easing: EASE },
+      { duration: p.slow ? 690 : 460, easing: EASE },
     );
     // Someone else's card leaves their seat face down and turns over on the way.
     const f =
       'seat' in p.fly
         ? anim(flip.current, [{ transform: 'rotateY(180deg)' }, { transform: 'rotateY(0deg)' }], {
-            duration: 460,
+            duration: p.slow ? 690 : 460,
             easing: OUT,
           })
         : null;
@@ -264,6 +266,12 @@ function Crack({ seed }: { seed: number }) {
       );
     });
     runs.push(
+      // The felt itself shakes once (S4): 3px, two cycles, 200ms. Reduced motion: still.
+      anim(
+        layer.current?.closest('[data-felt]'),
+        [0, 3, -3, 3, -3, 0].map((x) => ({ transform: `translateX(${x}px)` })),
+        { duration: 200, easing: 'linear' },
+      ),
       anim(layer.current, [{ opacity: 1 }, { opacity: 1, offset: 0.55 }, { opacity: 0.22 }], {
         duration: 2100,
         fill: 'forwards',
@@ -331,7 +339,10 @@ function Crack({ seed }: { seed: number }) {
 function SpadesChip({ broken }: { broken: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   const was = useRef(broken);
+  // The chip breaks into the shards a Nil halo uses, as it turns (S4).
+  const [shards, setShards] = useState(0);
   useLayoutEffect(() => {
+    if (broken && !was.current) setShards((n) => n + 1);
     if (broken && !was.current)
       anim(
         ref.current,
@@ -366,6 +377,7 @@ function SpadesChip({ broken }: { broken: boolean }) {
         )}
         {broken ? s.chip.broken : s.chip.locked}
       </span>
+      {shards > 0 && <Shards key={shards} seed={shards * 31} tone="bg-[var(--trump-spades)]" />}
     </span>
   );
 }

@@ -32,6 +32,9 @@ src/games/spades/   partnership Spades, two ways: domain/ (rules engine applyAct
 src/platform/   route.ts (the first path segment names the game; go(), useGame), catalog.ts (GAMES: name, status, lazy
                 root, peek() for the resume line), PlatformRoot (landing or the game, a load error with Retry), meta.ts
                 (each page's preview tags), landing/; pages/ holds the account, sign-in, admin and credits pages
+src/progression/   the achievements kit every game shares, pure: types (AchievementDef with group, big, shame; Earned;
+                Ladder; Award), rules (win streaks, games, crew, night owl, wooden spoon, win-rate seasons), ladders,
+                Kolkata day and month ranges, and registry.ts (each game's `GameProgression`, a lazy chunk of its own)
 src/people/     Player, Direction, avatar colours and emoji, name and email keys, pidOf: one players registry for all games
 src/state       persistence.ts (the only localStorage access), archive.ts (IndexedDB), registry.ts (players),
                 prefs, theme store, useArchive
@@ -43,7 +46,8 @@ src/components  ui/ (Glass, PrimaryButton, Seg, Scaffold, Sheet, Modal, Toast, T
                 (ServiceWorkerHost, UpdateGate, AccountChip, PhotoPicker, SyncDot, RemoteGate, ThemeSync); seating/ is
                 Setup 2 for any game (useSeating, SeatingPicker, SeatingTable, AddPlayerForm, seat sheets, same-person check)
                 plus SetupFrame and useSeatDrag; desk/ holds the large-screen parts both games use (DeskParts, Drawer,
-                StepTracker, RailItem)
+                StepTracker, RailItem); progression/ holds the shared Achievements, Awards and Activity pages, the
+                winner's reel and the moment pop, which a game shows inside its `ProgressionScope`
 src/strings     user-visible strings shared by the app (`t`, hub, admin; messages.ts is plain text used by domain/reducer);
                 a game's own strings sit in its strings/
 src/theme       theme registry, colour-name map, palette, trump themes (look: src/styles/themes.css)
@@ -52,9 +56,28 @@ src/lib         format helpers, table geometry, clock, entry links, the share im
 
 Dependencies point downward only: `domain` imports nothing from the UI; `state` imports `domain`; components import `state` and `domain`. Games never import each other. Shared code (`src/` outside `games/`) still reaches into Kachuful in a few places (`Game` in the archive and API types, `persistence.ts`); the account pages also still live inside Kachuful's shell, and the landing page links to them with `/kachuful?open=account`.
 
+## Achievements and awards
+
+Every game plugs into `src/progression/registry.ts`: its catalogue, strings, ladders, how its seasons rank (Kachuful
+on points per round, the others on win rate) and, for a game scored on the device, `device` rules over its facts.
+Each game's rules live in its `domain/achievements.ts` and `awards.ts`; the backend mirrors them and checks parity
+with golden fixtures the app writes (`EXPORT_FIXTURES=1`, see the backend's `tests/fixtures/VERSION.md`). Signed in,
+the pages read the server (`?game=`); signed out, Kachuful, Kaali Teeri and the Spades scorekeeper work it out on the
+device, and Ishaara and online Spades show nothing. Live moments pop as a hand or turn ends (Spades online and
+Ishaara from the public state, so every phone shows the same). The Me page counts each game's achievements and
+shows every game's feed (`?game=all`).
+
 ## Paths and games
 
 One app, one service worker, one manifest (`id: '/'`). `main.tsx` calls `startRoute()` before the first render: old links on `/` (`?live=`, `?recap=`, `?invite=`, `?reset=`) move to `/kachuful?…`, an unknown path goes to `/`. `PlatformRoot` shows the landing page or the game the path names, each a lazy chunk; a game's store, sync and archive mount only under its path. `go(id)` pushes the path (dropping a game's open-sheet history entries first), and system Back returns. Each game's `peek()` reads its saved game straight from storage for the landing page's resume line, without loading the game. The build writes one HTML file per page with its own preview tags (`page-meta` in `vite.config.ts`), and `preload-shell` modulepreloads the chunks of the path's game for the screen size.
+
+**Loading and moving between pages.** Nothing on the way to a screen should blank or flash the loader:
+
+- Each game keeps its lazy screens in `src/games/<game>/chunks.ts` as `preloadable()` components (`src/lib/preloadable.ts`): `lazy()` that can be fetched ahead and, once fetched, renders without suspending. Its root exports `prepare(search)`, which fetches in parallel what the first screen at that address needs (the shell for this screen size, Pages for `?open=`, a saved setup), and `warmNext()`, run once idle, for what a player opens next.
+- `platform/prepare.ts` `preparePage(id, search)` fetches a page's root and its `prepare`. `PlatformRoot` keeps the current page on screen until the next one is prepared (a slim `NavProgress` bar past 400ms, capped at 5s), then the new page rises in over it with a CSS animation; the page leaving is inert and hidden from assistive tech for that moment, and reduced motion swaps at once. A game that reads the address live (Spades) ignores it while another page's address is up.
+- The landing page warms every game's first screen once idle (a saved game first), and links warm their page on pointer down, hover or focus (`warmOn`). Nothing is fetched on speculation when the phone asks to save data or is on 2G (`savingData`).
+- A cold start: `index.html` carries the landing page's outline (`.boot`, shown on `/` only), and `main.tsx` awaits the first page's chunks and the full motion features before the first render, so React replaces the outline (or the bare background) with the page itself. The motion features are never swapped after that: a component that gained drag or layout features while leaving never finished its exit.
+- Waiting on the server, an online table shows `TableSkeleton` (felt or grid) instead of a spinner; the loader is for a lazy screen with nothing before it.
 
 ## State
 
@@ -117,6 +140,16 @@ From 768px wide and 501px tall (`MQ.big`) the app renders `games/kachuful/screen
 ## Motion
 
 `SPRING`, `SPRING_POP`, `SPRING_SOFT`, `SPRING_SHEET` and `EASE = [0.32, 0.72, 0, 1]` live in `components/ui/motion.ts`. Animate transform and opacity.
+
+## Sound and haptics
+
+`src/fx` holds the platform's sound. Games never import `fx/sound.ts` (the Web Audio synth, a lazy chunk); they go through two tiny modules that load it on the first sound.
+
+- **Sounds.** Every sound is a synthesised recipe in `sound.ts` (no audio files) with a tier: `moment` (plays on "Big moments", the default, and on All), `beat` and `tick` (All only). `cue(name, tier?, { pitch, gain })` plays under the Me page's setting (`baithak.fx`, `fx/prefs.ts`); Spades' own `sfx()` path and mode are separate. A limiter keeps a sound to once per 60ms and eight voices, and a moment ducks the rest. Audio unlocks on the first tap, and the iPhone silent switch mutes it (we don't ask for `playback`).
+- **Feedback.** `fx/feedback.ts` has `feedback(kind)`: a table of kind to sound, tier and haptic pattern (`HAPTIC`: tap, nope, beat, big, win), so a tap's sound and buzz travel together. Stores call it where they used to call the one-size 10ms buzz.
+- **Sequences.** `fx/sequence.ts` `scheduleCues(plan, { reduced })` plays a plan of timed cues built from the same constants the animation uses (`LAND_GAP`, `podiumReveal`, the deal's gap), so sound and motion can't drift. `cancel({ settle })` runs on a skip (the end state's one sound) and on unmount; reduced motion plays only the plan's `reduced` cue. Plans are pure functions, one folder per game (`games/<game>/sound/`), plus `fx/podiumCues.ts` for the shared podium. Sound follows state: a reveal that was already seen, a saved game opened again or a live page catching up plays nothing.
+- **Quick mute.** `components/ui/QuickMute.tsx` cycles All, Big moments, Off in the same `baithak.fx` setting (a row in each game's menu, a button on the desk rail).
+- **Testing.** In dev and test builds `cue()` records `{ name, tier, at, pitch? }` in `window.__fxLog` (only cues that passed the setting). Production builds drop it; the e2e build sets `VITE_FX_LOG=1` to keep it. The Sound Board (`/?lab=moments&tab=sounds`, dev only) plays every sound and each game's sequences.
 
 ## Sheets and dialogs
 

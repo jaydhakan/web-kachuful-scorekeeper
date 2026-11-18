@@ -5,6 +5,8 @@ import { PlayingCard } from '@/components/ui/PlayingCard';
 import { Table, TablePin } from '@/components/ui/Table';
 import { EASE } from '@/components/ui/motion';
 import { seatPos, toPct } from '@/lib/tableGeometry';
+import { dealCues, dealStages } from '@/games/kaali-teeri/sound/plans';
+import { useCuePlan } from '@/games/kaali-teeri/sound/useCuePlan';
 import { ktSetup as s } from '@/games/kaali-teeri/strings/setup';
 import { DeckStack } from './Dealer';
 import { TakeOut } from './TakeOut';
@@ -26,20 +28,27 @@ export default function Deal() {
   const n = g?.players.length ?? 0;
   const h = g?.hands.find((x) => x.index === deal?.index);
   const needPass = deal?.prev != null && h && deal.prev !== h.dealerIndex;
-  const dealMs = (n - 1) * 50 + 480 + 120;
+  const { T } = dealStages(n, !!needPass);
+  // Sound rides the same stage times; a skip or leaving drops what hasn't played.
+  const sound = useCuePlan(
+    !rm && g && h ? `kt-deal:${g.syncId}:${h.index}` : null,
+    dealCues(n, !!needPass),
+  );
   // The rest of the app is inert meanwhile, so keys only reach the skip control if it holds focus.
   useEffect(() => root.current?.focus({ preventScroll: true }), []);
   useEffect(() => {
     if (rm || !h) return actions.dealDone();
     if (stage >= 4) return actions.dealDone();
-    const T = [520, needPass ? 650 : 80, dealMs, 1500];
     const id = setTimeout(() => setStage((v) => v + 1), T[stage]);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, rm]);
   if (!g || !h || rm) return null;
   const from = toPct('full', seatPos('full', n, h.dealerIndex, g.direction));
-  const skip = () => setStage(4);
+  const skip = () => {
+    sound.cancel();
+    setStage(4);
+  };
   return (
     <m.div
       ref={root}

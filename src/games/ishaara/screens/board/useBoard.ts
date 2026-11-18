@@ -11,7 +11,9 @@ import { useAutoTimeout, type IshaaraTable } from '@/games/ishaara/state/useTabl
 import { table as s } from '@/games/ishaara/strings/table';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { momentText, type Moment } from './Notes';
-import { useServerNow } from './useServerNow';
+import { useServerClock } from '@/hooks/useServerClock';
+import { mindMeld, photoFinish } from './beats';
+import { useTurnMoments } from './useTurnMoments';
 
 const b = s.board;
 /** How long a reveal moment or a turn notice stays before the board settles. */
@@ -70,6 +72,10 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   const { game, conn, busy, clockOffset, send } = table;
   const [selected, setSelected] = useState<number | null>(null);
   const [moment, setMoment] = useState<Moment | null>(null);
+  // The newest state turned a card over, so its moment is about to be set: the end must wait for it, not race it.
+  const momentDue = useRef(false);
+  // I2: the cards of a clue for 3+ just fully found, pulsed in the order they were found.
+  const [meld, setMeld] = useState<{ cards: number[]; key: number } | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [handoff, setHandoff] = useState<Handoff | null>(null);
   // Bumped by a tap on an inert board, so the clue card can say why.
@@ -82,8 +88,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   const active = game?.status === 'active';
   useWakeLock(!!game && game.status !== 'finished');
   useAutoTimeout(table, active);
-  const ticking = !!game && (game.deadline !== null || !!game.pending || !!game.undo);
-  const serverNow = useServerNow(clockOffset, ticking);
+  const moments = useTurnMoments(game);
 
   // Each new state: what turned, what to say, and whether the selection still stands.
   useEffect(() => {
@@ -91,9 +96,13 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     prev.current = game;
     if (!game || !p || game.rev === p.rev) return;
     const d = diffReveal(p, game);
+    momentDue.current = !!d && 'moment' in d;
+    const melded = mindMeld(game);
+    if (d && 'moment' in d && melded && !mindMeld(p)) setMeld({ cards: melded, key: game.rev });
+    else if (d) setMeld(null);
     if (d && 'moment' in d) {
       setMoment(d.moment);
-      setSaid(momentText(d.moment));
+      setSaid(melded && !mindMeld(p) ? `${b.meld}. ${momentText(d.moment)}` : momentText(d.moment));
     } else if (d) setSaid(b.announce.undone(d.undone.toUpperCase()));
     const n = noticeOf(p, game);
     if (n && n.kind !== 'undo') setNotice(n);
@@ -114,6 +123,15 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     );
   }, [game]);
 
+  // I3: one heartbeat as both teams come down to their last word (a beat: heard when Sounds is All).
+  const photo = !!game && photoFinish(game);
+  const beat = useRef<string | null>(null);
+  useEffect(() => {
+    if (!photo || !game || beat.current === game.id) return;
+    beat.current = game.id;
+    void import('@/fx/sound').then((m) => m.cue('heartbeat'));
+  }, [photo, game]);
+
   // A moment fades after a while. At the end a trap waits for "See the result", a found-all win holds a few
   // seconds over the turned key, and a resignation moves on at once.
   const finished = game?.status === 'finished';
@@ -123,6 +141,8 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   useEffect(() => {
     if (finished) {
       if (endedOnCard && moment?.kind === 'trap') return;
+      // The moment is set by an effect after this render: a 0ms hand-off here could fire before it lands.
+      if (!moment && momentDue.current) return;
       const id = setTimeout(onFinished, endedOnCard ? WIN_HOLD_MS : 0);
       return () => clearTimeout(id);
     }
@@ -161,7 +181,13 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     setSelected(null);
     await act({ type: 'guess', card });
   };
-  const undo = game?.undo && serverNow < game.undo.until && active ? game.undo : null;
+  // The clock re-renders the board only when the undo window closes; the timers below are leaves of their own.
+  const undoOpen = useServerClock(
+    clockOffset,
+    !!game?.undo && active,
+    (now) => !!game?.undo && now < game.undo.until,
+  );
+  const undo = undoOpen && active ? (game?.undo ?? null) : null;
   const pending = game?.pending ?? null;
   const picker = pending ? other(pending.penaltyFor) : null;
   const endDisabled = !canSend || !game || game.guessedThisTurn < 1;
@@ -176,10 +202,12 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     active,
     finished,
     endedOnCard,
-    serverNow,
+    clockOffset,
     selected,
     setSelected,
     moment,
+    meld,
+    photo,
     notice,
     handoff,
     nudge,
@@ -197,6 +225,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     picker,
     endDisabled,
     onFinished,
+    moments,
   };
 }
 

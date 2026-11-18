@@ -4,6 +4,7 @@ import { useApp } from '@/games/kachuful/state/store';
 import { Icon } from '@/components/ui/Icons';
 import { PRESS_SM } from '@/components/ui/motion';
 import { GhostButton, Kbd } from './DeskParts';
+import { SoundRailButton } from '@/components/ui/QuickMute';
 import { RailItem } from '@/components/desk/RailItem';
 import { IconOn } from '@/components/ui/IconsFill';
 import { DESTS, destRoute, destsFor, type Dest } from '@/games/kachuful/components/hubNav';
@@ -67,7 +68,7 @@ function useNav(onKeys: () => void) {
 /** The side rail from tablet-on-its-side width up. */
 export function Rail({ onKeys }: { onKeys: () => void }) {
   const n = useNav(onKeys);
-  const { state } = useApp();
+  const { state, actions } = useApp();
   return (
     <nav
       aria-label={t.desk.nav.label}
@@ -150,6 +151,7 @@ export function Rail({ onKeys }: { onKeys: () => void }) {
         on={n.where === 'dest:account' || n.where === 'dest:signin' || n.where === 'dest:admin'}
         onClick={() => n.dest({ screen: state.session ? 'account' : 'signin' })}
       />
+      <SoundRailButton onToast={actions.say} />
       <RailItem icon={Icon.undo} label={t.desk.nav.undo} disabled={!n.canUndo} onClick={n.undo} />
       <RailItem icon={Icon.menu} label={t.desk.nav.menu} onClick={n.menu} />
       <div className="hidden kbd:block">

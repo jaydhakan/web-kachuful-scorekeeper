@@ -4,6 +4,9 @@ import { createPortal } from 'react-dom';
 import type { KtHand } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import type { SeatBadge } from '@/components/ui/Table';
+import { playCue, type Cue } from '@/fx/feedback';
+import { scheduleCues, type CueRun } from '@/fx/sequence';
+import { landPitch } from '@/games/kaali-teeri/sound/plans';
 import { seatBadges } from './bits';
 
 /** Seconds: the flip's spring has settled by then; and the dot's run from the card to the seat. */
@@ -68,6 +71,18 @@ export function useFreshMarks(
   return fresh;
 }
 
+const LAND_MS = (FLIP_S + FLY_S) * 1000;
+const pop = (cardIndex: number): Cue => ({ name: 'pop', pitch: landPitch(cardIndex) });
+// The phone draws two copies of the cards, each with this hook: one pop per card, not two.
+const lastPop = { key: '', at: 0 };
+function popOnce(key: string, c: Cue) {
+  const now = Date.now();
+  if (lastPop.key === key && now - lastPop.at < 1500) return;
+  lastPop.key = key;
+  lastPop.at = now;
+  playCue(c);
+}
+
 /**
  * The seat badges for the hand in play. A partner marked just now gets theirs as the dot lands on the seat, not
  * before; under reduced motion there is no dot, so nothing waits.
@@ -79,19 +94,33 @@ export function useRevealBadges(
   const fresh = useFreshMarks(h, useKt().state.undo.length);
   const [landed, setLanded] = useState<ReadonlySet<number>>(new Set());
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const pops = useRef(new Map<number, CueRun>());
   useEffect(() => {
-    for (const tok of fresh.values())
-      if (!timers.current.has(tok))
+    for (const [i, tok] of fresh)
+      if (!timers.current.has(tok)) {
         timers.current.set(
           tok,
-          setTimeout(() => setLanded((s) => new Set(s).add(tok)), (FLIP_S + FLY_S) * 1000),
+          setTimeout(() => setLanded((s) => new Set(s).add(tok)), LAND_MS),
         );
+        // The dot's landing pops once, higher for a later card; under reduced motion there's no dot, so at once.
+        pops.current.set(
+          tok,
+          scheduleCues(
+            { cues: [{ at: LAND_MS, ...pop(i) }], reduced: pop(i) },
+            { reduced: !!rm, play: (c) => popOnce(`${h?.index}:${i}`, c) },
+          ),
+        );
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per marking
   }, [fresh]);
   useEffect(() => {
-    const ts = timers.current;
+    const ts = timers.current,
+      ps = pops.current;
     return () => {
       ts.forEach(clearTimeout);
       ts.clear();
+      ps.forEach((r) => r.cancel());
+      ps.clear();
     };
   }, []);
   if (!h) return undefined;

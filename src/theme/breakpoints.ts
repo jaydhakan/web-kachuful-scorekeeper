@@ -38,3 +38,6 @@ export const MQ = {
 
 /** Height steps for `@h-*` container variants, in rem so large text compacts a layout sooner. */
 export const CQ_HEIGHT = { short: '40rem', tiny: '32rem' } as const;
+
+/** Whether this screen gets a game's large-screen UI, read once (to fetch the right chunk ahead of time). */
+export const isBig = () => typeof matchMedia === 'function' && matchMedia(MQ.big).matches;

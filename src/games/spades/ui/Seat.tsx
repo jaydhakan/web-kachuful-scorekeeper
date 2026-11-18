@@ -62,6 +62,8 @@ export interface SeatProps {
   turn: boolean;
   away: boolean;
   nil: NilState;
+  /** A Blind Nil: a second, outer ring for the hand (static; a Nil has the one halo). */
+  blind?: boolean;
   timer: SeatTimer | null;
   invited: boolean;
   /** A bid that just came in: it pops above the avatar for a moment. */
@@ -107,7 +109,14 @@ export function TimerBar({
   );
 }
 
-function Shards({ seed }: { seed: number }) {
+/** Eight pieces flying out and falling: a Nil halo breaking, or the ♠ chip when spades break (`tone` paints them). */
+export function Shards({
+  seed,
+  tone = 'bg-[var(--medal-gold-hi)]',
+}: {
+  seed: number;
+  tone?: string;
+}) {
   const box = useRef<HTMLSpanElement>(null);
   useLayoutEffect(() => {
     const r = rng(seed);
@@ -135,7 +144,7 @@ function Shards({ seed }: { seed: number }) {
       {Array.from({ length: 8 }, (_, i) => (
         <i
           key={i}
-          className="absolute -ml-[5px] -mt-[2px] h-1 w-2.5 rounded-[2px] bg-[var(--medal-gold-hi)] opacity-0"
+          className={`absolute -ml-[5px] -mt-[2px] h-1 w-2.5 rounded-[2px] opacity-0 ${tone}`}
         />
       ))}
     </span>
@@ -161,6 +170,7 @@ export function Seat({
   turn,
   away,
   nil,
+  blind = false,
   timer,
   invited,
   bubble,
@@ -223,6 +233,7 @@ export function Seat({
   return (
     <div
       data-seat={seat}
+      data-seat-me={me || undefined}
       role="group"
       aria-label={aria}
       className={`pointer-events-none absolute z-[3] w-[92px] -translate-x-1/2 -translate-y-1/2 text-center ${className}`}
@@ -254,6 +265,13 @@ export function Seat({
           aria-hidden
           className={`absolute -inset-[7px] rounded-full border-[2.5px] border-[var(--medal-gold-hi)] shadow-[0_0_16px_var(--medal-gold)] ${nil === 'live' ? 'sp-halo opacity-100' : nil === 'made' ? 'opacity-100' : 'opacity-0'}`}
         />
+        {blind && (nil === 'live' || nil === 'made') && (
+          <span
+            aria-hidden
+            data-blind-ring
+            className="absolute -inset-[13px] rounded-full border-2 border-[color-mix(in_srgb,var(--medal-gold-hi)_70%,transparent)]"
+          />
+        )}
         {shatter > 0 && <Shards key={shatter} seed={seat * 13 + shatter} />}
         <b
           aria-hidden

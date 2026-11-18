@@ -1,5 +1,4 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
-import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { uuid } from '@/lib/ids';
 import { ApiError } from '@/sync/api';
@@ -12,21 +11,14 @@ import { loadLastRules } from './state/lastSetup';
 import { TableContext } from './state/tableContext';
 import { useTableLink } from './state/useTableLink';
 import { reasonOf, spEp, viewOfError } from './sync/endpoints';
+import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 // The table is its own chunk so the lobby opens light; a table's address fetches it while the lobby fills.
 const loadPlayTable = () => import('./table/PlayTable');
 const PlayTable = lazy(loadPlayTable);
 
-function Loading({ label }: { label: string }) {
-  return (
-    <div className="app-root scr-bg relative h-full w-full">
-      <p role="status" className="sr-only">
-        {label}
-      </p>
-      <Loader />
-    </div>
-  );
-}
+// A table's outline while it is created, joined or fetched: the lobby and the table both sit around the felt.
+const Loading = ({ label }: { label: string }) => <TableSkeleton kind="felt" label={label} />;
 
 function Problem({ title, body, onRetry }: { title: string; body: string; onRetry?: () => void }) {
   return (

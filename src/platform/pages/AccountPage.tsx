@@ -27,8 +27,10 @@ import { Sheet } from '@/components/ui/Sheet';
 import { ProgressRing } from '@/components/ui/Stats';
 import { HeroStat, HeroStatsSkeleton } from '@/components/ui/HeroStat';
 import { authError } from './AuthPages';
+import { FxSettings } from './FxSettings';
 import { InboxList } from './InboxList';
 import { ClaimsList, useClaims } from './ClaimsList';
+import { MeAchievements, MeActivity } from './MeProgress';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 
@@ -61,9 +63,13 @@ export function AccountPage() {
   if (!s)
     return (
       <Page title={ac.title}>
-        <PrimaryButton className="w-full" onClick={() => actions.navReset([{ screen: 'signin' }])}>
+        <PrimaryButton
+          className="mb-6 w-full"
+          onClick={() => actions.navReset([{ screen: 'signin' }])}
+        >
           {t.hub.auth.signIn}
         </PrimaryButton>
+        <FxSettings />
       </Page>
     );
   const p: Me | null = me ?? (s.player && { ...s.player, firstName: null, lastName: null });
@@ -118,6 +124,8 @@ export function AccountPage() {
                   {Icon.chev}
                 </span>
               </button>
+              <MeAchievements id={p.id} />
+              <MeActivity />
             </>
           ) : (
             <div className="mb-6 flex flex-col items-center gap-1 text-center">
@@ -159,6 +167,7 @@ export function AccountPage() {
               <InboxList />
             </Section>
           )}
+          <FxSettings />
           <Section title={ac.settings}>
             <ul className="glass overflow-hidden">
               {settings.map(([ic, label, go], i) => (

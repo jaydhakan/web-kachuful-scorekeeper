@@ -14,6 +14,7 @@ import {
   earnedKey,
   gameEndedAt,
   headToHead,
+  ladderCounts,
   leaderboard,
   minRoundsFor,
   monthOf,
@@ -81,6 +82,8 @@ import {
   spadesSeatings as spadesOnlineSeatings,
   spadesSeatKind,
 } from './spadesOnline';
+import { GAME_MOCKS, type GameMock, type MockCtx } from './progression/index';
+import type { GameId } from '../../src/progression/types';
 
 type Seen = Omit<Activity, 'id'>;
 
@@ -298,7 +301,7 @@ export function seed(now = Date.now()) {
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
 function feed(item: Seen) {
-  db.activity.unshift({ ...item, id: db.nextActivity++ } as Activity);
+  db.activity.unshift({ gameKind: 'kachuful', ...item, id: db.nextActivity++ } as Activity);
 }
 
 const keyOf = (w: WireGame) => w.syncId ?? w.id;
@@ -1687,7 +1690,7 @@ on('GET', '/api/leaderboard', ({ url, req, res }) => {
   };
 });
 const awardsOut = (
-  f: Facts,
+  f: Facts | undefined,
   list: { code: string; playerId: string; value: number; gameId?: string; roundIndex?: number }[],
 ) =>
   list.map(({ playerId, gameId, roundIndex, ...a }) => ({
@@ -1696,8 +1699,32 @@ const awardsOut = (
     gameId: gameId ?? null,
     roundIndex: roundIndex ?? null,
   }));
+const mockCtx: MockCtx = {
+  tz: TZ,
+  resolve: (id) => resolve(id),
+  ktGames: () => [...db.ktGames.values()].filter((r) => !r.deletedAt).map((r) => r.payload),
+};
+/** `?game=`: null for Kachuful (left out or named), whose progression is below; else that game's mock. */
+function gameMock(url: URL): [Exclude<GameId, 'kachuful'>, GameMock] | null {
+  const g = url.searchParams.get('game') ?? 'kachuful';
+  if (g === 'kachuful') return null;
+  if (!(g in GAME_MOCKS)) throw err(422, 'invalid', { fields: { game: 'unknown game' } });
+  const id = g as Exclude<GameId, 'kachuful'>;
+  return [id, GAME_MOCKS[id]];
+}
+const otherMonths = (m: GameMock) => {
+  const now = monthOf(Date.now(), TZ);
+  return m.months(mockCtx).map((mo) => ({ mo, final: mo < now }));
+};
 on('GET', '/api/awards/daily', ({ url }) => {
   const date = url.searchParams.get('date') ?? dayOf(Date.now(), TZ);
+  const other = gameMock(url);
+  if (other)
+    return {
+      date,
+      final: date < dayOf(Date.now(), TZ),
+      awards: awardsOut(undefined, other[1].daily(mockCtx, date)),
+    };
   const f = facts();
   return {
     date,
@@ -1705,7 +1732,19 @@ on('GET', '/api/awards/daily', ({ url }) => {
     awards: awardsOut(f, dailyAwards(f, date, TZ)),
   };
 });
-on('GET', '/api/seasons/:m', ({ m }) => {
+on('GET', '/api/seasons/:m', ({ m, url }) => {
+  const other = gameMock(url);
+  if (other) {
+    const s = other[1].season(mockCtx, m[0]);
+    return {
+      season: m[0],
+      final: m[0] < monthOf(Date.now(), TZ),
+      gameKind: other[0],
+      minGames: other[1].minGames,
+      standings: s.standings.map(({ playerId, ...r }) => ({ ...r, player: summaryOf(playerId) })),
+      awards: awardsOut(undefined, s.awards),
+    };
+  }
   const f = facts();
   const s = season(f, m[0], TZ);
   return {
@@ -1715,7 +1754,13 @@ on('GET', '/api/seasons/:m', ({ m }) => {
     awards: awardsOut(f, s.awards),
   };
 });
-on('GET', '/api/seasons', () => {
+on('GET', '/api/seasons', ({ url }) => {
+  const other = gameMock(url);
+  if (other)
+    return otherMonths(other[1]).map(({ mo }) => {
+      const ch = other[1].season(mockCtx, mo).awards.find((a) => a.code === 'season_champion');
+      return { season: mo, champion: ch ? summaryOf(ch.playerId) : null };
+    });
   const f = facts();
   const months = [...new Set(f.rounds.map((r) => monthOf(r.doneAt, TZ)))].sort().reverse();
   return months.map((mo) => {
@@ -1736,15 +1781,52 @@ on('GET', '/api/wrapped/:y/:id', ({ m }) => {
     partner: w.partner && { ...w.partner, player: summaryOf(w.partner.playerId, f) },
   };
 });
-on('GET', '/api/activity', ({ url }) =>
-  page(db.activity, url.searchParams.get('cursor'), Number(url.searchParams.get('limit')) || 50),
-);
+/** A game's own feed items, numbered after Kachuful's so ids never clash. */
+const otherActivity = (g: Exclude<GameId, 'kachuful'>, m: GameMock): Activity[] =>
+  (m.activity?.(mockCtx) ?? []).map(
+    (a, k) =>
+      ({ ...a, gameKind: g, id: 1e6 * (1 + Object.keys(GAME_MOCKS).indexOf(g)) + k }) as Activity,
+  );
+on('GET', '/api/activity', ({ url }) => {
+  const g = url.searchParams.get('game');
+  const all = g === 'all';
+  const other = all ? null : gameMock(url);
+  const items = all
+    ? [
+        ...db.activity,
+        ...Object.entries(GAME_MOCKS).flatMap(([id, m]) =>
+          otherActivity(id as Exclude<GameId, 'kachuful'>, m),
+        ),
+      ].sort((a, b) => b.createdAt - a.createdAt)
+    : other
+      ? otherActivity(...other)
+      : db.activity.filter((a) => (a.gameKind ?? 'kachuful') === 'kachuful');
+  return page(items, url.searchParams.get('cursor'), Number(url.searchParams.get('limit')) || 50);
+});
 on('GET', '/api/achievements', ({ url }) => {
   const pid = url.searchParams.get('playerId');
-  const list = [...db.achievements.values()]
+  const other = gameMock(url);
+  const rows: Achievement[] = other
+    ? other[1].achievements(mockCtx).map((e) => ({
+        id: hash(other[0] + '|' + earnedKey(e)),
+        gameKind: other[0],
+        ...e,
+      }))
+    : [...db.achievements.values()].map((a) => ({ ...a, gameKind: 'kachuful' }));
+  const list = rows
     .filter((a) => !pid || a.playerId === resolve(pid))
     .sort((a, b) => b.earnedAt - a.earnedAt);
   return page(list, url.searchParams.get('cursor'), 200);
+});
+on('GET', '/api/achievements/ladders', ({ url }) => {
+  const id = resolve(url.searchParams.get('playerId') ?? '');
+  if (!db.players.has(id)) throw err(404, 'not_found');
+  const other = gameMock(url);
+  return {
+    gameKind: other?.[0] ?? 'kachuful',
+    playerId: id,
+    counts: other ? other[1].ladders(mockCtx, id) : ladderCounts(facts(), id),
+  };
 });
 
 // ——— seat claims (2026-11-06) ———

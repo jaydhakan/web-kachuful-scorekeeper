@@ -23,11 +23,13 @@ const boxes = (page: Page) =>
     [...document.querySelectorAll('button, [role="button"], [data-seat], input')]
       .map((el) => {
         const r = el.getBoundingClientRect();
+        // A reel follows a heading whose lines vary with each theme's face: its cards are measured from its top.
+        const reel = el.closest('ul[aria-label="Achievements"]')?.getBoundingClientRect().y ?? 0;
         const id =
           el.getAttribute('aria-label') ??
           el.getAttribute('data-seat') ??
           (el.textContent ?? '').trim().slice(0, 24);
-        return `${id} ${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.width)}x${Math.round(r.height)}`;
+        return `${id} ${Math.round(r.x)},${Math.round(r.y - reel)} ${Math.round(r.width)}x${Math.round(r.height)}`;
       })
       .sort((a, b) => a.localeCompare(b)),
   );
@@ -99,9 +101,11 @@ for (const id of THEMES)
     fonts.length = 0;
     await page.reload();
     await page.waitForLoadState('networkidle');
+    // Chrome also fetches the default theme's face (Instrument Sans) at the first paint of any theme, from the shared
+    // stylesheet, before the theme's own sheet applies; what must never arrive is another theme's font.
     const want = {
       'sunset-glass': ['instrument-sans'],
-      'yerba-sun': ['bricolage', 'space-mono'],
+      'yerba-sun': ['instrument-sans', 'bricolage', 'space-mono'],
       'editorial-paper': ['instrument-serif', 'instrument-sans', 'dm-mono'],
       'emerald-gilt': ['cinzel', 'instrument-sans'],
     }[id];
@@ -316,6 +320,7 @@ test('every theme lays out Ishaara’s setup, board, key and win identically', a
   await each('win', async (id) => {
     await switchTheme(page, id);
     await expect(page.getByRole('heading', { name: `${TEAM[other(t)]} wins` })).toBeVisible();
+    await expect(page.getByRole('list', { name: 'Achievements' })).toBeVisible();
   });
   await close();
 

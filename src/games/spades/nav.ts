@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
+import { gameFromPath } from '@/platform/route';
 import { parseOnlineEntry, type OnlineEntry } from './online/entry';
 
 /** The pages table mode opens straight to from Home (`?keep&page=history`). */
-export type TablePage = 'history' | 'leaderboard';
+export type TablePage = 'history' | 'leaderboard' | 'awards' | 'activity';
 
 /** What `/spades` shows for an address: Home, table mode (`?keep`), or online play. */
 export type SpView =
@@ -10,7 +11,7 @@ export type SpView =
   | { kind: 'table'; page: TablePage | null }
   | { kind: 'online'; entry: OnlineEntry };
 
-const PAGES: readonly string[] = ['history', 'leaderboard'];
+const PAGES: readonly string[] = ['history', 'leaderboard', 'awards', 'activity'];
 
 export function viewOf(search: string): SpView {
   const q = new URLSearchParams(search);
@@ -34,8 +35,14 @@ function subscribe(f: () => void) {
   };
 }
 
+// While the platform holds Spades on screen for the next page to load, the address already names that page:
+// Spades keeps the last search it owned instead of redrawing for someone else's.
+let last = '';
+const snapshot = () =>
+  gameFromPath(location.pathname) === 'spades' ? (last = location.search) : last;
+
 /** The address's search part, live across spGo() and system Back. */
-export const useSpadesSearch = () => useSyncExternalStore(subscribe, () => location.search);
+export const useSpadesSearch = () => useSyncExternalStore(subscribe, snapshot);
 
 /**
  * Moves within `/spades` (`spGo('?keep')`, `spGo('')` for Home). A new history entry, so system Back returns; with

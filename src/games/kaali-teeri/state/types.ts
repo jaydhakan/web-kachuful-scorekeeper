@@ -64,11 +64,13 @@ export type KtSheet =
   | { type: 'addPlayer'; name?: string };
 
 /** Home's hub links. */
-export type KtHubPage = 'history' | 'leaderboard' | 'stats';
+export type KtHubPage = 'history' | 'leaderboard' | 'stats' | 'awards' | 'activity';
 
 /** A page opened over the game screens; ids are player keys (`playerKey`) and game sync ids. */
 export type KtRoute =
-  | { page: 'history' | 'leaderboard' | 'players' }
+  | { page: 'history' | 'leaderboard' | 'players' | 'awards' | 'activity' }
+  /** One player's achievements, or everyone's. */
+  | { page: 'achievements'; id?: string }
   | { page: 'game'; id: string }
   | { page: 'player'; id: string }
   | { page: 'h2h'; a: string; b: string };
@@ -107,6 +109,8 @@ export interface KtState {
   fresh: boolean;
   /** The saved game couldn't be read: saving waits until the player chooses Reset or Keep backup. */
   corrupt: boolean;
+  /** A hand just confirmed: its moments drop in as cards (worked out where they show). */
+  pops: { id: number; hand: number } | null;
 }
 
 /** Everything the Edit sheet sets on a done hand; totals recompute from it. */
@@ -135,6 +139,7 @@ export type KtAction =
   | { type: 'say'; msg: string; undo?: boolean }
   | { type: 'toastDone' }
   | { type: 'bannerDone' }
+  | { type: 'popsDone' }
   | { type: 'dealDone' }
   | { type: 'setFresh'; v: boolean }
   // Setup
@@ -171,6 +176,8 @@ export type KtAction =
   | { type: 'confirmHand' }
   // Between hands and after
   | { type: 'nextHand' }
+  /** A game won on its last hand: from that hand's summary to the winner. */
+  | { type: 'seeWinner' }
   | { type: 'finishGame' }
   | { type: 'abandon' }
   | { type: 'editHand'; i: number; edit: KtHandEdit }

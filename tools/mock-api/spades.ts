@@ -131,6 +131,12 @@ export function spSummary(r: SpRec, pub = false): SpGameSummary {
   };
 }
 
+/** Every stored game, not deleted, merged players followed: what achievements and awards are worked out from. */
+export const spadesStored = (): SpGame[] => live().map((r) => resolved(r.payload));
+
+/** A player as the server's feed items carry them. */
+export const spPlayerSummary = (playerId: string): PlayerSummary => kit.summaryOf(playerId);
+
 /** Every live game's seats, for the seat invites' circle. */
 export const spadesSeatings = () =>
   live().map((r) => ({

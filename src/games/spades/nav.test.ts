@@ -15,6 +15,8 @@ describe('the routing contract', () => {
     expect(viewOf('?keep')).toEqual({ kind: 'table', page: null });
     expect(viewOf('?keep&page=history')).toEqual({ kind: 'table', page: 'history' });
     expect(viewOf('?keep&page=leaderboard')).toEqual({ kind: 'table', page: 'leaderboard' });
+    expect(viewOf('?keep&page=awards')).toEqual({ kind: 'table', page: 'awards' });
+    expect(viewOf('?keep&page=activity')).toEqual({ kind: 'table', page: 'activity' });
     expect(viewOf('?keep&page=admin')).toEqual({ kind: 'table', page: null });
   });
   it('opens online play for a new table, a table, a seat invite, a code or a live link', () => {

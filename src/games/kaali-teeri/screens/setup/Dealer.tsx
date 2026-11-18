@@ -74,7 +74,6 @@ export default function Dealer() {
               aria-label={s.randomLabel}
               onClick={() => {
                 actions.randomDealer();
-                actions.vib();
               }}
               className="glass inline-flex min-h-12 shrink-0 items-center gap-1.5 !rounded-full px-4 text-16 font-medium"
             >

@@ -1,6 +1,7 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState, type CSSProperties } from 'react';
 import { whenIdle } from '@/lib/idle';
+import { DeskSetup, Pages, warmNext } from '@/games/kachuful/chunks';
 import { useApp } from '@/games/kachuful/state/store';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { palette, themeConfetti } from '@/theme/palette';
@@ -10,7 +11,6 @@ import { RoundStart } from '@/games/kachuful/screens/round/RoundStart';
 import { SheetHost } from '@/games/kachuful/sheets/SheetHost';
 import { ConfirmModal } from '@/games/kachuful/components/ConfirmModal';
 import { RepairSaveModal } from '@/games/kachuful/components/RepairSaveModal';
-import { StreakCelebration } from '@/games/kachuful/components/StreakCelebration';
 import { BadgePop } from '@/games/kachuful/components/BadgePop';
 import { HostLive } from '@/games/kachuful/components/HostLive';
 import { Banner } from '@/components/ui/Banner';
@@ -28,10 +28,11 @@ import { UpcomingDrawer } from './UpcomingDrawer';
 import { Workspace } from './Workspace';
 import { Loader } from '@/components/ui/Loader';
 
-const Pages = lazy(() => import('@/games/kachuful/screens/pages/Pages'));
-// Not needed for the first paint; fetched once the page is idle, so New Game still opens at once.
-const loadSetup = () => import('./DeskSetup');
-const DeskSetup = lazy(() => loadSetup().then((m) => ({ default: m.DeskSetup })));
+const loadStreak = () =>
+  import('@/games/kachuful/components/StreakCelebration').then((m) => ({
+    default: m.StreakCelebration,
+  }));
+const StreakCelebration = lazy(loadStreak);
 const RulesDrawer = lazy(() => import('./RulesDrawer').then((m) => ({ default: m.RulesDrawer })));
 const Confetti = lazy(() =>
   import('@/components/ui/Confetti').then((m) => ({ default: m.Confetti })),
@@ -61,7 +62,8 @@ export default function DeskShell() {
   useEffect(() => {
     if (rm && fresh) actions.setFresh(false);
   }, [rm, fresh, actions]);
-  useEffect(() => whenIdle(() => void loadSetup()), []);
+  // Not needed for the first paint; fetched once the page is idle, so New Game and the pages open at once.
+  useEffect(() => whenIdle(() => void Promise.all([warmNext(true), loadStreak()])), []);
   useShortcuts(
     {
       '?': () => setKeys(true),
@@ -167,7 +169,13 @@ export default function DeskShell() {
       </AnimatePresence>
       <AnimatePresence>{modal && <ConfirmModal key={modal} kind={modal} />}</AnimatePresence>
       <AnimatePresence>{seq && <RoundStart key="seq" />}</AnimatePresence>
-      <AnimatePresence>{state.streakFx && <StreakCelebration key="streak" />}</AnimatePresence>
+      <AnimatePresence>
+        {state.streakFx && (
+          <Suspense key="streak" fallback={null}>
+            <StreakCelebration />
+          </Suspense>
+        )}
+      </AnimatePresence>
       <BadgePop />
       <HostLive />
       <AnimatePresence>{state.corrupt && <RepairSaveModal key="repair" />}</AnimatePresence>

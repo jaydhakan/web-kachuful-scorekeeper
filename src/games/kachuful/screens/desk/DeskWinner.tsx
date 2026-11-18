@@ -22,6 +22,7 @@ import { InkFill } from '@/components/ui/InkFill';
 import { Podium } from '@/components/ui/Podium';
 import { finalStandings } from '@/games/kachuful/lib/finalStandings';
 import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
+import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 
@@ -72,6 +73,11 @@ export function DeskWinner() {
   const { play, plan } = useReveal(
     board.map((x) => x.rank),
     state.fresh,
+  );
+  useWinnerSound(
+    board.map((x) => x.rank),
+    state.fresh,
+    `win:${g.id}:${g.finishedAt ?? 0}`,
   );
   const how = howWon(
     reel,

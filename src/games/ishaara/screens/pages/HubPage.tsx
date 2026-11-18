@@ -6,8 +6,9 @@ import { LeaderboardPage } from './LeaderboardPage';
 import { PlayerPage } from './PlayerPage';
 import { RulesPage } from './RulesPage';
 import { HubNavCtx, type HubNav, type HubRoute } from './parts';
+import { ProgressPage } from './ProgressPage';
 
-export type HubPageName = 'history' | 'leaderboard' | 'rules';
+export type HubPageName = 'history' | 'leaderboard' | 'awards' | 'activity' | 'rules';
 
 function Route({ r }: { r: HubRoute }) {
   switch (r.page) {
@@ -23,12 +24,16 @@ function Route({ r }: { r: HubRoute }) {
       return <H2HPage a={r.a} b={r.b} />;
     case 'rules':
       return <RulesPage />;
+    case 'awards':
+    case 'achievements':
+    case 'activity':
+      return <ProgressPage r={r} />;
   }
 }
 
 /**
- * Ishaara's hub: History, Leaderboard or How to play, and the pages they open (a game, a player, head-to-head) on a
- * local stack. Back pops it; at the bottom, `onBack` leaves the hub.
+ * Ishaara's hub: History, Leaderboard, Awards, Activity or How to play, and the pages they open (a game, a player,
+ * head-to-head, achievements) on a local stack. Back pops it; at the bottom, `onBack` leaves the hub.
  */
 export default function HubPage({ page, onBack }: { page: HubPageName; onBack: () => void }) {
   const [stack, setStack] = useState<HubRoute[]>([]);

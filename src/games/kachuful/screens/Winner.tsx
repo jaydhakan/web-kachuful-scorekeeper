@@ -23,6 +23,7 @@ import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
 import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
+import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 
@@ -81,6 +82,11 @@ export default function Winner() {
   const { play, plan, named } = useReveal(
     board.map((x) => x.rank),
     state.fresh,
+  );
+  useWinnerSound(
+    board.map((x) => x.rank),
+    state.fresh,
+    `win:${g.id}:${g.finishedAt ?? 0}`,
   );
   const how = howWon(reel, top);
   const headline = useRef<HTMLHeadingElement>(null);

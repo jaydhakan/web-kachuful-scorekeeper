@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   doneHands,
   result,
@@ -13,6 +13,9 @@ import { online } from '@/games/kaali-teeri/strings/online';
 import { fromWire } from '@/games/kaali-teeri/sync/engine';
 import { ktEp } from '@/games/kaali-teeri/sync/endpoints';
 import type { KtGameSummary, KtLiveResp } from '@/games/kaali-teeri/sync/types';
+import { reducedMotion } from '@/fx/reduced';
+import { scheduleCues, type CueRun } from '@/fx/sequence';
+import { viewerCues } from '@/games/kaali-teeri/sound/plans';
 import { agoTxt } from '@/lib/format';
 import { ApiError } from '@/sync/api';
 import { followLive } from '@/sync/live';
@@ -136,13 +139,22 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
   // A finished live table hands off to its recap in place.
   const [cur, setCur] = useState(link);
   const { kind, token } = cur;
+  // The game as last shown: a live change is judged against it, so only what arrives after the page loaded sounds.
+  const shown = useRef<KtGame | null>(null);
+  const heard = useRef<CueRun | null>(null);
 
   useEffect(() => {
     let live = true;
     setSt({ k: 'loading' });
+    shown.current = null;
     const read = kind === 'live' ? ktEp.live : ktEp.recap;
     read(token).then(
-      (r) => live && setSt(onFrom(r)),
+      (r) => {
+        if (!live) return;
+        const s = onFrom(r);
+        if (s.k === 'on') shown.current ??= s.game;
+        setSt(s);
+      },
       (e: unknown) => live && setSt(refused(e)),
     );
     if (kind === 'recap')
@@ -151,8 +163,18 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
       };
     const stop = followLive(token, (e) => {
       if (!live) return;
-      if (e.type === 'game') setSt(onFrom(e.data as unknown as KtLiveResp));
-      else if (e.type === 'watchers') setWatchers(e.n);
+      if (e.type === 'game') {
+        const s = onFrom(e.data as unknown as KtLiveResp);
+        if (s.k === 'on') {
+          const plan = viewerCues(shown.current, s.game);
+          if (plan) {
+            heard.current?.cancel();
+            heard.current = scheduleCues(plan, { reduced: reducedMotion() });
+          }
+          shown.current = s.game;
+        }
+        setSt(s);
+      } else if (e.type === 'watchers') setWatchers(e.n);
       else if (e.type === 'revoked') setSt({ k: 'revoked' });
       // The stream was refused for good: the plain read says why.
       else if (e.type === 'closed')
@@ -166,6 +188,7 @@ export default function Viewer({ link, onClose }: { link: KtViewerLink; onClose:
       live = false;
       stop();
       clearInterval(clock);
+      heard.current?.cancel();
     };
   }, [kind, token]);
 

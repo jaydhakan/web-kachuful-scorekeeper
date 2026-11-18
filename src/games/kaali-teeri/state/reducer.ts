@@ -62,6 +62,7 @@ export function initialKtState(
     noteSeq: 0,
     fresh: false,
     corrupt,
+    pops: null,
   };
 }
 
@@ -149,6 +150,7 @@ function begin(s: KtState, g: KtGame): KtState {
     screen: 'game',
     sheet: null,
     modal: null,
+    pops: null,
     deal: { index: 0, prev: null },
   };
   return keep ? say(next, m.toasts.previousSaved, true) : next;
@@ -481,9 +483,12 @@ function confirmHand(s: KtState): KtState {
     },
     { undo: true },
   );
-  return c.game.status === 'finished'
-    ? { ...c, fresh: true, dir: 1, screen: 'winner' }
-    : say({ ...c, dir: 1, screen: 'game' }, m.toasts.handSaved(h.index + 1), true);
+  // Reaching 1,000 ends the game, but the hand that did it is shown first: its summary, then See the winner. Its
+  // moments wait for the winner screen's reel.
+  if (c.game.status === 'finished') return { ...c, pops: null, dir: 1, screen: 'game' };
+  // The winner screen's reel shows a last hand's moments; any other hand's drop in as cards.
+  const n = say({ ...c, dir: 1, screen: 'game' }, m.toasts.handSaved(h.index + 1), true);
+  return { ...n, pops: { id: n.noteSeq, hand: h.index } };
 }
 
 function nextHand(s: KtState): KtState {
@@ -573,6 +578,7 @@ function undoLast(s: KtState): KtState {
       sheet: null,
       modal: null,
       deal: null,
+      pops: null,
       dir: -1,
       screen: g.status === 'finished' ? 'winner' : 'game',
     },
@@ -600,6 +606,8 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
       return say(s, a.msg, a.undo);
     case 'toastDone':
       return { ...s, toast: null };
+    case 'popsDone':
+      return s.pops ? { ...s, pops: null } : s;
     case 'bannerDone':
       return { ...s, banner: null };
     case 'dealDone':
@@ -706,6 +714,10 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
 
     case 'nextHand':
       return nextHand(s);
+    case 'seeWinner':
+      return s.game?.status === 'finished' && s.screen === 'game'
+        ? { ...s, fresh: true, dir: 1, screen: 'winner' }
+        : s;
     case 'finishGame':
       if (!live(s) || !hasDone(s.game)) return s;
       return { ...finished(s), modal: null, fresh: true, dir: 1, screen: 'winner' };
@@ -758,6 +770,7 @@ export function ktReducer(s: KtState, a: KtAction): KtState {
         sheet: null,
         modal: null,
         deal: null,
+        pops: null,
         pages: [],
         screen: a.game.status === 'finished' ? 'winner' : 'game',
       };

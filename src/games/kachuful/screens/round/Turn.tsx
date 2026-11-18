@@ -5,6 +5,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useBoxHeight } from '@/hooks/useBoxHeight';
 import { TD, minScale } from '@/lib/tableGeometry';
 import { MQ } from '@/theme/breakpoints';
+import { playCue } from '@/fx/feedback';
 import { useBidFlight } from '@/components/ui/BidFlight';
 import { BidKeys } from '@/components/ui/BidKeypad';
 import { Glass } from '@/components/ui/Glass';
@@ -17,6 +18,9 @@ import { t } from '@/strings';
 import { DealLine, HeroWho } from './Bidding';
 import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
+
+/** The bid's flick, as its chip lands on the seat. */
+const landed = () => playCue({ name: 'flick' });
 
 /** Seconds: the part that leaves goes faster than the new one arrives, so the two barely overlap. */
 const OUT = 0.11;
@@ -75,7 +79,7 @@ export function Turn() {
   const pick = (v: number, key: HTMLElement) => {
     const locked = isD && v === forb;
     // Measured here, before the bid lands: the turn moves on in the same update, and the flight is to this bidder.
-    if (!locked) flight.launch(key, v, pI);
+    if (!locked) flight.launch(key, v, pI, landed);
     actions.bid(v);
     if (locked) {
       setShake(v);

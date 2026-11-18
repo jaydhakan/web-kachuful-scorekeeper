@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { finishedDemo, liveDemo } from '@/games/kaali-teeri/test/render';
-import { readKtViewerLink } from './entry';
+import { readKtViewerLink, settleKtViewerLink } from './entry';
 import Viewer from './Viewer';
 
 /** A fake EventSource the test drives: `emit` sends a named event to the open stream. */
@@ -63,6 +63,14 @@ describe('the public Kaali Teeri viewer', () => {
     expect(readKtViewerLink()).toEqual({ kind: 'live', token: 'abc' });
     expect(location.search).toBe('?x=1');
     history.replaceState(null, '', '/kaali-teeri');
+    expect(readKtViewerLink()).toBeNull();
+  });
+
+  it('opens the app, not the viewer again, on a later visit to the same address', () => {
+    history.replaceState(null, '', '/kaali-teeri?recap=xyz');
+    expect(readKtViewerLink()).toEqual({ kind: 'recap', token: 'xyz' });
+    expect(readKtViewerLink()).toEqual({ kind: 'recap', token: 'xyz' });
+    settleKtViewerLink();
     expect(readKtViewerLink()).toBeNull();
   });
 

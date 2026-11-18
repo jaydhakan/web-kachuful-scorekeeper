@@ -6,6 +6,7 @@ import { ktDesk as kd } from '@/games/kaali-teeri/strings/desk';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useShortcuts, type Shortcuts } from '@/hooks/useShortcuts';
 import { whenIdle } from '@/lib/idle';
+import { Deal, Pages, Setup, warmNext, Winner } from '@/games/kaali-teeri/chunks';
 import { TR } from '@/theme/trumps';
 import { KeysModal } from '@/components/desk/Drawer';
 import { Banner } from '@/components/ui/Banner';
@@ -23,12 +24,8 @@ import { KtRail, KtTopBar } from './KtNav';
 import { KtWorkspace } from './KtWorkspace';
 import { useKtDeskKeys } from './useKtDeskKeys';
 
-// Not needed for the first paint; setup is fetched once the page is idle, so New Game still opens at once.
-const loadSetup = () => import('../setup/Setup');
-const Setup = lazy(loadSetup);
-const Deal = lazy(() => import('../setup/Deal'));
-const Winner = lazy(() => import('../Winner'));
-const Pages = lazy(() => import('../pages/Pages'));
+const loadMoments = () => import('../MomentCards');
+const MomentCards = lazy(loadMoments);
 
 // The toast sits at the top, centred on the content (under the top bar on an upright tablet), where it never covers
 // an action; the banner too, clear of the rail. Same offsets as Kachuful's desk.
@@ -56,7 +53,11 @@ export default function KtDeskShell() {
   const dealing = !!deal && screen === 'game' && !!game;
   const blocked = !!(sheet || modal || dealing || state.corrupt || updateDue || keys);
   const inGame = !!game && (screen === 'game' || screen === 'winner');
-  useEffect(() => whenIdle(() => void loadSetup()), []);
+  // Not needed for the first paint; fetched once the page is idle, so New Game and the pages open at once.
+  useEffect(() => whenIdle(() => void warmNext().then(loadMoments)), []);
+  // Mounted from the first hand confirmed on, so a batch of cards can leave before the next.
+  const [moments, setMoments] = useState(false);
+  if (state.pops && !moments) setMoments(true);
   useShortcuts(
     {
       '?': () => setKeys(true),
@@ -98,7 +99,9 @@ export default function KtDeskShell() {
       key = `sum-${h.index}`;
       content = (
         <>
-          <ScreenKeys map={{ enter: actions.nextHand }} />
+          <ScreenKeys
+            map={{ enter: game.status === 'finished' ? actions.seeWinner : actions.nextHand }}
+          />
           <KtDeskSummary />
         </>
       );
@@ -170,6 +173,11 @@ export default function KtDeskShell() {
       </m.div>
       <KtServiceWorker />
       <Toast toast={toast} onUndo={actions.undo} onDismiss={actions.dismissToast} />
+      {moments && (
+        <Suspense fallback={null}>
+          <MomentCards />
+        </Suspense>
+      )}
       <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
       <AnimatePresence>
         {keys && (

@@ -26,6 +26,8 @@ import { peek, type SpPeek } from '@/games/spades/state/peek';
 import { home as h } from '@/games/spades/strings/home';
 import { LazyPart } from './LazyPart';
 import { Spade, SpadeMark } from './SpadeMark';
+import { warmModes } from '@/games/spades/chunks';
+import { savingData, whenIdle } from '@/lib/idle';
 
 const loadRules = () => import('@/games/spades/sheets/RulesBody');
 const loadActive = () => import('@/games/spades/online/ActiveTables');
@@ -200,11 +202,13 @@ function KeepCard() {
   );
 }
 
-function Links({ onRules }: { onRules: () => void }) {
+function Links({ onRules, signedIn }: { onRules: () => void; signedIn: boolean }) {
   const page = (p: TablePage) => () => spGo(`?keep&page=${p}`);
   const links: [string, () => void][] = [
     [h.links.history, page('history')],
     [h.links.leaderboard, page('leaderboard')],
+    [h.links.awards, page('awards')],
+    ...(signedIn ? [[h.links.activity, page('activity')] as [string, () => void]] : []),
     [h.links.rules, onRules],
   ];
   return (
@@ -254,7 +258,7 @@ function RulesSheet({ onClose }: { onClose: () => void }) {
 type SheetName = 'join' | 'rules';
 
 /**
- * Spades' home: invites, Play online, what's in progress, Keep score, and History · Leaderboard · Rules. One DOM
+ * Spades' home: invites, Play online, what's in progress, Keep score, and History · Leaderboard · Awards · Rules. One DOM
  * at every size; from tablet width the hero sits beside the cards. `joinCode` is a `?join=` link opened signed out.
  */
 export default function Home({ joinCode = null }: { joinCode?: string | null }) {
@@ -264,6 +268,10 @@ export default function Home({ joinCode = null }: { joinCode?: string | null }) 
   // Read once per visit: nothing changes the saved table game while Home is on screen.
   const [saved] = useState(peek);
   useHistorySync(sheet ? 1 : 0, () => setSheet(null));
+  useEffect(
+    () => (savingData() ? undefined : whenIdle(() => void warmModes(signedIn))),
+    [signedIn],
+  );
   const close = () => setSheet(null);
   // Leaving from a sheet waits for the sheet's history entry to go first, or Back would land on it.
   const next = useRef<string | null>(null);
@@ -319,7 +327,7 @@ export default function Home({ joinCode = null }: { joinCode?: string | null }) 
                 <KeepCard />
               </m.div>
               <m.div {...stagger(5, 0.04)}>
-                <Links onRules={() => setSheet('rules')} />
+                <Links onRules={() => setSheet('rules')} signedIn={signedIn} />
               </m.div>
             </div>
           </div>

@@ -1,6 +1,5 @@
 import { m } from 'framer-motion';
 import { useMemo } from 'react';
-import { SP_ACHIEVEMENTS, spAchievements } from '@/games/spades/domain/achievements';
 import { spHeadToHead, spPlayerStats } from '@/games/spades/domain/boards';
 import { spTable } from '@/games/spades/strings/table';
 import { useSpHeadToHead, useSpPlayerStats } from '@/games/spades/table/sync/boards';
@@ -10,10 +9,13 @@ import { EmptyState, Section, Skeleton } from '@/components/ui/PageParts';
 import { stagger } from '@/components/ui/stagger';
 import { Gate, SpPage } from './parts';
 import { useSpGames, useWho } from './source';
+import { useSpProgressionEnv } from './ProgressionPages';
+import { useEarned } from '@/components/progression/useProgressionData';
+import { byCode } from '@/progression/catalogue';
+import { useSp } from '@/games/spades/table/state/store';
 
 const b = spTable.pages.board;
 const p = spTable.pages.player;
-const ach = spTable.pages.ach;
 
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -27,7 +29,7 @@ function Tile({ label, value, sub }: { label: string; value: string; sub?: strin
 
 /**
  * One player's page from the leaderboard: their totals, partners by win rate, how they do with and against you, and
- * their achievements. Signed in, the numbers come from the server; achievements always count this phone's games.
+ * their achievements. Signed in, the numbers come from the server.
  */
 export default function PlayerPage({ id }: { id: string }) {
   const src = useSpGames();
@@ -44,8 +46,15 @@ export default function PlayerPage({ id }: { id: string }) {
   const meHere = !!meId && meId !== serverId;
   const vsRemote = useSpHeadToHead(meHere ? meId : null, meHere ? serverId : null);
   const vs = meHere ? (vsRemote.data ?? (meId ? spHeadToHead(src.games, meId, id) : null)) : null;
-  const earned = useMemo(() => spAchievements(src.games, id), [src.games, id]);
   const lookup = useWho(src.games);
+  const { actions } = useSp();
+  const env = useSpProgressionEnv(src);
+  const { all, remote: achRemote } = useEarned(env);
+  const achId = env.signedIn ? serverId : id;
+  const earnedCodes = useMemo(
+    () => [...new Set((all ?? []).filter((e) => e.playerId === achId).map((e) => e.code))],
+    [all, achId],
+  );
   const waiting = remote.online && !remote.data && remote.loading;
   const failed = remote.online && !remote.data && !!remote.error;
   const ratio = (a: number, n: number) => (n ? p.ratio(a, n) : undefined);
@@ -71,7 +80,7 @@ export default function PlayerPage({ id }: { id: string }) {
             <div role="status" aria-label={p.loading}>
               <Skeleton rows={4} h={88} />
             </div>
-          ) : !t.games && !earned.length ? (
+          ) : !t.games ? (
             <EmptyState icon="cards" title={p.missing} />
           ) : (
             <>
@@ -121,6 +130,57 @@ export default function PlayerPage({ id }: { id: string }) {
                 </Section>
               )}
 
+              <Section
+                title={p.achievements}
+                aside={
+                  <button
+                    type="button"
+                    aria-label={p.achSeeAllLabel(who.name)}
+                    onClick={() => actions.openPage({ page: 'achievements', id: achId ?? id })}
+                    className="press min-h-11 px-2 text-14 font-bold text-[var(--accent-tx)]"
+                  >
+                    {p.achSeeAll}
+                  </button>
+                }
+              >
+                {all === null ? (
+                  achRemote.error ? (
+                    <p role="alert" className="text-14 text-[var(--warn)]">
+                      {p.achFailed}
+                    </p>
+                  ) : (
+                    <div role="status" aria-label={p.achLoading}>
+                      <Skeleton rows={1} h={48} />
+                    </div>
+                  )
+                ) : earnedCodes.length ? (
+                  <>
+                    <p className="mb-2 text-13 font-bold text-[var(--tx2)]">
+                      {p.achCount(earnedCodes.length, env.prog.catalogue.length)}
+                    </p>
+                    <ul className="flex flex-wrap gap-2">
+                      {earnedCodes.slice(0, 12).map((code, i) => (
+                        <m.li
+                          key={code}
+                          {...stagger(Math.min(i, 8))}
+                          data-earned={code}
+                          className="glass flex min-h-11 items-center gap-2 px-3 py-1.5"
+                        >
+                          <span aria-hidden className="text-20">
+                            {byCode(env.prog).get(code)?.emoji}
+                          </span>
+                          <span className="text-14 font-bold">
+                            {env.prog.strings.achievements[code]?.name ?? code}
+                          </span>
+                        </m.li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="text-14 text-[var(--tx2)]">{p.achNone}</p>
+                )}
+              </Section>
+
               <Section title={p.partners}>
                 {partners.length ? (
                   <ol className="flex flex-col gap-2">
@@ -158,48 +218,6 @@ export default function PlayerPage({ id }: { id: string }) {
                 ) : (
                   <p className="text-14 text-[var(--tx2)]">{p.noPartners}</p>
                 )}
-              </Section>
-
-              <Section
-                title={p.achievements}
-                aside={
-                  <span className="text-13 font-bold text-[var(--tx2)]">
-                    {p.earned(earned.length, SP_ACHIEVEMENTS.length)}
-                  </span>
-                }
-              >
-                <ul className="grid grid-cols-2 gap-2 min-[560px]:grid-cols-3">
-                  {SP_ACHIEVEMENTS.map((k, i) => {
-                    const e = earned.find((x) => x.id === k);
-                    const [name, what] = ach[k];
-                    return (
-                      <m.li
-                        key={k}
-                        {...stagger(Math.min(i, 8))}
-                        aria-label={p.achAria(name, what, e?.count ?? 0)}
-                        className={`glass flex min-h-[4.5rem] flex-col justify-center gap-0.5 px-3 py-2 ${e ? '' : 'opacity-55'}`}
-                        data-earned={e ? k : undefined}
-                      >
-                        <span aria-hidden className="flex items-baseline justify-between gap-2">
-                          <span
-                            className={`text-15 font-extrabold ${e ? 'text-[var(--gold-tx)]' : ''}`}
-                          >
-                            {name}
-                          </span>
-                          {e && (
-                            <span className="text-13 font-bold tabular-nums text-[var(--tx2)]">
-                              {p.times(e.count)}
-                            </span>
-                          )}
-                        </span>
-                        <span aria-hidden className="text-13 text-[var(--tx2)]">
-                          {e ? what : `${what} · ${p.locked}`}
-                        </span>
-                      </m.li>
-                    );
-                  })}
-                </ul>
-                <p className="mt-2 text-13 text-[var(--tx2)]">{p.achLocal}</p>
               </Section>
             </>
           )

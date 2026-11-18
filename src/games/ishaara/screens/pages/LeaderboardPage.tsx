@@ -10,6 +10,8 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
 import { RankBoard, type BoardEntry } from '@/components/ui/RankBoard';
 import { signedInAs, useSession } from '@/sync/session';
+import { SeasonNews } from '@/components/progression/SeasonNews';
+import { useIshProgressionEnv } from './ProgressPage';
 import { IshPage, useHubNav, type Who } from './parts';
 
 const b = ipg.board;
@@ -35,6 +37,7 @@ export function LeaderboardPage() {
   const [sort, setSort] = useState<IshaaraSort>('wins');
   const r = useIshaaraLeaderboard(period, sort);
   const { open } = useHubNav();
+  const env = useIshProgressionEnv();
   const you = signedInAs(useSession())?.player?.id;
   const [intro] = useState(() => ({ done: false }));
   const show = useCallback((v: number) => write(sort, v), [sort]);
@@ -62,6 +65,7 @@ export function LeaderboardPage() {
         </div>
       }
     >
+      <SeasonNews env={env} onOpen={() => open({ page: 'awards' })} />
       <RemoteGate r={r}>
         {(data) => {
           if (!data.rows.length)

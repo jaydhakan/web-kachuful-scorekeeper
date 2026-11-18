@@ -12,6 +12,11 @@ import {
   type Outcome,
   type Player,
 } from '@/games/kachuful/domain';
+import { HAPTIC } from '@/fx/feedback';
+import { vibrate } from '@/hooks/useHaptics';
+import { resultsInBidOrder } from '@/games/kachuful/sound/hooks';
+import { playOnce } from '@/games/kachuful/sound/once';
+import { CLIMB_STEP, LAND_GAP, summaryCues, type SumFacts } from '@/games/kachuful/sound/plans';
 import { sgnN } from '@/lib/format';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useApp } from '@/games/kachuful/state/store';
@@ -61,15 +66,11 @@ const rankColor = (rank: number) =>
         ? palette['rank-bronze']
         : 'var(--tx)';
 
-/** One rival passed, in ms. */
-export const CLIMB_STEP = 170;
 const CLIMB_EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 const REORDER = { type: 'spring', stiffness: 260, damping: 30 } as const;
 /** How a standings row moves to its new place: one quick step per rival on a comeback, today's spring otherwise. */
 export const rowMove = (climbing: boolean) =>
   climbing ? { duration: CLIMB_STEP / 1000, ease: CLIMB_EASE } : REORDER;
-/** Between two deltas landing on an all-but-one round, in ms. */
-const LAND_GAP = 60;
 const REDUCED_T = [60, 120, 180, 240, 300];
 
 interface Ranked {
@@ -116,7 +117,13 @@ export function soleMiss<P extends { id: string }>(
  * The summary's stages on their timers. A comeback adds a step per rival passed and pushes the reorder and everything
  * after it back by as much; `lands` deltas arrive one after another instead of together.
  */
-export function useSumStages(T: number[], climb: string[][], lands: number) {
+export function useSumStages(
+  T: number[],
+  climb: string[][],
+  lands: number,
+  // What the reveal sounds like: the facts of the round, and a key so a remount of the same round stays silent.
+  sound?: { key: string; facts: Omit<SumFacts, 'climb'> },
+) {
   const { state, actions } = useApp();
   const anim = state.sumAnim,
     rm = useReducedMotion();
@@ -140,7 +147,17 @@ export function useSumStages(T: number[], climb: string[][], lands: number) {
       ),
       setTimeout(() => actions.setSumAnim(false), at[4] + 100),
     ];
-    return () => ts.forEach(clearTimeout);
+    // Sounds from the same stage times; a new leader's crown also buzzes. Leaving the screen drops what is left.
+    const run =
+      sound &&
+      playOnce(sound.key, summaryCues(at, { ...sound.facts, climb: climb.length }, push), {
+        reduced: !!rm,
+      });
+    if (sound?.facts.newLeader) ts.push(setTimeout(() => vibrate(HAPTIC.BEAT), rm ? 0 : at[3]));
+    return () => {
+      ts.forEach(clearTimeout);
+      run?.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one run, once nothing plays over the screen
   }, [celebrating]);
   // Past the deltas stage nothing is held back, whatever happened to the timers.
@@ -206,10 +223,15 @@ export function Summary() {
   const climb = climbFor(prev, cur),
     miss = soleMiss(g.players, r.results),
     wait = landOrder(g.players, bidOrder(g, r), r.results);
+  const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
   const { stage, step, landed, rm } = useSumStages(
     [350, 1000, 1850, 2450, 3300],
     climb,
     Object.keys(wait).length,
+    {
+      key: `sum:${g.id}:${r.doneAt ?? r.index}`,
+      facts: { results: resultsInBidOrder(g, r), soleMiss: !!miss, newLeader: changed },
+    },
   );
   // Mid-climb the rows keep their old ranks; the numbers change when the last step lands.
   const list =
@@ -218,7 +240,6 @@ export function Summary() {
       : step > 0
         ? climb[step - 1].map((id) => prev.find((x) => x.p.id === id)!)
         : prev;
-  const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
   const nr = roundAt(g, r.index + 1),
     nD = g.players[nr.dealerIndex],
     nF = g.players[nr.firstPlayerIndex];
@@ -335,7 +356,12 @@ export function Summary() {
                 </AnimatePresence>
                 {stage === 1 && shown && d > 0 && !rm && <Spark color={palette.positive} />}
                 <div className="disp min-w-[3.25rem] text-right text-26 font-extrabold tracking-[-0.03em] @[26rem]:min-w-[70px] @[26rem]:text-28">
-                  <Counter from={anim ? pt[id] : ct[id]} to={ct[id]} run={anim && stage >= 2} />
+                  <Counter
+                    swell="scale"
+                    from={anim ? pt[id] : ct[id]}
+                    to={ct[id]}
+                    run={anim && stage >= 2}
+                  />
                 </div>
                 {lead && (
                   <>

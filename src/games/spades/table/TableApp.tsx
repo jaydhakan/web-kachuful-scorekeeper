@@ -1,12 +1,11 @@
-import { lazy, Suspense, type ReactElement } from 'react';
+import { Suspense, type ReactElement } from 'react';
+import { DeskShell } from '@/games/spades/chunks';
 import type { TablePage } from '@/games/spades/nav';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
 import { SpTableProvider } from './state/store';
 import Shell from './screens/Screens';
 
-// Only tablets and desktops download the desk layout.
-const DeskShell = lazy(() => import('./screens/desk/DeskShell'));
 
 function Root({ page }: { page: TablePage | null }) {
   const big = useMediaQuery(MQ.big);

@@ -65,6 +65,14 @@ describe('Spades home, signed out', () => {
 });
 
 describe('Spades home, signed in', () => {
+  it('links to the activity feed', async () => {
+    signIn();
+    render(<Home />);
+    const nav = screen.getByRole('navigation', { name: 'History, leaderboard, awards and rules' });
+    await u().click(within(nav).getByRole('button', { name: 'Activity' }));
+    expect(location.search).toBe('?keep&page=activity');
+  });
+
   it('starts a table', async () => {
     signIn();
     render(<Home />);
@@ -138,10 +146,14 @@ describe('Spades home, everyone', () => {
     expect(screen.queryByRole('button', { name: /^Resume/ })).not.toBeInTheDocument();
   });
 
-  it('opens History and Leaderboard in table mode, and the rules in a sheet', async () => {
+  it('opens History, Leaderboard and Awards in table mode, and the rules in a sheet', async () => {
     const user = u();
     render(<Home />);
-    const nav = screen.getByRole('navigation', { name: 'History, leaderboard and rules' });
+    const nav = screen.getByRole('navigation', { name: 'History, leaderboard, awards and rules' });
+    // Activity is the server's feed: signed in only.
+    expect(within(nav).queryByRole('button', { name: 'Activity' })).toBeNull();
+    await user.click(within(nav).getByRole('button', { name: 'Awards' }));
+    expect(location.search).toBe('?keep&page=awards');
     await user.click(within(nav).getByRole('button', { name: 'History' }));
     expect(location.search).toBe('?keep&page=history');
     await user.click(within(nav).getByRole('button', { name: 'Leaderboard' }));

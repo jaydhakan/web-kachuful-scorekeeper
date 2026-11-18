@@ -12,6 +12,7 @@ import {
   type Place,
   type RevealPlan,
 } from './podiumReveal';
+import { Crown, LIGHT_MS, Spotlight } from './PodiumLight';
 import { PODIUM_BG } from './rankTones';
 
 /** One player in the final standings; tied players share a rank. */
@@ -108,6 +109,16 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
     };
   };
   const origin = (k: Place, i: number) => (staged && k === 1 && i === 0 ? '' : undefined);
+  // The light starts with first place's step; the crown drops once its winner has landed.
+  const lightAt = (k: Place) => {
+    const at = stepAt(k);
+    return k === 1 && at != null ? at * 1000 : null;
+  };
+  const crownAt = (late: number) => {
+    const at = stepAt(1);
+    if (at == null) return null;
+    return (staged ? at + (LAND_AFTER_MS + LAND_MS) / 1000 : late + 0.25) * 1000;
+  };
   const phone = (k: 1 | 2 | 3) => {
     const tied = st.filter((x) => x.rank === k),
       h = k === 1 ? 128 : k === 2 ? 96 : 76,
@@ -117,8 +128,9 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
     return (
       <div
         key={k}
-        className="flex max-w-[120px] flex-1 flex-col items-center justify-end wide:max-w-[9rem]"
+        className="relative isolate flex max-w-[120px] flex-1 flex-col items-center justify-end wide:max-w-[9rem]"
       >
+        {k === 1 && tied.length > 0 && <Spotlight at={lightAt(k)} ms={LIGHT_MS.ceremony} />}
         <div className="mb-1.5 flex flex-wrap items-end justify-center gap-1.5">
           {tied.map((x, i) => (
             <m.div
@@ -143,6 +155,7 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
                 }}
               >
                 <AvatarFill p={x} />
+                {k === 1 && <Crown at={crownAt(0.9)} />}
               </span>
               <span aria-hidden>{trunc(x.name)}</span>
             </m.div>
@@ -173,7 +186,11 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
       av = tied.length > 1 ? s.av * 0.7 : s.av,
       r = rise(k, tied.length > 0);
     return (
-      <div key={k} className="flex min-w-0 flex-1 flex-col items-center justify-end">
+      <div
+        key={k}
+        className="relative isolate flex min-w-0 flex-1 flex-col items-center justify-end"
+      >
+        {k === 1 && tied.length > 0 && <Spotlight at={lightAt(k)} ms={LIGHT_MS.ceremony} />}
         <div className="mb-2.5 flex flex-wrap justify-center gap-2">
           {tied.map((x, i) => (
             <m.div
@@ -193,6 +210,7 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
                 }}
               >
                 <AvatarFill p={x} />
+                {k === 1 && <Crown at={crownAt(0.7)} />}
               </span>
               <span className="mt-2 max-w-[9rem] text-center text-20 font-bold leading-tight [overflow-wrap:anywhere]">
                 {x.name}

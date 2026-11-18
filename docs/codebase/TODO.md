@@ -7,7 +7,17 @@ The open work for this repo, in one place. Add an item when something is left un
 
 - **First-load budget is over, so `npm run perf:budget` and the CI check job fail.** Measured 2026-11-14: landing JS
   160.2 KB (budget 145), phone JS 159.9 KB (145), large-screen JS 186.8 KB (165), CSS 23.3 KB (22). Again on
-  2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. Budgets are in
+  2026-11-16 with Spades: landing 165.0, phone 162.4, large screen 189.9, CSS 24.1. On 2026-11-17 with every game's
+  achievements: landing 165.5, phone 162.8, large screen 191.1, Spades 166.5, CSS 24.2. Of the large screen's +1.2,
+  about 0.6 is the shared winner's reel and catalogue now being two chunks of their own; grouping them with
+  `howWon` pulled the icons in too, so it was left. After every wow moment (2026-11-18): landing 165.6, phone 162.9,
+  large screen 189.7, Spades 166.6, CSS 24.4; the moments themselves are one lazy chunk with their own sheet
+  (`src/fx/ui`). After smooth navigation (2026-11-18): landing 166.9, phone 164.0, large screen 191.2, Spades 168.3,
+  CSS 25.0 (the preload helper, the page hold, progress bar and boot skeleton). After sound (2026-11-18): landing
+  170.2, phone 167.3, large screen 194.6, Spades 171.6, CSS 25.0; the +3.3 is `fx/feedback`, `sequence`, `pitch`,
+  `podiumCues`, the quick mute and each game's cue plans; the synth is a lazy 6.2 KB chunk. The full motion features (~12 KB,
+  `motionMax`) now load beside the first page, before the first render, to fix stuck exits; `tools/bundle.mjs` does
+  not count that chunk, as it is a dynamic import, so the real first load is ~12 KB more than it reports. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
   API client.
 
@@ -32,6 +42,19 @@ The name Baithak is final for now (decided 2026-11-13). The full platform plan i
   (checked in Sunset Glass at 390x844 only).
 - **Ishaara's waiting screen draws clue-givers' avatars square** (`Givers` in `screens/Waiting.tsx` passes a
   className without `rounded-full`); seen while building seat invites, older than them.
+
+## Sound
+
+Sound for Kachuful and Kaali Teeri is built (`src/fx`, `docs/codebase/ARCHITECTURE.md`, "Sound and haptics").
+
+- **Jay to approve the recipes on the Sound Board** (`npm run dev`, then `/?lab=moments&tab=sounds`). Nobody has heard them yet: tune a recipe in `fx/sound.ts` and replay from the board.
+- **Real-phone check:** a real game of each on Android, and on an iPhone with the silent switch on (does it mute, as the Me page says?). Also: volume against a table's talk on a phone speaker at mid volume, and the made-result run with 8+ players (if it sounds busy, play it as one chord).
+- **Sound, not covered or not done:**
+  - No e2e for Kachuful's hook, the last-round `bell`, the reveal's made/missed run with motion on, or Kaali Teeri's winner and 1000 `bell` (unit tests cover their plans).
+  - The forbidden-bid `knock` can't be tapped on a phone (the key is natively disabled); it fires only from the desk keyboard path.
+  - A live spectator who never taps stays silent: audio unlocks on the first tap and the live pages don't call `armAudio`.
+  - Kachuful's Summary has no tap-to-skip, so the plan's `settle` crown is built but unused there; the Sound Board's sequences are hand-copied timings, not the games' own plans.
+- **Late-night quiet** (decided "on" in REWARDS-PLAN, not built): sounds drop a level after a set hour. Not part of this task.
 
 ## Motion
 
@@ -88,16 +111,51 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
     server sending `state` when the stream opens. Confirm the real backend does.
   - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show
     it. That needs a `backend-requests.md` entry.
-  - **Achievements count only games scored on this phone** (`domain/achievements.ts`): online tables aren't kept on
-    the device and the server has no achievements route, so Nil Breaker (online only) is never earned yet. The
-    player page's stats and head-to-head do read the server when signed in.
 - **Deploy and devices:**
-  - nginx needs the SSE settings for `/api/me/events` and `/api/spades/tables/*/events` (buffering off, 1-hour read
-    timeout); the config isn't in either repo.
   - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
   - Haptics are untested on a real Android phone.
 - **Seat invites:** a host who reloads loses Ishaara's "can't make it" (no host-side read of sent invites), and the
   server's circle leaves out games the user scored but didn't sit in.
+
+## Achievements and awards
+
+Every game has them since 2026-11-17 (plan in git history: `docs/ACHIEVEMENTS-PLAN.md` on `feat/achievements-every-game`).
+
+- **Spades online pop names "Someone"** for a player who left the table in the moment between a hand ending and its
+  pop showing: the public table no longer has their name (`progress/livePops.ts`, `PlayTable` `nameOf`).
+- **Ishaara's Win reel shows 12 cards**, game finishes first, so with six players a turn's moments can fall off it
+  (`screens/GameReel.tsx`).
+- **Mock API:** Kaali Teeri and Spades uploads answer `earned: []` (the real server returns the rows; the app reads
+  them only for Kachuful), and the other games' feeds carry achievements but no `game_finished` items.
+- **Not verified against the real backend:** the Me page's per-game counts and the every-game feed (mock API only).
+
+## Wow moments
+
+All of them were built by 2026-11-18. The plan was a working doc and is deleted; the grammar, tiers and every moment
+are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment is in the dev-only lab at
+`/?lab=moments`.
+
+- **Not verified on a device:** a DevTools recording of Boston, the unlock card and the trap on a mid-range Android
+  phone (no frame over 50ms), and a look on an iPhone (and whether its silent switch mutes the Web Audio sounds).
+- **e2e can't bring about** an online Boston, the last trick that decides a hand, or spades breaking: they depend on
+  the deal. Covered by unit tests of their triggers (`online/table/present.test.ts`) and the lab; the scorekeeper's
+  Boston, Blind Nil and emoji rain are covered by e2e. A mock control that deals a chosen hand would cover the rest.
+- **The lab's 0.25×** slows Web Animations, waits and confetti, not Framer springs (the crown, the small cards).
+- **CSS first load is 163 bytes (gzip) over `main` before the moments** (the crown, podium light, season card and
+  Kaali Teeri's stamps on first-load screens); the moments' own code and sheet are lazy (`src/fx/ui`).
+- **Sign-in on iPhones:** fixed 2026-11-18 (the session was lost when sign-in returned to the landing page or
+  another game; Safari's quick `history.go` raced Kachuful's unmount). The e2e suite runs on Chromium only, which
+  never hit the race; consider a WebKit project for `accounts.spec.ts` (needs `npx playwright install webkit` in CI).
+
+## Smooth navigation
+
+- **Not verified on a real phone:** the page hold, crossfade, progress bar and boot skeleton were measured in Chromium
+  with 4x CPU and slow-4G throttling (Pixel 5 size) and seen at desktop size; check them on an Android phone and an
+  iPhone, in all four themes (only Sunset Glass was looked at).
+- **A game's own address has no outline at a cold start** (`/kachuful`, `/kaali-teeri`, …): it shows the theme's
+  background until the game paints. Each game's Home could get its own `.boot` variant in `index.html`.
+- **Ishaara's table outline is one shape (the 5x5 board)**; its waiting screen looks different. Pick the shape from
+  the table's last known status if that is worth it.
 
 ## Tests
 

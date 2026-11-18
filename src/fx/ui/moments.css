@@ -1,0 +1,3 @@
+/* The moments' own utilities (the unlock card, the rain, the stamp): they load with those lazy chunks, not first. */
+@config '../../../tailwind.moments.config.ts';
+@tailwind utilities;

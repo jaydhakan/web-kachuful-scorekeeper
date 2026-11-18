@@ -23,6 +23,8 @@ export const table = {
     clueGames: 'Your clue games',
     history: 'History',
     leaderboard: 'Leaderboard',
+    awards: 'Awards',
+    activity: 'Activity',
     rules: 'How to play',
     allGames: 'All games',
     inProgress: 'In progress',
@@ -157,6 +159,11 @@ export const table = {
   },
 
   board: {
+    /** The board's beats (WOW-MOMENTS-PLAN I1–I3). */
+    meld: 'Mind meld',
+    photoFinish: 'Next card wins',
+    photoFinishWhy: 'Both teams need one more word.',
+    trapped: 'Trapped',
     menu: 'Menu',
     turn: (t: Team) => `${TEAM[t]}’s turn`,
     timeLeft: (s: string) => `${s} left on the timer`,
@@ -268,6 +275,14 @@ export const table = {
     matchWon: (t: Team) => `${TEAM[t]} wins the match`,
     key: 'The full key',
     keyLabel: 'The full key, every card',
+    achievements: 'Achievements',
+    /** The player of the game: the clue-giver whose clues found the most of their team's words. */
+    mvpTitle: 'Player of the game',
+    mvpLine: (found: number, clues: number) =>
+      `${found} ${found === 1 ? 'word' : 'words'} found from ${clues} ${clues === 1 ? 'clue' : 'clues'}`,
+    achievementsLoading: 'Looking for this game’s achievements',
+    achievementsFailed: 'Couldn’t load this game’s achievements.',
+    retry: 'Try again',
     log: 'Clue log',
     noClues: 'No clues were given.',
     found: (n: number) => `${n} found`,

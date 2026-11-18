@@ -170,16 +170,24 @@ const LANDING = '/src/platform/landing/Landing.tsx';
 const KF = '/src/games/kachuful/index.tsx';
 const KT = '/src/games/kaali-teeri/index.tsx';
 const SP = '/src/games/spades/index.tsx';
+const ISH = '/src/games/ishaara/index.tsx';
+// Every page renders with it from the first paint (main.tsx), so every page starts it.
+const MOTION = '/src/components/ui/motionMax.ts';
 // First path segment → the modules each UI needs first ([large screen], [phone]).
 const PRELOADS: [string, string[], string[]][] = [
-  ['', [LANDING], [LANDING]],
+  ['', [LANDING, MOTION], [LANDING, MOTION]],
   [
     'kachuful',
-    [KF, '/src/games/kachuful/screens/desk/DeskShell.tsx'],
-    [KF, '/src/games/kachuful/components/PhoneShell.tsx'],
+    [KF, '/src/games/kachuful/screens/desk/DeskShell.tsx', MOTION],
+    [KF, '/src/games/kachuful/components/PhoneShell.tsx', MOTION],
   ],
-  ['kaali-teeri', [KT, '/src/games/kaali-teeri/screens/desk/KtDeskShell.tsx'], [KT]],
-  ['spades', [SP], [SP]],
+  [
+    'kaali-teeri',
+    [KT, '/src/games/kaali-teeri/screens/desk/KtDeskShell.tsx', MOTION],
+    [KT, MOTION],
+  ],
+  ['ishaara', [ISH, '/src/games/ishaara/screens/desk/DeskBoard.tsx', MOTION], [ISH, MOTION]],
+  ['spades', [SP, MOTION], [SP, MOTION]],
 ];
 
 const SHELLS = [
@@ -267,6 +275,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     ownCss('src/games/ishaara/index.tsx'),
     ownCss('src/games/spades/index.tsx'),
+    ownCss('src/fx/ui/index.ts'),
     // The in-memory API for building and testing without the backend: `npm run dev:mock`, and the e2e server.
     ...(mode === 'mock' || process.env.MOCK_API ? [mockApiPlugin()] : []),
     react(),

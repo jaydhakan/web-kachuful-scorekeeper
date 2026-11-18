@@ -194,6 +194,22 @@ describe('Ishaara on the mock API', () => {
     });
   });
 
+  it('works out achievements, ladders, awards and the feed from the seeded finished games', async () => {
+    await as('riya');
+    const all = (await ep.achievements(undefined, null, 'ishaara')).items;
+    const codes = new Set(all.map((a) => a.code));
+    for (const c of ['winner', 'first_win', 'trapped', 'lucky_escape', 'white_flag'])
+      expect(codes).toContain(c);
+    expect(all.every((a) => a.gameKind === 'ishaara')).toBe(true);
+    const riya = all.find((a) => a.code === 'first_win')!.playerId;
+    const ladders = await ep.ladders('ishaara', riya);
+    expect(ladders.data.counts).toMatchObject({ games: 3 });
+    const months = await ep.seasons(undefined, 'ishaara');
+    expect(months.data.length).toBeGreaterThan(0);
+    const feed = (await ep.activity(null, 'ishaara')).items;
+    expect(feed[0]).toMatchObject({ kind: 'achievement', gameKind: 'ishaara' });
+  });
+
   it('refuses a game whose clue-giver has no account, and hides games from non-members', async () => {
     await as('admin');
     const players = await seats();

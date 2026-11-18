@@ -60,6 +60,7 @@ export const ktBidding = {
   },
   trump: {
     bidWon: 'Bid won',
+    sold: 'Sold',
     pick: (name: string) => `${name}, pick trump`,
     group: 'Trump',
     next: (n: number) => (n === 1 ? 'Next: call 1 partner card' : `Next: call ${n} partner cards`),

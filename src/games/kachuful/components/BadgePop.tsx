@@ -1,17 +1,17 @@
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useSyncExternalStore } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import { useMemo, useSyncExternalStore } from 'react';
 import { ACH } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { achName } from '@/games/kachuful/strings/achievements';
-import { SPRING_POP } from '@/components/ui/motion';
 import { reveal } from '@/components/ui/podiumReveal';
+import { MomentPopLazy as MomentPop } from '@/components/progression/MomentPopLazy';
 import { t } from '@/strings';
 
-const HOLD_MS = 2500;
+const STREAK = /^(hot|cold)_/;
 
 /**
- * The round's smaller achievements as cards that drop in under the top bar, after any full-screen streak burst,
- * and leave on their own. They never take focus or block a tap.
+ * The round's achievements, after any full-screen streak burst: the big ones dealt as the unlock card, the rest as
+ * cards that drop in under the top bar and leave on their own, never taking focus or blocking a tap.
  */
 export function BadgePop() {
   const { state, actions } = useApp();
@@ -20,43 +20,28 @@ export function BadgePop() {
   // On a game just finished the cards wait for the winner's name, so they never cover the podium's reveal.
   const held = state.fresh && state.screen === 'winner' && !rm && phase !== 'done';
   const pops = state.streakFx || held ? null : state.pops;
-  const n = pops ? pops.items.length + (pops.more ? 1 : 0) : 0;
-  useEffect(() => {
-    if (!pops) return;
-    const tm = setTimeout(actions.popsDone, HOLD_MS + n * 250);
-    return () => clearTimeout(tm);
-  }, [pops, n, actions]);
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="pointer-events-none absolute left-[var(--toast-x,0px)] top-[calc(var(--toast-top,calc(var(--sat)+0.375rem))+3.25rem)] z-[57] flex w-[var(--toast-w,100%)] flex-col items-center gap-1.5 px-4"
-    >
-      <AnimatePresence>
-        {pops &&
-          [
-            ...pops.items.map((x) => ({
+  // Built once per batch: a new object is a new batch to MomentPop.
+  const shown = useMemo(
+    () =>
+      pops && {
+        id: pops.id,
+        cards: [
+          ...pops.items.map((x) => {
+            const def = ACH.get(x.code);
+            return {
               k: x.code + x.name,
-              emoji: ACH.get(x.code)?.emoji ?? '🏅',
+              emoji: def?.emoji ?? '🏅',
               text: `${x.name} · ${achName(x.code)}`,
-            })),
-            ...(pops.more ? [{ k: 'more', emoji: '✨', text: t.hub.pops.more(pops.more) }] : []),
-          ].map((c, i) => (
-            <m.div
-              key={`${pops.id}-${c.k}`}
-              initial={rm ? { opacity: 0 } : { opacity: 0, y: -28, rotate: -4, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
-              exit={rm ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.95 }}
-              transition={{ ...SPRING_POP, delay: rm ? 0 : i * 0.12 }}
-              className="badge-pop flex max-w-full items-center gap-2 rounded-2xl border border-ov/10 bg-toast px-3.5 py-2 text-15 font-bold shadow-[0_10px_28px_-8px_color-mix(in_srgb,var(--shade)_70%,transparent)]"
-            >
-              <span aria-hidden className="text-22">
-                {c.emoji}
-              </span>
-              <span className="[overflow-wrap:anywhere]">{c.text}</span>
-            </m.div>
-          ))}
-      </AnimatePresence>
-    </div>
+              who: x.name,
+              what: achName(x.code),
+              // Streaks have their own full-screen burst (a card when it can't play); the rest of the big ones are dealt.
+              ...(def?.big && !STREAK.test(x.code) ? { tier: 'big' as const } : {}),
+            };
+          }),
+          ...(pops.more ? [{ k: 'more', emoji: '✨', text: t.hub.pops.more(pops.more) }] : []),
+        ],
+      },
+    [pops],
   );
+  return <MomentPop pops={shown} onDone={actions.popsDone} />;
 }
