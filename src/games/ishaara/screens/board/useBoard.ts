@@ -72,6 +72,8 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   const { game, conn, busy, clockOffset, send } = table;
   const [selected, setSelected] = useState<number | null>(null);
   const [moment, setMoment] = useState<Moment | null>(null);
+  // The newest state turned a card over, so its moment is about to be set: the end must wait for it, not race it.
+  const momentDue = useRef(false);
   // I2: the cards of a clue for 3+ just fully found, pulsed in the order they were found.
   const [meld, setMeld] = useState<{ cards: number[]; key: number } | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -94,6 +96,7 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
     prev.current = game;
     if (!game || !p || game.rev === p.rev) return;
     const d = diffReveal(p, game);
+    momentDue.current = !!d && 'moment' in d;
     const melded = mindMeld(game);
     if (d && 'moment' in d && melded && !mindMeld(p)) setMeld({ cards: melded, key: game.rev });
     else if (d) setMeld(null);
@@ -138,6 +141,8 @@ export function useBoard(table: IshaaraTable, onFinished: () => void) {
   useEffect(() => {
     if (finished) {
       if (endedOnCard && moment?.kind === 'trap') return;
+      // The moment is set by an effect after this render: a 0ms hand-off here could fire before it lands.
+      if (!moment && momentDue.current) return;
       const id = setTimeout(onFinished, endedOnCard ? WIN_HOLD_MS : 0);
       return () => clearTimeout(id);
     }
