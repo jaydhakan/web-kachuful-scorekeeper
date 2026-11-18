@@ -128,23 +128,20 @@ describe('the platform sounds', () => {
     expect(freqs.find((f) => f > 100)).toBeCloseTo(base * 2);
   });
 
-  it('plays a sound at most once every 60ms, and at most four at once', async () => {
+  it('plays a sound at most once every 60ms, and at most eight at once', async () => {
     storage.set(KEYS.fx, { sounds: 'all', vibrate: true });
     cue('pop');
     cue('pop');
     expect(stops).toHaveLength(1);
     stops = [];
     resetLimiterForTests();
-    cue('thud');
-    cue('chip');
-    cue('flick');
-    cue('undo');
-    const four = stops.length;
-    cue('knock');
-    cue('made');
-    expect(stops).toHaveLength(four);
+    for (const n of ['thud', 'chip', 'flick', 'undo', 'knock', 'made', 'pop', 'deal'] as const)
+      cue(n);
+    const full = stops.length;
+    cue('missed');
+    expect(stops).toHaveLength(full);
     cue('bell');
-    expect(stops.length).toBeGreaterThan(four);
+    expect(stops.length).toBeGreaterThan(full);
   });
 
   it('a moment ducks the other sounds while it rings, and not before', () => {

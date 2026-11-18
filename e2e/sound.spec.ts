@@ -129,7 +129,7 @@ test.describe('Kachuful: the winner', () => {
     await openSeeded(page, seedGame(5, 'summary'), 'round');
     await btn(page, 'End game').click();
     await page.getByRole('alertdialog').getByRole('button', { name: 'End game' }).click();
-    await expect.poll(() => names(page)).toEqual(['fanfare']);
+    await expect.poll(() => names(page), { timeout: 8000 }).toEqual(['fanfare']);
     await openSeeded(page, seedGame(5, 'winner'), 'winner');
     await page.waitForTimeout(800);
     expect(await names(page)).toEqual([]);

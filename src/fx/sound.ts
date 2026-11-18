@@ -183,6 +183,7 @@ function noise(a: AudioContext, dur: number, o: Noise = {}) {
     .connect(cur.bus as GainNode);
   src.start(t, Math.random() * (1 - len), len);
   src.stop(t + dur + 0.05);
+  src.onended = () => g.disconnect();
   stamp(delay, dur);
 }
 
@@ -205,6 +206,7 @@ function tone(
   osc.connect(g).connect(cur.bus as GainNode);
   osc.start(t);
   osc.stop(t + dur + 0.05);
+  osc.onended = () => g.disconnect();
   stamp(delay, dur);
 }
 
@@ -351,9 +353,9 @@ const SYNTH: Record<SoundName, (a: AudioContext) => void> = {
 /** Whether a sound plays under the current mode; `mine` marks a sound about this phone's player. */
 export const audible = (m: SoundMode, mine: boolean) => m === 'all' || (m === 'mine' && mine);
 
-// The limiter: a sound at most once per 60ms, at most four at once; a moment ducks the rest while it rings.
+// The limiter: a sound at most once per 60ms, at most eight at once (a 6-player reveal run overlaps); a moment ducks the rest while it rings.
 const REPEAT_MS = 60;
-const MAX_VOICES = 4;
+const MAX_VOICES = 8;
 const DUCK = 0.5;
 const lastAt = new Map<SoundName, number>();
 let voices: number[] = [];
