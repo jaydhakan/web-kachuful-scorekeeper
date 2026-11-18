@@ -13,7 +13,9 @@ The open work for this repo, in one place. Add an item when something is left un
   `howWon` pulled the icons in too, so it was left. After every wow moment (2026-11-18): landing 165.6, phone 162.9,
   large screen 189.7, Spades 166.6, CSS 24.4; the moments themselves are one lazy chunk with their own sheet
   (`src/fx/ui`). After smooth navigation (2026-11-18): landing 166.9, phone 164.0, large screen 191.2, Spades 168.3,
-  CSS 25.0 (the preload helper, the page hold, progress bar and boot skeleton). The full motion features (~12 KB,
+  CSS 25.0 (the preload helper, the page hold, progress bar and boot skeleton). After sound (2026-11-18): landing
+  170.2, phone 167.3, large screen 194.6, Spades 171.6, CSS 25.0; the +3.3 is `fx/feedback`, `sequence`, `pitch`,
+  `podiumCues`, the quick mute and each game's cue plans; the synth is a lazy 6.2 KB chunk. The full motion features (~12 KB,
   `motionMax`) now load beside the first page, before the first render, to fix stuck exits; `tools/bundle.mjs` does
   not count that chunk, as it is a dynamic import, so the real first load is ~12 KB more than it reports. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
