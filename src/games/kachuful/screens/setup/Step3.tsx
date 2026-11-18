@@ -7,6 +7,10 @@ import {
   useTransform,
 } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { HAPTIC } from '@/fx/feedback';
+import { scheduleCues, type CueRun } from '@/fx/sequence';
+import { vibrate } from '@/hooks/useHaptics';
+import { spinCues } from '@/games/kachuful/sound/plans';
 import { useSeatDrag } from '@/components/seating/useSeatDrag';
 import { cycleLen, maxFor, type LengthMode } from '@/games/kachuful/domain';
 import {
@@ -36,6 +40,9 @@ import { useSetup } from './useSetup';
 import { useApp } from '@/games/kachuful/state/store';
 import { t } from '@/strings';
 import { Icon } from '@/components/ui/Icons';
+
+/** The dealer token's two laps, in seconds; the spin's sounds are timed from it. */
+const SPIN_S = 1.5;
 
 function SpinToken({
   a0,
@@ -67,7 +74,7 @@ function SpinToken({
       const id = setTimeout(onDone, 600);
       return () => clearTimeout(id);
     }
-    const c = animate(a, a1, { duration: 1.5, ease: [0.12, 0.8, 0.2, 1], onComplete: onDone });
+    const c = animate(a, a1, { duration: SPIN_S, ease: [0.12, 0.8, 0.2, 1], onComplete: onDone });
     return () => c.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one spin per mount
   }, []);
@@ -112,6 +119,9 @@ export function Step3() {
     L = cycleLen(max);
   const [spin, setSpin] = useState<{ tgt: number; a0: number; a1: number } | null>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const rm = useReducedMotion();
+  const spinSound = useRef<CueRun | null>(null);
+  useEffect(() => () => spinSound.current?.cancel(), []);
   const drag = useSeatDrag(wrap, seats, actions.setupSwap, { off: !!spin, vib: actions.vib });
   const dl = seats[su.dealer],
     fp = seats[(su.dealer + 1) % n];
@@ -122,7 +132,10 @@ export function Step3() {
       // Degrees to travel the same way round to the target seat, after two full turns.
       turn = ((((angOf(n, tgt, su.dir) - a0) * sg) % 360) + 360) % 360;
     setSpin({ tgt, a0, a1: a0 + sg * (720 + turn) });
-    actions.vib();
+    // The landing's pop comes with the token's `onDone` (also under reduced motion); the ratchet only while it spins.
+    spinSound.current?.cancel();
+    spinSound.current = scheduleCues(spinCues(SPIN_S * 1000), { reduced: !!rm });
+    vibrate(HAPTIC.TAP);
   };
   return (
     <SetupFrame

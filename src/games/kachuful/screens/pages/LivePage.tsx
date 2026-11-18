@@ -9,6 +9,8 @@ import {
   type Player,
 } from '@/games/kachuful/domain';
 import { agoTxt, fmt } from '@/lib/format';
+import { playCue } from '@/fx/feedback';
+import { useLiveSound } from '@/games/kachuful/sound/hooks';
 import { archive } from '@/state/archive';
 import { useApp } from '@/games/kachuful/state/store';
 import { ApiError } from '@/sync/api';
@@ -207,6 +209,7 @@ function usePredictions(g: Game | null) {
       ([k, makes]) => (lastDone.results[k.split(':')[1]] === 'made') === makes,
     ).length;
     setScore((s) => ({ right: s.right + right, of: s.of + mine.length }));
+    if (right > 0) playCue({ name: 'chime', tier: 'beat' });
   }, [lastDone, calls]);
   const call = (pid: string, makes: boolean) =>
     round && setCalls((c) => ({ ...c, [`${round.index}:${pid}`]: makes }));
@@ -229,8 +232,10 @@ export function LivePage({ token }: { token: string }) {
     const stop = followLive(token, (e) => {
       if (!live) return;
       if (e.type === 'game') setSt(onFrom(e.data));
-      else if (e.type === 'reaction') burst(e.kind);
-      else if (e.type === 'watchers') setWatchers(e.n);
+      else if (e.type === 'reaction') {
+        burst(e.kind);
+        playCue({ name: 'pop' });
+      } else if (e.type === 'watchers') setWatchers(e.n);
       else if (e.type === 'revoked') setSt({ k: 'revoked' });
       // The stream was refused for good: the plain read says why.
       else if (e.type === 'closed')
@@ -247,6 +252,7 @@ export function LivePage({ token }: { token: string }) {
     };
   }, [token, burst, state.session?.user.id]);
   const game = st.k === 'on' ? st.game : null;
+  useLiveSound(game);
   const moments = useMoments(game);
   const pred = usePredictions(game);
   if (st.k !== 'on')

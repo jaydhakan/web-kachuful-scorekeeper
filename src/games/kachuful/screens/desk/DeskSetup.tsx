@@ -11,6 +11,8 @@ import {
   type Decks,
   type LengthMode,
 } from '@/games/kachuful/domain';
+import { scheduleCues, type CueRun } from '@/fx/sequence';
+import { hopDelay, hopsMs, spinCues } from '@/games/kachuful/sound/plans';
 import { circle, people, type Person } from '@/state/registry';
 import { useArchive } from '@/state/useArchive';
 import { findPerson, isSeated, lacksEmail, lookFor } from '@/components/seating/seatLook';
@@ -71,6 +73,8 @@ export function DeskSetup() {
   const su = state.setup;
   const rm = useReducedMotion();
   const [spin, setSpin] = useState<number | null>(null);
+  const spinSound = useRef<CueRun | null>(null);
+  useEffect(() => () => spinSound.current?.cancel(), []);
   const rows = useRef<(HTMLLIElement | null)[]>([]);
   const grips = useRef<(HTMLButtonElement | null)[]>([]);
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
@@ -208,11 +212,13 @@ export function DeskSetup() {
     }
     // A roulette over the seats that slows down and lands on the new dealer.
     const hops = 2 * n + ((tgt - dealer + n) % n);
+    spinSound.current?.cancel();
+    spinSound.current = scheduleCues(spinCues(hopsMs(hops)), { reduced: false });
     let i = 0;
     const tick = () => {
       i++;
       setSpin((dealer + i) % n);
-      if (i < hops) setTimeout(tick, 40 + Math.pow(i / hops, 3) * 260);
+      if (i < hops) setTimeout(tick, hopDelay(i, hops));
       else
         setTimeout(() => {
           actions.setupPatch({ dealer: tgt });

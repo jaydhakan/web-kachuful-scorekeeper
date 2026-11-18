@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface Flight {
@@ -22,13 +22,24 @@ let seq = 0;
 export function useBidFlight(table: string, zeroLabel?: string) {
   const rm = useReducedMotion();
   const [flight, setFlight] = useState<Flight | null>(null);
+  const landing = useRef<(() => void) | null>(null);
+  /** Calls the pending `onLand` once: when its chip lands, or at once if another bid or a skipped flight overtakes it. */
+  const land = useCallback(() => {
+    const f = landing.current;
+    landing.current = null;
+    f?.();
+  }, []);
+  /** `onLand` runs when the chip reaches the seat; with no flight (reduced motion, no seat) it runs at once. */
   const launch = useCallback(
-    (key: HTMLElement, v: number, seat: number) => {
-      if (rm) return;
-      const target = document.querySelector(
-        `[data-table="${table}"] [data-seat="${seat}"] [data-seat-avatar]`,
-      );
-      if (!target) return;
+    (key: HTMLElement, v: number, seat: number, onLand?: () => void) => {
+      land();
+      const target = rm
+        ? null
+        : document.querySelector(
+            `[data-table="${table}"] [data-seat="${seat}"] [data-seat-avatar]`,
+          );
+      if (!target) return onLand?.();
+      landing.current = onLand ?? null;
       const a = key.getBoundingClientRect(),
         b = target.getBoundingClientRect();
       // Where the seat's badge sits: centred on the avatar's right edge.
@@ -42,7 +53,7 @@ export function useBidFlight(table: string, zeroLabel?: string) {
         dy: ty - (a.top + a.height / 2),
       });
     },
-    [rm, table],
+    [rm, table, land],
   );
   const node = createPortal(
     <AnimatePresence>
@@ -60,7 +71,10 @@ export function useBidFlight(table: string, zeroLabel?: string) {
             ease: [0.22, 1, 0.36, 1],
             opacity: { duration: 0.42, times: [0, 0.7, 1] },
           }}
-          onAnimationComplete={() => setFlight((f) => (f?.id === flight.id ? null : f))}
+          onAnimationComplete={() => {
+            land();
+            setFlight((f) => (f?.id === flight.id ? null : f));
+          }}
         >
           <span className="mat-key-on absolute inset-0 rounded-[inherit]" />
           <span className="relative">{flight.v === 0 && zeroLabel ? zeroLabel : flight.v}</span>

@@ -10,6 +10,7 @@ import {
   standings,
   totals,
 } from '@/games/kachuful/domain';
+import { resultsInBidOrder } from '@/games/kachuful/sound/hooks';
 import { useApp } from '@/games/kachuful/state/store';
 import { useDeskKeys } from './useDeskKeys';
 import { Counter } from '@/components/ui/Counter';
@@ -53,10 +54,15 @@ export function DeskSummary() {
   const climb = climbFor(prev, cur),
     miss = soleMiss(g.players, r.results),
     wait = landOrder(g.players, bidOrder(g, r), r.results);
+  const newLead = prevR.length > 0 && prev[0].p.id !== cur[0].p.id;
   const { stage, step, landed, rm } = useSumStages(
     [300, 900, 1700, 2300, 3000],
     climb,
     Object.keys(wait).length,
+    {
+      key: `sum:${g.id}:${r.doneAt ?? r.index}`,
+      facts: { results: resultsInBidOrder(g, r), soleMiss: !!miss, newLeader: newLead },
+    },
   );
   useDeskKeys({ enter: actions.nextRound });
   // Mid-climb the rows keep their old ranks; the numbers change when the last step lands.
@@ -67,7 +73,6 @@ export function DeskSummary() {
         ? climb[step - 1].map((id) => prev.find((x) => x.p.id === id)!)
         : prev;
   const before = Object.fromEntries(prev.map((x) => [x.p.id, x.rank]));
-  const newLead = prevR.length > 0 && prev[0].p.id !== cur[0].p.id;
   const nr = roundAt(g, r.index + 1),
     nD = g.players[nr.dealerIndex],
     nF = g.players[nr.firstPlayerIndex];

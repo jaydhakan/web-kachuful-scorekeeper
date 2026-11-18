@@ -3,6 +3,9 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import type { StreakKind } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { vibrate } from '@/hooks/useHaptics';
+import { curRound, STREAK_STEPS } from '@/games/kachuful/domain';
+import { playOnce } from '@/games/kachuful/sound/once';
+import { streakCues } from '@/games/kachuful/sound/plans';
 import { palette } from '@/theme/palette';
 import { EASE } from '@/components/ui/motion';
 import { t } from '@/strings';
@@ -132,8 +135,17 @@ export function StreakCelebration() {
       return;
     }
     vibrate(fx[i].tier ? 40 : 20);
+    // One chime per burst (a boom too for the top step); the round it came from and the burst's index key it.
+    const run = playOnce(
+      `streak:${state.game.id}:${curRound(state.game).doneAt ?? i}:${i}`,
+      streakCues(fx[i].tier, STREAK_STEPS.length - 1),
+      { reduced: !!rm },
+    );
     const tm = setTimeout(() => setI((k) => k + 1), HOLD_MS[fx[i].tier]);
-    return () => clearTimeout(tm);
+    return () => {
+      clearTimeout(tm);
+      run?.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the index
   }, [i]);
   if (!fx.length) return null;

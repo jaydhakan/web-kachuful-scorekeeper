@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { m } from 'framer-motion';
 import { useApp } from '@/games/kachuful/state/store';
 import { MenuButton, MenuRow } from '@/components/ui/MenuRows';
+import { SoundRow } from '@/components/ui/QuickMute';
 import { stagger } from '@/components/ui/stagger';
 import { destRoute, destsFor } from '@/games/kachuful/components/hubNav';
 import { t } from '@/strings';
@@ -72,6 +73,8 @@ export function MenuBody() {
           {rows.map(([ic, label, f], k) => (
             <MenuRow key={label} i={i++} icon={ic} label={label} onClick={f} rule={k > 0} />
           ))}
+          {/* The speaker cycles Sounds in the one shared setting; the toast says what it switched to. */}
+          {title === t.sheets.menu.sectionApp && <SoundRow i={i++} rule onToast={actions.say} />}
         </section>
       ))}
       {inGame && (

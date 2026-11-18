@@ -1,5 +1,8 @@
 import { AnimatePresence, m, useReducedMotion, type MotionStyle } from 'framer-motion';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { type CueRun } from '@/fx/sequence';
+import { playOnce } from '@/games/kachuful/sound/once';
+import { dealCues } from '@/games/kachuful/sound/plans';
 import { dpx, seatPos, toPct } from '@/lib/tableGeometry';
 import { totalRounds } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
@@ -79,6 +82,22 @@ export function RoundStart() {
     gap = last ? 0.08 : 0.06;
   const liftAt = (last ? LAST : 0) + WAIT + hold,
     lineAt = liftAt + LIFT + TURN + BEAT;
+  // The deal's sounds ride the same constants as its motion; once per deal, and a skip or unmount drops them.
+  const sound = useRef<CueRun | null>(null);
+  useEffect(() => {
+    if (!ready || !seq) return;
+    sound.current = playOnce(
+      `deal:${g.id}:${seq.round.index}:${seq.prev}`,
+      dealCues({ last, players: n, needPass, liftAt, lineAt, read: READ, lift: LIFT, gap }),
+      { reduced: !!rm },
+    );
+    return () => sound.current?.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once the card's art is ready
+  }, [ready]);
+  const skip = () => {
+    sound.current?.cancel();
+    setStage(DONE);
+  };
   useEffect(() => {
     if (!ready) return;
     if (stage >= DONE) {
@@ -119,11 +138,11 @@ export function RoundStart() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: FADE / 1000 }}
-      onClick={() => setStage(DONE)}
+      onClick={skip}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
           e.preventDefault();
-          setStage(DONE);
+          skip();
         }
       }}
       className={ROOT}
