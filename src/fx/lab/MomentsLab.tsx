@@ -1,6 +1,6 @@
 import './lab.css';
 import { MotionConfig } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Seg } from '@/components/ui/Seg';
 import { applyTheme } from '@/theme/applyTheme';
 import { THEMES, type ThemeId } from '@/theme/themes';
@@ -8,6 +8,8 @@ import { forgetMoments, MomentsProvider } from '../moments';
 import { armAudio } from '../sound';
 import { forceReducedMotion, setTimeScale } from '../waapi';
 import { ENTRIES } from './entries';
+
+const SoundBoard = lazy(() => import('./SoundBoard'));
 
 type Speed = '1' | '0.25';
 type Size = 'phone' | 'desk';
@@ -21,6 +23,43 @@ const SIZES: Record<Size, { w: number; h: number }> = {
  * off, the four themes, and phone and desk sizes. Where a moment's feel is approved, and what e2e screenshots.
  */
 export default function MomentsLab() {
+  const [tab, setTab] = useState<'moments' | 'sounds'>(() =>
+    new URLSearchParams(location.search).get('tab') === 'sounds' ? 'sounds' : 'moments',
+  );
+  const pick = (v: 'moments' | 'sounds') => {
+    armAudio();
+    setTab(v);
+    const u = new URL(location.href);
+    u.searchParams.set('tab', v);
+    history.replaceState(null, '', u);
+  };
+  return (
+    <div className="min-h-dvh bg-[var(--bg)]">
+      <div className="p-4 pb-0">
+        <Seg
+          uid="lab-tab"
+          label="Lab"
+          size="sm"
+          value={tab}
+          onChange={pick}
+          options={[
+            { v: 'moments', label: 'Moments' },
+            { v: 'sounds', label: 'Sound Board' },
+          ]}
+        />
+      </div>
+      {tab === 'sounds' ? (
+        <Suspense fallback={null}>
+          <SoundBoard />
+        </Suspense>
+      ) : (
+        <Moments />
+      )}
+    </div>
+  );
+}
+
+function Moments() {
   const [id, setId] = useState(
     () => new URLSearchParams(location.search).get('m') ?? ENTRIES[0].id,
   );
