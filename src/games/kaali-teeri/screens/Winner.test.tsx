@@ -26,7 +26,11 @@ describe('Winner', () => {
   });
 
   it('flips in what the game earned, winners and first wins among them', async () => {
+    // After midnight everyone is a Night Owl too: those five cards must not push a winner out of the reel.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 18, 1, 30));
     renderKt(<Winner />, finishedDemo());
+    vi.useRealTimers();
     const reel = await screen.findByRole('list', { name: 'Achievements' });
     expect(within(reel).getAllByText('Winner')).toHaveLength(2);
     expect(within(reel).getAllByText('Wooden Spoon').length).toBeGreaterThan(0);
