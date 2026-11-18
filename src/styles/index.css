@@ -546,9 +546,14 @@ html[data-boot='landing'] .boot {
     opacity: 0.55;
   }
 }
+/* The same pulse for a screen's outline while it waits on the server (TableSkeleton). */
+.sk-pulse {
+  animation: boot-pulse 1.6s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .boot-bar,
-  .boot-tile {
+  .boot-tile,
+  .sk-pulse {
     animation: none;
   }
 }

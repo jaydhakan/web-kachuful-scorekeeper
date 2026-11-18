@@ -21,7 +21,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE } from '@/components/ui/motion';
 import type { BoardProps } from './board/Board';
 import Home, { type HubLink } from './Home';
-
+import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 type Hub = Exclude<HubLink, 'clues'>;
 
@@ -82,7 +82,7 @@ function TableGame({
           </button>
         </Centre>
       );
-    return <Loader />;
+    return <TableSkeleton kind="grid" label={s.board.loading} />;
   }
   // Drawn from the game itself, so a game opened mid-play never flashes the waiting screen first.
   const screen = status === 'finished' && onBoard ? 'board' : tableScreen(t.game.status);

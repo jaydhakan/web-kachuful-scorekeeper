@@ -16,7 +16,6 @@ import type { Face } from '@/components/ui/Avatar';
 import { useBidFlight } from '@/components/ui/BidFlight';
 import { Icon } from '@/components/ui/Icons';
 import { IconButton } from '@/components/ui/IconButton';
-import { Loader } from '@/components/ui/Loader';
 import { Modal } from '@/components/ui/Modal';
 import { Sheet } from '@/components/ui/Sheet';
 import { TableInviteSheet } from '@/components/seat-invites/TableInviteSheet';
@@ -69,6 +68,7 @@ const EmojiRain = lazy(() => import('@/fx/ui').then((m) => ({ default: m.EmojiRa
 const Boston = lazy(() => import('@/games/spades/ui/Boston').then((m) => ({ default: m.Boston })));
 const BOSTON_HAPTIC = [40, 30, 60];
 import { Cancelled, Winner } from './Winner';
+import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 /** A trick stays on the felt this long after its last card lands, before it is gathered to the winner. */
 export const TRICK_HOLD_MS = 900;
@@ -109,12 +109,7 @@ const reasonText = (r: string | null) =>
  */
 export default function PlayTable() {
   const ctx = useTable();
-  if (!ctx.view)
-    return (
-      <div className="scr-bg absolute inset-0" aria-busy="true" aria-label={s.title.loading}>
-        <Loader />
-      </div>
-    );
+  if (!ctx.view) return <TableSkeleton kind="felt" label={s.title.loading} />;
   if (ctx.view.table.status === 'cancelled') return <Cancelled onHome={() => spGo('')} />;
   return <TableScreen ctx={ctx} view={ctx.view} />;
 }
