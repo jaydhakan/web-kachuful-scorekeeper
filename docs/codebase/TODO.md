@@ -120,6 +120,12 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - The bid pad still covers part of the side seats on short felts (the strip carries every bid); the partner seat
     is asserted uncovered only at 390x844 and 430x932.
   - Auto-play of a lone legal card (setting) has only fake-timer unit tests, no e2e.
+  - Live hardening (backend branch `fix/live-queue-newest`, deploy it before the app change that reads a ping's `rev`):
+    check on the server that Postgres `max_connections` covers `(DB_POOL_SIZE + DB_MAX_OVERFLOW) x workers + 2` (82 with
+    the new defaults and 2 workers), then play a real game and look for `live viewer queue full`, `live listener
+    connected` and slow-load warnings in the journal. Multi-worker behaviour is covered by design, not by a test.
+  - After a stream drops, seat presence refreshes only on the next `seat-presence` frame; confirm the real server
+    resends it when a stream opens.
 - **Deploy and devices:**
   - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
   - Haptics are untested on a real Android phone.
