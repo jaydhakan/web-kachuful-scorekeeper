@@ -222,6 +222,23 @@ describe('PlayTable', () => {
     });
   });
 
+  describe('your turn over an open sheet', () => {
+    it('offers a way back from the menu, and not when it is someone else’s turn', async () => {
+      const fake = mount();
+      const user = u();
+      await user.click(screen.getByRole('button', { name: 'Table menu' }));
+      await user.click(
+        await screen.findByRole('button', { name: 'Your turn · back to the table' }),
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Table' })).toBeNull());
+      expect(screen.queryByRole('button', { name: /back to the table/ })).toBeNull();
+      act(() => fake.auto());
+      await user.click(screen.getByRole('button', { name: 'Table menu' }));
+      await screen.findByRole('dialog', { name: 'Table' });
+      expect(screen.queryByRole('button', { name: /back to the table/ })).toBeNull();
+    });
+  });
+
   describe('tapping the table to play', () => {
     const lift = async (fake: FakeTable) => {
       bidRound(fake);

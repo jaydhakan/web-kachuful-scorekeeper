@@ -1160,14 +1160,27 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         )}
       </div>
 
-      {linkNote && (
-        <div
-          role="status"
-          className="pointer-events-none absolute left-1/2 top-[calc(var(--sat)+3.5rem)] z-[50] -translate-x-1/2 rounded-full bg-[color-mix(in_srgb,var(--warning)_25%,var(--bg))] px-4 py-2 text-14 font-semibold"
-        >
-          {linkNote}
-        </div>
-      )}
+      {/* Over any open sheet: a dead link, and your turn arriving while you are in a menu. */}
+      <div className="pointer-events-none absolute inset-x-0 top-[calc(var(--sat)+3.5rem)] z-[70] flex flex-col items-center gap-2">
+        {linkNote && (
+          <div
+            role="status"
+            className="rounded-full bg-[color-mix(in_srgb,var(--warning)_25%,var(--bg))] px-4 py-2 text-14 font-semibold"
+          >
+            {linkNote}
+          </div>
+        )}
+        {myTurn && sheet !== null && confirm === null && (
+          <button
+            type="button"
+            onClick={() => setSheet(null)}
+            className="press pointer-events-auto relative isolate min-h-11 rounded-full px-5 text-15 font-bold mat-cta mat-cta-on mat-tone-accent text-ink-on-accent"
+          >
+            <span aria-hidden className="mat-fill absolute inset-0 -z-10 rounded-[inherit]" />
+            {s.hand.yourTurnBack}
+          </button>
+        )}
+      </div>
 
       <AnimatePresence>
         {sheet === 'menu' && (

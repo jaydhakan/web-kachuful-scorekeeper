@@ -110,6 +110,7 @@ export const play = {
   hand: {
     label: 'Your hand',
     yourTurn: 'YOUR TURN',
+    yourTurnBack: 'Your turn · back to the table',
     yourTurnSecs: (s: number) => `YOUR TURN · ${s}s`,
     faceDown: 'Face-down card',
     cant: {
