@@ -14,7 +14,7 @@ import { ledSuit } from '@/games/spades/domain/trick';
 import type { Card, Play, Suit } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
 import { anim, boxOf, mid, OUT, reducedMotion, type Box } from './fx';
-import { CARD_RATIO, LIFT, fanLayout, indexSize, strip } from './fan';
+import { CARD_RATIO, LIFT, NUDGE, fanLayout, indexSize, strip } from './fan';
 import { SpCard, cardName } from './SpCard';
 
 export type SortOrder = 'up' | 'down';
@@ -182,9 +182,13 @@ export function Hand({
   }, [playable, cards, lifted]);
 
   const keyOf = (c: Card | null, i: number) => (c ? cardId(c) : `b${i}`);
-  const base = (i: number, lift: boolean) => {
+  // When some cards can't be played, the ones that can sit a little higher: the lift says "yours", not the grey.
+  const raised = (c: Card | null) => !!c && playable && problems.size > 0 && !problems.has(cardId(c));
+  const base = (i: number, lift: boolean, up = false) => {
     const p = fan.slots[i];
-    return p ? `translate(${p.x}px, ${p.y - (lift ? LIFT : 0)}px) rotate(${p.r}deg)` : 'none';
+    if (!p) return 'none';
+    const y = p.y - (lift ? LIFT : 0) - (up ? NUDGE : 0);
+    return `translate(${p.x}px, ${y}px) rotate(${p.r}deg)`;
   };
 
   // The deal: each card flies in from the deck to its place, face down, at its turn in the deal.
@@ -293,7 +297,7 @@ export function Hand({
     // Swallow the click that follows a drag.
     el.dataset.dragged = '';
     if (c && d.dy < -PLAY_DRAG) return tryPlay(c, el);
-    el.style.transform = base(i, lifted === (c && cardId(c)));
+    el.style.transform = base(i, lifted === (c && cardId(c)), raised(c));
   };
 
   const onClick = (c: Card | null, el: HTMLButtonElement) => {
@@ -370,7 +374,7 @@ export function Hand({
                 width: fan.cw,
                 height: ch,
                 zIndex: lift ? 40 : i + 1,
-                transform: base(i, lift),
+                transform: base(i, lift, raised(c)),
               }}
             >
               <SpCard
@@ -383,7 +387,7 @@ export function Hand({
               />
               <span
                 aria-hidden
-                className={`sp-dim pointer-events-none absolute inset-0 rounded-[inherit] bg-[color-mix(in_srgb,var(--bg)_55%,transparent)] ${p ? 'opacity-100' : 'opacity-0'}`}
+                className={`sp-dim pointer-events-none absolute inset-0 rounded-[inherit] bg-[color-mix(in_srgb,var(--shade)_28%,transparent)] ${p ? 'opacity-100' : 'opacity-0'}`}
               />
               {lift && (
                 <span

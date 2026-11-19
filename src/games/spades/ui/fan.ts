@@ -10,6 +10,8 @@ export const FIT = 1 + 12 * 0.38;
 export const CARD_RATIO = 1.4;
 /** How far a lifted card rises. */
 export const LIFT = 24;
+/** How far a playable card stands above the unplayable ones when some can't be played. */
+export const NUDGE = 8;
 
 export interface FanSlot {
   /** Left edge of the card, from the container's left. */
