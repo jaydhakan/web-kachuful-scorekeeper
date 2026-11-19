@@ -41,6 +41,20 @@ export function PrefsBody() {
         />
         <p className="mt-2 text-13 text-[var(--tx2)]">{s.prefs.soundsNote}</p>
       </div>
+      <div>
+        <p className="mb-2 text-13 font-semibold text-[var(--tx2)]">{s.prefs.autoSingle}</p>
+        <Seg
+          uid={`${uid}-auto`}
+          label={s.prefs.autoSingle}
+          value={prefs.autoSingle ? 'on' : 'off'}
+          onChange={(v) => set({ autoSingle: v === 'on' })}
+          options={[
+            { v: 'off', label: s.prefs.autoSingleOff },
+            { v: 'on', label: s.prefs.autoSingleOn },
+          ]}
+        />
+        <p className="mt-2 text-13 text-[var(--tx2)]">{s.prefs.autoSingleNote}</p>
+      </div>
     </div>
   );
 }

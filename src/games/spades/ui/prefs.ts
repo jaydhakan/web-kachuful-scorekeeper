@@ -3,13 +3,15 @@ import { storage } from '@/state/persistence';
 import { SP_KEYS } from '@/games/spades/state/keys';
 import type { SoundMode } from '@/games/spades/sound/sfx';
 
-/** This device's Spades preferences (`spades.prefs`): how the hand is sorted and which sounds play. */
+/** This device's Spades preferences (`spades.prefs`): how the hand is sorted, which sounds play, and the one-card shortcut. */
 export interface SpPrefs {
   sort: 'up' | 'down';
   sounds: SoundMode;
+  /** Play the only legal card after a few seconds, if nothing else was tapped. */
+  autoSingle: boolean;
 }
 
-export const DEFAULT_PREFS: SpPrefs = { sort: 'up', sounds: 'all' };
+export const DEFAULT_PREFS: SpPrefs = { sort: 'up', sounds: 'all', autoSingle: false };
 
 const SORTS: readonly string[] = ['up', 'down'];
 const SOUNDS: readonly string[] = ['all', 'mine', 'off'];
@@ -21,6 +23,7 @@ export function readPrefs(): SpPrefs {
   return {
     sort: SORTS.includes(o.sort as string) ? (o.sort as SpPrefs['sort']) : DEFAULT_PREFS.sort,
     sounds: SOUNDS.includes(o.sounds as string) ? (o.sounds as SoundMode) : DEFAULT_PREFS.sounds,
+    autoSingle: typeof o.autoSingle === 'boolean' ? o.autoSingle : DEFAULT_PREFS.autoSingle,
   };
 }
 

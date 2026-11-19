@@ -80,6 +80,10 @@ const LAST_TRICK_MS = 400;
 const STAMP_MS = 1300;
 const REACT_GAP_MS = 2000;
 const TOAST_MS = 3200;
+/** With "Play your only card" on, a lone legal card goes out after this long, unless something else was tapped. */
+export const AUTO_SINGLE_MS = 5000;
+/** …and never in the last second of the turn, which the server's own timeout settles. */
+const AUTO_SINGLE_MARGIN_MS = 1000;
 
 type SheetKind = 'menu' | 'prefs' | 'board' | 'last' | 'keys' | 'summary' | 'invite' | null;
 type Confirm = 'end' | 'draw' | 'cancel' | 'leave' | { replace: Seat } | null;
@@ -383,7 +387,10 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       }
     });
   };
+  // A refused tap is the player still deciding: it gives the lone-card timer a fresh start.
+  const [poke, setPoke] = useState(0);
   const blocked = (why: string) => {
+    setPoke((n) => n + 1);
     showToast(why);
     vibrate(10);
     sfx('err', true);
@@ -398,6 +405,28 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     const from = el ?? handBox.current;
     if (from) onPlay(card, boxOf(from));
   };
+  const auto = useRef(playLifted);
+  auto.current = playLifted;
+  const onlyId =
+    prefs.autoSingle && playable && myHand && t.tricks.length > 0
+      ? (() => {
+          const legal = myHand.filter((c) => !playProblem(c, myHand, t.trick, t.broken));
+          return legal.length === 1 ? cardId(legal[0]) : null;
+        })()
+      : null;
+  // Armed per turn; any lift, refused tap, drop or turn change cancels or restarts it, and a played card ends it.
+  useEffect(() => {
+    if (!onlyId || lifted !== null) return;
+    const id = setTimeout(() => {
+      if (t.deadline !== null && Date.now() + ctx.clockOffset > t.deadline - AUTO_SINGLE_MARGIN_MS)
+        return;
+      const card = myHand?.find((c) => cardId(c) === onlyId);
+      if (card) auto.current(card);
+    }, AUTO_SINGLE_MS);
+    return () => clearTimeout(id);
+    // The hand and the clock are read when it fires; the timer restarts only on these.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onlyId, lifted, poke, dn]);
   const liftedCard = (playable && lifted && myHand?.find((c) => cardId(c) === lifted)) || null;
   const drop: DropProps | null = liftedCard
     ? {

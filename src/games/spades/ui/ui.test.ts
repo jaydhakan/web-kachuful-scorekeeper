@@ -75,10 +75,22 @@ describe('sounds and prefs', () => {
   });
 
   it('defaults to everyone’s sounds, survives junk, and keeps other keys', () => {
-    expect(readPrefs()).toEqual({ sort: 'up', sounds: 'all' });
-    storage.set(SP_KEYS.prefs, { sort: 'sideways', sounds: 'mine', other: 1 });
-    expect(readPrefs()).toEqual({ sort: 'up', sounds: 'mine' });
+    expect(readPrefs()).toEqual({ sort: 'up', sounds: 'all', autoSingle: false });
+    storage.set(SP_KEYS.prefs, { sort: 'sideways', sounds: 'mine', autoSingle: 'yes', other: 1 });
+    expect(readPrefs()).toEqual({ sort: 'up', sounds: 'mine', autoSingle: false });
     writePrefs({ sort: 'down' });
-    expect(storage.get(SP_KEYS.prefs, {})).toEqual({ sort: 'down', sounds: 'mine', other: 1 });
+    expect(storage.get(SP_KEYS.prefs, {})).toEqual({
+      sort: 'down',
+      sounds: 'mine',
+      autoSingle: false,
+      other: 1,
+    });
+  });
+
+  it('remembers the one-card shortcut, which is off until it is turned on', () => {
+    expect(readPrefs().autoSingle).toBe(false);
+    writePrefs({ autoSingle: true });
+    resetPrefsForTests();
+    expect(readPrefs().autoSingle).toBe(true);
   });
 });

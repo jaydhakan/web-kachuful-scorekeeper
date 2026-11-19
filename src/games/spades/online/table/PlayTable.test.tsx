@@ -239,6 +239,120 @@ describe('PlayTable', () => {
     });
   });
 
+  describe('playing your only card for you', () => {
+    const c = (rank: string, suit: Card['suit']) => ({ rank, suit }) as Card;
+    const ranks = (suit: Card['suit'], rs: string[]) => rs.map((r) => c(r, suit));
+    // Seat 0 holds one heart; seat 1 wins the first trick with the king of clubs and leads a heart.
+    const DEAL: Card[][] = [
+      [
+        ...ranks('clubs', ['2']),
+        ...ranks('hearts', ['2']),
+        ...ranks('diamonds', ['2', '3', '4', '5', '6', '7', '8']),
+        ...ranks('spades', ['2', '3', '4', '5']),
+      ],
+      [
+        ...ranks('clubs', ['K']),
+        ...ranks('hearts', ['3', '4', '5', '6', '7', '8', '9']),
+        ...ranks('diamonds', ['9', '10', 'J', 'Q']),
+        ...ranks('spades', ['6']),
+      ],
+      [
+        ...ranks('clubs', ['3']),
+        ...ranks('hearts', ['10', 'J', 'Q', 'K', 'A']),
+        ...ranks('diamonds', ['K', 'A']),
+        ...ranks('spades', ['7', '8', '9', '10', 'J']),
+      ],
+      [
+        ...ranks('clubs', ['4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'A']),
+        ...ranks('spades', ['Q', 'K', 'A']),
+      ],
+    ];
+    const SECOND = () => ({ type: 'play', card: c('2', 'hearts') });
+    /** Second trick: seat 1 led a heart, seats 2 and 3 played, and seat 0's only legal card is the 2♥. */
+    const atSecondTrick = (auto: boolean) => {
+      if (auto) storage.set(SP_KEYS.prefs, { autoSingle: true });
+      resetPrefsForTests();
+      const fake = mount({ deal: DEAL });
+      bidRound(fake);
+      act(() => {
+        fake.as(0, { type: 'play', card: c('2', 'clubs') });
+        fake.as(1, { type: 'play', card: c('K', 'clubs') });
+        fake.as(2, { type: 'play', card: c('3', 'clubs') });
+        fake.as(3, { type: 'play', card: c('4', 'clubs') });
+        fake.as(1, { type: 'play', card: c('3', 'hearts') });
+        fake.as(2, { type: 'play', card: c('10', 'hearts') });
+        fake.as(3, { type: 'play', card: c('5', 'clubs') });
+      });
+      return fake;
+    };
+    const sentPlays = (fake: FakeTable) => fake.sent.filter((a) => a.type === 'play');
+    // It is this phone's turn at once (the next trick is under way), so the five seconds run from here.
+    const settle = async () => {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2000);
+      });
+    };
+    beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
+    afterEach(() => vi.useRealTimers());
+
+    it('plays the lone legal card after five seconds, once', async () => {
+      const fake = atSecondTrick(true);
+      await settle();
+      expect(sentPlays(fake)).toHaveLength(0);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2500);
+      });
+      expect(sentPlays(fake)).toHaveLength(0);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000);
+      });
+      expect(sentPlays(fake)).toEqual([SECOND()]);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000);
+      });
+      expect(sentPlays(fake)).toHaveLength(1);
+    });
+
+    it('does nothing when the setting is off', async () => {
+      const fake = atSecondTrick(false);
+      await settle();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000);
+      });
+      expect(sentPlays(fake)).toHaveLength(0);
+    });
+
+    it('waits while the card is lifted, and starts again when it is put back', async () => {
+      const fake = atSecondTrick(true);
+      await settle();
+      const user = userEvent.setup({
+        pointerEventsCheck: 0,
+        advanceTimers: vi.advanceTimersByTime,
+      });
+      await user.click(cardBtn(c('2', 'hearts')));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(12_000);
+      });
+      expect(sentPlays(fake)).toHaveLength(0);
+      fireEvent.click(document.querySelector('[data-hand]')!);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5500);
+      });
+      expect(sentPlays(fake)).toEqual([SECOND()]);
+    });
+
+    it('never plays on the first trick', async () => {
+      storage.set(SP_KEYS.prefs, { autoSingle: true });
+      resetPrefsForTests();
+      const fake = mount({ deal: DEAL });
+      bidRound(fake);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(12_000);
+      });
+      expect(sentPlays(fake)).toHaveLength(0);
+    });
+  });
+
   describe('tapping the table to play', () => {
     const lift = async (fake: FakeTable) => {
       bidRound(fake);
@@ -408,6 +522,17 @@ describe('PlayTable', () => {
       await user.click(screen.getByRole('button', { name: 'Sounds and sorting' }));
       await user.click(screen.getByRole('button', { name: 'Only mine' }));
       expect(storage.get<{ sounds: string }>(SP_KEYS.prefs, { sounds: '' }).sounds).toBe('mine');
+    });
+
+    it('turns the one-card shortcut on from the settings', async () => {
+      mount();
+      const user = u();
+      await user.click(screen.getByRole('button', { name: 'Table menu' }));
+      await user.click(screen.getByRole('button', { name: 'Sounds and sorting' }));
+      await user.click(screen.getByRole('button', { name: 'After 5 seconds' }));
+      expect(
+        storage.get<{ autoSingle: boolean }>(SP_KEYS.prefs, { autoSingle: false }).autoSingle,
+      ).toBe(true);
     });
   });
 });

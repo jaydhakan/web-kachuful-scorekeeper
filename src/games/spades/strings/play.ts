@@ -282,6 +282,11 @@ export const play = {
     soundsAll: 'Everyone’s',
     soundsMine: 'Only mine',
     soundsOff: 'Off',
+    autoSingle: 'Play your only card',
+    autoSingleOff: 'Off',
+    autoSingleOn: 'After 5 seconds',
+    autoSingleNote:
+      'When just one card is legal, it is played for you after 5 seconds unless you tap. Never on the first trick.',
     soundsNote:
       'Only mine plays your turn, your cards, your team’s tricks, a Nil involving you and the win.',
   },
