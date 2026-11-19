@@ -34,6 +34,7 @@ export function useTableLink(id: string, deps?: LinkDeps): TableLinkCtx {
       clockOffset: s.clockOffset,
       busy: s.busy,
       lastError: s.lastError,
+      stale: s.stale,
       qrUrl: s.view ? link.qrUrl : null,
       act: link.act,
       onReaction: link.onReaction,

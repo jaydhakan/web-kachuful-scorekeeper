@@ -15,6 +15,8 @@ export interface LinkState {
   clockOffset: number;
   busy: boolean;
   lastError: string | null;
+  /** Nothing has arrived for a while at a table in play, and the link is asking the server whether it missed something. */
+  stale: boolean;
 }
 
 /** Sends lost to the network go again with the same actionId this many times, once the stream is back. */
@@ -25,6 +27,10 @@ export const RETRY_MS = 1000;
 export const TIMEOUT_RETRY_MS = 1000;
 /** Sent just after the deadline, so the server's clock has surely passed it. */
 export const TIMEOUT_MARGIN_MS = 150;
+/** A table in play that has sent no view for this long is read again: a dropped frame leaves nothing else to repair it. */
+export const STALE_MS = 15_000;
+/** How often the link checks for that. */
+export const WATCH_MS = 5000;
 
 export interface LinkDeps {
   follow: (id: string, h: FollowHandlers) => () => void;
@@ -71,6 +77,9 @@ export class TableLink {
   private timerKey: string | null = null;
   private started = false;
   private stopped = false;
+  private loading = false;
+  private lastStateAt = Date.now();
+  private watchdog: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     readonly id: string,
@@ -84,6 +93,7 @@ export class TableLink {
       clockOffset: 0,
       busy: false,
       lastError: null,
+      stale: false,
     };
   }
 
@@ -145,9 +155,12 @@ export class TableLink {
         this.set({});
       },
     });
+    this.lastStateAt = Date.now();
+    this.watchdog = setInterval(this.check, WATCH_MS);
     if (typeof window !== 'undefined') {
       window.addEventListener('online', this.onNet);
       window.addEventListener('offline', this.onNet);
+      document.addEventListener('visibilitychange', this.onVisible);
     }
   }
 
@@ -160,10 +173,33 @@ export class TableLink {
     r?.done('offline');
     this.stopFollow?.();
     this.stopFollow = null;
+    if (this.watchdog) clearInterval(this.watchdog);
+    this.watchdog = null;
     if (typeof window !== 'undefined') {
       window.removeEventListener('online', this.onNet);
       window.removeEventListener('offline', this.onNet);
+      document.removeEventListener('visibilitychange', this.onVisible);
     }
+  }
+
+  /** A phone coming back may have missed frames while it slept: read the table before the stream catches up. */
+  private onVisible = () => {
+    if (document.visibilityState === 'visible' && !this.loading) void this.load();
+  };
+
+  private check = () => {
+    const v = this.s.view;
+    if (this.stopped || this.loading || !v || v.table.status !== 'playing') return;
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+    if (Date.now() - this.lastStateAt > STALE_MS) void this.watch();
+  };
+
+  private async watch() {
+    // Counted from now, so a failing read is tried again after STALE_MS, not every tick.
+    this.lastStateAt = Date.now();
+    this.set({ stale: true });
+    await this.load();
+    if (!this.stopped) this.set({ stale: false });
   }
 
   private onNet = () => {
@@ -175,6 +211,7 @@ export class TableLink {
   reload = () => void this.load();
 
   private async load() {
+    this.loading = true;
     try {
       const v = await spEp.view(this.id);
       this.loadFailed = false;
@@ -185,12 +222,15 @@ export class TableLink {
       if (err.status === 404 || err.status === 403) this.gone = true;
       else this.loadFailed = true;
       this.set({});
+    } finally {
+      this.loading = false;
     }
   }
 
   /** Takes a view unless it is older than the one shown; the same rev still brings new invites. */
   adopt = (v: SpViewOut) => {
     if (this.stopped) return;
+    this.lastStateAt = Date.now();
     const cur = this.s.view;
     const p: Partial<LinkState> = { clockOffset: v.serverNow - Date.now() };
     if (!cur || v.table.rev >= cur.table.rev) {

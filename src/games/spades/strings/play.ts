@@ -103,6 +103,7 @@ export const play = {
     paused: (name: string) => `Waiting for someone to take ${name}’s seat`,
     pausedNoName: 'Waiting for someone to take the open seat',
     reconnecting: 'Reconnecting…',
+    checking: 'Checking the table…',
   },
 
   hand: {

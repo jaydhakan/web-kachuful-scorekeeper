@@ -2,7 +2,15 @@ import { lobby, started } from '@/games/spades/domain/__fixtures__/kit';
 import { viewFor, type Seat, type SpPublic } from '@/games/spades/domain';
 import type { FollowHandlers } from '../sync/events';
 import type { SpViewOut } from '../sync/types';
-import { MAX_RETRIES, RETRY_MS, TIMEOUT_MARGIN_MS, TIMEOUT_RETRY_MS, TableLink } from './link';
+import {
+  MAX_RETRIES,
+  RETRY_MS,
+  STALE_MS,
+  TIMEOUT_MARGIN_MS,
+  TIMEOUT_RETRY_MS,
+  TableLink,
+  WATCH_MS,
+} from './link';
 
 /** One table's link: rev ordering, one action at a time, resends after a reconnect, error views, the deadline. */
 const L = lobby();
@@ -27,6 +35,7 @@ function api(replies: Reply[]) {
   return { f, posts, replies };
 }
 
+const made: TableLink[] = [];
 function link(online = true) {
   let h!: FollowHandlers;
   const net = { online };
@@ -37,6 +46,7 @@ function link(online = true) {
     },
     online: () => net.online,
   });
+  made.push(l);
   return { l, h: () => h, net };
 }
 const tick = () => new Promise((r) => setTimeout(r, 0));
@@ -50,6 +60,7 @@ async function live(rev = 5) {
 }
 
 afterEach(() => {
+  made.splice(0).forEach((l) => l.stop());
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });
@@ -263,5 +274,113 @@ describe('the deadline watcher', () => {
     await vi.advanceTimersByTimeAsync(1000 + TIMEOUT_MARGIN_MS);
     expect(a.posts()[0]).toMatchObject({ type: 'timeout' });
     l.stop();
+  });
+});
+
+describe('the stale-view watchdog and coming back to the page', () => {
+  const FAKE = ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] as const;
+  const inPlay = (rev: number) => view({ ...started().state, rev, deadline: null }, 0);
+  const gets = (a: ReturnType<typeof api>) =>
+    a.f.mock.calls.filter((c) => c[1]?.method !== 'POST').length;
+  const visibility = (state: 'hidden' | 'visible') => {
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(state);
+    document.dispatchEvent(new Event('visibilitychange'));
+  };
+  afterEach(() => vi.restoreAllMocks());
+
+  async function playing(rev = 20) {
+    vi.useFakeTimers({ toFake: [...FAKE] });
+    const a = api([
+      { status: 200, body: inPlay(rev) },
+      { status: 200, body: inPlay(rev + 1) },
+      { status: 200, body: inPlay(rev + 2) },
+    ]);
+    const k = link();
+    k.l.start();
+    await vi.advanceTimersByTimeAsync(0);
+    k.h().onConn(true);
+    return { ...a, ...k, a };
+  }
+
+  it('reads the table again once nothing has arrived for STALE_MS, and takes the newer view', async () => {
+    const { l, a } = await playing();
+    expect(gets(a)).toBe(1);
+    await vi.advanceTimersByTimeAsync(STALE_MS);
+    expect(gets(a)).toBe(1);
+    await vi.advanceTimersByTimeAsync(WATCH_MS);
+    expect(gets(a)).toBe(2);
+    expect(l.get().view?.table.rev).toBe(21);
+    expect(l.get().stale).toBe(false);
+  });
+
+  it('asks again only every STALE_MS while the table stays quiet', async () => {
+    const { a } = await playing();
+    await vi.advanceTimersByTimeAsync(STALE_MS + WATCH_MS);
+    expect(gets(a)).toBe(2);
+    await vi.advanceTimersByTimeAsync(STALE_MS - WATCH_MS);
+    expect(gets(a)).toBe(2);
+    await vi.advanceTimersByTimeAsync(2 * WATCH_MS);
+    expect(gets(a)).toBe(3);
+  });
+
+  it('does nothing while frames keep arriving', async () => {
+    const { a, h } = await playing();
+    for (let i = 1; i <= 6; i++) {
+      await vi.advanceTimersByTimeAsync(WATCH_MS);
+      h().onEvent({ type: 'state', view: inPlay(20 + i) });
+    }
+    expect(gets(a)).toBe(1);
+  });
+
+  it('leaves a lobby and a hidden page alone', async () => {
+    vi.useFakeTimers({ toFake: [...FAKE] });
+    const a = api([{ status: 200, body: at(5) }]);
+    const k = link();
+    k.l.start();
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(gets(a)).toBe(1);
+    k.l.stop();
+
+    const b = await playing();
+    visibility('hidden');
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(gets(b.a)).toBe(1);
+  });
+
+  it('is stale while the read is in flight, and a failed read is not repeated on the next tick', async () => {
+    vi.useFakeTimers({ toFake: [...FAKE] });
+    const a = api([
+      { status: 200, body: inPlay(20) },
+      'network',
+      { status: 200, body: inPlay(22) },
+    ]);
+    const k = link();
+    k.l.start();
+    await vi.advanceTimersByTimeAsync(0);
+    k.h().onConn(true);
+    const seen: boolean[] = [];
+    k.l.subscribe(() => seen.push(k.l.get().stale));
+    await vi.advanceTimersByTimeAsync(STALE_MS + WATCH_MS);
+    expect(seen).toContain(true);
+    expect(k.l.get().stale).toBe(false);
+    expect(gets(a)).toBe(2);
+    await vi.advanceTimersByTimeAsync(WATCH_MS * 2);
+    expect(gets(a)).toBe(2);
+  });
+
+  it('reads the table when the page becomes visible, once at a time, and not after stop', async () => {
+    const { l, a } = await playing();
+    visibility('visible');
+    visibility('visible');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(gets(a)).toBe(2);
+    visibility('hidden');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(gets(a)).toBe(2);
+    l.stop();
+    visibility('visible');
+    await vi.advanceTimersByTimeAsync(STALE_MS * 2);
+    expect(gets(a)).toBe(2);
   });
 });

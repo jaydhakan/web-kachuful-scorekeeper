@@ -34,6 +34,8 @@ export interface TableCtx {
   onReaction: (fn: (r: { seat: Seat; emoji: string }) => void) => () => void;
   /** The last refusal's reason, for a toast; cleared on the next success. */
   lastError: string | null;
+  /** The link is checking whether it missed an update (see `STALE_MS` in link.ts); undefined where there is no link. */
+  stale?: boolean;
   /** The table's join code QR (an SVG URL), or null before it loads. */
   qrUrl: string | null;
 }
