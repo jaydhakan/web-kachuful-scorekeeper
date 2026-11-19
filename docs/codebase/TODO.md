@@ -110,6 +110,16 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
     server sending `state` when the stream opens. Confirm the real backend does.
   - **"Your turn" on Spades' home:** the backend's `SpTableSummaryOut` has no `turn`, so the home list can't show
     it. That needs a `backend-requests.md` entry.
+- **Spades playtest fixes, built 2026-11-19 (nothing checked on a real phone):**
+  - Play a real four-phone game on iPhone and Android: the freeze fixes (resync on return, 15 s watchdog, summary
+    closing on the next deal), tap-to-play, the bid pad on a short phone, and the win/loss lines.
+  - Check the white card faces' hairline edge on Editorial Paper, and the drop slot and "Your turn" pill in the light
+    themes (only the default theme was looked at).
+  - Production logs: look for `live viewer queue full` around the 2026-11-18/19 playtest; it confirms or rules out the
+    backend cause fixed by the queue change (backend branch `fix/live-queue-newest`, not yet deployed).
+  - The bid pad still covers part of the side seats on short felts (the strip carries every bid); the partner seat
+    is asserted uncovered only at 390x844 and 430x932.
+  - Auto-play of a lone legal card (setting) has only fake-timer unit tests, no e2e.
 - **Deploy and devices:**
   - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
   - Haptics are untested on a real Android phone.
