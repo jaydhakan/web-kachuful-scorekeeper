@@ -16,7 +16,7 @@ const hand: SpHand = {
   phase: 'done',
 };
 
-const show = (run: boolean, order?: readonly ('a' | 'b')[]) =>
+const show = (run: boolean, order?: readonly ('a' | 'b')[], headline?: string) =>
   render(
     <HandSummary
       handNo={1}
@@ -27,6 +27,7 @@ const show = (run: boolean, order?: readonly ('a' | 'b')[]) =>
       names={['Asha', 'Bo', 'Cy', 'Di']}
       teamNames={{ a: 'Sun', b: 'Moon' }}
       order={order}
+      headline={headline}
       verdict="First to 200."
       run={run}
     />,
@@ -52,5 +53,12 @@ describe('the hand summary', () => {
     const heads = (el: HTMLElement) => [...el.querySelectorAll('h3')].map((h) => h.textContent);
     expect(heads(show(false))).toEqual(['Sun', 'Moon']);
     expect(heads(show(false, ['b', 'a']))).toEqual(['Moon', 'Sun']);
+  });
+
+  it('shows the hand’s headline over the verdict, only when there is one', () => {
+    expect(show(false).textContent).not.toContain('Contract secured');
+    expect(show(false, undefined, 'Contract secured ✅').textContent).toContain(
+      'Contract secured ✅',
+    );
   });
 });

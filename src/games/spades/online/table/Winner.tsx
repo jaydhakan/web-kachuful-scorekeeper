@@ -13,6 +13,7 @@ import type { ActResult } from '@/games/spades/online/state/tableContext';
 import { play as s } from '@/games/spades/strings/play';
 import { sfx } from '@/games/spades/sound/sfx';
 import { spGo } from '@/games/spades/nav';
+import { fillLine, pickLine } from '@/games/spades/ui/pickLine';
 import { teamLabels } from '@/games/spades/ui/teams';
 
 export interface TeamStats {
@@ -84,6 +85,21 @@ export function Winner({
   const [p, q] = seatsOf(win);
   const st = teamStats(table, win);
   const mine = me !== null && teamOf(me) === win && !draw;
+  // One line from the pool for this outcome, picked by the table and the hand count so every phone reads the same.
+  const pool = draw
+    ? s.winner.lines.draw
+    : me === null
+      ? s.winner.lines.watch
+      : mine
+        ? s.winner.lines.won
+        : s.winner.lines.lost;
+  const headline = fillLine(pickLine(pool, `${table.id}:${table.history.length}`), {
+    w: labels[win],
+    l: labels[lose],
+  });
+  const plain = draw
+    ? s.winner.plainDraw(scores.a)
+    : s.winner.plain(labels[win], scores[win], scores[lose]);
 
   useEffect(() => {
     const id = setTimeout(
@@ -174,10 +190,10 @@ export function Winner({
             {...enter(1.1, { y: 20, scale: 0.9 })}
             className="disp text-48 font-bold tracking-[-0.04em] land:text-34"
           >
-            {draw ? s.winner.draw : s.winner.title(teamLabel(win))}
+            {headline}
           </m.h1>
           <p className="mt-1 text-16 text-[var(--tx2)]">
-            {s.winner.names(names[p], names[q])}
+            {plain}
             {ended ? ` · ${ended}` : ''}
           </p>
           <div className="my-6 flex justify-center gap-7 land:my-3">

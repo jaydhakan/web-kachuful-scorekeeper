@@ -10,6 +10,7 @@ const SUIT_NAME: Record<Suit, string> = {
 };
 const SYM: Record<Suit, string> = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' };
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+const minus = (n: number) => (n < 0 ? `−${-n}` : String(n));
 const sign = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
 
 export const play = {
@@ -361,6 +362,29 @@ export const play = {
     nilBid: (blind: boolean) => (blind ? 'Blind Nil' : 'Nil'),
     dash: '—',
     allHands: 'Show all four hands',
+    /** The line over a finished hand for the viewer's own team, picked like the winner's (`pickLine`). */
+    lines: {
+      made: [
+        'Contract secured ✅',
+        'Bid it, made it 😌',
+        'Exactly as planned ✅',
+        'Sahi pakde hain! ✅',
+        'Paisa vasool: contract made',
+      ],
+      set: [
+        'Set! That’s {pts} 💀',
+        'Oof, set. {pts}',
+        'Contract missed: {pts} 😬',
+        'Thoda zyada bid ho gaya. {pts}',
+        'Ouch, {pts}',
+      ],
+      boston: ['Boston! All 13 tricks 🧹', 'Clean sweep: all 13 🧹', 'Poora safaya! All 13 🧹'],
+      bostonAgainst: [
+        'Boston against you: all 13 went the other way 😮',
+        'The other side swept all 13. Respect, and ouch.',
+        'Safaya ho gaya: all 13 to the other side 🧹',
+      ],
+    },
     target: (n: number | null) => (n === null ? 'Endless game.' : `First to ${n}.`),
     tie: 'Tied at the target: one more hand.',
     wins: (team: string) => `${team} win the game!`,
@@ -371,11 +395,47 @@ export const play = {
   },
 
   winner: {
-    title: (team: string) => `${team} win!`,
     draw: 'It’s a draw',
+    /**
+     * The big line on the winner screen: one picked from the pool for the outcome, the same on every phone
+     * (`pickLine`). `{w}` is the winning pair, `{l}` the losing one. Classic, Gen-Z and Desi lines share each pool,
+     * and the plain line under the title always says who won, so no one has to decode the slang.
+     */
+    lines: {
+      won: [
+        '{w} win!',
+        'W secured 🏆',
+        'Ate and left no crumbs',
+        'No cap, that was a W',
+        'Main characters, clearly ✨',
+        'Kya baat hai! Table aapka 🏆',
+        'Full paisa vasool',
+        'Aaj ki chai unki taraf se ☕',
+        'Mazaa aa gaya! 🏆',
+      ],
+      lost: [
+        '{w} win this one',
+        'Took the L, respectfully',
+        '{w} cooked 🔥',
+        'Rematch. Now.',
+        'Koi baat nahi, agli baar pakka',
+        'Is baar chai aap pilao ☕',
+        '{w} ne maidaan maar liya',
+        'So close. Run it back?',
+      ],
+      draw: ['It’s a draw', 'Nobody blinked 🤝', 'Barabar ki takkar 🤝', 'Perfectly balanced 🤝'],
+      watch: [
+        '{w} win!',
+        'W for {w} 🏆',
+        '{w} cooked 🔥',
+        '{w} ne maidaan maar liya',
+        'Aaj ki chai {l} ki taraf se ☕',
+      ],
+    },
+    plain: (winner: string, w: number, l: number) => `${winner} won ${minus(w)} to ${minus(l)}`,
+    plainDraw: (n: number) => `Level at ${minus(n)} each`,
     cancelled: 'Game cancelled',
     cancelledBody: 'The host cancelled this game. It won’t count anywhere.',
-    names: (a: string, b: string) => `${a} & ${b}`,
     madeStat: 'bids made',
     nilStat: 'Nil',
     bagsStat: 'bags',

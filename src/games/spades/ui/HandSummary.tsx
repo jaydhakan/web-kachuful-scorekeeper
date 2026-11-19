@@ -27,6 +27,8 @@ export interface HandSummaryProps {
   order?: readonly TeamId[];
   /** The line under the title: the target, a tie, or who won. */
   verdict: string;
+  /** A line over the verdict for a player's own team: made, set or Boston; none for someone watching. */
+  headline?: string | null;
   /** Count the points up (off for a reopened summary). */
   run?: boolean;
   /** Every card, when the hand was played online. */
@@ -115,6 +117,7 @@ export function HandSummary({
   teamNames,
   order = TEAM_A_FIRST,
   verdict,
+  headline = null,
   run = true,
   tricks,
   footer,
@@ -133,6 +136,7 @@ export function HandSummary({
   let row = 0;
   return (
     <div data-summary={handNo}>
+      {headline && <p className="mb-1 text-18 font-bold">{headline}</p>}
       <p className="mb-4 text-14 text-[var(--tx2)]">{verdict}</p>
       <div className="grid grid-cols-2 gap-2.5">
         {order.map((t) => {

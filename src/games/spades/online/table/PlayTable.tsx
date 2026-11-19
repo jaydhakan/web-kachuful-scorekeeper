@@ -51,6 +51,7 @@ import { usePrefs } from '@/games/spades/ui/prefs';
 import type { SeatProps } from '@/games/spades/ui/Seat';
 import { cardName } from '@/games/spades/ui/SpCard';
 import { TeamBar, type TeamLine } from '@/games/spades/ui/TeamBar';
+import { handHeadline } from '@/games/spades/ui/handHeadline';
 import { teamLabels, teamOrder } from '@/games/spades/ui/teams';
 import { DEAL, DealLayer, HoldToDeal, LookGate, dealDelays } from './Deal';
 import { Felt, type DropProps, type TrickPlay } from './Felt';
@@ -866,6 +867,15 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       t.rules.target !== null && (after.a >= t.rules.target || after.b >= t.rules.target);
     return reached && after.a === after.b ? s.summary.tie : s.summary.target(t.rules.target);
   })();
+  const headline =
+    me !== null && last
+      ? handHeadline(
+          last,
+          { a: prior.a.bags, b: prior.b.bags },
+          teamOf(me),
+          `${t.id}:${t.history.length}`,
+        )
+      : null;
   const closeSummary = () => {
     setSheet(null);
     if (t.status === 'finished') setWinnerShown(true);
@@ -1290,6 +1300,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
               teamNames={teamNames}
               order={teamOrder(me)}
               verdict={verdict}
+              headline={headline}
               tricks={last.tricks ?? null}
               footer={summaryFooter}
             />

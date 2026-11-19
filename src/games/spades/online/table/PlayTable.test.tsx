@@ -496,7 +496,10 @@ describe('PlayTable', () => {
         within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Call it a draw' }),
       );
       expect(fake.sent).toContainEqual({ type: 'drawGame' });
-      expect(await screen.findByRole('heading', { name: 'It’s a draw' })).toBeInTheDocument();
+      // The big line is one of the draw pool's; the plain line says the score.
+      const title = await screen.findByRole('heading', { level: 1, name: /./ });
+      expect(play.winner.lines.draw).toContain(title.textContent);
+      expect(screen.getByText(/^Level at 0 each/)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Rematch · same partners' })).toBeInTheDocument();
     });
 
