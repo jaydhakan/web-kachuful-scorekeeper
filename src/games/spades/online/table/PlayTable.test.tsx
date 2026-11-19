@@ -242,6 +242,18 @@ describe('PlayTable', () => {
     });
   });
 
+  describe('the link', () => {
+    it('says so while a quiet table is being checked, and a dead link says reconnecting', () => {
+      const fake = mount();
+      expect(screen.queryByText('Checking the table…')).toBeNull();
+      act(() => fake.set({ stale: true }));
+      expect(screen.getByText('Checking the table…')).toBeInTheDocument();
+      act(() => fake.set({ status: 'reconnecting' }));
+      expect(screen.getByText('Reconnecting…')).toBeInTheDocument();
+      expect(screen.queryByText('Checking the table…')).toBeNull();
+    });
+  });
+
   describe('the host', () => {
     it('ends the game only after the confirmation', async () => {
       const fake = mount();

@@ -873,6 +873,13 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     );
 
   const handNo = dn || 1;
+  // A dead link says so; a quiet one that is being checked says that, so a stale turn is never silent.
+  const linkNote =
+    ctx.status === 'reconnecting' || ctx.status === 'error'
+      ? s.centre.reconnecting
+      : ctx.stale
+        ? s.centre.checking
+        : null;
   const pausedName = t.paused ? (SEATS.find((x) => !t.seats[x].who) ?? null) : null;
   const centreText = t.paused
     ? s.centre.pausedNoName
@@ -1113,12 +1120,12 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         )}
       </div>
 
-      {(ctx.status === 'reconnecting' || ctx.status === 'error') && (
+      {linkNote && (
         <div
           role="status"
           className="pointer-events-none absolute left-1/2 top-[calc(var(--sat)+3.5rem)] z-[50] -translate-x-1/2 rounded-full bg-[color-mix(in_srgb,var(--warning)_25%,var(--bg))] px-4 py-2 text-14 font-semibold"
         >
-          {s.centre.reconnecting}
+          {linkNote}
         </div>
       )}
 

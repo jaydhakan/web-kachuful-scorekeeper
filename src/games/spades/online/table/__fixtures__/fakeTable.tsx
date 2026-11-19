@@ -76,6 +76,8 @@ export interface FakeTable {
   sent: Action[];
   /** The next action this phone sends is refused (a stand-in for a race lost at the server). */
   refuseNext: string | null;
+  /** The link is re-reading a table that went quiet. */
+  stale: boolean;
   /** Hold actions in flight until `release()`, to see optimistic states. */
   hold: boolean;
   release: () => void;
@@ -86,7 +88,7 @@ export interface FakeTable {
   react: (seat: Seat, emoji: string) => void;
   view: () => SpView;
   subscribe: (f: () => void) => () => void;
-  set: (p: Partial<Pick<FakeTable, 'status' | 'busy' | 'presence'>>) => void;
+  set: (p: Partial<Pick<FakeTable, 'status' | 'busy' | 'presence' | 'stale'>>) => void;
   ctx: () => TableCtx;
 }
 
@@ -128,6 +130,7 @@ export function createFake(o: FakeOptions = {}): FakeTable {
     offset,
     sent: [],
     refuseNext: null,
+    stale: false,
     hold: false,
     release: () => undefined,
     as: (x, a) => {
@@ -170,6 +173,7 @@ export function createFake(o: FakeOptions = {}): FakeTable {
         status: f.status,
         clockOffset: offset,
         busy: f.busy,
+        stale: f.stale,
         act,
         onReaction: (fn) => {
           reactSubs.add(fn);
