@@ -87,6 +87,9 @@ export interface HandProps {
   maxCw?: number;
   /** Shown under the fan: "YOUR TURN · 24s". */
   turnText?: ReactNode;
+  /** The card lifted by a first tap (a second tap, or the table, plays it); the parent owns it so the felt can show where it lands. */
+  lifted: string | null;
+  onLift: (id: string | null) => void;
 }
 
 interface Drag {
@@ -120,10 +123,11 @@ export function Hand({
   width,
   maxCw,
   turnText,
+  lifted,
+  onLift,
 }: HandProps) {
   const [sorted, setSorted] = useState(false);
   const [upTo, setUpTo] = useState(0);
-  const [lifted, setLifted] = useState<string | null>(null);
   const [focus, setFocus] = useState(0);
   const nodes = useRef(new Map<string, HTMLButtonElement>());
   const drag = useRef<Drag | null>(null);
@@ -135,7 +139,6 @@ export function Hand({
     keyRef.current = handKey;
     setSorted(false);
     setUpTo(0);
-    setLifted(null);
   }
 
   const n = cards ? cards.length : count;
@@ -175,11 +178,6 @@ export function Hand({
     }
     return m;
   }, [cards, playable, trick, broken]);
-
-  // Nothing stays lifted once it isn't this phone's turn, or the lifted card has gone.
-  useEffect(() => {
-    if (!playable || (lifted && !cards?.some((c) => cardId(c) === lifted))) setLifted(null);
-  }, [playable, cards, lifted]);
 
   const keyOf = (c: Card | null, i: number) => (c ? cardId(c) : `b${i}`);
   // When some cards can't be played, the ones that can sit a little higher: the lift says "yours", not the grey.
@@ -251,7 +249,7 @@ export function Hand({
   const tryPlay = (c: Card, el: HTMLElement) => {
     const p = problems.get(cardId(c));
     if (p) return blocked(c, p, el);
-    setLifted(null);
+    onLift(null);
     onPlay(c, boxOf(el));
   };
   const blocked = (c: Card, p: PlayProblem, el: HTMLElement) => {
@@ -310,11 +308,16 @@ export function Hand({
     const p = problems.get(cardId(c));
     if (p) return blocked(c, p, el);
     if (lifted === cardId(c)) return tryPlay(c, el);
-    setLifted(cardId(c));
+    onLift(cardId(c));
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, c: Card | null, i: number) => {
     if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Escape' && lifted) {
+      e.preventDefault();
+      onLift(null);
+      return;
+    }
     const move = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
     if (move) {
       e.preventDefault();
@@ -330,7 +333,15 @@ export function Hand({
 
   const stop = Math.min(focus, Math.max(0, n - 1));
   return (
-    <div className="relative h-full w-full" data-hand>
+    // A tap on the empty part of the hand puts the lifted card back; the keyboard does it with Escape.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+    <div
+      className="relative h-full w-full"
+      data-hand
+      onClick={(e) => {
+        if (lifted && !(e.target as HTMLElement).closest('button')) onLift(null);
+      }}
+    >
       <div
         aria-hidden
         className={`sp-glow pointer-events-none absolute inset-x-[10%] top-[30px] h-[110px] rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent)_35%,transparent),transparent)] ${myTurn ? 'opacity-100' : 'opacity-0'}`}

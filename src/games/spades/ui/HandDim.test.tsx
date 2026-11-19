@@ -16,6 +16,8 @@ const props = (over: Partial<HandProps>): HandProps => ({
   onPlay: () => {},
   onBlocked: () => {},
   width: 390,
+  lifted: null,
+  onLift: () => {},
   ...over,
 });
 const y = (el: Element) =>

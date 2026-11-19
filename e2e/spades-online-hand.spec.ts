@@ -76,7 +76,7 @@ test('a whole online hand: deal, bids, tricks, the summary and the next deal', a
   }
 
   // The first trick, with a real pointer: the first phone with two neighbouring legal cards lifts one, then taps the
-  // card to its right (the lift moves, nothing is played); every phone then plays by tapping its card twice.
+  // card to its right (the lift moves, nothing is played); three phones play by tapping their card twice, one by tapping the felt.
   let switched = false;
   for (let i = 0; i < 4; i++) {
     const v0 = await viewOf(host, id);
@@ -106,7 +106,11 @@ test('a whole online hand: deal, bids, tricks, the summary and the next deal', a
       await at(first).click({ position: STRIP });
       await expect(at(first)).toHaveAttribute('aria-pressed', 'true');
     }
-    await at(first).click({ position: STRIP });
+    if (i === 2) {
+      // The third phone plays by tapping the felt, where the lifted card's slot glows.
+      await expect(p.getByText('Tap to play')).toBeVisible();
+      await p.getByRole('button', { name: /^Play / }).click();
+    } else await at(first).click({ position: STRIP });
     await expect
       .poll(async () => (await viewOf(host, id)).table.rev, { timeout: 10_000 })
       .toBeGreaterThan(v0.table.rev);

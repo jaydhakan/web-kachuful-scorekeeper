@@ -24,6 +24,16 @@
   transition: opacity 0.4s ease;
 }
 
+/* Where the lifted card will land breathes, so the eye finds it. */
+.sp-slot {
+  animation: sp-slot 1.6s ease-in-out infinite;
+}
+@keyframes sp-slot {
+  50% {
+    opacity: 0.55;
+  }
+}
+
 /* The turn ring: one soft ping outward, over and over, while it is that seat's turn. */
 .sp-ping {
   animation: sp-ping 1.4s cubic-bezier(0.32, 0.72, 0, 1) infinite;
@@ -67,6 +77,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sp-ping,
   .sp-halo,
+  .sp-slot,
   .sp-turning {
     animation: none;
   }

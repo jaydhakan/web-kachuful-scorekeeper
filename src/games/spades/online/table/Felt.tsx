@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } fro
 import { cardId } from '@/games/spades/domain/cards';
 import type { Card, Play, Seat } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
+import { CARD_RATIO } from '@/games/spades/ui/fan';
 import { anim, boxOf, EASE, mid, OUT, POP, rng, type Box } from '@/games/spades/ui/fx';
 import { Seat as SeatView, Shards, type SeatProps } from '@/games/spades/ui/Seat';
 import { SpCard, cardName } from '@/games/spades/ui/SpCard';
@@ -20,6 +21,9 @@ const SLOT_AT: Record<Place, string> = {
   2: 'left-1/2 top-[36%]',
   3: 'left-[63%] top-[48%]',
 };
+
+/** A trick card's width on the felt; the drop slot uses the same, so a played card lands exactly in it. */
+const SLOT_W = 'w-[52px] [@media(min-width:390px)]:w-[clamp(60px,18vw,76px)] big:w-16';
 
 /** A card's resting tilt on the felt: the same every render, different card to card. */
 const tilt = (c: Card) => {
@@ -117,7 +121,7 @@ function TrickCard({
   }, [pulse, rot, p.fly]);
   return (
     <span
-      className={`absolute z-[2] w-[52px] -translate-x-1/2 -translate-y-1/2 [@media(min-width:390px)]:w-[clamp(60px,18vw,76px)] big:w-16 ${SLOT_AT[p.place]}`}
+      className={`absolute z-[2] -translate-x-1/2 -translate-y-1/2 ${SLOT_W} ${SLOT_AT[p.place]}`}
     >
       <span
         ref={wrap}
@@ -382,6 +386,60 @@ function SpadesChip({ broken }: { broken: boolean }) {
   );
 }
 
+/** Where the lifted card will land, and the whole felt as the place to tap to play it. */
+export interface DropProps {
+  /** Names the felt-wide button for assistive tech: "Play the 7 of clubs". */
+  aria: string;
+  /** Under the slot: "Tap to play". */
+  label: string;
+  onPlay: () => void;
+}
+
+/** A glowing, breathing card-shaped slot in your place at the trick. */
+function DropSlot({ label }: { label: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`pointer-events-none absolute z-[2] -translate-x-1/2 -translate-y-1/2 ${SLOT_W} ${SLOT_AT[0]}`}
+    >
+      <span
+        className="sp-slot block rounded-[11%_/_7.9%] border-2 border-dashed border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] shadow-[0_0_18px_color-mix(in_srgb,var(--accent)_55%,transparent)]"
+        style={{ aspectRatio: `1 / ${CARD_RATIO}` }}
+      />
+      <span className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color-mix(in_srgb,var(--bg)_70%,transparent)] px-2 py-0.5 text-13 font-bold text-[var(--text-1)]">
+        {label}
+      </span>
+    </span>
+  );
+}
+
+/** Opens the last trick; its own button, so a tap on the felt itself can play the lifted card. */
+function LastTrickChip({ label, onOpen }: { label: string; onOpen: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onOpen}
+      className="press absolute left-[83%] top-[17%] z-[4] grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[color-mix(in_srgb,var(--bg)_55%,transparent)] text-[var(--tx2)] outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--focus)]"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 12a9 9 0 1 0 3-6.7" />
+        <path d="M3 4v5h5" />
+      </svg>
+    </button>
+  );
+}
+
 export interface FeltProps {
   root: RefObject<HTMLDivElement>;
   feltRef: RefObject<HTMLDivElement>;
@@ -390,10 +448,12 @@ export interface FeltProps {
   broken: boolean;
   /** Spades broke this deal: the crack's seed (one per deal), or null. */
   crack: number | null;
-  /** Tap the centre to see the last trick. */
-  onCentre: () => void;
-  centreLabel: string;
+  /** The last-trick button beside the spades chip. */
+  onLastTrick: () => void;
+  lastTrickLabel: string;
   centreText: string | null;
+  /** A card is lifted and can be played: show where it lands and make the felt a play button. */
+  drop?: DropProps | null;
   showChip: boolean;
   children?: ReactNode;
 }
@@ -406,9 +466,10 @@ export function Felt({
   trick,
   broken,
   crack,
-  onCentre,
-  centreLabel,
+  onLastTrick,
+  lastTrickLabel,
   centreText,
+  drop,
   showChip,
   children,
 }: FeltProps) {
@@ -429,14 +490,19 @@ export function Felt({
         >
           ♠
         </div>
-        <button
-          type="button"
-          aria-label={centreLabel}
-          onClick={onCentre}
-          className="absolute left-1/2 top-[48%] z-[1] h-[46%] w-[44%] -translate-x-1/2 -translate-y-1/2 rounded-[40%] outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--focus)]"
-        />
+        {/* Before the seats and chips, which sit above it (the seats let taps through). */}
+        {drop && (
+          <button
+            type="button"
+            aria-label={drop.aria}
+            onClick={drop.onPlay}
+            className="absolute inset-0 z-[3] rounded-[inherit] outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--focus)]"
+          />
+        )}
         {crack !== null && <Crack key={crack} seed={crack} />}
         {showChip && <SpadesChip broken={broken} />}
+        {showChip && <LastTrickChip label={lastTrickLabel} onOpen={onLastTrick} />}
+        {drop && <DropSlot label={drop.label} />}
         {centreText && (
           <p className="pointer-events-none absolute left-1/2 top-[48%] z-[4] w-[70%] -translate-x-1/2 -translate-y-1/2 text-center text-14 font-semibold text-[var(--tx2)]">
             {centreText}

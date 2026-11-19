@@ -203,6 +203,50 @@ describe('PlayTable', () => {
     });
   });
 
+  describe('tapping the table to play', () => {
+    const lift = async (fake: FakeTable) => {
+      bidRound(fake);
+      const card = fake.hands![0].find((c) => c.suit !== 'spades')!;
+      await u().click(cardBtn(card));
+      return card;
+    };
+
+    it('shows where a lifted card lands, and playing it from the felt sends it', async () => {
+      const fake = mount({ seed: mixedSeed() });
+      const card = await lift(fake);
+      expect(screen.getByText('Tap to play')).toBeInTheDocument();
+      expect(screen.getByText(/^Tap again or tap the table/)).toBeInTheDocument();
+      await u().click(screen.getByRole('button', { name: `Play ${cardName(card)}` }));
+      expect(fake.sent).toContainEqual({ type: 'play', card });
+      expect(screen.queryByText('Tap to play')).toBeNull();
+    });
+
+    it('shows no slot for a card you can’t play, or when nothing is lifted', async () => {
+      const fake = mount({ seed: mixedSeed() });
+      bidRound(fake);
+      expect(screen.queryByText('Tap to play')).toBeNull();
+      await u().click(cardBtn(fake.hands![0].find((c) => c.suit === 'spades')!));
+      expect(screen.queryByText('Tap to play')).toBeNull();
+    });
+
+    it('puts the card back on a tap in the hand’s empty space, and buzzes once on lift', async () => {
+      const vibrate = vi.fn();
+      Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+      const fake = mount({ seed: mixedSeed() });
+      await lift(fake);
+      expect(vibrate).toHaveBeenCalledWith(5);
+      fireEvent.click(document.querySelector('[data-hand]')!);
+      expect(screen.queryByText('Tap to play')).toBeNull();
+      expect(fake.sent.some((a) => a.type === 'play')).toBe(false);
+    });
+
+    it('opens the last trick from its own button, and the felt no longer does', async () => {
+      mount();
+      await u().click(screen.getByRole('button', { name: 'Show the last trick' }));
+      expect(await screen.findByRole('dialog', { name: 'Last trick' })).toBeInTheDocument();
+    });
+  });
+
   describe('sheets and the next deal', () => {
     const finishHand = async (fake: FakeTable) => {
       bidRound(fake, 3);

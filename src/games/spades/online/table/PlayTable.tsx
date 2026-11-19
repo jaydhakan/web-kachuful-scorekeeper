@@ -31,6 +31,7 @@ import { seatEp } from '@/sync/seatInviteApi';
 import { MQ } from '@/theme/breakpoints';
 import { allowedBids, blindAllowed, minBidFor } from '@/games/spades/domain/bidding';
 import { cardId, sameCard } from '@/games/spades/domain/cards';
+import { playProblem } from '@/games/spades/domain/legal';
 import { REACTIONS, lastTrick } from '@/games/spades/domain/rules';
 import { SEATS, partnerOf, teamOf } from '@/games/spades/domain/seats';
 import { scoresOf, totals } from '@/games/spades/domain/standings';
@@ -43,7 +44,7 @@ import { armAudio, setSoundMode, sfx } from '@/games/spades/sound/sfx';
 import { play as s } from '@/games/spades/strings/play';
 import { BidPad } from '@/games/spades/ui/BidPad';
 import { anim, boxOf, OUT, type Box } from '@/games/spades/ui/fx';
-import { Hand } from '@/games/spades/ui/Hand';
+import { Hand, problemText } from '@/games/spades/ui/Hand';
 import { HandSummary } from '@/games/spades/ui/HandSummary';
 import { HandPops } from '@/games/spades/progress/HandPops';
 import { usePrefs } from '@/games/spades/ui/prefs';
@@ -51,7 +52,7 @@ import type { SeatProps } from '@/games/spades/ui/Seat';
 import { cardName } from '@/games/spades/ui/SpCard';
 import { TeamBar, type TeamLine } from '@/games/spades/ui/TeamBar';
 import { DEAL, DealLayer, HoldToDeal, LookGate, dealDelays } from './Deal';
-import { Felt, type TrickPlay } from './Felt';
+import { Felt, type DropProps, type TrickPlay } from './Felt';
 import { dealNo, handDone, momentsBetween, playsOf, type Moment } from './moments';
 import {
   bostonOf,
@@ -205,6 +206,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   const [shown, setShown] = useState(() => t.tricks.length);
   const [sweeping, setSweeping] = useState(false);
   const [pending, setPending] = useState<{ card: Card; from: Box } | null>(null);
+  const [lifted, setLifted] = useState<string | null>(null);
   const [returning, setReturning] = useState<{ card: Card; from: Box; key: number } | null>(null);
   const [pendingBid, setPendingBid] = useState<number | null>(null);
   const [bubbles, setBubbles] = useState<Record<number, SeatProps['bubble']>>({});
@@ -334,8 +336,21 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     if (ctx.lastError && Date.now() - userAct.current < 4000) showToast(reasonText(ctx.lastError));
   }, [ctx.lastError, showToast]);
 
+  // Nothing stays lifted once it isn't this phone's turn to play, or the lifted card has left the hand.
+  useEffect(() => {
+    if (lifted && (!playable || !myHand?.some((c) => cardId(c) === lifted))) setLifted(null);
+  }, [playable, myHand, lifted]);
+  const lift = useCallback((id: string | null) => {
+    setLifted(id);
+    if (id) {
+      vibrate(5);
+      sfx('pop', true);
+    }
+  }, []);
+
   const onPlay = (card: Card, from: Box) => {
     if (!playable || me === null) return;
+    setLifted(null);
     setPending({ card, from });
     sfx('snap', true);
     void act({ type: 'play', card }).then((r) => {
@@ -373,6 +388,24 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     vibrate(10);
     sfx('err', true);
   };
+  // The felt plays the lifted card from where it sits in the hand, so it flies the same way a second tap does.
+  const playLifted = (card: Card) => {
+    const why = myHand && playProblem(card, myHand, t.trick, t.broken);
+    if (why) return blocked(problemText(why, t.trick));
+    const el = root.current?.querySelector<HTMLElement>(
+      `[data-hand] [data-card-id="${cardId(card)}"]`,
+    );
+    const from = el ?? handBox.current;
+    if (from) onPlay(card, boxOf(from));
+  };
+  const liftedCard = (playable && lifted && myHand?.find((c) => cardId(c) === lifted)) || null;
+  const drop: DropProps | null = liftedCard
+    ? {
+        aria: s.hand.playLifted(cardName(liftedCard)),
+        label: s.hand.tapTable,
+        onPlay: () => playLifted(liftedCard),
+      }
+    : null;
 
   // ---------- moments ----------
   const prev = useRef<SpPublic>(t);
@@ -924,6 +957,8 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
           handKey={String(dn)}
           sort={prefs.sort}
           playable={playable}
+          lifted={lifted}
+          onLift={lift}
           myTurn={myTurn}
           trick={t.trick}
           broken={t.broken}
@@ -946,8 +981,10 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
             myTurn ? (
               t.deadline !== null ? (
                 <Countdown deadline={t.deadline} offset={ctx.clockOffset}>
-                  {(secs) => s.hand.yourTurnSecs(secs)}
+                  {(secs) => (liftedCard ? s.hand.tapAgainSecs(secs) : s.hand.yourTurnSecs(secs))}
                 </Countdown>
+              ) : liftedCard ? (
+                s.hand.tapAgain
               ) : (
                 s.hand.yourTurn
               )
@@ -1006,9 +1043,10 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       }
       broken={t.broken}
       crack={crack}
-      onCentre={() => setSheet('last')}
-      centreLabel={s.centre.lastTrick}
+      onLastTrick={() => setSheet('last')}
+      lastTrickLabel={s.centre.lastTrick}
       centreText={centreText}
+      drop={drop}
       showChip={inHand}
     >
       {dealing && (

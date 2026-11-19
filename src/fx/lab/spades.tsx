@@ -55,8 +55,8 @@ function Table({
         trick={null}
         broken={broken}
         crack={crack}
-        onCentre={() => undefined}
-        centreLabel=""
+        onLastTrick={() => undefined}
+        lastTrickLabel=""
         centreText={null}
         showChip
       >

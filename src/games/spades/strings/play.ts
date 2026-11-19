@@ -122,7 +122,10 @@ export const play = {
       'not-in-hand': 'not in your hand',
     },
     notTurn: 'Not your turn yet',
-    lift: 'Tap again or drag up to play',
+    tapAgain: 'Tap again or tap the table to play',
+    tapAgainSecs: (s: number) => `Tap again or tap the table · ${s}s`,
+    tapTable: 'Tap to play',
+    playLifted: (card: string) => `Play ${card}`,
   },
 
   deal: {
