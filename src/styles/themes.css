@@ -144,6 +144,10 @@
   --card-bg: #fff6f0;
   --card-fg: #2a0a14;
   --card-red: #d81b5b;
+  /* Spades' faces: one plain card for every theme (no theme block sets these), so a fan's thin strip reads. */
+  --sp-card-face: #ffffff;
+  --sp-card-ink: #111111;
+  --sp-card-red: #d0021b;
   /* App-wide extras the reference doesn't name: overlays, medals, trumps, sheets, avatars. */
   --ov: #fff;
   --shade: #000;

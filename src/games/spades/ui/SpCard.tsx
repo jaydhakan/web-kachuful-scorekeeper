@@ -1,5 +1,5 @@
 import type { CSSProperties, Ref } from 'react';
-import { artToken, cardKey, isRed } from '@/lib/cards';
+import { isRed } from '@/lib/cards';
 import { t } from '@/strings';
 import type { Card } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
@@ -30,9 +30,9 @@ interface SpCardProps {
 }
 
 /**
- * One Spades card. The same three layers as `PlayingCard` (the theme's flat face, its stand-in, the photo art; a
- * theme with deck art covers the flat face), but the flat face carries corner indices, because a fanned hand shows
- * only each card's left strip. Width comes from `--cw` on the element or a class.
+ * One Spades card. The face is always our own plain one, in every theme (no deck art), because a fanned hand shows
+ * only each card's left strip and that strip has to read at a glance; the back keeps the theme's art. Width comes
+ * from `--cw` on the element or a class.
  */
 export function SpCard({
   card,
@@ -47,8 +47,7 @@ export function SpCard({
 }: SpCardProps) {
   const ty = TYPE[size];
   const ix = big ? ty.ixBig : ty.ix;
-  const key = card ? cardKey(card.rank, card.suit) : undefined;
-  const ink = card && isRed(card.suit) ? 'text-card-red' : 'text-card-ink';
+  const ink = card && isRed(card.suit) ? 'text-sp-card-red' : 'text-sp-card-ink';
   const a11y = label
     ? { role: 'img', 'aria-label': card && !down ? cardName(card) : s.hand.faceDown }
     : { 'aria-hidden': true as const };
@@ -71,7 +70,7 @@ export function SpCard({
           {card && (
             <>
               <span
-                className={`card-flat absolute inset-0 bg-card-face font-bold leading-none ${ink}`}
+                className={`card-flat absolute inset-0 bg-sp-card-face font-bold leading-none shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--sp-card-ink)_14%,transparent)] ${ink}`}
               >
                 <span className={`absolute left-[7%] top-[4%] flex flex-col items-center ${ix}`}>
                   <span className="tracking-[-0.04em]">{card.rank}</span>
@@ -87,11 +86,6 @@ export function SpCard({
                   <span>{s.sym[card.suit]}</span>
                 </span>
               </span>
-              <i data-card={key} className="card-standin card-art absolute inset-0" />
-              <i
-                className="card-photo card-art absolute inset-0"
-                style={{ backgroundImage: `var(${artToken(card.rank, card.suit)}, none)` }}
-              />
             </>
           )}
         </span>

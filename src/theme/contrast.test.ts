@@ -114,6 +114,8 @@ const cases = THEME_IDS.flatMap((id) => {
     ['on-gold on gold', parse(t['--on-gold']), parse(t['--medal-gold']), 4.5],
     ['card ink on card', parse(t['--card-fg']), parse(t['--card-bg']), 4.5],
     ['card red on card', parse(t['--card-red']), parse(t['--card-bg']), 4.5],
+    ['Spades card ink on its face', parse(t['--sp-card-ink']), parse(t['--sp-card-face']), 4.5],
+    ['Spades card red on its face', parse(t['--sp-card-red']), parse(t['--sp-card-face']), 4.5],
     // A large glyph, so the 3:1 large-text bar (DESIGN-SYSTEM.md, Contrast lists Yerba Sun's heart at 3.9).
     ['heart on the table', parse(t['--suit-red-felt']), parse(t['--felt']), 3],
     ['card count on the table', fg('--ctr-fg', parse(t['--felt'])), parse(t['--felt']), 4.5],
