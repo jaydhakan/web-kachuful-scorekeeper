@@ -183,7 +183,8 @@ export function Hand({
 
   const keyOf = (c: Card | null, i: number) => (c ? cardId(c) : `b${i}`);
   // When some cards can't be played, the ones that can sit a little higher: the lift says "yours", not the grey.
-  const raised = (c: Card | null) => !!c && playable && problems.size > 0 && !problems.has(cardId(c));
+  const raised = (c: Card | null) =>
+    !!c && playable && problems.size > 0 && !problems.has(cardId(c));
   const base = (i: number, lift: boolean, up = false) => {
     const p = fan.slots[i];
     if (!p) return 'none';
