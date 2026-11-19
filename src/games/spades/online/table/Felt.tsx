@@ -117,7 +117,7 @@ function TrickCard({
   }, [pulse, rot, p.fly]);
   return (
     <span
-      className={`absolute z-[2] w-[52px] -translate-x-1/2 -translate-y-1/2 big:w-16 ${SLOT_AT[p.place]}`}
+      className={`absolute z-[2] w-[clamp(52px,18vw,76px)] -translate-x-1/2 -translate-y-1/2 big:w-16 ${SLOT_AT[p.place]}`}
     >
       <span
         ref={wrap}
