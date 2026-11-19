@@ -150,10 +150,14 @@ test('a whole online hand: deal, bids, tricks, the summary and the next deal', a
   const dealer2 = (((done.table.history[0]?.dealer ?? 0) + 1) % 4) as Seat;
   expect(done.table.dealer).toBe(dealer2);
   await deal(2);
-  for (const p of phones)
+  // Nobody tapped Done: the new deal closes every phone's summary by itself, and the others are told why.
+  for (const p of phones) {
     await expect(p.getByRole('heading', { level: 1, name: 'Hand 2' })).toBeVisible({
       timeout: 15_000,
     });
+    await expect(p.getByRole('dialog', { name: 'Hand 1' })).toBeHidden({ timeout: 10_000 });
+    if (p !== bySeat[dealer2]) await expect(p.getByText('Hand 2 is dealt')).toBeVisible();
+  }
 
   // A bid that runs out of time: the clock jumps past the 30 s timer and another phone reports it.
   const turn = (await viewOf(host, id)).table.turn as Seat;
