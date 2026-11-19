@@ -224,6 +224,7 @@ export const play = {
     invited: (name: string) => `Invite sent to ${name}`,
     inviteFailed: 'Couldn’t send the invite',
     copied: 'Copied to the clipboard',
+    dealt: (n: number) => `Hand ${n} is dealt`,
   },
 
   reactions: {

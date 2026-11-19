@@ -220,8 +220,15 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
   const userAct = useRef(0);
   // A new deal is noticed while rendering, so the very first frame of it already shows the deck, not the cards.
   const [lastDeal, setLastDeal] = useState(dn);
+  // Set when a new deal closed the summary on a phone that never tapped Done; a toast tells it why.
+  const [dealtNote, setDealtNote] = useState(false);
   if (lastDeal !== dn) {
     setLastDeal(dn);
+    // The summary belongs to the hand just finished: the new deal closes it on every phone, not only the dealer's.
+    if (sheet === 'summary') {
+      setSheet(null);
+      setDealtNote(true);
+    }
     setShown(0);
     setCrack(null);
     setStage(null);
@@ -442,6 +449,12 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     }
   }
 
+  useEffect(() => {
+    if (!dealtNote) return;
+    setDealtNote(false);
+    showToast(s.toast.dealt(dn));
+  }, [dealtNote, dn, showToast]);
+
   // Your turn: a tick and a buzz, once per turn; and once more at five seconds left.
   const turnKey = myTurn ? `${dn}:${t.phase}:${playsOf(t).length}:${t.bids.join()}` : null;
   useEffect(() => {
@@ -449,6 +462,8 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     sfx('tick', true);
     vibrate(15);
     say.current(t.phase === 'bidding' ? s.announce.yourBid : s.announce.yourTurn);
+    // A turn that arrives while the scores or the board are open must not stay hidden behind them.
+    setSheet((x) => (x === 'board' || x === 'last' || x === 'keys' || x === 'summary' ? null : x));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turnKey]);
   const warned = useRef<number | null>(null);
@@ -801,7 +816,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
             {s.summary.waitDeal(realNames[t.dealer])}
           </p>
         )}
-        <Wide onClick={closeSummary} label={s.summary.close} />
+        <Wide accent onClick={closeSummary} label={s.summary.close} />
       </div>
     );
 

@@ -203,6 +203,45 @@ describe('PlayTable', () => {
     });
   });
 
+  describe('sheets and the next deal', () => {
+    const finishHand = async (fake: FakeTable) => {
+      bidRound(fake, 3);
+      act(() => {
+        while (fake.state.phase === 'playing') fake.auto();
+      });
+      return screen.findByRole('dialog', { name: 'Hand 1' }, { timeout: 4000 });
+    };
+
+    it('closes the summary by itself when the next hand is dealt, and says why', async () => {
+      const fake = mount({ seed: 3, seat: 1 });
+      await finishHand(fake);
+      expect(screen.getByText(/deals next/)).toBeInTheDocument();
+      act(() => fake.auto());
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Hand 1' })).toBeNull());
+      expect(await screen.findByText('Hand 2 is dealt')).toBeInTheDocument();
+    });
+
+    it('does not toast the deal for a summary that was already closed', async () => {
+      const fake = mount({ seed: 3, seat: 1 });
+      const sheet = await finishHand(fake);
+      await u().click(within(sheet).getByRole('button', { name: 'Done' }));
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Hand 1' })).toBeNull());
+      act(() => fake.auto());
+      expect(screen.queryByText('Hand 2 is dealt')).toBeNull();
+    });
+
+    it('closes the scoreboard when your turn comes', async () => {
+      const fake = mount({ seat: 1 });
+      const user = u();
+      await user.click(screen.getByRole('button', { name: 'Table menu' }));
+      const menu = await screen.findByRole('dialog', { name: 'Table' });
+      await user.click(within(menu).getByRole('button', { name: 'Scoreboard' }));
+      expect(await screen.findByRole('dialog', { name: 'Scoreboard' })).toBeInTheDocument();
+      act(() => fake.auto());
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Scoreboard' })).toBeNull());
+    });
+  });
+
   describe('the host', () => {
     it('ends the game only after the confirmation', async () => {
       const fake = mount();
