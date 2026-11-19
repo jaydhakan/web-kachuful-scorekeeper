@@ -922,7 +922,9 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         me !== t.dealer &&
         t.dealer !== null
       ? s.centre.dealing(realNames[t.dealer])
-      : null;
+      : inHand && !dealing && plays.length === 0 && t.turn !== null && t.turn !== me
+        ? (t.phase === 'bidding' ? s.centre.bidding : s.centre.toLead)(realNames[t.turn])
+        : null;
 
   const teamBar = <TeamBar lines={teamLines} className={pane ? 'flex-col' : ''} />;
   const header = (

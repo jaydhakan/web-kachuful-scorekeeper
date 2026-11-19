@@ -203,6 +203,25 @@ describe('PlayTable', () => {
     });
   });
 
+  describe('whose turn it is, in the middle of the felt', () => {
+    it('names the bidder, then the leader, and nothing once it is your turn or a card is down', () => {
+      const fake = mount({ seed: mixedSeed(), seat: 1 });
+      expect(screen.getByText('Riya is bidding…')).toBeInTheDocument();
+      act(() => fake.auto());
+      expect(screen.queryByText(/is bidding…|to lead/)).toBeNull();
+      act(() => {
+        fake.auto();
+        fake.auto();
+      });
+      act(() => fake.auto());
+      expect(fake.state.phase).toBe('playing');
+      // Seat 0 leads, and it is not seat 1's turn.
+      expect(screen.getByText('Riya to lead')).toBeInTheDocument();
+      act(() => fake.auto());
+      expect(screen.queryByText(/to lead/)).toBeNull();
+    });
+  });
+
   describe('tapping the table to play', () => {
     const lift = async (fake: FakeTable) => {
       bidRound(fake);
