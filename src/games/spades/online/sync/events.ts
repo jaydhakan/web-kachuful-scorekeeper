@@ -15,6 +15,8 @@ export interface FollowHandlers {
   onConn(live: boolean): void;
   /** Refused for good (401, 403, 404, 410). */
   onGone(status: number): void;
+  /** The stream's ping, with the table's rev when the server sends it (older servers send `{}`: null). */
+  onPing?(rev: number | null): void;
 }
 
 const json = (f: Frame): Record<string, unknown> | null => {
@@ -25,6 +27,16 @@ const json = (f: Frame): Record<string, unknown> | null => {
     return null;
   }
 };
+
+/** The rev a ping carries, or null for `{}`, bad JSON or anything that isn't a whole number. */
+export function pingRev(data: string): number | null {
+  try {
+    const rev = (JSON.parse(data || '{}') as { rev?: unknown } | null)?.rev;
+    return typeof rev === 'number' && Number.isInteger(rev) ? rev : null;
+  } catch {
+    return null;
+  }
+}
 
 /** A frame of the table's stream (§4.2), or null for a ping or anything unknown. */
 export function toEvent(f: Frame): TableEvent | null {
@@ -47,6 +59,7 @@ export function followTable(id: string, h: FollowHandlers): () => void {
       const e = toEvent(f);
       if (e) h.onEvent(e);
     },
+    onPing: (data) => h.onPing?.(pingRev(data)),
     onConn: h.onConn,
     onGone: h.onGone,
   });

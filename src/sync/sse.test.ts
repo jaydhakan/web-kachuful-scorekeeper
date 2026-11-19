@@ -91,3 +91,33 @@ describe('followStream on coming back to the page', () => {
     expect(f).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('followStream pings', () => {
+  it("hands a ping's data to onPing, besides onFrame, and other events only to onFrame", async () => {
+    const enc = new TextEncoder();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            new ReadableStream({
+              start(c) {
+                c.enqueue(enc.encode('event: state\ndata: {}\n\nevent: ping\ndata: {"rev":7}\n\n'));
+              },
+            }),
+            { status: 200 },
+          ),
+      ),
+    );
+    const pings: string[] = [];
+    const frames: string[] = [];
+    const stop = followStream('/s', {
+      onFrame: (f) => frames.push(f.event),
+      onPing: (d) => pings.push(d),
+    });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(pings).toEqual(['{"rev":7}']);
+    expect(frames).toEqual(['state', 'ping']);
+    stop();
+  });
+});

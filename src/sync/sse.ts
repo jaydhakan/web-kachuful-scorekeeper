@@ -3,8 +3,8 @@
  * notices a silent socket, which EventSource can't. Same timings as Ishaara's game stream.
  */
 
-/** Waits between attempts, in ms; the last one repeats. */
-export const BACKOFF = [1000, 2000, 5000, 10_000, 20_000, 30_000];
+/** Waits between attempts, in ms; the last one repeats. Short: a table in play can't wait half a minute to come back. */
+export const BACKOFF = [500, 1000, 2000, 4000, 8000];
 /** Pings come every 25 s; one late ping still fits, so a stream silent for longer is dead even if the socket isn't. */
 export const SILENCE_MS = 40_000;
 /** A phone that comes back after this long without a byte reopens the stream at once instead of trusting it. */
@@ -41,6 +41,8 @@ export function parseFrames(buf: string): { frames: Frame[]; rest: string } {
 
 export interface StreamHandlers {
   onFrame(f: Frame): void;
+  /** A `ping`'s data (the server may put the table's rev in it): proof the stream is alive, and what it knows. */
+  onPing?(data: string): void;
   /** Connected (after the first byte of headers) or dropped and retrying. */
   onConn?(live: boolean): void;
   /** Refused for good (401, 403, 404, 410): not retried. */
@@ -99,7 +101,11 @@ export function followStream(url: string, h: StreamHandlers): () => void {
         quiet();
         const out = parseFrames(buf + dec.decode(value, { stream: true }));
         buf = out.rest;
-        for (const f of out.frames) if (!stopped) h.onFrame(f);
+        for (const f of out.frames) {
+          if (stopped) break;
+          if (f.event === 'ping') h.onPing?.(f.data);
+          h.onFrame(f);
+        }
       }
     } catch {
       /* dropped, refused or gone silent: retried below */
