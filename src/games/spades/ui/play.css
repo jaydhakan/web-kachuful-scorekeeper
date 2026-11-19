@@ -102,6 +102,9 @@
 .sp-pad {
   padding: 0.875rem;
 }
+.sp-pad-short {
+  display: none;
+}
 .sp-felt-box {
   container: sp-felt / size;
 }
@@ -117,6 +120,12 @@
   }
   .sp-pad-av {
     display: none;
+  }
+  .sp-pad-long {
+    display: none;
+  }
+  .sp-pad-short {
+    display: inline;
   }
   .sp-pad-chip {
     display: flex;

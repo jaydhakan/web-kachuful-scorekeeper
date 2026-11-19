@@ -6,9 +6,9 @@ import { play as s } from '@/games/spades/strings/play';
 const NAME_MAX = 8;
 
 /** A name cut to fit a label; counts whole characters, so an emoji is never split. */
-export function shortName(name: string): string {
+export function shortName(name: string, max = NAME_MAX): string {
   const chars = Array.from(name);
-  return chars.length > NAME_MAX ? chars.slice(0, NAME_MAX - 1).join('') + '…' : name;
+  return chars.length > max ? chars.slice(0, max - 1).join('') + '…' : name;
 }
 
 /**

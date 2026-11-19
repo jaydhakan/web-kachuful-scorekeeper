@@ -188,7 +188,7 @@ export function Winner({
           </div>
           <m.h1
             {...enter(1.1, { y: 20, scale: 0.9 })}
-            className="disp text-48 font-bold tracking-[-0.04em] land:text-34"
+            className={`disp font-bold tracking-[-0.04em] land:text-34 ${headline.length > 24 ? 'text-34' : 'text-48'}`}
           >
             {headline}
           </m.h1>

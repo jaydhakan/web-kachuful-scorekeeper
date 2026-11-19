@@ -140,7 +140,13 @@ export function BidPad({
                   className="sp-pad-av grid h-5 w-5 shrink-0 place-items-center rounded-full text-13"
                 />
               )}
-              <span className="min-w-0 truncate text-13 font-semibold">{shortName(o.name)}</span>
+              {/* A very short felt swaps in the shorter form so a name never wraps (play.css). */}
+              <span className="sp-pad-long min-w-0 text-13 font-semibold leading-tight">
+                {shortName(o.name)}
+              </span>
+              <span className="sp-pad-short min-w-0 text-13 font-semibold leading-tight">
+                {shortName(o.name, 6)}
+              </span>
             </span>
             <span
               aria-hidden

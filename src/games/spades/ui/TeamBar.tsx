@@ -199,24 +199,18 @@ function TeamCard({ line }: { line: TeamLine }) {
       ref={card}
       role="group"
       aria-label={s.team.aria(line.name, line.score, line.tag)}
-      className="glass relative min-w-0 flex-1 !rounded-[16px] px-2.5 py-2"
+      className="glass @container relative min-w-0 flex-1 !rounded-[16px] px-2.5 py-2"
     >
       <div className="flex items-center justify-between gap-1.5">
         <span className="flex min-w-0 flex-col gap-0.5">
           {line.tag && (
-            <span className="flex items-center gap-1.5 text-13 font-semibold uppercase leading-none tracking-[0.06em] text-[var(--tx2)]">
-              <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${tone.dot}`} />
+            <span className="hidden text-13 font-semibold uppercase leading-none tracking-[0.06em] text-[var(--tx2)] @[9.5rem]:block">
               {line.tag}
             </span>
           )}
-          <span
-            title={line.name}
-            className="flex min-w-0 items-center gap-1.5 text-13 font-bold leading-tight tracking-[-0.01em]"
-          >
-            {!line.tag && (
-              <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${tone.dot}`} />
-            )}
-            <span className="truncate">{line.name}</span>
+          <span className="flex min-w-0 items-center gap-1.5 text-13 font-bold leading-[1.05] tracking-[-0.01em]">
+            <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${tone.dot}`} />
+            <span className="min-w-0 [overflow-wrap:anywhere]">{line.name}</span>
           </span>
         </span>
         <span className="text-24 font-bold tabular-nums tracking-[-0.03em]">
