@@ -1,6 +1,6 @@
 /**
  * The hand's fan (plan §10): a card width that always fits 13 across, a step that never overlaps more than it must,
- * a gentle arc and tilt. Pure, so the maths is tested without a browser.
+ * a shallow arc and slight tilt. Pure, so the maths is tested without a browser.
  */
 export const CARD_MIN = 46;
 export const CARD_MAX = 72;
@@ -35,7 +35,8 @@ export function cardWidth(width: number, maxCw = CARD_MAX): number {
 export function fanLayout(n: number, width: number, maxCw = CARD_MAX): Fan {
   const cw = cardWidth(width, maxCw);
   const half = (n - 1) / 2;
-  const tilt = Math.min(2.6, 30 / Math.max(n, 1));
+  // Little tilt and a shallow arc: a card's index is its strip, and a tilted index is harder to read.
+  const tilt = Math.min(1.4, 18 / Math.max(n, 1));
   // An end card turns about its centre, so its outer corner swings past its box: keep that inside the screen too.
   const rad = (half * tilt * Math.PI) / 180;
   const swing = ((cw * CARD_RATIO) / 2) * Math.sin(rad) - (cw / 2) * (1 - Math.cos(rad));
@@ -45,7 +46,7 @@ export function fanLayout(n: number, width: number, maxCw = CARD_MAX): Fan {
     const d = i - half;
     return {
       x: width / 2 + d * step - cw / 2,
-      y: 22 + Math.pow(d / Math.max(half, 1), 2) * 14,
+      y: 22 + Math.pow(d / Math.max(half, 1), 2) * 8,
       r: d * tilt,
     };
   });

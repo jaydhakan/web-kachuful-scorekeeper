@@ -31,6 +31,13 @@ describe('the hand fan', () => {
     expect(px).toBeGreaterThanOrEqual(17);
   });
 
+  it('keeps the fan nearly upright and the arc shallow, so every index reads', () => {
+    const f = fanLayout(13, 390);
+    expect(Math.max(...f.slots.map((p) => Math.abs(p.r)))).toBeLessThanOrEqual(8.5);
+    expect(f.slots[0].y - f.slots[6].y).toBeLessThanOrEqual(8);
+    expect(f.slots[6].y).toBeLessThan(f.slots[0].y);
+  });
+
   it('grows the index with the room', () => {
     const at = (w: number) => {
       const f = fanLayout(13, w);
