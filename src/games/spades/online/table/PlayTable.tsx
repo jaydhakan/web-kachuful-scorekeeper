@@ -784,6 +784,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         team === 'a' ? `${realNames[0]} · ${realNames[2]}` : `${realNames[1]} · ${realNames[3]}`,
       score: n.score,
       contract: n.contract,
+      partial: seatsOf(team).map((x) => t.bids[x] ?? null),
       doubleNil: n.doubleNil,
       took: n.took,
       bags: n.bagsTotal % 10,

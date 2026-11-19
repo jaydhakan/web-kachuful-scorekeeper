@@ -30,7 +30,11 @@ export const play = {
     /** A team named by its players, for someone watching. */
     pair: (a: string, b: string) => `${a} & ${b}`,
     aria: (team: string, names: string, score: number) => `${team}, ${names}: ${score} points`,
-    bidding: 'bidding…',
+    /** The partners' bids while one is still to come: "3 + …"; "bidding…" when neither has bid. */
+    partial: (bids: readonly (number | null)[]) =>
+      bids.every((b) => b === null)
+        ? 'bidding…'
+        : bids.map((b) => (b === null ? '…' : b === 0 ? 'Nil' : String(b))).join(' + '),
     doubleNil: 'double Nil',
     meter: (took: number, contract: number) => `${took}/${contract}`,
     meterAria: (took: number, contract: number) => `${took} of ${contract} tricks`,

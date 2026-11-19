@@ -15,6 +15,8 @@ export interface TeamLine {
   score: number;
   /** The partners' contract once both have bid; null while bidding. */
   contract: number | null;
+  /** Each partner's bid so far, in seat order; null for one yet to bid. */
+  partial: readonly (number | null)[];
   doubleNil: boolean;
   took: number;
   /** Bags toward the next 10 (0–9). */
@@ -185,7 +187,12 @@ function TeamCard({ line }: { line: TeamLine }) {
   }, [line]);
 
   const tone = TONE[line.team];
-  const meter = line.contract === null ? s.team.bidding : line.doubleNil ? s.team.doubleNil : null;
+  const meter =
+    line.contract === null
+      ? s.team.partial(line.partial)
+      : line.doubleNil
+        ? s.team.doubleNil
+        : null;
   return (
     <div
       ref={card}
