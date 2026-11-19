@@ -362,6 +362,7 @@ export function Hand({
               data-card-id={c ? id : undefined}
               aria-label={label}
               aria-disabled={!!p || undefined}
+              aria-pressed={c ? lift : undefined}
               tabIndex={i === stop ? 0 : -1}
               onFocus={() => setFocus(i)}
               onPointerDown={(e) => onPointerDown(e, c)}
@@ -374,7 +375,9 @@ export function Hand({
               style={{
                 width: fan.cw,
                 height: ch,
-                zIndex: lift ? 40 : i + 1,
+                // A lifted card keeps its place in the stack: raised above its neighbours it would swallow
+                // the taps meant for the cards to its right.
+                zIndex: i + 1,
                 transform: base(i, lift, raised(c)),
               }}
             >
@@ -393,7 +396,7 @@ export function Hand({
               {lift && (
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[0_0_0_2.5px_var(--accent),0_12px_24px_-4px_color-mix(in_srgb,var(--shade)_45%,transparent)]"
+                  className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[0_0_0_3px_var(--accent),0_12px_24px_-4px_color-mix(in_srgb,var(--shade)_45%,transparent)]"
                 />
               )}
             </button>

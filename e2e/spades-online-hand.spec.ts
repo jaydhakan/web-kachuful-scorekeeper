@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import { cardId } from '../src/games/spades/domain/cards';
 import { legalPlays } from '../src/games/spades/domain/legal';
 import { scoreHand } from '../src/games/spades/domain/scoring';
@@ -13,6 +13,19 @@ import { accounts, act, phone, seatedTable, viewOf } from './spades-helpers';
  */
 test.skip(REAL, 'runs against the mock API');
 test.use({ reducedMotion: 'no-preference' });
+
+/** The visible left strip of a card in the fan: the rest of it lies under the next card. */
+const STRIP = { x: 6, y: 20 };
+/** Waits until a card stops moving (the hand's turn-over and sort glide have finished). */
+async function settled(el: Locator) {
+  let last = '';
+  for (let n = 0; n < 40; n++) {
+    const box = JSON.stringify(await el.boundingBox());
+    if (box === last) return;
+    last = box;
+    await el.page().waitForTimeout(120);
+  }
+}
 
 test('a whole online hand: deal, bids, tricks, the summary and the next deal', async ({
   browser,
@@ -62,22 +75,43 @@ test('a whole online hand: deal, bids, tricks, the summary and the next deal', a
       .toBe(3);
   }
 
-  // The first trick: each phone plays a legal card from its hand.
+  // The first trick, with a real pointer: the first phone with two neighbouring legal cards lifts one, then taps the
+  // card to its right (the lift moves, nothing is played); every phone then plays by tapping its card twice.
+  let switched = false;
   for (let i = 0; i < 4; i++) {
     const v0 = await viewOf(host, id);
     const turn = v0.table.turn as Seat;
     const p = bySeat[turn];
     const { me, table } = await viewOf(p, id);
-    const c = legalPlays(me.hand!, table.trick, table.broken)[0];
-    const el = p.locator(`[data-card-id="${cardId(c)}"]`);
-    await expect(el).toBeVisible({ timeout: 15_000 });
-    // The fan overlaps its cards, so a pointer lands on the next one; the keyboard plays the focused card.
-    await el.focus();
-    await p.keyboard.press('Enter');
+    const legal = new Set(legalPlays(me.hand!, table.trick, table.broken).map(cardId));
+    const cards = p.locator('[data-hand] button[data-card-id]');
+    await expect(p.getByText(/^YOUR TURN/)).toBeVisible({ timeout: 15_000 });
+    await settled(cards.first());
+    const ids = (await cards.evaluateAll((els) =>
+      els.map((e) => e.getAttribute('data-card-id')),
+    )) as string[];
+    const at = (k: number) => p.locator(`[data-card-id="${ids[k]}"]`);
+    const pair = ids.findIndex((x, k) => legal.has(x) && legal.has(ids[k + 1] ?? ''));
+    let first = ids.findIndex((x) => legal.has(x));
+    if (!switched && pair >= 0) {
+      switched = true;
+      first = pair + 1;
+      await at(pair).click({ position: STRIP });
+      await expect(at(pair)).toHaveAttribute('aria-pressed', 'true');
+      await at(pair + 1).click({ position: STRIP });
+      await expect(at(pair + 1)).toHaveAttribute('aria-pressed', 'true');
+      await expect(at(pair)).toHaveAttribute('aria-pressed', 'false');
+      expect((await viewOf(host, id)).table.rev).toBe(v0.table.rev);
+    } else {
+      await at(first).click({ position: STRIP });
+      await expect(at(first)).toHaveAttribute('aria-pressed', 'true');
+    }
+    await at(first).click({ position: STRIP });
     await expect
       .poll(async () => (await viewOf(host, id)).table.rev, { timeout: 10_000 })
       .toBeGreaterThan(v0.table.rev);
   }
+  expect(switched).toBe(true);
   await expect
     .poll(async () => (await viewOf(host, id)).table.tricks.length, { timeout: 10_000 })
     .toBe(1);

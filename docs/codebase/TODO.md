@@ -101,9 +101,8 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - Not checked: the desk layout and keyboard by e2e, or a real phone.
 - **Online play, left open on 2026-11-16:**
   - **Tests and audit:**
-    - `spades-online-hand.spec.ts` plays one hand with motion on, but sends tricks 2–13 straight to the API, and
-      plays cards by keyboard (a pointer on the overlapping fan lands on the next card). Nothing yet checks the
-      "spades broken" moment, a drag to play, or a played timeout (only a bid's).
+    - `spades-online-hand.spec.ts` plays one hand with motion on, but sends tricks 2–13 straight to the API.
+      Nothing yet checks the "spades broken" moment, a drag to play, or a played timeout (only a bid's).
   - **The online table has only run in jsdom and Playwright** (`spades-online-hand`, `spades-responsive` at six
     phone sizes, Sunset Glass only): check it on a real phone in all four themes. At 320 px the hand's card strips
     are about 20 px, against the plan's 25 (the responsive spec allows strips under 44 px, plan §10).
