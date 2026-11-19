@@ -16,7 +16,7 @@ const hand: SpHand = {
   phase: 'done',
 };
 
-const show = (run: boolean) =>
+const show = (run: boolean, order?: readonly ('a' | 'b')[]) =>
   render(
     <HandSummary
       handNo={1}
@@ -26,6 +26,7 @@ const show = (run: boolean) =>
       after={{ a: 30, b: 93 }}
       names={['Asha', 'Bo', 'Cy', 'Di']}
       teamNames={{ a: 'Sun', b: 'Moon' }}
+      order={order}
       verdict="First to 200."
       run={run}
     />,
@@ -45,5 +46,11 @@ describe('the hand summary', () => {
     const el = show(false);
     expect(el.querySelector('[data-stamp="a"]')?.textContent).toBe(play.team.set(-70));
     expect(el.querySelector('[data-stamp="b"]')).toBeNull();
+  });
+
+  it('draws the viewer’s team first when told to', () => {
+    const heads = (el: HTMLElement) => [...el.querySelectorAll('h3')].map((h) => h.textContent);
+    expect(heads(show(false))).toEqual(['Sun', 'Moon']);
+    expect(heads(show(false, ['b', 'a']))).toEqual(['Moon', 'Sun']);
   });
 });

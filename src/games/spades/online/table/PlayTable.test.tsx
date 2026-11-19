@@ -49,14 +49,27 @@ beforeEach(() => resetPrefsForTests());
 describe('PlayTable', () => {
   it('shows both teams, four seats and your 13 cards, face up and sorted', () => {
     mount();
-    expect(screen.getByRole('group', { name: /^Us, Riya · Dev/ })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: /^Them, Arjun · Meera/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: /^Your team, You & Dev: 0 points$/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: /^Rivals, Arjun & Meera: 0 points$/ }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /^Arjun, opponent/ })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /^Dev, your partner/ })).toBeInTheDocument();
     const cards = hand();
     expect(cards).toHaveLength(13);
     expect(cards.every((b) => b.getAttribute('aria-label') !== 'Face-down card')).toBe(true);
     expect(screen.getByText('♠ locked')).toBeInTheDocument();
+  });
+
+  it('puts your own team first, whichever team you are on', () => {
+    mount({ seat: 3 });
+    const bars = screen.getAllByRole('group', { name: / points$/ });
+    expect(bars.map((g) => g.getAttribute('aria-label'))).toEqual([
+      'Your team, You & Arjun: 0 points',
+      'Rivals, Riya & Dev: 0 points',
+    ]);
   });
 
   describe('bidding', () => {

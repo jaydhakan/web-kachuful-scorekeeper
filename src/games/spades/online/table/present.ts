@@ -134,17 +134,4 @@ export function cardsLeft(t: SpPublic): number[] {
 export const placeOf = (seat: Seat, me: Seat): 0 | 1 | 2 | 3 =>
   ((seat - me + 4) % 4) as 0 | 1 | 2 | 3;
 
-export const teamName = (
-  team: TeamId,
-  me: Seat | null,
-  names: readonly string[],
-  s: { us: string; them: string; pair: (a: string, b: string) => string },
-) => {
-  if (me === null) {
-    const [p, q] = seatsOf(team);
-    return s.pair(names[p], names[q]);
-  }
-  return teamOf(me) === team ? s.us : s.them;
-};
-
 export { lastTrick, SEATS };

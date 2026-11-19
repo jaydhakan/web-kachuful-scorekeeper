@@ -13,6 +13,7 @@ import type { ActResult } from '@/games/spades/online/state/tableContext';
 import { play as s } from '@/games/spades/strings/play';
 import { sfx } from '@/games/spades/sound/sfx';
 import { spGo } from '@/games/spades/nav';
+import { teamLabels } from '@/games/spades/ui/teams';
 
 export interface TeamStats {
   made: number;
@@ -76,12 +77,10 @@ export function Winner({
   const win: TeamId = draw ? (me !== null ? teamOf(me) : 'a') : (result.winner as TeamId);
   const lose: TeamId = win === 'a' ? 'b' : 'a';
   const scores = scoresOf(totals(table.history));
-  const teamLabel = (t: TeamId) =>
-    me === null
-      ? s.team.pair(names[seatsOf(t)[0]], names[seatsOf(t)[1]])
-      : teamOf(me) === t
-        ? s.team.us
-        : s.team.them;
+  const labels = teamLabels(me, names);
+  // A shared line leaves the table, so it names the players, never "You".
+  const shared = teamLabels(null, names);
+  const teamLabel = (t: TeamId) => labels[t];
   const [p, q] = seatsOf(win);
   const st = teamStats(table, win);
   const mine = me !== null && teamOf(me) === win && !draw;
@@ -112,11 +111,11 @@ export function Winner({
   };
   const share = async () => {
     const text = s.winner.shareText({
-      a: teamLabel('a'),
-      b: teamLabel('b'),
+      a: shared.a,
+      b: shared.b,
       sa: scores.a,
       sb: scores.b,
-      winner: draw ? null : teamLabel(win),
+      winner: draw ? null : shared[win],
     });
     try {
       if (typeof navigator.share === 'function') await navigator.share({ text });

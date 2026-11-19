@@ -23,6 +23,8 @@ export interface HandSummaryProps {
   /** Names by seat. */
   names: readonly string[];
   teamNames: Record<TeamId, string>;
+  /** Which team is drawn first; the viewer's own, else a then b. */
+  order?: readonly TeamId[];
   /** The line under the title: the target, a tie, or who won. */
   verdict: string;
   /** Count the points up (off for a reopened summary). */
@@ -47,6 +49,7 @@ const TONE: Record<Tone, string> = {
   neg: 'text-[var(--neg-tx)]',
   gold: 'text-[var(--gold-tx)]',
 };
+const TEAM_A_FIRST: readonly TeamId[] = ['a', 'b'];
 const DOT: Record<TeamId, string> = { a: 'bg-team-sun', b: 'bg-team-moon' };
 const signed = (v: number) => s.sign(Math.round(v));
 
@@ -110,6 +113,7 @@ export function HandSummary({
   after,
   names,
   teamNames,
+  order = TEAM_A_FIRST,
   verdict,
   run = true,
   tricks,
@@ -131,7 +135,7 @@ export function HandSummary({
     <div data-summary={handNo}>
       <p className="mb-4 text-14 text-[var(--tx2)]">{verdict}</p>
       <div className="grid grid-cols-2 gap-2.5">
-        {(['a', 'b'] as const).map((t) => {
+        {order.map((t) => {
           const r = res[t];
           const lines = teamLines(r, hand, names);
           // The SET stamp lands once the lines are in; reduced motion fades it in where it rests.

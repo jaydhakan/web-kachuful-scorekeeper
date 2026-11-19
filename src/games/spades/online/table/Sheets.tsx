@@ -95,11 +95,14 @@ export function BoardBody({
   table,
   names,
   teamNames,
+  order = ['a', 'b'],
   tricks,
 }: {
   table: SpPublic;
   names: readonly string[];
   teamNames: Record<TeamId, string>;
+  /** Which team's column comes first; the viewer's own, else a then b. */
+  order?: readonly TeamId[];
   tricks: readonly TrickRec[];
 }) {
   const lines = handLines(table.history);
@@ -114,7 +117,7 @@ export function BoardBody({
               <th className="px-1 py-1.5 text-left text-13 font-semibold text-[var(--tx2)]">
                 {s.board.hand}
               </th>
-              {(['a', 'b'] as const).map((t) => (
+              {order.map((t) => (
                 <th
                   key={t}
                   className="px-1 py-1.5 text-right text-13 font-semibold text-[var(--tx2)]"
@@ -128,7 +131,7 @@ export function BoardBody({
             {lines.map((l) => (
               <tr key={l.index} className="border-t border-[var(--hairline)]">
                 <td className="px-1 py-2">{l.index + 1}</td>
-                {(['a', 'b'] as const).map((t) => (
+                {order.map((t) => (
                   <td key={t} className="px-1 py-2 text-right">
                     <span className={l[t].net < 0 ? 'text-[var(--neg-tx)]' : ''}>
                       {s.sign(l[t].net)}

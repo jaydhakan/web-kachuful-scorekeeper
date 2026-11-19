@@ -51,6 +51,7 @@ import { usePrefs } from '@/games/spades/ui/prefs';
 import type { SeatProps } from '@/games/spades/ui/Seat';
 import { cardName } from '@/games/spades/ui/SpCard';
 import { TeamBar, type TeamLine } from '@/games/spades/ui/TeamBar';
+import { teamLabels, teamOrder } from '@/games/spades/ui/teams';
 import { DEAL, DealLayer, HoldToDeal, LookGate, dealDelays } from './Deal';
 import { Felt, type DropProps, type TrickPlay } from './Felt';
 import { dealNo, handDone, momentsBetween, playsOf, type Moment } from './moments';
@@ -170,16 +171,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       ),
     [t.seats],
   );
-  const teamNames: Record<TeamId, string> = useMemo(() => {
-    const label = (team: TeamId) => {
-      if (me === null) {
-        const [p, q] = team === 'a' ? [0, 2] : [1, 3];
-        return s.team.pair(realNames[p], realNames[q]);
-      }
-      return teamOf(me) === team ? s.team.us : s.team.them;
-    };
-    return { a: label('a'), b: label('b') };
-  }, [me, realNames]);
+  const teamNames = useMemo(() => teamLabels(me, realNames), [me, realNames]);
 
   // ---------- transient UI ----------
   const [toast, setToast] = useState<Toast | null>(null);
@@ -774,14 +766,13 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     };
   });
 
-  const teamLines: TeamLine[] = (['a', 'b'] as const).map((team) => {
+  const teamLines: TeamLine[] = teamOrder(me).map((team) => {
     const n = nums[team];
     const r = setScore?.[team];
     return {
       team,
       name: teamNames[team],
-      names:
-        team === 'a' ? `${realNames[0]} · ${realNames[2]}` : `${realNames[1]} · ${realNames[3]}`,
+      tag: me === null ? null : teamOf(me) === team ? s.team.mine : s.team.rivals,
       score: n.score,
       contract: n.contract,
       partial: seatsOf(team).map((x) => t.bids[x] ?? null),
@@ -1203,6 +1194,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
               table={t}
               names={realNames}
               teamNames={teamNames}
+              order={teamOrder(me)}
               tricks={t.tricks.slice(0, eff)}
             />
           </aside>
@@ -1266,6 +1258,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
               table={t}
               names={realNames}
               teamNames={teamNames}
+              order={teamOrder(me)}
               tricks={t.tricks.slice(0, eff)}
             />
           </Sheet>
@@ -1295,6 +1288,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
               after={after}
               names={realNames}
               teamNames={teamNames}
+              order={teamOrder(me)}
               verdict={verdict}
               tricks={last.tricks ?? null}
               footer={summaryFooter}

@@ -4,8 +4,8 @@ import { TeamBar, type TeamLine } from './TeamBar';
 
 const line = (over: Partial<TeamLine> = {}): TeamLine => ({
   team: 'a',
-  name: 'Us',
-  names: 'Riya · Dev',
+  name: 'You & Dev',
+  tag: 'Your team',
   score: 0,
   contract: null,
   partial: [null, null],

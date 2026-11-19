@@ -9,9 +9,10 @@ import { anim, EASE, OUT, POP, rng } from './fx';
 /** One team as the bar shows it; every number is derived by the caller from the server's view. */
 export interface TeamLine {
   team: TeamId;
-  /** "Us" / "Them", or the pair's names for someone watching. */
+  /** The two players' names: "You & Taha". */
   name: string;
-  names: string;
+  /** "Your team" or "Rivals" over the name; null for someone watching. */
+  tag: string | null;
   score: number;
   /** The partners' contract once both have bid; null while bidding. */
   contract: number | null;
@@ -197,13 +198,26 @@ function TeamCard({ line }: { line: TeamLine }) {
     <div
       ref={card}
       role="group"
-      aria-label={s.team.aria(line.name, line.names, line.score)}
+      aria-label={s.team.aria(line.name, line.score, line.tag)}
       className="glass relative min-w-0 flex-1 !rounded-[16px] px-2.5 py-2"
     >
-      <div className="flex items-baseline justify-between gap-1.5">
-        <span className="flex items-center gap-1.5 whitespace-nowrap text-13 font-bold">
-          <span aria-hidden className={`h-2 w-2 rounded-full ${tone.dot}`} />
-          {line.name}
+      <div className="flex items-center justify-between gap-1.5">
+        <span className="flex min-w-0 flex-col gap-0.5">
+          {line.tag && (
+            <span className="flex items-center gap-1.5 text-13 font-semibold uppercase leading-none tracking-[0.06em] text-[var(--tx2)]">
+              <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${tone.dot}`} />
+              {line.tag}
+            </span>
+          )}
+          <span
+            title={line.name}
+            className="flex min-w-0 items-center gap-1.5 text-13 font-bold leading-tight tracking-[-0.01em]"
+          >
+            {!line.tag && (
+              <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${tone.dot}`} />
+            )}
+            <span className="truncate">{line.name}</span>
+          </span>
         </span>
         <span className="text-24 font-bold tabular-nums tracking-[-0.03em]">
           <Counter from={score.from} to={score.to} run={score.run} duration={0.7} />

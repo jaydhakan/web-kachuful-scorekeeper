@@ -25,11 +25,13 @@ export const play = {
   },
 
   team: {
-    us: 'Us',
-    them: 'Them',
-    /** A team named by its players, for someone watching. */
+    /** A team named by its two players: "You & Taha". */
     pair: (a: string, b: string) => `${a} & ${b}`,
-    aria: (team: string, names: string, score: number) => `${team}, ${names}: ${score} points`,
+    /** The small label over a player's own team and over the other one; a spectator sees neither. */
+    mine: 'Your team',
+    rivals: 'Rivals',
+    aria: (name: string, score: number, tag: string | null) =>
+      `${tag ? `${tag}, ` : ''}${name}: ${score} points`,
     /** The partners' bids while one is still to come: "3 + …"; "bidding…" when neither has bid. */
     partial: (bids: readonly (number | null)[]) =>
       bids.every((b) => b === null)
