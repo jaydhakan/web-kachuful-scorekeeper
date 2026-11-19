@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spades playtest — decision demo</title>
+<style>
+:root{
+  --bg:#0e1411; --panel:#16201b; --panel2:#1c2923; --line:#2b3b33; --tx:#eef3ef; --tx2:#9db0a5;
+  --gold:#e0b84f; --ok:#4cc38a; --no:#ef6b6b; --chg:#6aa9ff; --felt:#14523a; --felt2:#0c3626;
+  --red:#d0021b; --ink:#111;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:90px}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+h1{font-size:28px;margin:28px 0 6px} h2{font-size:21px;margin:0} h3{font-size:15px;margin:0 0 6px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+p{margin:6px 0} code{background:#0b110e;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px;color:#cfe3d6}
+.lead{color:var(--tx2)}
+.how{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0}
+.group{background:var(--panel);border:1px solid var(--line);border-radius:18px;margin:22px 0;overflow:hidden}
+.ghead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#241b00;font-weight:800;display:grid;place-items:center}
+.gbody{padding:16px 18px;display:grid;gap:18px}
+.saw{border-left:3px solid var(--no);padding-left:12px}
+.saw b{color:#ffb4b4}
+.why{border-left:3px solid var(--chg);padding-left:12px}
+.why b{color:#b9d4ff}
+.stage{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;background:var(--panel2);border-radius:14px;padding:16px}
+.fig{display:grid;gap:8px;justify-items:center;text-align:center}
+.cap{font-size:12.5px;color:var(--tx2);max-width:230px}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:99px;text-transform:uppercase}
+.tag.bad{background:#4a1d1d;color:#ffb4b4}.tag.good{background:#173d2b;color:#9ff0c6}.tag.mid{background:#1c3350;color:#b9d4ff}
+/* option rows */
+.opts{display:grid;gap:10px}
+.opt{border:1px solid var(--line);border-radius:12px;padding:12px;background:#121a16;display:grid;gap:8px}
+.opt[data-v=yes]{border-color:var(--ok);background:#12231b}
+.opt[data-v=no]{border-color:var(--no);background:#241515;opacity:.8}
+.opt[data-v=chg]{border-color:var(--chg);background:#121d2b}
+.otop{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.oname{font-weight:700} .oname .id{color:var(--gold);margin-right:6px}
+.star{color:var(--gold)}
+.odesc{color:var(--tx2);font-size:14px}
+.btns{display:flex;gap:6px}
+.btns button{min-height:44px;min-width:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#0e1511;color:var(--tx);font:inherit;font-weight:700;cursor:pointer}
+.btns button:focus-visible,.bar button:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btns button[aria-pressed=true].y{background:var(--ok);color:#052014;border-color:var(--ok)}
+.btns button[aria-pressed=true].n{background:var(--no);color:#2a0606;border-color:var(--no)}
+.btns button[aria-pressed=true].c{background:var(--chg);color:#04152c;border-color:var(--chg)}
+.note{width:100%;min-height:44px;background:#0b110e;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;display:none}
+.opt[data-v=chg] .note,.opt.shownote .note{display:block}
+details{background:#101713;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+summary{cursor:pointer;font-weight:700;min-height:32px}
+table{border-collapse:collapse;width:100%;font-size:13.5px} td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+/* sticky bar */
+.bar{position:fixed;left:0;right:0;bottom:0;background:#0b110ee6;backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:50}
+.bar button{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--tx);font:inherit;font-weight:700;cursor:pointer}
+.bar .primary{background:var(--gold);color:#241b00;border-color:var(--gold)}
+#out{display:none;margin:16px 0;background:#0b110e;border:1px solid var(--line);border-radius:12px;padding:12px;white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;max-height:420px;overflow:auto}
+
+/* ---------- phone mock ---------- */
+.phone{width:216px;height:410px;border-radius:26px;border:5px solid #263329;background:#0a0f0c;position:relative;overflow:hidden;font-size:10px}
+.hdr{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#0f1612;border-bottom:1px solid #223028;font-weight:700}
+.teams{display:flex;gap:4px;font-size:9px}
+.teams span{background:#1b2a22;border-radius:6px;padding:2px 5px;white-space:nowrap}
+.felt{position:absolute;top:34px;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 40%,var(--felt),var(--felt2))}
+.seat{position:absolute;display:grid;justify-items:center;gap:2px;transform:translate(-50%,-50%)}
+.av{width:30px;height:30px;border-radius:50%;background:#2d4036;display:grid;place-items:center;font-size:16px;border:2px solid #3d5648}
+.av.turn{border-color:var(--gold);box-shadow:0 0 0 3px #e0b84f55}
+.pill{background:#0008;border-radius:99px;padding:1px 6px;font-weight:800;font-size:9px;min-width:28px;text-align:center}
+.pill.pw{color:var(--gold)}
+.pad{position:absolute;left:50%;transform:translateX(-50%);background:#101a15f2;border:1px solid #3a5446;border-radius:14px;padding:8px;width:176px;box-shadow:0 8px 24px #000a;z-index:5}
+.pad h4{margin:0 0 4px;font-size:10px;text-align:center}
+.keys{display:grid;gap:3px}
+.keys i{font-style:normal;background:#27382f;border-radius:5px;display:grid;place-items:center;font-weight:700;height:22px}
+.k5{grid-template-columns:repeat(5,1fr)} .k7{grid-template-columns:repeat(7,1fr)}
+.chips{display:flex;gap:3px;margin:3px 0 5px}
+.chips b{flex:1;background:#1f3027;border-radius:6px;padding:2px;text-align:center;font-size:8.5px;font-weight:700}
+.chips b.pt{outline:1.5px solid var(--gold)}
+.fan{position:absolute;left:0;right:0;bottom:8px;height:78px}
+.cd{position:absolute;bottom:0;width:46px;height:66px;border-radius:6px;transition:none}
+.cd.face{background:#fff;color:var(--ink);box-shadow:0 1px 4px #0007,inset 0 0 0 1px #0002}
+.cd.face.r{color:var(--red)}
+.cd .ix{position:absolute;left:4px;top:2px;font-weight:800;text-align:center;line-height:1}
+.cd .ix s{display:block;text-decoration:none}
+.cd.orn{background:linear-gradient(135deg,#0f3d28,#17583a);color:#d8c27a;box-shadow:0 1px 4px #0007,inset 0 0 0 2px #c9a94b,inset 0 0 0 4px #0f3d28,inset 0 0 0 5px #c9a94b88}
+.cd.orn.r{color:#d99a6a}
+.cd.dim::after{content:"";position:absolute;inset:0;border-radius:6px}
+.cd.dim.heavy::after{background:#0e1411b3} .cd.dim.light::after{background:#0003}
+.trick{position:absolute;width:34px;height:48px}
+.slot{border:2px dashed var(--gold);border-radius:6px;background:#e0b84f1f;box-shadow:0 0 14px #e0b84f66;display:grid;place-items:center;color:var(--gold);font-weight:800;font-size:8px;text-align:center}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:46px;background:#101a15;border-radius:16px 16px 0 0;border-top:2px solid #3a5446;z-index:8;padding:10px;display:grid;gap:5px;align-content:start;font-size:10px}
+.sheet h4{margin:0;font-size:12px}
+.row{display:flex;justify-content:space-between;background:#1c2d24;padding:5px 7px;border-radius:7px}
+.toast{position:absolute;left:50%;transform:translateX(-50%);background:#e0b84f;color:#241b00;font-weight:800;border-radius:99px;padding:3px 9px;z-index:9;font-size:9px;white-space:nowrap}
+.centre{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:9px;color:#cfe8da;text-align:center}
+.pick{outline:2px solid #ff6b6b;outline-offset:1px}
+.arrow{position:absolute;font-size:18px;z-index:10;filter:drop-shadow(0 1px 2px #000)}
+/* tabs for the copy decks */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.tabs button{min-height:44px;padding:0 14px;border-radius:99px;border:1px solid var(--line);background:#0e1511;color:var(--tx);font:inherit;font-weight:700;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--gold);color:#241b00;border-color:var(--gold)}
+.deck{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));width:100%}
+.say{background:#0e1511;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.say small{display:block;color:var(--tx2);margin-bottom:2px}
+.say strong{font-size:17px}
+.say.won strong{color:var(--ok)} .say.lost strong{color:var(--no)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.node{background:#0e1511;border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:190px;font-size:13px;text-align:center}
+.node.x{border-color:var(--no);background:#241515} .node.g{border-color:var(--ok);background:#12231b}
+.ar{color:var(--tx2);font-size:18px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--tx2)}
+@media (max-width:520px){.ghead h2{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>♠ Spades playtest — what failed, what we can do</h1>
+  <p class="lead">Built from <code>docs/SPADES-PLAYTEST-PLAN.md</code> after your phone playtest (Emerald Gilt, four players). Every box below shows the <b>problem</b>, <b>why it happens</b> (checked in the code) and the <b>options</b>. The small phones are mock-ups drawn for this page, not real screenshots.</p>
+  <div class="how">
+    <b>How to use this page</b>
+    <p>On each option press <b>✓ Yes</b>, <b>✗ No</b> or <b>✎ Change</b> (a box opens for what you want different). Options marked <span class="star">★</span> are my recommendation; <b>“Accept all ★”</b> at the bottom ticks them in one go. Your answers are kept in this browser. When done, press <b>Copy my decisions</b> and paste the text to me.</p>
+    <div class="legend"><span>✓ build it</span><span>✗ skip it</span><span>✎ build it, but changed</span><span>(nothing pressed = undecided)</span></div>
+  </div>
+
+  <div id="groups"></div>
+
+  <div class="how"><b>Suggested order if every ★ is approved:</b> 3-A → 5-A → 3-B/3-C → 3-D (backend) → 2-A/2-B/2-D → 1-A/1-B/1-D → 5-B + 6.3 → 4 → 6.x. Freezes and the “plays the wrong card” bug come first because they lose games.</div>
+  <pre id="out"></pre>
+</div>
+
+<div class="bar">
+  <span id="count" class="lead"></span>
+  <button id="accStar">Accept all ★</button>
+  <button id="clear">Clear</button>
+  <button id="copy" class="primary">Copy my decisions</button>
+</div>
+
+<script>
+/* ---------- tiny mock builders ---------- */
+const SU={s:'♠',h:'♥',d:'♦',c:'♣'};
+function card(i,n,{rank,suit,style='face',dim='',fs=15,sfs=15,z,lift=0,w=46,sel=false,left,rot=0}={}){
+  const red=suit==='h'||suit==='d';
+  const x=left!==undefined?left:i*(w===46?20:20);
+  return `<div class="cd ${style} ${red?'r':''} ${dim?'dim '+dim:''} ${sel?'pick':''}" style="left:${x}px;z-index:${z??i+1};bottom:${lift}px;transform:rotate(${rot}deg)">
+    <div class="ix" style="font-size:${fs}px"><s>${rank}</s><s style="font-size:${sfs}px">${SU[suit]}</s></div></div>`;
+}
+const HAND=[['A','s'],['K','h'],['10','d'],['7','c'],['Q','d'],['J','s'],['4','h'],['9','c'],['3','s']];
+function fan(opts={}){
+  const {style='face',fs=15,sfs=15,dimmed=[],dim='heavy',nudge=0,lifted=-1,zLift=false,tilt=2}=opts;
+  return `<div class="fan" style="left:6px">`+HAND.map(([r,s],i)=>{
+    const L=i===lifted;
+    const nud=(nudge&&!dimmed.includes(i)&&!L)?nudge:0;
+    const rot=((i-4)/4)*tilt;
+    return card(i,0,{rank:r,suit:s,style,fs,sfs,dim:dimmed.includes(i)?dim:'',z:(L&&zLift)?40:i+1,lift:(L?14:0)+nud,sel:L,left:i*21,rot});
+  }).join('')+`</div>`;
+}
+const SEATS={
+  top:{l:'50%',t:'11%',e:'🦊',n:'Taha',},
+  left:{l:'13%',t:'42%',e:'🦉',n:'Zed'},
+  right:{l:'87%',t:'42%',e:'🐯',n:'Ria'},
+};
+function seats({bids={top:'3',left:'2',right:'…'},turn='bottom',bottomBid='?',hidePills=false}={}){
+  return Object.entries(SEATS).map(([k,v])=>`<div class="seat" style="left:${v.l};top:${v.t}">
+    <div class="av ${turn===k?'turn':''}">${v.e}</div><div>${v.n}</div><div class="pill ${k==='top'?'pw':''}">${bids[k]}</div></div>`).join('')+
+    `<div class="seat" style="left:50%;top:60%"><div class="av ${turn==='bottom'?'turn':''}">🐼</div><div>You</div><div class="pill">${bottomBid}</div></div>`;
+}
+function phone(inner,{hdr='Hand 1',teams='<span>Us 0</span><span>Them 0</span>'}={}){
+  return `<div class="phone"><div class="hdr"><span>${hdr}</span><div class="teams">${teams}</div></div><div class="felt">${inner}</div></div>`;
+}
+const fig=(tag,ph,cap)=>`<div class="fig">${tag}${ph}<div class="cap">${cap}</div></div>`;
+const T=(k,t)=>`<span class="tag ${k}">${t}</span>`;
+
+/* ---------- group visuals ---------- */
+const V={};
+V[1]=()=>{
+  const keys=(n,c)=>`<div class="keys ${c}">`+['Nil',...Array.from({length:n-1},(_,i)=>i+1)].map(x=>`<i>${x}</i>`).join('')+`</div>`;
+  const before=phone(
+    seats({bids:{top:'3',left:'2',right:'…'},turn:'bottom'})+
+    `<div class="pad" style="top:18%"><h4>Your bid</h4><div style="text-align:center;color:#9db0a5;margin-bottom:4px">Partner bid 3</div>${keys(14,'k5')}<div class="keys k5" style="margin-top:3px"><i>10</i><i>11</i><i>12</i><i>13</i><i></i></div></div>`+
+    fan({}),{teams:'<span>Us bidding…</span><span>Them bidding…</span>'});
+  const after=phone(
+    seats({bids:{top:'3',left:'2',right:'…'},turn:'bottom'})+
+    `<div class="pad" style="bottom:90px"><h4>Your bid</h4><div class="chips"><b>🦉 Zed 2</b><b class="pt">🦊 Taha 3</b><b>🐯 Ria …</b></div><div style="text-align:center;color:#9db0a5;margin-bottom:4px;font-size:8.5px">Taha 3 + you · They have 2 so far</div>${keys(14,'k7')}</div>`+
+    fan({}),{teams:'<span>Us 3 + …</span><span>Them 2 + …</span>'});
+  return `<div class="stage">${fig(T('bad','Now'),before,'The pad sits in the middle of the felt. It covers Zed and Ria and their bid pills. Only the partner’s bid is mentioned. Team bar says “bidding…”.')}
+  ${fig(T('good','1-A + 1-B + 1-D'),after,'Pad moves low, side seats stay visible, a “bids so far” strip lists all three, and the team bar shows running bids (3 + …).')}</div>`;
+};
+V[2]=()=>{
+  const A=phone(`<div class="centre">Emerald Gilt, Spades</div>`+fan({style:'orn',fs:11,sfs:11,dimmed:[1,2,4,6,7],dim:'heavy'}),{});
+  const B=phone(`<div class="centre">Classic cards</div>`+fan({style:'face',fs:20,sfs:24,dimmed:[1,2,4,6,7],dim:'light',nudge:8}),{});
+  const C=phone(`<div class="centre">Four-colour (optional)</div>`+`<div class="fan" style="left:6px">`+HAND.map(([r,s],i)=>{const col={s:'#111',h:'#d0021b',d:'#0b5ed7',c:'#1a8a3a'}[s];return `<div class="cd face" style="left:${i*21}px;z-index:${i+1};color:${col}"><div class="ix" style="font-size:20px"><s>${r}</s><s style="font-size:24px">${SU[s]}</s></div></div>`}).join('')+`</div>`,{});
+  return `<div class="stage">${fig(T('bad','Now'),A,'Theme art is laid over our card. In a fan only a ~25px strip shows: you see a gold frame and a tiny ornate index. Playable and unplayable cards look alike (55% wash).')}
+  ${fig(T('good','2-A + 2-B + 2-D'),B,'Plain white card, near-black spades/clubs, red hearts/diamonds, bigger and bolder rank, suit even bigger. “Can’t play” is a light dim; playable cards sit 8px higher.')}
+  ${fig(T('mid','2-C (setting)'),C,'♠ black · ♥ red · ♦ blue · ♣ green. The standard fix for “is that heart or diamond?”.')}</div>
+  <div class="odesc">Also in the plan: 2-E flatter fan (less tilt, easier to read the index) and 2-F bigger cards on the felt (up to 76px on phones ≥ 390px). Mock-ups above are simplified.</div>`;
+};
+V[3]=()=>{
+  const sheetOld=phone(
+    seats({turn:'bottom',bids:{top:'3',left:'2',right:'4'},bottomBid:'?'})+
+    `<div class="sheet"><h4>Hand 2 summary</h4><div class="row"><span>Us</span><b>+60</b></div><div class="row"><span>Them</span><b>−20</b></div><div style="color:#9db0a5">Sara deals next…</div></div>`+
+    `<div class="toast" style="top:6px">(behind the sheet: Hand 3 dealt, YOUR bid)</div>`,{hdr:'Hand 2'});
+  const sheetNew=phone(
+    seats({turn:'bottom',bids:{top:'3',left:'2',right:'4'},bottomBid:'?'})+
+    `<div class="pad" style="bottom:90px"><h4>Your bid</h4><div class="keys k7"><i>Nil</i><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i></div></div>`+
+    fan({})+`<div class="toast" style="top:6px">Hand 3 is dealt</div>`,{hdr:'Hand 3'});
+  const flow=(a)=>`<div class="flow">${a.map((x,i)=>(i?'<span class="ar">→</span>':'')+`<div class="node ${x[1]||''}">${x[0]}</div>`).join('')}</div>`;
+  return `<div class="stage">${fig(T('bad','3a · Now (the real bug)'),sheetOld,'The summary sheet only closes by itself on the dealer’s phone. Everyone else keeps it open while the next hand is dealt and their own turn arrives underneath it.')}
+  ${fig(T('good','3-A'),sheetNew,'The new deal closes the sheet on every phone, shows “Hand 3 is dealt”, and your own turn also closes any open sheet.')}</div>
+  <details open><summary>3b · phone goes quiet (the other likely cause)</summary>
+    ${flow([['Screen locks / app switch / Wi-Fi → 4G','x'],['Live stream dies silently','x'],['App waits up to 60 s before noticing','x'],['Still says “live”: stuck on old turn','x']])}
+    <p>→ <b>3-B</b> resync the instant the phone comes back and notice a dead stream after 40 s, <b>3-C</b> a watchdog re-fetches if nothing arrives for 15 s and shows “Checking the table…”.</p></details>
+  <details open><summary>3c · one phone only (backend)</summary>
+    ${flow([['Weak phone’s queue holds 16 updates','x'],['Queue full → <b>newest</b> update thrown away','x'],['The dropped one moved the turn','x'],['That phone stays on the old turn','x']])}
+    <p>→ <b>3-D</b> keep the newest, drop the oldest (backend change, written to <code>backend-requests.md</code> first). Production logs for <code>live viewer queue full</code> would confirm this.</p></details>
+  <details><summary>3d · “only me, the host/admin”</summary><p>No code treats host or admin differently. Most likely your phone (iPhone suspends background tabs hardest) plus the summary sheet staying open. <b>Unverified</b>; 3-E (debug panel) would prove it on the next playtest.</p></details>`;
+};
+V[4]=()=>{
+  const old=phone(`<div class="centre"></div>`,{hdr:'Hand 4',teams:'<span>Us 120</span><span>Them 240</span>'}).replace('</div></div></div>','<div class="toast" style="top:16px">Ten bags: Them lose 100</div></div></div></div>');
+  const nu=phone(`<div class="toast" style="top:16px">Ten bags: Sara &amp; Zhsxq lose 100</div>`,{hdr:'Hand 4',teams:'<span>YOUR TEAM · You &amp; Taha 240</span><span>Sara &amp; Zhsxq 120</span>'});
+  const fun=phone(`<div class="toast" style="top:16px">Ten bags: Samosa Squad lose 100</div>`,{hdr:'Hand 4',teams:'<span>Chai Pe Charcha 240</span><span>Samosa Squad 120</span>'});
+    const deck={
+    Classic:{won:'You & Taha win!',lost:'Sara & Zhsxq win this one',draw:'It’s a draw',sub:''},
+    'Gen-Z':{won:'W secured 🏆',lost:'Took the L, respectfully',draw:'Nobody blinked 🤝',sub:''},
+    Desi:{won:'Kya baat hai! Table aapka 🏆',lost:'Is baar chai aap pilao ☕',draw:'Barabar ki takkar 🤝',sub:''},
+    'Mix ★':{won:'Ate and left no crumbs 🏆',lost:'Koi baat nahi, agli baar pakka',draw:'Nobody blinked 🤝',sub:'You & Taha won 312–268 (always spelt out plainly)'},
+  };
+  window.__deck=deck;
+  return `<div class="stage">${fig(T('bad','Now'),old,'“Us” / “Them”. Team A is always on the left, so on team B you see “Them” first. Win title reads “Them win!” (broken English).')}
+  ${fig(T('good','4-A + 4-D'),nu,'Real names, your team always on the left, tiny “YOUR TEAM” label.')}
+  ${fig(T('mid','4-B (optional)'),fun,'A fun team name per table, same on every phone (hashed from the table id).')}</div>
+  <div class="stage" style="display:grid">
+    <div class="tabs" role="group" aria-label="Preview copy deck" id="decktabs">${Object.keys(deck).map((k,i)=>`<button aria-pressed="${i===3}" data-d="${k}">${k}</button>`).join('')}</div>
+    <div class="deck" id="deckview"></div>
+  </div>
+  <div class="odesc">Winner/loser lines are picked from the table id, so both players on a team see the same line. The same deck is used for the hand verdict (e.g. “Contract secured ✅”, “Set! That’s −80 💀”). Pick the deck with the 4-deck rows below.</div>`;
+};
+V[5]=()=>{
+  const mk=(zl,lbl,arrow)=>phone(`<div class="centre">${lbl}</div>`+`<div class="fan" style="left:6px">`+HAND.map(([r,s],i)=>{
+    const L=i===3; return card(i,0,{rank:r,suit:s,fs:18,sfs:20,z:(L&&zl)?40:i+1,lift:L?24:0,sel:L,left:i*21});}).join('')+arrow+`</div>`,{hdr:'Your turn'});
+  const oldArrow=`<div class="arrow" style="left:100px;bottom:34px">👆</div>`;
+  const before=phone(`<div class="centre">You lifted the 7♣ and now tap the Q♦ next to it…</div>`+`<div class="fan" style="left:6px">`+HAND.map(([r,s],i)=>card(i,0,{rank:r,suit:s,fs:18,sfs:20,z:i===3?40:i+1,lift:i===3?24:0,sel:i===3,left:i*21})).join('')+oldArrow+`</div>`,{hdr:'Your turn'});
+  const after=phone(`<div class="centre" style="top:30%">Tap again, or tap the table</div><div class="trick slot" style="left:50%;top:48%;transform:translateX(-50%)">Tap<br>to play</div>`+`<div class="fan" style="left:6px">`+HAND.map(([r,s],i)=>card(i,0,{rank:r,suit:s,fs:18,sfs:20,z:i+1,lift:i===4?24:0,sel:i===4,left:i*21})).join('')+`</div>`,{hdr:'Your turn'});
+  return `<div class="stage">${fig(T('bad','5-A · Now (real bug)'),before,'The lifted card is drawn on top of the 2–3 cards to its right but only rises 24px, so tapping the card to its right hits the lifted card and <b>plays the wrong card</b>. Cards to the left switch fine.')}
+  ${fig(T('good','5-A + 5-B'),after,'Lifted card keeps its place in the stack, so any neighbour can be tapped to switch. A glowing slot on the felt shows where it will land; tapping the table plays it.')}</div>`;
+};
+V[6]=()=>`<div class="stage"><div class="fig" style="max-width:640px"><div class="cap" style="max-width:none;text-align:left">Smaller extras I found while reading the code. Each is independent; most are a few lines. 6.3 is <b>required</b> if you approve 5-B, because the felt-centre tap that opens the last trick is taken over by “tap to play”.</div></div></div>`;
+
+/* ---------- data ---------- */
+const G=[
+ {n:1,title:'Bid pad hides the other players’ bids',
+  saw:'When it was my turn to bid right after someone, I couldn’t see who bid how much: the pad hides the other bids behind it.',
+  why:'The pad is centred on the felt (368px wide, ~300px tall) and covers the left and right seats and their bid pills. Its only info line is the partner’s bid; the team bar says “bidding…” until all four have bid.',
+  where:'ui/BidPad.tsx · online/table/PlayTable.tsx:1013 · ui/TeamBar.tsx',
+  opts:[
+   ['1-A','“Bids so far” strip inside the pad',1,'Three chips (avatar, name, bid or “…”) in table order, partner outlined, plus a line “Taha 3 + you · They have 2 so far”.'],
+   ['1-B','Smaller pad, anchored low',1,'Fixed 7-column keys (2 rows) and the pad sits at the bottom of the felt, so the side seats and their pills stay visible. Checked at 320, 360, 390, 430 widths with a new e2e assertion.'],
+   ['1-C','Hold-to-peek eye button',0,'Press and hold to fade the pad. Only needed if 1-B is not approved.'],
+   ['1-D','Team bar shows running bids',1,'“3 + …” instead of “bidding…” while the contract is not complete.']]},
+ {n:2,title:'Cards are hard to read (suit, red vs red)',
+  saw:'Couldn’t tell spade from club or heart from diamond, worst in Emerald. Cards weren’t visible enough. Use normal proper cards for now, take only good inspiration from the other game.',
+  why:'SpCard draws its own flat face but then lays the theme art on top (Emerald has a full SVG per card + 4 photo cards); only ~25px of each card shows in the fan. Emerald’s “black” is dark green. ♥ and ♦ are the same red in every theme. Unplayable cards get a 55% wash that greys the index too. Kachuful and Kaali Teeri are NOT touched.',
+  where:'ui/SpCard.tsx · ui/Hand.tsx:384 · ui/fan.ts · styles/themes.css · themes/emerald-gilt.css',
+  opts:[
+   ['2-A','Classic cards in every theme (Spades only)',1,'Remove the theme art from faces; new fixed tokens: white face, near-black ink, red. Card backs keep each theme’s art, and the deal/flight animations stay.'],
+   ['2-B','Bigger, bolder corner index',1,'Rank 20–22px extra-bold, suit under it even larger (it is what people misread), tucked into the corner. Unit test: the strip is wide enough at 320/360/390/430.'],
+   ['2-C','Four-colour deck (setting, default off)',0,'♠ black ♥ red ♦ blue ♣ green; toggle in the table settings; stored in the existing prefs key, no migration.'],
+   ['2-D','Lighter “can’t play” dimming + raise playable cards',1,'Neutral 28% shade instead of a 55% background wash; playable cards nudge up 8px when some cards are blocked.'],
+   ['2-E','Flatter fan',0,'Max tilt 2.6° → 1.4°, arc 14px → 8px: indices almost upright.'],
+   ['2-F','Bigger cards on the felt',0,'Trick cards up to 76px on phones ≥ 390px wide.']]},
+ {n:3,title:'Frozen screens (stale turn, stuck on round scores)',
+  saw:'Everyone could see it was my turn but my screen stayed on someone else’s turn. The round-end scores screen also froze sometimes. Mostly on my phone (host/admin).',
+  why:'Three separate causes: (a) a real UI bug: the summary sheet stays open on non-dealer phones after the next deal; (b) the live stream can die silently and the app takes up to 60 s to notice, with no refresh when the phone comes back; (c) the backend drops the newest update when a phone’s queue is full. Host/admin has no special code path (unverified).',
+  where:'PlayTable.tsx:223,507,790 · src/sync/sse.ts:9 · online/state/link.ts · backend app/live/hub.py:40,394',
+  opts:[
+   ['3-A','Close the round summary when the next hand is dealt (+ your turn closes sheets)',1,'Smallest, clearest fix. “Done” becomes the accent button. Tests added for both cases and an e2e where a non-dealer never taps Done.'],
+   ['3-B','Resync when the phone comes back',1,'On visibility/pageshow, re-open the stream at once and re-fetch the table; dead-stream timeout 60 s → 40 s.'],
+   ['3-C','Stale-view watchdog',1,'If nothing arrived for 15 s while playing, re-fetch (max one small GET per 15 s per phone) and show “Checking the table…”.'],
+   ['3-D','Backend: keep the newest update when a queue is full',1,'Drop the oldest, not the newest (optionally queue 16 → 64). Needs a backend change: written to backend-requests.md first, then built in the backend repo.'],
+   ['3-E','Debug overlay for the next playtest',0,'Tap the table code 5×: shows link status, rev, seconds since last update/ping, reconnect count. No network telemetry.'],
+   ['3-F','Send Last-Event-ID on reconnect',0,'Not needed for these freezes (server resends full state). Skip unless you want it.']]},
+ {n:4,title:'“Us win / Them win” looks bad',
+  saw:'“Us” and “Them” doesn’t look good. Want something good, funny, relatable, Gen-Z or aesthetic.',
+  why:'The generic labels feed everything, including the winner title (“Them win!” is wrong English) and toasts. The team bar always puts team A on the left, so team B players see “Them” first.',
+  where:'strings/play.ts:27,331,339 · PlayTable.tsx:168 · Winner.tsx:79 · ui/TeamBar.tsx · ui/HandSummary.tsx',
+  opts:[
+   ['4-A','Real names: “You & Taha” vs “Sara & Zhsxq”',1,'Plus a tiny “YOUR TEAM / RIVALS” label. Every string that took a team name is re-checked for grammar.'],
+   ['4-B','Fun team name per table',0,'e.g. Samosa Squad, Chai Pe Charcha, No Cap Club (list in the plan, you trim it). Same names on every phone, no backend change; rematch gets new names.'],
+   ['4-C','Host names the teams in the lobby',0,'Needs a new backend field. Only written up if you pick it.'],
+   ['4-D','Your team always on the left',1,'Team bar, hand summary and board all put your team first.'],
+   ['4-deck-Classic','Win/loss copy: Classic',0,'“You & Taha win!”, “Sara & Zhsxq win this one”.'],
+   ['4-deck-GenZ','Win/loss copy: Gen-Z',0,'“W secured 🏆”, “Took the L, respectfully”.'],
+   ['4-deck-Desi','Win/loss copy: Desi',0,'“Kya baat hai! Table aapka 🏆”, “Is baar chai aap pilao ☕”.'],
+   ['4-deck-Mix','Win/loss copy: Gen-Z + Desi mix',1,'Fun line as the title; the line under it always states who won and the score plainly.']]},
+ {n:5,title:'Can’t switch the selected card; want “tap the table to play”',
+  saw:'When a card is selected I couldn’t pick another one. The other game allows it, and lets you tap the table to play.',
+  why:'Real bug: a lifted card gets z-index 40 but rises only 24px, so it covers the neighbours to its right. Tapping the card right of a selected card hits the selected one and plays it. Tapping the selected card again does play it (intended).',
+  where:'ui/Hand.tsx:370,305 · online/table/PlayTable.tsx · online/table/Felt.tsx · ui/play.css',
+  opts:[
+   ['5-A','Fix the overlap so neighbours can be tapped (required)',1,'Lifted card keeps its normal stack order; stronger accent ring; aria-pressed added. Behaviour: tap A lifts A, tap B moves the lift to B, tap B again plays.'],
+   ['5-B','Tap the table to play the lifted card + glowing drop slot',1,'Lift state moves up to PlayTable; a dashed glowing slot on the felt, whole felt is the target, tap empty hand area to drop the selection. Needs 6.3.'],
+   ['5-C','“Play with one tap” setting (default off)',0,'First tap plays immediately. Faster, but no second chance.']]},
+ {n:6,title:'Other improvements I found',
+  saw:'You asked me to look for similar things too.',
+  why:'Found while reading the table code and your screenshot.',
+  where:'various, see plan §8',
+  opts:[
+   ['6.1','Turn line in the centre of the felt',1,'“Sara is bidding…” / “Taha to lead”, like the reference app’s status line.'],
+   ['6.2','“Your turn” pill over any open sheet',1,'If you are in the menu/settings when your turn comes, a tappable pill closes it.'],
+   ['6.3','Last-trick button of its own (required with 5-B)',0,'A 44px ↺ chip next to the ♠ chip; the L key stays.'],
+   ['6.4','Haptic + soft sound on lifting a card',1,'Confirms the tap on a crowded fan.'],
+   ['6.5','Auto-play your only legal card (setting, off)',0,'After 600 ms unless you tap; never on the first trick.'],
+   ['6.6','Toast no longer covers the “Hand 1” title',0,'Move it just under the header; stack with the reconnect pill.'],
+   ['6.7','Bid hint (setting, off)',0,'“Your hand: about 3 tricks” from a simple count. Never for Blind Nil.']]},
+];
+
+/* ---------- state ---------- */
+const KEY='spades-decisions-v1';
+let S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){S={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render(){
+  document.getElementById('groups').innerHTML=G.map(g=>`
+  <section class="group" aria-labelledby="g${g.n}">
+    <div class="ghead"><div class="num">${g.n}</div><h2 id="g${g.n}">${esc(g.title)}</h2></div>
+    <div class="gbody">
+      <div class="saw"><b>What you saw</b><p>${esc(g.saw)}</p></div>
+      <div class="why"><b>Why it happens</b><p>${esc(g.why)}</p><p><code>${esc(g.where)}</code></p></div>
+      ${V[g.n]()}
+      <div class="opts"><h3>Options</h3>${g.opts.map(([id,name,star,desc])=>{
+        const st=S[id]||{};const v=st.v||'';
+        return `<div class="opt" data-id="${id}" data-v="${v}">
+          <div class="otop"><div><div class="oname"><span class="id">${id.replace('4-deck-','4-copy ')}</span>${esc(name)} ${star?'<span class="star" title="Recommended">★</span>':''}</div><div class="odesc">${esc(desc)}</div></div>
+          <div class="btns" role="group" aria-label="Decision for ${id}">
+            <button class="y" aria-pressed="${v==='yes'}" data-a="yes" aria-label="Yes, build ${id}">✓ Yes</button>
+            <button class="n" aria-pressed="${v==='no'}" data-a="no" aria-label="No, skip ${id}">✗ No</button>
+            <button class="c" aria-pressed="${v==='chg'}" data-a="chg" aria-label="Change ${id}">✎ Change</button>
+          </div></div>
+          <textarea class="note" placeholder="What should be different?" aria-label="Change request for ${id}">${esc(st.note||'')}</textarea>
+        </div>`}).join('')}</div>
+    </div>
+  </section>`).join('');
+  bindDeck(); updateCount();
+}
+function bindDeck(){
+  const tabs=document.getElementById('decktabs'); if(!tabs) return;
+  const show=k=>{
+    const d=window.__deck[k];
+    document.getElementById('deckview').innerHTML=
+     `<div class="say won"><small>Your team won</small><strong>${esc(d.won)}</strong>${d.sub?`<div class="cap" style="margin:4px auto 0">${esc(d.sub)}</div>`:''}</div>
+      <div class="say lost"><small>Your team lost</small><strong>${esc(d.lost)}</strong></div>
+      <div class="say"><small>Draw</small><strong>${esc(d.draw)}</strong></div>`;
+    tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===k));
+  };
+  tabs.onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.d)};
+  show('Mix ★');
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.btns button'); if(!b) return;
+  const o=b.closest('.opt'),id=o.dataset.id,a=b.dataset.a;
+  const cur=S[id]||{};
+  S[id]={...cur,v:cur.v===a?'':a};
+  o.dataset.v=S[id].v;
+  o.querySelectorAll('.btns button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.a===S[id].v));
+  save(); updateCount();
+  if(S[id].v==='chg') o.querySelector('.note').focus();
+});
+document.addEventListener('input',e=>{
+  if(!e.target.classList.contains('note')) return;
+  const id=e.target.closest('.opt').dataset.id; S[id]={...(S[id]||{}),note:e.target.value}; save();
+});
+function updateCount(){
+  const all=G.flatMap(g=>g.opts), done=all.filter(o=>(S[o[0]]||{}).v).length;
+  document.getElementById('count').textContent=done+' of '+all.length+' decided';
+}
+document.getElementById('accStar').onclick=()=>{
+  G.flatMap(g=>g.opts).forEach(o=>{ if(o[2]&&!(S[o[0]]||{}).v) S[o[0]]={...(S[o[0]]||{}),v:'yes'}; });
+  save(); render();
+};
+document.getElementById('clear').onclick=()=>{ if(confirm('Clear all decisions?')){S={};save();render();} };
+document.getElementById('copy').onclick=async()=>{
+  const sym={yes:'YES',no:'NO',chg:'CHANGE',undefined:'UNDECIDED','':'UNDECIDED'};
+  const txt='Spades playtest decisions\n\n'+G.map(g=>`${g.n}. ${g.title}\n`+g.opts.map(o=>{
+    const st=S[o[0]]||{}; return `  ${o[0]} ${o[1]}: ${sym[st.v]}${st.note?' — '+st.note.replace(/\n/g,' '):''}`;}).join('\n')).join('\n\n');
+  const out=document.getElementById('out'); out.style.display='block'; out.textContent=txt;
+  try{await navigator.clipboard.writeText(txt); document.getElementById('copy').textContent='Copied ✓'; setTimeout(()=>document.getElementById('copy').textContent='Copy my decisions',1800);}
+  catch(e){ out.scrollIntoView(); }
+};
+render();
+</script>
+</body>
+</html>
