@@ -1,4 +1,4 @@
-import { API, ApiError, del, get, patch, post } from '@/sync/api';
+import { API, ApiError, call, del, get, patch, post } from '@/sync/api';
 import type { Page } from '@/sync/types';
 import type { SpRules } from '../../domain';
 import type {
@@ -21,8 +21,9 @@ export const spEp = {
     post<SpViewOut>(`${T}/${enc(id)}/join`, seat === undefined ? {} : { seat }),
   rules: (id: string, rules: SpRules, name?: string) =>
     patch<SpViewOut>(`${T}/${enc(id)}/rules`, name === undefined ? { rules } : { rules, name }),
-  view: (id: string) => get<SpViewOut>(`${T}/${enc(id)}`),
-  act: (id: string, body: SpActionBody) => post<SpViewOut>(`${T}/${enc(id)}/actions`, body),
+  view: (id: string, signal?: AbortSignal) => get<SpViewOut>(`${T}/${enc(id)}`, {}, { signal }),
+  act: (id: string, body: SpActionBody, signal?: AbortSignal) =>
+    call<SpViewOut>('POST', `${T}/${enc(id)}/actions`, body, { signal }).then((r) => r.data),
   tables: (status: 'active' | 'finished' = 'active', cursor?: string) =>
     get<Page<SpTableSummary>>(T, { status, cursor }),
   remove: (id: string) => del(`${T}/${enc(id)}`),

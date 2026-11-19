@@ -3,7 +3,10 @@ import { viewFor, type Seat, type SpPublic } from '@/games/spades/domain';
 import type { FollowHandlers } from '../sync/events';
 import type { SpViewOut } from '../sync/types';
 import {
+  ACT_TIMEOUT_MS,
   MAX_RETRIES,
+  PROOF_MS,
+  READ_TIMEOUT_MS,
   RETRY_MS,
   STALE_MS,
   TIMEOUT_MARGIN_MS,
@@ -165,17 +168,19 @@ describe('TableLink', () => {
     await tick();
     expect(l.get().busy).toBe(true);
     h().onConn(false);
-    replies.push({ status: 200, body: at(6) });
+    // The reconnect reads the table first, then the lost send goes again.
+    replies.push({ status: 200, body: at(5) }, { status: 200, body: at(6) });
     h().onConn(true);
     await expect(sent).resolves.toBe('ok');
     const [a, b] = posts();
     expect(b.actionId).toBe(a.actionId);
 
-    for (let i = 0; i <= MAX_RETRIES; i++) replies.push('network');
+    replies.push('network');
     const lost = l.act({ type: 'unready' });
     for (let i = 0; i < MAX_RETRIES; i++) {
       await tick();
       h().onConn(false);
+      replies.push({ status: 200, body: at(6) }, 'network');
       h().onConn(true);
     }
     await expect(lost).resolves.toBe('offline');
@@ -382,5 +387,154 @@ describe('the stale-view watchdog and coming back to the page', () => {
     visibility('visible');
     await vi.advanceTimersByTimeAsync(STALE_MS * 2);
     expect(gets(a)).toBe(2);
+  });
+});
+
+describe('pings with a rev, out-of-order views and requests that never answer', () => {
+  const FAKE = ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] as const;
+  const inPlay = (rev: number) => view({ ...started().state, rev, deadline: null }, 0);
+  const gets = (a: ReturnType<typeof api>) =>
+    a.f.mock.calls.filter((c) => c[1]?.method !== 'POST').length;
+  const ping = (k: { h: () => FollowHandlers }, rev: number | null) => k.h().onPing?.(rev);
+  const flush = () => vi.advanceTimersByTimeAsync(0);
+
+  async function playing(more: Reply[] = []) {
+    vi.useFakeTimers({ toFake: [...FAKE] });
+    const a = api([{ status: 200, body: inPlay(20) }, ...more]);
+    const k = link();
+    k.l.start();
+    await flush();
+    k.h().onConn(true);
+    return { ...k, a };
+  }
+
+  /** A fetch that answers from `handler`, or never (until aborted) when it returns 'hang'. */
+  function route(handler: (init: RequestInit) => Response | 'hang') {
+    const f = vi.fn<(url: string, init?: RequestInit) => Promise<Response>>((_url, init = {}) => {
+      const r = handler(init);
+      if (r !== 'hang') return Promise.resolve(r);
+      return new Promise((_ok, fail) =>
+        init.signal?.addEventListener('abort', () =>
+          fail(new DOMException('aborted', 'AbortError')),
+        ),
+      );
+    });
+    vi.stubGlobal('fetch', f);
+    return f;
+  }
+  const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
+
+  it('reads the table at once when a ping carries a rev ahead of the view, and takes the newer view', async () => {
+    const { l, h, a } = await playing([{ status: 200, body: inPlay(24) }]);
+    ping({ h }, 24);
+    await flush();
+    expect(gets(a)).toBe(2);
+    expect(l.get().view?.table.rev).toBe(24);
+  });
+
+  it('reads once more after a read in flight when another ping shows a newer rev', async () => {
+    const { l, h, a } = await playing([
+      { status: 200, body: inPlay(21) },
+      { status: 200, body: inPlay(25) },
+    ]);
+    ping({ h }, 21);
+    ping({ h }, 25);
+    await flush();
+    await flush();
+    expect(gets(a)).toBe(3);
+    expect(l.get().view?.table.rev).toBe(25);
+  });
+
+  it('treats a ping at the held rev as proof of a quiet turn: no read while pings keep coming', async () => {
+    const { h, a } = await playing();
+    ping({ h }, 20);
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersByTimeAsync(25_000);
+      ping({ h }, 20);
+    }
+    expect(gets(a)).toBe(1);
+  });
+
+  it('goes back to the watchdog when the pings with a rev stop', async () => {
+    const { h, a } = await playing([{ status: 200, body: inPlay(21) }]);
+    ping({ h }, 20);
+    await vi.advanceTimersByTimeAsync(PROOF_MS + WATCH_MS);
+    expect(gets(a)).toBe(2);
+  });
+
+  it('keeps the old rule for a ping with no rev, bad JSON or a rev that is not a whole number', async () => {
+    const { h, a } = await playing([{ status: 200, body: inPlay(21) }]);
+    ping({ h }, null);
+    await vi.advanceTimersByTimeAsync(STALE_MS + WATCH_MS);
+    expect(gets(a)).toBe(2);
+  });
+
+  it('never moves back: a slow action response older than a frame already shown is ignored', async () => {
+    const { l, h } = await playing([{ status: 200, body: inPlay(21) }]);
+    const sent = l.act({ type: 'ready' });
+    h().onEvent({ type: 'state', view: inPlay(23) });
+    await expect(sent).resolves.toBe('ok');
+    expect(l.get().view?.table.rev).toBe(23);
+  });
+
+  it('adopts the view an action returns', async () => {
+    const { l } = await playing([{ status: 200, body: inPlay(22) }]);
+    await l.act({ type: 'ready' });
+    expect(l.get().view?.table.rev).toBe(22);
+  });
+
+  it('reads the table after an action fails with no view (5xx, or lost for good), not trusting what it shows', async () => {
+    const { l, a } = await playing([{ status: 503 }, { status: 200, body: inPlay(26) }]);
+    await expect(l.act({ type: 'ready' })).resolves.toBe('refused');
+    await flush();
+    expect(gets(a)).toBe(2);
+    expect(l.get().view?.table.rev).toBe(26);
+  });
+
+  it('reads the table when the stream comes back after a drop, but not on its first open', async () => {
+    const { h, a } = await playing([{ status: 200, body: inPlay(30) }]);
+    expect(gets(a)).toBe(1);
+    h().onConn(false);
+    h().onConn(true);
+    await flush();
+    expect(gets(a)).toBe(2);
+  });
+
+  it('gives up a read that never answers, so later reads still go out', async () => {
+    vi.useFakeTimers({ toFake: [...FAKE] });
+    let n = 0;
+    const f = route(() => (++n === 1 ? json(inPlay(20)) : n === 2 ? 'hang' : json(inPlay(40))));
+    const k = link();
+    k.l.start();
+    await flush();
+    k.h().onConn(true);
+    k.l.reload();
+    await vi.advanceTimersByTimeAsync(READ_TIMEOUT_MS + 1);
+    expect(f).toHaveBeenCalledTimes(2);
+    k.l.reload();
+    await flush();
+    expect(f).toHaveBeenCalledTimes(3);
+    expect(k.l.get().view?.table.rev).toBe(40);
+  });
+
+  it('gives up an action that never answers and sends it again with the same id', async () => {
+    vi.useFakeTimers({ toFake: [...FAKE] });
+    const bodies: Record<string, unknown>[] = [];
+    let posts = 0;
+    route((init) => {
+      if (init.method !== 'POST') return json(inPlay(20));
+      bodies.push(JSON.parse(init.body as string) as Record<string, unknown>);
+      return ++posts === 1 ? 'hang' : json(inPlay(21));
+    });
+    const k = link();
+    k.l.start();
+    await flush();
+    k.h().onConn(true);
+    const sent = k.l.act({ type: 'ready' });
+    await vi.advanceTimersByTimeAsync(ACT_TIMEOUT_MS + RETRY_MS + 1);
+    await expect(sent).resolves.toBe('ok');
+    expect(bodies).toHaveLength(2);
+    expect(bodies[1].actionId).toBe(bodies[0].actionId);
+    expect(k.l.get()).toMatchObject({ busy: false });
   });
 });

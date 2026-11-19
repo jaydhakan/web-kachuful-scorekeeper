@@ -31,6 +31,12 @@ export const TIMEOUT_MARGIN_MS = 150;
 export const STALE_MS = 15_000;
 /** How often the link checks for that. */
 export const WATCH_MS = 5000;
+/** A ping that carries the rev and shows the table unchanged counts as proof of freshness this long (pings come every 25 s). */
+export const PROOF_MS = 30_000;
+/** A read of the table that hasn't answered by now is given up: a half-open socket must not hold the link forever. */
+export const READ_TIMEOUT_MS = 10_000;
+/** Same for an action (its actionId makes the resend safe, so waiting longer buys nothing). */
+export const ACT_TIMEOUT_MS = 15_000;
 
 export interface LinkDeps {
   follow: (id: string, h: FollowHandlers) => () => void;
@@ -41,6 +47,17 @@ const defaultDeps: LinkDeps = {
   follow: followTable,
   online: () => typeof navigator === 'undefined' || navigator.onLine !== false,
 };
+
+/** Runs a request that is aborted if it hasn't settled after `ms` (an abort reads as offline to the callers). */
+async function within<T>(ms: number, run: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms);
+  try {
+    return await run(ctl.signal);
+  } finally {
+    clearTimeout(t);
+  }
+}
 
 const NO_INVITES: readonly (SeatInviteMark | null)[] = [null, null, null, null];
 
@@ -66,6 +83,7 @@ export class TableLink {
   private reactions = new Set<(r: { seat: Seat; emoji: string }) => void>();
   private stopFollow: (() => void) | null = null;
   private stream = false;
+  private hadStream = false;
   private loadFailed = false;
   private gone = false;
   /** Seat presence from the stream; null until the first frame (then everyone seated counts as here). */
@@ -78,7 +96,11 @@ export class TableLink {
   private started = false;
   private stopped = false;
   private loading = false;
+  /** A read was asked for while another was in flight (which may predate the reason): read once more after it. */
+  private reread = false;
   private lastStateAt = Date.now();
+  /** When a ping last showed that the table was at the rev held. */
+  private lastProofAt = 0;
   private watchdog: ReturnType<typeof setInterval> | null = null;
 
   constructor(
@@ -146,8 +168,14 @@ export class TableLink {
       onConn: (live) => {
         this.stream = live;
         this.set({});
-        if (live) this.flushRetry();
+        if (live) {
+          // After a drop (or a first read that failed) read the table now; the first open's state frame suffices.
+          if ((this.hadStream || !this.s.view) && !this.loading) void this.load();
+          this.hadStream = true;
+          this.flushRetry();
+        }
       },
+      onPing: this.onPing,
       // A refused stream on 401 is a lost session: one more API read marks it stale, and the root asks to sign in.
       onGone: (status) => {
         if (status === 401) return void this.load();
@@ -187,11 +215,22 @@ export class TableLink {
     if (document.visibilityState === 'visible' && !this.loading) void this.load();
   };
 
+  /** A ping with a rev: ahead of the view held means a frame was lost (read now); otherwise the table is current. */
+  private onPing = (rev: number | null) => {
+    const v = this.s.view;
+    if (rev === null || this.stopped || !v) return;
+    if (rev > v.table.rev) void this.load();
+    else this.lastProofAt = Date.now();
+  };
+
   private check = () => {
     const v = this.s.view;
     if (this.stopped || this.loading || !v || v.table.status !== 'playing') return;
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-    if (Date.now() - this.lastStateAt > STALE_MS) void this.watch();
+    const now = Date.now();
+    // A recent ping showing the same rev proves a quiet turn is just quiet; pings without a rev prove nothing.
+    if (now - this.lastProofAt <= PROOF_MS) return;
+    if (now - this.lastStateAt > STALE_MS) void this.watch();
   };
 
   private async watch() {
@@ -210,10 +249,26 @@ export class TableLink {
   /** Asks the server again (after an error, or from a screen's Try again). */
   reload = () => void this.load();
 
+  /** One read at a time; a request made meanwhile makes one more read after it, so none is lost. */
   private async load() {
+    if (this.loading) {
+      this.reread = true;
+      return;
+    }
     this.loading = true;
     try {
-      const v = await spEp.view(this.id);
+      do {
+        this.reread = false;
+        await this.read();
+      } while (this.reread && !this.stopped);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async read() {
+    try {
+      const v = await within(READ_TIMEOUT_MS, (signal) => spEp.view(this.id, signal));
       this.loadFailed = false;
       this.adopt(v);
     } catch (e) {
@@ -222,8 +277,6 @@ export class TableLink {
       if (err.status === 404 || err.status === 403) this.gone = true;
       else this.loadFailed = true;
       this.set({});
-    } finally {
-      this.loading = false;
     }
   }
 
@@ -261,7 +314,7 @@ export class TableLink {
 
   private async post(r: Retry) {
     try {
-      const out = await spEp.act(this.id, r.body);
+      const out = await within(ACT_TIMEOUT_MS, (signal) => spEp.act(this.id, r.body, signal));
       this.adopt(out);
       this.set(r.quiet ? { busy: false } : { busy: false, lastError: null });
       r.done('ok');
@@ -274,7 +327,9 @@ export class TableLink {
         return;
       }
       const v = viewOfError(err);
+      // No view came back (lost, 5xx, rate limit): the send may or may not have landed, so ask rather than guess.
       if (v) this.adopt(v);
+      else if (!this.stopped) void this.load();
       this.set(r.quiet ? { busy: false } : { busy: false, lastError: reasonOf(err) });
       r.done(err.offline ? 'offline' : 'refused');
     }
