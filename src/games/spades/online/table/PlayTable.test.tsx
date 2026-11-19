@@ -89,6 +89,26 @@ describe('PlayTable', () => {
       expect(fake.sent.some((a) => a.type === 'bid')).toBe(false);
     });
 
+    it('lists everyone else’s bid in the pad, in seat order, with the team line', () => {
+      // Dealer 1: Dev (the partner) bids 2, Meera 5, then this phone; Arjun is the dealer, still to bid.
+      const fake = mount({ dealer: 1 });
+      act(() => {
+        fake.auto(2);
+        fake.auto(5);
+      });
+      const pad = screen.getByRole('region', { name: 'Your bid' });
+      const items = within(within(pad).getByRole('list', { name: 'Bids so far' })).getAllByRole(
+        'listitem',
+      );
+      expect(items.map((li) => li.textContent)).toEqual([
+        expect.stringMatching(/^Arjun/),
+        expect.stringMatching(/^Dev.*2/),
+        expect.stringMatching(/^Meera.*5/),
+      ]);
+      expect(items[0]).toHaveTextContent('…');
+      expect(within(pad).getByText('Dev 2 + you · They have 5 so far')).toBeInTheDocument();
+    });
+
     it('keeps Nil off when the table plays without it', () => {
       mount({ rules: { nil: false, blindNil: false } });
       expect(

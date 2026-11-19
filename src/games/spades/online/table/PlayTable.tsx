@@ -42,7 +42,7 @@ import { spGo } from '@/games/spades/nav';
 import { useTable, type TableCtx } from '@/games/spades/online/state/tableContext';
 import { armAudio, setSoundMode, sfx } from '@/games/spades/sound/sfx';
 import { play as s } from '@/games/spades/strings/play';
-import { BidPad } from '@/games/spades/ui/BidPad';
+import { BidPad, type BidOther } from '@/games/spades/ui/BidPad';
 import { anim, boxOf, OUT, type Box } from '@/games/spades/ui/fx';
 import { Hand, problemText } from '@/games/spades/ui/Hand';
 import { HandSummary } from '@/games/spades/ui/HandSummary';
@@ -832,10 +832,28 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
     if (pb === null || pb === undefined) return s.bid.partnerAfter(pn);
     if (pb === 0) return s.bid.partnerNil(pn);
     const min = minBidFor(me, t.bids, t.rules);
-    return min > 1 && t.rules.minTeamBid
-      ? s.bid.partnerMin(pn, pb, min, t.rules.minTeamBid)
-      : s.bid.partnerBid(pn, pb);
+    if (min > 1 && t.rules.minTeamBid) return s.bid.partnerMin(pn, pb, min, t.rules.minTeamBid);
+    const them = seatsOf(teamOf(me) === 'a' ? 'b' : 'a').flatMap((x) => {
+      const b = t.bids[x];
+      return b === null || b === undefined ? [] : [b];
+    });
+    return s.bid.teamLine(pn, pb, s.bid.them(them));
   })();
+  // The three other players in the order the seats sit on the felt (left, partner, right).
+  const bidOthers: BidOther[] =
+    me === null
+      ? []
+      : ([1, 2, 3] as const).map((place) => {
+          const x = ((me + place) % 4) as Seat;
+          return {
+            seat: x,
+            name: realNames[x],
+            face: faces[x],
+            bid: t.bids[x] ?? null,
+            blind: !!t.blind[x] && t.bids[x] === 0,
+            partner: x === partner,
+          };
+        });
   const why = (v: number) =>
     v === 0 && !t.rules.nil
       ? s.bid.nilOff
@@ -1102,12 +1120,13 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
         {showPad && (
           <div
             key="pad"
-            className="pointer-events-none absolute inset-0 z-[8] grid place-items-center"
+            className="sp-felt-box pointer-events-none absolute inset-0 z-[8] flex items-end justify-center pb-2"
           >
             <BidPad
               allowed={allowedBids(me as Seat, t.bids, t.rules)}
               why={why}
               info={bidInfo}
+              others={bidOthers}
               disabled={!live || ctx.busy}
               keys
               onBid={onBid}

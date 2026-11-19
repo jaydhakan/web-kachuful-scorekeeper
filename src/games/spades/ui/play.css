@@ -98,3 +98,47 @@
     opacity: 0;
   }
 }
+
+.sp-pad {
+  padding: 0.875rem;
+}
+.sp-felt-box {
+  container: sp-felt / size;
+}
+
+/* The bid pad fits the felt it sits on (its wrapper is the `sp-felt` size container): a short felt drops the title and the
+   avatars, and the keys keep their 44px. */
+@container sp-felt (max-height: 21.25rem) {
+  .sp-pad {
+    padding: 0.625rem;
+  }
+  .sp-pad-title {
+    display: none;
+  }
+  .sp-pad-av {
+    display: none;
+  }
+  .sp-pad-chip {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+  }
+}
+
+/* A very short felt (a phone on its side, or 320 px tall screens) also drops the info line and sits its pad on the
+   felt's edge: the strip above the keys still has every bid. */
+@container sp-felt (max-height: 16rem) {
+  .sp-pad {
+    padding: 0.5rem;
+    margin-bottom: -0.625rem;
+  }
+  .sp-pad-keys {
+    gap: 2px;
+  }
+  .sp-pad-chip {
+    padding-block: 0;
+  }
+  .sp-pad-info {
+    display: none;
+  }
+}

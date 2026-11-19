@@ -186,10 +186,42 @@ for (const [w, h] of SIZES) {
       const pad = first.getByRole('region', { name: 'Your bid' });
       await expect(pad).toBeVisible({ timeout: 15_000 });
       await shot(first, 'spo-bidding', pad);
-      for (let i = 0; i < 4; i++) {
-        const p = await turnPage();
-        expect((await act(p, id, { type: 'bid', bid: 3 })).ok()).toBe(true);
+      expect((await act(first, id, { type: 'bid', bid: 3 })).ok()).toBe(true);
+      expect((await act(await turnPage(), id, { type: 'bid', bid: 4 })).ok()).toBe(true);
+      // The third bidder sees two bids in: the pad lists them and leaves the side seats uncovered.
+      const third = await turnPage();
+      const thirdPad = third.getByRole('region', { name: 'Your bid' });
+      await expect(thirdPad).toBeVisible({ timeout: 15_000 });
+      await expect(
+        thirdPad.getByRole('list', { name: 'Bids so far' }).getByRole('listitem'),
+      ).toHaveCount(3);
+      const strip = thirdPad.getByRole('list', { name: 'Bids so far' });
+      await expect(strip.getByText('3', { exact: true })).toBeVisible();
+      await expect(strip.getByText('4', { exact: true })).toBeVisible();
+      await shot(third, 'spo-bidding-third', thirdPad);
+      // The pad sits low on the felt, never over the team bar. On a tall phone the partner's seat at the top stays
+      // whole too; the side seats sit mid-felt and lie partly under it, so the strip carries their bids.
+      const pb = (await thirdPad.boundingBox())!;
+      for (const bar of await third.getByRole('group', { name: / points$/ }).all()) {
+        const bb = (await bar.boundingBox())!;
+        const apart =
+          pb.x + pb.width <= bb.x || bb.x + bb.width <= pb.x || pb.y >= bb.y + bb.height - 1;
+        expect(apart, `${w}x${h}: the bid pad covers a team card`).toBe(true);
       }
+      if (h >= 800) {
+        const seats = await Promise.all(
+          (await third.locator('[data-seat]:not([data-seat-me])').all()).map(
+            async (el) => (await el.boundingBox())!,
+          ),
+        );
+        const partnerSeat = seats.reduce((a, b) => (b.y < a.y ? b : a));
+        expect(
+          partnerSeat.y + partnerSeat.height,
+          `${w}x${h}: the pad covers the partner's seat`,
+        ).toBeLessThanOrEqual(pb.y + 1);
+      }
+      expect((await act(third, id, { type: 'bid', bid: 2 })).ok()).toBe(true);
+      expect((await act(await turnPage(), id, { type: 'bid', bid: 3 })).ok()).toBe(true);
       const leader = await turnPage();
       await expect(leader.getByRole('group', { name: 'Your hand' })).toBeVisible();
       await shot(leader, 'spo-play', leader.getByRole('group', { name: 'Your hand' }));

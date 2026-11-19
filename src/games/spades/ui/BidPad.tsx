@@ -1,19 +1,35 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { Avatar, type Face } from '@/components/ui/Avatar';
 import { PRESS_SM, SPRING_POP } from '@/components/ui/motion';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { MAX_BID } from '@/games/spades/domain/bidding';
+import type { Seat } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
 import { sfx } from '@/games/spades/sound/sfx';
 import { anim } from './fx';
+import { shortName } from './teams';
+
+/** One of the other three players, as the pad's "bids so far" strip draws them. */
+export interface BidOther {
+  seat: Seat;
+  name: string;
+  face: Face | null;
+  /** Null while they have yet to bid. */
+  bid: number | null;
+  blind: boolean;
+  partner: boolean;
+}
 
 export interface BidPadProps {
   /** Bids the rules allow this seat (Nil, 0, first when allowed). */
   allowed: readonly number[];
   /** Why a key is off: Nil off, or below the team minimum. */
   why: (bid: number) => string | null;
-  /** The partner's bid in one line. */
+  /** The team line: the partner's bid and what the other side has so far. */
   info: string;
+  /** The other three seats, left to right as on the felt. */
+  others: readonly BidOther[];
   disabled?: boolean;
   /** Typed digits pick a key (two digits for 10–13) and Enter places the bid: on while the pad is the focus. */
   keys?: boolean;
@@ -29,7 +45,16 @@ const DIGIT_MS = 700;
  * The bidding keypad over the felt (plan §2.5): 0 is Nil, keys the rules forbid stay in place, dimmed, and say why
  * when tapped. Pick a key, then place the bid with the button (or Enter).
  */
-export function BidPad({ allowed, why, info, disabled, keys, onBid, onBlocked }: BidPadProps) {
+export function BidPad({
+  allowed,
+  why,
+  info,
+  others,
+  disabled,
+  keys,
+  onBid,
+  onBlocked,
+}: BidPadProps) {
   const [pick, setPick] = useState<number | null>(null);
   const [shake, setShake] = useState<number | null>(null);
   const go = useRef<HTMLButtonElement>(null);
@@ -98,15 +123,40 @@ export function BidPad({ allowed, why, info, disabled, keys, onBid, onBlocked }:
       animate={rm ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
       exit={rm ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.2 } }}
       transition={SPRING_POP}
-      className="mat-sheet pointer-events-auto w-[min(368px,calc(100%-4px))] rounded-[22px] p-3.5 @container shadow-[0_24px_60px_color-mix(in_srgb,var(--shade)_55%,transparent)]"
+      className="sp-pad mat-sheet @container/pad pointer-events-auto w-[min(368px,calc(100%-4px))] rounded-[22px] shadow-[0_24px_60px_color-mix(in_srgb,var(--shade)_55%,transparent)]"
     >
-      <h3 className="text-18 font-bold">{s.bid.title}</h3>
-      <p className="mb-2.5 mt-0.5 min-h-[18px] text-13 text-[var(--tx2)]">{info}</p>
+      <h3 className="sp-pad-title text-18 font-bold">{s.bid.title}</h3>
+      <ul aria-label={s.bid.othersLabel} className="mt-1.5 grid grid-cols-3 gap-1.5">
+        {others.map((o) => (
+          <li
+            key={o.seat}
+            className={`sp-pad-chip min-w-0 rounded-[11px] bg-ov/[.07] px-1.5 py-0.5 ${o.partner ? 'shadow-[inset_0_0_0_1.5px_var(--accent)]' : ''}`}
+          >
+            <span className="sr-only">{s.bid.chipAria(o.name, o.bid, o.blind, o.partner)}</span>
+            <span aria-hidden className="flex min-w-0 items-center gap-1">
+              {o.face && (
+                <Avatar
+                  p={o.face}
+                  className="sp-pad-av grid h-5 w-5 shrink-0 place-items-center rounded-full text-13"
+                />
+              )}
+              <span className="min-w-0 truncate text-13 font-semibold">{shortName(o.name)}</span>
+            </span>
+            <span
+              aria-hidden
+              className={`block text-16 font-bold tabular-nums ${o.bid === null ? 'text-[var(--tx2)]' : ''}`}
+            >
+              {s.bid.chipBid(o.bid, o.blind)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="sp-pad-info mb-2 mt-1.5 min-h-[18px] text-13 text-[var(--tx2)]">{info}</p>
       <div
         role="group"
         aria-label={s.bid.group}
         {...roving.group}
-        className="grid grid-cols-5 gap-[5px] @[21.25rem]:grid-cols-7"
+        className="sp-pad-keys grid grid-cols-5 gap-[3px] @[20rem]/pad:grid-cols-7"
       >
         {VALUES.map((v, i) => {
           const off = !allowed.includes(v);
@@ -145,7 +195,7 @@ export function BidPad({ allowed, why, info, disabled, keys, onBid, onBlocked }:
         type="button"
         disabled={pick === null || disabled}
         onClick={place}
-        className={`press relative isolate mt-2.5 flex min-h-12 w-full items-center justify-center rounded-[16px] text-16 font-bold ${pick === null || disabled ? 'mat-fill-off text-[var(--tx2)]' : 'mat-cta mat-cta-on mat-tone-accent text-ink-on-accent'}`}
+        className={`press relative isolate mt-2 flex min-h-11 w-full items-center justify-center rounded-[16px] text-16 font-bold ${pick === null || disabled ? 'mat-fill-off text-[var(--tx2)]' : 'mat-cta mat-cta-on mat-tone-accent text-ink-on-accent'}`}
       >
         {pick !== null && !disabled && (
           <span aria-hidden className="mat-fill absolute inset-0 -z-10 rounded-[inherit]" />

@@ -156,7 +156,24 @@ export const play = {
     go: (n: number) => (n === 0 ? 'Bid Nil · +100 / −100' : `Bid ${n}`),
     partnerAfter: (name: string) => `${name} bids after you.`,
     partnerNil: (name: string) => `${name} bid Nil. Your bid is the team’s contract.`,
-    partnerBid: (name: string, n: number) => `${name} bid ${n}. Team: ${n} + yours.`,
+    /** The team line over the keys: the partner's bid, then what the other side has so far. */
+    teamLine: (name: string, n: number, them: string) =>
+      `${name} ${n} + you${them ? ` · ${them}` : ''}`,
+    /** The opponents' bids, as many as are in. */
+    them: (bids: readonly number[]) =>
+      bids.length === 0
+        ? ''
+        : bids.length === 1
+          ? `They have ${bids[0] === 0 ? 'Nil' : bids[0]} so far`
+          : `They bid ${bids.map((b) => (b === 0 ? 'Nil' : b)).join(' + ')}`,
+    othersLabel: 'Bids so far',
+    /** One chip: a player's bid, or "…" while they have yet to bid. */
+    chipBid: (bid: number | null, blind: boolean) =>
+      bid === null ? '…' : bid === 0 ? (blind ? 'Blind Nil' : 'Nil') : String(bid),
+    chipAria: (name: string, bid: number | null, blind: boolean, partner: boolean) =>
+      `${name}${partner ? ', your partner' : ''}: ${
+        bid === null ? 'yet to bid' : bid === 0 ? (blind ? 'Blind Nil' : 'Nil') : `bid ${bid}`
+      }`,
     partnerMin: (name: string, n: number, min: number, team: number) =>
       `${name} bid ${n}. Team needs ${team}: bid ${min}+ or Nil.`,
     nilOff: 'Nil is off at this table',
