@@ -14,7 +14,7 @@ import { ledSuit } from '@/games/spades/domain/trick';
 import type { Card, Play, Suit } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
 import { anim, boxOf, mid, OUT, reducedMotion, type Box } from './fx';
-import { CARD_RATIO, LIFT, fanLayout } from './fan';
+import { CARD_RATIO, LIFT, fanLayout, indexSize, strip } from './fan';
 import { SpCard, cardName } from './SpCard';
 
 export type SortOrder = 'up' | 'down';
@@ -163,6 +163,8 @@ export function Hand({
   }, [cards, count, sorted, sort]);
   const fan = useMemo(() => fanLayout(shown.length, width, maxCw), [shown.length, width, maxCw]);
   const ch = fan.cw * CARD_RATIO;
+  // One rank size for the whole hand, set by its tightest strip, so no card's index is half-covered.
+  const ixSize = indexSize(fan.cw, strip(fan, 0));
 
   const problems = useMemo(() => {
     const m = new Map<string, PlayProblem>();
@@ -375,7 +377,7 @@ export function Hand({
                 card={c}
                 down={!up}
                 size="hand"
-                big={fan.cw >= 60}
+                index={ixSize}
                 flipDelay={up && !sorted ? i * FLIP_GAP : 0}
                 className="w-full"
               />

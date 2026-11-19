@@ -3,13 +3,22 @@ import { isRed } from '@/lib/cards';
 import { t } from '@/strings';
 import type { Card } from '@/games/spades/domain/types';
 import { play as s } from '@/games/spades/strings/play';
+import type { IndexSize } from './fan';
 
 /** Type for each size: the hand's cards (46–72px), the table's (52–64px), and the summary's minis. */
 const TYPE = {
-  hand: { ix: 'text-16', ixBig: 'text-18', pip: 'text-30' },
-  slot: { ix: 'text-15', ixBig: 'text-16', pip: 'text-28' },
-  mini: { ix: 'text-13', ixBig: 'text-13', pip: 'text-13' },
+  hand: { ix: 'text-19', pip: 'text-30' },
+  slot: { ix: 'text-15', pip: 'text-28' },
+  mini: { ix: 'text-13', pip: 'text-13' },
 } as const;
+
+/** The hand's rank and suit sizes by `indexSize` (fan.ts): the suit is a step larger, as it is the part misread. */
+const HAND_INDEX: Record<IndexSize, { rank: string; suit: string }> = {
+  17: { rank: 'text-17', suit: 'text-20' },
+  19: { rank: 'text-19', suit: 'text-22' },
+  20: { rank: 'text-20', suit: 'text-24' },
+  22: { rank: 'text-22', suit: 'text-26' },
+};
 
 export const cardName = (c: Card) => t.card.name(c.rank, c.suit);
 
@@ -20,8 +29,8 @@ interface SpCardProps {
   /** Face down shows the back; changing it turns the card over (a 3D flip, a cross-fade under reduced motion). */
   down?: boolean;
   size?: keyof typeof TYPE;
-  /** A card at least this wide uses the larger index. */
-  big?: boolean;
+  /** The hand's rank size, from `indexSize`: as large as the card's visible strip allows. */
+  index?: IndexSize;
   className?: string;
   style?: CSSProperties;
   /** The flipping layer, for a flight that turns the card mid-air. */
@@ -38,7 +47,7 @@ export function SpCard({
   card,
   down = false,
   size = 'hand',
-  big = false,
+  index,
   className = '',
   style,
   flipRef,
@@ -46,7 +55,9 @@ export function SpCard({
   flipDelay = 0,
 }: SpCardProps) {
   const ty = TYPE[size];
-  const ix = big ? ty.ixBig : ty.ix;
+  const hand = size === 'hand' ? HAND_INDEX[index ?? 19] : null;
+  const rank = hand?.rank ?? ty.ix;
+  const suit = hand?.suit ?? ty.ix;
   const ink = card && isRed(card.suit) ? 'text-sp-card-red' : 'text-sp-card-ink';
   const a11y = label
     ? { role: 'img', 'aria-label': card && !down ? cardName(card) : s.hand.faceDown }
@@ -72,18 +83,16 @@ export function SpCard({
               <span
                 className={`card-flat absolute inset-0 bg-sp-card-face font-bold leading-none shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--sp-card-ink)_14%,transparent)] ${ink}`}
               >
-                <span className={`absolute left-[7%] top-[4%] flex flex-col items-center ${ix}`}>
-                  <span className="tracking-[-0.04em]">{card.rank}</span>
-                  <span>{s.sym[card.suit]}</span>
+                <span className="absolute left-[3%] top-[2%] flex flex-col items-center">
+                  <span className={`font-extrabold tracking-[-0.06em] ${rank}`}>{card.rank}</span>
+                  <span className={suit}>{s.sym[card.suit]}</span>
                 </span>
                 <span className={`absolute inset-0 grid place-items-center ${ty.pip}`}>
                   {s.sym[card.suit]}
                 </span>
-                <span
-                  className={`absolute bottom-[4%] right-[7%] flex rotate-180 flex-col items-center ${ix}`}
-                >
-                  <span className="tracking-[-0.04em]">{card.rank}</span>
-                  <span>{s.sym[card.suit]}</span>
+                <span className="absolute bottom-[2%] right-[3%] flex rotate-180 flex-col items-center">
+                  <span className={`font-extrabold tracking-[-0.06em] ${rank}`}>{card.rank}</span>
+                  <span className={suit}>{s.sym[card.suit]}</span>
                 </span>
               </span>
             </>

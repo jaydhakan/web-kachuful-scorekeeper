@@ -55,3 +55,16 @@ export function strip(f: Fan, i: number): number {
   const next = f.slots[i + 1];
   return next ? next.x - f.slots[i].x : f.cw;
 }
+
+/** Rank sizes (px) the hand's index can take; each is a step on the type scale. */
+export const INDEX_SIZES = [17, 19, 20, 22] as const;
+export type IndexSize = (typeof INDEX_SIZES)[number];
+/** A bold two-character rank ("10") is about one font size wide; the index sits 3% of the card in from its edge. */
+const indexWidth = (px: number, cw: number) => px + cw * 0.03 + 1;
+
+/** The largest rank size whose "10" still fits in a card's visible strip, so the index is never half-covered. */
+export function indexSize(cw: number, visible: number): IndexSize {
+  let best: IndexSize = INDEX_SIZES[0];
+  for (const px of INDEX_SIZES) if (indexWidth(px, cw) <= visible) best = px;
+  return best;
+}

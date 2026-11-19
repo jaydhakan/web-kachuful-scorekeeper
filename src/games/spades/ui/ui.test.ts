@@ -2,7 +2,7 @@ import { storage } from '@/state/persistence';
 import { SP_KEYS } from '@/games/spades/state/keys';
 import { card, cards } from '@/games/spades/domain/__fixtures__/kit';
 import { audible } from '@/games/spades/sound/sfx';
-import { CARD_MAX, CARD_MIN, CARD_RATIO, fanLayout, strip } from './fan';
+import { CARD_MAX, CARD_MIN, CARD_RATIO, fanLayout, indexSize, strip } from './fan';
 import { sortHand } from './Hand';
 import { readPrefs, resetPrefsForTests, writePrefs } from './prefs';
 
@@ -21,6 +21,23 @@ describe('the hand fan', () => {
     // Every card keeps a visible strip to tap; the middle card is the arc's top.
     for (let i = 0; i < 12; i++) expect(strip(f, i)).toBeGreaterThan(19);
     expect(f.slots[6].y).toBeLessThan(f.slots[0].y);
+  });
+
+  it.each([320, 360, 390, 430])('keeps a "10" inside the strip at %ipx', (w) => {
+    const f = fanLayout(13, w);
+    const px = indexSize(f.cw, strip(f, 0));
+    // Two bold digits, a font size wide, and the index's 3% inset.
+    expect(px + f.cw * 0.03).toBeLessThanOrEqual(strip(f, 0));
+    expect(px).toBeGreaterThanOrEqual(17);
+  });
+
+  it('grows the index with the room', () => {
+    const at = (w: number) => {
+      const f = fanLayout(13, w);
+      return indexSize(f.cw, strip(f, 0));
+    };
+    expect(at(320)).toBeLessThan(at(430));
+    expect(at(390)).toBeGreaterThanOrEqual(20);
   });
 
   it('never makes a card wider than the space allows', () => {
