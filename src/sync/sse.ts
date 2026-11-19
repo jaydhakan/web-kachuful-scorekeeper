@@ -5,8 +5,10 @@
 
 /** Waits between attempts, in ms; the last one repeats. */
 export const BACKOFF = [1000, 2000, 5000, 10_000, 20_000, 30_000];
-/** Pings come every 25 s, so a stream silent for longer than this is dead even if the socket isn't. */
-export const SILENCE_MS = 60_000;
+/** Pings come every 25 s; one late ping still fits, so a stream silent for longer is dead even if the socket isn't. */
+export const SILENCE_MS = 40_000;
+/** A phone that comes back after this long without a byte reopens the stream at once instead of trusting it. */
+export const RESUME_MS = 5000;
 
 export interface Frame {
   event: string;
@@ -45,15 +47,17 @@ export interface StreamHandlers {
   onGone?(status: number): void;
 }
 
-/** Follows `url` until the returned stop is called; reconnects with backoff, at once on coming online. */
+/** Follows `url` until the returned stop is called; reconnects with backoff, at once on coming online or back to the page. */
 export function followStream(url: string, h: StreamHandlers): () => void {
   let stopped = false;
   let attempt = 0;
   let ctl: AbortController | null = null;
   let wait: ReturnType<typeof setTimeout> | null = null;
   let silence: ReturnType<typeof setTimeout> | null = null;
+  let lastByte = Date.now();
 
   const quiet = () => {
+    lastByte = Date.now();
     if (silence) clearTimeout(silence);
     silence = setTimeout(() => ctl?.abort(), SILENCE_MS);
   };
@@ -100,7 +104,8 @@ export function followStream(url: string, h: StreamHandlers): () => void {
     } catch {
       /* dropped, refused or gone silent: retried below */
     } finally {
-      if (silence) clearTimeout(silence);
+      // A reopen has replaced this request: the silence timer is already the new one's.
+      if (silence && mine === ctl) clearTimeout(silence);
     }
     if (mine === ctl) retry();
   }
@@ -111,7 +116,22 @@ export function followStream(url: string, h: StreamHandlers): () => void {
     attempt = 0;
     void open();
   };
+  // A locked or backgrounded phone can lose the socket without a close: on coming back, don't wait out the silence.
+  const resume = (e: Event) => {
+    if (stopped || document.visibilityState === 'hidden') return;
+    const restored = e.type === 'pageshow' && (e as PageTransitionEvent).persisted;
+    if (!wait && !restored && Date.now() - lastByte <= RESUME_MS) return;
+    if (wait) clearTimeout(wait);
+    if (silence) clearTimeout(silence);
+    const old = ctl;
+    ctl = null;
+    old?.abort();
+    attempt = 0;
+    void open();
+  };
   window.addEventListener('online', online);
+  document.addEventListener('visibilitychange', resume);
+  window.addEventListener('pageshow', resume);
   void open();
 
   return () => {
@@ -120,5 +140,7 @@ export function followStream(url: string, h: StreamHandlers): () => void {
     if (silence) clearTimeout(silence);
     ctl?.abort();
     window.removeEventListener('online', online);
+    document.removeEventListener('visibilitychange', resume);
+    window.removeEventListener('pageshow', resume);
   };
 }
