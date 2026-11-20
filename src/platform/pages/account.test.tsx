@@ -58,8 +58,9 @@ async function show(withPlayer = false) {
 
 afterEach(() => vi.restoreAllMocks());
 const res = <T,>(data: T) => ({ data, status: 200, etag: null });
-// The wallet asks for the player's Sikke; these tests are about the rest of the page.
+// The wallet asks for the player's Sikke, the nights card for their nights; these tests are about the rest.
 beforeEach(() => {
+  vi.spyOn(ep, 'nights').mockResolvedValue({ items: [], nextCursor: null });
   vi.spyOn(ep, 'sikke').mockResolvedValue(
     res({
       playerId: 'p1',
@@ -248,5 +249,30 @@ describe('the Me screen’s every-game sections', () => {
     expect(
       await screen.findByRole('button', { name: /^Kachuful: 0 of \d+ achievements$/ }),
     ).toBeVisible();
+  });
+});
+
+describe('the Me screen’s nights', () => {
+  it('says my night is ready until I open it, and always offers my nights', async () => {
+    vi.spyOn(ep, 'player').mockResolvedValue(profile(1));
+    vi.spyOn(ep, 'nights').mockResolvedValue({
+      items: [
+        {
+          id: 'n1',
+          closed: true,
+          startedAt: Date.now() - 5 * 3600e3,
+          endedAt: Date.now() - 4 * 3600e3,
+          players: [],
+          games: 3,
+          winner: null,
+        },
+      ],
+      nextCursor: null,
+    });
+    await show(true);
+    expect(
+      await screen.findByRole('button', { name: 'Your night is ready. Open the story' }),
+    ).toHaveTextContent('3 games');
+    expect(screen.getByRole('button', { name: 'Your nights' })).toBeVisible();
   });
 });

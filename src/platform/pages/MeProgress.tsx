@@ -8,7 +8,10 @@ import { useProgressionEnv } from '@/games/kachuful/components/useProgressionEnv
 import { RemoteGate } from '@/components/RemoteGate';
 import { ActivityRow, useEveryCatalogue } from '@/components/progression/ActivityPage';
 import { ProgressionScope } from '@/components/progression/env';
+import { NightReadyCard, useReadyNight } from '@/games/kachuful/components/NightReady';
+import { nights as ns } from '@/games/kachuful/strings/night';
 import { Icon } from '@/components/ui/Icons';
+import { icon } from '@/components/ui/IconsMore';
 import { Section } from '@/components/ui/Page';
 import { ProgressRing } from '@/components/ui/Stats';
 import { t } from '@/strings';
@@ -119,5 +122,34 @@ export function MeActivity() {
         </RemoteGate>
       </ProgressionScope>
     </Section>
+  );
+}
+
+/** "Your night is ready" while a night I sat waits unopened, and the way to every night of mine. */
+export function MeNights({ id }: { id: string }) {
+  const { actions } = useApp();
+  const ready = useReadyNight(id);
+  return (
+    <div className="mb-6 flex flex-col gap-2">
+      {ready && (
+        <NightReadyCard
+          ready={ready}
+          onOpen={() => actions.open({ screen: 'night', params: { id: ready.id } })}
+        />
+      )}
+      <button
+        type="button"
+        onClick={() => actions.open({ screen: 'night' })}
+        className="press glass flex min-h-14 w-full items-center gap-3 px-4 text-left text-16 font-bold"
+      >
+        <span aria-hidden className="text-[var(--tx2)]">
+          {icon('moon', 'h-6 w-6')}
+        </span>
+        <span className="flex-1">{ns.title}</span>
+        <span aria-hidden className="text-[var(--tx2)]">
+          {Icon.chev}
+        </span>
+      </button>
+    </div>
   );
 }
