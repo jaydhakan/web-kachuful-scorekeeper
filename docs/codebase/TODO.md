@@ -203,6 +203,11 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
   Kachuful only (finish, win, achievements). Backend `make perf` not run with Sikke (a finishing Kachuful PUT now
   rebuilds the Kursi chain from every ended game). Levels and prices still need checking against the backfill
   (`recompute-sikke --dry-run` on production data). Bounties and tonight's Sitara pay once `crowns`/`nights` exist.
+- **Nights (backend-requests §7), app side:** the server's Wrapped on `NightPage` (`?open=night&id=`), Your nights
+  with End the night, and "Your night is ready" on Me and the landing page. The mock's nights carry no Sitara, Sikke
+  or achievements (unit tests cover those cards) and group every game as one table. Not checked in a browser: the
+  landing card (unit-tested hook only), tablet and laptop, the three other themes. `e2e/nights.spec.ts` skips on a
+  reused mock server once tonight was ended (every recent game joins that night).
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
 - **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
 
