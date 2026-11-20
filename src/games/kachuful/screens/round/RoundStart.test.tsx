@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { demoGame, newRound, totalRounds, type Game } from '@/games/kachuful/domain';
 import { t } from '@/strings';
-import { MedalsValue, type TableMedals } from '@/games/kachuful/state/medals';
+import { MedalsValue, NO_MEDALS, type TableMedals } from '@/games/kachuful/state/medals';
 import { RoundStart } from './RoundStart';
 
 // Framer Motion reads the motion preference once per file, so the hook itself is switched per test.
@@ -125,6 +125,7 @@ describe('RoundStart', () => {
 
 describe('the medallists at round 1’s deal', () => {
   const medalsFor = (g: Game, seats: number[]): TableMedals => ({
+    ...NO_MEDALS,
     held: new Map(
       seats.map((k, i) => [g.players[k].id, { medal: (i + 1) as 1 | 2, defending: false }]),
     ),

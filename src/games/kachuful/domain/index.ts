@@ -21,3 +21,4 @@ export * from './awards';
 export * from './validate';
 export * from './medals';
 export * from './banter';
+export * from './kursi';

@@ -84,3 +84,39 @@ describe('the table medals', () => {
     expect(t.banter[0]).toEqual({ kind: 'outbid', who: 's0', mark: 'gold', other: 's2' });
   });
 });
+
+describe('the Kursi at the table', () => {
+  const chair = { holders: ['D'], since: 1, sinceGame: 'old', defences: 4 };
+
+  it('marks the seated holder, and whoever is ahead of them in this game', () => {
+    // Dev misses, Asha makes: Asha is ahead of the holder after round 1.
+    const t = tableMedals(game([[true, false, true]]), { ...base, kursi: chair });
+    expect(t.kursi).toEqual({ seats: ['s1'], defences: 4 });
+    // Dev holds silver, so the medal stays his mark; the Kursi is the mark only of a holder without one.
+    expect(t.marks.get('s1')).toBe('silver');
+    expect([...t.kursiChasers].sort()).toEqual(['s0', 's2']);
+    expect(t.kursiEvent).toBeNull();
+  });
+
+  it('is taken by the best finisher above the holder when the game ends', () => {
+    const g = game([[true, false, true]]);
+    g.status = 'finished';
+    g.finishedAt = from + 600e3;
+    const t = tableMedals(g, { ...base, kursi: chair });
+    // Riya and Asha tie at +10 above Dev; the earlier seat takes it.
+    expect(t.kursiEvent).toEqual({
+      kind: 'taken',
+      first: false,
+      to: ['Riya'],
+      toSeats: ['s0'],
+      from: ['Dev'],
+    });
+  });
+
+  it('is defended when nobody finishes above the holder', () => {
+    const g = game([[false, true, false]]);
+    g.status = 'finished';
+    const t = tableMedals(g, { ...base, kursi: chair });
+    expect(t.kursiEvent).toEqual({ kind: 'defended', defences: 5, holders: ['Dev'] });
+  });
+});

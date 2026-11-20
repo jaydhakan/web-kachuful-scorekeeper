@@ -17,6 +17,7 @@ import type {
   HeadToHead,
   Leaderboard,
   LiveResp,
+  KursiResp,
   MedalsResp,
   NewPlayer,
   MergeKeep,
@@ -199,6 +200,9 @@ export const ep = {
   /** Kachuful's medals as they stood before `excludeGame` (the game at the table). */
   medals: (excludeGame: string, o?: CallOpts) =>
     call<MedalsResp>('GET', '/medals' + query({ excludeGame }), undefined, o),
+  /** Kachuful's Kursi as it stood before `excludeGame`. */
+  kursi: (excludeGame: string, o?: CallOpts) =>
+    call<KursiResp>('GET', '/kursi' + query({ excludeGame }), undefined, o),
   seasons: (o?: CallOpts, game?: GameId) =>
     call<{ season: string; champion: PlayerSummary | null }[]>(
       'GET',

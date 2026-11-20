@@ -1,20 +1,12 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { forgetMoments, MomentQueue, MomentsProvider } from '@/fx/moments';
 import { kitGame } from '@/games/kachuful/domain/__fixtures__/kit';
-import { MedalsValue, type TableMedals } from '@/games/kachuful/state/medals';
+import { MedalsValue, NO_MEDALS, type TableMedals } from '@/games/kachuful/state/medals';
 import { useMedalBeat, useMedalTakeover } from './MedalTakeover';
 
 const g = kitGame({ id: 'tk', players: ['R', 'D'], rounds: [{ made: [true, false] }], start: 0 });
 
-const base: TableMedals = {
-  held: new Map(),
-  after: new Map(),
-  chase: { slipping: new Set(), onTrack: new Map() },
-  marks: new Map(),
-  banter: [],
-  changes: [],
-  defended: null,
-};
+const base: TableMedals = NO_MEDALS;
 
 function Host({ fresh = true }: { fresh?: boolean }) {
   const node = useMedalTakeover(g, fresh, 0);
@@ -75,5 +67,31 @@ describe('the medals at the end of a game', () => {
   it('says the Badshah held on', () => {
     show({ ...base, defended: 'p0' });
     expect(screen.getByTestId('beat')).toHaveTextContent('Takht bacha liya');
+  });
+
+  it('plays "Kursi chheeni" on its own card when only the chair moved', async () => {
+    show({
+      ...base,
+      kursiEvent: { kind: 'taken', first: false, to: ['Asha'], toSeats: ['p2'], from: ['Riya'] },
+    });
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Kursi chheeni!'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Asha ne Riya se Kursi chheen li');
+  });
+
+  it("puts the Kursi on the Badshah's card when both change hands", async () => {
+    show({
+      ...base,
+      changes: [{ playerId: 'A', from: null, to: 1, name: 'Asha' }],
+      kursiEvent: { kind: 'taken', first: false, to: ['Asha'], toSeats: ['p2'], from: ['Riya'] },
+    });
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Naya Badshah: Asha!'));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '🪑 Kursi chheeni! Asha ne Riya se Kursi chheen li',
+    );
+  });
+
+  it('says a defended or a first Kursi as a line', () => {
+    show({ ...base, kursiEvent: { kind: 'defended', defences: 7, holders: ['Riya'] } });
+    expect(screen.getByTestId('beat')).toHaveTextContent('🪑 Kursi bachi: Riya, 7 defences');
   });
 });

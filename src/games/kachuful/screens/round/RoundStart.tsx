@@ -17,6 +17,7 @@ import { EASE, REDUCED } from '@/components/ui/motion';
 import { t } from '@/strings';
 import { MedalName } from '@/components/ui/MedalName';
 import { medals } from '@/strings/medals';
+import { kursi } from '@/strings/kursi';
 import { useMedals } from '@/games/kachuful/state/medals';
 
 // One column when upright; the title group on the left and the table on the right when short or wide.
@@ -129,7 +130,7 @@ export function RoundStart() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, ready]);
-  const held = useMedals().held;
+  const { held, kursi: chair } = useMedals();
   if (!r) return null;
   const th = TR[r.trump];
   // Round 1's deal names the month's medallists at the table: one gets a line, two or more a "vs" (§6.7).
@@ -140,7 +141,14 @@ export function RoundStart() {
           .filter((x) => x.h)
           .sort((a, b) => a.h!.medal - b.h!.medal)
       : [];
-  const medalLine = seated.length > 0 && (stage < 3 || rm);
+  const chairLine =
+    r.index === 0 && chair
+      ? kursi.seated(
+          chair.seats.map((id) => g.players.find((p) => p.id === id)!.name),
+          chair.defences,
+        )
+      : null;
+  const medalLine = (seated.length > 0 || !!chairLine) && (stage < 3 || rm);
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
     <m.div
@@ -309,7 +317,7 @@ export function RoundStart() {
               exit={rm ? undefined : { opacity: 0, transition: { duration: 0.15 } }}
               className={`disp face-body font-bold leading-[1.25] tracking-[-0.02em] ${rm ? 'mb-1 text-17' : 'text-22 @h-short:text-18 land:text-18'}`}
             >
-              {seated.length === 1 ? (
+              {seated.length === 0 ? null : seated.length === 1 ? (
                 medals.seated(seated[0].h!.medal, seated[0].p.name)
               ) : (
                 <>
@@ -323,6 +331,13 @@ export function RoundStart() {
                     mark={seated[1].h}
                   />
                 </>
+              )}
+              {chairLine && (
+                <span
+                  className={`block font-sans font-semibold text-[var(--tx2)] ${seated.length ? 'mt-1 text-15' : ''}`}
+                >
+                  {chairLine}
+                </span>
               )}
             </m.div>
           )}

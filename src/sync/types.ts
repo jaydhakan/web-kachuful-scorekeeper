@@ -229,6 +229,14 @@ export interface SeasonResp {
   awards: AwardRow[];
 }
 
+/** GET /api/kursi: Kachuful's chair before the game at the table (rewards plan §6.3). */
+export interface KursiResp {
+  kursi: { holders: PlayerSummary[]; since: number; sinceGame: string; defences: number } | null;
+  longest:
+    | { holders: PlayerSummary[]; since: number; sinceGame: string; defences: number; until: number | null }
+    | null;
+}
+
 /** GET /api/medals: Kachuful's month without the game at the table, and last month's top three. */
 export interface MedalsResp {
   season: string;
