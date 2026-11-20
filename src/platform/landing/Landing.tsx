@@ -18,6 +18,7 @@ import { GAMES, gameById, type GameEntry, type Resume } from '../catalog';
 import { clearUnknown, go, unknownAddress, type Unknown } from '../route';
 import { warmGames, warmOn } from '../prepare';
 import { kachufulSearch, LandingMenu, openInKachuful } from './LandingMenu';
+import { NightReadyMount } from './NightReadyMount';
 import { PersonDot } from './PersonDot';
 import { GameIcon, TileArt } from './TileArt';
 import { Wordmark } from './Wordmark';
@@ -326,6 +327,7 @@ export default function Landing() {
             />
           )}
           <main className="flex flex-col gap-5 big:gap-10">
+            <NightReadyMount />
             {/* Two columns only beside a resume panel, from the rail up; an upright tablet stacks them. */}
             <div
               className={`flex flex-col gap-5 ${resumes.length ? 'rail:grid rail:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] rail:items-center rail:gap-12' : ''}`}
