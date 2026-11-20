@@ -18,6 +18,7 @@ import { PlayerPage } from './PlayerPage';
 import { PlayersPage } from './PlayersPage';
 import { LivePage, RecapPage } from './ViewerPages';
 import { WrappedPage } from './WrappedPage';
+import { NightPage } from './NightPage';
 import { t } from '@/strings';
 
 // Only admins open it, so its screens and strings stay out of everyone else's download.
@@ -49,6 +50,8 @@ export default function Pages({ route }: { route: Route }) {
       return <AwardsPage />;
     case 'wrapped':
       return <WrappedPage year={Number(p.year) || new Date().getFullYear()} playerId={p.id} />;
+    case 'night':
+      return <NightPage />;
     case 'players':
       return <PlayersPage />;
     case 'signin':

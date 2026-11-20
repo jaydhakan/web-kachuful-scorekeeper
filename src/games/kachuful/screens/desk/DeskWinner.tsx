@@ -26,6 +26,7 @@ import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { NightLink } from '@/games/kachuful/components/NightLink';
 import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
 
 const Highlight = ({
@@ -208,6 +209,7 @@ export function DeskWinner() {
               </m.li>
             ))}
           </ol>
+          <NightLink className="shrink-0" />
           {done.length > 0 && (
             <>
               <h2 className="disp text-22 font-extrabold tracking-[-0.03em]">

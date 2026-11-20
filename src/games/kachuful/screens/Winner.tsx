@@ -27,6 +27,7 @@ import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { NightLink } from '@/games/kachuful/components/NightLink';
 import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
 
 const rankColor = (rank: number) =>
@@ -284,7 +285,8 @@ export default function Winner() {
               </>
             )}
           </div>
-          <div className="mt-4 flex justify-center wide:[grid-area:4/1/5/3]">
+          <NightLink className="mt-6 wide:[grid-area:4/1/5/3]" />
+          <div className="mt-4 flex justify-center wide:[grid-area:5/1/6/3]">
             <button
               type="button"
               onClick={home}

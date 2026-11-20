@@ -24,6 +24,7 @@ export type RouteName =
   | 'achievements'
   | 'awards'
   | 'wrapped'
+  | 'night'
   | 'activity'
   | 'players'
   | 'signin'
