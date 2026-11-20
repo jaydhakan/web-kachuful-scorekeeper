@@ -1,10 +1,12 @@
 /**
  * The table intel line at round 1's deal (REWARDS-PLAN §6.5): the most interesting fact about the people seated, from
- * the games they have finished. Pure and game-agnostic; the crown lines (medals, Kursi) come first, from the table.
+ * the games they have finished. Pure and game-agnostic; the crown lines (medals, Kursi) come first, from the table,
+ * then a bounty on a seated holder (§6.4), then a milestone or a rivalry.
  */
 import type { KursiGame } from './kursi';
 
 export type Intel =
+  | { kind: 'bounty'; holders: string[] }
   | { kind: 'rivalry'; winner: string; loser: string; won: number; of: number }
   | { kind: 'milestone'; player: string; nth: number };
 
@@ -13,6 +15,8 @@ export const RIVAL_WINDOW = 9;
 export const RIVAL_MIN = 5;
 export const RIVAL_SHARE = 0.7;
 export const MILESTONES = [50, 100, 250, 500, 1000] as const;
+/** A bounty is paid only at a table this big, so two friends can't farm it head to head. */
+export const BOUNTY_MIN_SEATS = 3;
 
 /** Who finished above whom between two players, in the games both finished (newest first). */
 function headToHead(games: readonly KursiGame[], a: string, b: string): (string | null)[] {
@@ -27,10 +31,18 @@ function headToHead(games: readonly KursiGame[], a: string, b: string): (string 
 }
 
 /**
- * The line for a table: a milestone this game reaches (a player's 50th, 100th… finished game), else the most
- * one-sided rivalry between two seated players. Null when nothing is worth saying.
+ * The line for a table: a bounty when a crown holder (`holders`: the Kursi's, the Badshah) sits at a table of 3+,
+ * else a milestone this game reaches (a player's 50th, 100th… finished game), else the most one-sided rivalry
+ * between two seated players. Null when nothing is worth saying.
  */
-export function tableIntel(games: readonly KursiGame[], seated: readonly string[]): Intel | null {
+export function tableIntel(
+  games: readonly KursiGame[],
+  seated: readonly string[],
+  holders: readonly string[] = [],
+): Intel | null {
+  const marked = seated.filter((id) => holders.includes(id));
+  if (marked.length && seated.length >= BOUNTY_MIN_SEATS)
+    return { kind: 'bounty', holders: marked };
   const newest = [...games].sort((x, y) => y.endedAt - x.endedAt);
   for (const id of seated) {
     const nth = newest.filter((g) => g.seats.some((s) => s.playerId === id)).length + 1;

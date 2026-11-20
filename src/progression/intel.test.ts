@@ -41,4 +41,15 @@ describe('the table intel line', () => {
       nth: 50,
     });
   });
+
+  it('puts a bounty first when a crown holder sits at a table of three or more', () => {
+    const games = Array.from({ length: 49 }, (_, k) => g(k, ['riya', 'dev', 'asha']));
+    expect(tableIntel(games, ['dev', 'riya', 'asha'], ['riya', 'zoya'])).toEqual({
+      kind: 'bounty',
+      holders: ['riya'],
+    });
+    // Two at the table, or no holder seated: the milestone as before.
+    expect(tableIntel(games, ['dev', 'riya'], ['riya'])?.kind).toBe('milestone');
+    expect(tableIntel(games, ['dev', 'riya', 'asha'], ['zoya'])?.kind).toBe('milestone');
+  });
 });
