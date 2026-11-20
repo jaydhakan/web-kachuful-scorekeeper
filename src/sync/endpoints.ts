@@ -17,6 +17,7 @@ import type {
   HeadToHead,
   Leaderboard,
   LiveResp,
+  MedalsResp,
   NewPlayer,
   MergeKeep,
   Page,
@@ -195,6 +196,9 @@ export const ep = {
       undefined,
       o,
     ),
+  /** Kachuful's medals as they stood before `excludeGame` (the game at the table). */
+  medals: (excludeGame: string, o?: CallOpts) =>
+    call<MedalsResp>('GET', '/medals' + query({ excludeGame }), undefined, o),
   seasons: (o?: CallOpts, game?: GameId) =>
     call<{ season: string; champion: PlayerSummary | null }[]>(
       'GET',

@@ -1,4 +1,5 @@
 import { AppShell } from './components/AppShell';
+import { MedalsProvider } from './state/medals';
 import { AppProvider } from './state/store';
 
 export { prepare } from './chunks';
@@ -7,7 +8,9 @@ export { prepare } from './chunks';
 export default function Kachuful() {
   return (
     <AppProvider>
-      <AppShell />
+      <MedalsProvider>
+        <AppShell />
+      </MedalsProvider>
     </AppProvider>
   );
 }

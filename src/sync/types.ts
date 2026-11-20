@@ -229,6 +229,14 @@ export interface SeasonResp {
   awards: AwardRow[];
 }
 
+/** GET /api/medals: Kachuful's month without the game at the table, and last month's top three. */
+export interface MedalsResp {
+  season: string;
+  minRounds: number;
+  standings: LeaderboardRow[];
+  lastSeason: LeaderboardRow[];
+}
+
 /** A standings row of a month ranked on win rate (`value`, 0–1): every game but Kachuful. */
 export interface GameSeasonRow {
   rank: number | null;
