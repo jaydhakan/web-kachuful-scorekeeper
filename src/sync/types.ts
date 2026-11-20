@@ -229,6 +229,15 @@ export interface SeasonResp {
   awards: AwardRow[];
 }
 
+/** GET /api/places: ended Kachuful games' places, newest first (rewards plan §6.5). */
+export interface PlacesResp {
+  games: {
+    gameId: string;
+    endedAt: number;
+    seats: { playerId: string; place: number; seat: number }[];
+  }[];
+}
+
 /** GET /api/kursi: Kachuful's chair before the game at the table (rewards plan §6.3). */
 export interface KursiResp {
   kursi: { holders: PlayerSummary[]; since: number; sinceGame: string; defences: number } | null;

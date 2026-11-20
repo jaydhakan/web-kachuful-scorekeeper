@@ -1808,6 +1808,10 @@ on('GET', '/api/kursi', ({ url }) => {
   );
   return { kursi: kursi && out(kursi), longest: longest && out(longest) };
 });
+on('GET', '/api/places', ({ url }) => {
+  const f = factsWithout(url.searchParams.get('excludeGame'));
+  return { games: kursiGames(f).sort((a, b) => b.endedAt - a.endedAt) };
+});
 on('GET', '/api/seasons', ({ url }) => {
   const other = gameMock(url);
   if (other)

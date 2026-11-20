@@ -18,6 +18,7 @@ import type {
   Leaderboard,
   LiveResp,
   KursiResp,
+  PlacesResp,
   MedalsResp,
   NewPlayer,
   MergeKeep,
@@ -203,6 +204,9 @@ export const ep = {
   /** Kachuful's Kursi as it stood before `excludeGame`. */
   kursi: (excludeGame: string, o?: CallOpts) =>
     call<KursiResp>('GET', '/kursi' + query({ excludeGame }), undefined, o),
+  /** Ended Kachuful games' places, without `excludeGame`, for the table intel line. */
+  places: (excludeGame: string, o?: CallOpts) =>
+    call<PlacesResp>('GET', '/places' + query({ excludeGame }), undefined, o),
   seasons: (o?: CallOpts, game?: GameId) =>
     call<{ season: string; champion: PlayerSummary | null }[]>(
       'GET',

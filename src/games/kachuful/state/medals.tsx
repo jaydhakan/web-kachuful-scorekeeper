@@ -29,7 +29,9 @@ import {
   standings,
   tallies,
 } from '@/games/kachuful/domain';
-import { kursiFrom, stepKursi, type Kursi } from '@/progression/kursi';
+import { tableIntel } from '@/progression/intel';
+import { kursiFrom, stepKursi, type Kursi, type KursiGame } from '@/progression/kursi';
+import { medals as ms } from '@/strings/medals';
 import { dayOf, dayRange, monthOf, monthRange, prevMonth } from '@/progression/zone';
 import { archive } from '@/state/archive';
 import { identify, idOf } from '@/state/registry';
@@ -66,6 +68,8 @@ export interface TableMedals {
   sitara: { held: ReadonlySet<string>; now: ReadonlySet<string>; rising: string[] };
   /** The Legend's seats (the most season titles, all-time). */
   legend: ReadonlySet<string>;
+  /** Round 1's other line: a rivalry or a milestone among the seated, worded (§6.5). */
+  intel: string | null;
 }
 
 export type KursiMove =
@@ -86,6 +90,7 @@ export const NO_MEDALS: TableMedals = {
   kursiEvent: null,
   sitara: { held: new Set(), now: new Set(), rising: [] },
   legend: new Set(),
+  intel: null,
 };
 
 interface Base {
@@ -99,6 +104,8 @@ interface Base {
   today?: { day: string; games: number; points: ReadonlyMap<string, number> };
   /** Closed seasons' champions (board ids), for the Legend. */
   champions?: readonly (string | null)[];
+  /** Ended games' places, for the intel line. */
+  places?: readonly KursiGame[];
 }
 
 const unrow = (r: LeaderboardRow): MedalRow => ({
@@ -126,6 +133,7 @@ function deviceBase(current: Game): Base {
     rows: now.standings,
     last: last.standings,
     kursi: kursiFrom(kursiGames(f)).kursi,
+    places: kursiGames(f),
     today: deviceToday(f),
     champions: playedMonths(f)
       .filter((m) => m < month)
@@ -207,6 +215,12 @@ export function tableMedals(
   const legend = seatsOf(legendOf(base.champions ?? []));
   for (const id of sitara.held) if (!marks.has(id)) marks.set(id, 'sitara');
   for (const id of legend) if (!marks.has(id)) marks.set(id, 'legend');
+  const found = base.places ? tableIntel(base.places, g.players.map(key)) : null;
+  const intel = !found
+    ? null
+    : found.kind === 'milestone'
+      ? ms.milestone(named(found.player), found.nth)
+      : ms.rivalry(named(found.winner), named(found.loser), found.won, found.of);
   let kursiEvent: KursiMove | null = null;
   if (g.status === 'finished') {
     const { event } = stepKursi(kHeld, {
@@ -245,6 +259,7 @@ export function tableMedals(
     kursiEvent,
     sitara,
     legend,
+    intel,
   };
 }
 
@@ -265,6 +280,7 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
   const chair = useRemote(online ? `kursi:${g.syncId}` : null, (o) => ep.kursi(g.syncId, o));
   // The same cache key as the Awards page, so a season list it already fetched counts here.
   const titles = useRemote(online ? 'seasons' : null, (o) => ep.seasons(o));
+  const placed = useRemote(online ? `places:${g.syncId}` : null, (o) => ep.places(g.syncId, o));
   // The board before this game changes only with the archive or another game, never with this game's rounds.
   const base = useMemo<Base | null>(() => {
     if (!atTable || g.id === 'demo') return null;
@@ -284,6 +300,7 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
               games: d.today.games,
               points: new Map(d.today.rows.map((r) => [r.player.id, r.points])),
             },
+            places: placed.data?.games,
             champions: (titles.data ?? [])
               .filter((x) => x.season < d.season)
               .map((x) => x.champion?.id ?? null),
@@ -292,7 +309,7 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
     }
     return deviceBase(g);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the base is the board before this game
-  }, [atTable, g.syncId, signedIn, remote.data, chair.data, titles.data, v]);
+  }, [atTable, g.syncId, signedIn, remote.data, chair.data, titles.data, placed.data, v]);
   const value = useMemo(() => (base ? tableMedals(g, base) : NO_MEDALS), [g, base]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

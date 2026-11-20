@@ -6,7 +6,6 @@ import { MQ } from '@/theme/breakpoints';
 import { SpTableProvider } from './state/store';
 import Shell from './screens/Screens';
 
-
 function Root({ page }: { page: TablePage | null }) {
   const big = useMediaQuery(MQ.big);
   return big ? (

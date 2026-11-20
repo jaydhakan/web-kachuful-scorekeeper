@@ -1,4 +1,11 @@
-import { Component, createElement, Suspense, useState, type ComponentType, type ReactNode } from 'react';
+import {
+  Component,
+  createElement,
+  Suspense,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import { preloadable, type Preloadable } from '@/lib/preloadable';
 
 type Load<P> = () => Promise<{ default: ComponentType<P> }>;

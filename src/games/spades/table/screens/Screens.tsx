@@ -18,7 +18,6 @@ import Bids from './hand/Bids';
 import Summary from './hand/Summary';
 import Tricks from './hand/Tricks';
 
-
 /** The screen for the state (and a page from the address), with the key its transition runs on. */
 export function useScreen(page: TablePage | null): { key: string; content: ReactNode } {
   const { state } = useSp();

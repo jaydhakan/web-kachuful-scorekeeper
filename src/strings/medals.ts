@@ -31,6 +31,10 @@ export const medals = {
   legend: '🏛️',
   legendSr: 'Legend, the most season titles',
   newSitara: (names: string) => `⭐ Aaj ka Sitara: ${names}`,
+  /** Round 1's deal when no crown sits at the table: a one-sided rivalry, or a milestone (§6.5). */
+  rivalry: (w: string, l: string, won: number, of: number) =>
+    `${w} has beaten ${l} ${won} of their last ${of}`,
+  milestone: (name: string, nth: number) => `${name}'s ${nth}th game`,
   /** The month label under a "defending" medal. */
   defending: 'defending',
 } as const;

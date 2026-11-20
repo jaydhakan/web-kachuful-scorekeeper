@@ -130,7 +130,7 @@ export function RoundStart() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, ready]);
-  const { held, kursi: chair } = useMedals();
+  const { held, kursi: chair, intel } = useMedals();
   if (!r) return null;
   const th = TR[r.trump];
   // Round 1's deal names the month's medallists at the table: one gets a line, two or more a "vs" (§6.7).
@@ -148,7 +148,9 @@ export function RoundStart() {
           chair.defences,
         )
       : null;
-  const medalLine = (seated.length > 0 || !!chairLine) && (stage < 3 || rm);
+  // With no crown at the table, round 1 names a rivalry or a milestone instead.
+  const intelLine = r.index === 0 && !seated.length && !chairLine ? intel : null;
+  const medalLine = (seated.length > 0 || !!chairLine || !!intelLine) && (stage < 3 || rm);
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
     <m.div
@@ -332,6 +334,7 @@ export function RoundStart() {
                   />
                 </>
               )}
+              {intelLine && <span className="block">{intelLine}</span>}
               {chairLine && (
                 <span
                   className={`block font-sans font-semibold text-[var(--tx2)] ${seated.length ? 'mt-1 text-15' : ''}`}

@@ -150,3 +150,19 @@ describe('Aaj ka Sitara and the Legend at the table', () => {
     expect(t.marks.get('s2')).toBe('sitara');
   });
 });
+
+describe('the table intel line', () => {
+  it('names the rivalry among the seated, by name', () => {
+    const places = Array.from({ length: 6 }, (_, k) => ({
+      gameId: 'old' + k,
+      endedAt: k,
+      seats: [
+        { playerId: 'A', place: 1, seat: 0 },
+        { playerId: 'R', place: 2, seat: 1 },
+        { playerId: 'Z', place: 3, seat: 2 },
+      ],
+    }));
+    const t = tableMedals(game([]), { ...base, places });
+    expect(t.intel).toBe('Asha has beaten Riya 6 of their last 6');
+  });
+});
