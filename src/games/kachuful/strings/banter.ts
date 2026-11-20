@@ -111,9 +111,6 @@ export function poolFor(kind: BanterKind, mark: Mark): Line[] {
 }
 
 export const banter = {
-  /** Settings: the switch that turns the lines off. */
-  setting: 'Table banter',
-  settingHint: 'A cheeky line each round about the month’s Badshah and other title holders.',
-  /** Screen readers hear the line once, as a status. */
+  /** Screen readers hear the round's line once, as a status. */
   label: 'Table banter',
 };

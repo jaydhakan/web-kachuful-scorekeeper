@@ -35,6 +35,7 @@ import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icons';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { BanterLine, useRoundBanter } from '@/games/kachuful/components/BanterLine';
 
 function Spark({ color }: { color: string }) {
   return (
@@ -225,6 +226,7 @@ export function Summary() {
     miss = soleMiss(g.players, r.results),
     wait = landOrder(g.players, bidOrder(g, r), r.results);
   const changed = prev[0].p.id !== cur[0].p.id || doneRounds(g).length === 1;
+  const line = useRoundBanter(g, r);
   const { stage, step, landed, rm } = useSumStages(
     [350, 1000, 1850, 2450, 3300],
     climb,
@@ -302,8 +304,12 @@ export function Summary() {
         </>
       }
     >
-      {miss && (
-        <AllButOne name={miss.name} show={stage >= 1} anim={anim} className="mb-1.5 text-14" />
+      {line ? (
+        <BanterLine text={line} show={stage >= 1} anim={anim} className="mb-1.5 text-14" />
+      ) : (
+        miss && (
+          <AllButOne name={miss.name} show={stage >= 1} anim={anim} className="mb-1.5 text-14" />
+        )
       )}
       <div
         role="region"
@@ -340,7 +346,7 @@ export function Summary() {
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
                 />
                 <div className="min-w-0 flex-1 break-words text-16 font-bold leading-[1.2] tracking-[-0.015em] [text-wrap:balance] @[26rem]:text-18">
-                  <SeatName p={x.p} />
+                  <SeatName p={x.p} chase />
                   <StreakBadge s={sk[id]} />
                 </div>
                 <AnimatePresence>

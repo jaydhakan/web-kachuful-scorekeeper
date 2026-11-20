@@ -12,7 +12,7 @@ export const medals = {
     m === 1
       ? `👑 Badshah ${name} table pe hai`
       : `${medals.glyph[m]} ${medals.title[m]} ${name} is at the table`,
-  vs: (a: string, b: string) => `${a} vs ${b}`,
+  vs: 'vs',
   titled: (m: MedalNo, name: string) => `${medals.title[m]} ${name}`,
   /** The chaser's chip, when the game as it stands would give them the medal. */
   onTrack: (m: MedalNo) => `On track for ${medals.glyph[m]}`,

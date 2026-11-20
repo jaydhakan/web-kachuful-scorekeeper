@@ -35,6 +35,7 @@ import { ChartLegend, ScoreChart } from './ScoreChart';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { BanterLine, useRoundBanter } from '@/games/kachuful/components/BanterLine';
 
 /** After a round: the standings move into place, the totals count up, and the next round is laid out on the right. */
 export function DeskSummary() {
@@ -66,6 +67,7 @@ export function DeskSummary() {
     },
   );
   useDeskKeys({ enter: actions.nextRound });
+  const line = useRoundBanter(g, r);
   // Mid-climb the rows keep their old ranks; the numbers change when the last step lands.
   const list =
     stage >= 3
@@ -98,13 +100,22 @@ export function DeskSummary() {
       />
       <div className="grid min-h-0 flex-1 gap-4 tp:grid-rows-[minmax(0,1fr)_auto] tl:grid-cols-[minmax(0,1fr)_clamp(20rem,36vw,25rem)] tl:gap-5 dt:grid-cols-[minmax(0,1fr)_clamp(26rem,36vw,32.5rem)] dt:gap-6">
         <section className="flex min-h-0 flex-col gap-4">
-          {miss && (
-            <AllButOne
-              name={miss.name}
+          {line ? (
+            <BanterLine
+              text={line}
               show={stage >= 1}
               anim={anim}
               className="-mb-2 shrink-0 px-3 text-16"
             />
+          ) : (
+            miss && (
+              <AllButOne
+                name={miss.name}
+                show={stage >= 1}
+                anim={anim}
+                className="-mb-2 shrink-0 px-3 text-16"
+              />
+            )
           )}
           <ol
             aria-label={t.summary.standings}
@@ -152,7 +163,7 @@ export function DeskSummary() {
                   />
                   {/* Breaks at spaces only; on a narrow row the movement note gives way first. */}
                   <span className="flex-1 break-words text-20 font-bold leading-tight tracking-[-0.015em] dt:text-24">
-                    <SeatName p={x.p} />
+                    <SeatName p={x.p} chase />
                     <StreakBadge s={sk[id]} />
                   </span>
                   <span

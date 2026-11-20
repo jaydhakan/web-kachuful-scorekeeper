@@ -6,10 +6,12 @@ export type SoundLevel = 'all' | 'moments' | 'off';
 export interface FxPrefs {
   sounds: SoundLevel;
   vibrate: boolean;
+  /** Kachuful's line each round about the month's title holders (REWARDS-PLAN §6.7); added later, on by default. */
+  banter: boolean;
 }
 
 /** "Big moments" by default, so a shared phone isn't beeping all night (WOW-MOMENTS-PLAN §9). */
-export const DEFAULT_FX: FxPrefs = { sounds: 'moments', vibrate: true };
+export const DEFAULT_FX: FxPrefs = { sounds: 'moments', vibrate: true, banter: true };
 const LEVELS: readonly string[] = ['all', 'moments', 'off'];
 
 /** The in-game speaker button's order: All, then Big moments, then Off, then round again. */
@@ -23,6 +25,7 @@ export function readFx(): FxPrefs {
   return {
     sounds: LEVELS.includes(o.sounds as string) ? (o.sounds as SoundLevel) : DEFAULT_FX.sounds,
     vibrate: typeof o.vibrate === 'boolean' ? o.vibrate : DEFAULT_FX.vibrate,
+    banter: typeof o.banter === 'boolean' ? o.banter : DEFAULT_FX.banter,
   };
 }
 

@@ -44,6 +44,20 @@ export function FxSettings() {
           </span>
           <ToggleTrack on={prefs.vibrate} />
         </m.button>
+        <m.button
+          type="button"
+          role="switch"
+          aria-checked={prefs.banter}
+          onClick={() => set({ banter: !prefs.banter })}
+          whileTap="press"
+          className="flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl text-left"
+        >
+          <span className="flex flex-col">
+            <span className="text-15 font-bold">{s.banter}</span>
+            <span className="text-14 text-[var(--tx2)]">{s.banterHint}</span>
+          </span>
+          <ToggleTrack on={prefs.banter} />
+        </m.button>
       </div>
     </Section>
   );

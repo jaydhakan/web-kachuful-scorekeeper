@@ -21,6 +21,9 @@ export const fx = {
     'Kachuful and Kaali Teeri use this setting; Spades has its own at the table, and it wins there.',
   vibrate: 'Vibration',
   vibrateHint: 'Android phones only: iPhones don’t let web apps vibrate.',
+  banter: 'Table banter',
+  banterHint:
+    'In Kachuful, a cheeky line each round about the month’s Badshah, Wazir and Senapati.',
   /** The tap layer over a moment that holds the screen. */
   skip: 'Skip',
   /** The big unlock card's kicker, and the card that stands for the rest of a batch. */

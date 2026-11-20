@@ -15,6 +15,9 @@ import { TablePin } from '@/components/ui/Table';
 import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE, REDUCED } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { MedalName } from '@/components/ui/MedalName';
+import { medals } from '@/strings/medals';
+import { useMedals } from '@/games/kachuful/state/medals';
 
 // One column when upright; the title group on the left and the table on the right when short or wide.
 const ROOT =
@@ -126,8 +129,18 @@ export function RoundStart() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, ready]);
+  const held = useMedals().held;
   if (!r) return null;
   const th = TR[r.trump];
+  // Round 1's deal names the month's medallists at the table: one gets a line, two or more a "vs" (§6.7).
+  const seated =
+    r.index === 0
+      ? g.players
+          .map((p, k) => ({ p, k, h: held.get(p.id) }))
+          .filter((x) => x.h)
+          .sort((a, b) => a.h!.medal - b.h!.medal)
+      : [];
+  const medalLine = seated.length > 0 && (stage < 3 || rm);
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
     <m.div
@@ -249,6 +262,7 @@ export function RoundStart() {
           dealer={stage < 1 ? (prev ?? r.dealerIndex) : r.dealerIndex}
           first={stage >= 2 ? r.firstPlayerIndex : undefined}
           noSeatAnim={false}
+          hl={seated.length === 1 && stage < 3 ? seated[0].k : undefined}
           center={<SuitCenter trump={r.trump} cards={r.cards} />}
         >
           {stage === 2 &&
@@ -285,6 +299,34 @@ export function RoundStart() {
         className="min-h-[70px] px-7 py-3 text-center text-17 leading-[1.45] tracking-[-0.01em] @h-short:min-h-[4.25rem] @h-short:py-1 land:text-15 pane:[grid-area:5/1]"
         aria-live="polite"
       >
+        <AnimatePresence initial={false}>
+          {live && medalLine && (
+            <m.div
+              key="medals"
+              data-medal-line
+              initial={rm ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={rm ? undefined : { opacity: 0, transition: { duration: 0.15 } }}
+              className={`disp face-body font-bold leading-[1.25] tracking-[-0.02em] ${rm ? 'mb-1 text-17' : 'text-22 @h-short:text-18 land:text-18'}`}
+            >
+              {seated.length === 1 ? (
+                medals.seated(seated[0].h!.medal, seated[0].p.name)
+              ) : (
+                <>
+                  <MedalName
+                    name={medals.titled(seated[0].h!.medal, seated[0].p.name)}
+                    mark={seated[0].h}
+                  />{' '}
+                  <span className="text-[var(--tx2)]">{medals.vs}</span>{' '}
+                  <MedalName
+                    name={medals.titled(seated[1].h!.medal, seated[1].p.name)}
+                    mark={seated[1].h}
+                  />
+                </>
+              )}
+            </m.div>
+          )}
+        </AnimatePresence>
         <AnimatePresence>
           {live && stage >= 3 && (
             <m.div initial={rm ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>

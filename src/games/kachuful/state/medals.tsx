@@ -157,3 +157,8 @@ export function useSeatMedals(): Record<string, 1 | 2 | 3> {
   const t = useMedals();
   return useMemo(() => Object.fromEntries([...t.held].map(([id, h]) => [id, h.medal])), [t]);
 }
+
+/** A fixed medals value, for tests and the moments lab. */
+export function MedalsValue({ value, children }: { value: TableMedals; children: ReactNode }) {
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}

@@ -129,7 +129,18 @@ describe('sounds and vibration', () => {
     expect(JSON.parse(localStorage.getItem(KEYS.fx) ?? 'null')).toEqual({
       sounds: 'off',
       vibrate: false,
+      banter: true,
     });
+  });
+
+  it('has table banter on by default, and turns it off on this device', async () => {
+    await show();
+    const u = setup();
+    const banter = screen.getByRole('switch', { name: /Table banter/ });
+    expect(banter).toHaveAttribute('aria-checked', 'true');
+    await u.click(banter);
+    expect(banter).toHaveAttribute('aria-checked', 'false');
+    expect(JSON.parse(localStorage.getItem(KEYS.fx) ?? 'null')).toMatchObject({ banter: false });
   });
 
   it('is there signed out too', () => {
