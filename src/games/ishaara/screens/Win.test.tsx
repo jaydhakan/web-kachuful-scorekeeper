@@ -32,6 +32,9 @@ describe('the result', () => {
     show(g);
     expect(screen.getByRole('heading', { name: 'Sun wins' })).toBeInTheDocument();
     expect(screen.getByText('Moon picked the trap: CHAI.')).toBeInTheDocument();
+    // The winning team by name, with their faces beside them.
+    const sun = g.players.filter((p) => p.team === 'sun').map((p) => p.name);
+    expect(screen.getByText(sun.join(', '))).toBeInTheDocument();
     const key = screen.getByRole('list', { name: 'The full key, every card' });
     expect(within(key).getAllByRole('listitem')).toHaveLength(25);
     expect(within(key).getByText('CHAI, the trap')).toBeInTheDocument();

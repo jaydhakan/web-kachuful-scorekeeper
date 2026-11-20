@@ -19,6 +19,7 @@ import { ClueEntry } from './ClueEntry';
 import { Counts, KeyGrid, Mark, TeamPill, TINT } from './KeyParts';
 import { FinishedPanel, NotePanel, OursPanel, PenaltyPanel, TheirsPanel } from './Panels';
 import { CTA, OUTLINE, sendError, useCountdown } from './clueKit';
+import type { Face } from '@/components/ui/Avatar';
 
 /** A centred message for loading, refusal and error states, with an optional action. */
 function Notice({
@@ -54,11 +55,13 @@ function Notice({
 function Gate({
   team,
   name,
+  face,
   onShow,
   onLeave,
 }: {
   team: Team | null;
   name: string | null;
+  face?: Face;
   onShow(): void;
   onLeave(): void;
 }) {
@@ -66,7 +69,7 @@ function Gate({
   useEffect(() => show.current?.focus(), []);
   return (
     <div className="mx-auto grid min-h-full w-full max-w-[30rem] grid-rows-[auto_1fr_auto] gap-6 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
-      <div>{team && <TeamPill team={team} name={name} />}</div>
+      <div>{team && <TeamPill team={team} name={name} face={face} />}</div>
       <div className="grid content-center justify-items-center gap-4 text-center">
         <span className="grid h-24 w-24 place-items-center rounded-full bg-key-surface">
           {icon('eyeOff', 'h-10 w-10')}
@@ -192,7 +195,11 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
     >
       {/* While typing on a short screen (the keyboard is up) the header and counts make way for the key. */}
       <div className="flex items-center justify-between gap-3 pane:[grid-area:head] [@media(max-height:560px)]:group-data-[typing]:hidden">
-        <TeamPill team={team} name={clueGiverOf(g, team)?.name ?? null} />
+        <TeamPill
+          team={team}
+          name={clueGiverOf(g, team)?.name ?? null}
+          face={clueGiverOf(g, team)}
+        />
         <div className="flex shrink-0 gap-2">
           <button type="button" onClick={leave} aria-label={clue.leaveLabel} className={HEAD_BTN}>
             <span aria-hidden className="[&_svg]:h-5 [&_svg]:w-5">
@@ -352,7 +359,8 @@ export function KeyView({ id }: { id: string }) {
   const [shown, setShown] = useState(false);
   useWakeLock(shown && c.keyStatus === 'ready');
   const team = c.team ?? c.me?.team ?? null;
-  const name = c.game && team ? (clueGiverOf(c.game, team)?.name ?? null) : null;
+  const giver = c.game && team ? clueGiverOf(c.game, team) : undefined;
+  const name = giver?.name ?? null;
 
   if (c.status === 'gone') return <Notice text={clue.load.gone} back={actions.leave} />;
   if (!c.game)
@@ -370,6 +378,7 @@ export function KeyView({ id }: { id: string }) {
       <Gate
         team={team}
         name={name}
+        face={giver}
         onShow={() => {
           setShown(true);
           c.openKey();

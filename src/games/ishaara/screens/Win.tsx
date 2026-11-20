@@ -20,6 +20,8 @@ import { stagger } from '@/components/ui/stagger';
 import { Mark, TEAM_FILL } from './board/marks';
 import { WordGrid } from './board/WordGrid';
 import { GameReel } from './GameReel';
+import { Dot } from '@/components/ui/Dot';
+import { AvatarStack } from '@/components/ui/Page';
 
 const w = s.win;
 
@@ -164,6 +166,17 @@ export default function Win({ game }: { game: IshaaraPublic }) {
                       trap?.word?.toUpperCase() ?? null,
                     )}
                   </p>
+                  {winner && (
+                    <p className="mt-2 flex flex-wrap items-center gap-2 text-16 font-semibold">
+                      <AvatarStack players={game.players.filter((p) => p.team === winner)} s={32} />
+                      <span className="[overflow-wrap:anywhere]">
+                        {game.players
+                          .filter((p) => p.team === winner)
+                          .map((p) => p.name)
+                          .join(', ')}
+                      </span>
+                    </p>
+                  )}
                   {game.rules.bestOf === 3 && (
                     <p className="mt-1 text-16 font-semibold">
                       {matchWinner
@@ -198,7 +211,8 @@ export default function Win({ game }: { game: IshaaraPublic }) {
             ) : (
               <ol aria-labelledby="ish-log" className="glass overflow-hidden">
                 {rows.map((r, k) => {
-                  const giver = clueGiverOf(game, r.team)?.name ?? s.team[r.team];
+                  const giverSeat = clueGiverOf(game, r.team);
+                  const giver = giverSeat?.name ?? s.team[r.team];
                   const tail = [
                     w.found(r.found),
                     ...(r.endedOn ? [w.endedOn(r.endedOn)] : []),
@@ -211,6 +225,11 @@ export default function Win({ game }: { game: IshaaraPublic }) {
                       )}
                       <Mark id={r.team} className="h-3.5 w-3.5" />
                       <span className="sr-only">{s.team[r.team]}</span>
+                      {giverSeat && (
+                        <span aria-hidden className="inline-grid shrink-0">
+                          <Dot p={giverSeat} s={28} />
+                        </span>
+                      )}
                       <span className="shrink-0 text-16 text-[var(--tx2)]">{giver}</span>
                       <span className="min-w-0 flex-1 text-17 font-bold [overflow-wrap:anywhere]">
                         {r.word ?? w.spokenClue} · {s.num(r.number)}

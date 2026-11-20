@@ -2,6 +2,8 @@ import type { Identity, Team } from '@/games/ishaara/domain';
 import { clue } from '@/games/ishaara/strings/clue';
 import { FitWord } from '../board/FitWord';
 import { Mark } from '../board/marks';
+import { Dot } from '@/components/ui/Dot';
+import type { Face } from '@/components/ui/Avatar';
 
 export { Mark };
 
@@ -42,11 +44,25 @@ export const INK: Record<Identity, string> = {
   trap: 'text-key-trap-ink',
 };
 
-export function TeamPill({ team, name }: { team: Team; name: string | null }) {
+export function TeamPill({
+  team,
+  name,
+  face,
+}: {
+  team: Team;
+  name: string | null;
+  /** The clue-giver's face: this phone showed a name only (REWARDS-PLAN §2). */
+  face?: Face | null;
+}) {
   return (
     <p
       className={`inline-flex min-h-11 min-w-0 items-center gap-2.5 rounded-[22px] px-4 py-2 text-16 font-bold leading-tight ${TINT[team]}`}
     >
+      {face && (
+        <span aria-hidden className="-ml-2 inline-grid shrink-0">
+          <Dot p={face} s={32} />
+        </span>
+      )}
       <Mark id={team} className="h-4 w-4" />
       <span>{clue.pill(team, name)}</span>
     </p>
