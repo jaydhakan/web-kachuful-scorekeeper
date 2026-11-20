@@ -188,8 +188,11 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
 - **Other games:** medals, Kursi, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
   real night with Kachuful. The Kursi rule is game-agnostic (`src/progression/kursi.ts`, teams included).
 - **Live page:** spectators don't see the banter or the medals yet (`pages/LivePage.tsx`).
-- **Server status:** no `crowns` table or `status.changes`; so no feed item for a crown change, no "held N days", and
-  the Kursi is computed on read (`GET /api/kursi`). Fine for one group; move it into `progress_game` if reads slow.
+- **Crown news (backend-requests §6), app side:** the banner on the other phones (`components/crowns/CrownNews.tsx`),
+  bounty chips on Kachuful's winner screen, crown and night rows in the feed, and round 1's "Beat Riya: +40 🪙".
+  Not checked in a browser: the winner screen's chips and round 1's bounty line (unit tests only), the banner in the
+  three other themes and on a tablet or laptop. The mock sends Kursi changes and bounties only (no medal, Sitara or
+  Legend changes), and the crown banner and the invite banner share the top of the screen (the crown one is above).
 - **Moment budget (§13):** the queue now holds Moments during input (`useHoldMoments`, on Kachuful's bids and
   results, Kaali Teeri's auction and result, the Spades scorekeeper's bids and tricks), and takes a per-scope `cap`
   and a `kind`+`round` cooldown, but **no caller passes `cap: 1`, `kind` or `round` yet**: `MomentPop` scopes by
