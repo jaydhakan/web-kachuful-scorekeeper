@@ -24,3 +24,32 @@ describe('the unlock card online', () => {
     expect(document.querySelector('[data-unlock-card]')).toBeNull();
   });
 });
+
+describe('a scorekeeper round', () => {
+  const card = (code: string, who: string): PopCard => ({ ...big(who), k: code + who, code });
+
+  it('deals one big card a round; the next big one of that round drops in small', async () => {
+    const { rerender } = render(
+      <MomentPop
+        pops={{
+          id: 3,
+          cards: [card('slam', 'Asha'), card('perfect', 'Kabir')],
+          round: { game: 'g3', n: 4 },
+        }}
+        onDone={() => {}}
+      />,
+    );
+    expect(await screen.findByText('Kabir · Grand Slam', {}, { timeout: 4000 })).toBeInTheDocument();
+    expect(await screen.findByText('Kabir · Grand Slam')).toBeInTheDocument();
+    expect(screen.queryByText('Kabir unlocked Grand Slam')).toBeNull();
+    // The same achievement again two rounds later is small too.
+    rerender(
+      <MomentPop
+        pops={{ id: 4, cards: [card('slam', 'Mira')], round: { game: 'g3', n: 6 } }}
+        onDone={() => {}}
+      />,
+    );
+    expect(await screen.findByText('Mira · Grand Slam')).toBeInTheDocument();
+    expect(screen.queryByText('Mira unlocked Grand Slam')).toBeNull();
+  });
+});

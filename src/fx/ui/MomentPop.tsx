@@ -13,7 +13,15 @@ const READ_MS = 2200;
 const UNLOCK_HAPTIC = [12, 40, 18];
 
 type Big = { card: PopCard; reduced: boolean; signal: AbortSignal; done: () => void };
-type Batch = { id: number | string; cards: PopCard[] };
+type Batch = {
+  id: number | string;
+  cards: PopCard[];
+  /** A scorekeeper's round (or hand): one full card a round, the rest small (REWARDS-PLAN §13 rule 2). */
+  round?: { game: string; n: number };
+};
+
+/** Full unlock cards a scorekeeper's round may play. */
+export const ROUND_CAP = 1;
 
 /**
  * A batch of moments just earned (WOW-MOMENTS-PLAN A1). Big ones play first, one at a time, as the full unlock card
@@ -36,7 +44,8 @@ export function MomentPop({ pops, onDone }: { pops: Batch | null; onDone: () => 
     }
     let live = true,
       timer = 0;
-    const scope = `pops:${pops.id}`,
+    const r = pops.round;
+    const scope = r ? `round:${r.game}:${r.n}` : `pops:${pops.id}`,
       rest: PopCard[] = [],
       waits: Promise<void>[] = [],
       ids: string[] = [];
@@ -63,19 +72,26 @@ export function MomentPop({ pops, onDone }: { pops: Batch | null; onDone: () => 
             }),
           ).finally(finish);
       const id = `unlock:${scope}:${c.k}`;
+      // Over a cap, now or once it reaches the front of the queue, it joins the small cards.
+      let small = false;
       const res = q.push({
         id,
         tier: 'moment',
         priority: PRIORITY.bigUnlock,
         scope,
+        ...(r && { cap: ROUND_CAP, kind: `unlock:${r.game}:${c.code ?? c.k}`, round: r.n }),
         sound: 'chime',
         haptic: UNLOCK_HAPTIC,
         play: show(false),
         reduced: show(true),
+        downgrade: () => {
+          small = true;
+          rest.push({ ...c, tier: undefined });
+          finish();
+        },
       });
       ids.push(id);
-      if (res === 'capped') rest.push({ ...c, tier: undefined });
-      else if (res !== 'duplicate') waits.push(over);
+      if (res !== 'duplicate' && !small) waits.push(over);
     }
     // Small cards wait for every Moment on the page (a Boston, another game's card), not only this batch's.
     void Promise.all(waits)
