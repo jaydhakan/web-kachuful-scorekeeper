@@ -31,6 +31,7 @@ import {
   kursiGames,
   nightOf,
   NIGHT_GAP_MS,
+  sitaraOf,
   ACHIEVEMENTS,
   LADDERS,
   tallies,
@@ -1962,6 +1963,23 @@ on('GET', '/api/nights', ({ url }) => {
     .map((n) => nightRow(n, f));
   return page(list, url.searchParams.get('cursor'), 20);
 });
+/** What only the server adds to a night: its Sitara (paid), and the Sikke and achievements its games earned. */
+function nightExtras(f: Facts, gameIds: string[]) {
+  const ids = new Set(gameIds);
+  const big = new Set(gameIds.filter((g) => f.players.filter((p) => p.gameId === g).length >= 3));
+  const points = new Map<string, number>();
+  for (const p of f.players)
+    if (big.has(p.gameId)) points.set(p.playerId, (points.get(p.playerId) ?? 0) + p.points);
+  const sitara = sitaraOf(points, big.size);
+  const sikke: Record<string, number> = {};
+  for (const e of sikkeEntries())
+    if (e.gameId && ids.has(e.gameId)) sikke[e.playerId] = (sikke[e.playerId] ?? 0) + e.amount;
+  for (const id of sitara) sikke[id] = (sikke[id] ?? 0) + SIKKE.sitara;
+  const achievements = [...db.achievements.values()]
+    .filter((a) => a.gameId && ids.has(a.gameId))
+    .map((a) => ({ playerId: a.playerId, game: 'kachuful' as const, code: a.code }));
+  return { sitara, sikke, achievements };
+}
 on('GET', '/api/nights/:id', ({ m }) => {
   const f = facts();
   const n = nightsOf(f).find((x) => x.id === m[0]);
@@ -1970,9 +1988,7 @@ on('GET', '/api/nights/:id', ({ m }) => {
   return {
     ...nightRow(n, f),
     id: n.id,
-    data: n.closed
-      ? { ...n.story, gameKinds: kinds, sitara: [], sikke: {}, achievements: [] }
-      : null,
+    data: n.closed ? { ...n.story, gameKinds: kinds, ...nightExtras(f, n.story.gameIds) } : null,
   };
 });
 on('POST', '/api/nights/close', ({ me }) => {
