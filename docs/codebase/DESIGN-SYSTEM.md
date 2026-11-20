@@ -172,8 +172,8 @@ verdict: `stamp()` and `<Stamp>`, scale 1.6 to 1 and −8° over `STAMP_MS` 360m
 light** (`sheen()`, once, never a loop). Tokens are in `ui/motion.ts` (`TRAVEL`, `FLIP_MS`, `STAMP_MS`,
 `BEAT_HOLD_MS`, `MOMENT_MAX_MS` 2.5s, `GAME_END_MAX_MS` 4s) with CSS-string twins in `fx/waapi.ts`.
 
-- **Tiers.** A *Tick* is feedback (≤ 300ms). A *Beat* is one element on the table (0.8–1.6s; the rest keeps working).
-  A *Moment* may take the screen as an overlay (≤ 2.5s): one at a time, two a hand, through the moment queue
+- **Tiers.** A _Tick_ is feedback (≤ 300ms). A _Beat_ is one element on the table (0.8–1.6s; the rest keeps working).
+  A _Moment_ may take the screen as an overlay (≤ 2.5s): one at a time, two a hand, through the moment queue
   (`fx/moments.tsx`, priority game end > verdict > big unlock > small unlock), and a tap anywhere skips it.
 - **Derived from state**, never a clock: a moment comes from two consecutive game states, with an id, so every phone
   plays it from the same frame and a reconnect never replays it.

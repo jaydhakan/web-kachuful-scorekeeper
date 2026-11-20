@@ -89,19 +89,19 @@ unlock card (§13 rule 2); hidden achievements reveal once anyone has one.
 
 ## Where the code is
 
-| What          | Where                                                                                                                                  |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Pure rules    | `src/games/kachuful/domain/{medals,banter,stars,kursi,night}.ts`; `src/progression/{kursi,intel,sikke}.ts`; `src/fx/festival.ts`       |
-| Table state   | `src/games/kachuful/state/medals.tsx` (`MedalsProvider`, `useMedalsFor` for the live page, `MedalsValue` for tests)                     |
-| Server news   | `src/sync/news.ts` (status per game, closed nights), fed by the PUT (`games/kachuful/sync/engine.ts`) and `sync/seatInvitesLive.ts`     |
-| Crowns UI     | `components/crowns/{CrownNews,CrownNewsMount,BountyChips,crownNews}.tsx`; feed lines in `components/progression/feedLine.ts`           |
-| Nights UI     | `screens/pages/NightPage.tsx`, `components/{NightLink,NightReady,YourNights}.tsx`, `platform/landing/NightReady*.tsx`                  |
-| Moments       | `src/fx/moments.tsx`, `src/fx/ui/MomentPop.tsx` (`round` batches, `ROUND_CAP`)                                                         |
-| Strings       | `src/strings/{medals,kursi,crowns,statCrowns,sikke}.ts`, `src/games/kachuful/strings/{banter,night}.ts`                                 |
-| Server        | `app/domain/{kursi,crowns,night,sikke}.py`; services `crowns`, `nights`, `sikke`; tests `tests/{domain,services,api}/test_{crowns,nights,night}.py` |
-| Fixtures      | `contract/fixtures/{kursi-cases,sikke-rules,night-cases}.json` (export tests beside their rules); copied to the backend `tests/fixtures` |
-| Mock API      | `tools/mock-api/server.ts`: medals, kursi, places, sikke, crowns (Kursi only), bounties, nights                                        |
-| E2E           | `e2e/{medals,sikke,crowns,nights}.spec.ts`                                                                                             |
+| What        | Where                                                                                                                                               |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pure rules  | `src/games/kachuful/domain/{medals,banter,stars,kursi,night}.ts`; `src/progression/{kursi,intel,sikke}.ts`; `src/fx/festival.ts`                    |
+| Table state | `src/games/kachuful/state/medals.tsx` (`MedalsProvider`, `useMedalsFor` for the live page, `MedalsValue` for tests)                                 |
+| Server news | `src/sync/news.ts` (status per game, closed nights), fed by the PUT (`games/kachuful/sync/engine.ts`) and `sync/seatInvitesLive.ts`                 |
+| Crowns UI   | `components/crowns/{CrownNews,CrownNewsMount,BountyChips,crownNews}.tsx`; feed lines in `components/progression/feedLine.ts`                        |
+| Nights UI   | `screens/pages/NightPage.tsx`, `components/{NightLink,NightReady,YourNights}.tsx`, `platform/landing/NightReady*.tsx`                               |
+| Moments     | `src/fx/moments.tsx`, `src/fx/ui/MomentPop.tsx` (`round` batches, `ROUND_CAP`)                                                                      |
+| Strings     | `src/strings/{medals,kursi,crowns,statCrowns,sikke}.ts`, `src/games/kachuful/strings/{banter,night}.ts`                                             |
+| Server      | `app/domain/{kursi,crowns,night,sikke}.py`; services `crowns`, `nights`, `sikke`; tests `tests/{domain,services,api}/test_{crowns,nights,night}.py` |
+| Fixtures    | `contract/fixtures/{kursi-cases,sikke-rules,night-cases}.json` (export tests beside their rules); copied to the backend `tests/fixtures`            |
+| Mock API    | `tools/mock-api/server.ts`: medals, kursi, places, sikke, crowns (Kursi only), bounties, nights                                                     |
+| E2E         | `e2e/{medals,sikke,crowns,nights}.spec.ts`                                                                                                          |
 
 ## Gotchas learned
 

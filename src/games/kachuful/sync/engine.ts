@@ -291,7 +291,13 @@ async function pushGames(userId: string) {
       });
       if (out.remap) remap(out.remap);
       if (out.status)
-        putStatus({ ...out.status, game: 'kachuful', gameId: r.syncId, local: true, at: Date.now() });
+        putStatus({
+          ...out.status,
+          game: 'kachuful',
+          gameId: r.syncId,
+          local: true,
+          at: Date.now(),
+        });
       archive.del('outbox', 'put:' + r.syncId);
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;

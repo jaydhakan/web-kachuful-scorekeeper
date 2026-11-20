@@ -123,7 +123,7 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - Live hardening (backend branch `fix/live-queue-newest`, deploy it before the app change that reads a ping's `rev`):
     check on the server that Postgres `max_connections` covers `(DB_POOL_SIZE + DB_MAX_OVERFLOW) x workers + 2` (82 with
     the new defaults and 2 workers), then play a real game and look for `live viewer queue full`, `live listener
-    connected` and slow-load warnings in the journal. Multi-worker behaviour is covered by design, not by a test.
+connected` and slow-load warnings in the journal. Multi-worker behaviour is covered by design, not by a test.
   - After a stream drops, seat presence refreshes only on the next `seat-presence` frame; confirm the real server
     resends it when a stream opens.
 - **Deploy and devices:**

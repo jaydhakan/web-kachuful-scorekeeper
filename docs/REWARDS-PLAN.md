@@ -78,12 +78,12 @@ v2 fixes these, in this order:
   (boards; the top-3 reveal once per board key), `progression/SeasonPodium.tsx`.
 - **What each game ranks** (§6.1 uses these):
   - Kachuful: `domain/leaderboard.ts`, with `METRICS` `avgPerRound, points, wins, winRate, accuracy, bestRound,
-    longestHot, games, rounds`; tallies also hold `worstRound, longestCold, hookHits`.
+longestHot, games, rounds`; tallies also hold `worstRound, longestCold, hookHits`.
   - Spades: `domain/boards.ts`, sorts `wins, rate, made`; tallies `bidsMade, nils(Made), blindNils(Made), bags, sets`
     and the rates.
   - Kaali Teeri: `domain/boards.ts`, sorts `points, wins, made`; tallies `handsBid, bidsMade`.
   - Ishaara: `domain/boards.ts`, sorts `wins, rate, found`; tallies `wordsFound, wrongPicks, trapHits, clueGames,
-    clueWins, cluesGiven, avgClueNumber, penalties`.
+clueWins, cluesGiven, avgClueNumber, penalties`.
 - **Seasons, days and awards on the server:**
   - Seasons are monthly: Kachuful on points per round, the rest on win rate with `seasonMin`.
   - Daily and season awards are **computed live on read** for the open period and frozen by `close-day` /
@@ -108,35 +108,35 @@ v2 fixes these, in this order:
 Sizes are on a 390×844 phone. "Table" means the shared felt (`ui/Table.tsx`): full seats are 44px, mini seats 32px, a
 crowded table (11+) ×0.8.
 
-| Game                   | Screen (file)                                                                                    | Avatar?                  | Size        |
-| ---------------------- | ------------------------------------------------------------------------------------------------ | ------------------------ | ----------- |
-| **Kachuful**           | Deal / round start (`round/RoundStart.tsx:224`)                                                  | yes, table               | 44 / 32     |
-|                        | Bidding: the bidder hero (`round/Bidding.tsx:42`) + table (`round/Turn.tsx:262`, `full` on round 1, else `mini`) | yes          | hero 52 (31 on short screens) / 32–44 |
-|                        | Playing (same `Turn.tsx` table)                                                                  | yes                      | 32–44       |
-|                        | Results rows (`round/Results.tsx:94`) + table (`:38`)                                            | yes                      | 40          |
-|                        | Round summary rows (`round/Summary.tsx:316`) + mini table (`:251`)                               | yes                      | 40 / 32     |
-|                        | Streak burst (`components/StreakCelebration.tsx:261`)                                            | yes                      | large       |
-|                        | Winner (`screens/Winner.tsx`, `Podium` + `Dot` 24/40)                                            | yes                      | podium + 40 |
-|                        | Large screen: bid pane hero (`desk/BidPane.tsx:53`), score panel (`desk/ScorePanel.tsx:57`), wide table | yes             | 64–72 / 34–40 / 68 |
-|                        | Live page (`pages/LivePage.tsx:107`)                                                             | yes                      | small       |
-| **Kaali Teeri**        | Deal (`setup/Deal.tsx:66`), auction table (`hand/bidding/BidTable.tsx:166`)                       | yes, table               | 32–44       |
-|                        | Auction speaker (`hand/bidding/Auction.tsx:47`)                                                  | yes                      | 44          |
-|                        | Call: the winner of the auction (`hand/Call.tsx:103`)                                            | yes                      | 48          |
-|                        | Play: table (`hand/Play.tsx:47`) + "played by" (`:205`)                                          | yes                      | 32–44 / 28  |
-|                        | Result rows (`hand/Result.tsx:75,153`)                                                           | yes                      | 36 / 40     |
-|                        | Summary rows (`hand/Summary.tsx:243`)                                                            | yes                      | 44          |
-|                        | Winner (`screens/Winner.tsx`, `Podium` + `Dot` 40)                                               | yes                      | podium + 40 |
-|                        | Viewer (`viewer/Viewer.tsx`), scoreboard sheet (`sheets/Scoreboard.tsx:40`)                      | yes                      | small       |
-| **Spades scorekeeper** | Bids (`table/screens/hand/Bids.tsx`, `Seat` + `Dot` 40)                                          | yes                      | 40–48       |
-|                        | **Tricks** (`table/screens/hand/Tricks.tsx`)                                                     | **no, names only**       | —           |
-|                        | **Hand summary** (`table/screens/hand/Summary.tsx`)                                              | **no, names only**       | —           |
-|                        | Winner (`table/screens/Winner.tsx`, `Dot`)                                                       | yes                      | `Dot`       |
-| **Spades online**      | Felt seats (`online/table/Felt.tsx` → `ui/Seat.tsx:247`), with bid bubble, Nil halo, dealer chip  | yes                      | 48 (others) / 40 (me) |
-|                        | Winner (`online/table/Winner.tsx:170`), live view (`online/live/LiveView.tsx:168`)                | yes                      | —           |
-| **Ishaara**            | Waiting / teams (`Waiting.tsx:87,194`, `setup/Teams.tsx`)                                        | yes                      | —           |
-|                        | **Board** (`board/Board.tsx`, `TurnPanel.tsx`: the clue-giver is a name only, `:92`)             | **no**                   | —           |
-|                        | **Clue phone** (`clue/*`)                                                                        | **no**                   | —           |
-|                        | **Win** (`screens/Win.tsx`: team colours, no faces)                                              | **no**                   | —           |
+| Game                   | Screen (file)                                                                                                    | Avatar?            | Size                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------- |
+| **Kachuful**           | Deal / round start (`round/RoundStart.tsx:224`)                                                                  | yes, table         | 44 / 32                               |
+|                        | Bidding: the bidder hero (`round/Bidding.tsx:42`) + table (`round/Turn.tsx:262`, `full` on round 1, else `mini`) | yes                | hero 52 (31 on short screens) / 32–44 |
+|                        | Playing (same `Turn.tsx` table)                                                                                  | yes                | 32–44                                 |
+|                        | Results rows (`round/Results.tsx:94`) + table (`:38`)                                                            | yes                | 40                                    |
+|                        | Round summary rows (`round/Summary.tsx:316`) + mini table (`:251`)                                               | yes                | 40 / 32                               |
+|                        | Streak burst (`components/StreakCelebration.tsx:261`)                                                            | yes                | large                                 |
+|                        | Winner (`screens/Winner.tsx`, `Podium` + `Dot` 24/40)                                                            | yes                | podium + 40                           |
+|                        | Large screen: bid pane hero (`desk/BidPane.tsx:53`), score panel (`desk/ScorePanel.tsx:57`), wide table          | yes                | 64–72 / 34–40 / 68                    |
+|                        | Live page (`pages/LivePage.tsx:107`)                                                                             | yes                | small                                 |
+| **Kaali Teeri**        | Deal (`setup/Deal.tsx:66`), auction table (`hand/bidding/BidTable.tsx:166`)                                      | yes, table         | 32–44                                 |
+|                        | Auction speaker (`hand/bidding/Auction.tsx:47`)                                                                  | yes                | 44                                    |
+|                        | Call: the winner of the auction (`hand/Call.tsx:103`)                                                            | yes                | 48                                    |
+|                        | Play: table (`hand/Play.tsx:47`) + "played by" (`:205`)                                                          | yes                | 32–44 / 28                            |
+|                        | Result rows (`hand/Result.tsx:75,153`)                                                                           | yes                | 36 / 40                               |
+|                        | Summary rows (`hand/Summary.tsx:243`)                                                                            | yes                | 44                                    |
+|                        | Winner (`screens/Winner.tsx`, `Podium` + `Dot` 40)                                                               | yes                | podium + 40                           |
+|                        | Viewer (`viewer/Viewer.tsx`), scoreboard sheet (`sheets/Scoreboard.tsx:40`)                                      | yes                | small                                 |
+| **Spades scorekeeper** | Bids (`table/screens/hand/Bids.tsx`, `Seat` + `Dot` 40)                                                          | yes                | 40–48                                 |
+|                        | **Tricks** (`table/screens/hand/Tricks.tsx`)                                                                     | **no, names only** | —                                     |
+|                        | **Hand summary** (`table/screens/hand/Summary.tsx`)                                                              | **no, names only** | —                                     |
+|                        | Winner (`table/screens/Winner.tsx`, `Dot`)                                                                       | yes                | `Dot`                                 |
+| **Spades online**      | Felt seats (`online/table/Felt.tsx` → `ui/Seat.tsx:247`), with bid bubble, Nil halo, dealer chip                 | yes                | 48 (others) / 40 (me)                 |
+|                        | Winner (`online/table/Winner.tsx:170`), live view (`online/live/LiveView.tsx:168`)                               | yes                | —                                     |
+| **Ishaara**            | Waiting / teams (`Waiting.tsx:87,194`, `setup/Teams.tsx`)                                                        | yes                | —                                     |
+|                        | **Board** (`board/Board.tsx`, `TurnPanel.tsx`: the clue-giver is a name only, `:92`)                             | **no**             | —                                     |
+|                        | **Clue phone** (`clue/*`)                                                                                        | **no**             | —                                     |
+|                        | **Win** (`screens/Win.tsx`: team colours, no faces)                                                              | **no**             | —                                     |
 
 **Conclusion:**
 
@@ -247,12 +247,12 @@ pip, the reactions and the stage. The 48px seats take the hero tier.
 
 ### 4.1 Face or bust: the decision
 
-| Option                                              | Reads at 26–44px seats       | Clothing visible      | Photos              | 72 files                    | Performance                   |
-| --------------------------------------------------- | ---------------------------- | --------------------- | ------------------- | --------------------------- | ----------------------------- |
-| A. Face + accessories everywhere (v1)               | no: hats and malas are mush at 32px | barely         | ok                  | unchanged                   | many small SVGs on every row  |
-| B. Bust everywhere                                  | no, worse: the face shrinks to 60% | yes, but tiny  | odd crops           | **every container changes** | heavy                         |
-| C. Full body                                        | no                           | yes                   | no                  | rewrite                     | heavy, 3D-ish art             |
-| **D. Seat token + stage bust (recommended)**        | **yes**: face + ring + 1 pip | **yes, where people look** | photo face on an illustrated bust works | **unchanged** (stage is opt-in) | only 1–6 busts on screen at once |
+| Option                                       | Reads at 26–44px seats              | Clothing visible           | Photos                                  | 72 files                        | Performance                      |
+| -------------------------------------------- | ----------------------------------- | -------------------------- | --------------------------------------- | ------------------------------- | -------------------------------- |
+| A. Face + accessories everywhere (v1)        | no: hats and malas are mush at 32px | barely                     | ok                                      | unchanged                       | many small SVGs on every row     |
+| B. Bust everywhere                           | no, worse: the face shrinks to 60%  | yes, but tiny              | odd crops                               | **every container changes**     | heavy                            |
+| C. Full body                                 | no                                  | yes                        | no                                      | rewrite                         | heavy, 3D-ish art                |
+| **D. Seat token + stage bust (recommended)** | **yes**: face + ring + 1 pip        | **yes, where people look** | photo face on an illustrated bust works | **unchanged** (stage is opt-in) | only 1–6 busts on screen at once |
 
 **D wins.** The seat stays legible and cheap, and the clothes get the moments people watch. A photo avatar becomes a
 "portrait in costume": the round photo is the face, and the illustrated outfit sits below it like a cut-out.
@@ -271,12 +271,12 @@ pip, the reactions and the stage. The 48px seats take the hero tier.
 
 ### 4.3 Size rules
 
-| Rendered size                                    | Tier    | Shows                                                                                     |
-| ------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------- |
-| under 32px (dots, crowded seats, small rows)     | dot     | face; the frame as a 2px ring in its main colour; the pip                                 |
-| 32–47px (seats, result and summary rows)         | seat    | face; the full frame; the pip; reactions                                                  |
-| 48–71px (heroes: bidder, SOLD card, online seats, wide table) | hero | + headwear and neckwear (cropped to the disc's box)                            |
-| 72px and up (stage)                              | stage   | the full bust: outfit, aura, badge, everything                                            |
+| Rendered size                                                 | Tier  | Shows                                                     |
+| ------------------------------------------------------------- | ----- | --------------------------------------------------------- |
+| under 32px (dots, crowded seats, small rows)                  | dot   | face; the frame as a 2px ring in its main colour; the pip |
+| 32–47px (seats, result and summary rows)                      | seat  | face; the full frame; the pip; reactions                  |
+| 48–71px (heroes: bidder, SOLD card, online seats, wide table) | hero  | + headwear and neckwear (cropped to the disc's box)       |
+| 72px and up (stage)                                           | stage | the full bust: outfit, aura, badge, everything            |
 
 The size is measured once per container (`ResizeObserver`, shared) and is never a prop the 72 files pass.
 
@@ -286,30 +286,30 @@ The outfits are flat SVG, drawn in the **cloth tokens**, a new set of 8 cloth co
 theme files, so all four themes stay right and no hex reaches a component. Each outfit comes in 3–6 colour variants.
 Everything is gender-neutral, and anyone picks anything.
 
-| Outfit                          | Rarity    | Notes                                                    |
-| ------------------------------- | --------- | -------------------------------------------------------- |
-| Kurta                           | common    | 6 colours; the default free outfit at level 2            |
-| Hoodie                          | common    | "the cousin who codes"                                    |
-| Office shirt and tie            | common    | the Office set                                            |
-| Cricket whites                  | common    | the Cricket set                                           |
-| Plain jersey with your number   | rare      | you pick the number; **no team logos or colours of real teams** |
-| Nehru jacket over kurta         | rare      |                                                          |
-| Hand-knit sweater ("mummy ne banaya") | rare | the Sardi set                                           |
-| Raincoat                        | rare      | the Monsoon set                                          |
-| Shawl drape                     | epic      | not the Champion's Shaal: that one is woven and honour-only |
-| Dupatta drape / saree pallu drape | epic    | anyone can wear either                                   |
-| Sherwani                        | epic      | the Shaadi set                                           |
-| Lungi-banian                    | legendary | for laughs: "Sunday mode"                                |
+| Outfit                                | Rarity    | Notes                                                           |
+| ------------------------------------- | --------- | --------------------------------------------------------------- |
+| Kurta                                 | common    | 6 colours; the default free outfit at level 2                   |
+| Hoodie                                | common    | "the cousin who codes"                                          |
+| Office shirt and tie                  | common    | the Office set                                                  |
+| Cricket whites                        | common    | the Cricket set                                                 |
+| Plain jersey with your number         | rare      | you pick the number; **no team logos or colours of real teams** |
+| Nehru jacket over kurta               | rare      |                                                                 |
+| Hand-knit sweater ("mummy ne banaya") | rare      | the Sardi set                                                   |
+| Raincoat                              | rare      | the Monsoon set                                                 |
+| Shawl drape                           | epic      | not the Champion's Shaal: that one is woven and honour-only     |
+| Dupatta drape / saree pallu drape     | epic      | anyone can wear either                                          |
+| Sherwani                              | epic      | the Shaadi set                                                  |
+| Lungi-banian                          | legendary | for laughs: "Sunday mode"                                       |
 
 **Sets** (wear all four pieces for a flourish on the stage bust):
 
-| Set        | Outfit           | Sar          | Gala           | Ghera              | Flourish when complete                |
-| ---------- | ---------------- | ------------ | -------------- | ------------------ | ------------------------------------- |
-| Shaadi     | sherwani         | safa         | gold chain     | marigold-string frame | a petal puff when you take the stage |
-| Cricket    | whites           | cricket cap  | whistle        | stumps frame       | a ball bounces once off the frame     |
-| Monsoon    | raincoat         | umbrella     | muffler        | raindrop frame     | three raindrops slide down the ring   |
-| Office     | shirt and tie    | —            | ID lanyard     | spreadsheet-grid frame | a tiny "Out of office" tag flips   |
-| Sardi      | hand-knit sweater | monkey cap  | muffler        | frost frame        | a puff of breath                      |
+| Set     | Outfit            | Sar         | Gala       | Ghera                  | Flourish when complete               |
+| ------- | ----------------- | ----------- | ---------- | ---------------------- | ------------------------------------ |
+| Shaadi  | sherwani          | safa        | gold chain | marigold-string frame  | a petal puff when you take the stage |
+| Cricket | whites            | cricket cap | whistle    | stumps frame           | a ball bounces once off the frame    |
+| Monsoon | raincoat          | umbrella    | muffler    | raindrop frame         | three raindrops slide down the ring  |
+| Office  | shirt and tie     | —           | ID lanyard | spreadsheet-grid frame | a tiny "Out of office" tag flips     |
+| Sardi   | hand-knit sweater | monkey cap  | muffler    | frost frame            | a puff of breath                     |
 
 A set's flourish plays only on the stage, once per appearance, at most 600ms, with a still version for reduced motion.
 
@@ -360,14 +360,14 @@ hidden, with no travel.
 
 ### 5.2 Avatar states (on the seat tokens and rows)
 
-| State      | When (existing data)                                             | Motion (transform/opacity)                           | Glyph   |
-| ---------- | ---------------------------------------------------------------- | ---------------------------------------------------- | ------- |
-| Confident  | the bid was made (Kachuful result, Kaali Teeri bid made, Spades contract made) | a 6px hop, squash on land (reuses `BID_POP`) | ✓ (the existing `marks.pos`) |
-| Shocked    | a missed bid; a Spades set; a Kaali Teeri failed bid             | a ±4px shake ×3, 240ms                               | ✗ / 💥  |
-| Sweating   | a Spades Nil live; Kachuful bid 0 with the round in progress     | a drip glyph bobs 2px (idle, at most 2 on screen)    | 💦      |
-| Smug       | in-game leader after the reveal                                  | a 3° tilt and back, once                             | ✨      |
-| Sulking    | last place after the reveal, 3+ rounds in                        | the token sinks 3px and stays until the next reveal  | ☁️      |
-| On fire    | a Kachuful `hot_*` streak live (`StreakCelebration` data)        | a pip flame flickers (opacity only)                  | 🔥N     |
+| State     | When (existing data)                                                           | Motion (transform/opacity)                          | Glyph                        |
+| --------- | ------------------------------------------------------------------------------ | --------------------------------------------------- | ---------------------------- |
+| Confident | the bid was made (Kachuful result, Kaali Teeri bid made, Spades contract made) | a 6px hop, squash on land (reuses `BID_POP`)        | ✓ (the existing `marks.pos`) |
+| Shocked   | a missed bid; a Spades set; a Kaali Teeri failed bid                           | a ±4px shake ×3, 240ms                              | ✗ / 💥                       |
+| Sweating  | a Spades Nil live; Kachuful bid 0 with the round in progress                   | a drip glyph bobs 2px (idle, at most 2 on screen)   | 💦                           |
+| Smug      | in-game leader after the reveal                                                | a 3° tilt and back, once                            | ✨                           |
+| Sulking   | last place after the reveal, 3+ rounds in                                      | the token sinks 3px and stays until the next reveal | ☁️                           |
+| On fire   | a Kachuful `hot_*` streak live (`StreakCelebration` data)                      | a pip flame flickers (opacity only)                 | 🔥N                          |
 
 Rules:
 
@@ -380,12 +380,12 @@ Rules:
 
 ### 6.1 Four marks that move, per game
 
-| Mark                               | Who                                                                                   | Timescale    | Source (existing or new)                                                          | Pip |
-| ---------------------------------- | ------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- | --- |
-| **Aaj ka Sitara** (tonight's star) | the leader of today's daily standing (`day_star` where it exists; Spades: most wins today, then made rate) | today (Kolkata) | daily awards are **already computed live on read**; the new part is publishing the holder | ⭐ |
-| **The Kursi** (the chair)          | one per game. **Beat the holder in a game you both played and you take it.** The first holder is the first finished game's winner | until taken | **new**, derived from finished games' final ranks (§6.3) | 🪑 |
-| **The Taj** (the month's crown)    | #1 in this month's season standing, once past `seasonMin`; in Kachuful the Taj is the 🥇 **Badshah**'s (§6.7) | the season   | season standings exist; the new part is the `crowns` table and the change events  | 👑 |
-| **Legend**                         | the most season titles in that game, all-time (ties share; at least 2 titles)         | all-time     | `season_champion` rows exist; count them                                          | 🏛️ |
+| Mark                               | Who                                                                                                                               | Timescale       | Source (existing or new)                                                                  | Pip |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------- | --- |
+| **Aaj ka Sitara** (tonight's star) | the leader of today's daily standing (`day_star` where it exists; Spades: most wins today, then made rate)                        | today (Kolkata) | daily awards are **already computed live on read**; the new part is publishing the holder | ⭐  |
+| **The Kursi** (the chair)          | one per game. **Beat the holder in a game you both played and you take it.** The first holder is the first finished game's winner | until taken     | **new**, derived from finished games' final ranks (§6.3)                                  | 🪑  |
+| **The Taj** (the month's crown)    | #1 in this month's season standing, once past `seasonMin`; in Kachuful the Taj is the 🥇 **Badshah**'s (§6.7)                     | the season      | season standings exist; the new part is the `crowns` table and the change events          | 👑  |
+| **Legend**                         | the most season titles in that game, all-time (ties share; at least 2 titles)                                                     | all-time        | `season_champion` rows exist; count them                                                  | 🏛️  |
 
 - **Week is cut.** For a group that meets weekly, "this week" and "tonight" are the same mark.
 - **The in-game leader's crown** (Kachuful `Summary.tsx:345`, the podium's `Crown`) stays as it is, and the Taj is
@@ -396,12 +396,12 @@ Rules:
 These are the season awards that already exist, **shown live during the month** instead of only at the close. A
 holder sees them as words under their hero name and on their player page and card; they're never a seat pip.
 
-| Game        | Stat crowns (season award code → crown)                                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Game        | Stat crowns (season award code → crown)                                                                                                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kachuful    | `season_sharpest` → **Nishanebaaz** (best `accuracy`) · `season_iron` → **Lohe ka** (most rounds) · `season_climber` → **Charhta Sooraj** (biggest climb) · plus all-time board leaders on `bestRound` (Big Round) and `longestHot` (Hot Hand) |
-| Spades      | `season_sharpest` (made rate) · `season_nil` → **Nil ka Nawab** · `season_pair` → **Jodi No. 1** · `season_iron` · `season_climber`         |
-| Kaali Teeri | `season_sharpest` · `season_kingmaker` → **Kingmaker** · `season_iron` · `season_climber`                                                  |
-| Ishaara     | `season_giver` → **Ishaaron ka Ustaad** (best clue-giver) · `season_iron` · `season_climber`                                               |
+| Spades      | `season_sharpest` (made rate) · `season_nil` → **Nil ka Nawab** · `season_pair` → **Jodi No. 1** · `season_iron` · `season_climber`                                                                                                            |
+| Kaali Teeri | `season_sharpest` · `season_kingmaker` → **Kingmaker** · `season_iron` · `season_climber`                                                                                                                                                      |
+| Ishaara     | `season_giver` → **Ishaaron ka Ustaad** (best clue-giver) · `season_iron` · `season_climber`                                                                                                                                                   |
 
 No new rules: the same codes, the same golden fixtures, just a holder published live.
 
@@ -442,6 +442,7 @@ No new rules: the same codes, the same golden fixtures, just a holder published 
   4. a milestone ("Riya's 100th game")
 
   At most one line, on screen for the deal's duration (no extra wait).
+
 - **Nemesis:** on your player page, the player who's beaten you most often (min 5 games together). At the table it
   shows only as the rivalry line, never as a label on someone's seat.
 - **Data:** the H2H endpoint exists per pair. New: `GET /api/table-intel?game=&players=` returns the line candidates for
@@ -493,9 +494,9 @@ real night. The 🥇 is the Taj's holder, so **the Taj and the Badshah are one t
 
 **2. At the deal**
 
-- One medallist seated: the table intel line (§6.5) becomes *"👑 Badshah Riya table pe hai"*, and their seat glows
+- One medallist seated: the table intel line (§6.5) becomes _"👑 Badshah Riya table pe hai"_, and their seat glows
   once.
-- Two or more seated: a 1.2s **VS card** in the deal, *"Badshah Riya vs Wazir Dev"*. It uses the deal's dead time
+- Two or more seated: a 1.2s **VS card** in the deal, _"Badshah Riya vs Wazir Dev"_. It uses the deal's dead time
   (§7.1), so nothing waits.
 - No medallist seated: nothing. It stays special.
 
@@ -504,17 +505,17 @@ real night. The 🥇 is the Taj's holder, so **the Taj and the Badshah are one t
 At most **one line a round**, on the round summary (a pause, never during bidding). Lines are picked from a pool by a
 seed of the game id and round, so the table and every live viewer see the same line. First match wins:
 
-| # | What happened                                         | Example lines                                                                 |
-| - | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
-| 1 | 🥇 is the only one who missed                          | *"Poori table ne kar diya, sirf Badshah reh gaye 😬"*                          |
-| 2 | 🥇 missed and a non-medallist made a bigger bid        | *"Asha ne Badshah ko pachaad diya!"*                                           |
-| 3 | 🥇 missed two rounds in a row                          | *"Riya ka sona aaj peetal lag raha hai"*                                      |
-| 4 | 🥇 missed                                              | *"Badshah bhi chook gaye 👀"* · *"Takht thoda hil raha hai…"*                  |
-| 5 | The hook fell on 🥇                                    | *"Hook ne Badshah ko bhi nahi chhoda 🪝"*                                      |
-| 6 | 🥇 made a bid of 5 or more                             | *"Badshah hi keh de!"* · *"Badshah ho toh aise 👑"*                            |
-| 7 | 🥇 is the only one who made it                         | *"Ek akela Badshah"*                                                          |
-| 8 | 🥇 bid 0 and made it                                   | *"Chupke se kaam ho gaya"*                                                    |
-| 9 | 🥈 or 🥉 passed a higher medallist in this game's score | *"Wazir ki nazar takht pe hai 👀"*                                             |
+| #   | What happened                                           | Example lines                                                 |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------- |
+| 1   | 🥇 is the only one who missed                           | _"Poori table ne kar diya, sirf Badshah reh gaye 😬"_         |
+| 2   | 🥇 missed and a non-medallist made a bigger bid         | _"Asha ne Badshah ko pachaad diya!"_                          |
+| 3   | 🥇 missed two rounds in a row                           | _"Riya ka sona aaj peetal lag raha hai"_                      |
+| 4   | 🥇 missed                                               | _"Badshah bhi chook gaye 👀"_ · _"Takht thoda hil raha hai…"_ |
+| 5   | The hook fell on 🥇                                     | _"Hook ne Badshah ko bhi nahi chhoda 🪝"_                     |
+| 6   | 🥇 made a bid of 5 or more                              | _"Badshah hi keh de!"_ · _"Badshah ho toh aise 👑"_           |
+| 7   | 🥇 is the only one who made it                          | _"Ek akela Badshah"_                                          |
+| 8   | 🥇 bid 0 and made it                                    | _"Chupke se kaam ho gaya"_                                    |
+| 9   | 🥈 or 🥉 passed a higher medallist in this game's score | _"Wazir ki nazar takht pe hai 👀"_                            |
 
 - **Who gets roasted:** only medallists. Everyone else is only ever praised for beating one.
 - **Tone:** cheeky, never mean. No line about anything but the round. Decision 13 sets how spicy.
@@ -530,7 +531,7 @@ seed of the game id and round, so the table and every live viewer see the same l
 - After each round, the standings are recomputed with this game's rounds counted, using `chase()`, which already
   exists.
 - If someone at the table would pass the Badshah if the game ended now, the Badshah's letters show a **crack**: a
-  hairline overlay faded in with opacity. The chaser gets an *"On track for 🥇"* chip.
+  hairline overlay faded in with opacity. The chaser gets an _"On track for 🥇"_ chip.
 - It clears if the Badshah pulls ahead again. The same goes for 🥈 and 🥉, as a chip only, without the crack.
 - It's a projection, worked out on the device; the real change is decided at game end.
 
@@ -544,10 +545,10 @@ seed of the game id and round, so the table and every live viewer see the same l
   3. a 🥇 flips, gold confetti falls, and the `shehnai` plays
   4. the line: **"Naya Badshah: Dev!"**
 - **Silver and bronze changes** play as a 0.8s swap of the letters, with no dim.
-- **The old Badshah** gets a proud line: *"Riya was Badshah for 12 days"*.
+- **The old Badshah** gets a proud line: _"Riya was Badshah for 12 days"_.
 - **Reduced motion:** the names change colour and the line shows.
 - **Defended:** a Badshah who finishes above both the Wazir and the Senapati at the same table gets
-  *"Takht bacha liya 🛡️"* and a glint.
+  _"Takht bacha liya 🛡️"_ and a glint.
 
 **6. Extras**
 
@@ -562,12 +563,12 @@ Banter, the chase and the takeover aren't only for medals. Every mark a seated p
 the same `banter.ts` rule table and the same one-line-a-round budget. When two holders qualify for a line in the same
 round, the 🥇 Badshah goes first, then the Kursi, then the Sitara.
 
-| Mark             | At the deal                                    | Banter (examples)                                                                                          | Live chase                                                          | Takeover                                                  |
-| ---------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
-| 👑 Taj = 🥇       | as above                                       | as above                                                                                                   | as above                                                            | "Naya Badshah!" (the Taj and the gold move together)      |
-| 🪑 **Kursi**      | "🪑 Riya ki Kursi · 6 defences"                 | missed: *"Kursi hil rahi hai 🪑"* · only one to miss: *"Kursi pe baithe baithe so gaye?"* · big made bid: *"Kursi pakki"* | whoever is above the holder in this game's score: "Kursi ke kareeb" chip; the 🪑 pip wobbles | "Kursi chheeni!" (§6.3)                                   |
-| ⭐ **Sitara**     | —                                              | missed: *"Aaj ka Sitara thoda dhundhla"* · big made bid: *"Sitara chamak raha hai ✨"*                     | "Tonight's lead in reach" chip when someone would pass them          | the ⭐ twinkles across (a beat, as §6.6)                   |
-| 🏛️ **Legend**    | "🏛️ Legend Riya" in the intel line when no Badshah sits | rarely: only the respectful lines (a big made bid: *"Legend ho toh aise"*); never teased on a miss | —                                                                   | never moves in a game (permanent)                         |
+| Mark          | At the deal                                             | Banter (examples)                                                                                                         | Live chase                                                                                   | Takeover                                             |
+| ------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 👑 Taj = 🥇   | as above                                                | as above                                                                                                                  | as above                                                                                     | "Naya Badshah!" (the Taj and the gold move together) |
+| 🪑 **Kursi**  | "🪑 Riya ki Kursi · 6 defences"                         | missed: _"Kursi hil rahi hai 🪑"_ · only one to miss: _"Kursi pe baithe baithe so gaye?"_ · big made bid: _"Kursi pakki"_ | whoever is above the holder in this game's score: "Kursi ke kareeb" chip; the 🪑 pip wobbles | "Kursi chheeni!" (§6.3)                              |
+| ⭐ **Sitara** | —                                                       | missed: _"Aaj ka Sitara thoda dhundhla"_ · big made bid: _"Sitara chamak raha hai ✨"_                                    | "Tonight's lead in reach" chip when someone would pass them                                  | the ⭐ twinkles across (a beat, as §6.6)             |
+| 🏛️ **Legend** | "🏛️ Legend Riya" in the intel line when no Badshah sits | rarely: only the respectful lines (a big made bid: _"Legend ho toh aise"_); never teased on a miss                        | —                                                                                            | never moves in a game (permanent)                    |
 
 - **Names:** the metal letters are only for the medals. The other marks keep their pip and add a title before the
   name in the summary and the banter ("Kursi wale Riya").
@@ -586,16 +587,16 @@ round, the 🥇 Badshah goes first, then the Kursi, then the Sitara.
 
 ### 7.1 A night, minute by minute (Kachuful, 4 games)
 
-| Time        | Today                                            | With this plan                                                                                    |
-| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| 0:00 setup  | pick players, spin for the dealer                | seats fill with tokens and pips; who holds the Kursi and the Taj is visible before a card is dealt |
-| 0:02 deal   | about 3s of cards flying (a **dead spot**)       | the **table intel line** (a crown at stake, a rivalry, a bounty)                                  |
-| rounds      | bid, play, result, reveal                        | reveal beats on the tokens (hop, shake, sulk, smug); the in-game crown as now                     |
-| mid-game    | a streak burst sometimes                         | as now, plus Sitara moving ("⭐ Dev takes tonight's lead") **once per game at most**              |
-| game end    | podium, confetti                                 | the **stage**: the winner's bust rises, the mala drops, their Jashn plays; a Kursi change if any  |
-| between games (a **dead spot**) | rematch button              | a **"Tonight so far"** strip on the winner screen: tonight's standing across games, the Kursi, bounties left |
-| last game   | nothing special                                  | an optional **"Last game of the night"** toggle on rematch: the deal says "Final game", and the winner gets the long ceremony |
-| end of night | the app is closed                               | **Baithak Wrapped: the night** on every phone                                                     |
+| Time                            | Today                                      | With this plan                                                                                                                |
+| ------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| 0:00 setup                      | pick players, spin for the dealer          | seats fill with tokens and pips; who holds the Kursi and the Taj is visible before a card is dealt                            |
+| 0:02 deal                       | about 3s of cards flying (a **dead spot**) | the **table intel line** (a crown at stake, a rivalry, a bounty)                                                              |
+| rounds                          | bid, play, result, reveal                  | reveal beats on the tokens (hop, shake, sulk, smug); the in-game crown as now                                                 |
+| mid-game                        | a streak burst sometimes                   | as now, plus Sitara moving ("⭐ Dev takes tonight's lead") **once per game at most**                                          |
+| game end                        | podium, confetti                           | the **stage**: the winner's bust rises, the mala drops, their Jashn plays; a Kursi change if any                              |
+| between games (a **dead spot**) | rematch button                             | a **"Tonight so far"** strip on the winner screen: tonight's standing across games, the Kursi, bounties left                  |
+| last game                       | nothing special                            | an optional **"Last game of the night"** toggle on rematch: the deal says "Final game", and the winner gets the long ceremony |
+| end of night                    | the app is closed                          | **Baithak Wrapped: the night** on every phone                                                                                 |
 
 ### 7.2 Baithak Wrapped: the night
 
@@ -619,19 +620,19 @@ round, the 🥇 Badshah goes first, then the Kursi, then the Sitara.
   device shows it too.
 - **States:** "Your night is being counted…" (empty, before close), error and retry.
 - **Data:** finished games' payloads and the existing `player_day`-style facts; new table `nights(id, started_at,
-  ended_at, players[], games[], data jsonb)`.
+ended_at, players[], games[], data jsonb)`.
 
 ## 8. Surprise and delight (honest)
 
-| Surprise                        | Rarity                                     | Detected by                                                                                     |
-| ------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| **Hidden achievements**         | 2–3 per game, rare                         | add `hidden?: true` to `AchievementDef`; the catalogue shows "???" until earned; the same golden fixtures. E.g. Kachuful: every bid in a round is 0 and everyone makes it; Spades: `deuce_ace` becomes hidden |
-| **Perfect game**                | rare                                       | exists (`perfect_game`); upgraded to a stage Moment                                             |
-| **Firsts for the group**        | once ever                                  | server: the first-ever Boston, first 10-player Kachuful, first Ishaara speedrun across the app   |
-| **Group milestones**            | about monthly                              | server: the crew's 100th or 250th game together (a game counts when 3+ of those players sat)    |
-| **Your Nth game**               | 50, 100, 250, 500                          | `games_*` ladders exist; add a table-intel line and a Beat at the deal                          |
-| **Festival table effects**      | on the day                                 | client, from a dated table in code: Diwali (diyas round the felt rim), Holi (one gulaal puff on the winner), Eid (a lantern string over the table), Christmas, New Year (a 12-o'clock confetti), Uttarayan (a kite crossing the deal). Opacity and transform only; off under reduced motion; never during input |
-| **Birthday**                    | —                                          | **cut**: we don't store birthdays, and adding one is personal data for a small gain              |
+| Surprise                   | Rarity             | Detected by                                                                                                                                                                                                                                                                                                     |
+| -------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hidden achievements**    | 2–3 per game, rare | add `hidden?: true` to `AchievementDef`; the catalogue shows "???" until earned; the same golden fixtures. E.g. Kachuful: every bid in a round is 0 and everyone makes it; Spades: `deuce_ace` becomes hidden                                                                                                   |
+| **Perfect game**           | rare               | exists (`perfect_game`); upgraded to a stage Moment                                                                                                                                                                                                                                                             |
+| **Firsts for the group**   | once ever          | server: the first-ever Boston, first 10-player Kachuful, first Ishaara speedrun across the app                                                                                                                                                                                                                  |
+| **Group milestones**       | about monthly      | server: the crew's 100th or 250th game together (a game counts when 3+ of those players sat)                                                                                                                                                                                                                    |
+| **Your Nth game**          | 50, 100, 250, 500  | `games_*` ladders exist; add a table-intel line and a Beat at the deal                                                                                                                                                                                                                                          |
+| **Festival table effects** | on the day         | client, from a dated table in code: Diwali (diyas round the felt rim), Holi (one gulaal puff on the winner), Eid (a lantern string over the table), Christmas, New Year (a 12-o'clock confetti), Uttarayan (a kite crossing the deal). Opacity and transform only; off under reduced motion; never during input |
+| **Birthday**               | —                  | **cut**: we don't store birthdays, and adding one is personal data for a small gain                                                                                                                                                                                                                             |
 
 ## 9. Sikke: the economy (rescaled for weekly nights)
 
@@ -646,17 +647,17 @@ round, the 🥇 Badshah goes first, then the Kursi, then the Sitara.
 
 **Rescaled numbers** (a night is about 4 games; most of the group plays one night a week):
 
-| Source                                              | Sikke                    |
-| --------------------------------------------------- | ------------------------ |
-| Finish a game (server-run online: +10)              | 30                       |
-| Win                                                 | +25                      |
-| Achievement: moment / game / career (`big` ×2)      | 5 / 10 / 25              |
-| Ladder level                                        | 25 × level               |
-| Bounty (§6.4)                                       | 40                       |
-| Take the Kursi / each defence                       | 30 / 10                  |
-| Tonight's Sitara (at the night's close)             | 30                       |
-| Daily award / season award / **Taj at season close** | 15 / 100 / **300**      |
-| Weekly streak, first game of the week               | 10 × weeks, max 50       |
+| Source                                               | Sikke              |
+| ---------------------------------------------------- | ------------------ |
+| Finish a game (server-run online: +10)               | 30                 |
+| Win                                                  | +25                |
+| Achievement: moment / game / career (`big` ×2)       | 5 / 10 / 25        |
+| Ladder level                                         | 25 × level         |
+| Bounty (§6.4)                                        | 40                 |
+| Take the Kursi / each defence                        | 30 / 10            |
+| Tonight's Sitara (at the night's close)              | 30                 |
+| Daily award / season award / **Taj at season close** | 15 / 100 / **300** |
+| Weekly streak, first game of the week                | 10 × weeks, max 50 |
 
 - **A typical night is about 250–300 Sikke.**
 - **Prices** (lowered after Jay's "not too hard to earn"):
@@ -697,16 +698,16 @@ Regular → Pakka → Ghar Ka → Baithak Ka Sitara.
 
 SOUND-PLAN.md has the table sounds. Rewards add these, all synthesised, with no files:
 
-| Sound              | Purpose                                     | Length  | Tier   | Priority          |
-| ------------------ | ------------------------------------------- | ------- | ------ | ----------------- |
-| `shehnai`          | Taj chheena (a reed glide up, a cheeky fall) | 0.9s   | moment | 3 (verdict)       |
-| `ghungroo`         | unlock, level up, set completed (a jingle)  | 0.5s    | beat   | 2                 |
-| `patakha`          | a stage win with a Jashn (a crack plus crackle) | 0.8s | beat   | with `fanfare`    |
-| `dhol` (`fanfare`) | the winner on the stage                     | 1.4s    | moment | 4 (gameEnd)       |
-| `gavel`            | Kursi chheeni                               | 0.3s    | moment | 3                 |
-| `bell`             | Taj won at season close; Legend             | 1.2s    | moment | 4                 |
-| `coin`             | "+🪙" counting on the winner screen          | 0.05s each, at most 8 | tick | — |
-| `twinkle`          | Sitara changes                              | 0.3s    | beat   | 1                 |
+| Sound              | Purpose                                         | Length                | Tier   | Priority       |
+| ------------------ | ----------------------------------------------- | --------------------- | ------ | -------------- |
+| `shehnai`          | Taj chheena (a reed glide up, a cheeky fall)    | 0.9s                  | moment | 3 (verdict)    |
+| `ghungroo`         | unlock, level up, set completed (a jingle)      | 0.5s                  | beat   | 2              |
+| `patakha`          | a stage win with a Jashn (a crack plus crackle) | 0.8s                  | beat   | with `fanfare` |
+| `dhol` (`fanfare`) | the winner on the stage                         | 1.4s                  | moment | 4 (gameEnd)    |
+| `gavel`            | Kursi chheeni                                   | 0.3s                  | moment | 3              |
+| `bell`             | Taj won at season close; Legend                 | 1.2s                  | moment | 4              |
+| `coin`             | "+🪙" counting on the winner screen             | 0.05s each, at most 8 | tick   | —              |
+| `twinkle`          | Sitara changes                                  | 0.3s                  | beat   | 1              |
 
 That's **8 here and 13 in SOUND-PLAN.md, so 21 in all.**
 
@@ -725,33 +726,33 @@ switches ticks off and plays moments at half volume. No new key: it's a field in
 - **O** = the person's own phone (user stream, or the next open)
 - **F** = the feed
 
-| Event                            | Trigger (exact)                                                                                   | Tier   | Visual                                                                                      | Sound              | Haptic              | Length  | Who   | Cap                                     | Reduced motion                         |
-| -------------------------------- | ------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------- | ------------------ | ------------------- | ------- | ----- | --------------------------------------- | -------------------------------------- |
-| Bid made / missed (each player)  | client: the reveal's stage 1 (`useSumStages`), per result                                          | beat   | the seat hop + ✓ / shake + ✗                                                                | `made` / `missed` (pitched) | —          | 0.4s    | T     | merged per round                        | glyph shown and hidden                 |
-| Sole miss                        | client: `Summary.tsx:107`                                                                         | beat   | the one token sulks, ☁️                                                                     | `womp`             | —                   | 0.8s    | T     | 1 a round                               | glyph                                  |
-| Everyone made it                 | client: every result made                                                                         | beat   | all tokens hop in a wave                                                                    | `chime`            | `[12,40,18]`        | 0.8s    | T     | 1 a round                               | one ✓ row glow                         |
-| Nil live / made / broken (Spades)| client: hand state; server for online                                                              | beat   | 💦 drip → halo (exists) / crack                                                             | — / `chime` / `crack` | as Spades now    | 0.6s    | T     | per player                              | as now                                 |
-| The hook catches (Kachuful)      | client: `reducer.ts:174` `hookWarn`                                                               | beat   | the dealer's token gets a 🪝 glyph and a small tug down                                     | `hook`             | `[20,40,20]`        | 0.7s    | T     | 1 a round                               | glyph                                  |
-| SOLD (Kaali Teeri)               | client: `Call.tsx` mount                                                                          | moment | the stamp (exists); the winner's hero token wears their headwear                            | `gavel`            | `[20,40,20]`        | 1.0s    | T     | 1 a hand                                | stamp, still                           |
-| New in-game leader               | client: `Summary.tsx:345`                                                                         | beat   | the crown drop (exists); the leader turns smug                                              | `crown`            | `[12,40,18]`        | 0.8s    | T     | 1 a round                               | as now                                 |
-| Sitara changes                   | server: the upload response `status.changes` (kind `sitara`)                                      | beat   | ⭐ twinkles onto the seat                                                                   | `twinkle`          | —                   | 0.5s    | T     | 1 per game                              | the pip appears                        |
-| **Kursi chheeni**                | server: `status.changes` (kind `kursi`) in the game's upload response                             | moment | the chair slides seat to seat + `SeatSpotlight`; the old holder sulks; "Kursi chheeni!"    | `gavel`            | `[20,40,20]`        | 1.6s    | T, O, F | 1 per game                            | the line + pip swap                    |
-| **Taj chheena**                  | server: `status.changes` (kind `taj`)                                                             | moment | the stage: the crown lifts, wobbles, arcs to the new bust; the old holder's proud line      | `shehnai`          | `[20,40,20]`        | 2.2s    | T, O, F | 1 per game; 3 per night, then a beat  | crown pip swap + line                  |
-| Medallist seated (Kachuful)      | client: the deal, a seated player with a medal (§6.7)                                             | beat   | intel line "👑 Badshah Riya table pe hai"; 2+ medallists: the VS card                       | —                  | —                   | 1.2s    | T     | 1 per game, in the deal                 | the line, still                        |
-| Banter line (Kachuful)           | client: the round summary, `banter.ts` rule table (§6.7)                                          | beat   | one line under the summary; the medallist's token shakes or hops                            | — (the result's own sound) | —           | 0.6s    | T, live | 1 a round; same kind not twice in 3 rounds | the line, still                    |
-| On track for a medal             | client: `chase()` with this game's rounds, after each round                                       | beat   | a crack on the holder's metal letters; "On track for 🥇" chip on the chaser                  | —                  | —                   | 0.4s    | T     | changes only                            | the chip, still                        |
-| **Naya Badshah**                 | server: `status.changes` (kind `medal`, rank 1); signed out: the device's new standings          | moment | the dim, the gold letters peel and fly to the new name, 🥇 flip, gold confetti              | `shehnai`          | `[20,40,20]`        | 2.5s    | T, O, F | 1 per game; merged with a Kursi change | names change colour + line             |
-| Wazir / Senapati changes         | as above, rank 2 or 3                                                                             | beat   | the metal letters swap between names                                                        | `twinkle`          | —                   | 0.8s    | T, O  | merged into one beat per game           | names change colour                    |
-| Bounty won                       | server: `status.changes` (kind `bounty`)                                                          | beat   | "+40 🪙 bounty" chip from the old holder's seat to the winner's                             | `coin` ×3          | 10                  | 0.8s    | T, O  | 1 per game                              | the chip, still                        |
-| Game win                         | client: the winner screen (`useReveal`)                                                           | moment | the winner's token rises to the **stage bust**, the mala drops, their Jashn                 | `fanfare` (+ Jashn) | `[12,40,18,40,30]` | 3.5s    | T     | 1 per game                              | the bust, still, the mala on           |
-| Perfect game / hidden achievement| server: `earned` with `big` or `hidden`                                                           | moment | the unlock card (exists) with the stage bust                                                | `ghungroo` + `chime` | `[20,40,20]`      | 2.5s    | T, O, F | 2 per game (the queue)                | card face-up                           |
-| Streak milestone (Kachuful `hot_*`) | client: `StreakCelebration` (exists)                                                           | beat (top tier: moment) | as now, on the token                                                       | `chime` (+`boom`)  | as now              | as now  | T     | as now                                  | as now                                 |
-| Level up                         | server: the upload response `sikke.levelUp`                                                       | beat   | **own phone**: the level card; **table**: a ghungroo glint on the token only                | `ghungroo`         | —                   | 1.2s    | O (T glint) | batched at game end               | card, still                            |
-| Set completed                    | client: on wearing the 4th piece                                                                  | beat   | the set's flourish on the Wardrobe bust                                                     | `ghungroo`         | 10                  | 0.6s    | O     | —                                       | still                                  |
-| Gift opened                      | server: a pending gift + the receiver seated                                                      | moment | the stage: a box opens, the bust wears it, "from Riya"                                      | `ghungroo`         | `[12,40,18]`        | 2.0s    | T, O, F | 1 per game, at a pause                | the bust wearing it                    |
-| Group milestone / first ever     | server: `status.changes` (kind `milestone`)                                                       | moment | the table's felt rim glows once; a stamp ("100th game together")                            | `bell`             | `[20,40,20]`        | 2.0s    | T, F  | rare by nature                          | the stamp, still                       |
-| Festival effect                  | client: the dated table                                                                           | beat   | the rim decoration and one puff                                                             | —                  | —                   | 1.5s    | T     | once per game                           | none (static decor only)               |
-| Night's Wrapped ready            | server: `close-nights`                                                                            | —      | a card on the landing page and the feed                                                     | —                  | —                   | —       | O, F  | once per night                          | —                                      |
+| Event                               | Trigger (exact)                                                                         | Tier                    | Visual                                                                                  | Sound                       | Haptic             | Length | Who         | Cap                                        | Reduced motion               |
+| ----------------------------------- | --------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------- | --------------------------- | ------------------ | ------ | ----------- | ------------------------------------------ | ---------------------------- |
+| Bid made / missed (each player)     | client: the reveal's stage 1 (`useSumStages`), per result                               | beat                    | the seat hop + ✓ / shake + ✗                                                            | `made` / `missed` (pitched) | —                  | 0.4s   | T           | merged per round                           | glyph shown and hidden       |
+| Sole miss                           | client: `Summary.tsx:107`                                                               | beat                    | the one token sulks, ☁️                                                                 | `womp`                      | —                  | 0.8s   | T           | 1 a round                                  | glyph                        |
+| Everyone made it                    | client: every result made                                                               | beat                    | all tokens hop in a wave                                                                | `chime`                     | `[12,40,18]`       | 0.8s   | T           | 1 a round                                  | one ✓ row glow               |
+| Nil live / made / broken (Spades)   | client: hand state; server for online                                                   | beat                    | 💦 drip → halo (exists) / crack                                                         | — / `chime` / `crack`       | as Spades now      | 0.6s   | T           | per player                                 | as now                       |
+| The hook catches (Kachuful)         | client: `reducer.ts:174` `hookWarn`                                                     | beat                    | the dealer's token gets a 🪝 glyph and a small tug down                                 | `hook`                      | `[20,40,20]`       | 0.7s   | T           | 1 a round                                  | glyph                        |
+| SOLD (Kaali Teeri)                  | client: `Call.tsx` mount                                                                | moment                  | the stamp (exists); the winner's hero token wears their headwear                        | `gavel`                     | `[20,40,20]`       | 1.0s   | T           | 1 a hand                                   | stamp, still                 |
+| New in-game leader                  | client: `Summary.tsx:345`                                                               | beat                    | the crown drop (exists); the leader turns smug                                          | `crown`                     | `[12,40,18]`       | 0.8s   | T           | 1 a round                                  | as now                       |
+| Sitara changes                      | server: the upload response `status.changes` (kind `sitara`)                            | beat                    | ⭐ twinkles onto the seat                                                               | `twinkle`                   | —                  | 0.5s   | T           | 1 per game                                 | the pip appears              |
+| **Kursi chheeni**                   | server: `status.changes` (kind `kursi`) in the game's upload response                   | moment                  | the chair slides seat to seat + `SeatSpotlight`; the old holder sulks; "Kursi chheeni!" | `gavel`                     | `[20,40,20]`       | 1.6s   | T, O, F     | 1 per game                                 | the line + pip swap          |
+| **Taj chheena**                     | server: `status.changes` (kind `taj`)                                                   | moment                  | the stage: the crown lifts, wobbles, arcs to the new bust; the old holder's proud line  | `shehnai`                   | `[20,40,20]`       | 2.2s   | T, O, F     | 1 per game; 3 per night, then a beat       | crown pip swap + line        |
+| Medallist seated (Kachuful)         | client: the deal, a seated player with a medal (§6.7)                                   | beat                    | intel line "👑 Badshah Riya table pe hai"; 2+ medallists: the VS card                   | —                           | —                  | 1.2s   | T           | 1 per game, in the deal                    | the line, still              |
+| Banter line (Kachuful)              | client: the round summary, `banter.ts` rule table (§6.7)                                | beat                    | one line under the summary; the medallist's token shakes or hops                        | — (the result's own sound)  | —                  | 0.6s   | T, live     | 1 a round; same kind not twice in 3 rounds | the line, still              |
+| On track for a medal                | client: `chase()` with this game's rounds, after each round                             | beat                    | a crack on the holder's metal letters; "On track for 🥇" chip on the chaser             | —                           | —                  | 0.4s   | T           | changes only                               | the chip, still              |
+| **Naya Badshah**                    | server: `status.changes` (kind `medal`, rank 1); signed out: the device's new standings | moment                  | the dim, the gold letters peel and fly to the new name, 🥇 flip, gold confetti          | `shehnai`                   | `[20,40,20]`       | 2.5s   | T, O, F     | 1 per game; merged with a Kursi change     | names change colour + line   |
+| Wazir / Senapati changes            | as above, rank 2 or 3                                                                   | beat                    | the metal letters swap between names                                                    | `twinkle`                   | —                  | 0.8s   | T, O        | merged into one beat per game              | names change colour          |
+| Bounty won                          | server: `status.changes` (kind `bounty`)                                                | beat                    | "+40 🪙 bounty" chip from the old holder's seat to the winner's                         | `coin` ×3                   | 10                 | 0.8s   | T, O        | 1 per game                                 | the chip, still              |
+| Game win                            | client: the winner screen (`useReveal`)                                                 | moment                  | the winner's token rises to the **stage bust**, the mala drops, their Jashn             | `fanfare` (+ Jashn)         | `[12,40,18,40,30]` | 3.5s   | T           | 1 per game                                 | the bust, still, the mala on |
+| Perfect game / hidden achievement   | server: `earned` with `big` or `hidden`                                                 | moment                  | the unlock card (exists) with the stage bust                                            | `ghungroo` + `chime`        | `[20,40,20]`       | 2.5s   | T, O, F     | 2 per game (the queue)                     | card face-up                 |
+| Streak milestone (Kachuful `hot_*`) | client: `StreakCelebration` (exists)                                                    | beat (top tier: moment) | as now, on the token                                                                    | `chime` (+`boom`)           | as now             | as now | T           | as now                                     | as now                       |
+| Level up                            | server: the upload response `sikke.levelUp`                                             | beat                    | **own phone**: the level card; **table**: a ghungroo glint on the token only            | `ghungroo`                  | —                  | 1.2s   | O (T glint) | batched at game end                        | card, still                  |
+| Set completed                       | client: on wearing the 4th piece                                                        | beat                    | the set's flourish on the Wardrobe bust                                                 | `ghungroo`                  | 10                 | 0.6s   | O           | —                                          | still                        |
+| Gift opened                         | server: a pending gift + the receiver seated                                            | moment                  | the stage: a box opens, the bust wears it, "from Riya"                                  | `ghungroo`                  | `[12,40,18]`       | 2.0s   | T, O, F     | 1 per game, at a pause                     | the bust wearing it          |
+| Group milestone / first ever        | server: `status.changes` (kind `milestone`)                                             | moment                  | the table's felt rim glows once; a stamp ("100th game together")                        | `bell`                      | `[20,40,20]`       | 2.0s   | T, F        | rare by nature                             | the stamp, still             |
+| Festival effect                     | client: the dated table                                                                 | beat                    | the rim decoration and one puff                                                         | —                           | —                  | 1.5s   | T           | once per game                              | none (static decor only)     |
+| Night's Wrapped ready               | server: `close-nights`                                                                  | —                       | a card on the landing page and the feed                                                 | —                           | —                  | —      | O, F        | once per night                             | —                            |
 
 ## 13. Moment budget and queue rules
 
@@ -778,64 +779,64 @@ switches ticks off and plays moments at half volume. No new key: it's a field in
 
 ## 14. Fairness and farming: each new idea checked
 
-| Idea                  | Risk                                                        | Fix / verdict                                                                                  |
-| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Kursi                 | type fake games to take it                                  | needs a finished game with 3+ registry players, real rounds, signed in; the admin can void (recomputes); the reign history shows it. **Keep** |
-| Bounty                | two friends trade wins for coins                            | once per challenger per holder per week; 3+ players. **Keep**                                  |
-| Taj and stat crowns   | farm easy games                                             | the existing `seasonMin`, rates need minimums, same as the awards today. **Keep**             |
-| Sitara                | the only player tonight                                     | needs a table of 3+; a day with 1 game gives no Sitara. **Keep**                              |
-| Medals                | pad rounds to pass 50 and qualify; play only easy tables | the same `seasonMin` and finished-games rules as the Taj; the admin can void (recomputes). **Keep** |
-| Banter                | a player singled out night after night                      | only medallists are teased, and only about the round; kind pool; "Table banter" off switch. **Keep** |
-| Wrapped "worst bid"   | humiliation                                                 | kind copy only ("Brave call"); no 🙃 achievements in Wrapped. **Keep**                        |
-| Gifts                 | coin laundering                                             | items only, never coins; can't gift to yourself or to players outside your circle. **Keep**   |
-| Group milestones      | inflating counts                                            | counted from finished games only. **Keep**                                                     |
-| Voice pack            | recording consent                                           | only voices that agreed, in writing; off by default. **Decision for Jay**                      |
-| Predictions for Sikke (considered) | gambling-like                                  | **cut**; predictions stay just for fun (they already exist on the live page)                  |
-| Daily login rewards (considered) | guilt nags                                       | **cut**                                                                                        |
-| Mausam paid pass      | real money                                                  | **cut**; the free monthly track is also cut for now (§15)                                      |
+| Idea                               | Risk                                                     | Fix / verdict                                                                                                                                 |
+| ---------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kursi                              | type fake games to take it                               | needs a finished game with 3+ registry players, real rounds, signed in; the admin can void (recomputes); the reign history shows it. **Keep** |
+| Bounty                             | two friends trade wins for coins                         | once per challenger per holder per week; 3+ players. **Keep**                                                                                 |
+| Taj and stat crowns                | farm easy games                                          | the existing `seasonMin`, rates need minimums, same as the awards today. **Keep**                                                             |
+| Sitara                             | the only player tonight                                  | needs a table of 3+; a day with 1 game gives no Sitara. **Keep**                                                                              |
+| Medals                             | pad rounds to pass 50 and qualify; play only easy tables | the same `seasonMin` and finished-games rules as the Taj; the admin can void (recomputes). **Keep**                                           |
+| Banter                             | a player singled out night after night                   | only medallists are teased, and only about the round; kind pool; "Table banter" off switch. **Keep**                                          |
+| Wrapped "worst bid"                | humiliation                                              | kind copy only ("Brave call"); no 🙃 achievements in Wrapped. **Keep**                                                                        |
+| Gifts                              | coin laundering                                          | items only, never coins; can't gift to yourself or to players outside your circle. **Keep**                                                   |
+| Group milestones                   | inflating counts                                         | counted from finished games only. **Keep**                                                                                                    |
+| Voice pack                         | recording consent                                        | only voices that agreed, in writing; off by default. **Decision for Jay**                                                                     |
+| Predictions for Sikke (considered) | gambling-like                                            | **cut**; predictions stay just for fun (they already exist on the live page)                                                                  |
+| Daily login rewards (considered)   | guilt nags                                               | **cut**                                                                                                                                       |
+| Mausam paid pass                   | real money                                               | **cut**; the free monthly track is also cut for now (§15)                                                                                     |
 
 ## 15. Impact vs effort
 
 Scores are 1–5; ratio = impact ÷ effort. **Above the line is built in this plan.**
 
-| Idea                                                             | Impact | Effort | Ratio | Data                                         |
-| ---------------------------------------------------------------- | -----: | -----: | ----: | -------------------------------------------- |
-| **Kursi** (+ chheeni, defences, reigns)                          |      5 |      2 |  2.5  | new derived table from finished games        |
-| **Table intel line** at the deal                                 |      4 |      2 |  2.0  | the H2H exists; new batch endpoint           |
-| **Avatar states / reactions on seat tokens**                     |      4 |      2 |  2.0  | client only, existing reveal data            |
-| **Moment budget and queue rules**                                |      4 |      2 |  2.0  | client only                                  |
-| **Faces in Ishaara and the Spades scorekeeper**                  |      3 |      2 |  1.5  | client only                                  |
-| **Stage avatar + winner on the stage**                           |      5 |      3 |  1.7  | client; art for busts                        |
-| **Sitara (tonight)**                                             |      3 |      2 |  1.5  | daily standings live                         |
-| **Taj (live, chheena)**                                          |      4 |      3 |  1.3  | `crowns` table                               |
-| **Kachuful medals** (metal names, banter, chase, Naya Badshah)    |      5 |      2 |  2.5  | season standings and `chase()` exist; `crowns` ranks 2–3 |
-| **Baithak Wrapped: the night**                                   |      5 |      4 |  1.25 | `nights` + payload facts                     |
-| **Sikke + levels + backfill**                                    |      4 |      3 |  1.3  | ledger                                       |
-| **Wardrobe + outfits + sets** (about 40 items of art)            |      4 |      4 |  1.0  | catalog, looks; the most art                 |
-| **Bazaar (weekly) + gifting**                                    |      3 |      3 |  1.0  | catalog, ledger                              |
-| **Stat crowns live**                                             |      2 |      2 |  1.0  | live awards exist                            |
-| **Hidden achievements + firsts + milestones**                    |      3 |      3 |  1.0  | the catalogue flag; server checks            |
-| ——— **cut line** ———                                             |        |        |       |                                              |
-| Player Cards (shareable image)                                   |      3 |      3 |  1.0  | next plan: needs the bust art first          |
-| Legend mark                                                      |      2 |      1 |  2.0  | trivial; **ships with the Taj** (a rider, not a phase) |
-| Festival table effects                                           |      2 |      2 |  1.0  | next plan, before Diwali 2027                |
-| Voice pack                                                       |      2 |      3 |  0.7  | recordings and consent                       |
-| Mausam free monthly track                                        |      2 |      3 |  0.7  | weekly play makes a monthly track thin       |
-| Baithak room (crew progression)                                  |      4 |      5 |  0.8  | a lot of art; later                          |
-| Week crown                                                       |      1 |      1 |  1.0  | duplicates Sitara for a weekly group         |
-| Commentary ticker                                                |      3 |      4 |  0.75 | later                                        |
+| Idea                                                           | Impact | Effort | Ratio | Data                                                     |
+| -------------------------------------------------------------- | -----: | -----: | ----: | -------------------------------------------------------- |
+| **Kursi** (+ chheeni, defences, reigns)                        |      5 |      2 |   2.5 | new derived table from finished games                    |
+| **Table intel line** at the deal                               |      4 |      2 |   2.0 | the H2H exists; new batch endpoint                       |
+| **Avatar states / reactions on seat tokens**                   |      4 |      2 |   2.0 | client only, existing reveal data                        |
+| **Moment budget and queue rules**                              |      4 |      2 |   2.0 | client only                                              |
+| **Faces in Ishaara and the Spades scorekeeper**                |      3 |      2 |   1.5 | client only                                              |
+| **Stage avatar + winner on the stage**                         |      5 |      3 |   1.7 | client; art for busts                                    |
+| **Sitara (tonight)**                                           |      3 |      2 |   1.5 | daily standings live                                     |
+| **Taj (live, chheena)**                                        |      4 |      3 |   1.3 | `crowns` table                                           |
+| **Kachuful medals** (metal names, banter, chase, Naya Badshah) |      5 |      2 |   2.5 | season standings and `chase()` exist; `crowns` ranks 2–3 |
+| **Baithak Wrapped: the night**                                 |      5 |      4 |  1.25 | `nights` + payload facts                                 |
+| **Sikke + levels + backfill**                                  |      4 |      3 |   1.3 | ledger                                                   |
+| **Wardrobe + outfits + sets** (about 40 items of art)          |      4 |      4 |   1.0 | catalog, looks; the most art                             |
+| **Bazaar (weekly) + gifting**                                  |      3 |      3 |   1.0 | catalog, ledger                                          |
+| **Stat crowns live**                                           |      2 |      2 |   1.0 | live awards exist                                        |
+| **Hidden achievements + firsts + milestones**                  |      3 |      3 |   1.0 | the catalogue flag; server checks                        |
+| ——— **cut line** ———                                           |        |        |       |                                                          |
+| Player Cards (shareable image)                                 |      3 |      3 |   1.0 | next plan: needs the bust art first                      |
+| Legend mark                                                    |      2 |      1 |   2.0 | trivial; **ships with the Taj** (a rider, not a phase)   |
+| Festival table effects                                         |      2 |      2 |   1.0 | next plan, before Diwali 2027                            |
+| Voice pack                                                     |      2 |      3 |   0.7 | recordings and consent                                   |
+| Mausam free monthly track                                      |      2 |      3 |   0.7 | weekly play makes a monthly track thin                   |
+| Baithak room (crew progression)                                |      4 |      5 |   0.8 | a lot of art; later                                      |
+| Week crown                                                     |      1 |      1 |   1.0 | duplicates Sitara for a weekly group                     |
+| Commentary ticker                                              |      3 |      4 |  0.75 | later                                                    |
 
 ## 16. Phases (reordered: presence and status before coins)
 
-| Phase | What                                                                                                                                                          | Weight | Was           |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----: | ------------- |
-| G0    | Decisions; `backend-requests.md`; the **art style sheet**: 1 bust, 2 outfits, 2 headwear, 1 frame, at 26/32/52/72/220px in all 4 themes, approved by Jay       |    5% | 5%            |
-| G1    | **Presence:** `AvatarFill` tiers (dot, seat, hero, stage) by measured size; the pip slot; avatar states and reactions; faces in Ishaara and the Spades scorekeeper; the moment budget and queue rules (§13); the stage rise/settle helper | 20% | new |
-| G2    | **Status and stories:** Kachuful's medals first (§6.7: Badshah, Wazir, Senapati, banter, the chase), Kursi, Sitara, Taj (+ Legend), stat crowns live, `status.changes` in upload responses and on the user stream, table intel, bounties (computed now, paid when G3 lands), the Night's Wrapped | 25% | was G3 (20%) |
-| G3    | **Sikke:** the ledger, earn rules (rescaled), the hooks, backfill, levels, the wallet chip and ledger sheet, "+🪙" on the winner screen; bounties start paying | 15% | was G1 (20%) |
-| G4    | **Wardrobe:** the catalog, owned items, looks; **outfits, sets and colour variants**; the art (about 40 items); the dressing room                              |   20% | was G2 (25%) |
-| G5    | **Bazaar (weekly) + gifting** (the gift opened at the table) + hidden achievements, firsts and milestones                                                      |   10% | was G4 (15%) |
-| G6    | **Ship:** docs, full e2e, `perf:budget`, the 4-theme responsive check, cleanup, merge                                                                          |    5% | 5%            |
+| Phase | What                                                                                                                                                                                                                                                                                             | Weight | Was          |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -----: | ------------ |
+| G0    | Decisions; `backend-requests.md`; the **art style sheet**: 1 bust, 2 outfits, 2 headwear, 1 frame, at 26/32/52/72/220px in all 4 themes, approved by Jay                                                                                                                                         |     5% | 5%           |
+| G1    | **Presence:** `AvatarFill` tiers (dot, seat, hero, stage) by measured size; the pip slot; avatar states and reactions; faces in Ishaara and the Spades scorekeeper; the moment budget and queue rules (§13); the stage rise/settle helper                                                        |    20% | new          |
+| G2    | **Status and stories:** Kachuful's medals first (§6.7: Badshah, Wazir, Senapati, banter, the chase), Kursi, Sitara, Taj (+ Legend), stat crowns live, `status.changes` in upload responses and on the user stream, table intel, bounties (computed now, paid when G3 lands), the Night's Wrapped |    25% | was G3 (20%) |
+| G3    | **Sikke:** the ledger, earn rules (rescaled), the hooks, backfill, levels, the wallet chip and ledger sheet, "+🪙" on the winner screen; bounties start paying                                                                                                                                   |    15% | was G1 (20%) |
+| G4    | **Wardrobe:** the catalog, owned items, looks; **outfits, sets and colour variants**; the art (about 40 items); the dressing room                                                                                                                                                                |    20% | was G2 (25%) |
+| G5    | **Bazaar (weekly) + gifting** (the gift opened at the table) + hidden achievements, firsts and milestones                                                                                                                                                                                        |    10% | was G4 (15%) |
+| G6    | **Ship:** docs, full e2e, `perf:budget`, the 4-theme responsive check, cleanup, merge                                                                                                                                                                                                            |     5% | 5%           |
 
 **What moved and why:**
 
@@ -862,14 +863,14 @@ key on the device.
 
 **Measure** (all from data we already have, or kept on the device; **no analytics service**):
 
-| What                                                    | How                                                                                      |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Games per night                                         | `nights` rows (server)                                                                    |
-| Return rate (weeks in a row with a night)               | the weekly streak data (server)                                                           |
-| Skip rate per moment kind                               | a device counter in `baithak.fx` (skipped vs played), read in the moments lab; never sent |
-| Moments that got a reaction out loud                    | Jay's notes on a one-page sheet during the night (moment, laugh/groan/nothing)            |
-| Time from a round's confirm to the next round's first bid | the device's round timestamps (in the saved game already)                             |
-| Wrapped opened / shared                                 | the server knows opens (a read); shares are unknown (a native share)                      |
+| What                                                      | How                                                                                       |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Games per night                                           | `nights` rows (server)                                                                    |
+| Return rate (weeks in a row with a night)                 | the weekly streak data (server)                                                           |
+| Skip rate per moment kind                                 | a device counter in `baithak.fx` (skipped vs played), read in the moments lab; never sent |
+| Moments that got a reaction out loud                      | Jay's notes on a one-page sheet during the night (moment, laugh/groan/nothing)            |
+| Time from a round's confirm to the next round's first bid | the device's round timestamps (in the saved game already)                                 |
+| Wrapped opened / shared                                   | the server knows opens (a read); shares are unknown (a native share)                      |
 
 **Success after 2 nights:**
 

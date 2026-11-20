@@ -238,7 +238,10 @@ test('signing in from the landing page’s menu, as on a phone, comes back signe
   await page.route('**/api/me/events', (r) => r.abort());
   await page.goto('/');
   await page.getByRole('button', { name: 'Menu' }).click();
-  await page.getByRole('dialog').getByRole('link', { name: /^Sign in/ }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('link', { name: /^Sign in/ })
+    .click();
   await page.getByLabel('Email').fill(ACCOUNTS.admin.email);
   await page.getByLabel('Password', { exact: true }).fill(ACCOUNTS.admin.password);
   await page.locator('form').getByRole('button', { name: 'Sign in' }).click();

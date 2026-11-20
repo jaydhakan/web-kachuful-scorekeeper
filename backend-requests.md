@@ -87,14 +87,14 @@ a ladder level N pays 25×N, `season_champion` 300, other season codes 100, dail
 
 **Entries** (a player is a registry player, so a player with no account accrues and their claim brings it along):
 
-| kind            | amount                    | when                                                                                                  | key (unique per player)      |
-| --------------- | ------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------- |
-| `finish`        | 30 (+10 Ishaara, online Spades) | seated in a finished, non-void game of 2+ players                                               | `finish:<gameId>`            |
-| `win`           | 25                        | place 1 in that game (ties and a winning team: each of them)                                          | `win:<gameId>`               |
-| `achievement`   | per fixture               | each `achievements` row (moment, game, career, daily, season), 0-amount codes write no entry         | `ach:<achievementId>`        |
-| `kursi_take`    | 30                        | Kachuful: took the Kursi in that game (`domain/kursi.py` reigns)                                      | `kursi:<gameId>`             |
-| `kursi_defence` | 10                        | Kachuful: held it at that game as holder (each defence)                                               | `kursi:<gameId>`             |
-| `streak`        | 10 × weeks in a row, ≤ 50 | the player's first finished game (any kind) of an ISO week in APP_TZ; weeks in a row counts this one  | `streak:<YYYY-Www>`          |
+| kind            | amount                          | when                                                                                                 | key (unique per player) |
+| --------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------- |
+| `finish`        | 30 (+10 Ishaara, online Spades) | seated in a finished, non-void game of 2+ players                                                    | `finish:<gameId>`       |
+| `win`           | 25                              | place 1 in that game (ties and a winning team: each of them)                                         | `win:<gameId>`          |
+| `achievement`   | per fixture                     | each `achievements` row (moment, game, career, daily, season), 0-amount codes write no entry         | `ach:<achievementId>`   |
+| `kursi_take`    | 30                              | Kachuful: took the Kursi in that game (`domain/kursi.py` reigns)                                     | `kursi:<gameId>`        |
+| `kursi_defence` | 10                              | Kachuful: held it at that game as holder (each defence)                                              | `kursi:<gameId>`        |
+| `streak`        | 10 × weeks in a row, ≤ 50       | the player's first finished game (any kind) of an ISO week in APP_TZ; weeks in a row counts this one | `streak:<YYYY-Www>`     |
 
 - **Daily cap:** `finish` and `win` pay for a player's first 8 finished games of one progression game per APP_TZ day
   (by `ended_at`, then id); later games that day write no `finish` or `win` entry. Achievements always pay.
@@ -123,9 +123,9 @@ app owns the names.
   (a player with no entries: zeros, level 1). Unknown player: 404 `not_found`. Merged-away id: follow the alias.
 - `GET /api/players/{id}/sikke/entries?cursor=&limit=` → `{ items: SikkeEntryOut[], nextCursor }`, newest first;
   `SikkeEntryOut { id, kind, amount, game: str | null, gameId: str | null, code: str | null, period: str | null,
-  earnedAt }` (`code`/`period` from the achievement row for `achievement` entries).
+earnedAt }` (`code`/`period` from the achievement row for `achievement` entries).
 - `GET /api/games/{id}/sikke` → `{ items: [{ playerId, amount, entries: [{ kind, amount, code }], level: { n, from,
-  next }, levelUp: { from: int, to: int } | null }] }`: what that game paid each of its players (the entries whose
+next }, levelUp: { from: int, to: int } | null }] }`: what that game paid each of its players (the entries whose
   `game_id` is the game, including its achievements' entries, plus the `streak` entry if this game was the week's
   first), seat order. `levelUp` when the player's lifetime without this game's amount was a lower level. An unfinished
   game: `items` with zero amounts (not an error). Any kind.

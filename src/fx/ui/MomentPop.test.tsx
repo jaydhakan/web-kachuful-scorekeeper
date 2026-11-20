@@ -39,7 +39,9 @@ describe('a scorekeeper round', () => {
         onDone={() => {}}
       />,
     );
-    expect(await screen.findByText('Kabir · Grand Slam', {}, { timeout: 4000 })).toBeInTheDocument();
+    expect(
+      await screen.findByText('Kabir · Grand Slam', {}, { timeout: 4000 }),
+    ).toBeInTheDocument();
     expect(await screen.findByText('Kabir · Grand Slam')).toBeInTheDocument();
     expect(screen.queryByText('Kabir unlocked Grand Slam')).toBeNull();
     // The same achievement again two rounds later is small too.

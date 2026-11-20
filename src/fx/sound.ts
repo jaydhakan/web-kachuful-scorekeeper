@@ -359,8 +359,7 @@ const SYNTH: Record<SoundName, (a: AudioContext) => void> = {
   },
   // A level up: a short jingle of small bells.
   ghungroo: (a) => {
-    for (let i = 0; i < 6; i++)
-      tone(a, 2637 + (i % 3) * 330, 0.12, { vol: 0.03, delay: i * 0.06 });
+    for (let i = 0; i < 6; i++) tone(a, 2637 + (i % 3) * 330, 0.12, { vol: 0.03, delay: i * 0.06 });
     noise(a, 0.25, { freq: 6000, q: 2, vol: 0.03 });
   },
 };
