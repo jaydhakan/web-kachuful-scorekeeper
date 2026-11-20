@@ -166,7 +166,7 @@ function Takeover({
  * the first-ever Kursi, or a Kursi defended (a beat, no show). Two at most, joined.
  */
 export function useMedalBeat(): string | null {
-  const { changes, defended, kursiEvent } = useMedals();
+  const { changes, defended, kursiEvent, sitara } = useMedals();
   const lines: string[] = [];
   if (!changes.some((c) => c.to === 1 && c.from !== 1)) {
     const moved = changes.find((c) => c.to === 2 || c.to === 3);
@@ -176,5 +176,7 @@ export function useMedalBeat(): string | null {
   if (kursiEvent?.kind === 'defended') lines.push(k.kept(kursiEvent.holders, kursiEvent.defences));
   else if (kursiEvent?.kind === 'taken' && kursiEvent.first)
     lines.push(`${k.glyph} ${k.first} ${k.takenBy(kursiEvent.to, [])}`);
+  // Tonight's lead moved to someone at this table.
+  if (sitara.rising.length) lines.push(s.newSitara(sitara.rising.join(', ')));
   return lines.length ? lines.join(' · ') : null;
 }

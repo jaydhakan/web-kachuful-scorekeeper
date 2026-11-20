@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { maxFor, newRound, type Game, type MedalRow } from '@/games/kachuful/domain';
-import { monthRange } from '@/progression/zone';
+import { dayOf, monthRange } from '@/progression/zone';
 import { tableMedals } from './medals';
 
 const MONTH = '2026-11';
@@ -118,5 +118,35 @@ describe('the Kursi at the table', () => {
     g.status = 'finished';
     const t = tableMedals(g, { ...base, kursi: chair });
     expect(t.kursiEvent).toEqual({ kind: 'defended', defences: 5, holders: ['Dev'] });
+  });
+});
+
+describe('Aaj ka Sitara and the Legend at the table', () => {
+  const day = dayOf(from + 60e3);
+
+  it("is tonight's leader before this game, and moves with this game's points", () => {
+    // Earlier tonight: one game, Dev leading on 30. This game is the night's second; Asha's 3-bid takes her to 30
+    // plus nothing before, Riya misses: Dev 30 + 10 = 40 still leads.
+    const t = tableMedals(game([[false, true, true, 3]]), {
+      ...base,
+      today: { day, games: 1, points: new Map([['D', 30]]) },
+    });
+    // One game before this one: no Sitara yet; with this one it is the second game, so Dev is.
+    expect([...t.sitara.held]).toEqual([]);
+    expect([...t.sitara.now]).toEqual(['s1']);
+    expect(t.sitara.rising).toEqual(['Dev']);
+  });
+
+  it('marks the Legend, and gives the Sitara a mark for the banter when they hold nothing else', () => {
+    const t = tableMedals(game([]), {
+      ...base,
+      rows: [row('R', 1, 10), row('K', 2, 9), row('Z', 3, 8)],
+      today: { day, games: 2, points: new Map([['A', 50]]) },
+      champions: ['R', 'A', 'R'],
+    });
+    expect([...t.legend]).toEqual(['s0']);
+    // Riya is the Badshah: her medal is her mark. Asha leads tonight.
+    expect(t.marks.get('s0')).toBe('gold');
+    expect(t.marks.get('s2')).toBe('sitara');
   });
 });

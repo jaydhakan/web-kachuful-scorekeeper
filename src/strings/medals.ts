@@ -25,6 +25,12 @@ export const medals = {
   movedTo: (m: MedalNo, name: string) => `${medals.glyph[m]} ${name} is the new ${medals.title[m]}`,
   defended: 'Takht bacha liya 🛡️',
   defendedSr: (name: string) => `${name} kept the Badshah's seat`,
+  /** Tonight's points leader and the most season titles all-time (§6.1), after a name. */
+  sitara: '⭐',
+  sitaraSr: "Aaj ka Sitara, tonight's leader",
+  legend: '🏛️',
+  legendSr: 'Legend, the most season titles',
+  newSitara: (names: string) => `⭐ Aaj ka Sitara: ${names}`,
   /** The month label under a "defending" medal. */
   defending: 'defending',
 } as const;

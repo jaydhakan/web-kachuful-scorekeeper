@@ -232,9 +232,13 @@ export interface SeasonResp {
 /** GET /api/kursi: Kachuful's chair before the game at the table (rewards plan §6.3). */
 export interface KursiResp {
   kursi: { holders: PlayerSummary[]; since: number; sinceGame: string; defences: number } | null;
-  longest:
-    | { holders: PlayerSummary[]; since: number; sinceGame: string; defences: number; until: number | null }
-    | null;
+  longest: {
+    holders: PlayerSummary[];
+    since: number;
+    sinceGame: string;
+    defences: number;
+    until: number | null;
+  } | null;
 }
 
 /** GET /api/medals: Kachuful's month without the game at the table, and last month's top three. */
@@ -243,6 +247,12 @@ export interface MedalsResp {
   minRounds: number;
   standings: LeaderboardRow[];
   lastSeason: LeaderboardRow[];
+  /** Tonight without the game at the table, for Aaj ka Sitara. */
+  today: {
+    day: string;
+    games: number;
+    rows: { player: PlayerSummary; points: number; rounds: number }[];
+  };
 }
 
 /** A standings row of a month ranked on win rate (`value`, 0–1): every game but Kachuful. */

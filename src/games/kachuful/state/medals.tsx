@@ -22,10 +22,15 @@ import {
   type Medals,
   type Player,
   kursiGames,
+  legendOf,
+  playedMonths,
+  plusPoints,
+  sitaraOf,
   standings,
+  tallies,
 } from '@/games/kachuful/domain';
 import { kursiFrom, stepKursi, type Kursi } from '@/progression/kursi';
-import { monthOf, monthRange, prevMonth } from '@/progression/zone';
+import { dayOf, dayRange, monthOf, monthRange, prevMonth } from '@/progression/zone';
 import { archive } from '@/state/archive';
 import { identify, idOf } from '@/state/registry';
 import { useArchiveVersion } from '@/state/useArchive';
@@ -57,6 +62,10 @@ export interface TableMedals {
   kursiChasers: ReadonlySet<string>;
   /** What this game did to the Kursi, once it ended. */
   kursiEvent: KursiMove | null;
+  /** Aaj ka Sitara's seats: before this game, and with it as it stands. */
+  sitara: { held: ReadonlySet<string>; now: ReadonlySet<string>; rising: string[] };
+  /** The Legend's seats (the most season titles, all-time). */
+  legend: ReadonlySet<string>;
 }
 
 export type KursiMove =
@@ -75,6 +84,8 @@ export const NO_MEDALS: TableMedals = {
   kursi: null,
   kursiChasers: new Set(),
   kursiEvent: null,
+  sitara: { held: new Set(), now: new Set(), rising: [] },
+  legend: new Set(),
 };
 
 interface Base {
@@ -84,6 +95,10 @@ interface Base {
   last: MedalRow[];
   /** The chair before this game; null when nobody has it yet. */
   kursi?: Kursi | null;
+  /** Tonight before this game: games played and each board id's points. */
+  today?: { day: string; games: number; points: ReadonlyMap<string, number> };
+  /** Closed seasons' champions (board ids), for the Legend. */
+  champions?: readonly (string | null)[];
 }
 
 const unrow = (r: LeaderboardRow): MedalRow => ({
@@ -111,7 +126,21 @@ function deviceBase(current: Game): Base {
     rows: now.standings,
     last: last.standings,
     kursi: kursiFrom(kursiGames(f)).kursi,
+    today: deviceToday(f),
+    champions: playedMonths(f)
+      .filter((m) => m < month)
+      .map((m) => season(f, m).standings.find((r) => r.rank === 1)?.playerId ?? null),
   };
+}
+
+function deviceToday(f: ReturnType<typeof buildFacts>): NonNullable<Base['today']> {
+  const day = dayOf(Date.now());
+  const [from, to] = dayRange(day);
+  const games = new Set(
+    f.rounds.filter((r) => r.doneAt >= from && r.doneAt < to).map((r) => r.gameId),
+  );
+  const points = new Map([...tallies(f, from, to)].map(([id, t]) => [id, t.points]));
+  return { day, games: games.size, points };
 }
 
 /** Rebuilds the table's medals from the board before the game and the game as it is now. */
@@ -156,6 +185,28 @@ export function tableMedals(
       ? st.filter((x) => !kSeats.includes(x.p.id) && x.rank < holderRank).map((x) => x.p.id)
       : [],
   );
+  // Aaj ka Sitara before this game and with it; the Legend. Each is a mark for the banter after medals and the Kursi.
+  const seatsOf = (ids: readonly string[]) =>
+    new Set(g.players.filter((p) => ids.includes(key(p))).map((p) => p.id));
+  const tonight = base.today;
+  let starBefore = new Set<string>(),
+    starNow = new Set<string>();
+  if (tonight) {
+    const [dFrom, dTo] = dayRange(tonight.day);
+    const mine = gameTallies(identify([g])[0], dFrom, dTo);
+    starBefore = seatsOf(sitaraOf(tonight.points, tonight.games));
+    starNow = seatsOf(
+      sitaraOf(plusPoints(tonight.points, mine), tonight.games + (mine.size ? 1 : 0)),
+    );
+  }
+  const sitara = {
+    held: starBefore,
+    now: starNow,
+    rising: g.players.filter((p) => starNow.has(p.id) && !starBefore.has(p.id)).map((p) => p.name),
+  };
+  const legend = seatsOf(legendOf(base.champions ?? []));
+  for (const id of sitara.held) if (!marks.has(id)) marks.set(id, 'sitara');
+  for (const id of legend) if (!marks.has(id)) marks.set(id, 'legend');
   let kursiEvent: KursiMove | null = null;
   if (g.status === 'finished') {
     const { event } = stepKursi(kHeld, {
@@ -192,6 +243,8 @@ export function tableMedals(
     kursi: kSeats.length ? { seats: kSeats, defences: kHeld!.defences } : null,
     kursiChasers,
     kursiEvent,
+    sitara,
+    legend,
   };
 }
 
@@ -210,6 +263,8 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
   const v = useArchiveVersion();
   const remote = useRemote(online ? `medals:${g.syncId}` : null, (o) => ep.medals(g.syncId, o));
   const chair = useRemote(online ? `kursi:${g.syncId}` : null, (o) => ep.kursi(g.syncId, o));
+  // The same cache key as the Awards page, so a season list it already fetched counts here.
+  const titles = useRemote(online ? 'seasons' : null, (o) => ep.seasons(o));
   // The board before this game changes only with the archive or another game, never with this game's rounds.
   const base = useMemo<Base | null>(() => {
     if (!atTable || g.id === 'demo') return null;
@@ -224,12 +279,20 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
             kursi: chair.data?.kursi
               ? { ...chair.data.kursi, holders: chair.data.kursi.holders.map((h) => h.id) }
               : null,
+            today: {
+              day: d.today.day,
+              games: d.today.games,
+              points: new Map(d.today.rows.map((r) => [r.player.id, r.points])),
+            },
+            champions: (titles.data ?? [])
+              .filter((x) => x.season < d.season)
+              .map((x) => x.champion?.id ?? null),
           }
         : null;
     }
     return deviceBase(g);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the base is the board before this game
-  }, [atTable, g.syncId, signedIn, remote.data, chair.data, v]);
+  }, [atTable, g.syncId, signedIn, remote.data, chair.data, titles.data, v]);
   const value = useMemo(() => (base ? tableMedals(g, base) : NO_MEDALS), [g, base]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

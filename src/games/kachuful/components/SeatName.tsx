@@ -24,9 +24,23 @@ export function SeatName({
   const t = useMedals();
   const track = t.chase.onTrack.get(id);
   const near = !track && t.kursiChasers.has(id);
+  const star = t.sitara.now.has(id),
+    legend = t.legend.has(id);
   return (
     <>
       <MedalName name={p.name} mark={mark} slipping={slipping} glyph={glyph} />
+      {glyph !== false && legend && (
+        <span data-legend className="ml-1">
+          <span aria-hidden>{medals.legend}</span>
+          <span className="sr-only">{`, ${medals.legendSr}`}</span>
+        </span>
+      )}
+      {glyph !== false && star && (
+        <span data-sitara className="ml-1">
+          <span aria-hidden>{medals.sitara}</span>
+          <span className="sr-only">{`, ${medals.sitaraSr}`}</span>
+        </span>
+      )}
       {chase && track && (
         <span
           data-on-track={track}
