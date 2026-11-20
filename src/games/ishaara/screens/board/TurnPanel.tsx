@@ -7,6 +7,7 @@ import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { secsUntil, useServerClock } from '@/hooks/useServerClock';
 import { Mark, TEAM_FILL, TeamCount, TeamPill } from './marks';
 import type { Handoff } from './useBoard';
+import { Dot } from '@/components/ui/Dot';
 
 const b = s.board;
 /** The last stretch of a timed turn, when the timer turns to the warning colour and pulses. */
@@ -89,7 +90,8 @@ export function ClueCard({ game, nudge = 0 }: { game: IshaaraPublic; nudge?: num
   useEffect(() => {
     if (nudge && !rm) void shake.start({ x: [0, -8, 7, -4, 2, 0], transition: { duration: 0.42 } });
   }, [nudge, rm, shake]);
-  const giver = clueGiverOf(game, game.turn)?.name ?? s.team[game.turn];
+  const giverSeat = clueGiverOf(game, game.turn);
+  const giver = giverSeat?.name ?? s.team[game.turn];
   const c = game.clue;
   const left =
     c === null ? null : game.guessesLeft === 'inf' ? b.noLimit : String(game.guessesLeft);
@@ -103,6 +105,12 @@ export function ClueCard({ game, nudge = 0 }: { game: IshaaraPublic; nudge?: num
       // below keeps its size across themes and when the clue arrives.
       className={`flex min-h-[7.25rem] items-center gap-3 rounded-[24px] px-5 py-4 land:min-h-0 land:px-4 land:py-3 dt:px-7 dt:py-6 ${waiting ? TEAM_FILL[game.turn] : 'glass'}`}
     >
+      {/* The clue-giver's face: the board named them only (REWARDS-PLAN §2). Their name is in the text beside it. */}
+      {giverSeat && (
+        <span aria-hidden className="hidden shrink-0 min-[22rem]:inline-grid">
+          <Dot p={giverSeat} s={44} />
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p
           className={`mono-label text-13 dt:text-17 ${waiting ? 'opacity-80' : 'text-[var(--accent-tx)]'}`}
