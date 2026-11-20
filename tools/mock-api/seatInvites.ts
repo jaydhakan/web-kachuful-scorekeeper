@@ -86,7 +86,8 @@ export const registerSeatKind = (kind: Kind, rules: SeatKindRules) => void kinds
 function frame(res: ServerResponse, event: string, data: unknown) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
-function tell(userId: string, event: string, data: unknown) {
+/** Sends one frame on a user's own stream (`/api/me/events`). */
+export function tell(userId: string, event: string, data: unknown) {
   for (const res of streams.get(userId) ?? []) frame(res, event, data);
 }
 

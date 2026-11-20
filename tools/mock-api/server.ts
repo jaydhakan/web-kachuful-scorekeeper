@@ -29,6 +29,8 @@ import {
   wrapped,
   doneRounds,
   kursiGames,
+  nightOf,
+  NIGHT_GAP_MS,
   ACHIEVEMENTS,
   LADDERS,
   tallies,
@@ -70,7 +72,13 @@ import {
   ishaaraUserOf,
   resetIshaara,
 } from './ishaara';
-import { inviteSeat, registerSeatKind, resetSeatInvites, seatInviteRoutes } from './seatInvites';
+import {
+  inviteSeat,
+  registerSeatKind,
+  resetSeatInvites,
+  seatInviteRoutes,
+  tell,
+} from './seatInvites';
 import {
   resetSpades,
   spadesGame,
@@ -132,6 +140,10 @@ interface Photo {
 
 interface Db {
   users: Map<string, UserRec>;
+  /** `<winner>:<holder>` pairs already paid (the mock never resets a week). */
+  bounties: Set<string>;
+  /** Nights closed early with "End the night". */
+  closedNights: Set<string>;
   sessions: Map<string, string>;
   invites: Map<
     string,
@@ -216,6 +228,8 @@ const account = (email: string, password: string, role: User['role'], at: number
 export function seed(now = Date.now()) {
   db = {
     users: new Map(),
+    bounties: new Set<string>(),
+    closedNights: new Set<string>(),
     sessions: new Map(),
     invites: new Map(),
     resets: new Map(),
@@ -1285,6 +1299,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const v = validate({ ...w, syncId: key }, Date.now());
   if (!v.ok) throw err(422, 'invalid_game', { reason: v.reason, roundIndex: v.roundIndex ?? null });
   const wasEnded = prev ? gameEndedAt(fromWire(prev), Date.now()).at != null : false;
+  const chairBefore = kursiFrom(kursiGames(facts())).kursi;
   store(w, me!.id, Date.now());
   const earned = recompute();
   const rec = db.games.get(key)!;
@@ -1312,7 +1327,12 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
     },
     w.rev,
   );
-  return { rev: w.rev, earned, ...(Object.keys(remap).length && { remap }) };
+  const status = statusOf(chairBefore, key);
+  if (status.changes.length || status.bounties.length)
+    for (const u of db.users.values())
+      if (u.playerId && w.players.some((p) => p.playerId === u.playerId))
+        tell(u.id, 'status', { game: 'kachuful', gameId: key, ...status });
+  return { rev: w.rev, earned, status, ...(Object.keys(remap).length && { remap }) };
 });
 on('GET', '/api/games', ({ url, me }) => {
   const since = Number(url.searchParams.get('updatedSince')) || 0;
@@ -1814,6 +1834,165 @@ on('GET', '/api/kursi', ({ url }) => {
 on('GET', '/api/places', ({ url }) => {
   const f = factsWithout(url.searchParams.get('excludeGame'));
   return { games: kursiGames(f).sort((a, b) => b.endedAt - a.endedAt) };
+});
+// Crowns and nights (backend-requests §6, §7), the Kursi's part only: medals, the Sitara and the Legend are left to
+// the real server. Bounties are the Kursi's: whoever finished above the holder, once per holder a week.
+type Chair = ReturnType<typeof kursiFrom>['kursi'];
+const sameIds = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length && a.every((x) => b.includes(x));
+function statusOf(before: Chair, gameId: string) {
+  const f = facts();
+  const after = kursiFrom(kursiGames(f)).kursi;
+  const changes =
+    after && !sameIds(before?.holders ?? [], after.holders)
+      ? [
+          {
+            kind: 'kursi' as const,
+            from: (before?.holders ?? []).map((id) => summaryOf(id, f)),
+            to: after.holders.map((id) => summaryOf(id, f)),
+            defences: after.defences,
+          },
+        ]
+      : [];
+  const g = kursiGames(f).find((x) => x.gameId === gameId);
+  const bounties: { holder: PlayerSummary; winner: PlayerSummary; amount: number }[] = [];
+  if (g && before && g.seats.length >= 3)
+    for (const h of before.holders) {
+      const held = g.seats.find((x) => x.playerId === h);
+      if (!held) continue;
+      for (const x of g.seats)
+        if (x.place < held.place && !db.bounties.has(`${x.playerId}:${h}`)) {
+          db.bounties.add(`${x.playerId}:${h}`);
+          bounties.push({
+            holder: summaryOf(h, f),
+            winner: summaryOf(x.playerId, f),
+            amount: SIKKE.bounty,
+          });
+        }
+    }
+  for (const c of changes)
+    feed({
+      kind: 'crown',
+      player: c.to[0] ?? null,
+      game: null,
+      data: { crown: c.kind, from: c.from.map((p) => p.id), to: c.to.map((p) => p.id) },
+      createdAt: Date.now(),
+    });
+  return { changes, bounties };
+}
+on('GET', '/api/crowns', () => {
+  const f = facts();
+  const { kursi } = kursiFrom(kursiGames(f));
+  const none = (kind: string) => ({ kind, holders: [], since: null, sinceGame: null, defences: 0 });
+  return {
+    items: [
+      ...['medal1', 'medal2', 'medal3'].map(none),
+      kursi
+        ? {
+            kind: 'kursi',
+            holders: kursi.holders.map((id) => summaryOf(id, f)),
+            since: kursi.since,
+            sinceGame: kursi.sinceGame,
+            defences: kursi.defences,
+          }
+        : none('kursi'),
+      none('sitara'),
+      none('legend'),
+    ],
+  };
+});
+on('GET', '/api/crowns/reigns', ({ url }) => {
+  const f = facts();
+  const { reigns } = kursiFrom(kursiGames(f));
+  const list = (url.searchParams.get('kind') === 'kursi' ? reigns : [])
+    .filter((r): r is typeof r & { until: number } => r.until != null)
+    .map((r) => ({
+      kind: 'kursi',
+      holders: r.holders.map((id) => summaryOf(id, f)),
+      since: r.since,
+      until: r.until,
+      defences: r.defences,
+    }))
+    .sort((a, b) =>
+      url.searchParams.get('sort') === 'defences' ? b.defences - a.defences : b.until - a.until,
+    );
+  return page(list, url.searchParams.get('cursor'), 50);
+});
+/** Every night: ended games with gaps of three hours or less (one table here, so no grouping by players). */
+function nightsOf(f: Facts) {
+  const ended = f.games.filter((g) => g.endedAt != null).sort((a, b) => a.endedAt! - b.endedAt!);
+  const runs: (typeof ended)[] = [];
+  for (const g of ended) {
+    const last = runs.at(-1)?.at(-1);
+    if (last && g.createdAt - last.endedAt! <= NIGHT_GAP_MS) runs.at(-1)!.push(g);
+    else runs.push([g]);
+  }
+  return runs.map((run) => {
+    const endedAt = run.at(-1)!.endedAt!;
+    const keep = new Set(
+      f.games.filter((g) => g.endedAt == null || g.endedAt <= endedAt).map((g) => g.gameId),
+    );
+    const upTo: Facts = {
+      ...f,
+      games: f.games.filter((g) => keep.has(g.gameId)),
+      players: f.players.filter((p) => keep.has(p.gameId)),
+      rounds: f.rounds.filter((r) => keep.has(r.gameId)),
+    };
+    const story = nightOf(upTo, endedAt)!;
+    const id = run[0].gameId;
+    const closed = db.closedNights.has(id) || Date.now() - endedAt > NIGHT_GAP_MS;
+    return { id, closed, startedAt: run[0].createdAt, endedAt, story };
+  });
+}
+const nightRow = (n: ReturnType<typeof nightsOf>[number], f: Facts) => ({
+  id: n.closed ? n.id : null,
+  closed: n.closed,
+  startedAt: n.startedAt,
+  endedAt: n.endedAt,
+  players: n.story.players.map((p) => summaryOf(p.playerId, f)),
+  games: n.story.gameIds.length,
+  winner: n.story.winner ? summaryOf(n.story.winner, f) : null,
+});
+on('GET', '/api/nights', ({ url }) => {
+  const f = facts();
+  const pid = resolve(url.searchParams.get('playerId') ?? '');
+  const list = nightsOf(f)
+    .filter((n) => n.story.players.some((p) => p.playerId === pid))
+    .reverse()
+    .map((n) => nightRow(n, f));
+  return page(list, url.searchParams.get('cursor'), 20);
+});
+on('GET', '/api/nights/:id', ({ m }) => {
+  const f = facts();
+  const n = nightsOf(f).find((x) => x.id === m[0]);
+  if (!n) throw err(404, 'not_found');
+  const kinds = n.story.gameIds.map(() => 'kachuful');
+  return {
+    ...nightRow(n, f),
+    id: n.id,
+    data: n.closed
+      ? { ...n.story, gameKinds: kinds, sitara: [], sikke: {}, achievements: [] }
+      : null,
+  };
+});
+on('POST', '/api/nights/close', ({ me }) => {
+  const f = facts();
+  const open = nightsOf(f)
+    .reverse()
+    .find((n) => !n.closed && n.story.players.some((p) => p.playerId === me!.playerId));
+  if (!open) throw err(404, 'not_found');
+  db.closedNights.add(open.id);
+  for (const u of db.users.values())
+    if (u.playerId && open.story.players.some((p) => p.playerId === u.playerId))
+      tell(u.id, 'night', { id: open.id });
+  feed({
+    kind: 'night',
+    player: open.story.winner ? summaryOf(open.story.winner, f) : null,
+    game: null,
+    data: { nightId: open.id, games: open.story.gameIds.length, winner: open.story.winner },
+    createdAt: Date.now(),
+  });
+  return { id: open.id };
 });
 // Sikke (REWARDS-PLAN §9), Kachuful's games only here: finishes, wins and achievements; no cap, Kursi or streak.
 interface MockSikke {
