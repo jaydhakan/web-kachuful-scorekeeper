@@ -31,6 +31,7 @@ import { FxSettings } from './FxSettings';
 import { InboxList } from './InboxList';
 import { ClaimsList, useClaims } from './ClaimsList';
 import { MeAchievements, MeActivity } from './MeProgress';
+import { WalletChip } from '@/components/sikke/Wallet';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 
@@ -114,6 +115,7 @@ export function AccountPage() {
                 onEdit={() => setOpen('edit')}
               />
               <MeStats id={p.id} />
+              <WalletChip id={p.id} className="mb-6" />
               <button
                 type="button"
                 onClick={() => actions.open({ screen: 'player', params: { id: p.id } })}

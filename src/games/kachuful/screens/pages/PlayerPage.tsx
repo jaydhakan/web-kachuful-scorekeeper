@@ -1,3 +1,4 @@
+import { WalletChip } from '@/components/sikke/Wallet';
 import { AnimatePresence, m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
@@ -207,6 +208,11 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
               sub={`/ ${ACHIEVEMENTS.length}`}
               onClick={() => actions.open({ screen: 'achievements', params: { id } })}
             />
+          </div>
+        )}
+        {signedIn && (
+          <div className="w-full max-w-[28rem]">
+            <WalletChip id={resolveId(id)} />
           </div>
         )}
       </div>

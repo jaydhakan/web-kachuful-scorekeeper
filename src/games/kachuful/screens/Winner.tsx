@@ -28,6 +28,7 @@ import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
 import { NightLink } from '@/games/kachuful/components/NightLink';
+import { GameSikke } from '@/components/sikke/GameSikke';
 import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
 
 const rankColor = (rank: number) =>
@@ -274,6 +275,11 @@ export default function Winner() {
               </>
             )}
             <LevelUps g={g} heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]" />
+            <GameSikke
+              gameId={g.syncId}
+              people={st.flatMap(({ p }) => (p.playerId ? [{ ...p, id: p.playerId }] : []))}
+              heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]"
+            />
             {done.length > 1 && (
               <>
                 <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
