@@ -1,4 +1,6 @@
+import { StatCrowns } from '@/components/progression/StatCrowns';
 import { WalletChip } from '@/components/sikke/Wallet';
+import { useProgressionEnv } from '@/games/kachuful/components/useProgressionEnv';
 import { AnimatePresence, m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import {
@@ -72,6 +74,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const { actions } = useApp();
   const [range, setRange] = useState<Range>(() => rangeFor('all', Date.now()));
   const w = whoIs(f, id);
+  const env = useProgressionEnv(f);
   const { state } = useApp();
   const signedIn = !!state.session;
   const year = new Date().getFullYear();
@@ -210,6 +213,7 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             />
           </div>
         )}
+        <StatCrowns env={env} playerId={signedIn ? resolveId(id) : id} />
         {signedIn && (
           <div className="w-full max-w-[28rem]">
             <WalletChip id={resolveId(id)} />

@@ -10,6 +10,7 @@ import { AchievementsPage } from './AchievementsPage';
 import { ActivityPage } from './ActivityPage';
 import { AwardsPage } from './AwardsPage';
 import { SeasonNews } from './SeasonNews';
+import { StatCrowns } from './StatCrowns';
 import { saveSeasonShown } from '@/state/persistence';
 import { bindDevice, ProgressionScope, type ProgressionEnv } from './env';
 
@@ -244,5 +245,24 @@ describe('the shared pages, for a game ranked on win rate', () => {
   it('shows the catalogue locked for a game with nothing on the device, signed out', async () => {
     await show(envOf(false, { device: undefined }), <AchievementsPage />);
     expect(screen.getByText('Boston').closest('li')).toHaveTextContent('Not earned yet');
+  });
+
+  it("names the stat crowns a player holds this month, and nobody else's", async () => {
+    const device = {
+      ...prog.device!,
+      season: (_f: Earned[], month: string) => ({
+        season: month,
+        standings: [],
+        awards: [
+          { code: 'season_sharpest', playerId: 'a', value: 0.8 },
+          { code: 'season_iron', playerId: 'b', value: 40 },
+        ],
+      }),
+    };
+    const env = envOf(false, { device: bindDevice(device, []) });
+    await show(env, <StatCrowns env={env} playerId="a" />);
+    const list = screen.getByRole('list', { name: 'Crowns held this month' });
+    expect(within(list).getByText('Nishanebaaz')).toBeInTheDocument();
+    expect(within(list).queryByText('Lohe ka')).toBeNull();
   });
 });
