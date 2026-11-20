@@ -61,7 +61,9 @@ describe('Kaali Teeri progression pages, signed out', () => {
     expect(await screen.findByRole('heading', { name: 'Hand moments' })).toBeInTheDocument();
     expect(screen.getByText('Clean Sweep').closest('li')).toHaveTextContent(/Earned · /);
     expect(screen.getByText('Brick Wall').closest('li')).toHaveTextContent(/Earned · /);
-    expect(screen.getByText('Lone Wolf').closest('li')).toHaveTextContent('Not earned yet');
+    // Lone Wolf is hidden: nobody has it, so it's a secret.
+    expect(screen.queryByText('Lone Wolf')).toBeNull();
+    expect(screen.getByText('???').closest('li')).toHaveTextContent('Not earned yet');
     const shame = screen.getByText('So Close').closest('li')!;
     expect(within(shame).getByRole('img', { name: 'Just for laughs' })).toBeInTheDocument();
   });

@@ -52,7 +52,9 @@ describe('Spades progression pages, signed out', () => {
     await open({ page: 'achievements', id: riya });
     expect(await screen.findByRole('heading', { name: 'Hand moments' })).toBeInTheDocument();
     expect(screen.getAllByText('Boston').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Your 2♠ wins a trick/).length).toBeGreaterThan(0);
+    // Deuce Ace is hidden until someone earns it.
+    expect(screen.queryByText(/Your 2♠ wins a trick/)).toBeNull();
+    expect(screen.getAllByText('???').length).toBeGreaterThan(0);
   });
 
   it('the player page shows what they earned and links to the whole list', async () => {
