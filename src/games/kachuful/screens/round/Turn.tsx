@@ -18,6 +18,7 @@ import { t } from '@/strings';
 import { DealLine, HeroWho } from './Bidding';
 import { RoundFrame } from './RoundFrame';
 import { bidView } from './roundView';
+import { useHoldMoments } from '@/fx/moments';
 
 /** The bid's flick, as its chip lands on the seat. */
 const landed = () => playCue({ name: 'flick' });
@@ -55,6 +56,8 @@ export function Turn() {
   const g = state.game;
   const { r, n, pI, p, isD, allBid, forb, hookWarn, sum, cnt, diff, dealer, cap } = bidView(g);
   const playing = r.phase === 'playing';
+  // Bids are being entered: big shows wait for the next pause (REWARDS-PLAN §13).
+  useHoldMoments(!playing);
   const rm = useReducedMotion();
   const [shake, setShake] = useState<number | null>(null);
   // Two lines of text do not fit a short, narrow pane, so it swaps to a one-line wording there.

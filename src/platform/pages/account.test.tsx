@@ -57,14 +57,17 @@ async function show(withPlayer = false) {
 }
 
 afterEach(() => vi.restoreAllMocks());
+const res = <T,>(data: T) => ({ data, status: 200, etag: null });
 // The wallet asks for the player's Sikke; these tests are about the rest of the page.
 beforeEach(() => {
-  vi.spyOn(ep, 'sikke').mockResolvedValue({
-    playerId: 'p1',
-    balance: 0,
-    lifetime: 0,
-    level: { n: 1, from: 0, next: 500 },
-  });
+  vi.spyOn(ep, 'sikke').mockResolvedValue(
+    res({
+      playerId: 'p1',
+      balance: 0,
+      lifetime: 0,
+      level: { n: 1, from: 0, next: 500 },
+    }),
+  );
 });
 
 describe('the Me screen', () => {

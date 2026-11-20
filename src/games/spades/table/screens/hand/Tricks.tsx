@@ -17,6 +17,7 @@ import { vibrate } from '@/hooks/useHaptics';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
 import { Stepper, TEAM_TONE, TeamFaces, teamNames } from '../parts';
 import { HandFrame } from './HandFrame';
+import { useHoldMoments } from '@/fx/moments';
 
 /** 0–13 as one row of keys: a tap sets team A's tricks. */
 function Rail({ value, onPick }: { value: number; onPick: (v: number) => void }) {
@@ -93,6 +94,8 @@ function NilAsk({ g, h, e, t }: { g: SpGame; h: SpHand; e: SpEntry; t: TeamId })
  * teams' points for the hand before it is saved.
  */
 export default function Tricks({ g, h }: { g: SpGame; h: SpHand }) {
+  // A bid or a result is being entered: big shows wait for the next pause (REWARDS-PLAN §13).
+  useHoldMoments(true);
   const { state, actions } = useSp();
   // From the props' game: a screen leaving after Save still renders, while the store has moved on.
   const e = entryOf({ game: g, entry: state.entry })!;

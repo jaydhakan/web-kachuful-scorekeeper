@@ -21,6 +21,7 @@ import { ToggleTrack } from '@/components/ui/Toggle';
 import { REDUCED, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { TeamBand, TEAM_TONE } from '../parts';
 import { HandFrame } from './HandFrame';
+import { useHoldMoments } from '@/fx/moments';
 
 /** The keys the rules forbid for this seat, and why (the first reason that applies). */
 export function lockedFor(g: SpGame, h: SpHand, seat: Seat, blind: boolean) {
@@ -44,6 +45,8 @@ const contract = (h: SpHand, t: 'a' | 'b') =>
 
 /** Bids: four rows from the dealer's left, the bidder lit, and a keypad (0 is Nil) that greys out what the rules forbid. */
 export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
+  // A bid or a result is being entered: big shows wait for the next pause (REWARDS-PLAN §13).
+  useHoldMoments(true);
   const { actions } = useSp();
   const rm = useReducedMotion();
   const cur = toBid(h);

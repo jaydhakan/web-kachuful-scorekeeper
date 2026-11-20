@@ -33,6 +33,12 @@ export interface MomentSpec {
   scope: string;
   /** The game it belongs to: at most `perGame` Moments play per game, a game end aside (REWARDS-PLAN §13). */
   game?: string;
+  /** Moments for this scope, when it differs from the queue's (the scorekeepers take 1 a round, §13 rule 2). */
+  cap?: number;
+  /** What kind of show it is (`kursi`, `unlock:hot_5`) and its round: the same kind again within `COOLDOWN_ROUNDS`
+   * rounds plays its downgrade instead (§13 rule 5). */
+  kind?: string;
+  round?: number;
   /** Over a cap it is not lost: this plays its small version instead (a card, a line). */
   downgrade?: () => void;
   /** The full version; resolve when it has finished. */
@@ -45,6 +51,9 @@ export interface MomentSpec {
 }
 
 export type PushResult = 'playing' | 'queued' | 'duplicate' | 'capped';
+
+/** The same kind of Moment twice within this many rounds becomes its small version the second time. */
+export const COOLDOWN_ROUNDS = 2;
 
 export interface QueueOpts {
   /** Moments per scope; two per hand or round (§2.1). */
@@ -82,6 +91,8 @@ export class MomentQueue {
   private readonly cap: number;
   private readonly perGame: number;
   private games = new Map<string, number>();
+  private kinds = new Map<string, number>();
+  private held = 0;
   private readonly isReduced: () => boolean;
   private readonly sound: (name: SoundName, tier: SoundTier) => void;
   private readonly buzz: (p: Haptic) => void;
@@ -129,6 +140,21 @@ export class MomentQueue {
     return 'queued';
   }
 
+  /**
+   * Holds Moments that haven't started while a screen takes input (a bid, a result), so a big show lands at the
+   * next pause (§13 rule 1); returns the release. Beats still play. Holds nest.
+   */
+  hold(): () => void {
+    this.held++;
+    let done = false;
+    return () => {
+      if (done) return;
+      done = true;
+      this.held--;
+      if (!this.held) this.next();
+    };
+  }
+
   /** Resolves once no Moment is playing or waiting: small cards wait for it, so they never land on a Moment. */
   idle(): Promise<void> {
     const quiet = () => !this.now && !this.pending.length && !this.scheduled;
@@ -166,12 +192,16 @@ export class MomentQueue {
 
   private capped(m: MomentSpec) {
     if (m.priority >= PRIORITY.gameEnd) return false;
-    if ((this.counts.get(m.scope) ?? 0) >= this.cap) return true;
+    if ((this.counts.get(m.scope) ?? 0) >= (m.cap ?? this.cap)) return true;
+    if (m.kind && m.round != null) {
+      const last = this.kinds.get(m.kind);
+      if (last != null && m.round - last <= COOLDOWN_ROUNDS) return true;
+    }
     return !!m.game && (this.games.get(m.game) ?? 0) >= this.perGame;
   }
 
   private next() {
-    if (this.now) return;
+    if (this.now || this.held) return;
     this.pending.sort((a, b) => b.m.priority - a.m.priority || a.n - b.n);
     let item = this.pending.shift();
     while (item && this.capped(item.m)) {
@@ -182,6 +212,7 @@ export class MomentQueue {
     const { m } = item;
     this.counts.set(m.scope, (this.counts.get(m.scope) ?? 0) + 1);
     if (m.game) this.games.set(m.game, (this.games.get(m.game) ?? 0) + 1);
+    if (m.kind && m.round != null) this.kinds.set(m.kind, m.round);
     const ac = new AbortController();
     let end = () => undefined as void;
     const over = new Promise<void>((r) => (end = r));
@@ -270,6 +301,12 @@ export function useMoments(): MomentQueue {
  */
 export const momentRoot = () =>
   document.querySelector<HTMLElement>('[data-moment-root]') ?? document.body;
+
+/** Holds the screen's Moments while `on` (the screen is taking input); they play once it's off or gone. */
+export function useHoldMoments(on: boolean) {
+  const q = useMoments();
+  useEffect(() => (on ? q.hold() : undefined), [q, on]);
+}
 
 /** The Moment on screen, for a screen that dims or holds something while it plays. */
 export function useCurrentMoment(): MomentSpec | null {

@@ -183,6 +183,50 @@ describe('the moment queue', () => {
     expect(log).toEqual(['r1', 'r2', 'end']);
   });
 
+  it('a Moment may ask for a smaller cap on its scope (a scorekeeper takes one a round)', async () => {
+    const { q, log, make, finish } = rig();
+    q.push(make('a', PRIORITY.verdict, 'round:1', { cap: 1 }));
+    await flush();
+    await finish('a');
+    expect(q.push(make('b', PRIORITY.verdict, 'round:1', { cap: 1 }))).toBe('capped');
+    expect(log).toEqual(['a']);
+  });
+
+  it('the same kind again within two rounds plays its small version; later it plays in full', async () => {
+    const { q, log, make, finish } = rig();
+    const small: string[] = [];
+    const k = (id: string, round: number) =>
+      make(id, PRIORITY.bigUnlock, `round:${round}`, {
+        kind: 'unlock:hot_5',
+        round,
+        downgrade: () => small.push(id),
+      });
+    q.push(k('r1', 1));
+    await flush();
+    await finish('r1');
+    q.push(k('r3', 3));
+    await flush();
+    q.push(k('r4', 4));
+    await flush();
+    await finish('r4');
+    expect(log).toEqual(['r1', 'r4']);
+    expect(small).toEqual(['r3']);
+  });
+
+  it('holds Moments while a screen takes input, plays them at the pause, and lets Beats through', async () => {
+    const { q, log, make, finish } = rig();
+    const release = q.hold();
+    q.push(make('big', PRIORITY.bigUnlock));
+    q.push(make('beat', 1, 's1', { tier: 'beat' }));
+    await flush();
+    expect(log).toEqual(['beat']);
+    release();
+    release();
+    await flush();
+    expect(log).toEqual(['beat', 'big']);
+    await finish('big');
+  });
+
   it('gives a device three crown shows a night', () => {
     resetCrownShows();
     const night = new Date(2026, 10, 20, 22);

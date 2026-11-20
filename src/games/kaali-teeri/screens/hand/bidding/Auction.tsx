@@ -11,9 +11,12 @@ import { HandFrame } from '../parts/HandFrame';
 import { ModeSwitch } from './ModeSwitch';
 import { quickSteps } from './QuickBid';
 import { auctionView, callText } from './auctionView';
+import { useHoldMoments } from '@/fx/moments';
 
 /** The full auction, turn by turn: each seat's last call on the table, the high bid in the middle, the pad below. */
 export function Auction({ g, h }: { g: KtGame; h: KtHand }) {
+  // A bid or a result is being entered: big shows wait for the next pause (REWARDS-PLAN §13).
+  useHoldMoments(true);
   const { actions } = useKt();
   const s = ktBidding;
   const { st, min, max, order, idx, nameOf, bids, passed, speaker, canPass, shown } = auctionView(

@@ -2,7 +2,7 @@
 
 Written 2026-11-18 for Jay; v2 the same day, after a full read of the code. A working doc (never committed; delete when
 it ships in both repos). Code facts were checked against `main` in both repos (frontend `d7a2e1d`, backend `123b12d`).
-The sound side is detailed in [SOUND-PLAN.md](SOUND-PLAN.md); this plan only adds the reward sounds (§11).
+The table sounds are built (`src/fx/sound.ts`); this plan only adds the reward sounds (§11).
 
 **Status: waiting for approval (§17).** Nothing is built yet. 2026-11-20: Kachuful's medals (Badshah, Wazir,
 Senapati) added as §6.7, with decisions 13–16.

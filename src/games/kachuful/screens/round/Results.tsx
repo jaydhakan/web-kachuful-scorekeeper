@@ -14,8 +14,11 @@ import { resultsView, seatMarks } from './roundView';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { useHoldMoments } from '@/fx/moments';
 
 export function Results() {
+  // A bid or a result is being entered: big shows wait for the next pause (REWARDS-PLAN §13).
+  useHoldMoments(true);
   const { state, actions } = useApp();
   const g = state.game;
   const { r, st, od, left, blocked, why } = resultsView(g);

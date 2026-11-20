@@ -18,11 +18,14 @@ import { sgnN } from '@/lib/format';
 import { verdictCues, verdictHaptic } from '@/games/kaali-teeri/sound/plans';
 import { HandFrame } from './parts/HandFrame';
 import { CardName, Pill, RoleBadge, cardText, roleOf } from './parts/bits';
+import { useHoldMoments } from '@/fx/moments';
 
 const QUICK = [-25, -5, 5, 25];
 
 /** Plan §3 screen 7: either side's points (the defenders' by default), every called card's player, then Confirm. */
 export default function Result() {
+  // A bid or a result is being entered: big shows wait for the next pause (REWARDS-PLAN §13).
+  useHoldMoments(true);
   const { state, actions } = useKt();
   const g = state.game;
   const h = g && curHand(g);

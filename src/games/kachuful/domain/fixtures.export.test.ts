@@ -280,7 +280,9 @@ describe('golden fixtures for the backend', () => {
       expect(
         readdirSync(DIR)
           // kt-*, ishaara-*, spades-* and kursi-* and sikke-* belong elsewhere, each checked by its own export test.
-          .filter((f) => f.endsWith('.json') && !/^(kt|kaali-teeri|ishaara|spades|kursi|sikke)-/.test(f))
+          .filter(
+            (f) => f.endsWith('.json') && !/^(kt|kaali-teeri|ishaara|spades|kursi|sikke)-/.test(f),
+          )
           .sort(),
       ).toEqual(
         Object.keys(all)
