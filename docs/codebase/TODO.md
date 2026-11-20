@@ -127,8 +127,14 @@ What the 2026-11-15 design audit left open (finding IDs refer to the audit, kept
   - After a stream drops, seat presence refreshes only on the next `seat-presence` frame; confirm the real server
     resends it when a stream opens.
 - **Deploy and devices:**
+  - Confirm the frontend deploy is live (`/spades` once answered with the generic "Baithak" title): find how it deploys.
+  - nginx needs SSE settings for `/api/me/events` and `/api/spades/tables/*/events` (buffering off, a 1-hour read
+    timeout), or online Spades and invites stall on production. The config is in neither repo.
+  - Play a real 4-phone Spades game on production, in all four themes.
   - Whether an iPhone's silent switch mutes the Web Audio sounds is unverified.
   - Haptics are untested on a real Android phone.
+- **Phone notifications (idea):** Web Push for "It's your turn" and "X invited you" (`pywebpush` already approved;
+  iPhone only in the installed PWA).
 - **Seat invites:** a host who reloads loses Ishaara's "can't make it" (no host-side read of sent invites), and the
   server's circle leaves out games the user scored but didn't sit in.
 
