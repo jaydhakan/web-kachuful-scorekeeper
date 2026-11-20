@@ -41,11 +41,7 @@ describe('what the crown news says', () => {
   it('puts a new Badshah first, with the Kursi, the other medals and the bounty as lines', () => {
     const b = crownBanner(
       st(
-        [
-          change('kursi', [DEV], [RIYA]),
-          change('medal2', [ASHA]),
-          change('medal1', [DEV], [RIYA]),
-        ],
+        [change('kursi', [DEV], [RIYA]), change('medal2', [ASHA]), change('medal1', [DEV], [RIYA])],
         [{ holder: RIYA, winner: DEV, amount: 40 }],
       ),
     );
