@@ -187,25 +187,28 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
 - **Not checked on a real phone or with motion on frame by frame** (e2e covers presence, reduced motion).
 - **Other games:** medals, Kursi, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
   real night with Kachuful. The Kursi rule is game-agnostic (`src/progression/kursi.ts`, teams included).
-- **Live page:** spectators don't see the banter or the medals yet (`pages/LivePage.tsx`).
+- **Live page:** a signed-in spectator sees the medals and the Kursi on the standings; banter isn't shown, and a
+  signed-out spectator sees none (`GET /api/medals` needs a sign-in; a public read would be a backend request).
+- **Stat crowns (§6.2):** live under the name on Kachuful's player page only; the other games' player pages have no
+  progression env yet.
+- **Festival days (`src/fx/festival.ts`):** Kachuful's round 1 deal only. Lunar dates are listed through 2028 (Eid's
+  tentative): add 2029's before the end of 2028.
+- **"Last game of the night"** toggle and its long ceremony wait for the stage bust (art).
 - **Crown news (backend-requests §6), app side:** the banner on the other phones (`components/crowns/CrownNews.tsx`),
   bounty chips on Kachuful's winner screen, crown and night rows in the feed, and round 1's "Beat Riya: +40 🪙".
   Not checked in a browser: the winner screen's chips and round 1's bounty line (unit tests only), the banner in the
   three other themes and on a tablet or laptop. The mock sends Kursi changes and bounties only (no medal, Sitara or
   Legend changes), and the crown banner and the invite banner share the top of the screen (the crown one is above).
-- **Moment budget (§13):** the queue now holds Moments during input (`useHoldMoments`, on Kachuful's bids and
-  results, Kaali Teeri's auction and result, the Spades scorekeeper's bids and tricks), and takes a per-scope `cap`
-  and a `kind`+`round` cooldown, but **no caller passes `cap: 1`, `kind` or `round` yet**: `MomentPop` scopes by
-  batch, not by round, so the scorekeepers need one round scope first. A second tap finishing a beat sequence is not
-  built.
+- **Moment budget (§13):** a second tap finishing a beat sequence is built only where it was (Kachuful's summary);
+  the other sequences are under a second. Everything else in §13 is built (holds, round cap, cooldown, crown cap).
 - **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on every game's winner screen
   (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
   Kachuful only (finish, win, achievements). Backend `make perf` not run with Sikke (a finishing Kachuful PUT now
   rebuilds the Kursi chain from every ended game). Levels and prices still need checking against the backfill
-  (`recompute-sikke --dry-run` on production data). Bounties and tonight's Sitara pay once `crowns`/`nights` exist.
+  (`recompute-sikke --dry-run` on production data).
 - **Nights (backend-requests §7), app side:** the server's Wrapped on `NightPage` (`?open=night&id=`), Your nights
-  with End the night, and "Your night is ready" on Me and the landing page. The mock's nights carry no Sitara, Sikke
-  or achievements (unit tests cover those cards) and group every game as one table. Not checked in a browser: the
+  with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
+  table. Not checked in a browser: the
   landing card (unit-tested hook only), tablet and laptop, the three other themes. `e2e/nights.spec.ts` skips on a
   reused mock server once tonight was ended (every recent game joins that night).
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
