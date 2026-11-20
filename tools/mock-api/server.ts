@@ -29,6 +29,8 @@ import {
   wrapped,
   doneRounds,
   kursiGames,
+  ACHIEVEMENTS,
+  LADDERS,
   tallies,
   type Earned,
   type Facts,
@@ -86,6 +88,7 @@ import {
 } from './spadesOnline';
 import { GAME_MOCKS, type GameMock, type MockCtx } from './progression/index';
 import { kursiFrom } from '../../src/progression/kursi';
+import { achievementSikke, levelOf, SIKKE } from '../../src/progression/sikke';
 import { dayRange as dayRangeIn, monthRange as monthRangeIn } from '../../src/progression/zone';
 import type { GameId } from '../../src/progression/types';
 
@@ -1811,6 +1814,103 @@ on('GET', '/api/kursi', ({ url }) => {
 on('GET', '/api/places', ({ url }) => {
   const f = factsWithout(url.searchParams.get('excludeGame'));
   return { games: kursiGames(f).sort((a, b) => b.endedAt - a.endedAt) };
+});
+// Sikke (REWARDS-PLAN §9), Kachuful's games only here: finishes, wins and achievements; no cap, Kursi or streak.
+interface MockSikke {
+  id: string;
+  playerId: string;
+  kind: 'finish' | 'win' | 'achievement';
+  amount: number;
+  game: GameId;
+  gameId: string | null;
+  code: string | null;
+  period: string | null;
+  earnedAt: number;
+}
+const ACH_SIKKE = new Map(ACHIEVEMENTS.map((d) => [d.code, achievementSikke(d, LADDERS)]));
+const sikkeEntries = (): MockSikke[] => {
+  const out: MockSikke[] = [];
+  for (const g of kursiGames(facts()))
+    for (const s of g.seats) {
+      const base = {
+        playerId: s.playerId,
+        game: 'kachuful' as const,
+        gameId: g.gameId,
+        code: null,
+        period: null,
+        earnedAt: g.endedAt,
+      };
+      out.push({
+        ...base,
+        id: hash(`f|${g.gameId}|${s.playerId}`),
+        kind: 'finish',
+        amount: SIKKE.finish,
+      });
+      if (s.place === 1)
+        out.push({
+          ...base,
+          id: hash(`w|${g.gameId}|${s.playerId}`),
+          kind: 'win',
+          amount: SIKKE.win,
+        });
+    }
+  for (const a of db.achievements.values()) {
+    const amount = ACH_SIKKE.get(a.code) ?? 0;
+    if (amount)
+      out.push({
+        id: a.id,
+        playerId: a.playerId,
+        kind: 'achievement',
+        amount,
+        game: 'kachuful',
+        gameId: a.gameId,
+        code: a.code,
+        period: a.period,
+        earnedAt: a.earnedAt,
+      });
+  }
+  return out.sort((a, b) => b.earnedAt - a.earnedAt || (a.id < b.id ? -1 : 1));
+};
+const sikkeOf = (playerId: string, without: string | null = null) => {
+  const lifetime = sikkeEntries()
+    .filter((e) => e.playerId === playerId && (!without || e.gameId !== without))
+    .reduce((n, e) => n + e.amount, 0);
+  return { playerId, balance: lifetime, lifetime, level: levelOf(lifetime) };
+};
+on('GET', '/api/players/:id/sikke', ({ m }) => {
+  const id = resolve(m[0]);
+  if (!db.players.has(id)) throw err(404, 'not_found');
+  return sikkeOf(id);
+});
+on('GET', '/api/players/:id/sikke/entries', ({ m, url }) => {
+  const id = resolve(m[0]);
+  if (!db.players.has(id)) throw err(404, 'not_found');
+  const list = sikkeEntries()
+    .filter((e) => e.playerId === id)
+    .map((e) => ({ ...e, playerId: undefined }));
+  return page(list, url.searchParams.get('cursor'), Number(url.searchParams.get('limit') ?? 50));
+});
+on('GET', '/api/games/:id/sikke', ({ m }) => {
+  const r = db.games.get(m[0]);
+  if (!r || r.deletedAt) throw err(404, 'not_found');
+  const all = sikkeEntries().filter((e) => e.gameId === m[0]);
+  return {
+    items: r.payload.players.flatMap((p) => {
+      if (!p.playerId) return [];
+      const mine = all.filter((e) => e.playerId === p.playerId);
+      const now = sikkeOf(p.playerId);
+      const before = sikkeOf(p.playerId, m[0]).level.n;
+      return [
+        {
+          playerId: p.playerId,
+          amount: mine.reduce((n, e) => n + e.amount, 0),
+          entries: mine.map((e) => ({ kind: e.kind, amount: e.amount, code: e.code })),
+          level: now.level,
+          levelUp: now.level.n > before ? { from: before, to: now.level.n } : null,
+        },
+      ];
+    }),
+  };
 });
 on('GET', '/api/seasons', ({ url }) => {
   const other = gameMock(url);

@@ -20,6 +20,9 @@ import type {
   KursiResp,
   PlacesResp,
   MedalsResp,
+  GameSikkeResp,
+  SikkeEntry,
+  SikkeResp,
   NewPlayer,
   MergeKeep,
   Page,
@@ -204,6 +207,12 @@ export const ep = {
   /** Kachuful's Kursi as it stood before `excludeGame`. */
   kursi: (excludeGame: string, o?: CallOpts) =>
     call<KursiResp>('GET', '/kursi' + query({ excludeGame }), undefined, o),
+  // Sikke (rewards plan §9)
+  sikke: (id: string, o?: CallOpts) => call<SikkeResp>('GET', `/players/${id}/sikke`, undefined, o),
+  sikkeEntries: (id: string, cursor: string | null) =>
+    get<Page<SikkeEntry>>(`/players/${id}/sikke/entries`, { cursor, limit: 50 }),
+  gameSikke: (gameId: string, o?: CallOpts) =>
+    call<GameSikkeResp>('GET', `/games/${gameId}/sikke`, undefined, o),
   /** Ended Kachuful games' places, without `excludeGame`, for the table intel line. */
   places: (excludeGame: string, o?: CallOpts) =>
     call<PlacesResp>('GET', '/places' + query({ excludeGame }), undefined, o),

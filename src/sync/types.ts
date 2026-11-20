@@ -412,3 +412,44 @@ export interface AdminOverview {
 export type MergeKeep = Partial<
   Record<'displayName' | 'email' | 'names' | 'photo', 'from' | 'into'>
 >;
+
+/** A player's Sikke level (rewards plan §9); `next` is where the next level starts, null at the top. */
+export interface SikkeLevel {
+  n: number;
+  from: number;
+  next: number | null;
+}
+
+/** GET /api/players/{id}/sikke. */
+export interface SikkeResp {
+  playerId: string;
+  balance: number;
+  lifetime: number;
+  level: SikkeLevel;
+}
+
+export type SikkeKind =
+  'finish' | 'win' | 'achievement' | 'kursi_take' | 'kursi_defence' | 'streak';
+
+/** One line of a player's ledger (GET /api/players/{id}/sikke/entries). */
+export interface SikkeEntry {
+  id: string;
+  kind: SikkeKind;
+  amount: number;
+  game: GameId | null;
+  gameId: string | null;
+  code: string | null;
+  period: string | null;
+  earnedAt: number;
+}
+
+/** GET /api/games/{id}/sikke: what one game paid each of its players, seat order. */
+export interface GameSikkeResp {
+  items: {
+    playerId: string;
+    amount: number;
+    entries: { kind: SikkeKind; amount: number; code: string | null }[];
+    level: SikkeLevel;
+    levelUp: { from: number; to: number } | null;
+  }[];
+}
