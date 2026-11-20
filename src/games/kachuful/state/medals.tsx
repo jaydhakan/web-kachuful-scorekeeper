@@ -4,6 +4,9 @@ import {
   banterLog,
   buildFacts,
   chaseOf,
+  defended,
+  finalPlaces,
+  medalChanges,
   gameTallies,
   medalsOf,
   project,
@@ -14,6 +17,7 @@ import {
   type Holder,
   type Mark,
   type MedalChase,
+  type MedalChange,
   type MedalRow,
   type Medals,
   type Player,
@@ -26,6 +30,7 @@ import { ep } from '@/sync/endpoints';
 import type { LeaderboardRow } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
 import { useApp } from './store';
+import { whoIs } from './useFacts';
 
 const MARK: Record<1 | 2 | 3, Mark> = { 1: 'gold', 2: 'silver', 3: 'bronze' };
 
@@ -39,6 +44,10 @@ export interface TableMedals {
   marks: ReadonlyMap<string, Mark>;
   /** One line per round done (null where nothing fits). */
   banter: (Banter | null)[];
+  /** Every medal that would move if the game ended now, gold first, with names (a holder may not be seated). */
+  changes: (MedalChange & { name: string })[];
+  /** The seat id of a Badshah who kept gold and finished above every other medallist at the table. */
+  defended: string | null;
 }
 
 const EMPTY: TableMedals = {
@@ -47,6 +56,8 @@ const EMPTY: TableMedals = {
   chase: { slipping: new Set(), onTrack: new Map() },
   marks: new Map(),
   banter: [],
+  changes: [],
+  defended: null,
 };
 
 interface Base {
@@ -79,7 +90,11 @@ function deviceBase(current: Game): Base {
 }
 
 /** Rebuilds the table's medals from the board before the game and the game as it is now. */
-export function tableMedals(g: Game, base: Base): TableMedals {
+export function tableMedals(
+  g: Game,
+  base: Base,
+  nameOf: (id: string) => string = boardName,
+): TableMedals {
   const key = (p: Player) => idOf(p);
   const held = medalsOf(base.rows, base.last);
   const [from, to] = monthRange(base.month);
@@ -97,14 +112,27 @@ export function tableMedals(g: Game, base: Base): TableMedals {
     afterHere = byGame(after);
   const ids = g.players.map((p) => p.id);
   const marks = new Map<string, Mark>([...heldHere].map(([id, h]) => [id, MARK[h.medal]]));
+  const seatOf = new Map(g.players.map((p) => [key(p), p]));
+  const places = new Map(
+    [...finalPlaces(g)].map(([id, n]) => [key(g.players.find((p) => p.id === id)!), n]),
+  );
+  const kept = defended(held, after, places);
   return {
     held: heldHere,
     after: afterHere,
     chase: chaseOf(heldHere, afterHere, ids),
     marks,
     banter: banterLog(g, marks),
+    changes: medalChanges(held, after).map((c) => ({
+      ...c,
+      name: seatOf.get(c.playerId)?.name ?? nameOf(c.playerId),
+    })),
+    defended: kept ? (seatOf.get(kept)?.id ?? null) : null,
   };
 }
+
+/** A board id's name from the registry (it mirrors the server's players signed in). */
+const boardName = (id: string) => whoIs(null, id).name;
 
 const Ctx = createContext<TableMedals>(EMPTY);
 
@@ -141,14 +169,14 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
 export const useMedals = (): TableMedals => useContext(Ctx);
 
 /** A seat's medal and whether it is slipping, by the game's `Player.id`, for `MedalName`. */
-export function useMedalOf() {
+export function useMedalOf(after = false) {
   const t = useMedals();
   return useCallback(
-    (id: string): { mark: MedalMark | null; slipping: boolean } => ({
-      mark: t.held.get(id) ?? null,
-      slipping: t.chase.slipping.has(id),
-    }),
-    [t],
+    (id: string): { mark: MedalMark | null; slipping: boolean } =>
+      after
+        ? { mark: t.after.get(id) ?? null, slipping: false }
+        : { mark: t.held.get(id) ?? null, slipping: t.chase.slipping.has(id) },
+    [t, after],
   );
 }
 

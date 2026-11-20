@@ -1,6 +1,7 @@
 /** The board's top three as medals at the table: Badshah, Wazir, Senapati (REWARDS-PLAN §6.7). */
 import { avgOf, rankRows } from './leaderboard';
 import { roundFacts } from './timeline';
+import { standings } from './standings';
 import type { Game } from './types';
 
 export type Medal = 1 | 2 | 3;
@@ -137,3 +138,7 @@ export function defended(
   }
   return null;
 }
+
+/** Each seat's rank in the game as it stands (`Player.id` → rank; ties share). */
+export const finalPlaces = (g: Game): Map<string, number> =>
+  new Map(standings(g).map((x) => [x.p.id, x.rank]));

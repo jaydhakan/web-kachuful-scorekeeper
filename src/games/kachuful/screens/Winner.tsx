@@ -27,6 +27,7 @@ import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -98,6 +99,9 @@ export default function Winner() {
   };
   // The trophy, rows and cards follow the name; once it is in, anything scrolled into view comes straight away.
   const after = named ? 0 : plan.done / 1000;
+  // A new Badshah takes the screen once the podium is in (REWARDS-PLAN §6.7).
+  const takeover = useMedalTakeover(g, state.fresh, play ? plan.done + 400 : 300);
+  const beat = useMedalBeat();
   return (
     <Scaffold
       left={
@@ -160,6 +164,17 @@ export default function Winner() {
                   {how}
                 </m.span>
               )}
+              {beat && (
+                <m.span
+                  data-medal-beat
+                  initial={play ? { opacity: 0 } : false}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: after }}
+                  className="mt-0.5 block font-sans text-15 font-semibold tracking-normal text-[var(--gold-tx)]"
+                >
+                  {beat}
+                </m.span>
+              )}
             </h2>
             <Podium standings={board} reveal={play ? plan : null} />
           </div>
@@ -189,7 +204,7 @@ export default function Winner() {
                   </div>
                   <Dot p={x.p} s={40} />
                   <div className="min-w-0 flex-1 text-18 land:text-16 font-bold tracking-[-0.015em] [overflow-wrap:anywhere] [text-wrap:balance]">
-                    <SeatName p={x.p} />
+                    <SeatName p={x.p} after />
                   </div>
                   <div
                     className={`disp text-26 land:text-22 font-extrabold tracking-[-0.03em] ${x.t < 0 ? 'text-[var(--neg)]' : ''}`}
@@ -280,6 +295,7 @@ export default function Winner() {
         </div>
       </div>
       {filed.node}
+      {takeover}
     </Scaffold>
   );
 }

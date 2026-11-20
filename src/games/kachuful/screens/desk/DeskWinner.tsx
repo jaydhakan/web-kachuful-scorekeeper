@@ -26,6 +26,7 @@ import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
 
 const Highlight = ({
   label,
@@ -88,6 +89,9 @@ export function DeskWinner() {
   const filed = useFiledAway(g, top[0]?.p);
   // Reopened, the page keeps its own short entrance; just finished, everything follows the winner's name.
   const after = play ? plan.done / 1000 : 0;
+  // A new Badshah takes the screen once the podium is in (REWARDS-PLAN §6.7).
+  const takeover = useMedalTakeover(g, state.fresh, play ? plan.done + 400 : 300);
+  const beat = useMedalBeat();
   const title =
     top.length > 1
       ? t.desk.winner.tie(top.map((x) => x.p.name).join(', '), fmt(top[0].t))
@@ -112,6 +116,17 @@ export function DeskWinner() {
                 className="mt-1 block font-sans text-18 font-semibold tracking-normal text-[var(--tx2)]"
               >
                 {how}
+              </m.span>
+            )}
+            {beat && (
+              <m.span
+                data-medal-beat
+                initial={play ? { opacity: 0 } : false}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: after }}
+                className="mt-1 block font-sans text-18 font-semibold tracking-normal text-[var(--gold-tx)]"
+              >
+                {beat}
               </m.span>
             )}
           </>
@@ -182,7 +197,7 @@ export function DeskWinner() {
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
                 />
                 <span className="min-w-0 flex-1 text-18 font-bold [overflow-wrap:anywhere]">
-                  <SeatName p={x.p} />
+                  <SeatName p={x.p} after />
                 </span>
                 <span
                   className={`disp tick text-28 font-extrabold ${x.t < 0 ? 'text-[var(--neg-tx)]' : ''}`}
@@ -245,6 +260,7 @@ export function DeskWinner() {
         </Sheet>
       )}
       {filed.node}
+      {takeover}
     </DeskPage>
   );
 }

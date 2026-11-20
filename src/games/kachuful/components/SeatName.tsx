@@ -10,13 +10,16 @@ export function SeatName({
   p,
   glyph,
   chase = false,
+  after = false,
 }: {
   p: { id?: string; name: string };
   glyph?: boolean;
   chase?: boolean;
+  /** The medals as the game leaves them (the winner screen), not as it found them. */
+  after?: boolean;
 }) {
   const id = p.id ?? '';
-  const { mark, slipping } = useMedalOf()(id);
+  const { mark, slipping } = useMedalOf(after)(id);
   const track = useMedals().chase.onTrack.get(id);
   return (
     <>
