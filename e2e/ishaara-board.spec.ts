@@ -16,7 +16,9 @@ const words = (page: Page) => page.getByRole('list', { name: 'Words', exact: tru
 // The board's own announcer, an sr-only status line (the app has other live regions: theme sync, toasts, and the
 // invite banner's, which is marked).
 const live = (page: Page) =>
-  page.locator('p.sr-only[role="status"][aria-live="polite"]:not([data-invite-live])');
+  page.locator(
+    'p.sr-only[role="status"][aria-live="polite"]:not([data-invite-live]):not([data-crown-news-live])',
+  );
 const box = async (page: Page) => {
   const b = await words(page).boundingBox();
   return b && [b.x, b.y, b.width, b.height].map(Math.round).join(',');
