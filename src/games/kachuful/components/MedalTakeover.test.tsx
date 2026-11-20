@@ -1,5 +1,12 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { forgetMoments, MomentQueue, MomentsProvider } from '@/fx/moments';
+import {
+  CROWN_SHOWS_A_NIGHT,
+  forgetMoments,
+  MomentQueue,
+  MomentsProvider,
+  resetCrownShows,
+  takeCrownShow,
+} from '@/fx/moments';
 import { kitGame } from '@/games/kachuful/domain/__fixtures__/kit';
 import { MedalsValue, NO_MEDALS, type TableMedals } from '@/games/kachuful/state/medals';
 import { useMedalBeat, useMedalTakeover } from './MedalTakeover';
@@ -9,12 +16,13 @@ const g = kitGame({ id: 'tk', players: ['R', 'D'], rounds: [{ made: [true, false
 const base: TableMedals = NO_MEDALS;
 
 function Host({ fresh = true }: { fresh?: boolean }) {
-  const node = useMedalTakeover(g, fresh, 0);
+  const { node, line } = useMedalTakeover(g, fresh, 0);
   const beat = useMedalBeat();
   return (
     <>
       {node}
       <p data-testid="beat">{beat}</p>
+      <p data-testid="line">{line}</p>
     </>
   );
 }
@@ -32,7 +40,10 @@ const show = (value: TableMedals, fresh = true) => {
 };
 
 describe('the medals at the end of a game', () => {
-  beforeEach(() => forgetMoments());
+  beforeEach(() => {
+    forgetMoments();
+    resetCrownShows();
+  });
 
   it('plays "Naya Badshah" when gold changes hands, and a tap skips it', async () => {
     const q = show({
@@ -93,5 +104,12 @@ describe('the medals at the end of a game', () => {
   it('says a defended or a first Kursi as a line', () => {
     show({ ...base, kursiEvent: { kind: 'defended', defences: 7, holders: ['Riya'] } });
     expect(screen.getByTestId('beat')).toHaveTextContent('🪑 Kursi bachi: Riya, 7 defences');
+  });
+
+  it("says a crown change as a line once tonight's shows are used up", async () => {
+    for (let i = 0; i < CROWN_SHOWS_A_NIGHT; i++) takeCrownShow();
+    show({ ...base, changes: [{ playerId: 'D', from: null, to: 1, name: 'Dev' }] });
+    await waitFor(() => expect(screen.getByTestId('line')).toHaveTextContent('Naya Badshah: Dev!'));
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });

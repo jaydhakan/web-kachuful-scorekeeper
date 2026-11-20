@@ -91,7 +91,8 @@ export function DeskWinner() {
   const after = play ? plan.done / 1000 : 0;
   // A new Badshah takes the screen once the podium is in (REWARDS-PLAN §6.7).
   const takeover = useMedalTakeover(g, state.fresh, play ? plan.done + 400 : 300);
-  const beat = useMedalBeat();
+  const medalBeat = useMedalBeat();
+  const beat = [takeover.line, medalBeat].filter(Boolean).join(' · ') || null;
   const title =
     top.length > 1
       ? t.desk.winner.tie(top.map((x) => x.p.name).join(', '), fmt(top[0].t))
@@ -260,7 +261,7 @@ export function DeskWinner() {
         </Sheet>
       )}
       {filed.node}
-      {takeover}
+      {takeover.node}
     </DeskPage>
   );
 }

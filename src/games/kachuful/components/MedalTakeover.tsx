@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { Confetti } from '@/components/ui/Confetti';
 import { EASE, MOMENT_MAX_MS, SPRING_POP } from '@/components/ui/motion';
 import { HAPTIC } from '@/fx/feedback';
-import { momentRoot, PRIORITY, useMoments } from '@/fx/moments';
+import { momentRoot, PRIORITY, takeCrownShow, useMoments } from '@/fx/moments';
 import { useMedals, type KursiMove } from '@/games/kachuful/state/medals';
 import type { Game } from '@/games/kachuful/domain';
 import { kursi as k } from '@/strings/kursi';
@@ -27,6 +27,8 @@ export function useMedalTakeover(g: Game, fresh: boolean, afterMs: number) {
   const { changes, kursiEvent } = useMedals();
   const q = useMoments();
   const [on, setOn] = useState(false);
+  // Past tonight's crown shows, or over a cap, the change is a line under the headline instead (§13).
+  const [small, setSmall] = useState(false);
   // The shells clear `fresh` at once under reduced motion; the still card plays anyway, so keep it as opened.
   const [justEnded] = useState(fresh);
   const gold = changes.find((c) => c.to === 1 && c.from !== 1);
@@ -51,24 +53,37 @@ export function useMedalTakeover(g: Game, fresh: boolean, afterMs: number) {
       });
     const t = setTimeout(
       () =>
-        q.push({
-          id: `crowns:${g.syncId}:${g.finishedAt ?? 0}`,
-          tier: 'moment',
-          priority: PRIORITY.verdict,
-          scope: `game:${g.syncId}`,
-          sound: gold ? 'crown' : 'gavel',
-          haptic: HAPTIC.BIG,
-          play,
-          reduced: play,
-        }),
+        !takeCrownShow()
+          ? setSmall(true)
+          : q.push({
+              id: `crowns:${g.syncId}:${g.finishedAt ?? 0}`,
+              tier: 'moment',
+              priority: PRIORITY.verdict,
+              scope: `game:${g.syncId}`,
+              sound: gold ? 'crown' : 'gavel',
+              haptic: HAPTIC.BIG,
+              play,
+              reduced: play,
+              downgrade: () => setSmall(true),
+            }),
       afterMs,
     );
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, for the game that just ended
   }, [justEnded, show]);
-  return on && show ? (
-    <Takeover gold={gold?.name} old={old?.name} rest={rest} chair={chair} />
-  ) : null;
+  const line = !small
+    ? null
+    : [
+        gold && s.newBadshah(gold.name),
+        chair && `${k.glyph} ${k.taken} ${k.takenBy(chair.to, chair.from)}`,
+      ]
+        .filter(Boolean)
+        .join(' · ');
+  return {
+    node:
+      on && show ? <Takeover gold={gold?.name} old={old?.name} rest={rest} chair={chair} /> : null,
+    line,
+  };
 }
 
 function Takeover({

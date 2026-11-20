@@ -31,6 +31,10 @@ export interface MomentSpec {
   priority: number;
   /** The hand or round it belongs to: at most `cap` Moments play per scope (a game end is never capped). */
   scope: string;
+  /** The game it belongs to: at most `perGame` Moments play per game, a game end aside (REWARDS-PLAN §13). */
+  game?: string;
+  /** Over a cap it is not lost: this plays its small version instead (a card, a line). */
+  downgrade?: () => void;
   /** The full version; resolve when it has finished. */
   play: (ctx: MomentCtx) => void | Promise<void>;
   /** The still version for reduced motion; left out, nothing is drawn, but the sound and haptic still play. */
@@ -45,6 +49,8 @@ export type PushResult = 'playing' | 'queued' | 'duplicate' | 'capped';
 export interface QueueOpts {
   /** Moments per scope; two per hand or round (§2.1). */
   cap?: number;
+  /** Moments per game (`MomentSpec.game`), a game end aside; unlimited unless set. */
+  perGame?: number;
   reduced?: () => boolean;
   playSound?: (name: SoundName, tier: SoundTier) => void;
   vibrate?: (p: Haptic) => void;
@@ -74,12 +80,15 @@ export class MomentQueue {
   private order = 0;
   private scheduled = false;
   private readonly cap: number;
+  private readonly perGame: number;
+  private games = new Map<string, number>();
   private readonly isReduced: () => boolean;
   private readonly sound: (name: SoundName, tier: SoundTier) => void;
   private readonly buzz: (p: Haptic) => void;
 
   constructor(o: QueueOpts = {}) {
     this.cap = o.cap ?? 2;
+    this.perGame = o.perGame ?? Infinity;
     this.isReduced = o.reduced ?? reducedMotion;
     this.sound = o.playSound ?? lazyCue;
     this.buzz = o.vibrate ?? vibrate;
@@ -105,7 +114,10 @@ export class MomentQueue {
       void this.run(m, new AbortController());
       return 'playing';
     }
-    if (this.capped(m)) return 'capped';
+    if (this.capped(m)) {
+      m.downgrade?.();
+      return 'capped';
+    }
     this.pending.push({ m, n: this.order++ });
     if (!this.scheduled) {
       this.scheduled = true;
@@ -153,17 +165,23 @@ export class MomentQueue {
   }
 
   private capped(m: MomentSpec) {
-    return m.priority < PRIORITY.gameEnd && (this.counts.get(m.scope) ?? 0) >= this.cap;
+    if (m.priority >= PRIORITY.gameEnd) return false;
+    if ((this.counts.get(m.scope) ?? 0) >= this.cap) return true;
+    return !!m.game && (this.games.get(m.game) ?? 0) >= this.perGame;
   }
 
   private next() {
     if (this.now) return;
     this.pending.sort((a, b) => b.m.priority - a.m.priority || a.n - b.n);
     let item = this.pending.shift();
-    while (item && this.capped(item.m)) item = this.pending.shift();
+    while (item && this.capped(item.m)) {
+      item.m.downgrade?.();
+      item = this.pending.shift();
+    }
     if (!item) return;
     const { m } = item;
     this.counts.set(m.scope, (this.counts.get(m.scope) ?? 0) + 1);
+    if (m.game) this.games.set(m.game, (this.games.get(m.game) ?? 0) + 1);
     const ac = new AbortController();
     let end = () => undefined as void;
     const over = new Promise<void>((r) => (end = r));
@@ -222,6 +240,20 @@ export function MomentsProvider({
     </Ctx.Provider>
   );
 }
+
+/** Crown-change shows a device plays in a night before they become a line (REWARDS-PLAN §13 rule 4). */
+export const CROWN_SHOWS_A_NIGHT = 3;
+let crowns = { day: '', n: 0 };
+/** Takes one of tonight's crown shows; false once they are used up (kept in memory, by local day). */
+export function takeCrownShow(now = new Date()): boolean {
+  const day = now.toDateString();
+  if (crowns.day !== day) crowns = { day, n: 0 };
+  if (crowns.n >= CROWN_SHOWS_A_NIGHT) return false;
+  crowns.n++;
+  return true;
+}
+/** Tests: a new night. */
+export const resetCrownShows = () => (crowns = { day: '', n: 0 });
 
 let page: MomentQueue | null = null;
 /** The page's queue, for screens without a provider: every game's pops and verdicts share it, so they never overlap. */

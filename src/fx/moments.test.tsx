@@ -6,6 +6,8 @@ import {
   MomentQueue,
   MomentsProvider,
   PRIORITY,
+  resetCrownShows,
+  takeCrownShow,
   type MomentSpec,
   type QueueOpts,
 } from './moments';
@@ -148,6 +150,44 @@ describe('the moment queue', () => {
     await finish('mid');
     expect(log).toEqual(['top', 'mid']);
     expect(q.current).toBeNull();
+  });
+
+  it('plays the small version of a Moment over a cap instead of losing it', async () => {
+    const { q, make, finish } = rig();
+    const small: string[] = [];
+    const down = (id: string) => ({ downgrade: () => small.push(id) });
+    q.push(make('low', PRIORITY.smallUnlock, 's1', down('low')));
+    q.push(make('mid', PRIORITY.bigUnlock, 's1', down('mid')));
+    q.push(make('top', PRIORITY.verdict, 's1', down('top')));
+    await flush();
+    await finish('top');
+    await finish('mid');
+    expect(small).toEqual(['low']);
+    expect(q.push(make('late', PRIORITY.verdict, 's1', down('late')))).toBe('capped');
+    expect(small).toEqual(['low', 'late']);
+  });
+
+  it('caps a game at `perGame` Moments across its rounds, a game end aside', async () => {
+    const { q, log, make, finish } = rig({ perGame: 2 });
+    for (const [id, scope] of [
+      ['r1', 'round:1'],
+      ['r2', 'round:2'],
+      ['r3', 'round:3'],
+    ]) {
+      q.push(make(id, PRIORITY.bigUnlock, scope, { game: 'g' }));
+      await flush();
+      await finish(id);
+    }
+    q.push(make('end', PRIORITY.gameEnd, 'round:3', { game: 'g' }));
+    await flush();
+    expect(log).toEqual(['r1', 'r2', 'end']);
+  });
+
+  it('gives a device three crown shows a night', () => {
+    resetCrownShows();
+    const night = new Date(2026, 10, 20, 22);
+    expect([1, 2, 3, 4].map(() => takeCrownShow(night))).toEqual([true, true, true, false]);
+    expect(takeCrownShow(new Date(2026, 10, 21, 22))).toBe(true);
   });
 
   it('never plays an id twice, even from a new queue (a remount or reconnect)', async () => {
