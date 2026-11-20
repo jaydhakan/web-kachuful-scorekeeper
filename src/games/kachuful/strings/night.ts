@@ -6,6 +6,10 @@ export const night = {
   title: 'Tonight’s Wrapped',
   open: 'Tonight’s Wrapped',
   openHint: (games: number) => `${games} games tonight, as a story`,
+  soFar: {
+    title: 'Tonight so far',
+    wins: (n: number) => (n === 1 ? '1 win' : `${n} wins`),
+  },
   empty: 'No night to wrap yet',
   emptyBody: 'Finish a game or two tonight and come back.',
   tap: 'Tap for the next card',

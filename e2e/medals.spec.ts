@@ -124,7 +124,10 @@ test('a player who passes the Badshah takes gold at the end of the game: Naya Ba
   await page.mouse.click(10, 400);
   await expect(show).toBeHidden();
   await expect(page.locator('.medal-1', { hasText: 'Asha' })).toBeVisible();
-  // Two games tonight (the earlier one ended under three hours before this began): the night's Wrapped.
+  // Two games tonight (the earlier one ended under three hours before this began): tonight so far, and its Wrapped.
+  const soFar = page.getByRole('region', { name: 'Tonight so far' });
+  await expect(soFar).toContainText(/Asha \d wins?/);
+  await expect(soFar).toContainText('took it from');
   await page.locator('[data-night-link]').click();
   await expect(page.getByRole('heading', { name: 'Tonight’s Wrapped' })).toBeVisible();
   await expect(page.getByText('2 games', { exact: true })).toBeVisible();
