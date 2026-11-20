@@ -137,41 +137,91 @@ app owns the names.
 `components/sikke`. Deviations: an unfinished game lists achievements already earned; the Kursi chain is rebuilt on
 any write to an ended Kachuful game.
 
-## 6. Crowns and status changes (plan §6, G2's server half) — NOT BUILT YET
+## 6. Crowns, status changes and bounties (plan §6, G2's server half)
 
 **Why:** the medals, the Kursi and the Sitara are computed on read today, so a crown change has no feed item, no "held
 N days", and only the table device sees the takeover. Every phone at the table (and the feed) should hear "Kursi
-chheeni!" from the server, and a holder's reign should be a record.
+chheeni!" from the server, a holder's reign should be a record, and beating a holder should pay a bounty.
 
-**Table** `crowns(game text, kind text check in ('medal1','medal2','medal3','kursi','sitara','legend'), holders uuid[],
-since timestamptz, since_game uuid null, defences int default 0, primary key (game, kind))` and
-`crown_reigns(id, game, kind, holders uuid[], since, until, since_game, until_game, defences)`. Rewritten in
-`progress_game` (and Kachuful's store path) when a game ends, is voided or deleted: recompute that game's kinds from
-the same rules as `GET /api/medals` / `GET /api/kursi` (`app/domain/kursi.py`), diff with the stored row, and write a
-reign and an `activity` row (`kind 'crown'`, `data: {crown, from: [ids], to: [ids], defences}`) on a change. A
-recompute that changes nothing writes nothing. Kachuful only at first; `game` keeps it open for the others.
+**Kinds (Kachuful only at first; `game` keeps it open):** `medal1` (the Taj / Badshah), `medal2`, `medal3` (the
+current month's standings as `GET /api/medals` ranks them, qualified rows only), `kursi` (`app/domain/kursi.py`),
+`sitara` (today's leader as `GET /api/medals` `today` computes it: `sitaraOf` in `src/games/kachuful/domain/stars.ts`,
+2+ games, ties share, nobody at 0 or less), `legend` (most `season_champion` rows, at least 2, ties share).
 
-**Upload response:** the Kachuful PUT response (and each other kind's write response, once it has crowns) gains
-`status: { changes: [{ kind, from: PlayerSummary[], to: PlayerSummary[], defences }] }` for that write's changes only;
-an empty list when nothing moved. The user stream (`/api/me/events`) sends the same as `{type: 'status', game,
-gameId, changes}` to every account seated in the game.
+**Tables:** `crowns(game text, kind text check (…the six kinds), holders uuid[] (sorted), since timestamptz, since_game
+uuid null, defences int default 0, primary key (game, kind))` and `crown_reigns(id uuid, game, kind, holders uuid[],
+since, until, since_game uuid null, until_game uuid null, defences)`, index `(game, kind, until desc)`.
 
-**Reads:** `GET /api/crowns?game=` → `{ items: [{ kind, holders: PlayerSummary[], since, sinceGame, defences }] }`;
-`GET /api/crowns/reigns?game=&kind=&cursor=` → paged reigns, longest first when `sort=defences`.
+**Recompute:** in the same transaction as Kachuful's store path when a game ends, is voided, deleted or edited after
+its end, and after `close-day` / `close-season` / a merge: recompute every kind from the rules above, diff with the
+stored row, and on a change close a reign (`until`, `until_game`) and write the new row, plus an `activity` row (`kind
+'crown'`, `data: {crown, from: [ids], to: [ids], defences}`). A recompute that changes nothing writes nothing. Holders
+empty is a valid row (nobody holds it: e.g. the Sitara after midnight, cleared by `close-day`, no activity row for a
+clear). `kursi` defences come from the domain chain; the other kinds keep 0.
 
-## 7. Nights (plan §7.2) — NOT BUILT YET
+**Bounties** (Sikke kind `bounty`, 40 = `rates.bounty` in `sikke-rules.json`): in a finished Kachuful game with 3+
+seats, each player who finished strictly above a **holder** (whoever held `kursi` or `medal1` when the game started:
+the Kursi from the domain chain before that game, the Taj from the `medal1` reign covering the game's `created_at`)
+earns 40, once per challenger per holder per ISO week (APP_TZ): key `bounty:<holderId>:<YYYY-Www>` (unique per
+player, so the first game that week wins it). `earned_at` = the game's `ended_at`; `game_id` = the game. Recompute-safe
+like the rest of `services/sikke.py` (a voided game's bounty goes; the next qualifying game that week then earns it).
+
+**Upload response:** the Kachuful PUT response gains `status: { changes: [{ kind, from: PlayerSummary[], to:
+PlayerSummary[], defences }], bounties: [{ holder: PlayerSummary, winner: PlayerSummary, amount }] }` for that write's
+changes only; empty lists when nothing moved (always present on a Kachuful PUT). The user stream (`/api/me/events`)
+sends `{type: 'status', game, gameId, changes, bounties}` to every account seated in the game (when either list is
+non-empty).
+
+**Reads (signed in):** `GET /api/crowns?game=kachuful` → `{ items: [{ kind, holders: PlayerSummary[], since,
+sinceGame, defences }] }` (all six kinds, holders empty when nobody); `GET /api/crowns/reigns?game=&kind=&cursor=&sort=
+recent|defences` → `{ items: [{ kind, holders, since, until, defences }], nextCursor }` (closed reigns; `sort=defences`
+longest first).
+
+**Backfill:** CLI `recompute-crowns [--dry-run]` rebuilds `crowns` and `crown_reigns` from history (reigns of the Kursi
+from its chain; medals, Sitara and Legend from now on only, since their past standings aren't kept), without writing
+activity rows. Then `recompute-sikke` for the bounties.
+
+**Built:** backend feat/rewards c39906b, 04a80dc (migration 0024); app `src/sync/news.ts`, `components/crowns`, feed
+rows, round 1's bounty line. Choices: see `docs/NEXT-SESSION-REWARDS.md` "Backend choices to know".
+
+## 7. Nights (plan §7.2)
 
 **Why:** Tonight's Wrapped exists on the table device only (`games/kachuful/domain/night.ts`). Everyone who sat should
-get it on their own phone, and the feed should say a night is ready.
+get it on their own phone, the feed should say a night is ready, and tonight's Sitara is paid.
 
-**Rule:** a night is a run of finished games (any kind) with gaps of 3 hours or less between one game's end and the
-next one's start, grouped across the players who sat; the app's `nightOf` is the reference (a golden fixture
-`night-cases.json` to export first).
+**Rule:** games (any kind, finished, not void, not deleted) are linked when they share a registry player and the later
+one's `created_at` is at most 3 hours after the earlier one's `ended_at`; a night is a connected group of linked games
+(on one table device this is exactly the app's `nightOf`). The night's **story** (`data`) is the app's `Night` shape
+(`src/games/kachuful/domain/night.ts`) computed over the night's Kachuful games with `nightOf`'s rules (edge, swing,
+best bid, brave call at 3+ seats, Kursi taken tonight from the chain before the night's first game), parity with
+`contract/fixtures/night-cases.json` (`cases.*.games` are Kachuful payloads, `now`, and the expected `night` or null;
+`gapMs`, `freshMs`; compare `edge` with a 1e-9 tolerance). For the other kinds a seat counts in `players[].games`, a
+place 1 counts in `players[].wins` and `gameWinners`, nothing else. `data` adds `gameKinds: string[]` (parallel to
+`gameIds`), `sitara: [ids]` (`sitaraOf` over the night's Kachuful games of 3+ seats, points summed), `sikke: {playerId:
+amount}` (the entries of the night's games plus its Sitara pay), `achievements: [{ playerId, game, code }]` (earned in
+the night's games).
 
-**Table** `nights(id uuid, started_at, ended_at, players uuid[], games uuid[], data jsonb, closed_at)`. Job
-`close-nights` (every 30 min, beside `close-day`): closes a night whose last game ended 3+ hours ago, stores the
-story facts in `data` (the same shape the app's `NightPage` builds), writes an `activity` row (`kind 'night'`) and
-pays tonight's Sitara 30 Sikke (`sikke` kind `sitara`, key `sitara:<nightId>`).
+**Table** `nights(id uuid pk, started_at, ended_at, players uuid[], games uuid[], data jsonb, closed_at timestamptz
+null)`, GIN index on `players`. `id` is deterministic: uuid5 of the earliest game's id, so a recompute keeps it.
 
-**Reads:** `GET /api/nights?playerId=&cursor=` (newest first) and `GET /api/nights/{id}`; an open night is
-`{ closed: false }` so the app says "Your night is being counted…".
+**Job** `close-nights` (every 30 min, beside `close-day`; and the CLI): a night whose last game ended 3+ hours ago is
+closed: store `data`, write an `activity` row (`kind 'night'`, `data: {nightId, games, winner}`), pay the Sitara
+(`sikke` kind `sitara`, 30 = `rates.sitara`, key `sitara:<nightId>`, `earned_at` = `ended_at`), and send `{type:
+'night', id}` on the user stream to the accounts that sat. A write to a game of a closed night (or a new game that
+joins one) recomputes that night (same id while its earliest game stands) and its Sitara pay, with no second activity
+row. Idempotent.
+
+**Close now:** `POST /api/nights/close` (signed in) closes the caller's own open night at once (the "End the night"
+button), same as the job; 404 `not_found` when they have no open night.
+
+**Reads (signed in):** `GET /api/nights?playerId=&cursor=` → `{ items: [{ id, closed, startedAt, endedAt, players:
+PlayerSummary[], games: int, winner: PlayerSummary | null }], nextCursor }` newest first; the player's open night (not
+yet closed, computed on read) comes first with `closed: false` and `id` null. `GET /api/nights/{id}` → `{ id, closed,
+startedAt, endedAt, players: PlayerSummary[], data }` (`data` null while open; the app says "Your night is being
+counted…").
+
+**Backfill:** CLI `close-nights [--all]` closes every past night (no activity rows, no stream events with `--all`),
+then `recompute-sikke` pays past Sitaras.
+
+**Built:** backend feat/rewards 7f18fab (migration 0025); app `NightPage` with an id, `YourNights`, `NightReady`. The
+night feed item's `data.games` is the list of game ids; `POST /api/nights/close` returns the night's detail.
