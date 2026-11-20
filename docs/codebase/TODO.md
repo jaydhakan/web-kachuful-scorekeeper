@@ -172,6 +172,23 @@ are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment 
 - **Ishaara's table outline is one shape (the 5x5 board)**; its waiting screen looks different. Pick the shape from
   the table's last known status if that is worth it.
 
+## Rewards (branch `feat/rewards` in both repos, REWARDS-PLAN.md)
+
+Built for Kachuful so far: medals (Badshah, Wazir, Senapati), the Kursi, Aaj ka Sitara, the Legend, banter with a
+"Table banter" switch, the chase, the end-of-game takeover, the table intel line, avatar moods, the moment budget's
+downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card.
+
+- **Not checked on a real phone or with motion on frame by frame** (e2e covers presence, reduced motion).
+- **Other games:** medals, Kursi, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
+  real night with Kachuful. The Kursi rule is game-agnostic (`src/progression/kursi.ts`, teams included).
+- **Live page:** spectators don't see the banter or the medals yet (`pages/LivePage.tsx`).
+- **Server status:** no `crowns` table or `status.changes`; so no feed item for a crown change, no "held N days", and
+  the Kursi is computed on read (`GET /api/kursi`). Fine for one group; move it into `progress_game` if reads slow.
+- **Moment budget (§13), not built:** holding big shows during input (`pauseUntil`), the per-round cap of 1 for the
+  scorekeepers, the same-kind cooldown, and a second tap finishing a beat sequence.
+- **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
+- **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
+
 ## Tests
 
 - **Yerba Sun moves Kachuful's table seats up about 10px** on the bidding screen at 360x780 (seen once
