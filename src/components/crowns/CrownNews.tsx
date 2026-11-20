@@ -6,7 +6,7 @@ import { HAPTIC } from '@/fx/feedback';
 import { momentRoot, PRIORITY, takeCrownShow, useMoments, type MomentCtx } from '@/fx/moments';
 import { crowns as s } from '@/strings/crowns';
 import { dropStatus, useNews } from '@/sync/news';
-import { crownBanner, type CrownBanner } from './crownNews';
+import { crownBanner, type CrownBanner } from './crownBanner';
 
 /** How long the banner stays untouched; inside the queue's ceiling for a Moment. */
 export const NEWS_MS = MOMENT_MAX_MS - 200;

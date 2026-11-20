@@ -10,7 +10,7 @@ import {
 import { clearNews, news, putStatus } from '@/sync/news';
 import type { CrownChange, GameStatus, PlayerSummary } from '@/sync/types';
 import { CrownNews } from './CrownNews';
-import { crownBanner } from './crownNews';
+import { crownBanner } from './crownBanner';
 
 const p = (id: string, displayName: string) => ({ id, displayName }) as unknown as PlayerSummary;
 const RIYA = p('r', 'Riya'),
