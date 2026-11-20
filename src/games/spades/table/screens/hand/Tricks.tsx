@@ -15,7 +15,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { PRESS_SM } from '@/components/ui/motion';
 import { vibrate } from '@/hooks/useHaptics';
 import { useRovingFocus } from '@/hooks/useRovingFocus';
-import { Stepper, TEAM_TONE, teamNames } from '../parts';
+import { Stepper, TEAM_TONE, TeamFaces, teamNames } from '../parts';
 import { HandFrame } from './HandFrame';
 
 /** 0–13 as one row of keys: a tap sets team A's tricks. */
@@ -114,7 +114,8 @@ export default function Tricks({ g, h }: { g: SpGame; h: SpHand }) {
       }
     >
       <div className="glass mb-3 p-4 text-center @container">
-        <p className="mb-1 text-15 font-semibold text-[var(--tx2)]">
+        <p className="mb-1 flex items-center justify-center gap-2 text-15 font-semibold text-[var(--tx2)]">
+          <TeamFaces g={g} t="a" />
           {s.tricks.heading(teamNames(g, 'a'))}
         </p>
         <div className={TEAM_TONE.a.text}>
@@ -130,7 +131,8 @@ export default function Tricks({ g, h }: { g: SpGame; h: SpHand }) {
           />
         </div>
         <Rail value={e.teamA} onPick={actions.setTeamA} />
-        <p className="mt-3 text-15 text-[var(--tx2)]">
+        <p className="mt-3 flex flex-wrap items-center justify-center gap-x-2 text-15 text-[var(--tx2)]">
+          <TeamFaces g={g} t="b" size={24} />
           {s.tricks.rest(teamNames(g, 'b'), e.teamA)}{' '}
           <b className={`tick text-20 ${TEAM_TONE.b.text}`}>{TRICKS - e.teamA}</b>
         </p>

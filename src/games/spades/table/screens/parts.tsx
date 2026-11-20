@@ -5,6 +5,7 @@ import { spTable as s } from '@/games/spades/strings/table';
 import { vibrate } from '@/hooks/useHaptics';
 import { EASE, PRESS_SM, REDUCED, SPRING, SPRING_POP } from '@/components/ui/motion';
 import { totalsOf } from '@/games/spades/table/state/select';
+import { Dot } from '@/components/ui/Dot';
 
 /** "Riya & Dev": seats 0 and 2 are team a, 1 and 3 team b. */
 export const teamNames = (g: Pick<SpGame, 'players'>, t: TeamId) => {
@@ -28,6 +29,27 @@ export const TEAM_TONE: Record<TeamId, { dot: string; text: string; fill: string
       ring: 'shadow-[0_0_0_2px_var(--team-moon)]',
     },
   };
+
+/** A team's two faces, overlapped, in the team's ring (REWARDS-PLAN §2: faces at every table). Decoration only. */
+export function TeamFaces({
+  g,
+  t,
+  size = 28,
+}: {
+  g: Pick<SpGame, 'players'>;
+  t: TeamId;
+  size?: number;
+}) {
+  return (
+    <span aria-hidden className="inline-flex shrink-0">
+      {seatsOf(t).map((k, i) => (
+        <span key={k} className={`rounded-full ${TEAM_TONE[t].ring} ${i ? '-ml-2' : ''}`}>
+          <Dot p={g.players[k]} s={size} />
+        </span>
+      ))}
+    </span>
+  );
+}
 
 /** The team's band: a coloured dot and "Team A". */
 export function TeamBand({ t, className = '' }: { t: TeamId; className?: string }) {

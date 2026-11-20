@@ -16,7 +16,7 @@ import { Counter } from '@/components/ui/Counter';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { EASE, REDUCED, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { vibrate } from '@/hooks/useHaptics';
-import { TEAM_TONE } from '../parts';
+import { TeamFaces } from '../parts';
 import { HandFrame } from './HandFrame';
 import { HandPops } from '@/games/spades/progress/HandPops';
 import { pidOf } from '@/people/pid';
@@ -118,7 +118,7 @@ function Column({
       className="glass relative isolate flex min-w-0 flex-col overflow-hidden p-3"
     >
       <h3 id={`sp-sum-${t}`} className="mb-1 flex items-center gap-1.5 text-15 font-bold">
-        <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${TEAM_TONE[t].dot}`} />
+        <TeamFaces g={g} t={t} size={24} />
         {s.team(t)}
       </h3>
       <dl>
