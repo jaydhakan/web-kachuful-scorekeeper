@@ -1,4 +1,11 @@
-import { authSearch, readEntryLink, returnSearch, returnTo, settleEntryLink } from './entry';
+import {
+  authSearch,
+  nightSearch,
+  readEntryLink,
+  returnSearch,
+  returnTo,
+  settleEntryLink,
+} from './entry';
 
 describe('readEntryLink', () => {
   it('opens a token link and removes it from the address', () => {
@@ -61,6 +68,15 @@ describe('readEntryLink', () => {
     // Back on /kachuful later (from a tile): the game, not Sign in again.
     expect(location.pathname + location.search).toBe('/kachuful');
     expect(readEntryLink()).toBeNull();
+  });
+  it('opens a night from the landing page, keeping only a plain id', () => {
+    history.replaceState(null, '', '/kachuful' + nightSearch('n-1'));
+    expect(readEntryLink()).toEqual({ screen: 'night', params: { id: 'n-1' } });
+    expect(location.search).toBe('');
+    settleEntryLink();
+    history.replaceState(null, '', '/kachuful?open=night&id=%2F%2Fevil');
+    expect(readEntryLink()).toEqual({ screen: 'night' });
+    settleEntryLink();
   });
   it('ignores anything else', () => {
     history.replaceState(null, '', '/kachuful?open=admin');

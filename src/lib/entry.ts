@@ -41,6 +41,10 @@ export function returnTo(route: Route): ReturnTo | null {
 /** The search to reopen that page with (`?join=KQ7M`), or ''. */
 export const returnSearch = (route: Route): string => safeBack(route.params?.back);
 
+/** The search that opens one server night (or the list, without an id) from outside Kachuful. */
+export const nightSearch = (id?: string) =>
+  `?open=night${id ? `&id=${encodeURIComponent(id)}` : ''}`;
+
 const KINDS = { invite: 'invite', reset: 'reset', live: 'live', recap: 'recap' } as const;
 
 /**
@@ -70,6 +74,22 @@ export function readEntryLink(): Route | null {
   }
   // The landing page's account chip and menu: `/kachuful?open=account` (these pages still live in Kachuful).
   const open = q.get('open');
+  if (open === 'night') {
+    const id = q.get('id');
+    q.delete('open');
+    q.delete('id');
+    const rest = q.toString();
+    history.replaceState(
+      history.state,
+      '',
+      location.pathname + (rest ? '?' + rest : '') + location.hash,
+    );
+    taken = {
+      href: location.href,
+      route: id && BACK_VALUE.test(id) ? { screen: 'night', params: { id } } : { screen: 'night' },
+    };
+    return taken.route;
+  }
   if (open === 'account' || open === 'signin' || open === 'credits') {
     const from = q.get('from');
     const back = safeBack(q.get('back'));
