@@ -30,6 +30,8 @@ import {
   tallies,
 } from '@/games/kachuful/domain';
 import { tableIntel } from '@/progression/intel';
+import { SIKKE } from '@/progression/sikke';
+import { crowns } from '@/strings/crowns';
 import { kursiFrom, stepKursi, type Kursi, type KursiGame } from '@/progression/kursi';
 import { medals as ms } from '@/strings/medals';
 import { dayOf, dayRange, monthOf, monthRange, prevMonth } from '@/progression/zone';
@@ -70,6 +72,8 @@ export interface TableMedals {
   legend: ReadonlySet<string>;
   /** Round 1's other line: a rivalry or a milestone among the seated, worded (§6.5). */
   intel: string | null;
+  /** Round 1's line under a seated Kursi holder or Badshah at a table of 3+: "Beat Riya: +40 🪙" (§6.4). */
+  bounty: string | null;
 }
 
 export type KursiMove =
@@ -91,6 +95,7 @@ export const NO_MEDALS: TableMedals = {
   sitara: { held: new Set(), now: new Set(), rising: [] },
   legend: new Set(),
   intel: null,
+  bounty: null,
 };
 
 interface Base {
@@ -215,12 +220,25 @@ export function tableMedals(
   const legend = seatsOf(legendOf(base.champions ?? []));
   for (const id of sitara.held) if (!marks.has(id)) marks.set(id, 'sitara');
   for (const id of legend) if (!marks.has(id)) marks.set(id, 'legend');
-  const found = base.places ? tableIntel(base.places, g.players.map(key)) : null;
-  const intel = !found
+  const holders = [
+    ...(kHeld?.holders ?? []),
+    ...[...held].filter(([, h]) => h.medal === 1).map(([id]) => id),
+  ];
+  const seatedIds = g.players.map(key);
+  const found = tableIntel(base.places ?? [], seatedIds, holders);
+  const bounty =
+    found?.kind === 'bounty'
+      ? crowns.beat([...new Set(found.holders)].map(named), SIKKE.bounty)
+      : null;
+  // The milestone or rivalry still counts for a table where no crown line shows.
+  const other = found?.kind === 'bounty' ? tableIntel(base.places ?? [], seatedIds) : found;
+  const intel = !other
     ? null
-    : found.kind === 'milestone'
-      ? ms.milestone(named(found.player), found.nth)
-      : ms.rivalry(named(found.winner), named(found.loser), found.won, found.of);
+    : other.kind === 'milestone'
+      ? ms.milestone(named(other.player), other.nth)
+      : other.kind === 'rivalry'
+        ? ms.rivalry(named(other.winner), named(other.loser), other.won, other.of)
+        : null;
   let kursiEvent: KursiMove | null = null;
   if (g.status === 'finished') {
     const { event } = stepKursi(kHeld, {
@@ -260,6 +278,7 @@ export function tableMedals(
     sitara,
     legend,
     intel,
+    bounty,
   };
 }
 

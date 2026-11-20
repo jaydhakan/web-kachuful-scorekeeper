@@ -136,14 +136,14 @@ describe('the medallists at round 1’s deal', () => {
     changes: [],
     defended: null,
   });
-  function mountWith(index: number, seats: number[]) {
+  function mountWith(index: number, seats: number[], over: Partial<TableMedals> = {}) {
     const g: Game = { ...demoGame(), rounds: [], lengthMode: '1cycle' };
     g.players = g.players.slice(0, 5);
     const round = newRound(g, index);
     env.rm = false;
     env.state = { game: g, seq: { round, prev: round.dealerIndex, banner: null } };
     render(
-      <MedalsValue value={medalsFor(g, seats)}>
+      <MedalsValue value={{ ...medalsFor(g, seats), ...over }}>
         <RoundStart />
       </MedalsValue>,
     );
@@ -169,8 +169,15 @@ describe('the medallists at round 1’s deal', () => {
   });
 
   it('is only on round 1', () => {
-    mountWith(1, [0]);
+    mountWith(1, [0], { bounty: 'Beat Riya: +40 🪙' });
     tick(1);
     expect(line()).toBeNull();
+  });
+
+  it('puts the bounty on the seated Badshah under the crown line', () => {
+    mountWith(0, [2], { bounty: 'Beat Riya: +40 🪙' });
+    tick(1);
+    expect(line()).toHaveTextContent('table pe hai');
+    expect(document.querySelector('[data-bounty-line]')).toHaveTextContent('Beat Riya: +40 🪙');
   });
 });

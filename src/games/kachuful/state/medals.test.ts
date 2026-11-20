@@ -166,3 +166,21 @@ describe('the table intel line', () => {
     expect(t.intel).toBe('Asha has beaten Riya 6 of their last 6');
   });
 });
+
+describe('the bounty line at round 1 (§6.4)', () => {
+  const chair = { holders: ['D'], since: 1, sinceGame: 'old', defences: 4 };
+
+  it('offers a bounty on the seated Badshah and Kursi holder at a table of three', () => {
+    const t = tableMedals(game([]), { ...base, kursi: chair });
+    expect(t.bounty).toBe('Beat Riya or Dev: +40 🪙 each');
+    expect(tableMedals(game([]), base).bounty).toBe('Beat Riya: +40 🪙');
+  });
+
+  it('says nothing when no holder sits, or at a table of two', () => {
+    const none = tableMedals(game([]), { ...base, rows: [row('K', 1, 10)] });
+    expect(none.bounty).toBeNull();
+    const two = game([]);
+    two.players = two.players.slice(0, 2);
+    expect(tableMedals(two, { ...base, kursi: chair }).bounty).toBeNull();
+  });
+});

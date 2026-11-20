@@ -131,7 +131,7 @@ export function RoundStart() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, ready]);
-  const { held, kursi: chair, intel } = useMedals();
+  const { held, kursi: chair, intel, bounty } = useMedals();
   if (!r) return null;
   const th = TR[r.trump];
   // Round 1's deal names the month's medallists at the table: one gets a line, two or more a "vs" (§6.7).
@@ -151,7 +151,10 @@ export function RoundStart() {
       : null;
   // With no crown at the table, round 1 names a rivalry or a milestone instead.
   const intelLine = r.index === 0 && !seated.length && !chairLine ? intel : null;
-  const medalLine = (seated.length > 0 || !!chairLine || !!intelLine) && (stage < 3 || rm);
+  // A seated holder at a table of 3+ is worth a bounty: said under the crown (§6.4).
+  const bountyLine = r.index === 0 ? bounty : null;
+  const medalLine =
+    (seated.length > 0 || !!chairLine || !!intelLine || !!bountyLine) && (stage < 3 || rm);
   const from = toPct('full', seatPos('full', n, r.dealerIndex, g.direction));
   return (
     <m.div
@@ -342,6 +345,14 @@ export function RoundStart() {
                   className={`block font-sans font-semibold text-[var(--tx2)] ${seated.length ? 'mt-1 text-15' : ''}`}
                 >
                   {chairLine}
+                </span>
+              )}
+              {bountyLine && (
+                <span
+                  data-bounty-line
+                  className="mt-1 block font-sans text-15 font-semibold text-[var(--gold-tx)]"
+                >
+                  {bountyLine}
                 </span>
               )}
             </m.div>
