@@ -133,6 +133,10 @@ app owns the names.
 **Not now:** bounties (40) and tonight's Sitara (30) pay once G2's server half lands (`crowns`, `nights`); the
 "Pehle Waale" badge is a Wardrobe item (G4).
 
+**Built:** backend feat/rewards 47f1b40…43ea857 (`tests/{domain,services,api}/test_sikke.py`); app `ep.sikke*`,
+`components/sikke`. Deviations: an unfinished game lists achievements already earned; the Kursi chain is rebuilt on
+any write to an ended Kachuful game.
+
 ## 6. Crowns and status changes (plan §6, G2's server half) — NOT BUILT YET
 
 **Why:** the medals, the Kursi and the Sitara are computed on read today, so a crown change has no feed item, no "held

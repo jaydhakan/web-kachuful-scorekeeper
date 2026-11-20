@@ -1,4 +1,4 @@
-# Next session: the Rewards plan, from about 23%
+# Next session: the Rewards plan, from about 37%
 
 Handoff written 2026-11-20 to carry on from another laptop. A working doc: delete it with `REWARDS-PLAN.md` and
 `backend-requests.md` before `feat/rewards` merges into `main`. (Committed on the branch at Jay's request, so the work
@@ -20,32 +20,31 @@ cd ../backend-kachuful-scorekeeper && git fetch && git checkout feat/rewards && 
 
 No new dependency and no new migration on either side.
 
-## Where we are (about 23% of the plan)
+## Where we are (about 37% of the plan, 2026-11-20)
 
 Weights from the plan (§16): G0 5, G1 20, G2 25, G3 15, G4 20, G5 10, G6 5.
 
-- **G0 (≈3 of 5):** decisions taken (below), `backend-requests.md` started. **Not done:** the art style sheet for Jay
-  (1 bust, 2 outfits, 2 headwear, 1 frame at 26/32/52/72/220px, all 4 themes).
-- **G1 (≈6 of 20):** avatar moods on the round summary (✨ smug leader, ☁️ lone last place, CSS glyph); faces on the
-  Spades scorekeeper's Tricks and Summary and Ishaara's clue card; the moment budget's downgrade, per-game cap and
-  three crown shows a night. **Not done:** `AvatarFill` tiers and the stage bust (needs art), Ishaara's clue phone and
-  Win faces, `pauseUntil`, the per-round cap of 1 and the cooldown (§13).
-- **G2 (≈14 of 25), Kachuful only:**
-  - **Medals:** 🥇 Badshah, 🥈 Wazir, 🥉 Senapati from this month's season standings (points per round, >50 rounds); last
-    month's top 3 "defending" until 3 qualify. Metal names everywhere at the table, a metal ring on the seat.
-  - **The Kursi:** taken by finishing above its holder; seat badge, deal line, banter, "Kursi chheeni!".
-  - **Aaj ka Sitara ⭐** (tonight's leader from the night's 2nd game) and **Legend 🏛️** (most season titles, ≥2).
-  - **Banter:** one line a round on the summary about the holders (gold first, then Kursi, Sitara, Legend; Wazir passing
-    the Badshah); "Table banter" switch on the Me page (`baithak.fx` `banter`).
-  - **The chase:** a crack on a slipping medal, "On track for 🥇", "🪑 ke kareeb".
-  - **End of game:** "Naya Badshah!" and "Kursi chheeni!" on one card (a queued Moment, skippable); a line for a new
-    Wazir/Senapati, a defended seat or Kursi, tonight's new Sitara.
-  - **Round 1's deal:** the medallists ("Badshah Riya table pe hai", or "vs"), the Kursi line, else a rivalry or a
-    milestone (table intel).
-  - **Tonight's Wrapped:** the night (gaps ≤3h) as story cards, on the table device, linked from the winner screen.
-  - **Not done:** the night's Wrapped on everyone's own phone (server `nights` + `close-nights` job), stat crowns live,
-    bounties, `crowns` table and `status.changes` (feed items, "held N days"), the live page, the other three games.
-- **G3–G6:** not started.
+- **G0 (≈3 of 5):** decisions taken. **Not done:** the art style sheet for Jay.
+- **G1 (≈10 of 20):** moods, faces everywhere (Spades scorekeeper, Ishaara board, clue phone, win screen), the moment
+  budget's downgrade, per-game cap, nightly crown cap, and now holding Moments during input (`useHoldMoments`) and a
+  per-scope `cap` / `kind`+`round` cooldown in the queue (no caller uses those two yet). **Not done:** `AvatarFill`
+  tiers and the stage bust (needs art), one round scope for the scorekeepers' Moments.
+- **G2 (≈14 of 25), Kachuful only:** medals, Kursi, Sitara, Legend, banter, chase, takeover, table intel, Tonight's
+  Wrapped on the table device. **Not done:** `backend-requests.md` §6 (crowns, `status.changes`) and §7 (nights),
+  written but not built; stat crowns live, bounties, the live page, the other games.
+- **G3 (≈10 of 15):** Sikke built in both repos (`backend-requests.md` §5). App: `src/progression/sikke.ts`,
+  `components/sikke/{Wallet,GameSikke}.tsx`, wallet on Me and the player page, "+🪙" on every winner screen, `coin` and
+  `ghungroo` sounds. Backend: `sikke_entries`, `app/services/sikke.py`, three routes, `recompute-sikke [--dry-run]`.
+  **Not done:** prices and levels checked against real history (run `recompute-sikke --dry-run` on production),
+  `make perf` with Sikke (a finishing Kachuful PUT now rebuilds the Kursi chain), bounties and Sitara pay (need §6/§7).
+- **G4–G6:** not started.
+
+**Checks:** app typecheck, lint, all unit tests pass; e2e run only for `sikke`, `medals`, `me-every-game` (full suite
+not run). Backend `make verify`: everything passes except the backup test (this machine's `pg_dump` is 14, the server
+16) and one Spades timeout test that errors only under the full run (passes alone).
+
+**Deploy (backend):** `alembic upgrade head` (0023), `python -m app.cli recompute-sikke --dry-run`, then without
+`--dry-run` once.
 
 ## Decisions taken (Jay said "if the plan looks solid, start"; recommended answers used)
 
@@ -79,13 +78,12 @@ Also: a shared Kursi stays while its best-placed holder at the table is unbeaten
 
 ## Next, in order
 
-1. **G3 Sikke** (no art): ledger, earn rules (§9), backfill, levels, wallet chip and ledger sheet, "+🪙" on the winner
-   screen; bounties start paying. Server-decided in the game write's transaction, append-only, recompute-safe. Write
-   it into `backend-requests.md` first.
-2. **G2's server half:** `crowns` + `status.changes` in upload responses, `nights` + `close-nights` (Wrapped on every
-   phone), stat crowns live.
+1. **G2's server half:** build `backend-requests.md` §6 (crowns, `status.changes`) and §7 (nights, `close-nights`),
+   then the app: the takeover from `status.changes` on every phone, Wrapped from the server, bounties paying.
+2. `make perf` on the load dataset (Sikke's Kursi rebuild on the PUT); the Sikke dry run on production data, then
+   tune `LEVELS` and the prices in `src/progression/sikke.ts` (re-export the fixture, copy it to the backend).
 3. **G0 art style sheet** for Jay's approval, then G1's stage bust and G4's Wardrobe.
 4. G5 (Bazaar, gifts, hidden achievements, firsts), then the other games, then G6 (full e2e, `perf:budget`, 4-theme
-   check, docs, delete working docs, merge).
+   check, docs, delete `REWARDS-PLAN.md`, this file and `backend-requests.md`, merge).
 
 Not checked anywhere: a real phone, motion on frame by frame, a real night with the group (plan §17).

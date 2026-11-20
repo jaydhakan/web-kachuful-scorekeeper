@@ -197,13 +197,15 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
   built.
 - **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on every game's winner screen
   (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
-  Kachuful only (finish, win, achievements). Levels and prices still need checking against the backfill
+  Kachuful only (finish, win, achievements). Backend `make perf` not run with Sikke (a finishing Kachuful PUT now
+  rebuilds the Kursi chain from every ended game). Levels and prices still need checking against the backfill
   (`recompute-sikke --dry-run` on production data). Bounties and tonight's Sitara pay once `crowns`/`nights` exist.
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
 - **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
 
 ## Tests
 
+- **Backend backup test fails on this laptop:** `pg_dump` here is 14, the dev Postgres 16; install the 16 client.
 - **Yerba Sun moves Kachuful's table seats up about 10px** on the bidding screen at 360x780 (seen once
   `themes.spec.ts` loaded each theme's real stylesheet; sizes match). Themes should change paint, never geometry:
   find what in Yerba Sun's sheet shifts the table slot, then drop the excuse in that test.
