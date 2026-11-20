@@ -19,3 +19,5 @@ export * from './profile';
 export * from './achievements';
 export * from './awards';
 export * from './validate';
+export * from './medals';
+export * from './banter';

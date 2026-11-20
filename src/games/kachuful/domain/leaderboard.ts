@@ -156,6 +156,13 @@ function ranked(
       accuracy: accuracyOf(t),
       longestHot: t.longestHot,
     }));
+  return rankRows(rows);
+}
+
+type Rankable = Pick<BoardRow, 'rank' | 'qualified' | 'playerId' | 'value' | 'points' | 'rounds'>;
+
+/** Sorts rows in place and ranks the qualified ones; ties on the exact value share a rank (1, 1, 3). */
+export function rankRows<R extends Rankable>(rows: R[]): R[] {
   rows.sort(
     (a, b) =>
       Number(b.qualified) - Number(a.qualified) ||
@@ -166,6 +173,7 @@ function ranked(
   );
   let k = 0;
   rows.forEach((r, i) => {
+    r.rank = null;
     if (!r.qualified) return;
     const prev = rows[i - 1];
     k = i > 0 && prev.qualified && prev.value === r.value ? k : i + 1;
