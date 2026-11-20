@@ -22,14 +22,19 @@ export function HandPops({
   /** Online: the player holding this phone, so others' big moments show compact here. */
   me?: string | null;
 }) {
-  const [pops, setPops] = useState<{ id: string; cards: PopCard[] } | null>(null);
+  const [pops, setPops] = useState<{
+    id: string;
+    cards: PopCard[];
+    round: { game: string; n: number };
+  } | null>(null);
   useEffect(() => {
     let on = true;
     // A pop is decoration: if its chunk can't load (offline, say), the hand simply shows without it.
     load().then(
       (m) => {
         const cards = m.handPopCards(game, index, nameOf, me);
-        if (on && cards.length) setPops({ id: `${game.id}:${index}`, cards });
+        if (on && cards.length)
+          setPops({ id: `${game.id}:${index}`, cards, round: { game: game.id, n: index } });
       },
       () => undefined,
     );

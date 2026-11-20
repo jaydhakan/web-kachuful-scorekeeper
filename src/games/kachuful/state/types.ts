@@ -107,7 +107,13 @@ export interface AppState {
   /** Streaks that reached a step in the round just confirmed, celebrated before the summary counts up. */
   streakFx: StreakEvent[] | null;
   /** Small achievement cards that drop in under the top bar after a round; `more` counts streaks not shown. */
-  pops: { id: number; items: { code: string; name: string }[]; more: number } | null;
+  pops: {
+    id: number;
+    items: { code: string; name: string }[];
+    more: number;
+    /** The round they were earned in (done rounds so far), for the per-round Moment budget. */
+    round?: number;
+  } | null;
   noteSeq: number;
   corrupt: boolean;
   /** The player whose result the app filled in because only one could work; cleared by the next action. */

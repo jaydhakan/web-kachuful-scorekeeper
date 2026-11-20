@@ -2,6 +2,8 @@ import { byCode, type CatalogueView } from '@/progression/catalogue';
 
 export interface PopCard {
   k: string;
+  /** The achievement it shows: the same one twice within `COOLDOWN_ROUNDS` rounds plays as a small card. */
+  code?: string;
   emoji: string;
   /** The one-line form: "Asha · Boston". */
   text: string;
@@ -20,6 +22,7 @@ export const popCard = (prog: CatalogueView, code: string, name: string): PopCar
     what = prog.strings.achievements[code]?.name ?? code;
   return {
     k: code + name,
+    code,
     emoji: def?.emoji ?? '🏅',
     text: `${name} · ${what}`,
     ...(def?.big ? { tier: 'big' as const } : def?.shame ? { tier: 'shame' as const } : {}),

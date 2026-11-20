@@ -66,12 +66,18 @@ const celebrate = (s: AppState, g: Game, final = false): Pick<AppState, 'streakF
   // A burst would cover the winner, so the last round's streaks drop in as cards with the rest.
   if (final) {
     const all = [...fx.map((e) => ({ code: `${e.kind}_${e.n}`, name: e.p.name })), ...items];
-    return { streakFx: null, pops: all.length ? { id: s.noteSeq + 1, items: all, more: 0 } : null };
+    return {
+      streakFx: null,
+      pops: all.length
+        ? { id: s.noteSeq + 1, items: all, more: 0, round: doneRounds(g).length }
+        : null,
+    };
   }
   const more = Math.max(0, fx.length - MAX_BURSTS);
   return {
     streakFx: fx.length ? fx.slice(0, MAX_BURSTS) : null,
-    pops: items.length || more ? { id: s.noteSeq + 1, items, more } : null,
+    pops:
+      items.length || more ? { id: s.noteSeq + 1, items, more, round: doneRounds(g).length } : null,
   };
 };
 

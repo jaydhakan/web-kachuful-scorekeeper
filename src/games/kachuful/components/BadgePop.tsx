@@ -25,11 +25,15 @@ export function BadgePop() {
     () =>
       pops && {
         id: pops.id,
+        ...(pops.round != null && {
+          round: { game: state.game.syncId ?? state.game.id, n: pops.round },
+        }),
         cards: [
           ...pops.items.map((x) => {
             const def = ACH.get(x.code);
             return {
               k: x.code + x.name,
+              code: x.code,
               emoji: def?.emoji ?? '🏅',
               text: `${x.name} · ${achName(x.code)}`,
               who: x.name,
@@ -41,7 +45,7 @@ export function BadgePop() {
           ...(pops.more ? [{ k: 'more', emoji: '✨', text: t.hub.pops.more(pops.more) }] : []),
         ],
       },
-    [pops],
+    [pops, state.game.syncId, state.game.id],
   );
   return <MomentPop pops={shown} onDone={actions.popsDone} />;
 }

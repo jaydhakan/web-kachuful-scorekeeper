@@ -26,12 +26,12 @@ function cardsOf(g: KtGame, hand: number): PopCard[] {
     .map(([code, who]) => popCard(CAT, code, who.join(', ')));
 }
 
-type Batch = { id: number; cards: PopCard[] } | null;
+type Batch = { id: number; cards: PopCard[]; round: { game: string; n: number } } | null;
 
 const build = (pops: KtState['pops'], g: KtState['game']): Batch => {
   if (!pops || !g) return null;
   const cards = cardsOf(g, pops.hand);
-  return cards.length ? { id: pops.id, cards } : null;
+  return cards.length ? { id: pops.id, cards, round: { game: g.id, n: pops.hand } } : null;
 };
 
 /**
