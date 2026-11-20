@@ -45,6 +45,8 @@ export const KEYS = {
   fx: 'baithak.fx',
   /** Per game, the newest closed season whose podium this device has revealed: `{ [game]: 'YYYY-MM' }`. */
   seasonShown: 'baithak.seasonShown',
+  /** Server nights this device has opened (ids, newest first), so "Your night is ready" shows once per night. */
+  nightsSeen: 'baithak.nightsSeen',
 } as const;
 
 export type WriteResult = 'ok' | 'quota' | 'unavailable';
@@ -288,6 +290,19 @@ export function saveSeasonShown(game: string, month: string) {
   const all = storage.get<Record<string, string>>(KEYS.seasonShown, {});
   if ((all[game] ?? '') >= month) return;
   storage.set(KEYS.seasonShown, { ...all, [game]: month });
+}
+
+const nightsSeen = (): string[] => {
+  const v = storage.get<unknown>(KEYS.nightsSeen, []);
+  return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+};
+
+/** Whether this server night's story was already opened on this device. */
+export const wasNightSeen = (id: string): boolean => nightsSeen().includes(id);
+
+export function saveNightSeen(id: string) {
+  const all = nightsSeen();
+  if (!all.includes(id)) storage.set(KEYS.nightsSeen, [id, ...all].slice(0, 30));
 }
 
 /** Whether first place on this board (a key naming the game, player and filters) was already celebrated here. */

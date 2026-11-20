@@ -51,7 +51,7 @@ export default function Pages({ route }: { route: Route }) {
     case 'wrapped':
       return <WrappedPage year={Number(p.year) || new Date().getFullYear()} playerId={p.id} />;
     case 'night':
-      return <NightPage />;
+      return <NightPage id={p.id} />;
     case 'players':
       return <PlayersPage />;
     case 'signin':
