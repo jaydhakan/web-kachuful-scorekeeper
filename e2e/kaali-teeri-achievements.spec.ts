@@ -29,9 +29,10 @@ test('a hand’s moments drop in once it is confirmed, the winner screen shows t
   await ktStart(page, P4, { first1000: true });
 
   await sweep(page, 1);
-  // The big ones are dealt first as the unlock card, one at a time (here still, under reduced motion); a tap skips.
+  // One big one a hand is dealt as the unlock card (here still, under reduced motion; a tap skips); the next big
+  // one of that hand drops in small (REWARDS-PLAN §13 rule 2).
   await unlocked(page, 'All In');
-  await unlocked(page, 'Lone Wolf');
+  await expect(page.getByText('Meera · Lone Wolf')).toBeVisible();
 
   for (let n = 2; n <= 4; n++) {
     await ktBtn(page, 'Next hand').click();
@@ -66,10 +67,8 @@ test.describe('with motion on', () => {
     const card = page.locator('[data-unlock-card]');
     await expect(card.getByRole('status')).toContainText('Meera unlocked All In');
     await expect(card.locator('[data-unlock-face]')).toBeVisible();
-    // Nothing waits on it: it has gone within its 2.5s ceiling, and the second one follows.
-    await expect(card.getByRole('status')).toContainText('Meera unlocked Lone Wolf', {
-      timeout: 4000,
-    });
+    // Nothing waits on it: it has gone within its 2.5s ceiling, and the hand's second big one drops in small.
     await expect(card).toHaveCount(0, { timeout: 4000 });
+    await expect(page.getByText('Meera · Lone Wolf')).toBeVisible({ timeout: 4000 });
   });
 });
