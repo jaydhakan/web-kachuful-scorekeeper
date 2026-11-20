@@ -1,6 +1,6 @@
 /** The API's shapes as built. Times are epoch ms, ids UUID strings. */
 import type { Direction } from '@/people';
-import type { Decks, Game, Trump, Wrapped } from '@/games/kachuful/domain';
+import type { Decks, Game, Night, Trump, Wrapped } from '@/games/kachuful/domain';
 import type { GameId } from '@/platform/route';
 
 export type Role = 'admin' | 'member';
@@ -293,7 +293,7 @@ export interface LaddersResp {
 
 export interface Activity {
   id: number;
-  kind: 'achievement' | 'game_finished' | 'season_closed' | 'player_joined';
+  kind: 'achievement' | 'game_finished' | 'season_closed' | 'player_joined' | 'crown' | 'night';
   /** The game the item is about (`game` is the finished game's summary); left out by an older server. */
   gameKind?: GameId;
   player: PlayerSummary | null;
@@ -332,6 +332,78 @@ export interface PutGameResp {
   rev: number;
   earned: Achievement[];
   remap?: Record<string, string>;
+  /** Crowns that moved and bounties paid by this write (backend-requests §6); missing from an older server. */
+  status?: GameStatus;
+}
+
+/** A crown (backend-requests §6): the Taj is `medal1`. */
+export type CrownKind = 'medal1' | 'medal2' | 'medal3' | 'kursi' | 'sitara' | 'legend';
+
+export interface CrownChange {
+  kind: CrownKind;
+  from: PlayerSummary[];
+  to: PlayerSummary[];
+  defences: number;
+}
+
+export interface Bounty {
+  holder: PlayerSummary;
+  winner: PlayerSummary;
+  amount: number;
+}
+
+/** What one game write moved: the PUT's `status`, and the user stream's `status` frame. */
+export interface GameStatus {
+  changes: CrownChange[];
+  bounties: Bounty[];
+}
+
+/** GET /api/crowns: every crown, `holders` empty when nobody holds it. */
+export interface CrownsResp {
+  items: {
+    kind: CrownKind;
+    holders: PlayerSummary[];
+    since: number | null;
+    sinceGame: string | null;
+    defences: number;
+  }[];
+}
+
+export interface CrownReign {
+  kind: CrownKind;
+  holders: PlayerSummary[];
+  since: number;
+  until: number;
+  defences: number;
+}
+
+/** One night in a player's list (GET /api/nights); the open night comes first, `id` null. */
+export interface NightRow {
+  id: string | null;
+  closed: boolean;
+  startedAt: number;
+  endedAt: number;
+  players: PlayerSummary[];
+  games: number;
+  winner: PlayerSummary | null;
+}
+
+/** The server's night story: the app's `Night` plus what only the server knows. */
+export type NightData = Night & {
+  gameKinds: GameId[];
+  sitara: string[];
+  sikke: Record<string, number>;
+  achievements: { playerId: string; game: GameId; code: string }[];
+};
+
+/** GET /api/nights/{id}; `data` null while the night is still being counted. */
+export interface NightResp {
+  id: string;
+  closed: boolean;
+  startedAt: number;
+  endedAt: number;
+  players: PlayerSummary[];
+  data: NightData | null;
 }
 
 export interface LiveResp {

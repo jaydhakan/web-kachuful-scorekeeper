@@ -6,6 +6,11 @@ import type {
   AdminUserRow,
   AuthResp,
   Claim,
+  CrownKind,
+  CrownReign,
+  CrownsResp,
+  NightResp,
+  NightRow,
   LinkResp,
   ReactionKind,
   DeletionPreview,
@@ -213,6 +218,15 @@ export const ep = {
     get<Page<SikkeEntry>>(`/players/${id}/sikke/entries`, { cursor, limit: 50 }),
   gameSikke: (gameId: string, o?: CallOpts) =>
     call<GameSikkeResp>('GET', `/games/${gameId}/sikke`, undefined, o),
+  // Crowns and nights (backend-requests §6, §7)
+  crowns: (o?: CallOpts) =>
+    call<CrownsResp>('GET', '/crowns' + query({ game: 'kachuful' }), undefined, o),
+  crownReigns: (kind: CrownKind, cursor: string | null, sort: 'recent' | 'defences' = 'recent') =>
+    get<Page<CrownReign>>('/crowns/reigns', { game: 'kachuful', kind, cursor, sort }),
+  nights: (playerId: string, cursor: string | null) =>
+    get<Page<NightRow>>('/nights', { playerId, cursor }),
+  night: (id: string, o?: CallOpts) => call<NightResp>('GET', `/nights/${id}`, undefined, o),
+  closeNight: () => post<{ id: string }>('/nights/close'),
   /** Ended Kachuful games' places, without `excludeGame`, for the table intel line. */
   places: (excludeGame: string, o?: CallOpts) =>
     call<PlacesResp>('GET', '/places' + query({ excludeGame }), undefined, o),
