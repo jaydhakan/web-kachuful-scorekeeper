@@ -4,7 +4,8 @@ Written 2026-11-18 for Jay; v2 the same day, after a full read of the code. A wo
 it ships in both repos). Code facts were checked against `main` in both repos (frontend `d7a2e1d`, backend `123b12d`).
 The sound side is detailed in [SOUND-PLAN.md](SOUND-PLAN.md); this plan only adds the reward sounds (§11).
 
-**Status: waiting for approval (§17).** Nothing is built yet.
+**Status: waiting for approval (§17).** Nothing is built yet. 2026-11-20: Kachuful's medals (Badshah, Wazir,
+Senapati) added as §6.7, with decisions 13–16.
 
 ---
 
@@ -39,6 +40,8 @@ v2 fixes these, in this order:
      (month), **Legend** (all-time)
    - stat crowns from what each game really tracks
    - rivalries at the table
+   - **medals in Kachuful** (§6.7): the board's top 3 play as 🥇 Badshah, 🥈 Wazir and 🥉 Senapati, with metal names,
+     banter each round, a live chase and a takeover moment
 3. **Stories:** the evening's arc and **Baithak Wrapped: the night**.
 4. **Then the Sikke and the Wardrobe**, rescaled for weekly play, with **clothing** shown on the stage avatar.
 
@@ -381,7 +384,7 @@ Rules:
 | ---------------------------------- | ------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- | --- |
 | **Aaj ka Sitara** (tonight's star) | the leader of today's daily standing (`day_star` where it exists; Spades: most wins today, then made rate) | today (Kolkata) | daily awards are **already computed live on read**; the new part is publishing the holder | ⭐ |
 | **The Kursi** (the chair)          | one per game. **Beat the holder in a game you both played and you take it.** The first holder is the first finished game's winner | until taken | **new**, derived from finished games' final ranks (§6.3) | 🪑 |
-| **The Taj** (the month's crown)    | #1 in this month's season standing, once past `seasonMin`                            | the season   | season standings exist; the new part is the `crowns` table and the change events  | 👑 |
+| **The Taj** (the month's crown)    | #1 in this month's season standing, once past `seasonMin`; in Kachuful the Taj is the 🥇 **Badshah**'s (§6.7) | the season   | season standings exist; the new part is the `crowns` table and the change events  | 👑 |
 | **Legend**                         | the most season titles in that game, all-time (ties share; at least 2 titles)         | all-time     | `season_champion` rows exist; count them                                          | 🏛️ |
 
 - **Week is cut.** For a group that meets weekly, "this week" and "tonight" are the same mark.
@@ -457,6 +460,127 @@ No new rules: the same codes, the same golden fixtures, just a holder published 
 - **Kursi:** the chair glyph slides between seats, then a gavel.
 - **Sitara:** a star pip twinkles in once (opacity), with no show; it changes too often for a show.
 - **Legend:** a pip only, never animated (permanence).
+
+### 6.7 Kachuful's medals: Badshah, Wazir, Senapati (added 2026-11-20, from Jay)
+
+The leaderboard's top three **wear their rank at the table**. Kachuful first; the other games copy it once it has had a
+real night. The 🥇 is the Taj's holder, so **the Taj and the Badshah are one thing**: the crown is the Badshah's.
+
+**Who gets a medal**
+
+- **The board:** this month's season standings (`awards.ts` `season()`): `avgPerRound`, ranked only past
+  `SEASON_MIN_ROUNDS` (50). Same board as the Taj and `season_champion`, so the medal at the close of the month is the
+  title the player is given.
+- **The titles:** 🥇 **Badshah**, 🥈 **Wazir**, 🥉 **Senapati**. Ties share the medal (both are Badshah).
+- **Early in the month** nobody has 50 rounds yet. Until 3 players qualify, last month's medallists keep theirs,
+  marked "defending" (a thin ring, no shine). Decision 14.
+- **Signed out:** the device ranks from its own archive, as its boards already do. Signed in: the server's standings
+  (the same `crowns` table as the Taj, with ranks 2 and 3 added). Decision 15.
+
+**1. Names in metal**
+
+- Wherever a medallist's name shows in a game (the seat label, the bid list, score rows, the round summary, the
+  winner screen, the live page), it's drawn in their metal, with the medal glyph after it.
+  - 🥇 gold letters; a light sheen sweeps across every ~8s (a gradient layer moved with `translateX`, as the unlock
+    card's sheen)
+  - 🥈 silver letters; a cooler glint every ~14s
+  - 🥉 bronze letters; no sheen
+- The seat token gets a matching thin metal ring (the frame slot, §3.1); the pip slot still shows one status pip.
+- **Tokens:** `--medal-gold/silver/bronze` exist with `-hi`/`-lo`. As text, light themes need darker shades, as
+  `--gold-tx` already does for gold: add `--silver-tx` and `--bronze-tx` in `themes.css` and each theme file.
+- **Reduced motion and low-end devices:** the metal letters, no sheen. At most one sheen runs at a time (§5.2's idle
+  cap).
+
+**2. At the deal**
+
+- One medallist seated: the table intel line (§6.5) becomes *"👑 Badshah Riya table pe hai"*, and their seat glows
+  once.
+- Two or more seated: a 1.2s **VS card** in the deal, *"Badshah Riya vs Wazir Dev"*. It uses the deal's dead time
+  (§7.1), so nothing waits.
+- No medallist seated: nothing. It stays special.
+
+**3. Banter each round (taunts and praise)**
+
+At most **one line a round**, on the round summary (a pause, never during bidding). Lines are picked from a pool by a
+seed of the game id and round, so the table and every live viewer see the same line. First match wins:
+
+| # | What happened                                         | Example lines                                                                 |
+| - | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 1 | 🥇 is the only one who missed                          | *"Poori table ne kar diya, sirf Badshah reh gaye 😬"*                          |
+| 2 | 🥇 missed and a non-medallist made a bigger bid        | *"Asha ne Badshah ko pachaad diya!"*                                           |
+| 3 | 🥇 missed two rounds in a row                          | *"Riya ka sona aaj peetal lag raha hai"*                                      |
+| 4 | 🥇 missed                                              | *"Badshah bhi chook gaye 👀"* · *"Takht thoda hil raha hai…"*                  |
+| 5 | The hook fell on 🥇                                    | *"Hook ne Badshah ko bhi nahi chhoda 🪝"*                                      |
+| 6 | 🥇 made a bid of 5 or more                             | *"Badshah hi keh de!"* · *"Badshah ho toh aise 👑"*                            |
+| 7 | 🥇 is the only one who made it                         | *"Ek akela Badshah"*                                                          |
+| 8 | 🥇 bid 0 and made it                                   | *"Chupke se kaam ho gaya"*                                                    |
+| 9 | 🥈 or 🥉 passed a higher medallist in this game's score | *"Wazir ki nazar takht pe hai 👀"*                                             |
+
+- **Who gets roasted:** only medallists. Everyone else is only ever praised for beating one.
+- **Tone:** cheeky, never mean. No line about anything but the round. Decision 13 sets how spicy.
+- **On the token:** 🥇 missing plays the Shocked beat (§5.2) with a gold flicker. Making a big bid plays a slightly
+  taller hop.
+- **Cooldown:** the same line kind not twice in 3 rounds. The pool has 4+ lines per kind.
+- **Switch:** "Table banter" in Settings, on by default.
+- **Strings** live in `src/games/kachuful/strings`, with the rules as a pure function in the domain (`banter.ts`,
+  with unit tests per row).
+
+**4. The chase, live**
+
+- After each round, the standings are recomputed with this game's rounds counted, using `chase()`, which already
+  exists.
+- If someone at the table would pass the Badshah if the game ended now, the Badshah's letters show a **crack**: a
+  hairline overlay faded in with opacity. The chaser gets an *"On track for 🥇"* chip.
+- It clears if the Badshah pulls ahead again. The same goes for 🥈 and 🥉, as a chip only, without the crack.
+- It's a projection, worked out on the device; the real change is decided at game end.
+
+**5. The takeover (game end)**
+
+- **When:** the game is finished and the new standings have a new 🥇. It plays as the game-end moment's second part,
+  after the podium, and is merged with a Kursi change if both happen (§13 rule 7).
+- **The show** (2.5s, skippable):
+  1. the screen dims
+  2. the gold letters **peel off the old Badshah's name** (scale and fade) and fly to the new one's
+  3. a 🥇 flips, gold confetti falls, and the `shehnai` plays
+  4. the line: **"Naya Badshah: Dev!"**
+- **Silver and bronze changes** play as a 0.8s swap of the letters, with no dim.
+- **The old Badshah** gets a proud line: *"Riya was Badshah for 12 days"*.
+- **Reduced motion:** the names change colour and the line shows.
+- **Defended:** a Badshah who finishes above both the Wazir and the Senapati at the same table gets
+  *"Takht bacha liya 🛡️"* and a glint.
+
+**6. Extras**
+
+- **Giant Killer:** a new Kachuful achievement for finishing above the Badshah when you hold no medal. It needs a
+  golden fixture first.
+- **Wrapped (§7.2):** a medals card showing who held 🥇 tonight and who came close.
+- **Feed:** "Dev is the new Badshah" (`crown` activity).
+
+**7. The same treatment for every mark (Kursi, Sitara, Legend)**
+
+Banter, the chase and the takeover aren't only for medals. Every mark a seated player holds (§6.1) gets them, through
+the same `banter.ts` rule table and the same one-line-a-round budget. When two holders qualify for a line in the same
+round, the 🥇 Badshah goes first, then the Kursi, then the Sitara.
+
+| Mark             | At the deal                                    | Banter (examples)                                                                                          | Live chase                                                          | Takeover                                                  |
+| ---------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
+| 👑 Taj = 🥇       | as above                                       | as above                                                                                                   | as above                                                            | "Naya Badshah!" (the Taj and the gold move together)      |
+| 🪑 **Kursi**      | "🪑 Riya ki Kursi · 6 defences"                 | missed: *"Kursi hil rahi hai 🪑"* · only one to miss: *"Kursi pe baithe baithe so gaye?"* · big made bid: *"Kursi pakki"* | whoever is above the holder in this game's score: "Kursi ke kareeb" chip; the 🪑 pip wobbles | "Kursi chheeni!" (§6.3)                                   |
+| ⭐ **Sitara**     | —                                              | missed: *"Aaj ka Sitara thoda dhundhla"* · big made bid: *"Sitara chamak raha hai ✨"*                     | "Tonight's lead in reach" chip when someone would pass them          | the ⭐ twinkles across (a beat, as §6.6)                   |
+| 🏛️ **Legend**    | "🏛️ Legend Riya" in the intel line when no Badshah sits | rarely: only the respectful lines (a big made bid: *"Legend ho toh aise"*); never teased on a miss | —                                                                   | never moves in a game (permanent)                         |
+
+- **Names:** the metal letters are only for the medals. The other marks keep their pip and add a title before the
+  name in the summary and the banter ("Kursi wale Riya").
+- **One player, several marks:** the line uses the highest mark only, so it's never "Badshah, Kursi wale, Sitara Riya".
+- **The cap holds:** still one banter line a round in total, and crown takeovers count toward the 3 a night
+  (§13 rule 4).
+
+**Data:**
+
+- Signed in, the server adds ranks 2 and 3 to the `crowns` table, publishes medal changes in `status.changes`
+  (kind `medal`), and adds `medal` to the player summaries the game reads.
+- Signed out, everything comes from the device's archive.
+- The backend part goes in `backend-requests.md` at G0.
 
 ## 7. The session arc and Baithak Wrapped
 
@@ -613,6 +737,11 @@ switches ticks off and plays moments at half volume. No new key: it's a field in
 | Sitara changes                   | server: the upload response `status.changes` (kind `sitara`)                                      | beat   | ⭐ twinkles onto the seat                                                                   | `twinkle`          | —                   | 0.5s    | T     | 1 per game                              | the pip appears                        |
 | **Kursi chheeni**                | server: `status.changes` (kind `kursi`) in the game's upload response                             | moment | the chair slides seat to seat + `SeatSpotlight`; the old holder sulks; "Kursi chheeni!"    | `gavel`            | `[20,40,20]`        | 1.6s    | T, O, F | 1 per game                            | the line + pip swap                    |
 | **Taj chheena**                  | server: `status.changes` (kind `taj`)                                                             | moment | the stage: the crown lifts, wobbles, arcs to the new bust; the old holder's proud line      | `shehnai`          | `[20,40,20]`        | 2.2s    | T, O, F | 1 per game; 3 per night, then a beat  | crown pip swap + line                  |
+| Medallist seated (Kachuful)      | client: the deal, a seated player with a medal (§6.7)                                             | beat   | intel line "👑 Badshah Riya table pe hai"; 2+ medallists: the VS card                       | —                  | —                   | 1.2s    | T     | 1 per game, in the deal                 | the line, still                        |
+| Banter line (Kachuful)           | client: the round summary, `banter.ts` rule table (§6.7)                                          | beat   | one line under the summary; the medallist's token shakes or hops                            | — (the result's own sound) | —           | 0.6s    | T, live | 1 a round; same kind not twice in 3 rounds | the line, still                    |
+| On track for a medal             | client: `chase()` with this game's rounds, after each round                                       | beat   | a crack on the holder's metal letters; "On track for 🥇" chip on the chaser                  | —                  | —                   | 0.4s    | T     | changes only                            | the chip, still                        |
+| **Naya Badshah**                 | server: `status.changes` (kind `medal`, rank 1); signed out: the device's new standings          | moment | the dim, the gold letters peel and fly to the new name, 🥇 flip, gold confetti              | `shehnai`          | `[20,40,20]`        | 2.5s    | T, O, F | 1 per game; merged with a Kursi change | names change colour + line             |
+| Wazir / Senapati changes         | as above, rank 2 or 3                                                                             | beat   | the metal letters swap between names                                                        | `twinkle`          | —                   | 0.8s    | T, O  | merged into one beat per game           | names change colour                    |
 | Bounty won                       | server: `status.changes` (kind `bounty`)                                                          | beat   | "+40 🪙 bounty" chip from the old holder's seat to the winner's                             | `coin` ×3          | 10                  | 0.8s    | T, O  | 1 per game                              | the chip, still                        |
 | Game win                         | client: the winner screen (`useReveal`)                                                           | moment | the winner's token rises to the **stage bust**, the mala drops, their Jashn                 | `fanfare` (+ Jashn) | `[12,40,18,40,30]` | 3.5s    | T     | 1 per game                              | the bust, still, the mala on           |
 | Perfect game / hidden achievement| server: `earned` with `big` or `hidden`                                                           | moment | the unlock card (exists) with the stage bust                                                | `ghungroo` + `chime` | `[20,40,20]`      | 2.5s    | T, O, F | 2 per game (the queue)                | card face-up                           |
@@ -655,6 +784,8 @@ switches ticks off and plays moments at half volume. No new key: it's a field in
 | Bounty                | two friends trade wins for coins                            | once per challenger per holder per week; 3+ players. **Keep**                                  |
 | Taj and stat crowns   | farm easy games                                             | the existing `seasonMin`, rates need minimums, same as the awards today. **Keep**             |
 | Sitara                | the only player tonight                                     | needs a table of 3+; a day with 1 game gives no Sitara. **Keep**                              |
+| Medals                | pad rounds to pass 50 and qualify; play only easy tables | the same `seasonMin` and finished-games rules as the Taj; the admin can void (recomputes). **Keep** |
+| Banter                | a player singled out night after night                      | only medallists are teased, and only about the round; kind pool; "Table banter" off switch. **Keep** |
 | Wrapped "worst bid"   | humiliation                                                 | kind copy only ("Brave call"); no 🙃 achievements in Wrapped. **Keep**                        |
 | Gifts                 | coin laundering                                             | items only, never coins; can't gift to yourself or to players outside your circle. **Keep**   |
 | Group milestones      | inflating counts                                            | counted from finished games only. **Keep**                                                     |
@@ -677,6 +808,7 @@ Scores are 1–5; ratio = impact ÷ effort. **Above the line is built in this pl
 | **Stage avatar + winner on the stage**                           |      5 |      3 |  1.7  | client; art for busts                        |
 | **Sitara (tonight)**                                             |      3 |      2 |  1.5  | daily standings live                         |
 | **Taj (live, chheena)**                                          |      4 |      3 |  1.3  | `crowns` table                               |
+| **Kachuful medals** (metal names, banter, chase, Naya Badshah)    |      5 |      2 |  2.5  | season standings and `chase()` exist; `crowns` ranks 2–3 |
 | **Baithak Wrapped: the night**                                   |      5 |      4 |  1.25 | `nights` + payload facts                     |
 | **Sikke + levels + backfill**                                    |      4 |      3 |  1.3  | ledger                                       |
 | **Wardrobe + outfits + sets** (about 40 items of art)            |      4 |      4 |  1.0  | catalog, looks; the most art                 |
@@ -699,7 +831,7 @@ Scores are 1–5; ratio = impact ÷ effort. **Above the line is built in this pl
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----: | ------------- |
 | G0    | Decisions; `backend-requests.md`; the **art style sheet**: 1 bust, 2 outfits, 2 headwear, 1 frame, at 26/32/52/72/220px in all 4 themes, approved by Jay       |    5% | 5%            |
 | G1    | **Presence:** `AvatarFill` tiers (dot, seat, hero, stage) by measured size; the pip slot; avatar states and reactions; faces in Ishaara and the Spades scorekeeper; the moment budget and queue rules (§13); the stage rise/settle helper | 20% | new |
-| G2    | **Status and stories:** Kursi, Sitara, Taj (+ Legend), stat crowns live, `status.changes` in upload responses and on the user stream, table intel, bounties (computed now, paid when G3 lands), the Night's Wrapped | 25% | was G3 (20%) |
+| G2    | **Status and stories:** Kachuful's medals first (§6.7: Badshah, Wazir, Senapati, banter, the chase), Kursi, Sitara, Taj (+ Legend), stat crowns live, `status.changes` in upload responses and on the user stream, table intel, bounties (computed now, paid when G3 lands), the Night's Wrapped | 25% | was G3 (20%) |
 | G3    | **Sikke:** the ledger, earn rules (rescaled), the hooks, backfill, levels, the wallet chip and ledger sheet, "+🪙" on the winner screen; bounties start paying | 15% | was G1 (20%) |
 | G4    | **Wardrobe:** the catalog, owned items, looks; **outfits, sets and colour variants**; the art (about 40 items); the dressing room                              |   20% | was G2 (25%) |
 | G5    | **Bazaar (weekly) + gifting** (the gift opened at the table) + hidden achievements, firsts and milestones                                                      |   10% | was G4 (15%) |
@@ -783,3 +915,8 @@ key on the device.
 10. **Voice pack:** later and off by default (recommended); and whose voice?
 11. **Late-night quiet** (after 11 pm) on by default: yes?
 12. **Currency name Sikke, no real money, and the launch backfill:** still yes (v1's §12 1–3)?
+13. **Banter tone (§6.7):** **friendly roast, as in the examples** (recommended), or saltier? Only medallists are teased.
+14. **Medals early in the month:** **last month's top 3 keep theirs, marked "defending", until 3 players qualify**
+    (recommended), or no medals until then?
+15. **Signed-out games:** **medals ranked from the device's own archive** (recommended), or medals only when signed in?
+16. **Titles:** 🥇 Badshah (Jay's), 🥈 **Wazir** and 🥉 **Senapati** (suggested): OK, or other names?
