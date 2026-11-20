@@ -2005,7 +2005,7 @@ on('POST', '/api/nights/close', ({ me }) => {
     kind: 'night',
     player: open.story.winner ? summaryOf(open.story.winner, f) : null,
     game: null,
-    data: { nightId: open.id, games: open.story.gameIds.length, winner: open.story.winner },
+    data: { nightId: open.id, games: open.story.gameIds, winner: open.story.winner },
     createdAt: Date.now(),
   });
   return { id: open.id };

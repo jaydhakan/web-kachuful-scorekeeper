@@ -72,7 +72,10 @@ describe('crowns and nights in the feed', () => {
 
   it('says a night’s Wrapped is ready and opens it', async () => {
     const openNight = vi.fn();
-    row(item('night', { nightId: 'n1', games: 4, winner: 'r' }, 'r'), envOf({ openNight }));
+    row(
+      item('night', { nightId: 'n1', games: ['g1', 'g2', 'g3', 'g4'], winner: 'r' }, 'r'),
+      envOf({ openNight }),
+    );
     const b = screen.getByRole('button', {
       name: /Tonight’s Wrapped is ready: 4 games, Riya won/,
     });

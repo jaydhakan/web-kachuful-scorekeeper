@@ -70,7 +70,9 @@ export function crownLine(a: Activity, nameOf: (id: string) => string): [string,
 
 /** A night that closed (`data: {nightId, games, winner}`): its line, and its id to open. */
 export function nightLine(a: Activity, nameOf: (id: string) => string) {
-  const games = typeof a.data.games === 'number' ? a.data.games : 0;
+  // The server sends the night's game ids; a count is taken too.
+  const g = a.data.games;
+  const games = Array.isArray(g) ? g.length : typeof g === 'number' ? g : 0;
   const winner = typeof a.data.winner === 'string' ? nameOf(a.data.winner) : '';
   const id = typeof a.data.nightId === 'string' ? a.data.nightId : null;
   return { text: ac.night(games, winner), id };
