@@ -195,8 +195,8 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
   and a `kind`+`round` cooldown, but **no caller passes `cap: 1`, `kind` or `round` yet**: `MomentPop` scopes by
   batch, not by round, so the scorekeepers need one round scope first. A second tap finishing a beat sequence is not
   built.
-- **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on Kachuful's winner screen. The
-  other games' winner screens don't show "+🪙" yet (`components/sikke/GameSikke.tsx` is shared). The mock API pays
+- **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on every game's winner screen
+  (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
   Kachuful only (finish, win, achievements). Levels and prices still need checking against the backfill
   (`recompute-sikke --dry-run` on production data). Bounties and tonight's Sitara pay once `crowns`/`nights` exist.
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.

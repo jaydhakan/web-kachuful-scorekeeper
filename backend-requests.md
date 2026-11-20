@@ -132,3 +132,42 @@ app owns the names.
 
 **Not now:** bounties (40) and tonight's Sitara (30) pay once G2's server half lands (`crowns`, `nights`); the
 "Pehle Waale" badge is a Wardrobe item (G4).
+
+## 6. Crowns and status changes (plan §6, G2's server half) — NOT BUILT YET
+
+**Why:** the medals, the Kursi and the Sitara are computed on read today, so a crown change has no feed item, no "held
+N days", and only the table device sees the takeover. Every phone at the table (and the feed) should hear "Kursi
+chheeni!" from the server, and a holder's reign should be a record.
+
+**Table** `crowns(game text, kind text check in ('medal1','medal2','medal3','kursi','sitara','legend'), holders uuid[],
+since timestamptz, since_game uuid null, defences int default 0, primary key (game, kind))` and
+`crown_reigns(id, game, kind, holders uuid[], since, until, since_game, until_game, defences)`. Rewritten in
+`progress_game` (and Kachuful's store path) when a game ends, is voided or deleted: recompute that game's kinds from
+the same rules as `GET /api/medals` / `GET /api/kursi` (`app/domain/kursi.py`), diff with the stored row, and write a
+reign and an `activity` row (`kind 'crown'`, `data: {crown, from: [ids], to: [ids], defences}`) on a change. A
+recompute that changes nothing writes nothing. Kachuful only at first; `game` keeps it open for the others.
+
+**Upload response:** the Kachuful PUT response (and each other kind's write response, once it has crowns) gains
+`status: { changes: [{ kind, from: PlayerSummary[], to: PlayerSummary[], defences }] }` for that write's changes only;
+an empty list when nothing moved. The user stream (`/api/me/events`) sends the same as `{type: 'status', game,
+gameId, changes}` to every account seated in the game.
+
+**Reads:** `GET /api/crowns?game=` → `{ items: [{ kind, holders: PlayerSummary[], since, sinceGame, defences }] }`;
+`GET /api/crowns/reigns?game=&kind=&cursor=` → paged reigns, longest first when `sort=defences`.
+
+## 7. Nights (plan §7.2) — NOT BUILT YET
+
+**Why:** Tonight's Wrapped exists on the table device only (`games/kachuful/domain/night.ts`). Everyone who sat should
+get it on their own phone, and the feed should say a night is ready.
+
+**Rule:** a night is a run of finished games (any kind) with gaps of 3 hours or less between one game's end and the
+next one's start, grouped across the players who sat; the app's `nightOf` is the reference (a golden fixture
+`night-cases.json` to export first).
+
+**Table** `nights(id uuid, started_at, ended_at, players uuid[], games uuid[], data jsonb, closed_at)`. Job
+`close-nights` (every 30 min, beside `close-day`): closes a night whose last game ended 3+ hours ago, stores the
+story facts in `data` (the same shape the app's `NightPage` builds), writes an `activity` row (`kind 'night'`) and
+pays tonight's Sitara 30 Sikke (`sikke` kind `sitara`, key `sitara:<nightId>`).
+
+**Reads:** `GET /api/nights?playerId=&cursor=` (newest first) and `GET /api/nights/{id}`; an open night is
+`{ closed: false }` so the app says "Your night is being counted…".
