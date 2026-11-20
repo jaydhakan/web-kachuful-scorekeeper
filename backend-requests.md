@@ -72,3 +72,63 @@ places from the server.
 ended Kachuful games, newest first.
 
 **Built:** backend 30b1e27 + fix.
+
+## 5. Sikke: the ledger, the earn rules, levels (plan §9, phase G3)
+
+**Why:** Sikke are the app's coins: earned by playing, spent later in the Bazaar (G5). The server decides every entry,
+in the same transaction as the game write, so every phone agrees and nothing can be typed in. The app shows a wallet
+chip and a ledger, and "+🪙" per player on the winner screen.
+
+**Rules:** the app's `src/progression/sikke.ts`; parity is `contract/fixtures/sikke-rules.json` (`rates`, `levels`, and
+`achievements[game][code]` = what each code pays, already worked out: shame codes and Kachuful's `cold_*` ladder pay 0,
+a ladder level N pays 25×N, `season_champion` 300, other season codes 100, daily 15, else moment 5 / game 10 / career
+25, doubled when big). The backend reads the amounts per code from its own copy of that fixture's numbers (a module
+`app/domain/sikke.py` with the table, checked equal to the fixture by a test), never by re-deriving `big`.
+
+**Entries** (a player is a registry player, so a player with no account accrues and their claim brings it along):
+
+| kind            | amount                    | when                                                                                                  | key (unique per player)      |
+| --------------- | ------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `finish`        | 30 (+10 Ishaara, online Spades) | seated in a finished, non-void game of 2+ players                                               | `finish:<gameId>`            |
+| `win`           | 25                        | place 1 in that game (ties and a winning team: each of them)                                          | `win:<gameId>`               |
+| `achievement`   | per fixture               | each `achievements` row (moment, game, career, daily, season), 0-amount codes write no entry         | `ach:<achievementId>`        |
+| `kursi_take`    | 30                        | Kachuful: took the Kursi in that game (`domain/kursi.py` reigns)                                      | `kursi:<gameId>`             |
+| `kursi_defence` | 10                        | Kachuful: held it at that game as holder (each defence)                                               | `kursi:<gameId>`             |
+| `streak`        | 10 × weeks in a row, ≤ 50 | the player's first finished game (any kind) of an ISO week in APP_TZ; weeks in a row counts this one  | `streak:<YYYY-Www>`          |
+
+- **Daily cap:** `finish` and `win` pay for a player's first 8 finished games of one progression game per APP_TZ day
+  (by `ended_at`, then id); later games that day write no `finish` or `win` entry. Achievements always pay.
+- **Recompute-safe:** a reconcile like `AchievementsEngine`: compute what a player should hold now, insert new keys,
+  update `amount`/`data` where changed, delete keys that no longer hold, never touch `earned_at` of a kept row.
+  `earned_at` is the source's time (the game's `ended_at`, the achievement's `earned_at`).
+- **Hooks:** after `progress_game` (every kind) and after Kachuful's store path, for the game's players; after
+  `close-day` / `close-season` for the awarded players; after a merge or claim, for the kept player; when a Kachuful
+  game ends, is voided or deleted, recompute the Kursi entries of everyone in its chain. A deleted or abandoned game
+  earns nothing (its entries go).
+- **Backfill:** CLI `recompute-sikke [--dry-run]`: every player, idempotent. `--dry-run` prints each player's lifetime
+  total and level, and the weekly average over their active weeks, so the prices and levels can be checked against
+  real history (plan §9). Run once at deploy.
+
+**Table** `sikke_entries(id uuid pk, player_id fk players, key text, kind text check, amount int > 0, game text null
+(the progression game), game_id uuid null fk games on delete cascade, achievement_id uuid null fk achievements on
+delete cascade, earned_at timestamptz, data jsonb default '{}')`, unique `(player_id, key)`, index
+`(player_id, earned_at desc, id desc)`. Spends (G5) will be a separate table; the balance is earned − spent.
+
+**Levels:** lifetime = sum of entries; `levels` in the fixture (`from` 0, 500, 1500, 4000, 9000, 18000; n 1–6). The
+app owns the names.
+
+**Routes** (signed in; any registry player, as the boards are):
+
+- `GET /api/players/{id}/sikke` → `SikkeOut { playerId, balance, lifetime, level: { n, from, next: int | null } }`
+  (a player with no entries: zeros, level 1). Unknown player: 404 `not_found`. Merged-away id: follow the alias.
+- `GET /api/players/{id}/sikke/entries?cursor=&limit=` → `{ items: SikkeEntryOut[], nextCursor }`, newest first;
+  `SikkeEntryOut { id, kind, amount, game: str | null, gameId: str | null, code: str | null, period: str | null,
+  earnedAt }` (`code`/`period` from the achievement row for `achievement` entries).
+- `GET /api/games/{id}/sikke` → `{ items: [{ playerId, amount, entries: [{ kind, amount, code }], level: { n, from,
+  next }, levelUp: { from: int, to: int } | null }] }`: what that game paid each of its players (the entries whose
+  `game_id` is the game, including its achievements' entries, plus the `streak` entry if this game was the week's
+  first), seat order. `levelUp` when the player's lifetime without this game's amount was a lower level. An unfinished
+  game: `items` with zero amounts (not an error). Any kind.
+
+**Not now:** bounties (40) and tonight's Sitara (30) pay once G2's server half lands (`crowns`, `nights`); the
+"Pehle Waale" badge is a Wardrobe item (G4).
