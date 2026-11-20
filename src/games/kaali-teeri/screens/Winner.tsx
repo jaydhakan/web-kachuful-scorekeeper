@@ -21,6 +21,7 @@ import { rankTone } from '@/components/ui/rankTones';
 import { Scaffold } from '@/components/ui/Scaffold';
 import { SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { t } from '@/strings';
+import { GameSikke } from '@/components/sikke/GameSikke';
 
 // Its rules and catalogue are a chunk of their own, after the podium.
 const WinnerReel = lazy(() => import('./WinnerReel'));
@@ -171,6 +172,11 @@ export default function Winner() {
             <Suspense fallback={null}>
               <WinnerReel g={g} />
             </Suspense>
+            <GameSikke
+              gameId={g.syncId}
+              people={g.players.flatMap((p) => (p.playerId ? [{ ...p, id: p.playerId }] : []))}
+              heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]"
+            />
             <div className="mt-3 flex flex-wrap justify-center gap-x-2">
               <button type="button" onClick={actions.startSetup} className={QUIET}>
                 {end.winner.newGame}

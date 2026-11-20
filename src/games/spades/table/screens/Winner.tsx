@@ -18,6 +18,7 @@ import { REDUCED, SPRING_POP, SPRING_SOFT } from '@/components/ui/motion';
 import { TEAM_TONE, teamNames } from './parts';
 import { useSpGames, useWho } from './pages/source';
 import { signedInAs, useSession } from '@/sync/session';
+import { GameSikke } from '@/components/sikke/GameSikke';
 
 const s = spTable.winner;
 // The reel brings the catalogue with it: its own chunk, after the winner is on screen.
@@ -215,6 +216,11 @@ export default function Winner() {
               person={who}
             />
           </Suspense>
+          <GameSikke
+            gameId={g.syncId}
+            people={g.players.flatMap((p) => (p.playerId ? [{ ...p, id: p.playerId }] : []))}
+            heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]"
+          />
           <div className="mt-4 flex flex-wrap justify-center gap-x-1">
             <button type="button" onClick={actions.startSetup} className={QUIET}>
               {s.newGame}

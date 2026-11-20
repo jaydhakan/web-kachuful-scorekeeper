@@ -22,6 +22,7 @@ import { WordGrid } from './board/WordGrid';
 import { GameReel } from './GameReel';
 import { Dot } from '@/components/ui/Dot';
 import { AvatarStack } from '@/components/ui/Page';
+import { GameSikke } from '@/components/sikke/GameSikke';
 
 const w = s.win;
 
@@ -189,6 +190,11 @@ export default function Win({ game }: { game: IshaaraPublic }) {
             </section>
 
             <GameReel game={game} />
+            <GameSikke
+              gameId={game.id}
+              people={game.players.flatMap((p) => (p.playerId ? [{ ...p, id: p.playerId }] : []))}
+              heading="mono-label mb-2 mt-6 text-13 text-[var(--accent-tx)]"
+            />
 
             {game.solution && (
               <m.section {...stagger(1)} aria-labelledby="ish-key" className="mt-6">

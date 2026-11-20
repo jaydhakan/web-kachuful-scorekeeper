@@ -15,6 +15,7 @@ import { sfx } from '@/games/spades/sound/sfx';
 import { spGo } from '@/games/spades/nav';
 import { fillLine, pickLine } from '@/games/spades/ui/pickLine';
 import { teamLabels } from '@/games/spades/ui/teams';
+import { GameSikke } from '@/components/sikke/GameSikke';
 
 export interface TeamStats {
   made: number;
@@ -232,6 +233,11 @@ export function Winner({
           <Suspense fallback={null}>
             <Reel table={table} />
           </Suspense>
+          <GameSikke
+            gameId={table.id}
+            people={table.seats.flatMap((x) => (x.who ? [{ ...x.who, id: x.who.playerId }] : []))}
+            heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]"
+          />
         </div>
       </div>
       {/* Pinned, so Rematch is on screen however much the celebration above has to scroll. */}

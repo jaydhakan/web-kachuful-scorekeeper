@@ -190,8 +190,15 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
 - **Live page:** spectators don't see the banter or the medals yet (`pages/LivePage.tsx`).
 - **Server status:** no `crowns` table or `status.changes`; so no feed item for a crown change, no "held N days", and
   the Kursi is computed on read (`GET /api/kursi`). Fine for one group; move it into `progress_game` if reads slow.
-- **Moment budget (§13), not built:** holding big shows during input (`pauseUntil`), the per-round cap of 1 for the
-  scorekeepers, the same-kind cooldown, and a second tap finishing a beat sequence.
+- **Moment budget (§13):** the queue now holds Moments during input (`useHoldMoments`, on Kachuful's bids and
+  results, Kaali Teeri's auction and result, the Spades scorekeeper's bids and tricks), and takes a per-scope `cap`
+  and a `kind`+`round` cooldown, but **no caller passes `cap: 1`, `kind` or `round` yet**: `MomentPop` scopes by
+  batch, not by round, so the scorekeepers need one round scope first. A second tap finishing a beat sequence is not
+  built.
+- **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on Kachuful's winner screen. The
+  other games' winner screens don't show "+🪙" yet (`components/sikke/GameSikke.tsx` is shared). The mock API pays
+  Kachuful only (finish, win, achievements). Levels and prices still need checking against the backfill
+  (`recompute-sikke --dry-run` on production data). Bounties and tonight's Sitara pay once `crowns`/`nights` exist.
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
 - **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
 
