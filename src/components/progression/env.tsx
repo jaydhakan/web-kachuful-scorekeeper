@@ -53,6 +53,8 @@ export interface ProgressionEnv {
   openActivity?: () => void;
   /** A feed item about a finished game; left out, the item opens its player. */
   openGame?: (a: Activity) => void;
+  /** A feed item about a night that closed opens its Wrapped; left out, the item opens its winner. */
+  openNight?: (id: string) => void;
   /** Left out for a game with nothing on the device (Ishaara): signed out the pages show nothing. */
   device?: DeviceSource;
 }

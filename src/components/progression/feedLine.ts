@@ -1,5 +1,7 @@
 import { sgnN } from '@/lib/format';
-import type { Activity } from '@/sync/types';
+import type { Activity, CrownKind } from '@/sync/types';
+import { crowns } from '@/strings/crowns';
+import { medals } from '@/strings/medals';
 import { t } from '@/strings';
 import { progression as ps } from '@/strings/progression';
 
@@ -39,4 +41,37 @@ export function finishedLine(a: Activity): string {
   }
   const top = g.players?.find((p) => p.place === 1);
   return top ? ac.finished(top.name, top.points == null ? '' : sgnN(top.points)) : f.ended;
+}
+
+const ids = (v: unknown) =>
+  Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+const CROWNS: readonly string[] = ['medal1', 'medal2', 'medal3', 'kursi', 'sitara', 'legend'];
+
+/** A crown that changed hands (`data: {crown, from, to}`, ids): its glyph and line, names from `nameOf`. */
+export function crownLine(a: Activity, nameOf: (id: string) => string): [string, string] {
+  const toIds = ids(a.data.to);
+  const n = toIds.length;
+  const to = both(toIds.map(nameOf)) || (a.player?.displayName ?? '');
+  const from = both(ids(a.data.from).map(nameOf));
+  const c = ac.crown;
+  const kind = a.data.crown;
+  if (typeof kind !== 'string' || !CROWNS.includes(kind)) return [crowns.glyph.medal1, c.other(to)];
+  const k = kind as CrownKind;
+  const line =
+    k === 'kursi'
+      ? c.kursi(to, from)
+      : k === 'sitara'
+        ? c.sitara(to, n)
+        : k === 'legend'
+          ? c.legend(to, n)
+          : c.medal(to, medals.title[k === 'medal1' ? 1 : k === 'medal2' ? 2 : 3], n);
+  return [crowns.glyph[k], line];
+}
+
+/** A night that closed (`data: {nightId, games, winner}`): its line, and its id to open. */
+export function nightLine(a: Activity, nameOf: (id: string) => string) {
+  const games = typeof a.data.games === 'number' ? a.data.games : 0;
+  const winner = typeof a.data.winner === 'string' ? nameOf(a.data.winner) : '';
+  const id = typeof a.data.nightId === 'string' ? a.data.nightId : null;
+  return { text: ac.night(games, winner), id };
 }

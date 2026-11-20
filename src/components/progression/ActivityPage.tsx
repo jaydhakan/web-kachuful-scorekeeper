@@ -15,7 +15,7 @@ import { platform } from '@/strings/platform';
 import { progression as ps } from '@/strings/progression';
 import { icon } from '@/components/ui/IconsMore';
 import { useProgressionEnv } from './env';
-import { finishedLine } from './feedLine';
+import { crownLine, finishedLine, nightLine } from './feedLine';
 
 const EVERY: readonly GameId[] = ['kachuful', 'kaali-teeri', 'spades', 'ishaara'];
 
@@ -123,27 +123,40 @@ const progOf = (a: Activity, own: GameProgression) =>
 
 /** One feed item; in a feed of every game (`every`) it says which game it is from. */
 export function ActivityRow({ a, every = false }: { a: Activity; every?: boolean }) {
-  const { prog, openGame, openPlayer } = useProgressionEnv();
+  const { prog, openGame, openPlayer, openNight, person } = useProgressionEnv();
   const code = typeof a.data.code === 'string' ? a.data.code : null;
   const who = a.player;
   const p = progOf(a, prog);
-  const [emoji, text] =
-    a.kind === 'achievement' && code
-      ? [
-          (p && byCode(p).get(code)?.emoji) ?? '🏅',
-          ac.earned(who?.displayName ?? '', p?.strings.achievements[code]?.name ?? code),
-        ]
-      : a.kind === 'game_finished'
-        ? [icon('flag', 'h-6 w-6'), finishedLine(a)]
-        : a.kind === 'player_joined'
-          ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
-          : [
-              icon('crown', 'h-6 w-6 text-[var(--gold-tx)]'),
-              ac.season(String(a.data.season ?? '')),
-            ];
+  const nameOf = (id: string) => (who?.id === id ? who.displayName : person(id).name);
+  const crown = a.kind === 'crown' ? crownLine(a, nameOf) : null;
+  const night = a.kind === 'night' ? nightLine(a, nameOf) : null;
+  const [emoji, text] = crown
+    ? crown
+    : night
+      ? [icon('moon', 'h-6 w-6'), night.text]
+      : a.kind === 'achievement' && code
+        ? [
+            (p && byCode(p).get(code)?.emoji) ?? '🏅',
+            ac.earned(who?.displayName ?? '', p?.strings.achievements[code]?.name ?? code),
+          ]
+        : a.kind === 'game_finished'
+          ? [icon('flag', 'h-6 w-6'), finishedLine(a)]
+          : a.kind === 'player_joined'
+            ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
+            : [
+                icon('crown', 'h-6 w-6 text-[var(--gold-tx)]'),
+                ac.season(String(a.data.season ?? '')),
+              ];
   // A game opens only in its own game's pages; from another game's feed, its player does.
   const own = (a.gameKind ?? 'kachuful') === prog.id;
-  const go = () => (a.game && openGame && own ? openGame(a) : who ? openPlayer(who.id) : undefined);
+  const go = () =>
+    night?.id && openNight
+      ? openNight(night.id)
+      : a.game && openGame && own
+        ? openGame(a)
+        : who
+          ? openPlayer(who.id)
+          : undefined;
   const from = every ? platform.games[a.gameKind ?? 'kachuful'].name : null;
   return (
     <button

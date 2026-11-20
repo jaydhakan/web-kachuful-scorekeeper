@@ -1,4 +1,6 @@
 import { ACH } from '@/games/kachuful/domain';
+import { crownLine, nightLine } from '@/components/progression/feedLine';
+import { whoIs } from '@/games/kachuful/state/useFacts';
 import { agoTxt } from '@/lib/format';
 import { useApp } from '@/games/kachuful/state/store';
 import { ep } from '@/sync/endpoints';
@@ -50,7 +52,13 @@ export function HomeOnline({ className = '' }: { className?: string }) {
               className="press glass flex min-h-12 items-center gap-3 px-4 text-left text-14"
             >
               <span aria-hidden className="text-20">
-                {code ? ACH.get(code)?.emoji : a.kind === 'game_finished' ? Icon.flag : Icon.user}
+                {code
+                  ? ACH.get(code)?.emoji
+                  : a.kind === 'crown'
+                    ? crownLine(a, nameOf(a))[0]
+                    : a.kind === 'game_finished'
+                      ? Icon.flag
+                      : Icon.user}
               </span>
               <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{newsLine(a)}</span>
               <span className="text-13 text-[var(--tx2)]">{agoTxt(a.createdAt)}</span>
@@ -61,10 +69,15 @@ export function HomeOnline({ className = '' }: { className?: string }) {
   );
 }
 
+const nameOf = (a: Activity) => (id: string) =>
+  a.player?.id === id ? a.player.displayName : whoIs(null, id).name;
+
 /** One feed item in words. */
 function newsLine(a: Activity): string {
   const code = typeof a.data.code === 'string' ? a.data.code : null;
   if (code) return t.hub.activity.earned(a.player?.displayName ?? '', achName(code));
+  if (a.kind === 'crown') return crownLine(a, nameOf(a))[1];
+  if (a.kind === 'night') return nightLine(a, nameOf(a)).text;
   if (a.kind === 'game_finished')
     return t.hub.activity.finished(a.game?.players.find((p) => p.place === 1)?.name ?? '', '');
   return t.hub.activity.joined(a.player?.displayName ?? '');

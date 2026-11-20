@@ -25,6 +25,7 @@ export function useProgressionEnv(f: Facts | null): ProgressionEnv {
         actions.open({ screen: 'achievements', params: id ? { id } : undefined }),
       openActivity: signedIn ? () => actions.open({ screen: 'activity' }) : undefined,
       openGame: (a) => a.game && actions.open({ screen: 'game', params: { id: a.game.id } }),
+      openNight: (id) => actions.open({ screen: 'night', params: { id } }),
       device: f ? bindDevice(progression.device!, f) : undefined,
     }),
     [f, signedIn, me, actions],
