@@ -35,6 +35,7 @@ import { ChartLegend, ScoreChart } from './ScoreChart';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { SeatName } from '@/games/kachuful/components/SeatName';
+import { AvatarState, moodOf } from '@/components/ui/AvatarState';
 import { BanterLine, useRoundBanter } from '@/games/kachuful/components/BanterLine';
 
 /** After a round: the standings move into place, the totals count up, and the next round is laid out on the right. */
@@ -157,10 +158,22 @@ export function DeskSummary() {
                       )}
                     </AnimatePresence>
                   </span>
-                  <Avatar
-                    p={x.p}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22 shadow-[0_8px_22px_color-mix(in_srgb,var(--shade)_45%,transparent)] dt:h-12 dt:w-12 dt:text-26"
-                  />
+                  <AvatarState
+                    mood={
+                      stage >= 4
+                        ? moodOf(
+                            x.rank,
+                            cur.map((c) => c.rank),
+                            doneRounds(g).length,
+                          )
+                        : null
+                    }
+                  >
+                    <Avatar
+                      p={x.p}
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22 shadow-[0_8px_22px_color-mix(in_srgb,var(--shade)_45%,transparent)] dt:h-12 dt:w-12 dt:text-26"
+                    />
+                  </AvatarState>
                   {/* Breaks at spaces only; on a narrow row the movement note gives way first. */}
                   <span className="flex-1 break-words text-20 font-bold leading-tight tracking-[-0.015em] dt:text-24">
                     <SeatName p={x.p} chase />
