@@ -20,6 +20,8 @@ export const progression = {
   },
   /** Read with the 🙃 tag on a "shame" achievement. */
   shame: 'Just for laughs',
+  /** A hidden achievement nobody has earned yet. */
+  secret: { name: '???', how: 'A secret. Keep playing and someone will find it.', emoji: '❔' },
   winRate: {
     sub: (wins: number, n: number) => `${wins} of ${games(n)} won`,
     unranked: (n: number) => `Not ranked yet · ${games(n)} needed`,

@@ -22,6 +22,7 @@ const prog: GameProgression<Earned[]> = {
   catalogue: [
     { code: 'boston', emoji: '🧹', group: 'moment', big: true },
     { code: 'sandbagged', emoji: '🛍️', group: 'moment', shame: true },
+    { code: 'deuce_ace', emoji: '🪨', group: 'moment', hidden: true },
     ...WIN_STREAK.codes.map((code) => ({ code, emoji: '🥇', group: 'career' as const })),
     { code: 'season_champion', emoji: '👑', group: 'season' },
   ],
@@ -30,6 +31,7 @@ const prog: GameProgression<Earned[]> = {
     achievements: {
       boston: text('Boston', 'Take all 13 tricks'),
       sandbagged: text('Sandbagged'),
+      deuce_ace: text('Deuce Ace', 'Win a trick with the two'),
       first_win: text('First Win'),
       back_to_back: text('Back to Back'),
       hat_trick: text('Hat-trick'),
@@ -101,6 +103,18 @@ describe('the shared pages, for a game ranked on win rate', () => {
     expect(within(shame).getByRole('img', { name: 'Just for laughs' })).toBeInTheDocument();
     const run = screen.getByText('Winning run').closest('li')!;
     expect(within(run).getByText('Most wins in a row 1 / 1')).toBeInTheDocument();
+  });
+
+  it('keeps a hidden achievement a secret until someone earns it', async () => {
+    await show(envOf(false), <AchievementsPage id="a" />);
+    expect(screen.queryByText('Deuce Ace')).toBeNull();
+    expect(screen.getByText('???')).toBeInTheDocument();
+    cleanup();
+    await show(
+      envOf(false, { device: bindDevice(prog.device!, [won('deuce_ace', 'b')]) }),
+      <AchievementsPage id="a" />,
+    );
+    expect(screen.getByText('Deuce Ace')).toBeInTheDocument();
   });
 
   it('reads the season from the server with ?game=, ranked on win rate', async () => {

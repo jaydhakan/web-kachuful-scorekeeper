@@ -13,7 +13,13 @@ export interface AchievementDef {
   big?: boolean;
   /** Funny, never mean: no burst, and a small 🙃 tag. */
   shame?: boolean;
+  /** A surprise: the catalogue shows "???" until someone earns it (REWARDS-PLAN §8). */
+  hidden?: boolean;
 }
+
+/** Marks `codes` hidden in a catalogue (each game keeps its own list beside its catalogue). */
+export const hide = (defs: AchievementDef[], codes: readonly string[]): AchievementDef[] =>
+  defs.map((d) => (codes.includes(d.code) ? { ...d, hidden: true } : d));
 
 /** One earned achievement (the contract's Achievement, without the server's row id). */
 export interface Earned {

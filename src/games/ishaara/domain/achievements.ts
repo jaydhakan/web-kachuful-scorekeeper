@@ -17,7 +17,13 @@ import {
   WIN_STREAK,
   winStreaks,
 } from '../../../progression/rules';
-import type { AchievementDef, Earned, Ladder, PlayerGameFact } from '../../../progression/types';
+import {
+  hide,
+  type AchievementDef,
+  type Earned,
+  type Ladder,
+  type PlayerGameFact,
+} from '../../../progression/types';
 import { other } from './rules';
 import type { ClueNumber, EndedBy, IshaaraPublic, LogEntry, Role, Team } from './types';
 
@@ -29,54 +35,57 @@ const steps = (prefix: string, ns: number[], emoji: string): Def[] =>
   ns.map((n) => ({ code: `${prefix}_${n}`, emoji }));
 
 /** Every code, in the order the page shows them. */
-export const CATALOGUE: AchievementDef[] = [
-  ...group('moment', [
-    { code: 'mind_meld', emoji: '🧠' },
-    { code: 'one_word_four', emoji: '🤯', big: true },
-    { code: 'overtime', emoji: '⏱️' },
-    { code: 'trapped', emoji: '💣', shame: true },
-    { code: 'own_goal', emoji: '🥅', shame: true },
-  ]),
-  ...group('game', [
-    { code: 'winner', emoji: '🏆' },
-    { code: 'flawless', emoji: '✨', big: true },
-    { code: 'speedrun', emoji: '⚡', big: true },
-    { code: 'comeback', emoji: '🔄', big: true },
-    { code: 'photo_finish', emoji: '📸' },
-    { code: 'lucky_escape', emoji: '🍀' },
-    { code: 'mastermind', emoji: '🎓' },
-    { code: 'series', emoji: '🏅' },
-    { code: 'whitewash', emoji: '🧹', big: true },
-    { code: 'white_flag', emoji: '🏳️', shame: true },
-    { code: 'night_owl', emoji: '🦉' },
-  ]),
-  ...group('career', [
-    { code: 'first_win', emoji: '🥇' },
-    { code: 'back_to_back', emoji: '✌️' },
-    { code: 'hat_trick', emoji: '🎩' },
-    { code: 'dynasty', emoji: '👑' },
-    ...steps('games', [10, 50, 100, 250], '🃏'),
-    ...steps('giver_wins', [5, 25, 50], '🗝️'),
-    ...steps('clues', [25, 100, 250], '💬'),
-    ...steps('found', [50, 250, 1000], '🔎'),
-    ...steps('crew', [10, 25], '👥'),
-  ]),
-  ...group('daily', [
-    { code: 'day_star', emoji: '🌟' },
-    { code: 'day_giver', emoji: '🗣️' },
-    { code: 'day_speed', emoji: '⚡' },
-    { code: 'day_trapped', emoji: '🧲', shame: true },
-    { code: 'day_grinder', emoji: '⚙️' },
-  ]),
-  ...group('season', [
-    { code: 'season_champion', emoji: '👑' },
-    { code: 'season_runner_up', emoji: '🥈' },
-    { code: 'season_third', emoji: '🥉' },
-    { code: 'season_giver', emoji: '🗣️' },
-    { code: 'season_iron', emoji: '🦾' },
-    { code: 'season_climber', emoji: '📈' },
-  ]),
-];
+export const CATALOGUE: AchievementDef[] = hide(
+  [
+    ...group('moment', [
+      { code: 'mind_meld', emoji: '🧠' },
+      { code: 'one_word_four', emoji: '🤯', big: true },
+      { code: 'overtime', emoji: '⏱️' },
+      { code: 'trapped', emoji: '💣', shame: true },
+      { code: 'own_goal', emoji: '🥅', shame: true },
+    ]),
+    ...group('game', [
+      { code: 'winner', emoji: '🏆' },
+      { code: 'flawless', emoji: '✨', big: true },
+      { code: 'speedrun', emoji: '⚡', big: true },
+      { code: 'comeback', emoji: '🔄', big: true },
+      { code: 'photo_finish', emoji: '📸' },
+      { code: 'lucky_escape', emoji: '🍀' },
+      { code: 'mastermind', emoji: '🎓' },
+      { code: 'series', emoji: '🏅' },
+      { code: 'whitewash', emoji: '🧹', big: true },
+      { code: 'white_flag', emoji: '🏳️', shame: true },
+      { code: 'night_owl', emoji: '🦉' },
+    ]),
+    ...group('career', [
+      { code: 'first_win', emoji: '🥇' },
+      { code: 'back_to_back', emoji: '✌️' },
+      { code: 'hat_trick', emoji: '🎩' },
+      { code: 'dynasty', emoji: '👑' },
+      ...steps('games', [10, 50, 100, 250], '🃏'),
+      ...steps('giver_wins', [5, 25, 50], '🗝️'),
+      ...steps('clues', [25, 100, 250], '💬'),
+      ...steps('found', [50, 250, 1000], '🔎'),
+      ...steps('crew', [10, 25], '👥'),
+    ]),
+    ...group('daily', [
+      { code: 'day_star', emoji: '🌟' },
+      { code: 'day_giver', emoji: '🗣️' },
+      { code: 'day_speed', emoji: '⚡' },
+      { code: 'day_trapped', emoji: '🧲', shame: true },
+      { code: 'day_grinder', emoji: '⚙️' },
+    ]),
+    ...group('season', [
+      { code: 'season_champion', emoji: '👑' },
+      { code: 'season_runner_up', emoji: '🥈' },
+      { code: 'season_third', emoji: '🥉' },
+      { code: 'season_giver', emoji: '🗣️' },
+      { code: 'season_iron', emoji: '🦾' },
+      { code: 'season_climber', emoji: '📈' },
+    ]),
+  ],
+  ['one_word_four'],
+);
 
 export const GIVER_WINS_STEPS = [5, 25, 50];
 export const CLUES_STEPS = [25, 100, 250];

@@ -121,6 +121,7 @@ export function AchievementsView({
                           everyone={!who}
                           fresh={turn(fresh.has(c.x.code))}
                           rare={rarity(c.x.code)}
+                          found={holders.has(c.x.code)}
                         />
                       ),
                     )}
@@ -296,6 +297,7 @@ function Card({
   everyone,
   fresh,
   rare,
+  found,
 }: {
   x: AchievementDef;
   i: number;
@@ -303,14 +305,17 @@ function Card({
   everyone: boolean;
   fresh: number;
   rare: Rarity;
+  /** Someone at all has earned it: a hidden one is no longer a secret. */
+  found: boolean;
 }) {
   const { prog } = useProgressionEnv();
-  const s = prog.strings.achievements[x.code];
+  const secret = x.hidden && !got.length && !found;
+  const s = secret ? ps.secret : prog.strings.achievements[x.code];
   return (
     <Shell
       i={i}
       earned={got.length > 0}
-      emoji={x.emoji}
+      emoji={secret ? ps.secret.emoji : x.emoji}
       fresh={fresh}
       title={<Named x={x} name={s.name} />}
       beside={
