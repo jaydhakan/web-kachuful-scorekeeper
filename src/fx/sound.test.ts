@@ -111,7 +111,7 @@ describe('the platform sounds', () => {
   });
 
   it('every sound declares a tier, and the levels gate them', () => {
-    expect(Object.keys(SOUND_TIER)).toHaveLength(32);
+    expect(Object.keys(SOUND_TIER)).toHaveLength(34);
     expect(tierAudible('all', 'tick')).toBe(true);
     expect(tierAudible('moments', 'moment')).toBe(true);
     expect(tierAudible('moments', 'beat')).toBe(false);

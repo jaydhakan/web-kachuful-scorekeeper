@@ -39,7 +39,9 @@ export type SoundName =
   | 'bell'
   | 'spin'
   | 'undo'
-  | 'fanfare';
+  | 'fanfare'
+  | 'coin'
+  | 'ghungroo';
 
 /** Which kind of event a sound belongs to (WOW-MOMENTS-PLAN §2.1); the platform's "Big moments" plays only `moment`. */
 export type SoundTier = 'moment' | 'beat' | 'tick';
@@ -76,6 +78,8 @@ export const SOUND_TIER: Record<SoundName, SoundTier> = {
   spin: 'tick',
   undo: 'tick',
   fanfare: 'moment',
+  coin: 'tick',
+  ghungroo: 'beat',
 };
 
 /** How one play is shaped: `rate` multiplies every frequency (a pitch), `gain` every volume. */
@@ -347,6 +351,17 @@ const SYNTH: Record<SoundName, (a: AudioContext) => void> = {
     [523, 659, 784].forEach((f, i) =>
       tone(a, f, 0.65, { type: 'sawtooth', vol: 0.05, delay: 0.75 + i * 0.07 }),
     );
+  },
+  // One coin landing: a bright clink and its ring (REWARDS-PLAN §11).
+  coin: (a) => {
+    tone(a, 2093, 0.05, { type: 'square', vol: 0.02 });
+    tone(a, 3136, 0.09, { vol: 0.035, delay: 0.015 });
+  },
+  // A level up: a short jingle of small bells.
+  ghungroo: (a) => {
+    for (let i = 0; i < 6; i++)
+      tone(a, 2637 + (i % 3) * 330, 0.12, { vol: 0.03, delay: i * 0.06 });
+    noise(a, 0.25, { freq: 6000, q: 2, vol: 0.03 });
   },
 };
 
