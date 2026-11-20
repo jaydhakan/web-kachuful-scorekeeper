@@ -280,7 +280,7 @@ const SYNTH: Record<SoundName, (a: AudioContext) => void> = {
     tone(a, 64, 0.16, { vol: 0.25, to: 48 });
     tone(a, 58, 0.2, { vol: 0.2, to: 44, delay: 0.22 });
   },
-  // The table sounds (SOUND-PLAN §3): cards, wood, chips, a brass bell and a dhol.
+  // The table sounds: cards, wood, chips, a brass bell and a dhol.
   flick: (a) => {
     noise(a, 0.05, { freq: 4200, q: 1.2, vol: 0.05 });
     tone(a, 1800, 0.04, { vol: 0.018, to: 900 });
