@@ -28,6 +28,8 @@ import {
   validate,
   wrapped,
   doneRounds,
+  kursiGames,
+  tallies,
   type Earned,
   type Facts,
   type Game,
@@ -83,6 +85,8 @@ import {
   spadesSeatKind,
 } from './spadesOnline';
 import { GAME_MOCKS, type GameMock, type MockCtx } from './progression/index';
+import { kursiFrom } from '../../src/progression/kursi';
+import { dayRange as dayRangeIn, monthRange as monthRangeIn } from '../../src/progression/zone';
 import type { GameId } from '../../src/progression/types';
 
 type Seen = Omit<Activity, 'id'>;
@@ -1753,6 +1757,56 @@ on('GET', '/api/seasons/:m', ({ m, url }) => {
     standings: s.standings.map((r) => ({ ...r, player: summaryOf(r.playerId, f) })),
     awards: awardsOut(f, s.awards),
   };
+});
+/** The month, tonight and the chair as the real API gives them: without the game at the table (REWARDS-PLAN §6). */
+const factsWithout = (gameId: string | null) => {
+  const f = facts();
+  if (!gameId) return f;
+  return {
+    ...f,
+    rounds: f.rounds.filter((r) => r.gameId !== gameId),
+    players: f.players.filter((p) => p.gameId !== gameId),
+    games: f.games.filter((g) => g.gameId !== gameId),
+  };
+};
+on('GET', '/api/medals', ({ url }) => {
+  const f = factsWithout(url.searchParams.get('excludeGame'));
+  const month = monthOf(Date.now(), TZ);
+  const [pf] = monthRangeIn(month, TZ);
+  const prev = monthOf(pf - 1, TZ);
+  const day = dayOf(Date.now(), TZ);
+  const [df, dt] = dayRangeIn(day, TZ);
+  const row = (r: { playerId: string }) => ({ ...r, player: summaryOf(r.playerId, f) });
+  return {
+    season: month,
+    minRounds: 50,
+    standings: season(f, month, TZ).standings.map(row),
+    lastSeason: season(f, prev, TZ)
+      .standings.filter((r) => r.qualified && r.rank != null && r.rank <= 3)
+      .map(row),
+    today: {
+      day,
+      games: new Set(f.rounds.filter((r) => r.doneAt >= df && r.doneAt < dt).map((r) => r.gameId))
+        .size,
+      rows: [...tallies(f, df, dt).values()]
+        .filter((t) => t.rounds > 0)
+        .sort((a, b) => b.points - a.points)
+        .map((t) => ({ player: summaryOf(t.playerId, f), points: t.points, rounds: t.rounds })),
+    },
+  };
+});
+on('GET', '/api/kursi', ({ url }) => {
+  const f = factsWithout(url.searchParams.get('excludeGame'));
+  const { kursi, reigns } = kursiFrom(kursiGames(f));
+  const out = <K extends { holders: string[] }>(k: K) => ({
+    ...k,
+    holders: k.holders.map((id) => summaryOf(id, f)),
+  });
+  const longest = reigns.reduce<(typeof reigns)[number] | null>(
+    (b, r) => (!b || r.defences > b.defences ? r : b),
+    null,
+  );
+  return { kursi: kursi && out(kursi), longest: longest && out(longest) };
 });
 on('GET', '/api/seasons', ({ url }) => {
   const other = gameMock(url);
