@@ -20,10 +20,8 @@ export const medals = {
   slippingSr: (name: string, m: MedalNo) => `${name}'s ${medals.title[m]} medal is slipping`,
   /** The end of a game where gold changed hands. */
   newBadshah: (name: string) => `Naya Badshah: ${name}!`,
-  wasBadshah: (name: string, days: number) =>
-    days >= 1
-      ? `${name} was Badshah for ${days} ${days === 1 ? 'day' : 'days'}`
-      : `${name} was Badshah`,
+  /** After the old Badshah's name. */
+  wasBadshah: 'was Badshah',
   movedTo: (m: MedalNo, name: string) => `${medals.glyph[m]} ${name} is the new ${medals.title[m]}`,
   defended: 'Takht bacha liya 🛡️',
   defendedSr: (name: string) => `${name} kept the Badshah's seat`,

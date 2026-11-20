@@ -23,11 +23,14 @@ export function useMedalTakeover(g: Game, fresh: boolean, afterMs: number) {
   const { changes } = useMedals();
   const q = useMoments();
   const [on, setOn] = useState(false);
+  // The shells clear `fresh` at once under reduced motion; the still card plays anyway, so keep it as opened.
+  const [justEnded] = useState(fresh);
   const gold = changes.find((c) => c.to === 1 && c.from !== 1);
   const old = changes.find((c) => c.from === 1 && c.to !== 1);
-  const rest = changes.filter((c) => c.to === 2 || c.to === 3);
+  // The old Badshah's own new medal is said by "was Badshah"; the card lists the rest.
+  const rest = changes.filter((c) => (c.to === 2 || c.to === 3) && c.playerId !== old?.playerId);
   useEffect(() => {
-    if (!fresh || !gold) return;
+    if (!justEnded || !gold) return;
     const show = ({ signal }: { signal: AbortSignal }) =>
       new Promise<void>((done) => {
         setOn(true);
@@ -55,7 +58,7 @@ export function useMedalTakeover(g: Game, fresh: boolean, afterMs: number) {
     );
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, for the game that just ended
-  }, [fresh, !!gold]);
+  }, [justEnded, !!gold]);
   return on && gold ? <Takeover name={gold.name} old={old?.name} rest={rest} /> : null;
 }
 
@@ -77,9 +80,14 @@ function Takeover({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25, ease: EASE }}
-      className="fixed inset-0 z-[80] grid place-items-center bg-[color-mix(in_srgb,var(--bg)_82%,transparent)] px-6 text-center"
+      className="fixed inset-0 z-[80] grid place-items-center bg-[color-mix(in_srgb,var(--shade)_72%,transparent)] px-6 text-center"
     >
-      <div className="flex max-w-[22rem] flex-col items-center gap-2">
+      <m.div
+        initial={rm ? false : { y: 24, scale: 0.94 }}
+        animate={{ y: 0, scale: 1 }}
+        transition={SPRING_POP}
+        className="flex w-full max-w-[22rem] flex-col items-center gap-2 rounded-[28px] border border-[var(--hairline-2)] bg-[var(--sheet-bg)] px-6 pb-7 pt-6 shadow-[0_24px_60px_-12px_color-mix(in_srgb,var(--shade)_70%,transparent)]"
+      >
         <m.span
           aria-hidden
           initial={rm ? false : { rotateY: 90, scale: 0.6 }}
@@ -89,21 +97,6 @@ function Takeover({
         >
           {s.glyph[1]}
         </m.span>
-        {old && (
-          // The old Badshah's gold lifts off their name and leaves it plain.
-          <span className="relative text-20 font-bold text-[var(--tx2)]">
-            {old}
-            <m.span
-              aria-hidden
-              initial={{ opacity: 1, y: 0, scale: 1 }}
-              animate={rm ? { opacity: 0 } : { opacity: 0, y: -18, scale: 1.15 }}
-              transition={{ duration: 0.6, delay: 0.35, ease: EASE }}
-              className="medal-1 absolute inset-0"
-            >
-              {old}
-            </m.span>
-          </span>
-        )}
         <m.h2
           initial={rm ? false : { opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -112,13 +105,30 @@ function Takeover({
         >
           <span className="medal-1 medal-sheen">{s.newBadshah(name)}</span>
         </m.h2>
-        {old && <p className="text-15 text-[var(--tx2)]">{s.wasBadshah(old, 0)}</p>}
+        {old && (
+          // The old Badshah's gold lifts off their name and leaves it plain.
+          <p className="text-15 text-[var(--tx2)]">
+            <span className="relative font-bold">
+              {old}
+              <m.span
+                aria-hidden
+                initial={rm ? { opacity: 0 } : { opacity: 1, y: 0, scale: 1 }}
+                animate={{ opacity: 0, y: rm ? 0 : -14, scale: rm ? 1 : 1.2 }}
+                transition={{ duration: 0.6, delay: 0.9, ease: EASE }}
+                className="medal-1 absolute inset-0"
+              >
+                {old}
+              </m.span>
+            </span>{' '}
+            {s.wasBadshah}
+          </p>
+        )}
         {rest.map((c) => (
           <p key={c.name + c.to} className={`text-15 font-semibold medal-${c.to}`}>
             {s.movedTo(c.to as 2 | 3, c.name)}
           </p>
         ))}
-      </div>
+      </m.div>
       {burst && !rm && <Confetti colors={GOLD} count={70} onDone={() => setBurst(false)} />}
     </m.div>,
     momentRoot(),

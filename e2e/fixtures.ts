@@ -127,3 +127,41 @@ export const openPodium = (page: Page) =>
     .getByRole('button', { name: /^Game finished/ })
     .or(page.getByRole('button', { name: /^See results/ }))
     .click();
+
+/**
+ * Puts finished games in this device's archive (IndexedDB), as if they were scored here earlier. The app opens the
+ * database once first, so every store exists; the games go in while no app is running.
+ */
+export async function seedArchive(page: Page, games: Game[]) {
+  await page.goto('/kachuful');
+  await page.waitForFunction(async () =>
+    (await indexedDB.databases()).some((d) => d.name === 'kachuful'),
+  );
+  await page.goto('/favicon-16.png');
+  await page.evaluate(
+    (gs) =>
+      new Promise<void>((ok, no) => {
+        const open = indexedDB.open('kachuful');
+        open.onerror = () => no(open.error);
+        open.onsuccess = () => {
+          const tx = open.result.transaction('games', 'readwrite');
+          for (const g of gs)
+            tx.objectStore('games').put({
+              syncId: g.syncId,
+              game: g,
+              updatedAt: g.updatedAt,
+              endedAt: g.finishedAt ?? g.updatedAt,
+              origin: 'local',
+            });
+          tx.oncomplete = () => {
+            open.result.close();
+            ok();
+          };
+          tx.onerror = () => no(tx.error);
+        };
+      }),
+    games,
+  );
+  // openSeeded comes back to the page it found.
+  await page.goto('/kachuful');
+}

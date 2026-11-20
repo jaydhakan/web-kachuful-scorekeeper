@@ -48,11 +48,14 @@ describe('the medals at the end of a game', () => {
       changes: [
         { playerId: 'D', from: 2, to: 1, name: 'Dev' },
         { playerId: 'R', from: 1, to: 2, name: 'Riya' },
+        { playerId: 'K', from: null, to: 3, name: 'Kabir' },
       ],
     });
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Naya Badshah: Dev!'));
     expect(screen.getByRole('alert')).toHaveTextContent('Riya was Badshah');
-    expect(screen.getByRole('alert')).toHaveTextContent('🥈 Riya is the new Wazir');
+    // The old Badshah's own drop is said once, by "was Badshah"; others who moved are listed.
+    expect(screen.getByRole('alert')).not.toHaveTextContent('Riya is the new Wazir');
+    expect(screen.getByRole('alert')).toHaveTextContent('🥉 Kabir is the new Senapati');
     expect(screen.getByTestId('beat')).toBeEmptyDOMElement();
     act(() => q.skip());
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());

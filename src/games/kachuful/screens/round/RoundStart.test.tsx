@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { demoGame, newRound, totalRounds, type Game } from '@/games/kachuful/domain';
 import { t } from '@/strings';
+import { MedalsValue, type TableMedals } from '@/games/kachuful/state/medals';
 import { RoundStart } from './RoundStart';
 
 // Framer Motion reads the motion preference once per file, so the hook itself is switched per test.
@@ -119,5 +120,56 @@ describe('RoundStart', () => {
     expect(screen.getAllByText(t.start.lastRound)).toHaveLength(2);
     tick(600);
     expect(env.seqDone).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('the medallists at round 1’s deal', () => {
+  const medalsFor = (g: Game, seats: number[]): TableMedals => ({
+    held: new Map(
+      seats.map((k, i) => [g.players[k].id, { medal: (i + 1) as 1 | 2, defending: false }]),
+    ),
+    after: new Map(),
+    chase: { slipping: new Set(), onTrack: new Map() },
+    marks: new Map(),
+    banter: [],
+    changes: [],
+    defended: null,
+  });
+  function mountWith(index: number, seats: number[]) {
+    const g: Game = { ...demoGame(), rounds: [], lengthMode: '1cycle' };
+    g.players = g.players.slice(0, 5);
+    const round = newRound(g, index);
+    env.rm = false;
+    env.state = { game: g, seq: { round, prev: round.dealerIndex, banner: null } };
+    render(
+      <MedalsValue value={medalsFor(g, seats)}>
+        <RoundStart />
+      </MedalsValue>,
+    );
+    return g;
+  }
+  const line = () => document.querySelector('[data-medal-line]');
+
+  it('says the one medallist at the table, then gives way to the dealer’s line', () => {
+    const g = mountWith(0, [2]);
+    tick(1);
+    expect(line()).toHaveTextContent(`Badshah ${g.players[2].name} table pe hai`);
+    tick(2600);
+    expect(screen.getByText(/First card to/)).toBeInTheDocument();
+    expect(line()).toBeNull();
+  });
+
+  it('sets two medallists against each other', () => {
+    const g = mountWith(0, [1, 3]);
+    tick(1);
+    expect(line()).toHaveTextContent(`Badshah ${g.players[1].name}`);
+    expect(line()).toHaveTextContent(`vs`);
+    expect(line()).toHaveTextContent(`Wazir ${g.players[3].name}`);
+  });
+
+  it('is only on round 1', () => {
+    mountWith(1, [0]);
+    tick(1);
+    expect(line()).toBeNull();
   });
 });
