@@ -1,5 +1,5 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   curRound,
   doneRounds,
@@ -13,6 +13,9 @@ import { playCue } from '@/fx/feedback';
 import { useLiveSound } from '@/games/kachuful/sound/hooks';
 import { archive } from '@/state/archive';
 import { useApp } from '@/games/kachuful/state/store';
+import { MedalsValue, useMedalOf, useMedals, useMedalsFor } from '@/games/kachuful/state/medals';
+import { MedalName } from '@/components/ui/MedalName';
+import { kursi as k } from '@/strings/kursi';
 import { ApiError } from '@/sync/api';
 import { fromWire } from '@/games/kachuful/sync/engine';
 import { ep } from '@/sync/endpoints';
@@ -84,7 +87,24 @@ function OpenApp() {
   );
 }
 
-/** Standings that move as rounds land: changed totals pulse, rows slide to their new place. */
+/** The table's medals and Kursi for a signed-in spectator (REWARDS-PLAN §6.7); signed out, none. */
+function LiveMedals({
+  g,
+  signedIn,
+  children,
+}: {
+  g: Game;
+  signedIn: boolean;
+  children: ReactNode;
+}) {
+  const value = useMedalsFor(g, true, signedIn, false);
+  return <MedalsValue value={value}>{children}</MedalsValue>;
+}
+
+/**
+ * Standings that move as rounds land: changed totals pulse, rows slide to their new place. Inside a medals scope a
+ * name carries its medal and the Kursi's chair.
+ */
 export function LiveStandings({
   g,
   big = false,
@@ -96,6 +116,8 @@ export function LiveStandings({
 }) {
   const rm = useReducedMotion();
   const st = standings(g);
+  const medalOf = useMedalOf();
+  const chair = useMedals().kursi?.seats;
   return (
     <ol className="flex flex-col gap-2">
       {st.map((s) => (
@@ -113,7 +135,12 @@ export function LiveStandings({
           <span
             className={`min-w-0 flex-1 font-bold [overflow-wrap:anywhere] ${big ? 'text-30' : 'text-17'}`}
           >
-            {s.p.name}
+            <MedalName name={s.p.name} {...medalOf(s.p.id)} />
+            {chair?.includes(s.p.id) && (
+              <span role="img" aria-label={k.badge} className="ml-1.5">
+                {k.glyph}
+              </span>
+            )}
           </span>
           {aside?.(s.p)}
           <m.span
@@ -403,11 +430,13 @@ export function LivePage({ token }: { token: string }) {
         </AnimatePresence>
       )}
       <Section title={over ? gameLine(g) : t.hub.game.standings}>
-        <LiveStandings
-          g={g}
-          big={big}
-          aside={(p) => (state.session && !big ? <ClaimButton gameId={g.syncId} p={p} /> : null)}
-        />
+        <LiveMedals g={g} signedIn={!!state.session}>
+          <LiveStandings
+            g={g}
+            big={big}
+            aside={(p) => (state.session && !big ? <ClaimButton gameId={g.syncId} p={p} /> : null)}
+          />
+        </LiveMedals>
       </Section>
       {!big && <OpenApp />}
       <ReactionBurst bursts={bursts} />

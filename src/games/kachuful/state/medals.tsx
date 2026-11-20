@@ -290,9 +290,16 @@ const Ctx = createContext<TableMedals>(NO_MEDALS);
 /** Medals for the game at the table: the server's board signed in, this device's signed out. */
 export function MedalsProvider({ children }: { children: ReactNode }) {
   const { state } = useApp();
-  const g = state.game;
   const atTable = state.screen === 'round' || state.screen === 'winner';
-  const signedIn = !!state.session;
+  const value = useMedalsFor(state.game, atTable, !!state.session, true);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+/**
+ * Medals for game `g`: the server's board when signed in; signed out, this device's only when it is the table
+ * (`device`), since a spectator's own archive says nothing about this table.
+ */
+export function useMedalsFor(g: Game, atTable: boolean, signedIn: boolean, device: boolean) {
   const online = signedIn && atTable;
   const v = useArchiveVersion();
   const remote = useRemote(online ? `medals:${g.syncId}` : null, (o) => ep.medals(g.syncId, o));
@@ -326,11 +333,10 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
           }
         : null;
     }
-    return deviceBase(g);
+    return device ? deviceBase(g) : null;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the base is the board before this game
-  }, [atTable, g.syncId, signedIn, remote.data, chair.data, titles.data, placed.data, v]);
-  const value = useMemo(() => (base ? tableMedals(g, base) : NO_MEDALS), [g, base]);
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  }, [atTable, g.syncId, signedIn, device, remote.data, chair.data, titles.data, placed.data, v]);
+  return useMemo(() => (base ? tableMedals(g, base) : NO_MEDALS), [g, base]);
 }
 
 export const useMedals = (): TableMedals => useContext(Ctx);
