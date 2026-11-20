@@ -429,7 +429,14 @@ export interface SikkeResp {
 }
 
 export type SikkeKind =
-  'finish' | 'win' | 'achievement' | 'kursi_take' | 'kursi_defence' | 'streak';
+  | 'finish'
+  | 'win'
+  | 'achievement'
+  | 'kursi_take'
+  | 'kursi_defence'
+  | 'streak'
+  | 'bounty'
+  | 'sitara';
 
 /** One line of a player's ledger (GET /api/players/{id}/sikke/entries). */
 export interface SikkeEntry {

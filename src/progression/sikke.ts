@@ -20,6 +20,10 @@ export const SIKKE = {
   champion: 300,
   kursiTake: 30,
   kursiDefence: 10,
+  /** Finishing above the Kursi or Taj holder: once per challenger per holder per ISO week, at a table of 3+. */
+  bounty: 40,
+  /** Tonight's Sitara, paid when the night closes. */
+  sitara: 30,
   /** The first game of a week pays this × the weeks in a row played, up to `streakMax`. */
   streakStep: 10,
   streakMax: 50,

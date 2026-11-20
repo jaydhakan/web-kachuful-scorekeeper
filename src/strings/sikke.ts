@@ -27,6 +27,8 @@ export const sikke = {
     kursi_take: 'Took the Kursi',
     kursi_defence: 'Defended the Kursi',
     streak: "This week's first game",
+    bounty: 'Bounty: beat a crown holder',
+    sitara: "Tonight's Sitara",
   } satisfies Record<SikkeKind, string>,
   /** The winner screen's strip. */
   earned: 'Sikke earned',
