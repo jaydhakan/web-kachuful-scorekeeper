@@ -195,11 +195,8 @@ function KeyBoard({ c, onHide }: { c: IshaaraClue; onHide(): void }) {
     >
       {/* While typing on a short screen (the keyboard is up) the header and counts make way for the key. */}
       <div className="flex items-center justify-between gap-3 pane:[grid-area:head] [@media(max-height:560px)]:group-data-[typing]:hidden">
-        <TeamPill
-          team={team}
-          name={clueGiverOf(g, team)?.name ?? null}
-          face={clueGiverOf(g, team)}
-        />
+        {/* No face here: beside Leave and Hide it pushes a 360×640 phone's key into scrolling. */}
+        <TeamPill team={team} name={clueGiverOf(g, team)?.name ?? null} />
         <div className="flex shrink-0 gap-2">
           <button type="button" onClick={leave} aria-label={clue.leaveLabel} className={HEAD_BTN}>
             <span aria-hidden className="[&_svg]:h-5 [&_svg]:w-5">
