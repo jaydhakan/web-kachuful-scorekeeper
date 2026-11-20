@@ -29,6 +29,7 @@ import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
 import { NightLink } from '@/games/kachuful/components/NightLink';
 import { GameSikke } from '@/components/sikke/GameSikke';
+import { BountyChips } from '@/components/crowns/BountyChips';
 import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
 
 const rankColor = (rank: number) =>
@@ -82,6 +83,7 @@ export default function Winner() {
     done = doneRounds(g);
   const reel = useGameAchievements(g);
   const board = finalStandings(g);
+  const people = st.flatMap(({ p }) => (p.playerId ? [{ ...p, id: p.playerId }] : []));
   const top = st.filter((x) => x.rank === 1).map((x) => x.p);
   const { play, plan, named } = useReveal(
     board.map((x) => x.rank),
@@ -277,9 +279,10 @@ export default function Winner() {
             <LevelUps g={g} heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]" />
             <GameSikke
               gameId={g.syncId}
-              people={st.flatMap(({ p }) => (p.playerId ? [{ ...p, id: p.playerId }] : []))}
+              people={people}
               heading="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]"
             />
+            <BountyChips gameId={g.syncId} people={people} />
             {done.length > 1 && (
               <>
                 <h2 className="disp mb-2 mt-6 text-22 font-extrabold tracking-[-0.03em]">
