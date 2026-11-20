@@ -7,6 +7,7 @@ import { stagger } from '@/components/ui/stagger';
 import { GhostButton, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 export function PlayPane({ g }: { g: Game }) {
   const { actions } = useApp();
@@ -42,7 +43,7 @@ export function PlayPane({ g }: { g: Game }) {
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
               />
               <span className="min-w-0 flex-1 text-18 font-bold leading-tight [overflow-wrap:anywhere]">
-                {q.name}
+                <SeatName p={q} />
                 {k === r.dealerIndex && (
                   <span className="ml-1.5 text-13 font-medium text-[var(--tx2)]">
                     {t.desk.play.dealer}

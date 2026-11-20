@@ -41,7 +41,7 @@ export interface SeatBadge {
   style: CSSProperties;
 }
 
-interface TableProps {
+export interface TableProps {
   uid: string;
   size?: TableSize;
   players?: (TablePlayer | null)[];
@@ -58,6 +58,8 @@ interface TableProps {
   marks?: Record<string, SeatMark>;
   /** Badges keyed by player id, under the seat's name (or its avatar when names are hidden). */
   badges?: Record<string, SeatBadge>;
+  /** The month's medallists keyed by player id: a thin metal ring round the avatar (REWARDS-PLAN §6.7). */
+  medals?: Record<string, 1 | 2 | 3>;
   big?: boolean;
   /** Fill the slot it sits in (a definite-height parent) instead of keeping the fixed design size. */
   fit?: boolean;
@@ -71,6 +73,12 @@ interface TableProps {
   noSeatAnim?: boolean;
   children?: ReactNode;
 }
+
+const MEDAL_RING = {
+  1: 'var(--medal-gold)',
+  2: 'var(--medal-silver)',
+  3: 'var(--medal-bronze)',
+} as const;
 
 function Arcs({ sz, dir }: { sz: TableSize; dir: Direction }) {
   const d = TD[sz],
@@ -202,6 +210,7 @@ export function Table({
   bids,
   marks,
   badges,
+  medals,
   big,
   fit,
   minFit,
@@ -317,6 +326,7 @@ export function Table({
         const bid = p?.id !== undefined ? bids?.[p.id] : undefined;
         const out = p?.id !== undefined ? marks?.[p.id] : undefined;
         const badge = p?.id !== undefined ? badges?.[p.id] : undefined;
+        const medal = p?.id !== undefined ? medals?.[p.id] : undefined;
         // The bubble takes the outer edge on the left: a flat table's corners, and a crowded table's felt side, which
         // the "1st" chip needs.
         const flip = size === 'mini' ? at.x < 38 : N >= CROWDED_FROM && at.x < 50;
@@ -371,6 +381,7 @@ export function Table({
                     width: av,
                     height: av,
                     background: seatColor(p.color),
+                    ...(medal && { outline: `2px solid ${MEDAL_RING[medal]}`, outlineOffset: 1 }),
                     fontSize: `max(0.8125rem, ${dpx(wide ? 36 : size === 'full' ? 24 : 18)})`,
                   }}
                 >

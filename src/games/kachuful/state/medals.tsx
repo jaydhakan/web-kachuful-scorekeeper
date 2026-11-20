@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import type { MedalMark } from '@/components/ui/MedalName';
 import {
   banterLog,
   buildFacts,
@@ -138,3 +139,21 @@ export function MedalsProvider({ children }: { children: ReactNode }) {
 }
 
 export const useMedals = (): TableMedals => useContext(Ctx);
+
+/** A seat's medal and whether it is slipping, by the game's `Player.id`, for `MedalName`. */
+export function useMedalOf() {
+  const t = useMedals();
+  return useCallback(
+    (id: string): { mark: MedalMark | null; slipping: boolean } => ({
+      mark: t.held.get(id) ?? null,
+      slipping: t.chase.slipping.has(id),
+    }),
+    [t],
+  );
+}
+
+/** The seated medallists for `Table`'s ring. */
+export function useSeatMedals(): Record<string, 1 | 2 | 3> {
+  const t = useMedals();
+  return useMemo(() => Object.fromEntries([...t.held].map(([id, h]) => [id, h.medal])), [t]);
+}

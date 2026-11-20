@@ -7,6 +7,7 @@ import { SPRING } from '@/components/ui/motion';
 import { Delta, Ticker, rankTone } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 /** Strip columns on a tablet held upright: one row up to six players, else two even rows. */
 const stripCols = (n: number) => (n <= 6 ? n : Math.ceil(n / 2));
@@ -60,7 +61,7 @@ export function ScorePanel({ g, projected }: { g: Game; projected: boolean }) {
               />
               <div className="min-w-0 [grid-area:name] rail:flex rail:flex-wrap rail:items-center rail:gap-x-2 rail:gap-y-1">
                 <div className="text-13 text-[var(--tx2)] [overflow-wrap:anywhere] rail:min-w-0 rail:text-16 rail:font-bold rail:leading-tight rail:tracking-[-0.01em] rail:text-[var(--tx)] dt:basis-full dt:text-18">
-                  {x.p.name}
+                  <SeatName p={x.p} />
                   {d != null && (
                     <span
                       className={`ml-1 font-bold rail:hidden ${d > 0 ? 'text-[var(--pos)]' : 'text-[var(--neg-tx)]'}`}

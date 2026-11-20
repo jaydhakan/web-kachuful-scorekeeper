@@ -10,6 +10,7 @@ import { resultsView } from '@/games/kachuful/screens/round/roundView';
 import { Delta, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 /** A tick or cross, with its word once the row has room; the word always names the button for assistive tech. */
 const mark = (icon: string, word: string) => (
@@ -67,7 +68,9 @@ export function ResultsPane({ g }: { g: Game }) {
                 />
                 {/* The longest word of the name is the minimum: the controls wrap under before a name breaks. */}
                 <div className="flex-1">
-                  <div className="break-words text-18 font-bold leading-tight">{p.name}</div>
+                  <div className="break-words text-18 font-bold leading-tight">
+                    <SeatName p={p} />
+                  </div>
                   <div className="text-13 text-[var(--tx2)]">
                     {t.results.bid(b)}
                     {k === r.dealerIndex && t.desk.results.dealer}

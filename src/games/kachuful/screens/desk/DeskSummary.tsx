@@ -18,7 +18,7 @@ import { StreakBadge } from '@/components/ui/StreakBadge';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { Table } from '@/components/ui/Table';
+import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import {
@@ -34,6 +34,7 @@ import { DeskPage, Delta, Eyebrow, GhostButton, Kbd, PageHead, rankTone } from '
 import { ChartLegend, ScoreChart } from './ScoreChart';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 /** After a round: the standings move into place, the totals count up, and the next round is laid out on the right. */
 export function DeskSummary() {
@@ -151,7 +152,7 @@ export function DeskSummary() {
                   />
                   {/* Breaks at spaces only; on a narrow row the movement note gives way first. */}
                   <span className="flex-1 break-words text-20 font-bold leading-tight tracking-[-0.015em] dt:text-24">
-                    {x.p.name}
+                    <SeatName p={x.p} />
                     <StreakBadge s={sk[id]} />
                   </span>
                   <span
@@ -213,7 +214,7 @@ export function DeskSummary() {
             )}
           </div>
           <div className="flex h-[12rem] flex-col rail:h-auto rail:min-h-[12rem] rail:flex-1">
-            <Table
+            <GameTable
               uid="dsum"
               size="wide"
               fit

@@ -13,6 +13,7 @@ import { EASE, PRESS, PRESS_SM, SPRING, SPRING_SHEET } from '@/components/ui/mot
 import { DeskPage, Eyebrow, GhostButton, Kbd, PageHead } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 /** The Edit-round side panel: same draft rules as the phone's Edit sheet (useRoundEdit). */
 function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
@@ -61,7 +62,7 @@ function EditPanel({ i, onClose }: { i: number; onClose: () => void }) {
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
               />
               <span className="min-w-[5rem] flex-1 text-17 font-bold [overflow-wrap:anywhere]">
-                {p.name}
+                <SeatName p={p} />
               </span>
               <span className="flex items-center">
                 <m.button
@@ -198,7 +199,7 @@ export function DeskScoreboard() {
                         className="grid h-9 w-9 place-items-center rounded-full border-2 border-ov/20 text-20"
                       />
                       <span className="max-w-full text-13 text-[var(--tx2)] [overflow-wrap:anywhere]">
-                        {p.name}
+                        <SeatName p={p} glyph={false} />
                       </span>
                       <b
                         className={`disp tick text-22 font-extrabold leading-none ${tot[p.id] < 0 ? 'text-[var(--neg-tx)]' : ''}`}

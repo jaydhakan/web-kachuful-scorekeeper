@@ -25,6 +25,7 @@ import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
 import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 const Highlight = ({
   label,
@@ -181,7 +182,7 @@ export function DeskWinner() {
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
                 />
                 <span className="min-w-0 flex-1 text-18 font-bold [overflow-wrap:anywhere]">
-                  {x.p.name}
+                  <SeatName p={x.p} />
                 </span>
                 <span
                   className={`disp tick text-28 font-extrabold ${x.t < 0 ? 'text-[var(--neg-tx)]' : ''}`}

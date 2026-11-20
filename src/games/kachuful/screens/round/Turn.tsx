@@ -12,7 +12,7 @@ import { Glass } from '@/components/ui/Glass';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { Table } from '@/components/ui/Table';
+import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE, PRESS_SM, REDUCED, SPRING } from '@/components/ui/motion';
 import { t } from '@/strings';
 import { DealLine, HeroWho } from './Bidding';
@@ -263,7 +263,7 @@ export function Turn() {
       >
         <Glass glow spot={false} className="flex min-h-0 flex-1 flex-col p-2 pb-2.5">
           <div ref={slot} className="-mx-2 flex min-h-0 flex-1 flex-col">
-            <Table
+            <GameTable
               // One element under either name: the flight looks for `bid`, other code and tests for `play`.
               uid={playing ? 'play' : 'bid'}
               fit

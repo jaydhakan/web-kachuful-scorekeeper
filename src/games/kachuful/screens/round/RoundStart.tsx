@@ -11,7 +11,8 @@ import { artOrTimeout, artReady } from '@/theme/art';
 import { shownTheme } from '@/theme/applyTheme';
 import { isThemeId } from '@/theme/themes';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { Table, TablePin } from '@/components/ui/Table';
+import { TablePin } from '@/components/ui/Table';
+import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE, REDUCED } from '@/components/ui/motion';
 import { t } from '@/strings';
 
@@ -240,7 +241,7 @@ export function RoundStart() {
         {t.start.trumpIs(th.name)}
       </m.div>
       <div className="flex min-h-0 w-full flex-1 flex-col pane:[grid-area:1/2/8/3]">
-        <Table
+        <GameTable
           uid="rs"
           fit
           players={g.players}
@@ -278,7 +279,7 @@ export function RoundStart() {
                 </TablePin>
               );
             })}
-        </Table>
+        </GameTable>
       </div>
       <div
         className="min-h-[70px] px-7 py-3 text-center text-17 leading-[1.45] tracking-[-0.01em] @h-short:min-h-[4.25rem] @h-short:py-1 land:text-15 pane:[grid-area:5/1]"

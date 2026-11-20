@@ -98,6 +98,11 @@ const cases = THEME_IDS.flatMap((id) => {
     ['accent text on surface-2', fg('--accent-tx', s2), s2, 4.5],
     ['gold text on bg', fg('--gold-tx', bg), bg, 4.5],
     ['gold text on panel', fg('--gold-tx', panel), panel, 4.5],
+    // Medallists' names at the table (REWARDS-PLAN §6.7).
+    ['silver text on panel', fg('--silver-tx', panel), panel, 4.5],
+    ['bronze text on panel', fg('--bronze-tx', panel), panel, 4.5],
+    ['silver text on bg', fg('--silver-tx', bg), bg, 4.5],
+    ['bronze text on bg', fg('--bronze-tx', bg), bg, 4.5],
     // A focus ring is not text: 3:1 against what it sits on.
     ['focus ring on bg', fg('--focus', bg), bg, 3],
     ['success on panel', fg('--success', panel), panel, 4.5],

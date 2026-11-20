@@ -27,13 +27,14 @@ import { StreakBadge } from '@/components/ui/StreakBadge';
 import { Glass } from '@/components/ui/Glass';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SuitCenter } from '@/components/ui/SuitCenter';
-import { Table } from '@/components/ui/Table';
+import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE, REDUCED, SPRING_POP } from '@/components/ui/motion';
 import { shakeKF } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icons';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 function Spark({ color }: { color: string }) {
   return (
@@ -269,7 +270,7 @@ export function Summary() {
               <div
                 className={`mx-auto flex w-full max-w-[20rem] flex-col md:max-w-[22rem] pane:max-w-none ${wide ? 'aspect-[34/30]' : 'aspect-[32/17]'}`}
               >
-                <Table
+                <GameTable
                   uid="sum"
                   fit
                   size={wide ? 'full' : 'mini'}
@@ -339,7 +340,7 @@ export function Summary() {
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ov/20 text-22"
                 />
                 <div className="min-w-0 flex-1 break-words text-16 font-bold leading-[1.2] tracking-[-0.015em] [text-wrap:balance] @[26rem]:text-18">
-                  {x.p.name}
+                  <SeatName p={x.p} />
                   <StreakBadge s={sk[id]} />
                 </div>
                 <AnimatePresence>

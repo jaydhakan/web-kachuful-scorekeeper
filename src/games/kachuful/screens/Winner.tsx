@@ -26,6 +26,7 @@ import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
 import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -188,7 +189,7 @@ export default function Winner() {
                   </div>
                   <Dot p={x.p} s={40} />
                   <div className="min-w-0 flex-1 text-18 land:text-16 font-bold tracking-[-0.015em] [overflow-wrap:anywhere] [text-wrap:balance]">
-                    {x.p.name}
+                    <SeatName p={x.p} />
                   </div>
                   <div
                     className={`disp text-26 land:text-22 font-extrabold tracking-[-0.03em] ${x.t < 0 ? 'text-[var(--neg)]' : ''}`}

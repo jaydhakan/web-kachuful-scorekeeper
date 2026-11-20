@@ -10,6 +10,7 @@ import type { bidView } from '@/games/kachuful/screens/round/roundView';
 import { KeyHints, Kbd } from './DeskParts';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 export type BidPrimary = 'lock' | 'start' | 'wait';
 
@@ -56,7 +57,7 @@ export function BidPane({ g, v, pending, primary, shake, onKey, onPrimary }: Bid
             />
             <div className="min-w-0">
               <h2 className="disp face-body text-32 font-extrabold leading-[1.05] tracking-[-0.03em] [overflow-wrap:anywhere] rail:text-34">
-                {p.name}
+                <SeatName p={p} />
               </h2>
               <p className="text-15 text-[var(--tx2)]">
                 {cap}

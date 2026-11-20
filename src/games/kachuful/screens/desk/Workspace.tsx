@@ -4,7 +4,7 @@ import { roundAt, sumBids } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { useDeskKeys } from './useDeskKeys';
 import { Icon } from '@/components/ui/Icons';
-import { Table } from '@/components/ui/Table';
+import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE } from '@/components/ui/motion';
 import { bidView, seatMarks } from '@/games/kachuful/screens/round/roundView';
 import { BidPane, type BidPrimary } from './BidPane';
@@ -148,7 +148,7 @@ export function Workspace() {
       <div className={GRID}>
         <section className="flex min-h-0 flex-col gap-4 [grid-area:table]">
           <div className="flex min-h-[15rem] flex-1 flex-col rail:min-h-0">
-            <Table
+            <GameTable
               uid="ws"
               size="wide"
               fit

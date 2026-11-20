@@ -1,6 +1,7 @@
 import { roundAt, type Game, type Round } from '@/games/kachuful/domain';
 import { t } from '@/strings';
 import { Avatar, type Face } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 /** Who deals and how many cards, big enough to read across the table; first card and a sized-up trump under it. */
 export function DealLine({ g, r }: { g: Game; r: Round }) {
@@ -55,7 +56,8 @@ export function HeroWho({
             lineHeight: `max(1.4rem, calc(59px * ${k} * var(--hero-s)))`,
           }}
         >
-          {p.name}
+          {/* The size fits the name alone, so the medal shows in the letters, not as a glyph. */}
+          <SeatName p={p} glyph={false} />
         </h2>
       </div>
       {/* The meter below says the same in words. */}

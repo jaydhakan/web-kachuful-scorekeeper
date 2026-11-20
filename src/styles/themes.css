@@ -95,6 +95,8 @@
   /* The accent and gold as text, and the focus ring: light themes need darker ones than their fills. */
   --accent-tx: var(--brand);
   --gold-tx: var(--medal-gold);
+  --silver-tx: var(--medal-silver);
+  --bronze-tx: var(--medal-bronze);
   --focus: var(--brand);
   --brand-press: #f0a04f;
   --on-brand: #2a0a14;

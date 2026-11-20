@@ -6,13 +6,14 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icons';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { Seg } from '@/components/ui/Seg';
-import { Table } from '@/components/ui/Table';
+import { GameTable } from '@/games/kachuful/components/GameTable';
 import { SPRING } from '@/components/ui/motion';
 import { stagger } from '@/components/ui/stagger';
 import { RoundFrame } from './RoundFrame';
 import { resultsView, seatMarks } from './roundView';
 import { t } from '@/strings';
 import { Avatar } from '@/components/ui/Avatar';
+import { SeatName } from '@/games/kachuful/components/SeatName';
 
 export function Results() {
   const { state, actions } = useApp();
@@ -35,7 +36,7 @@ export function Results() {
           <TricksLeft left={left} cards={r.cards} />
           {/* Marks and bids already exist in the round; only a pane with room shows them on a table. */}
           <div className="mb-4 hidden aspect-[34/30] w-full flex-col wide:flex">
-            <Table
+            <GameTable
               uid="results"
               fit
               big
@@ -106,7 +107,7 @@ export function Results() {
                     </span>
                     <div className="flex-1">
                       <div className="break-words text-16 font-bold @[26rem]:text-18 leading-[1.2] tracking-[-0.015em] [text-wrap:balance]">
-                        {p.name}
+                        <SeatName p={p} />
                       </div>
                       <div className="text-13 font-medium leading-4 text-[var(--tx2)] [text-wrap:balance]">
                         {t.results.bid(b)}
