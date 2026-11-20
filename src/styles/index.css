@@ -893,3 +893,28 @@ html[data-boot='landing'] .boot {
   animation: none;
   opacity: 0;
 }
+/* An avatar's mood glyph (AvatarState): CSS content, so it is never part of the text; it pops in once. */
+.mood-glyph {
+  pointer-events: none;
+  position: absolute;
+  right: -0.25rem;
+  top: -0.25rem;
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+.mood-glyph::after {
+  content: attr(data-glyph);
+  display: inline-block;
+  animation: mood-pop 0.3s var(--ease) both;
+}
+@keyframes mood-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mood-glyph::after {
+    animation: none;
+  }
+}

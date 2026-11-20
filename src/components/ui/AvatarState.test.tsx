@@ -17,6 +17,8 @@ describe('avatar moods', () => {
         <i />
       </AvatarState>,
     );
-    expect(container.querySelector('[data-mood="sulk"] [aria-hidden]')?.textContent).toBe('☁️');
+    const glyph = container.querySelector('[data-mood="sulk"] .mood-glyph');
+    expect(glyph?.getAttribute('data-glyph')).toBe('☁️');
+    expect(container.textContent).toBe('');
   });
 });

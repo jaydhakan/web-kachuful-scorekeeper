@@ -28,17 +28,8 @@ export function AvatarState({ mood, children }: { mood: AvatarMood | null; child
       transition={{ duration: 0.45, ease: EASE }}
     >
       {children}
-      {mood && (
-        <m.span
-          aria-hidden
-          initial={rm ? false : { opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, ease: EASE }}
-          className="pointer-events-none absolute -right-1 -top-1 text-15 leading-none"
-        >
-          {GLYPH[mood]}
-        </m.span>
-      )}
+      {/* Drawn by CSS (index.css, .mood-glyph) so the glyph never joins the row's text. */}
+      {mood && <span aria-hidden className="mood-glyph" data-glyph={GLYPH[mood]} />}
     </m.span>
   );
 }
