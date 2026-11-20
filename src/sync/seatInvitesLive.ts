@@ -9,12 +9,16 @@ import {
   type SeatInvite,
 } from './seatInvites';
 import { putUpdate, type SeatInviteUpdate } from './seatInviteSignals';
+import { clearNews, putNight, putStatus } from './news';
 import { followStream, type Frame } from './sse';
+import type { GameStatus } from './types';
+import type { GameId } from '@/platform/route';
 import { onSession, signedInAs } from './session';
 
 /**
- * The network side of seat invites, loaded lazily by the platform once someone is signed in: the list on start, on
- * becoming visible and on coming online, and the user stream while the page is visible. Hidden, the stream closes.
+ * The network side of seat invites (and the user stream's crown and night news), loaded lazily by the platform once
+ * someone is signed in: the list on start, on becoming visible and on coming online, and the user stream while the
+ * page is visible. Hidden, the stream closes.
  */
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object';
@@ -36,6 +40,17 @@ export function applyFrame(f: Frame) {
   } else if (f.event === 'seat-invite-gone' && typeof d.id === 'string') dropInvite(d.id);
   else if (f.event === 'seat-invite-update' && typeof d.id === 'string')
     putUpdate(d as unknown as SeatInviteUpdate);
+  else if (f.event === 'status' && typeof d.gameId === 'string' && Array.isArray(d.changes)) {
+    const st = d as unknown as GameStatus & { game: GameId; gameId: string };
+    putStatus({
+      game: st.game,
+      gameId: st.gameId,
+      changes: st.changes,
+      bounties: Array.isArray(st.bounties) ? st.bounties : [],
+      local: false,
+      at: Date.now(),
+    });
+  } else if (f.event === 'night' && typeof d.id === 'string') putNight(d.id);
 }
 
 let running: (() => void) | null = null;
@@ -87,7 +102,10 @@ export function startSeatInvites(): () => void {
     const next = signedInAs()?.user.id ?? null;
     if (next === user) return;
     close();
-    if (user) clearSeatInvites();
+    if (user) {
+      clearSeatInvites();
+      clearNews();
+    }
     user = next;
     open();
   });
