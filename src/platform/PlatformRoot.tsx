@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { Loader } from '@/components/ui/Loader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { CrownNewsMount } from '@/components/crowns/CrownNewsMount';
 import { SeatInvitesMount } from '@/components/seat-invites/SeatInvitesMount';
 import { platform } from '@/strings/platform';
 import { gameById } from './catalog';
@@ -175,6 +176,7 @@ export function PlatformRoot() {
       </div>
       {waiting && <NavProgress />}
       <SeatInvitesMount />
+      <CrownNewsMount />
       <PlatformUpdate game={game} />
       <PlatformNotice />
     </>
