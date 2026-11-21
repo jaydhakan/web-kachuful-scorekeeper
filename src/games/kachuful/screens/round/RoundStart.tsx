@@ -12,7 +12,7 @@ import { shownTheme } from '@/theme/applyTheme';
 import { isThemeId } from '@/theme/themes';
 import { SuitCenter } from '@/components/ui/SuitCenter';
 import { TablePin } from '@/components/ui/Table';
-import { FestivalTable } from '@/fx/ui/FestivalTable';
+import { FestivalTableLazy } from '@/fx/ui/FestivalTableLazy';
 import { GameTable } from '@/games/kachuful/components/GameTable';
 import { EASE, REDUCED } from '@/components/ui/motion';
 import { t } from '@/strings';
@@ -279,7 +279,7 @@ export function RoundStart() {
           hl={seated.length === 1 && stage < 3 ? seated[0].k : undefined}
           center={<SuitCenter trump={r.trump} cards={r.cards} />}
         >
-          {r.index === 0 && <FestivalTable />}
+          {r.index === 0 && <FestivalTableLazy />}
           {stage === 2 &&
             Array.from({ length: n }, (_, k) => {
               const idx = (r.dealerIndex + 1 + k) % n,
