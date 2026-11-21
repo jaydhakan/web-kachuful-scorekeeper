@@ -19,7 +19,12 @@ The open work for this repo, in one place. Add an item when something is left un
   `motionMax`) now load beside the first page, before the first render, to fix stuck exits; `tools/bundle.mjs` does
   not count that chunk, as it is a dynamic import, so the real first load is ~12 KB more than it reports. Budgets are in
   `tools/budget.json`. Start with the shared chunk, which holds Kachuful's store next to `persistence.ts` and the
-  API client.
+  API client. After rewards (2026-11-21, `feat/rewards` against `main`): landing 182.3 (+12.0), phone 179.3 (+11.8),
+  large screen 210.4 (+16.1), Spades 184.2 (+12.2), CSS 25.4 (+0.4). Nearly all of it is `shell-common`, which both
+  Kachuful shells and React share, so the landing page loads it too: `kachuful/state/medals.tsx` (8 KB minified),
+  `fx/moments.tsx`, banter (strings and rule table), `domain/medals.ts`, `domain/night.ts`, `SeatName`, `kursi.ts`,
+  `intel.ts`. The festival dressing is lazy (`fx/ui/FestivalTableLazy.tsx`). The fix is structural: React and the
+  vendor code in a chunk of their own, so the landing page stops loading Kachuful's shared code.
 
 ## Platform (Baithak)
 
