@@ -237,6 +237,8 @@ every achievement, ~12,000 entries for five players), and a game's end also repl
 - A game write pays only its newly inserted achievement rows: the engine never touches a kept row and a deleted one's
   entry cascades. Finishes, wins and streaks replay a player's finished games only when a game ended, un-ended or went.
   The other callers (merges, awards, the other games, `recompute-sikke`) keep the full per-player rebuild.
+- A delete pays the career rows it moves onto a later game (`games_10`, a streak), as the full rebuild did; deleting an
+  unfinished game that moves a milestone now pays it too (it never did).
 - The reconcile reads the nine columns it compares, not ORM entities.
 - Proof: a service test drives one game through running writes, its end, an edit after the end and its deletion, and
   after each write the ledger equals a full rebuild.
