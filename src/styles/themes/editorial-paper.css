@@ -182,6 +182,8 @@
 }
 [data-theme='editorial-paper'] .mat-fill {
   background: var(--ink);
+  /* Ink fill, so its text is paper: on-brand is ink here and would vanish on a badge or chip. */
+  color: var(--paper-hi);
 }
 [data-theme='editorial-paper'] .mat-cta-on.mat-tone-accent {
   color: var(--paper-hi);
