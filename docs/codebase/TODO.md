@@ -201,8 +201,8 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
 - **"Last game of the night"** toggle and its long ceremony wait for the stage bust (art).
 - **Crown news (backend-requests §6), app side:** the banner on the other phones (`components/crowns/CrownNews.tsx`),
   bounty chips on Kachuful's winner screen, crown and night rows in the feed, and round 1's "Beat Riya: +40 🪙".
-  Not checked in a browser: the winner screen's chips and round 1's bounty line (unit tests only), the banner in the
-  three other themes and on a tablet or laptop. The mock sends Kursi changes and bounties only (no medal, Sitara or
+  Seen in a browser on the mock (2026-11-21): the winner screen's chip and round 1's line at 390×844. Without an e2e:
+  the chips and the line (unit tests only), the banner in the three other themes and on a tablet or laptop. The mock sends Kursi changes and bounties only (no medal, Sitara or
   Legend changes), and the crown banner and the invite banner share the top of the screen (the crown one is above).
 - **Moment budget (§13):** a second tap finishing a beat sequence is built only where it was (Kachuful's summary);
   the other sequences are under a second. Everything else in §13 is built (holds, round cap, cooldown, crown cap).
