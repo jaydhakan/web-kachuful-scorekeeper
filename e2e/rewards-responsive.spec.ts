@@ -18,7 +18,9 @@ const VIEWPORTS = [
   [768, 1024],
   [1280, 800],
 ] as const;
-const OUT = `reports/responsive/raw/${process.env.RESPONSIVE_LABEL ?? 'current'}/rewards`;
+// THEME=<id> runs the same screens in another theme (themes.spec's ids); its shots go in their own folder.
+const THEME = process.env.THEME;
+const OUT = `reports/responsive/raw/${process.env.RESPONSIVE_LABEL ?? 'current'}/rewards${THEME ? '-' + THEME : ''}`;
 const REPORT_ONLY = !!process.env.RESPONSIVE;
 
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -81,6 +83,16 @@ for (const [w, h] of VIEWPORTS) {
       isMobile: phone,
       hasTouch: w <= 1180,
       deviceScaleFactor: phone ? 2 : 1,
+    });
+
+    test.beforeEach(async ({ page }) => {
+      if (!THEME) return;
+      await page.route('**/api/settings/appearance', (r) =>
+        r.fulfill({
+          json: { theme: THEME, allowUserOverride: false, updatedAt: null, updatedBy: null },
+        }),
+      );
+      await page.addInitScript((t) => localStorage.setItem('kf.theme', t), THEME);
     });
 
     const run = async (page: Page, name: string, body: (shot: Shot) => Promise<void>) => {
