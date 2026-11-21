@@ -51,6 +51,8 @@ export default function PlayedBy() {
       <div role="group" aria-label={kp.playedBy.title} className="grid grid-cols-2 gap-2">
         {seats.map((p) => {
           const on = cur === p.id;
+          // On the picked seat's fill the sub-lines take its text colour: grey on an accent fill is unreadable.
+          const sub = on ? 'opacity-80' : 'text-[var(--tx2)]';
           const isBidder = p.id === h.bidder;
           // Playing a second called card fills a second slot: say so before they're picked.
           const more = h.playedBy.filter((x, k) => x === p.id && k !== i).length;
@@ -71,12 +73,10 @@ export default function PlayedBy() {
                 <span className="block break-words text-17 font-bold leading-[1.2]">{p.name}</span>
                 {isBidder && <RoleBadge kind="bidder" className="mt-0.5" />}
                 {isBidder && (
-                  <span className="mt-0.5 block text-13 text-[var(--tx2)]">
-                    {kp.playedBy.holds}
-                  </span>
+                  <span className={`mt-0.5 block text-13 ${sub}`}>{kp.playedBy.holds}</span>
                 )}
                 {more > 0 && !isBidder && (
-                  <span className="mt-0.5 block text-13 text-[var(--tx2)]">
+                  <span className={`mt-0.5 block text-13 ${sub}`}>
                     {kp.playedBy.already(more + 1)}
                   </span>
                 )}
