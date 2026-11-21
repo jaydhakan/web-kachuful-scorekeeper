@@ -547,7 +547,12 @@ export function Table({
                     // Under the name, or under the avatar on a table that hides names, where only the icon fits.
                     style={{
                       ...badge.style,
-                      top: named ? 'calc(100% + 18px)' : 'calc(100% + 2px)',
+                      // Below the name's own box (its offset + line height, as data-seat-name sets them) + 2px.
+                      top: !named
+                        ? 'calc(100% + 2px)'
+                        : wide
+                          ? `calc(100% + ${dpx(5)} + max(0.8125rem, ${dpx(15)}) * 1.2 + 2px)`
+                          : 'calc(100% + 18px)',
                       translate: '-50% 0',
                     }}
                   >
