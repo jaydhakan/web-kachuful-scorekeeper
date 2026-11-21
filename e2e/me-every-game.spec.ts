@@ -34,5 +34,6 @@ test('Me shows the newest activity from every game and opens the whole feed', as
   await expect(seeAll.or(empty)).toBeVisible();
   if (await empty.isVisible()) return;
   await seeAll.click();
-  await expect(page.getByRole('heading', { name: 'Activity' })).toBeVisible();
+  // The page's title: while the pages cross-fade, Me's own "Activity" section heading is still there.
+  await expect(page.getByRole('heading', { name: 'Activity', level: 1 })).toBeVisible();
 });
