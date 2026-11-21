@@ -225,3 +225,23 @@ then `recompute-sikke` pays past Sitaras.
 
 **Built:** backend feat/rewards 7f18fab (migration 0025); app `NightPage` with an id, `YourNights`, `NightReady`. The
 night feed item's `data.games` is the list of game ids; `POST /api/nights/close` returns the night's detail.
+
+## 8. The Kachuful PUT within its budget again (no API change)
+
+**Why:** `make perf` on the load set (5,000 games, 50 players) measured the PUT's p95 at 438 ms against its 120 ms
+budget. Every write that earned an achievement rebuilt each seated player's whole Sikke ledger (every finished game,
+every achievement, ~12,000 entries for five players), and a game's end also replays the whole Kursi chain.
+
+**Change (behaviour identical, responses unchanged):**
+
+- A game write pays only its newly inserted achievement rows: the engine never touches a kept row and a deleted one's
+  entry cascades. Finishes, wins and streaks replay a player's finished games only when a game ended, un-ended or went.
+  The other callers (merges, awards, the other games, `recompute-sikke`) keep the full per-player rebuild.
+- The reconcile reads the nine columns it compares, not ORM entities.
+- Proof: a service test drives one game through running writes, its end, an edit after the end and its deletion, and
+  after each write the ledger equals a full rebuild.
+
+**Measured on the load set:** a running game's PUT ~130 → ~21 ms; a game-ending PUT ~310 → ~195 ms; `make perf`'s p95
+(finished games only) 438 → 254 ms, still over 120: left for now (Jay, 2026-11-21), noted in `docs/codebase/TODO.md`. What remains in the
+ending PUT is the whole-chain work (Kursi chain read ~45 ms, Kursi/bounty Sikke ~30 ms, nights ~30 ms, crowns ~17 ms),
+which grows with the number of ended games.
