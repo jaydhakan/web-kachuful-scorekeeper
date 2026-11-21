@@ -17,7 +17,7 @@ export const night = {
   prev: 'Previous',
   games: {
     kicker: 'Tonight',
-    big: (n: number) => `${n} games`,
+    big: (n: number) => `${n} ${n === 1 ? 'game' : 'games'}`,
     sub: (players: number) => `${players} at the table`,
   },
   winner: {
@@ -38,7 +38,7 @@ export const night = {
   },
   kursi: {
     kicker: 'The Kursi tonight',
-    line: (to: string[], from: string[]) => `🪑 ${list(to)} took it from ${list(from)}`,
+    line: (to: string[], from: string[]) => `${list(to)} took the Kursi from ${list(from)}`,
   },
   story: {
     kicker: 'The story of the night',

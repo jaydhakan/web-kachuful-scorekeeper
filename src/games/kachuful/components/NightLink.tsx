@@ -44,6 +44,7 @@ export function NightLink({ className = '' }: { className?: string }) {
       </ul>
       {last && (
         <p className="mb-2 text-14 [overflow-wrap:anywhere]">
+          <span aria-hidden>🪑 </span>
           {s.kursi.line(last.to.map(name), last.from.map(name))}
         </p>
       )}
