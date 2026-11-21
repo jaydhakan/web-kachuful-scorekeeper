@@ -183,11 +183,21 @@ are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment 
 - **Ishaara's table outline is one shape (the 5x5 board)**; its waiting screen looks different. Pick the shape from
   the table's last known status if that is worth it.
 
-## Rewards (branch `feat/rewards` in both repos, REWARDS-PLAN.md)
+## Rewards (merged 2026-11-21; the plan, `docs/REWARDS-PLAN.md`, is in git history)
 
 Built for Kachuful so far: medals (Badshah, Wazir, Senapati), the Kursi, Aaj ka Sitara, the Legend, banter with a
 "Table banter" switch, the chase, the end-of-game takeover, the table intel line, avatar moods, the moment budget's
-downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card.
+downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card. Server side:
+crowns and reigns, bounties, nights with Tonight's Wrapped, Sikke (wallet, ledger, levels), hidden achievements and
+festival days. About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay).
+
+- **Production, once after the first deploy (not done):** the deploy runs migrations 0023–0025; then, on the server,
+  `recompute-crowns`, `close-nights --all`, and `recompute-sikke --dry-run` before `recompute-sikke` (it also pays
+  past bounties and Sitaras). Add a systemd timer for `close-nights` every 30 minutes beside `close-day` (the repo has
+  no units). Until then crowns, nights and wallets start empty.
+- **Not built (plan G5):** firsts and group milestones; they need a backend request first.
+- **Sikke tuning:** run `recompute-sikke --dry-run` on production data, then tune `LEVELS` and the prices (re-export
+  `contract/fixtures/sikke-rules.json` and copy it to the backend's `tests/fixtures`).
 
 - **Not checked on a real phone or with motion on frame by frame** (e2e covers presence, reduced motion).
 - **Other games:** medals, Kursi, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
@@ -208,8 +218,7 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
   the other sequences are under a second. Everything else in §13 is built (holds, round cap, cooldown, crown cap).
 - **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on every game's winner screen
   (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
-  Kachuful only (finish, win, achievements). Levels and prices still need checking against the backfill
-  (`recompute-sikke --dry-run` on production data).
+  Kachuful only (finish, win, achievements).
 - **Kachuful PUT over budget (backend `make perf`, 2026-11-21):** p95 254 ms against 120 on the 5,000-game load set
   (was 438). Per-round PUTs are ~21 ms; a game's end replays the whole Kursi chain and bounties (`_rewards` in
   `services/games.py`), which grows with ended games (~5% of this at 500). Left for now (Jay); the fix is a fast path
