@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { dayLabel } from '@/lib/dates';
+import { dayKey, dayLabel, timeLabel } from '@/lib/dates';
 import { wasNightSeen } from '@/state/persistence';
 import { useApp } from '@/games/kachuful/state/store';
 import { nights as ns } from '@/games/kachuful/strings/night';
@@ -49,16 +49,26 @@ function OpenNight({
   );
 }
 
-function ClosedNight({ row, onOpen }: { row: NightRow & { id: string }; onOpen: () => void }) {
+/** Two nights that began on the same day (an afternoon and a late one) are told apart by their start time. */
+function ClosedNight({
+  row,
+  twin,
+  onOpen,
+}: {
+  row: NightRow & { id: string };
+  twin: boolean;
+  onOpen: () => void;
+}) {
   const fresh = !wasNightSeen(row.id) && Date.now() - row.endedAt < READY_MS;
   const day = dayLabel(row.startedAt);
+  const at = twin ? timeLabel(row.startedAt) : null;
   const winner = row.winner?.displayName ?? null;
   return (
     <li>
       <button
         type="button"
         data-night-row
-        aria-label={ns.rowSaid(day, row.games, winner, fresh)}
+        aria-label={ns.rowSaid(at ? `${day} ${at}` : day, row.games, winner, fresh)}
         onClick={onOpen}
         className="press glass flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left"
       >
@@ -72,7 +82,7 @@ function ClosedNight({ row, onOpen }: { row: NightRow & { id: string }; onOpen: 
             )}
           </span>
           <span className="text-14 text-[var(--tx2)] [overflow-wrap:anywhere]">
-            {ns.row(row.games, winner)}
+            {at ? `${at} · ${ns.row(row.games, winner)}` : ns.row(row.games, winner)}
           </span>
         </span>
         <AvatarStack players={row.players} max={4} />
@@ -130,15 +140,18 @@ export function YourNights({ playerId, titled }: { playerId: string; titled: boo
       <RemoteGate r={r} rows={3}>
         {(p) => {
           const rows = [...p.items, ...more];
+          const days = rows.map((x) => dayKey(x.startedAt));
+          const twin = (k: number) => days.indexOf(days[k]) !== days.lastIndexOf(days[k]);
           if (!rows.length) return <EmptyState icon="moon" title={ns.empty} body={ns.emptyBody} />;
           return (
             <>
               <ul className="flex flex-col gap-2">
-                {rows.map((row) =>
+                {rows.map((row, k) =>
                   row.id && row.closed ? (
                     <ClosedNight
                       key={row.id}
                       row={{ ...row, id: row.id }}
+                      twin={twin(k)}
                       onOpen={() => openNight(row.id!)}
                     />
                   ) : (
