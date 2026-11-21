@@ -203,13 +203,15 @@ downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper a
   the other sequences are under a second. Everything else in §13 is built (holds, round cap, cooldown, crown cap).
 - **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on every game's winner screen
   (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
-  Kachuful only (finish, win, achievements). Backend `make perf` not run with Sikke (a finishing Kachuful PUT now
-  rebuilds the Kursi chain from every ended game). Levels and prices still need checking against the backfill
+  Kachuful only (finish, win, achievements). Levels and prices still need checking against the backfill
   (`recompute-sikke --dry-run` on production data).
+- **Kachuful PUT over budget (backend `make perf`, 2026-11-21):** p95 254 ms against 120 on the 5,000-game load set
+  (was 438). Per-round PUTs are ~21 ms; a game's end replays the whole Kursi chain and bounties (`_rewards` in
+  `services/games.py`), which grows with ended games (~5% of this at 500). Left for now (Jay); the fix is a fast path
+  that steps the stored Kursi forward when the ended game is the newest, with a parity test against the replay.
 - **Nights (backend-requests §7), app side:** the server's Wrapped on `NightPage` (`?open=night&id=`), Your nights
   with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
-  table. Not checked in a browser: the
-  landing card (unit-tested hook only), tablet and laptop, the three other themes. `e2e/nights.spec.ts` skips on a
+  table. `e2e/rewards-responsive.spec.ts` covers them on phones, a tablet and a laptop. `e2e/nights.spec.ts` skips on a
   reused mock server once tonight was ended (every recent game joins that night).
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
 - **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
