@@ -51,8 +51,11 @@ Tell Jay if any of these should change; both sides must agree.
   tie, players by id); Hot hand and Ice bucket need a run of at least 3; Most hooked at least 1; Sharpest at least
   10 rounds. Other ties earn together.
 - **Season:** standings are the `accuracy` leaderboard for the month with `minRounds` 50 (strictly more); so is
-  last month's board for Climber. Seasons the server closed before 2026-11 keep their points-per-round standings. Sharpest also needs
-  30 rounds; Iron = most games; Climber = biggest positive rise against last month, qualified in both.
+  last month's board for Climber. Seasons the server closed before 2026-11 keep their points-per-round standings.
+  Iron = most games; Climber = biggest positive rise against last month, qualified in both. Sharpest of the season is
+  no longer given (it was always the champion); ones given before stay.
+- **Ranks outside the season:** Wrapped's year rank and the player page's all-time rank are the `accuracy` board for
+  the year or all time with `minRounds` 50, the same tie-break.
 
 ## Kaali Teeri (`kt-*`)
 

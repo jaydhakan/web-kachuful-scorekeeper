@@ -59,7 +59,7 @@ Dependencies point downward only: `domain` imports nothing from the UI; `state` 
 ## Achievements and awards
 
 Every game plugs into `src/progression/registry.ts`: its catalogue, strings, ladders, how its seasons rank (Kachuful
-on bid accuracy, ties on points per round; the others on win rate) and, for a game scored on the device, `device`
+on bid accuracy, ties on points per round, as do its Wrapped and player-page ranks; the others on win rate) and, for a game scored on the device, `device`
 rules over its facts. Each game's rules live in its `domain/achievements.ts` and `awards.ts`; the backend mirrors
 them and checks parity with golden fixtures the app writes (`EXPORT_FIXTURES=1`, see the backend's
 `tests/fixtures/VERSION.md`). Signed in, the pages read the server (`?game=`); signed out, Kachuful, Kaali Teeri and
