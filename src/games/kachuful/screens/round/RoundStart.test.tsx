@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { demoGame, newRound, totalRounds, type Game } from '@/games/kachuful/domain';
 import { t } from '@/strings';
 import { MedalsValue, NO_MEDALS, type TableMedals } from '@/games/kachuful/state/medals';
@@ -179,5 +179,15 @@ describe('the medallists at round 1’s deal', () => {
     tick(1);
     expect(line()).toHaveTextContent('table pe hai');
     expect(document.querySelector('[data-bounty-line]')).toHaveTextContent('Beat Riya: +40 🪙');
+  });
+
+  it('names a rivalry or a milestone when no crown sits at the table, and not over one', () => {
+    mountWith(0, [], { intel: 'Dev beat Asha 7 of 9' });
+    tick(1);
+    expect(line()).toHaveTextContent('Dev beat Asha 7 of 9');
+    cleanup();
+    mountWith(0, [2], { intel: 'Dev beat Asha 7 of 9' });
+    tick(1);
+    expect(line()).not.toHaveTextContent('Dev beat Asha');
   });
 });
