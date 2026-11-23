@@ -68,7 +68,7 @@ const at = (games: ReturnType<typeof game>[], now: number) => ({
 const end = (g: ReturnType<typeof game>) => g.finishedAt!;
 
 const CASES = {
-  // The plain night: two games, and an older night that only seeds the Kursi.
+  // The plain night: two games, and an older night left out.
   two: at([older, g1, g2], end(g2) + H),
   // Across midnight, a two-seat game (no brave call from it) and a game still open (left out).
   midnight: at([older, g1, g2, g3, pair, unfinished], end(pair) + H),
@@ -93,13 +93,10 @@ describe('night golden fixtures', () => {
     }
   });
 
-  it('cover a crossed Kursi, a brave call and an empty night', () => {
+  it('cover a brave call and an empty night', () => {
     expect(CASES.stale.night).toBeNull();
     expect(CASES.gap.night?.gameIds).toEqual(['n7']);
     expect(CASES.midnight.night?.gameIds).not.toContain('n5');
     expect(CASES.midnight.night?.braveCall).not.toBeNull();
-    expect([CASES.two, CASES.midnight, CASES.late].some((c) => c.night!.kursi.length > 0)).toBe(
-      true,
-    );
   });
 });

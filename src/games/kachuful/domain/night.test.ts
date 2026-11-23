@@ -52,10 +52,4 @@ describe('the night', () => {
     expect(n.bestBid?.bid).toBeGreaterThanOrEqual(0);
     expect(n.braveCall).not.toBeNull();
   });
-
-  it("follows the Kursi through the night's games", () => {
-    const n = nightOf(buildFacts([old, g1, g2], T0 + 3 * H), T0 + 3 * H)!;
-    // Whoever won the old game held it; tonight's games may have moved it.
-    for (const k of n.kursi) expect(k.to.length).toBeGreaterThan(0);
-  });
 });

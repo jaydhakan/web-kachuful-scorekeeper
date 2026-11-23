@@ -2,8 +2,6 @@
  * Baithak Wrapped for one night (REWARDS-PLAN §7.2): the games played with gaps of three hours or less, and the
  * night's story from their facts. Pure: the table device builds it from its own games.
  */
-import { kursiFrom, stepKursi } from '../../../progression/kursi';
-import { placedGames } from './places';
 import type { Facts } from './timeline';
 
 /** Games further apart than this are different nights; a night across midnight stays one. */
@@ -33,8 +31,6 @@ export interface Night {
   braveCall: { playerId: string; bid: number; cards: number } | null;
   /** Each game's winners, in order. */
   gameWinners: string[][];
-  /** Who took the Kursi tonight, in order. */
-  kursi: { to: string[]; from: string[] }[];
 }
 
 /** The night of the latest ended game, if it is still tonight; null otherwise. */
@@ -82,16 +78,6 @@ export function nightOf(f: Facts, now: number): Night | null {
           !best || r.bid > best.bid ? { playerId: r.playerId, bid: r.bid, cards: r.cards } : best,
         null,
       );
-  const before = placedGames(f).filter((g) => !ids.has(g.gameId) && g.endedAt < night[0].createdAt);
-  let chair = kursiFrom(before).kursi;
-  const kursi: Night['kursi'] = [];
-  for (const g of placedGames(f)
-    .filter((x) => ids.has(x.gameId))
-    .sort((a, b) => a.endedAt - b.endedAt)) {
-    const step = stepKursi(chair, g);
-    if (step.event.kind === 'taken') kursi.push({ to: step.event.to, from: step.event.from });
-    chair = step.kursi;
-  }
   return {
     from: night[0].createdAt,
     to: night[night.length - 1].endedAt!,
@@ -104,6 +90,5 @@ export function nightOf(f: Facts, now: number): Night | null {
     gameWinners: night.map((g) =>
       seats.filter((p) => p.gameId === g.gameId && p.won).map((p) => p.playerId),
     ),
-    kursi,
   };
 }

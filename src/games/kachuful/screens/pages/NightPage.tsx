@@ -94,22 +94,10 @@ export function nightSlides(n: Night, who: WhoOf, more: Slide[] = []): Slide[] {
       sub: s.brave.sub(who(n.braveCall.playerId).name, n.braveCall.cards),
       emoji: face(n.braveCall.playerId),
     });
-  for (const k of n.kursi)
-    out.push({
-      kicker: s.kursi.kicker,
-      big: '🪑',
-      sub: s.kursi.line(
-        k.to.map((id) => who(id).name),
-        k.from.map((id) => who(id).name),
-      ),
-      emoji: face(k.to[0]),
-    });
   out.push(...more);
-  const last = n.kursi.at(-1);
   out.push({
     kicker: s.story.kicker,
     big: n.winner ? s.story.won(who(n.winner).name, top.wins, n.gameIds.length) : s.story.none,
-    sub: last ? s.story.chair(last.to.map((id) => who(id).name)) : undefined,
     emoji: icon('trophy', ART),
   });
   return out;

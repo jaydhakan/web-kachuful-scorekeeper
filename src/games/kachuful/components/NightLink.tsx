@@ -11,14 +11,13 @@ const SHOWN = 6;
 
 /**
  * "Tonight so far" and a way into Tonight's Wrapped, on the winner screen once tonight has two games or more
- * (REWARDS-PLAN §7.1: the dead spot between games): each player's wins tonight and who took the Kursi.
+ * (REWARDS-PLAN §7.1: the dead spot between games): each player's wins tonight.
  */
 export function NightLink({ className = '' }: { className?: string }) {
   const { actions } = useApp();
   const f = useDeviceFacts();
   const n = useMemo(() => nightOf(f, Date.now()), [f]);
   if (!n || n.gameIds.length < 2) return null;
-  const last = n.kursi.at(-1);
   const name = (id: string) => whoIs(f, id).name;
   return (
     <section aria-labelledby="tonight-so-far" className={className}>
@@ -42,12 +41,6 @@ export function NightLink({ className = '' }: { className?: string }) {
           </li>
         ))}
       </ul>
-      {last && (
-        <p className="mb-2 text-14 [overflow-wrap:anywhere]">
-          <span aria-hidden>🪑 </span>
-          {s.kursi.line(last.to.map(name), last.from.map(name))}
-        </p>
-      )}
       <button
         type="button"
         data-night-link

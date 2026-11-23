@@ -36,15 +36,10 @@ export const night = {
     kicker: 'Brave call',
     sub: (name: string, cards: number) => `${name} went for it, on ${cards} cards`,
   },
-  kursi: {
-    kicker: 'The Kursi tonight',
-    line: (to: string[], from: string[]) => `${list(to)} took the Kursi from ${list(from)}`,
-  },
   story: {
     kicker: 'The story of the night',
     won: (name: string, wins: number, games: number) =>
       `${name} won ${wins} of ${games} ${games === 1 ? 'game' : 'games'}`,
-    chair: (to: string[]) => `${list(to)} ended the night on the Kursi`,
     none: 'Every game a different winner',
   },
 };

@@ -40,7 +40,6 @@ const story: NightResp = {
     bestBid: null,
     braveCall: { playerId: 'p2', bid: 5, cards: 6 },
     gameWinners: [['p1'], ['p1']],
-    kursi: [],
     gameKinds: ['kachuful', 'kachuful'],
     sitara: ['p1'],
     sikke: { p1: 145, p2: 60 },
