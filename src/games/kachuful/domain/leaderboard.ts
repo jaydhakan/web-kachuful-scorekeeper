@@ -156,17 +156,22 @@ function ranked(
       accuracy: accuracyOf(t),
       longestHot: t.longestHot,
     }));
-  return rankRows(rows);
+  return rankRows(rows, metric);
 }
 
 type Rankable = Pick<BoardRow, 'rank' | 'qualified' | 'playerId' | 'value' | 'points' | 'rounds'>;
 
-/** Sorts rows in place and ranks the qualified ones; ties on the exact value share a rank (1, 1, 3). */
-export function rankRows<R extends Rankable>(rows: R[]): R[] {
+/**
+ * Sorts rows in place and ranks the qualified ones; ties on the exact value share a rank (1, 1, 3). An accuracy tie
+ * is broken by average per round, so equal accuracy shares a rank only when both are equal.
+ */
+export function rankRows<R extends Rankable>(rows: R[], metric?: Metric): R[] {
+  const avg = metric === 'accuracy' ? avgOf : () => 0;
   rows.sort(
     (a, b) =>
       Number(b.qualified) - Number(a.qualified) ||
       b.value - a.value ||
+      avg(b) - avg(a) ||
       b.points - a.points ||
       b.rounds - a.rounds ||
       (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0),
@@ -176,7 +181,8 @@ export function rankRows<R extends Rankable>(rows: R[]): R[] {
     r.rank = null;
     if (!r.qualified) return;
     const prev = rows[i - 1];
-    k = i > 0 && prev.qualified && prev.value === r.value ? k : i + 1;
+    const same = i > 0 && prev.qualified && prev.value === r.value && avg(prev) === avg(r);
+    k = same ? k : i + 1;
     r.rank = k;
   });
   return rows;

@@ -169,6 +169,34 @@ describe('leaderboard', () => {
     ]);
   });
 
+  it('breaks an accuracy tie on average per round; other metrics still share', () => {
+    // z makes every bid; x and y each make every other one (same accuracy), and x's take every trick: more points.
+    const tie = buildFacts(
+      [
+        kitGame({
+          id: 'acc',
+          players: ['x', 'y', 'z'],
+          start: T0,
+          rounds: rows(3, 12, (i) => (i % 2 ? [0, 2] : [1, 2])),
+          finished: true,
+        }),
+      ],
+      T0 + DAY,
+    );
+    const b = leaderboard(tie, { ...day, metric: 'accuracy' });
+    const [x, y] = ['x', 'y'].map((id) => b.rows.find((r) => r.playerId === id)!);
+    expect(x.value).toBe(y.value);
+    expect(x.points / x.rounds).toBeGreaterThan(y.points / y.rounds);
+    expect(b.rows.map((r) => [r.playerId, r.rank])).toEqual([
+      ['z', 1],
+      ['x', 2],
+      ['y', 3],
+    ]);
+    expect(leaderboard(tie, { ...day, metric: 'rounds' }).rows.map((r) => r.rank)).toEqual([
+      1, 1, 1,
+    ]);
+  });
+
   it('count metrics rank everyone; rate metrics honour the minimum', () => {
     expect(leaderboard(f, { ...day, metric: 'points' }).rows.every((r) => r.qualified)).toBe(true);
     expect(leaderboard(f, { ...day, metric: 'accuracy' }).rows.some((r) => !r.qualified)).toBe(
