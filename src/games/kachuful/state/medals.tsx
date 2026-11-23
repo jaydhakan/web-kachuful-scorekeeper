@@ -21,7 +21,7 @@ import {
   type MedalRow,
   type Medals,
   type Player,
-  kursiGames,
+  placedGames,
   legendOf,
   playedMonths,
   plusPoints,
@@ -32,7 +32,8 @@ import {
 import { tableIntel } from '@/progression/intel';
 import { SIKKE } from '@/progression/sikke';
 import { crowns } from '@/strings/crowns';
-import { kursiFrom, stepKursi, type Kursi, type KursiGame } from '@/progression/kursi';
+import { kursiFrom, stepKursi, type Kursi } from '@/progression/kursi';
+import type { PlacedGame } from '@/progression/places';
 import { medals as ms } from '@/strings/medals';
 import { dayOf, dayRange, monthOf, monthRange, prevMonth } from '@/progression/zone';
 import { archive } from '@/state/archive';
@@ -110,7 +111,7 @@ interface Base {
   /** Closed seasons' champions (board ids), for the Legend. */
   champions?: readonly (string | null)[];
   /** Ended games' places, for the intel line. */
-  places?: readonly KursiGame[];
+  places?: readonly PlacedGame[];
 }
 
 const unrow = (r: LeaderboardRow): MedalRow => ({
@@ -137,8 +138,8 @@ function deviceBase(current: Game): Base {
     minRounds: SEASON_MIN_ROUNDS,
     rows: now.standings,
     last: last.standings,
-    kursi: kursiFrom(kursiGames(f)).kursi,
-    places: kursiGames(f),
+    kursi: kursiFrom(placedGames(f)).kursi,
+    places: placedGames(f),
     today: deviceToday(f),
     champions: playedMonths(f)
       .filter((m) => m < month)

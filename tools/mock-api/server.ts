@@ -28,7 +28,7 @@ import {
   validate,
   wrapped,
   doneRounds,
-  kursiGames,
+  placedGames,
   nightOf,
   NIGHT_GAP_MS,
   sitaraOf,
@@ -1300,7 +1300,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const v = validate({ ...w, syncId: key }, Date.now());
   if (!v.ok) throw err(422, 'invalid_game', { reason: v.reason, roundIndex: v.roundIndex ?? null });
   const wasEnded = prev ? gameEndedAt(fromWire(prev), Date.now()).at != null : false;
-  const chairBefore = kursiFrom(kursiGames(facts())).kursi;
+  const chairBefore = kursiFrom(placedGames(facts())).kursi;
   store(w, me!.id, Date.now());
   const earned = recompute();
   const rec = db.games.get(key)!;
@@ -1821,7 +1821,7 @@ on('GET', '/api/medals', ({ url }) => {
 });
 on('GET', '/api/kursi', ({ url }) => {
   const f = factsWithout(url.searchParams.get('excludeGame'));
-  const { kursi, reigns } = kursiFrom(kursiGames(f));
+  const { kursi, reigns } = kursiFrom(placedGames(f));
   const out = <K extends { holders: string[] }>(k: K) => ({
     ...k,
     holders: k.holders.map((id) => summaryOf(id, f)),
@@ -1834,7 +1834,7 @@ on('GET', '/api/kursi', ({ url }) => {
 });
 on('GET', '/api/places', ({ url }) => {
   const f = factsWithout(url.searchParams.get('excludeGame'));
-  return { games: kursiGames(f).sort((a, b) => b.endedAt - a.endedAt) };
+  return { games: placedGames(f).sort((a, b) => b.endedAt - a.endedAt) };
 });
 // Crowns and nights (backend-requests §6, §7), the Kursi's part only: medals, the Sitara and the Legend are left to
 // the real server. Bounties are the Kursi's: whoever finished above the holder, once per holder a week.
@@ -1843,7 +1843,7 @@ const sameIds = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((x) => b.includes(x));
 function statusOf(before: Chair, gameId: string) {
   const f = facts();
-  const after = kursiFrom(kursiGames(f)).kursi;
+  const after = kursiFrom(placedGames(f)).kursi;
   const changes =
     after && !sameIds(before?.holders ?? [], after.holders)
       ? [
@@ -1855,7 +1855,7 @@ function statusOf(before: Chair, gameId: string) {
           },
         ]
       : [];
-  const g = kursiGames(f).find((x) => x.gameId === gameId);
+  const g = placedGames(f).find((x) => x.gameId === gameId);
   const bounties: { holder: PlayerSummary; winner: PlayerSummary; amount: number }[] = [];
   if (g && before && g.seats.length >= 3)
     for (const h of before.holders) {
@@ -1883,7 +1883,7 @@ function statusOf(before: Chair, gameId: string) {
 }
 on('GET', '/api/crowns', () => {
   const f = facts();
-  const { kursi } = kursiFrom(kursiGames(f));
+  const { kursi } = kursiFrom(placedGames(f));
   const none = (kind: string) => ({ kind, holders: [], since: null, sinceGame: null, defences: 0 });
   return {
     items: [
@@ -1904,7 +1904,7 @@ on('GET', '/api/crowns', () => {
 });
 on('GET', '/api/crowns/reigns', ({ url }) => {
   const f = facts();
-  const { reigns } = kursiFrom(kursiGames(f));
+  const { reigns } = kursiFrom(placedGames(f));
   const list = (url.searchParams.get('kind') === 'kursi' ? reigns : [])
     .filter((r): r is typeof r & { until: number } => r.until != null)
     .map((r) => ({
@@ -2025,7 +2025,7 @@ interface MockSikke {
 const ACH_SIKKE = new Map(ACHIEVEMENTS.map((d) => [d.code, achievementSikke(d, LADDERS)]));
 const sikkeEntries = (): MockSikke[] => {
   const out: MockSikke[] = [];
-  for (const g of kursiGames(facts()))
+  for (const g of placedGames(facts()))
     for (const s of g.seats) {
       const base = {
         playerId: s.playerId,

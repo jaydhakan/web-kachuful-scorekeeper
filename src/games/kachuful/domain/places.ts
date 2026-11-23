@@ -1,9 +1,9 @@
-/** Kachuful's games as the Kursi sees them (REWARDS-PLAN §6.3): every ended game with its places. */
-import type { KursiGame } from '../../../progression/kursi';
+/** Kachuful's ended games with their places (REWARDS-PLAN §6.5): every ended game, seats in seat order. */
+import type { PlacedGame } from '../../../progression/places';
 import type { Facts } from './timeline';
 
-export function kursiGames(f: Facts): KursiGame[] {
-  const by = new Map<string, KursiGame>();
+export function placedGames(f: Facts): PlacedGame[] {
+  const by = new Map<string, PlacedGame>();
   for (const p of f.players) {
     if (p.endedAt == null || p.place == null) continue;
     const g = by.get(p.gameId) ?? { gameId: p.gameId, endedAt: p.endedAt, seats: [] };

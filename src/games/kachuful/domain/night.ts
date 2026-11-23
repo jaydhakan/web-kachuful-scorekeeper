@@ -3,7 +3,7 @@
  * night's story from their facts. Pure: the table device builds it from its own games.
  */
 import { kursiFrom, stepKursi } from '../../../progression/kursi';
-import { kursiGames } from './kursi';
+import { placedGames } from './places';
 import type { Facts } from './timeline';
 
 /** Games further apart than this are different nights; a night across midnight stays one. */
@@ -82,10 +82,10 @@ export function nightOf(f: Facts, now: number): Night | null {
           !best || r.bid > best.bid ? { playerId: r.playerId, bid: r.bid, cards: r.cards } : best,
         null,
       );
-  const before = kursiGames(f).filter((g) => !ids.has(g.gameId) && g.endedAt < night[0].createdAt);
+  const before = placedGames(f).filter((g) => !ids.has(g.gameId) && g.endedAt < night[0].createdAt);
   let chair = kursiFrom(before).kursi;
   const kursi: Night['kursi'] = [];
-  for (const g of kursiGames(f)
+  for (const g of placedGames(f)
     .filter((x) => ids.has(x.gameId))
     .sort((a, b) => a.endedAt - b.endedAt)) {
     const step = stepKursi(chair, g);

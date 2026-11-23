@@ -2,13 +2,10 @@
  * The Kursi (REWARDS-PLAN §6.3): one chair per game. Finish above whoever holds it in a game you both played and it
  * is yours; every game the holder survives is a defence. Pure and game-agnostic: the server runs the same steps.
  */
+import type { PlacedGame } from './places';
 
 /** One finished game as the Kursi sees it. */
-export interface KursiGame {
-  gameId: string;
-  endedAt: number;
-  /** Every seat's finishing place (1, 1, 3) and seat order; a team game gives the whole side the same place. */
-  seats: { playerId: string; place: number; seat: number }[];
+export interface KursiGame extends PlacedGame {
   /** A team game: the winning side takes the chair together. */
   teams?: boolean;
 }

@@ -3,7 +3,7 @@
  * the games they have finished. Pure and game-agnostic; the crown lines (medals, Kursi) come first, from the table,
  * then a bounty on a seated holder (§6.4), then a milestone or a rivalry.
  */
-import type { KursiGame } from './kursi';
+import type { PlacedGame } from './places';
 
 export type Intel =
   | { kind: 'bounty'; holders: string[] }
@@ -19,7 +19,7 @@ export const MILESTONES = [50, 100, 250, 500, 1000] as const;
 export const BOUNTY_MIN_SEATS = 3;
 
 /** Who finished above whom between two players, in the games both finished (newest first). */
-function headToHead(games: readonly KursiGame[], a: string, b: string): (string | null)[] {
+function headToHead(games: readonly PlacedGame[], a: string, b: string): (string | null)[] {
   const out: (string | null)[] = [];
   for (const g of games) {
     const pa = g.seats.find((s) => s.playerId === a)?.place,
@@ -36,7 +36,7 @@ function headToHead(games: readonly KursiGame[], a: string, b: string): (string 
  * between two seated players. Null when nothing is worth saying.
  */
 export function tableIntel(
-  games: readonly KursiGame[],
+  games: readonly PlacedGame[],
   seated: readonly string[],
   holders: readonly string[] = [],
 ): Intel | null {

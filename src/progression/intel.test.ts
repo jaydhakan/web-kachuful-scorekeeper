@@ -1,8 +1,8 @@
 import { tableIntel } from './intel';
-import type { KursiGame } from './kursi';
+import type { PlacedGame } from './places';
 
 /** Game `k`, ended at `k`, finished in `order`. */
-const g = (k: number, order: string[]): KursiGame => ({
+const g = (k: number, order: string[]): PlacedGame => ({
   gameId: 'g' + k,
   endedAt: k,
   seats: order.map((playerId, seat) => ({ playerId, place: seat + 1, seat })),
