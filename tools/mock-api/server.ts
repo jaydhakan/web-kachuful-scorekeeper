@@ -1200,7 +1200,8 @@ on('GET', '/api/players/:id', ({ m }) => {
   const id = resolve(m[0]);
   if (!db.players.has(id)) throw err(404, 'not_found');
   const f = facts();
-  const b = leaderboard(f, { from: 0, to: Date.now() + DAY, minRounds: 50 });
+  // All time on bid accuracy (a tie broken by average), as the medals and seasons rank.
+  const b = leaderboard(f, { from: 0, to: Date.now() + DAY, metric: 'accuracy', minRounds: 50 });
   return {
     player: summaryOf(id, f),
     totals: statsOut(f, id, 0, Infinity),
