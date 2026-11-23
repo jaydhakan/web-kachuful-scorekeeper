@@ -433,6 +433,12 @@ describe('daily awards, seasons and wrapped', () => {
     expect(s.awards.filter((x) => x.code === 'season_sharpest')).toEqual([]);
   });
 
+  it("Wrapped's year rank is bid accuracy, not average", () => {
+    const f = buildFacts(accGames, T0 + 5 * DAY);
+    expect(wrapped(f, 'c', 2026, tz).rank).toEqual({ rank: 1, outOf: 3 });
+    expect(wrapped(f, 'a', 2026, tz).rank).toEqual({ rank: 2, outOf: 3 });
+  });
+
   it('a season crowns the champion', () => {
     const many = [
       kitGame({

@@ -151,6 +151,7 @@ export interface Wrapped {
   longestRun: number;
   achievements: number;
   topDays: { day: string; rounds: number }[];
+  /** The year's bid accuracy rank (a tie broken by average), with more than 50 rounds. */
   rank: { rank: number | null; outOf: number };
 }
 
@@ -204,7 +205,7 @@ export function wrapped(f: Facts, playerId: string, year: number, tz?: string): 
     [...rounds].sort((a, b) => a.doneAt - b.doneAt),
     (r) => r.points,
   );
-  const board = leaderboard(f, { from, to, metric: 'avgPerRound', minRounds: SEASON_MIN_ROUNDS });
+  const board = leaderboard(f, { from, to, metric: 'accuracy', minRounds: SEASON_MIN_ROUNDS });
   const me = board.rows.find((r) => r.playerId === playerId);
   return {
     year,
