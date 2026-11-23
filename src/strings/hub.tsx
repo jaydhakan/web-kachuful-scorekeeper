@@ -539,10 +539,8 @@ export const hub = {
     finished: (name: string, pts: string) => `${name} won a game${pts ? ` · ${pts}` : ''}`,
     joined: (name: string) => `${name} joined`,
     season: (m: string) => `Season ${m} closed`,
-    /** A crown that changed hands (backend-requests §6): the Kursi, a medal, the Sitara, the Legend. */
+    /** A crown that changed hands (backend-requests §6): a medal, the Sitara, the Legend. */
     crown: {
-      kursi: (to: string, from: string) =>
-        from ? `${to} took the Kursi from ${from}` : `${to} took the Kursi`,
       medal: (to: string, title: string, n = 1) =>
         n > 1 ? `${to} are the new ${title}s` : `${to} is the new ${title}`,
       sitara: (to: string, n = 1) => `${to} ${n > 1 ? 'are' : 'is'} tonight’s Sitara`,

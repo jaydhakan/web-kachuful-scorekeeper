@@ -28,20 +28,18 @@ const st = (changes: CrownChange[], bounties: GameStatus['bounties'] = []): Game
 });
 
 describe('what the crown news says', () => {
-  it('heads a Kursi taken with "Kursi chheeni!" and who took it from whom', () => {
-    expect(crownBanner(st([change('kursi', [DEV], [RIYA])]))).toEqual({
-      glyph: '🪑',
-      headline: 'Kursi chheeni!',
-      lines: ['Dev ne Riya se Kursi chheen li'],
-      kind: 'kursi',
+  it('heads a first Badshah with "Naya Badshah" alone', () => {
+    expect(crownBanner(st([change('medal1', [DEV])]))).toMatchObject({
+      headline: 'Naya Badshah: Dev!',
+      lines: [],
+      kind: 'gold',
     });
-    expect(crownBanner(st([change('kursi', [DEV])]))?.headline).toBe('Pehli Kursi!');
   });
 
-  it('puts a new Badshah first, with the Kursi, the other medals and the bounty as lines', () => {
+  it('puts a new Badshah first, with the other medals and the bounty as lines', () => {
     const b = crownBanner(
       st(
-        [change('kursi', [DEV], [RIYA]), change('medal2', [ASHA]), change('medal1', [DEV], [RIYA])],
+        [change('medal2', [ASHA]), change('medal1', [DEV], [RIYA])],
         [{ holder: RIYA, winner: DEV, amount: 40 }],
       ),
     );
@@ -49,7 +47,6 @@ describe('what the crown news says', () => {
     expect(b?.kind).toBe('gold');
     expect(b?.lines).toEqual([
       'Riya was Badshah',
-      '🪑 Kursi chheeni! Dev ne Riya se Kursi chheen li',
       '🥈 Asha is the new Wazir',
       '+40 🪙 bounty: Dev beat Riya',
     ]);
@@ -96,9 +93,9 @@ describe('crown news on another phone at the table', () => {
 
   it('shows the banner for news from the stream, drops it from the store, and a tap closes it', async () => {
     mount();
-    put(st([change('kursi', [DEV], [RIYA])]));
-    const banner = await screen.findByRole('button', { name: /Kursi chheeni!/ });
-    expect(banner).toHaveTextContent('Dev ne Riya se Kursi chheen li');
+    put(st([change('medal1', [DEV], [RIYA])]));
+    const banner = await screen.findByRole('button', { name: /Naya Badshah: Dev!/ });
+    expect(banner).toHaveTextContent('Riya was Badshah');
     expect(news().status).toEqual([]);
     fireEvent.click(banner);
     await waitFor(() => expect(screen.queryByRole('button')).toBeNull());
@@ -114,7 +111,7 @@ describe('crown news on another phone at the table', () => {
 
   it('leaves the table device’s own news alone: it already showed the takeover', async () => {
     mount();
-    put(st([change('kursi', [DEV], [RIYA])]), true);
+    put(st([change('medal1', [DEV], [RIYA])]), true);
     await act(() => Promise.resolve());
     expect(screen.queryByRole('button')).toBeNull();
     expect(news().status).toHaveLength(1);
@@ -123,11 +120,11 @@ describe('crown news on another phone at the table', () => {
   it('waits while the screen takes a bid, then plays', async () => {
     mount();
     const release = q.hold();
-    put(st([change('kursi', [DEV], [RIYA])]));
+    put(st([change('medal1', [DEV], [RIYA])]));
     await act(() => Promise.resolve());
     expect(screen.queryByRole('button')).toBeNull();
     act(release);
-    await screen.findByRole('button', { name: /Kursi chheeni!/ });
+    await screen.findByRole('button', { name: /Naya Badshah: Dev!/ });
   });
 
   it('past tonight’s crown shows the banner still comes, without the crown’s sound', async () => {
@@ -139,8 +136,8 @@ describe('crown news on another phone at the table', () => {
         <CrownNews />
       </MomentsProvider>,
     );
-    put(st([change('kursi', [DEV], [RIYA])]));
-    await screen.findByRole('button', { name: /Kursi chheeni!/ });
+    put(st([change('medal1', [DEV], [RIYA])]));
+    await screen.findByRole('button', { name: /Naya Badshah: Dev!/ });
     expect(sounds).toEqual([]);
   });
 });

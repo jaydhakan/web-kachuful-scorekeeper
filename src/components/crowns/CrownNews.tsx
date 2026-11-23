@@ -12,8 +12,8 @@ import { crownBanner, type CrownBanner } from './crownBanner';
 export const NEWS_MS = MOMENT_MAX_MS - 200;
 
 /**
- * The server's crown changes and bounties on every other phone at the table (backend-requests §6): "Kursi chheeni!",
- * "Naya Badshah", "+40 🪙 bounty". A Moment on the page's queue, so it waits while a screen takes a bid or a result
+ * The server's crown changes and bounties on every other phone at the table (backend-requests §6): "Naya Badshah",
+ * "+40 🪙 bounty". A Moment on the page's queue, so it waits while a screen takes a bid or a result
  * and never overlaps another show; the table device already showed its own (`local`), so it skips those. A tap on
  * the banner or Escape closes it; reduced motion shows it still for the same time.
  */
@@ -28,7 +28,7 @@ export function CrownNews() {
     if (!next || !key) return;
     const b = crownBanner(next);
     if (!b) return dropStatus(next.gameId);
-    const big = (b.kind === 'gold' || b.kind === 'kursi') && takeCrownShow();
+    const big = b.kind === 'gold' && takeCrownShow();
     const play = ({ signal }: MomentCtx) =>
       new Promise<void>((done) => {
         dropStatus(next.gameId);
@@ -47,13 +47,7 @@ export function CrownNews() {
       priority: big ? PRIORITY.verdict : PRIORITY.smallUnlock,
       scope: `news:${next.gameId}`,
       // Past tonight's crown shows (§13 rule 4) the banner still comes, but quietly.
-      sound: big
-        ? b.kind === 'gold'
-          ? 'crown'
-          : 'gavel'
-        : b.kind === 'bounty'
-          ? 'coin'
-          : undefined,
+      sound: big ? 'crown' : b.kind === 'bounty' ? 'coin' : undefined,
       haptic: big ? HAPTIC.BIG : undefined,
       play,
       reduced: play,

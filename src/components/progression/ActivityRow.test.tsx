@@ -42,22 +42,22 @@ const row = (a: Activity, env = envOf()) =>
 
 describe('crowns and nights in the feed', () => {
   it('keeps both: the feed leaves out only small streaks', () => {
-    expect(newsworthy(item('crown', { crown: 'kursi', from: ['r'], to: ['d'] }))).toBe(true);
+    expect(newsworthy(item('crown', { crown: 'medal1', from: ['r'], to: ['d'] }))).toBe(true);
     expect(newsworthy(item('night', { nightId: 'n1', games: 4, winner: 'r' }))).toBe(true);
   });
 
-  it('says who took the Kursi from whom, and opens the new holder', async () => {
+  it('says who took a crown, and opens the new holder', async () => {
     const env = envOf();
-    row(item('crown', { crown: 'kursi', from: ['r'], to: ['d'], defences: 0 }), env);
-    const b = screen.getByRole('button', { name: /Dev took the Kursi from Riya/ });
-    expect(b).toHaveTextContent('🪑');
+    row(item('crown', { crown: 'medal1', from: ['r'], to: ['d'], defences: 0 }), env);
+    const b = screen.getByRole('button', { name: /Dev is the new Badshah/ });
+    expect(b).toHaveTextContent('🥇');
     await userEvent.click(b);
     expect(env.openPlayer).toHaveBeenCalledWith('d');
   });
 
-  it('words a first Kursi, each medal, the Sitara and the Legend', () => {
+  it('words each medal, the Sitara, the Legend and a kind it does not know', () => {
     const lines = [
-      [{ crown: 'kursi', from: [], to: ['d'] }, 'Dev took the Kursi'],
+      [{ crown: 'kursi', from: [], to: ['d'] }, 'Dev took a crown'],
       [{ crown: 'medal1', from: ['r'], to: ['d'] }, 'Dev is the new Badshah'],
       [{ crown: 'medal3', from: [], to: ['d'] }, 'Dev is the new Senapati'],
       [{ crown: 'sitara', from: [], to: ['d', 'a'] }, 'Dev & Asha are tonight’s Sitara'],

@@ -337,7 +337,7 @@ export interface PutGameResp {
 }
 
 /** A crown (backend-requests §6): the Taj is `medal1`. */
-export type CrownKind = 'medal1' | 'medal2' | 'medal3' | 'kursi' | 'sitara' | 'legend';
+export type CrownKind = 'medal1' | 'medal2' | 'medal3' | 'sitara' | 'legend';
 
 export interface CrownChange {
   kind: CrownKind;
