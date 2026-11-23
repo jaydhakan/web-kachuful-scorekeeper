@@ -1,6 +1,6 @@
 /**
  * The table intel line at round 1's deal (REWARDS-PLAN §6.5): the most interesting fact about the people seated, from
- * the games they have finished. Pure and game-agnostic; the crown lines (medals, Kursi) come first, from the table,
+ * the games they have finished. Pure and game-agnostic; the medal lines come first, from the table,
  * then a bounty on a seated holder (§6.4), then a milestone or a rivalry.
  */
 import type { PlacedGame } from './places';
@@ -31,7 +31,7 @@ function headToHead(games: readonly PlacedGame[], a: string, b: string): (string
 }
 
 /**
- * The line for a table: a bounty when a crown holder (`holders`: the Kursi's, the Badshah) sits at a table of 3+,
+ * The line for a table: a bounty when a crown holder (`holders`: the Badshah) sits at a table of 3+,
  * else a milestone this game reaches (a player's 50th, 100th… finished game), else the most one-sided rivalry
  * between two seated players. Null when nothing is worth saying.
  */
