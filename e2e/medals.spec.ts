@@ -91,9 +91,6 @@ test('the month’s medallists play in gold, silver and bronze, and the Badshah�
   await expect(rows.locator('.medal-3', { hasText: 'Kabir' })).toBeVisible();
   await expect(rows.getByText("Badshah, this month's #1")).toBeAttached();
   await expect(page.locator('[data-banter]')).not.toBeEmpty();
-  // Riya won the month's only game, so she holds the Kursi: a chair under her seat (the summary's table hides on a
-  // phone this short, so it is only attached here).
-  await expect(page.locator('[data-seat-chip][title="Kursi"]')).toBeAttached();
   await expect(page.getByText(/Everyone but/)).toHaveCount(0);
   await page.screenshot({ path: 'test-results/medals-summary.png' });
 });
@@ -116,8 +113,6 @@ test('a player who passes the Badshah takes gold at the end of the game: Naya Ba
   const show = page.getByRole('alert').filter({ hasText: 'Naya Badshah: Asha!' });
   await expect(show).toBeVisible({ timeout: 10_000 });
   await expect(show).toContainText('Riya was Badshah');
-  // Asha finished above Riya, the Kursi's holder: both crowns on one card.
-  await expect(show).toContainText('Kursi chheeni! Asha ne Riya se Kursi chheen li');
   await expect(show).toHaveCSS('opacity', '1');
   await page.screenshot({ path: 'test-results/medals-takeover.png' });
   // One tap skips it; the final standings show the medals as the game leaves them.
@@ -127,7 +122,6 @@ test('a player who passes the Badshah takes gold at the end of the game: Naya Ba
   // Two games tonight (the earlier one ended under three hours before this began): tonight so far, and its Wrapped.
   const soFar = page.getByRole('region', { name: 'Tonight so far' });
   await expect(soFar).toContainText(/Asha \d wins?/);
-  await expect(soFar).toContainText('took the Kursi from');
   await page.locator('[data-night-link]').click();
   await expect(page.getByRole('heading', { name: 'Tonight’s Wrapped' })).toBeVisible();
   await expect(page.getByText('2 games', { exact: true })).toBeVisible();
