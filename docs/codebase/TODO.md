@@ -191,10 +191,10 @@ per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara'
 reigns, bounties, nights with Tonight's Wrapped, Sikke (wallet, ledger, levels), hidden achievements and festival days.
 About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay).
 
-- **Production, once after the first deploy (not done):** the deploy runs migrations 0023–0027 (0026 and 0027
-  remove the Kursi); then, on the server, `recompute-crowns`, `close-nights --all`, and `recompute-sikke --dry-run` before
-  `recompute-sikke` (it also pays past bounties and Sitaras). Add a systemd timer for `close-nights` every 30 minutes
-  beside `close-day` (the repo has no units). Until then crowns, nights and wallets start empty.
+- **Production: the `close-nights` timer is missing.** Done on 2026-11-23 (release `29fa8039ddfc`): migrations to
+  0027, `recompute-crowns`, `close-nights --all` (15 nights), `recompute-sikke` (30 players). Still to add on the VPS:
+  `kachuful-close-nights@.service` and `.timer` every 30 minutes, beside `close-day`'s units (the repo has no units);
+  until then nights close only when someone ends one.
 - **Kursi removal, stale night totals:** 0026 strips the Kursi from closed nights and re-sums their Sikke, but bounties
   once paid for beating a Kursi holder go only with `recompute-sikke`, after it; a closed night's stored total keeps
   them until one of its games is written again (`close-nights --all` skips stored nights). Needs a re-settle option
