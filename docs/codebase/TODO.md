@@ -22,7 +22,7 @@ The open work for this repo, in one place. Add an item when something is left un
   API client. After rewards (2026-11-21, `feat/rewards` against `main`): landing 182.3 (+12.0), phone 179.3 (+11.8),
   large screen 210.4 (+16.1), Spades 184.2 (+12.2), CSS 25.4 (+0.4). Nearly all of it is `shell-common`, which both
   Kachuful shells and React share, so the landing page loads it too: `kachuful/state/medals.tsx` (8 KB minified),
-  `fx/moments.tsx`, banter (strings and rule table), `domain/medals.ts`, `domain/night.ts`, `SeatName`, `kursi.ts`,
+  `fx/moments.tsx`, banter (strings and rule table), `domain/medals.ts`, `domain/night.ts`, `SeatName`,
   `intel.ts`. The festival dressing is lazy (`fx/ui/FestivalTableLazy.tsx`). The fix is structural: React and the
   vendor code in a chunk of their own, so the landing page stops loading Kachuful's shared code.
 
@@ -185,24 +185,25 @@ are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment 
 
 ## Rewards (merged 2026-11-21; the plan, `docs/REWARDS-PLAN.md`, is in git history)
 
-Built for Kachuful so far: medals (Badshah, Wazir, Senapati), the Kursi, Aaj ka Sitara, the Legend, banter with a
-"Table banter" switch, the chase, the end-of-game takeover, the table intel line, avatar moods, the moment budget's
-downgrade, per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card. Server side:
-crowns and reigns, bounties, nights with Tonight's Wrapped, Sikke (wallet, ledger, levels), hidden achievements and
-festival days. About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay).
+Built for Kachuful so far: medals (Badshah, Wazir, Senapati), Aaj ka Sitara, the Legend, banter with a "Table banter"
+switch, the chase, the end-of-game takeover, the table intel line, avatar moods, the moment budget's downgrade,
+per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card. Server side: crowns and
+reigns, bounties, nights with Tonight's Wrapped, Sikke (wallet, ledger, levels), hidden achievements and festival days.
+About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay). The Kursi was
+built and then removed (Jay, 2026-11-23: too many marks on every name).
 
-- **Production, once after the first deploy (not done):** the deploy runs migrations 0023–0025; then, on the server,
-  `recompute-crowns`, `close-nights --all`, and `recompute-sikke --dry-run` before `recompute-sikke` (it also pays
-  past bounties and Sitaras). Add a systemd timer for `close-nights` every 30 minutes beside `close-day` (the repo has
-  no units). Until then crowns, nights and wallets start empty.
+- **Production, once after the first deploy (not done):** the deploy runs migrations 0023–0026 (0026 removes the
+  Kursi); then, on the server, `recompute-crowns`, `close-nights --all`, and `recompute-sikke --dry-run` before
+  `recompute-sikke` (it also pays past bounties and Sitaras). Add a systemd timer for `close-nights` every 30 minutes
+  beside `close-day` (the repo has no units). Until then crowns, nights and wallets start empty.
 - **Not built (plan G5):** firsts and group milestones; they need a backend request first.
 - **Sikke tuning:** run `recompute-sikke --dry-run` on production data, then tune `LEVELS` and the prices (re-export
   `contract/fixtures/sikke-rules.json` and copy it to the backend's `tests/fixtures`).
 
 - **Not checked on a real phone or with motion on frame by frame** (e2e covers presence, reduced motion).
-- **Other games:** medals, Kursi, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
-  real night with Kachuful. The Kursi rule is game-agnostic (`src/progression/kursi.ts`, teams included).
-- **Live page:** a signed-in spectator sees the medals and the Kursi on the standings; banter isn't shown, and a
+- **Other games:** medals, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
+  real night with Kachuful.
+- **Live page:** a signed-in spectator sees the medals on the standings; banter isn't shown, and a
   signed-out spectator sees none (`GET /api/medals` needs a sign-in; a public read would be a backend request).
 - **Stat crowns (§6.2):** live under the name on Kachuful's player page only; the other games' player pages have no
   progression env yet.
@@ -212,17 +213,17 @@ festival days. About 81% of the plan's in-scope work; the Wardrobe (G4) and the 
 - **Crown news (backend-requests §6), app side:** the banner on the other phones (`components/crowns/CrownNews.tsx`),
   bounty chips on Kachuful's winner screen, crown and night rows in the feed, and round 1's "Beat Riya: +40 🪙".
   Seen in a browser on the mock (2026-11-21): the winner screen's chip and round 1's line at 390×844. Without an e2e:
-  the chips and the line (unit tests only), the banner in the three other themes and on a tablet or laptop. The mock sends Kursi changes and bounties only (no medal, Sitara or
-  Legend changes), and the crown banner and the invite banner share the top of the screen (the crown one is above).
+  the chips and the line (unit tests only), the banner in the three other themes and on a tablet or laptop. The mock
+  sends medal changes and the Badshah's bounties only (no Sitara or Legend changes), and the crown banner and the invite banner share the top of the screen (the crown one is above).
 - **Moment budget (§13):** a second tap finishing a beat sequence is built only where it was (Kachuful's summary);
   the other sequences are under a second. Everything else in §13 is built (holds, round cap, cooldown, crown cap).
 - **Sikke (G3):** the wallet on Me and the player page, the ledger sheet, and "+🪙" on every game's winner screen
   (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
   Kachuful only (finish, win, achievements).
 - **Kachuful PUT over budget (backend `make perf`, 2026-11-21):** p95 254 ms against 120 on the 5,000-game load set
-  (was 438). Per-round PUTs are ~21 ms; a game's end replays the whole Kursi chain and bounties (`_rewards` in
-  `services/games.py`), which grows with ended games (~5% of this at 500). Left for now (Jay); the fix is a fast path
-  that steps the stored Kursi forward when the ended game is the newest, with a parity test against the replay.
+  (was 438), measured while a game's end also replayed the Kursi chain, since removed. Per-round PUTs are ~21 ms; a
+  game's end replays bounties (`_rewards` in `services/games.py`), which grows with ended games. Re-run `make perf`;
+  if still over, the fix is a fast path for the newest ended game, with a parity test against the replay.
 - **Nights (backend-requests §7), app side:** the server's Wrapped on `NightPage` (`?open=night&id=`), Your nights
   with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
   table. `e2e/rewards-responsive.spec.ts` covers them on phones, a tablet and a laptop. `e2e/nights.spec.ts` skips on a
