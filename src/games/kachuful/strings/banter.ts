@@ -3,12 +3,11 @@ import type { BanterKind, Mark } from '@/games/kachuful/domain';
 
 type Line = (who: string, other: string) => string;
 
-/** How a holder is named in a line: their title, or the Kursi/Sitara's own phrase. */
+/** How a holder is named in a line: their title, or the Sitara's own phrase. */
 export const markName: Record<Mark, (name: string) => string> = {
   gold: (n) => `Badshah ${n}`,
   silver: (n) => `Wazir ${n}`,
   bronze: (n) => `Senapati ${n}`,
-  kursi: (n) => `Kursi wale ${n}`,
   sitara: (n) => `Aaj ka Sitara ${n}`,
   legend: (n) => `Legend ${n}`,
 };
@@ -65,21 +64,8 @@ const gold: Partial<Record<BanterKind, Line[]>> = {
   ],
 };
 
-/** Lines about the Kursi, Sitara and Legend once those marks ship; the medals' `passed` line. */
+/** Lines about the Sitara and the Legend; the medals' `passed` line. */
 const others: Partial<Record<Mark, Partial<Record<BanterKind, Line[]>>>> = {
-  kursi: {
-    soleMiss: [
-      () => 'Kursi pe baithe baithe so gaye?',
-      (w) => `Sab ne kiya, ${w} ki Kursi hil gayi`,
-    ],
-    outbid: [(_w, o) => `${o} ki nazar Kursi pe hai 👀`, (_w, o) => `${o} Kursi ke kareeb`],
-    missTwice: [() => 'Kursi ki taangein hil rahi hain', (w) => `${w}, Kursi sambhalo`],
-    miss: [() => 'Kursi hil rahi hai 🪑', () => 'Kursi thodi dheeli lag rahi hai'],
-    hooked: [() => 'Hook ne Kursi ko bhi kheencha 🪝', () => 'Kursi pe hook 🪝'],
-    bigMake: [() => 'Kursi pakki', () => 'Kursi pe jam ke baithe hain 🪑'],
-    soleMake: [() => 'Kursi wale hi bache', () => 'Ek Kursi, ek hi khiladi'],
-    nilMake: [() => 'Kursi pe chupchaap', () => 'Zero se Kursi bachi'],
-  },
   sitara: {
     soleMiss: [() => 'Aaj ka Sitara thoda dhundhla', () => 'Sitare pe baadal ☁️'],
     outbid: [(_w, o) => `${o} chamak rahe hain ✨`, (_w, o) => `${o} ki roshni tez hai`],

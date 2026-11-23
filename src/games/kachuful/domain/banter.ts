@@ -3,8 +3,8 @@ import { doneRounds } from './rounds';
 import { totals } from './scoring';
 import type { Game, Round } from './types';
 
-/** What a seated player holds; the medals now, the Kursi, Sitara and Legend once they ship. */
-export type Mark = 'gold' | 'silver' | 'bronze' | 'kursi' | 'sitara' | 'legend';
+/** What a seated player holds: a medal, Aaj ka Sitara or the Legend. */
+export type Mark = 'gold' | 'silver' | 'bronze' | 'sitara' | 'legend';
 
 export type BanterKind =
   | 'soleMiss'
@@ -26,8 +26,8 @@ export interface Banter {
   otherMark?: Mark;
 }
 
-/** Who a line is about, first to last: the Badshah before the Kursi before the Sitara (§6.7 part 7). */
-const SUBJECTS: readonly Mark[] = ['gold', 'kursi', 'sitara', 'legend'];
+/** Who a line is about, first to last: the Badshah before the Sitara before the Legend (§6.7 part 7). */
+const SUBJECTS: readonly Mark[] = ['gold', 'sitara', 'legend'];
 const MEDAL: Partial<Record<Mark, number>> = { gold: 1, silver: 2, bronze: 3 };
 /** A Legend only hears the respectful lines. */
 const RESPECTFUL: ReadonlySet<BanterKind> = new Set(['bigMake', 'soleMake']);

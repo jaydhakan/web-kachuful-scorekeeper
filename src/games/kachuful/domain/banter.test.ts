@@ -161,9 +161,9 @@ describe('banter about the Badshah', () => {
 });
 
 describe('the other marks', () => {
-  it('puts the Badshah before the Kursi', () => {
+  it('puts the Badshah before the Sitara', () => {
     const marks = new Map<string, Mark>([
-      ['p1', 'kursi'],
+      ['p1', 'sitara'],
       ['p0', 'gold'],
     ]);
     const g = play(3, [
