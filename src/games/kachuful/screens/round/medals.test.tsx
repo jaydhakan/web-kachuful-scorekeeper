@@ -10,16 +10,18 @@ import { Summary } from './Summary';
 const MONTH = monthOf(Date.now());
 const [from] = monthRange(MONTH);
 
+/** A board row ranked on bid accuracy (`value`, 0–1), at 10 points a round. */
 const row = (playerId: string, rank: number | null, value: number, rounds = 60): MedalRow => ({
   playerId,
   rank,
   qualified: rank != null,
   value,
-  points: Math.round(value * rounds),
+  accuracy: value,
+  points: 10 * rounds,
   rounds,
 });
 
-/** Riya (gold) is the only one of four to miss; Asha, 45 rounds at 30 a round, qualifies on this game. */
+/** Riya (gold) is the only one of four to miss; Asha, 50 rounds with every bid made, qualifies on this game. */
 function setup() {
   const g = kitGame({
     id: 'md',
@@ -30,11 +32,11 @@ function setup() {
   });
   g.rounds.pop();
   g.ui = { view: 'summary', bidIdx: 0 };
-  // Asha has 50 rounds at 30 a round: this game's round qualifies her, at the top.
+  // Asha has made all 50 of her bids: this game's round qualifies her, at the top.
   const base = {
     month: MONTH,
     minRounds: 50,
-    rows: [row('R', 1, 10), row('D', 2, 9), row('K', 3, 8), row('A', null, 30, 50)],
+    rows: [row('R', 1, 0.9), row('D', 2, 0.85), row('K', 3, 0.8), row('A', null, 1, 50)],
     last: [],
   };
   const value = tableMedals(g, base);

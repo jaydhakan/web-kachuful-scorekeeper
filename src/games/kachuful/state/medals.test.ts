@@ -6,12 +6,14 @@ import { tableMedals } from './medals';
 const MONTH = '2026-11';
 const [from] = monthRange(MONTH);
 
+/** A board row ranked on bid accuracy (`value`, 0–1), at 10 points a round. */
 const row = (playerId: string, rank: number | null, value: number, rounds = 60): MedalRow => ({
   playerId,
   rank,
   qualified: rank != null,
   value,
-  points: Math.round(value * rounds),
+  accuracy: value,
+  points: 10 * rounds,
   rounds,
 });
 
@@ -57,7 +59,7 @@ function game(rounds: [riya: boolean, dev: boolean, asha: boolean, ashaBid?: num
 const base = {
   month: MONTH,
   minRounds: 50,
-  rows: [row('R', 1, 10), row('D', 2, 9), row('K', 3, 8), row('A', null, 30, 45)],
+  rows: [row('R', 1, 0.9), row('D', 2, 0.85), row('K', 3, 0.8), row('A', null, 1, 45)],
   last: [],
 };
 
@@ -72,7 +74,7 @@ describe('the table medals', () => {
   });
 
   it("projects Asha into gold once she qualifies on this game's rounds, and cracks Riya's", () => {
-    // Asha: 45 rounds at 30 a round, then 6 made 3-bids (+30 each): 51 rounds, qualified at 30.
+    // Asha: 45 rounds, every bid made, then 6 more made: 51 rounds, qualified with every bid made.
     const t = tableMedals(game(Array.from({ length: 6 }, () => [false, true, true, 3])), base);
     expect(t.after.get('s2')?.medal).toBe(1);
     expect(t.chase.onTrack.get('s2')).toBe(1);
@@ -104,7 +106,7 @@ describe('Aaj ka Sitara and the Legend at the table', () => {
   it('marks the Legend, and gives the Sitara a mark for the banter when they hold nothing else', () => {
     const t = tableMedals(game([]), {
       ...base,
-      rows: [row('R', 1, 10), row('K', 2, 9), row('Z', 3, 8)],
+      rows: [row('R', 1, 0.9), row('K', 2, 0.85), row('Z', 3, 0.8)],
       today: { day, games: 2, points: new Map([['A', 50]]) },
       champions: ['R', 'A', 'R'],
     });
@@ -137,7 +139,7 @@ describe('the bounty line at round 1 (§6.4)', () => {
   });
 
   it('says nothing when no holder sits, or at a table of two', () => {
-    const none = tableMedals(game([]), { ...base, rows: [row('K', 1, 10)] });
+    const none = tableMedals(game([]), { ...base, rows: [row('K', 1, 0.9)] });
     expect(none.bounty).toBeNull();
     const two = game([]);
     two.players = two.players.slice(0, 2);

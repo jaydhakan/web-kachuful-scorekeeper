@@ -101,7 +101,8 @@ const unrow = (r: LeaderboardRow): MedalRow => ({
   playerId: r.player.id,
   rank: r.rank,
   qualified: r.qualified,
-  value: r.value,
+  value: r.accuracy,
+  accuracy: r.accuracy,
   points: r.points,
   rounds: r.rounds,
 });

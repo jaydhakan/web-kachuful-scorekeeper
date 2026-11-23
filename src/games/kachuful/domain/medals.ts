@@ -1,5 +1,5 @@
 /** The board's top three as medals at the table: Badshah, Wazir, Senapati (REWARDS-PLAN §6.7). */
-import { avgOf, rankRows } from './leaderboard';
+import { accuracyOf, rankRows } from './leaderboard';
 import { roundFacts } from './timeline';
 import { standings } from './standings';
 import type { Game } from './types';
@@ -15,11 +15,13 @@ export interface Holder {
 /** Medals by player id (the board's ids: `pidOf`). */
 export type Medals = ReadonlyMap<string, Holder>;
 
+/** A row of the month's board, ranked on bid accuracy (`value`). */
 export interface MedalRow {
   playerId: string;
   rank: number | null;
   qualified: boolean;
   value: number;
+  accuracy: number;
   points: number;
   rounds: number;
 }
@@ -38,16 +40,17 @@ export function medalsOf(now: readonly Ranked[], last: readonly Ranked[]): Medal
   );
 }
 
-export type Tallies = ReadonlyMap<string, { points: number; rounds: number }>;
+export type Tallies = ReadonlyMap<string, { points: number; rounds: number; made: number }>;
 
-/** Each player's points and rounds from one game's rounds done in [from, to). */
+/** Each player's points, rounds and bids made from one game's rounds done in [from, to). */
 export function gameTallies(g: Game, from: number, to: number): Tallies {
-  const out = new Map<string, { points: number; rounds: number }>();
+  const out = new Map<string, { points: number; rounds: number; made: number }>();
   for (const r of roundFacts(g)) {
     if (r.doneAt < from || r.doneAt >= to) continue;
-    const t = out.get(r.playerId) ?? { points: 0, rounds: 0 };
+    const t = out.get(r.playerId) ?? { points: 0, rounds: 0, made: 0 };
     t.points += r.points;
     t.rounds++;
+    if (r.outcome === 'made') t.made++;
     out.set(r.playerId, t);
   }
   return out;
@@ -62,19 +65,23 @@ export function project(base: readonly MedalRow[], add: Tallies, minRounds: numb
       rank: null,
       qualified: false,
       value: 0,
+      accuracy: 0,
       points: 0,
       rounds: 0,
     };
+    // The board sends a share, not a count; made bids are a whole number, so rounding recovers it exactly.
+    const made = Math.round(r.accuracy * r.rounds) + t.made;
     r.points += t.points;
     r.rounds += t.rounds;
+    r.accuracy = accuracyOf({ made, rounds: r.rounds });
     rows.set(playerId, r);
   }
   for (const r of rows.values()) {
     if (!add.has(r.playerId)) continue;
-    r.value = avgOf(r);
+    r.value = r.accuracy;
     r.qualified = r.rounds > minRounds;
   }
-  return rankRows([...rows.values()]);
+  return rankRows([...rows.values()], 'accuracy');
 }
 
 export interface MedalChase {
