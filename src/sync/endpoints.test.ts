@@ -269,6 +269,18 @@ describe('boards and ETags', () => {
     });
   });
 
+  it('the leaderboard sends minRounds, minGames and limit only when given', async () => {
+    const calls = serve(200, { rows: [], minRounds: 50, generatedAt: 0 });
+    await ep.leaderboard(1, 2, 'accuracy');
+    await ep.leaderboard(1, 2, 'accuracy', undefined, { minRounds: 50 });
+    await ep.leaderboard(0, 2, 'rounds', undefined, { minGames: 3, limit: 5 });
+    expect(calls().map((c) => c[0])).toEqual([
+      '/api/leaderboard?from=1&to=2&metric=accuracy',
+      '/api/leaderboard?from=1&to=2&metric=accuracy&minRounds=50',
+      '/api/leaderboard?from=0&to=2&metric=rounds&minGames=3&limit=5',
+    ]);
+  });
+
   it('awards carry a null game except for day_bang and day_ouch', async () => {
     serve(200, {
       date: '2026-10-31',

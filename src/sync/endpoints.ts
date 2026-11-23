@@ -185,13 +185,14 @@ export const ep = {
     to: number,
     metric: Metric,
     o?: CallOpts,
-    trim?: { minGames?: number; limit: number },
+    q?: { minRounds?: number; minGames?: number; limit?: number },
   ) =>
     call<Leaderboard>(
       'GET',
       `/leaderboard?from=${from}&to=${to}&metric=${metric}` +
-        (trim?.minGames ? `&minGames=${trim.minGames}` : '') +
-        (trim ? `&limit=${trim.limit}` : ''),
+        (q?.minRounds != null ? `&minRounds=${q.minRounds}` : '') +
+        (q?.minGames ? `&minGames=${q.minGames}` : '') +
+        (q?.limit != null ? `&limit=${q.limit}` : ''),
       undefined,
       o,
     ),
