@@ -249,6 +249,25 @@ function build() {
     );
   }
   add('set-month', setFixture('two weeks of five players, plus two games the month before', month));
+
+  // Titles rank by bid accuracy: ana averages most but cy and fay make every bid (level on average too, so they
+  // share 1st); dee and eli make half, and dee's average breaks their tie.
+  const acc = (k: number, players: string[], winners: (i: number) => number[]) =>
+    g({
+      id: `40000000-0000-4000-8000-${String(k).padStart(12, '0')}`,
+      players,
+      start: T0 + (k % 2) * 864e5 + Math.floor(k / 2) * 120 * MIN,
+      rounds: rows(3, 30, winners),
+      finished: true,
+    });
+  const titles = [0, 1].flatMap((k) => [
+    acc(k, ['ana', 'ben', 'cy'], (i) => (i % 3 ? [0, 2] : [1, 2])),
+    acc(k + 2, ['dee', 'eli', 'fay'], (i) => (i % 2 ? [0, 2] : [1, 2])),
+  ]);
+  add(
+    'set-accuracy',
+    setFixture('bid accuracy ranks the month; an accuracy tie breaks on average', titles),
+  );
   return out;
 }
 
