@@ -22,7 +22,6 @@ import type {
   HeadToHead,
   Leaderboard,
   LiveResp,
-  KursiResp,
   PlacesResp,
   MedalsResp,
   GameSikkeResp,
@@ -209,9 +208,6 @@ export const ep = {
   /** Kachuful's medals as they stood before `excludeGame` (the game at the table). */
   medals: (excludeGame: string, o?: CallOpts) =>
     call<MedalsResp>('GET', '/medals' + query({ excludeGame }), undefined, o),
-  /** Kachuful's Kursi as it stood before `excludeGame`. */
-  kursi: (excludeGame: string, o?: CallOpts) =>
-    call<KursiResp>('GET', '/kursi' + query({ excludeGame }), undefined, o),
   // Sikke (rewards plan §9)
   sikke: (id: string, o?: CallOpts) => call<SikkeResp>('GET', `/players/${id}/sikke`, undefined, o),
   sikkeEntries: (id: string, cursor: string | null) =>

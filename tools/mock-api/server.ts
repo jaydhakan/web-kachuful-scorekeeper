@@ -29,6 +29,7 @@ import {
   wrapped,
   doneRounds,
   placedGames,
+  medalsOf,
   nightOf,
   NIGHT_GAP_MS,
   sitaraOf,
@@ -96,7 +97,6 @@ import {
   spadesSeatKind,
 } from './spadesOnline';
 import { GAME_MOCKS, type GameMock, type MockCtx } from './progression/index';
-import { kursiFrom } from '../../src/progression/kursi';
 import { achievementSikke, levelOf, SIKKE } from '../../src/progression/sikke';
 import { dayRange as dayRangeIn, monthRange as monthRangeIn } from '../../src/progression/zone';
 import type { GameId } from '../../src/progression/types';
@@ -1300,7 +1300,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
   const v = validate({ ...w, syncId: key }, Date.now());
   if (!v.ok) throw err(422, 'invalid_game', { reason: v.reason, roundIndex: v.roundIndex ?? null });
   const wasEnded = prev ? gameEndedAt(fromWire(prev), Date.now()).at != null : false;
-  const chairBefore = kursiFrom(placedGames(facts())).kursi;
+  const medalsBefore = medalHolders(facts());
   store(w, me!.id, Date.now());
   const earned = recompute();
   const rec = db.games.get(key)!;
@@ -1328,7 +1328,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
     },
     w.rev,
   );
-  const status = statusOf(chairBefore, key);
+  const status = statusOf(medalsBefore, key);
   if (status.changes.length || status.bounties.length)
     for (const u of db.users.values())
       if (u.playerId && w.players.some((p) => p.playerId === u.playerId))
@@ -1782,7 +1782,7 @@ on('GET', '/api/seasons/:m', ({ m, url }) => {
     awards: awardsOut(f, s.awards),
   };
 });
-/** The month, tonight and the chair as the real API gives them: without the game at the table (REWARDS-PLAN §6). */
+/** The month and tonight as the real API gives them: without the game at the table (REWARDS-PLAN §6). */
 const factsWithout = (gameId: string | null) => {
   const f = facts();
   if (!gameId) return f;
@@ -1819,46 +1819,38 @@ on('GET', '/api/medals', ({ url }) => {
     },
   };
 });
-on('GET', '/api/kursi', ({ url }) => {
-  const f = factsWithout(url.searchParams.get('excludeGame'));
-  const { kursi, reigns } = kursiFrom(placedGames(f));
-  const out = <K extends { holders: string[] }>(k: K) => ({
-    ...k,
-    holders: k.holders.map((id) => summaryOf(id, f)),
-  });
-  const longest = reigns.reduce<(typeof reigns)[number] | null>(
-    (b, r) => (!b || r.defences > b.defences ? r : b),
-    null,
-  );
-  return { kursi: kursi && out(kursi), longest: longest && out(longest) };
-});
 on('GET', '/api/places', ({ url }) => {
   const f = factsWithout(url.searchParams.get('excludeGame'));
   return { games: placedGames(f).sort((a, b) => b.endedAt - a.endedAt) };
 });
-// Crowns and nights (backend-requests §6, §7), the Kursi's part only: medals, the Sitara and the Legend are left to
-// the real server. Bounties are the Kursi's: whoever finished above the holder, once per holder a week.
-type Chair = ReturnType<typeof kursiFrom>['kursi'];
+// Crowns (backend-requests §6), the medals' part only: the Sitara and the Legend are left to the real server.
+// Bounties are the Taj's: whoever finished above the Badshah at a table of 3+, once per holder (a week, there).
+const MEDALS = ['medal1', 'medal2', 'medal3'] as const;
+type Held = Record<(typeof MEDALS)[number], string[]>;
+function medalHolders(f: Facts): Held {
+  const month = monthOf(Date.now(), TZ);
+  const [pf] = monthRangeIn(month, TZ);
+  const m = medalsOf(season(f, month, TZ).standings, season(f, monthOf(pf - 1, TZ), TZ).standings);
+  const of = (n: 1 | 2 | 3) => [...m].filter(([, h]) => h.medal === n).map(([id]) => id);
+  return { medal1: of(1), medal2: of(2), medal3: of(3) };
+}
 const sameIds = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((x) => b.includes(x));
-function statusOf(before: Chair, gameId: string) {
+function statusOf(before: Held, gameId: string) {
   const f = facts();
-  const after = kursiFrom(placedGames(f)).kursi;
-  const changes =
-    after && !sameIds(before?.holders ?? [], after.holders)
-      ? [
-          {
-            kind: 'kursi' as const,
-            from: (before?.holders ?? []).map((id) => summaryOf(id, f)),
-            to: after.holders.map((id) => summaryOf(id, f)),
-            defences: after.defences,
-          },
-        ]
-      : [];
+  const after = medalHolders(f);
+  const changes = MEDALS.filter((k) => after[k].length && !sameIds(before[k], after[k])).map(
+    (kind) => ({
+      kind,
+      from: before[kind].map((id) => summaryOf(id, f)),
+      to: after[kind].map((id) => summaryOf(id, f)),
+      defences: 0,
+    }),
+  );
   const g = placedGames(f).find((x) => x.gameId === gameId);
   const bounties: { holder: PlayerSummary; winner: PlayerSummary; amount: number }[] = [];
-  if (g && before && g.seats.length >= 3)
-    for (const h of before.holders) {
+  if (g && g.seats.length >= 3)
+    for (const h of before.medal1) {
       const held = g.seats.find((x) => x.playerId === h);
       if (!held) continue;
       for (const x of g.seats)
@@ -1883,42 +1875,20 @@ function statusOf(before: Chair, gameId: string) {
 }
 on('GET', '/api/crowns', () => {
   const f = facts();
-  const { kursi } = kursiFrom(placedGames(f));
-  const none = (kind: string) => ({ kind, holders: [], since: null, sinceGame: null, defences: 0 });
+  const held = medalHolders(f);
+  const item = (kind: string, ids: string[] = []) => ({
+    kind,
+    holders: ids.map((id) => summaryOf(id, f)),
+    since: null,
+    sinceGame: null,
+    defences: 0,
+  });
   return {
-    items: [
-      ...['medal1', 'medal2', 'medal3'].map(none),
-      kursi
-        ? {
-            kind: 'kursi',
-            holders: kursi.holders.map((id) => summaryOf(id, f)),
-            since: kursi.since,
-            sinceGame: kursi.sinceGame,
-            defences: kursi.defences,
-          }
-        : none('kursi'),
-      none('sitara'),
-      none('legend'),
-    ],
+    items: [...MEDALS.map((k) => item(k, held[k])), item('sitara'), item('legend')],
   };
 });
-on('GET', '/api/crowns/reigns', ({ url }) => {
-  const f = facts();
-  const { reigns } = kursiFrom(placedGames(f));
-  const list = (url.searchParams.get('kind') === 'kursi' ? reigns : [])
-    .filter((r): r is typeof r & { until: number } => r.until != null)
-    .map((r) => ({
-      kind: 'kursi',
-      holders: r.holders.map((id) => summaryOf(id, f)),
-      since: r.since,
-      until: r.until,
-      defences: r.defences,
-    }))
-    .sort((a, b) =>
-      url.searchParams.get('sort') === 'defences' ? b.defences - a.defences : b.until - a.until,
-    );
-  return page(list, url.searchParams.get('cursor'), 50);
-});
+// No reigns here: the mock keeps no crown history.
+on('GET', '/api/crowns/reigns', ({ url }) => page([], url.searchParams.get('cursor'), 50));
 /** Every night: ended games with gaps of three hours or less (one table here, so no grouping by players). */
 function nightsOf(f: Facts) {
   const ended = f.games.filter((g) => g.endedAt != null).sort((a, b) => a.endedAt! - b.endedAt!);
@@ -2010,7 +1980,7 @@ on('POST', '/api/nights/close', ({ me }) => {
   });
   return { id: open.id };
 });
-// Sikke (REWARDS-PLAN §9), Kachuful's games only here: finishes, wins and achievements; no cap, Kursi or streak.
+// Sikke (REWARDS-PLAN §9), Kachuful's games only here: finishes, wins and achievements; no cap or streak.
 interface MockSikke {
   id: string;
   playerId: string;
