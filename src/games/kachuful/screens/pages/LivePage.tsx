@@ -13,9 +13,8 @@ import { playCue } from '@/fx/feedback';
 import { useLiveSound } from '@/games/kachuful/sound/hooks';
 import { archive } from '@/state/archive';
 import { useApp } from '@/games/kachuful/state/store';
-import { MedalsValue, useMedalOf, useMedals, useMedalsFor } from '@/games/kachuful/state/medals';
+import { MedalsValue, useMedalOf, useMedalsFor } from '@/games/kachuful/state/medals';
 import { MedalName } from '@/components/ui/MedalName';
-import { kursi as k } from '@/strings/kursi';
 import { ApiError } from '@/sync/api';
 import { fromWire } from '@/games/kachuful/sync/engine';
 import { ep } from '@/sync/endpoints';
@@ -87,7 +86,7 @@ function OpenApp() {
   );
 }
 
-/** The table's medals and Kursi for a signed-in spectator (REWARDS-PLAN §6.7); signed out, none. */
+/** The table's medals for a signed-in spectator (REWARDS-PLAN §6.7); signed out, none. */
 function LiveMedals({
   g,
   signedIn,
@@ -103,7 +102,7 @@ function LiveMedals({
 
 /**
  * Standings that move as rounds land: changed totals pulse, rows slide to their new place. Inside a medals scope a
- * name carries its medal and the Kursi's chair.
+ * name carries its medal.
  */
 export function LiveStandings({
   g,
@@ -117,7 +116,6 @@ export function LiveStandings({
   const rm = useReducedMotion();
   const st = standings(g);
   const medalOf = useMedalOf();
-  const chair = useMedals().kursi?.seats;
   return (
     <ol className="flex flex-col gap-2">
       {st.map((s) => (
@@ -136,11 +134,6 @@ export function LiveStandings({
             className={`min-w-0 flex-1 font-bold [overflow-wrap:anywhere] ${big ? 'text-30' : 'text-17'}`}
           >
             <MedalName name={s.p.name} {...medalOf(s.p.id)} />
-            {chair?.includes(s.p.id) && (
-              <span role="img" aria-label={k.badge} className="ml-1.5">
-                {k.glyph}
-              </span>
-            )}
           </span>
           {aside?.(s.p)}
           <m.span

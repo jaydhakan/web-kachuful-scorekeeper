@@ -12,13 +12,11 @@ describe('the live standings', () => {
     start: Date.now() - 600e3,
   });
 
-  it("carry the table's medals and the Kursi's chair for a spectator", () => {
-    const riya = g.players[0].id,
-      dev = g.players[1].id;
+  it("carry the table's medals for a spectator", () => {
+    const riya = g.players[0].id;
     const value = {
       ...NO_MEDALS,
       held: new Map([[riya, { medal: 1 as const, defending: false }]]),
-      kursi: { seats: [dev], defences: 2 },
     };
     const { container } = render(
       <MedalsValue value={value}>
@@ -26,8 +24,7 @@ describe('the live standings', () => {
       </MedalsValue>,
     );
     expect(container.querySelector('.medal-1')).toHaveTextContent('Riya');
-    const devRow = screen.getByText('Dev').closest('li')!;
-    expect(devRow.querySelector('[role="img"]')).toBeInTheDocument();
+    expect(screen.getByText('Dev').closest('li')!.querySelector('[class*="medal-"]')).toBeNull();
   });
 
   it('are plain names with no medals scope', () => {
