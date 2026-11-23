@@ -1,7 +1,6 @@
 import { MedalName } from '@/components/ui/MedalName';
 import { useMedalOf, useMedals } from '@/games/kachuful/state/medals';
 import { medals } from '@/strings/medals';
-import { kursi } from '@/strings/kursi';
 
 /**
  * A seated player's name with their month's medal, if they hold one (REWARDS-PLAN §6.7). `chase` adds the
@@ -23,7 +22,6 @@ export function SeatName({
   const { mark, slipping } = useMedalOf(after)(id);
   const t = useMedals();
   const track = t.chase.onTrack.get(id);
-  const near = !track && t.kursiChasers.has(id);
   const star = t.sitara.now.has(id),
     legend = t.legend.has(id);
   return (
@@ -48,15 +46,6 @@ export function SeatName({
         >
           <span aria-hidden>{medals.onTrack(track)}</span>
           <span className="sr-only">{medals.onTrackSr(p.name, track)}</span>
-        </span>
-      )}
-      {chase && near && (
-        <span
-          data-near-kursi
-          className="ml-1.5 inline-block whitespace-nowrap rounded-full border border-current px-1.5 align-middle text-13 font-bold leading-5 text-[var(--tx2)]"
-        >
-          <span aria-hidden>{kursi.near}</span>
-          <span className="sr-only">{kursi.nearSr(p.name)}</span>
         </span>
       )}
     </>
