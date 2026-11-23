@@ -100,7 +100,10 @@ export const achievements: Record<string, Entry> = {
   day_sharp: { name: 'Sharpest', how: 'Best bid accuracy that day (10+ rounds)' },
   day_grinder: { name: 'Grinder', how: 'Most rounds played that day' },
   day_hooked: { name: 'Most hooked', how: 'Most hook attempts as dealer that day' },
-  season_champion: { name: 'Season champion', how: 'Top of the month (more than 50 rounds)' },
+  season_champion: {
+    name: 'Season champion',
+    how: 'Best bid accuracy of the month (more than 50 rounds)',
+  },
   season_runner_up: { name: 'Runner-up', how: 'Second for the month' },
   season_third: { name: 'Third place', how: 'Third for the month' },
   season_sharpest: { name: 'Sharpest of the season', how: 'Best bid accuracy of the month' },
