@@ -231,6 +231,10 @@ About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gift
   with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
   table. `e2e/rewards-responsive.spec.ts` covers them on phones, a tablet and a laptop. `e2e/nights.spec.ts` skips on a
   reused mock server once tonight was ended (every recent game joins that night).
+- **Titles rank by accuracy (2026-11-23), open points for Jay:** "Sharpest of the season" now always goes to the
+  champion (same accuracy, same qualification): drop it or change what it measures. The Leaderboard's "This month"
+  qualifies players with `minRoundsFor(range)`, not the medals' 50 rounds, so its #1 can differ from the Badshah for
+  someone between the two. Wrapped's year rank and the player page's all-time rank still use points per round.
 - **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
 - **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
 
