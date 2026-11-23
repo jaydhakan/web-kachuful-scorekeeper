@@ -20,6 +20,8 @@ what the app does. Copy `fixtures/` into the backend's `tests/fixtures/`.
 - `set-month.json`: `{kind: 'set', tz, now, games, expect}` with `leaderboard` (every metric × Today, Last 7 days,
   This month, Last month, All time, around 2026-10-11 in Kolkata), `daily` awards for three days, two `season`s,
   `career` achievements and every achievement of the set.
+- `set-accuracy.json`: the same shape, for titles ranked on bid accuracy: the best average is not the champion, two
+  players level on accuracy and average share 1st, and two level on accuracy only are split by average.
 
 Row field names are the app's (`playerId`, `roundIndex`, `runHot`, …); the server's columns are their snake_case.
 A player without a registry id would be `name:<name key>`; every fixture player has one.
@@ -33,7 +35,8 @@ Tell Jay if any of these should change; both sides must agree.
 - **Leaderboard `games`** = games with a round done in the range; **`wins`/`winRate`** use games _ended_ in the
   range. A player appears when they have a round or an ended game in the range.
 - **Ordering** among equal values: points, then rounds (both descending), then `playerId` ascending.
-  Qualified rows always come before unqualified ones.
+  Qualified rows always come before unqualified ones. On `accuracy`, an equal value is first broken by average
+  points per round (descending); two rows share a rank only when both are equal. Other metrics share on the value.
 - **`rankDelta`** = previous rank − current rank (positive = moved up), against `[from − (to − from), from)`;
   null when unranked in either window. All time has no previous window.
 - **Comeback:** last (ties included) after some round at or past halfway, _not counting the final round_, then won.
@@ -47,7 +50,8 @@ Tell Jay if any of these should change; both sides must agree.
 - **Daily:** Player of the day needs points > 0; Round of the day > 0 and Ouch of the day < 0 (earliest round wins a
   tie, players by id); Hot hand and Ice bucket need a run of at least 3; Most hooked at least 1; Sharpest at least
   10 rounds. Other ties earn together.
-- **Season:** standings are the leaderboard for the month with `minRounds` 50 (strictly more). Sharpest also needs
+- **Season:** standings are the `accuracy` leaderboard for the month with `minRounds` 50 (strictly more); so is
+  last month's board for Climber. Seasons the server closed before 2026-11 keep their points-per-round standings. Sharpest also needs
   30 rounds; Iron = most games; Climber = biggest positive rise against last month, qualified in both.
 
 ## Kaali Teeri (`kt-*`)

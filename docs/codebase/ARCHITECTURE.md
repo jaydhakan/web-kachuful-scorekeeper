@@ -59,13 +59,13 @@ Dependencies point downward only: `domain` imports nothing from the UI; `state` 
 ## Achievements and awards
 
 Every game plugs into `src/progression/registry.ts`: its catalogue, strings, ladders, how its seasons rank (Kachuful
-on points per round, the others on win rate) and, for a game scored on the device, `device` rules over its facts.
-Each game's rules live in its `domain/achievements.ts` and `awards.ts`; the backend mirrors them and checks parity
-with golden fixtures the app writes (`EXPORT_FIXTURES=1`, see the backend's `tests/fixtures/VERSION.md`). Signed in,
-the pages read the server (`?game=`); signed out, Kachuful, Kaali Teeri and the Spades scorekeeper work it out on the
-device, and Ishaara and online Spades show nothing. Live moments pop as a hand or turn ends (Spades online and
-Ishaara from the public state, so every phone shows the same). The Me page counts each game's achievements and
-shows every game's feed (`?game=all`).
+on bid accuracy, ties on points per round; the others on win rate) and, for a game scored on the device, `device`
+rules over its facts. Each game's rules live in its `domain/achievements.ts` and `awards.ts`; the backend mirrors
+them and checks parity with golden fixtures the app writes (`EXPORT_FIXTURES=1`, see the backend's
+`tests/fixtures/VERSION.md`). Signed in, the pages read the server (`?game=`); signed out, Kachuful, Kaali Teeri and
+the Spades scorekeeper work it out on the device, and Ishaara and online Spades show nothing. Live moments pop as a
+hand or turn ends (Spades online and Ishaara from the public state, so every phone shows the same). The Me page counts
+each game's achievements and shows every game's feed (`?game=all`).
 
 ## Paths and games
 
