@@ -400,7 +400,34 @@ describe('daily awards, seasons and wrapped', () => {
     expect(dailyAwards(f, '2026-10-11', tz)).toEqual([]);
   });
 
-  it('a season ranks by average with more than 50 rounds and crowns the champion', () => {
+  it('a season ranks by bid accuracy, not average, with more than 50 rounds', () => {
+    // a makes two bids in three, taking every trick: the best average. c makes every bid: the best accuracy.
+    const games = [0, 1].map((k) =>
+      kitGame({
+        id: 'acc' + k,
+        players: ['a', 'b', 'c'],
+        start: T0 + k * DAY,
+        rounds: rows(3, 30, (i) => (i % 3 ? [0, 2] : [1, 2])),
+        finished: true,
+      }),
+    );
+    const s = season(buildFacts(games, T0 + 5 * DAY), '2026-10', tz);
+    const row = (id: string) => s.standings.find((r) => r.playerId === id)!;
+    expect(row('a').points / row('a').rounds).toBeGreaterThan(row('c').points / row('c').rounds);
+    expect(s.standings.map((r) => [r.playerId, r.rank])).toEqual([
+      ['c', 1],
+      ['a', 2],
+      ['b', 3],
+    ]);
+    expect(row('c').value).toBe(1);
+    expect(s.awards.find((x) => x.code === 'season_champion')).toEqual({
+      code: 'season_champion',
+      playerId: 'c',
+      value: 1,
+    });
+  });
+
+  it('a season crowns the champion', () => {
     const many = [
       kitGame({
         id: 's1',

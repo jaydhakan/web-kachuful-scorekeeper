@@ -82,13 +82,13 @@ export interface Season {
   awards: Award[];
 }
 
-/** A calendar month's standings (average per round, more than 50 rounds) and its awards (§8.5). */
+/** A calendar month's standings (bid accuracy, more than 50 rounds) and its awards (§8.5). */
 export function season(f: Facts, month: string, tz?: string): Season {
   const [from, to] = monthRange(month, tz);
   const standings = leaderboard(f, {
     from,
     to,
-    metric: 'avgPerRound',
+    metric: 'accuracy',
     minRounds: SEASON_MIN_ROUNDS,
   }).rows;
   const q = standings.filter((r) => r.qualified);
@@ -114,7 +114,7 @@ export function season(f: Facts, month: string, tz?: string): Season {
   );
   const [pf, pt] = monthRange(prevMonth(month), tz);
   const before = new Map(
-    leaderboard(f, { from: pf, to: pt, metric: 'avgPerRound', minRounds: SEASON_MIN_ROUNDS })
+    leaderboard(f, { from: pf, to: pt, metric: 'accuracy', minRounds: SEASON_MIN_ROUNDS })
       .rows.filter((r) => r.qualified)
       .map((r) => [r.playerId, r.rank!]),
   );
