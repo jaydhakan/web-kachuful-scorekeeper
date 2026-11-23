@@ -57,7 +57,7 @@ describe('crowns and nights in the feed', () => {
 
   it('words each medal, the Sitara, the Legend and a kind it does not know', () => {
     const lines = [
-      [{ crown: 'kursi', from: [], to: ['d'] }, 'Dev took a crown'],
+      [{ crown: 'throne', from: [], to: ['d'] }, 'Dev took a crown'],
       [{ crown: 'medal1', from: ['r'], to: ['d'] }, 'Dev is the new Badshah'],
       [{ crown: 'medal3', from: [], to: ['d'] }, 'Dev is the new Senapati'],
       [{ crown: 'sitara', from: [], to: ['d', 'a'] }, 'Dev & Asha are tonight’s Sitara'],

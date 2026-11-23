@@ -189,8 +189,7 @@ Built for Kachuful so far: medals (Badshah, Wazir, Senapati), Aaj ka Sitara, the
 switch, the chase, the end-of-game takeover, the table intel line, avatar moods, the moment budget's downgrade,
 per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card. Server side: crowns and
 reigns, bounties, nights with Tonight's Wrapped, Sikke (wallet, ledger, levels), hidden achievements and festival days.
-About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay). The Kursi was
-built and then removed (Jay, 2026-11-23: too many marks on every name).
+About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay).
 
 - **Production, once after the first deploy (not done):** the deploy runs migrations 0023–0027 (0026 and 0027
   remove the Kursi); then, on the server, `recompute-crowns`, `close-nights --all`, and `recompute-sikke --dry-run` before
@@ -225,7 +224,7 @@ built and then removed (Jay, 2026-11-23: too many marks on every name).
   (`components/sikke/GameSikke.tsx`). Only the Me wallet has an e2e; the winner strips have unit tests. The mock API pays
   Kachuful only (finish, win, achievements).
 - **Kachuful PUT over budget (backend `make perf`, 2026-11-21):** p95 254 ms against 120 on the 5,000-game load set
-  (was 438), measured while a game's end also replayed the Kursi chain, since removed. Per-round PUTs are ~21 ms; a
+  (was 438), measured before the Kursi was removed. Per-round PUTs are ~21 ms; a
   game's end replays bounties (`_rewards` in `services/games.py`), which grows with ended games. Re-run `make perf`;
   if still over, the fix is a fast path for the newest ended game, with a parity test against the replay.
 - **Nights (backend-requests §7), app side:** the server's Wrapped on `NightPage` (`?open=night&id=`), Your nights
