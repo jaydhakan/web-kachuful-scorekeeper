@@ -35,7 +35,7 @@ export interface MomentSpec {
   game?: string;
   /** Moments for this scope, when it differs from the queue's (the scorekeepers take 1 a round, §13 rule 2). */
   cap?: number;
-  /** What kind of show it is (`kursi`, `unlock:hot_5`) and its round: the same kind again within `COOLDOWN_ROUNDS`
+  /** What kind of show it is (`unlock:hot_5`) and its round: the same kind again within `COOLDOWN_ROUNDS`
    * rounds plays its downgrade instead (§13 rule 5). */
   kind?: string;
   round?: number;

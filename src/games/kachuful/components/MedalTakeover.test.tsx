@@ -80,32 +80,6 @@ describe('the medals at the end of a game', () => {
     expect(screen.getByTestId('beat')).toHaveTextContent('Takht bacha liya');
   });
 
-  it('plays "Kursi chheeni" on its own card when only the chair moved', async () => {
-    show({
-      ...base,
-      kursiEvent: { kind: 'taken', first: false, to: ['Asha'], toSeats: ['p2'], from: ['Riya'] },
-    });
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Kursi chheeni!'));
-    expect(screen.getByRole('alert')).toHaveTextContent('Asha ne Riya se Kursi chheen li');
-  });
-
-  it("puts the Kursi on the Badshah's card when both change hands", async () => {
-    show({
-      ...base,
-      changes: [{ playerId: 'A', from: null, to: 1, name: 'Asha' }],
-      kursiEvent: { kind: 'taken', first: false, to: ['Asha'], toSeats: ['p2'], from: ['Riya'] },
-    });
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Naya Badshah: Asha!'));
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      '🪑 Kursi chheeni! Asha ne Riya se Kursi chheen li',
-    );
-  });
-
-  it('says a defended or a first Kursi as a line', () => {
-    show({ ...base, kursiEvent: { kind: 'defended', defences: 7, holders: ['Riya'] } });
-    expect(screen.getByTestId('beat')).toHaveTextContent('🪑 Kursi bachi: Riya, 7 defences');
-  });
-
   it("says a crown change as a line once tonight's shows are used up", async () => {
     for (let i = 0; i < CROWN_SHOWS_A_NIGHT; i++) takeCrownShow();
     show({ ...base, changes: [{ playerId: 'D', from: null, to: 1, name: 'Dev' }] });
