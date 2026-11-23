@@ -1,16 +1,16 @@
-import { chase, type BoardRow, type Chase } from '@/games/kachuful/domain';
+import { chase, seasonMetric, type BoardRow, type Chase } from '@/games/kachuful/domain';
 import { useApp } from '@/games/kachuful/state/store';
 import { useDeviceFacts } from '@/games/kachuful/state/useFacts';
 import { useProgressionEnv } from '@/games/kachuful/components/useProgressionEnv';
 import { ProgressionScope } from '@/components/progression/env';
 import { AwardsPage as SharedAwards, type AwardsSlots } from '@/components/progression/AwardsPage';
 import { icon } from '@/components/ui/IconsMore';
-import { BoardList } from './LeaderboardPage';
+import { BoardList, fmtGap } from './LeaderboardPage';
 import { t } from '@/strings';
 
 const aw = t.hub.awards;
 
-/** Kachuful's awards: the shared page, with its points standings, where-you-stand line and Wrapped. */
+/** Kachuful's awards: the shared page, with its accuracy standings, where-you-stand line and Wrapped. */
 export function AwardsPage() {
   const f = useDeviceFacts();
   const env = useProgressionEnv(f);
@@ -21,7 +21,7 @@ export function AwardsPage() {
     standings: (s) => (
       <BoardList
         data={{ rows: s.standings, minRounds: 50, facts: f }}
-        metric="avgPerRound"
+        metric={seasonMetric(s.standings)}
         podium={false}
       />
     ),
@@ -45,14 +45,18 @@ export function AwardsPage() {
 /** Where I stand this month, and the next thing to chase. */
 function ChaseLine({ c }: { c: Chase }) {
   const ch = aw.chase;
-  const g = (n: number) => n.toFixed(1);
+  const g = (n: number) => fmtGap('accuracy', n);
   const text =
     c.kind === 'top'
-      ? ch.top(g(c.ahead))
+      ? c.level
+        ? ch.topLevel
+        : ch.top(g(c.ahead))
       : c.kind === 'tied'
         ? ch.tied(c.rank)
         : c.kind === 'behind'
-          ? ch.behind(c.rank, c.target, g(c.gap))
+          ? c.level
+            ? ch.behindLevel(c.rank, c.target)
+            : ch.behind(c.rank, c.target, g(c.gap))
           : c.kind === 'unranked'
             ? ch.unranked(c.need)
             : ch.absent;

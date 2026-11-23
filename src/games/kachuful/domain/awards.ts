@@ -1,4 +1,4 @@
-import { accuracyOf, leaderboard, tallies, type BoardRow } from './leaderboard';
+import { accuracyOf, leaderboard, tallies, type BoardRow, type Metric } from './leaderboard';
 import { profileStats, type ProfileStats } from './profile';
 import { dayOf, dayRange, monthOf, monthRange } from './ranges';
 import type { Facts, RoundFact } from './timeline';
@@ -131,6 +131,13 @@ export function season(f: Facts, month: string, tz?: string): Season {
   return { season: month, standings, awards };
 }
 
+/**
+ * What a season's standings are ranked on: bid accuracy, except a season the server closed before the switch, which
+ * keeps the average per round it was decided on (its rows' values are not their accuracy).
+ */
+export const seasonMetric = (rows: readonly { value: number; accuracy?: number }[]): Metric =>
+  rows.every((r) => r.value === r.accuracy) ? 'accuracy' : 'avgPerRound';
+
 /** Every month with a round done, newest first. */
 export const playedMonths = (f: Facts, tz?: string): string[] =>
   [...new Set(f.rounds.map((r) => monthOf(r.doneAt, tz)))].sort().reverse();
@@ -230,10 +237,11 @@ export function wrapped(f: Facts, playerId: string, year: number, tz?: string): 
   };
 }
 
+/** `level`: the same accuracy as the rank it is measured against, which the average per round decided. */
 export type Chase =
-  | { kind: 'top'; ahead: number }
+  | { kind: 'top'; ahead: number; level?: true }
   | { kind: 'tied'; rank: number }
-  | { kind: 'behind'; rank: number; target: number; gap: number }
+  | { kind: 'behind'; rank: number; target: number; gap: number; level?: true }
   | { kind: 'unranked'; need: number }
   | { kind: 'absent' };
 
@@ -254,9 +262,17 @@ export function chase(
     return { kind: 'tied', rank: me.rank };
   if (me.rank === 1) {
     const second = ranked.find((r) => r.rank! > 1);
-    return { kind: 'top', ahead: second ? me.value - second.value : 0 };
+    const ahead = second ? me.value - second.value : 0;
+    return { kind: 'top', ahead, ...(second && !ahead && { level: true as const }) };
   }
   // The nearest rank above (ranks skip after a tie, so it is the highest rank still below mine).
   const above = ranked.filter((r) => r.rank! < me.rank!).at(-1)!;
-  return { kind: 'behind', rank: me.rank, target: above.rank!, gap: above.value - me.value };
+  const gap = above.value - me.value;
+  return {
+    kind: 'behind',
+    rank: me.rank,
+    target: above.rank!,
+    gap,
+    ...(!gap && { level: true as const }),
+  };
 }

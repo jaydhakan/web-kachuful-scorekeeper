@@ -50,12 +50,12 @@ export interface GameProgression<F = unknown> {
   catalogue: AchievementDef[];
   ladders: Ladder[];
   strings: ProgressionStrings;
-  /** Kachuful ranks a month on points per round; every other game on win rate. */
+  /** Kachuful ranks a month on its own board (bid accuracy); every other game on win rate. */
   standings: 'points' | 'winRate';
   /** Kachuful: more than this many rounds; the others: at least this many games. */
   seasonMin: number;
   /** An award's value as people read it; left out, win-rate places read as a percentage, the rest as numbers. */
-  awardValue?(a: Award): string;
+  awardValue?(a: Award, season?: SeasonResult): string;
   /** Left out for a game played only online (Ishaara, online Spades): signed out it shows nothing. */
   device?: DeviceProgression<F>;
 }

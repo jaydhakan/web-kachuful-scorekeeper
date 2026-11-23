@@ -33,11 +33,12 @@ const shiftDay = (day: string, d: number) => dayOf(parseDay(day) + d * 864e5 + 1
 const PLACES = new Set(['season_champion', 'season_runner_up', 'season_third']);
 
 /** An award's value as people read it: the game's own way, else a win rate for a place, else the number. */
-export const awardValue = (prog: GameProgression, a: Award): string =>
-  prog.awardValue?.(a) ??
+export const awardValue = (prog: GameProgression, a: Award, season?: SeasonResult): string =>
+  prog.awardValue?.(a, season) ??
   (prog.standings === 'winRate' && PLACES.has(a.code) ? pct(a.value) : fmt(a.value));
 
-export function AwardCard({ a, i }: { a: Award; i: number }) {
+/** `season`: the month a season award belongs to, whose standings say how its value reads. */
+export function AwardCard({ a, i, season }: { a: Award; i: number; season?: SeasonResult }) {
   const { prog, person, openPlayer } = useProgressionEnv();
   const w = person(a.playerId);
   return (
@@ -57,7 +58,7 @@ export function AwardCard({ a, i }: { a: Award; i: number }) {
             <PlayerTag p={w} name={w.name} />
           </span>
         </span>
-        <span className="disp text-20 font-extrabold">{awardValue(prog, a)}</span>
+        <span className="disp text-20 font-extrabold">{awardValue(prog, a, season)}</span>
       </button>
     </m.li>
   );
@@ -229,7 +230,7 @@ export function AwardsPage<R extends StandingRow = StandingRow>({
               {s.awards.length > 0 && (
                 <ul className="mb-6 flex flex-col gap-2">
                   {s.awards.map((a, i) => (
-                    <AwardCard key={a.code + a.playerId} a={a} i={i} />
+                    <AwardCard key={a.code + a.playerId} a={a} i={i} season={s} />
                   ))}
                 </ul>
               )}

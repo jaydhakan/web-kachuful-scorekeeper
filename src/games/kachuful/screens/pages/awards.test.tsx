@@ -15,6 +15,7 @@ const row = (id: string, rank: number | null, value: number, rounds = 60) =>
     rank,
     qualified: rank != null,
     value,
+    accuracy: value,
     rounds,
   }) as unknown as LeaderboardRow;
 
@@ -55,15 +56,27 @@ const openSeason = async (
 describe('the season tab, signed in', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('says how far I am behind the next rank up', async () => {
+  it('says how far I am behind the next rank up, on bid accuracy', async () => {
     signIn('me');
-    await openSeason([row('a', 1, 9.4), row('b', 2, 8.1), row('me', 3, 7.5)]);
-    expect(await screen.findByText("You're 3rd · 0.6 pts/round behind 2nd")).toBeInTheDocument();
+    await openSeason([row('a', 1, 0.84), row('b', 2, 0.71), row('me', 3, 0.65)]);
+    expect(
+      await screen.findByText("You're 3rd · 6% behind 2nd on bid accuracy"),
+    ).toBeInTheDocument();
+  });
+
+  it('says when the average per round, not accuracy, put the rank above me', async () => {
+    signIn('me');
+    await openSeason([row('a', 1, 0.84), row('me', 2, 0.84)]);
+    expect(
+      await screen.findByText(
+        "You're 2nd · level with 1st on bid accuracy, behind on points per round",
+      ),
+    ).toBeInTheDocument();
   });
 
   it('counts the rounds I still need to be ranked', async () => {
     signIn('me');
-    await openSeason([row('a', 1, 9.4), row('me', null, 12, 32)]);
+    await openSeason([row('a', 1, 0.84), row('me', null, 1, 32)]);
     expect(await screen.findByText('19 more rounds to get ranked')).toBeInTheDocument();
   });
 

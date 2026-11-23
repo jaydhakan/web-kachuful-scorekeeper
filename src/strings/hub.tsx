@@ -276,10 +276,13 @@ export const hub = {
     pickPlayer: 'Wrapped for',
     chase: {
       label: 'Where you stand',
-      top: (ahead: string) => `You're top of the month · ${ahead} pts/round ahead`,
+      top: (ahead: string) => `You're top of the month · ${ahead} ahead on bid accuracy`,
+      topLevel: "You're top of the month · level on bid accuracy, ahead on points per round",
       tied: (rank: number) => `You're tied for ${nth(rank)}`,
       behind: (rank: number, target: number, gap: string) =>
-        `You're ${nth(rank)} · ${gap} pts/round behind ${nth(target)}`,
+        `You're ${nth(rank)} · ${gap} behind ${nth(target)} on bid accuracy`,
+      behindLevel: (rank: number, target: number) =>
+        `You're ${nth(rank)} · level with ${nth(target)} on bid accuracy, behind on points per round`,
       unranked: (n: number) => `${plural(n, 'more round')} to get ranked`,
       absent: 'Play a round to join this season',
     },

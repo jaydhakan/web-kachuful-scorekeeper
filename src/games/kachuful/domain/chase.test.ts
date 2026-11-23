@@ -1,4 +1,4 @@
-import { chase } from './awards';
+import { chase, seasonMetric } from './awards';
 
 const row = (playerId: string, rank: number | null, value: number, rounds = 60) => ({
   playerId,
@@ -37,6 +37,19 @@ describe('the chase line', () => {
     });
   });
 
+  it('says when accuracy is level and the rank came from the average', () => {
+    const level = [row('a', 1, 0.8), row('b', 2, 0.8), row('c', 3, 0.7)];
+    expect(chase(level, 'a')).toEqual({ kind: 'top', ahead: 0, level: true });
+    expect(chase(level, 'b')).toEqual({ kind: 'behind', rank: 2, target: 1, gap: 0, level: true });
+    expect(chase(level, 'c')).toEqual({
+      kind: 'behind',
+      rank: 3,
+      target: 2,
+      gap: expect.closeTo(0.1),
+    });
+    expect(chase(level, 'c')).not.toHaveProperty('level');
+  });
+
   it('calls a shared rank a tie', () => {
     expect(chase(table, 'c')).toEqual({ kind: 'tied', rank: 3 });
   });
@@ -48,5 +61,13 @@ describe('the chase line', () => {
 
   it('leads alone with nobody else ranked', () => {
     expect(chase([row('a', 1, 5)], 'a')).toEqual({ kind: 'top', ahead: 0 });
+  });
+});
+
+describe("a season's metric", () => {
+  it('is bid accuracy, unless the season was closed on average per round', () => {
+    expect(seasonMetric([{ value: 0.8, accuracy: 0.8 }])).toBe('accuracy');
+    expect(seasonMetric([])).toBe('accuracy');
+    expect(seasonMetric([{ value: 12.5, accuracy: 0.8 }])).toBe('avgPerRound');
   });
 });
