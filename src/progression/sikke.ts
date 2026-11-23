@@ -18,9 +18,7 @@ export const SIKKE = {
   season: 100,
   /** The Taj: the month's champion. */
   champion: 300,
-  kursiTake: 30,
-  kursiDefence: 10,
-  /** Finishing above the Kursi or Taj holder: once per challenger per holder per ISO week, at a table of 3+. */
+  /** Finishing above the Taj holder (the Badshah): once per challenger per holder per ISO week, at a table of 3+. */
   bounty: 40,
   /** Tonight's Sitara, paid when the night closes. */
   sitara: 30,

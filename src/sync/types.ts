@@ -488,15 +488,7 @@ export interface SikkeResp {
   level: SikkeLevel;
 }
 
-export type SikkeKind =
-  | 'finish'
-  | 'win'
-  | 'achievement'
-  | 'kursi_take'
-  | 'kursi_defence'
-  | 'streak'
-  | 'bounty'
-  | 'sitara';
+export type SikkeKind = 'finish' | 'win' | 'achievement' | 'streak' | 'bounty' | 'sitara';
 
 /** One line of a player's ledger (GET /api/players/{id}/sikke/entries). */
 export interface SikkeEntry {

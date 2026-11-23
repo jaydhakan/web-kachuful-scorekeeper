@@ -24,8 +24,6 @@ export const sikke = {
     finish: 'Finished a game',
     win: 'Won a game',
     achievement: 'Achievement',
-    kursi_take: 'Took the Kursi',
-    kursi_defence: 'Defended the Kursi',
     streak: "This week's first game",
     bounty: 'Bounty: beat a crown holder',
     sitara: "Tonight's Sitara",
