@@ -4,7 +4,9 @@ import { AppProvider } from '@/games/kachuful/state/store';
 import { kitGame, rows } from '@/games/kachuful/domain/__fixtures__/kit';
 import { archive, archiveGame } from '@/state/archive';
 import { ensurePlayer } from '@/state/registry';
-import type { BoardRow } from '@/games/kachuful/domain';
+import { SEASON_MIN_ROUNDS, type BoardRow } from '@/games/kachuful/domain';
+import { KEYS } from '@/state/persistence';
+import { ep } from '@/sync/endpoints';
 import { DeltaIntro } from '@/components/ui/Stats';
 import { BoardList, LeaderboardPage } from './LeaderboardPage';
 
@@ -158,5 +160,42 @@ describe('the bid accuracy board', () => {
       </AppProvider>,
     );
     expect(screen.getByRole('button', { name: /^Sort by.*Bid accuracy/ })).toBeInTheDocument();
+  });
+});
+
+describe('the global board, signed in', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+  });
+
+  it("ranks This month on the medals' more than 50 rounds, and other ranges on their own", async () => {
+    localStorage.setItem(
+      KEYS.session,
+      JSON.stringify({
+        user: { id: 'u1', email: 'me@test.dev', role: 'member', playerId: 'me' },
+        player: { id: 'me', displayName: 'ME' },
+      }),
+    );
+    const lb = vi
+      .spyOn(ep, 'leaderboard')
+      .mockResolvedValue({
+        data: { rows: [], minRounds: 50, generatedAt: 0 },
+        status: 200,
+        etag: null,
+      } as never);
+    await archive.ready;
+    render(
+      <AppProvider>
+        <LeaderboardPage />
+      </AppProvider>,
+    );
+    await waitFor(() => expect(lb).toHaveBeenCalled());
+    expect(lb.mock.calls.at(-1)![4]).toEqual({ minRounds: SEASON_MIN_ROUNDS });
+    const u = userEvent.setup({ pointerEventsCheck: 0 });
+    await u.click(screen.getByRole('button', { name: /^Date range/ }));
+    await u.click(await screen.findByRole('button', { name: /^All time/ }));
+    await waitFor(() => expect(lb.mock.calls.at(-1)![0]).toBe(0));
+    expect(lb.mock.calls.at(-1)![4]).toBeUndefined();
   });
 });

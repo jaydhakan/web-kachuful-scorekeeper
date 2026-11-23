@@ -3,6 +3,7 @@ import {
   leaderboard,
   rangeFor,
   RATE_METRICS,
+  SEASON_MIN_ROUNDS,
   type BoardRow,
   type Facts,
   type Metric,
@@ -69,9 +70,11 @@ export function LeaderboardPage() {
   const env = useProgressionEnv(f);
   // An empty range offers the whole history in one tap (on the 1st of a month "This month" is empty).
   const showAll = range.kind === 'all' ? undefined : () => setRange(rangeFor('all', Date.now()));
+  // This month qualifies as the medals and the season do, so its #1 is the Badshah.
+  const minRounds = range.kind === 'month' ? SEASON_MIN_ROUNDS : undefined;
   const device = useMemo(
-    () => ({ ...leaderboard(f, { from: range.from, to: range.to, metric }), facts: f }),
-    [f, range, metric],
+    () => ({ ...leaderboard(f, { from: range.from, to: range.to, metric, minRounds }), facts: f }),
+    [f, range, metric, minRounds],
   );
   return (
     <DeltaIntro.Provider value={intro}>
@@ -129,6 +132,7 @@ export function LeaderboardPage() {
           <GlobalBoard
             range={range}
             metric={metric}
+            minRounds={minRounds}
             you={state.session?.player?.id}
             onShowAll={showAll}
           />
@@ -142,16 +146,20 @@ export function LeaderboardPage() {
 function GlobalBoard({
   range,
   metric,
+  minRounds,
   you,
   onShowAll,
 }: {
   range: Range;
   metric: Metric;
+  minRounds?: number;
   you?: string;
   onShowAll?: () => void;
 }) {
-  const key = `lb:${range.from}:${range.to}:${metric}`;
-  const r = useRemote(key, (o) => ep.leaderboard(range.from, range.to, metric, o));
+  const key = `lb:${range.from}:${range.to}:${metric}:${minRounds ?? ''}`;
+  const r = useRemote(key, (o) =>
+    ep.leaderboard(range.from, range.to, metric, o, minRounds == null ? undefined : { minRounds }),
+  );
   // The last board and the metric it was sorted by stay up while the next one loads, so the list is never
   // unmounted and rows can slide to their new rank. A new answer is a new object; the old key's is the same one.
   const held = useRef<{ lb: NonNullable<typeof r.data>; metric: Metric; kind: string } | null>(
