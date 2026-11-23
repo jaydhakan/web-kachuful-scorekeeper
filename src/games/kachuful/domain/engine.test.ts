@@ -389,6 +389,16 @@ describe('daily awards, seasons and wrapped', () => {
     }),
   ];
   const f = buildFacts(games, T0 + DAY);
+  // a makes two bids in three, taking every trick: the best average. c makes every bid: the best accuracy.
+  const accGames = [0, 1].map((k) =>
+    kitGame({
+      id: 'acc' + k,
+      players: ['a', 'b', 'c'],
+      start: T0 + k * DAY,
+      rounds: rows(3, 30, (i) => (i % 3 ? [0, 2] : [1, 2])),
+      finished: true,
+    }),
+  );
 
   it('awards the day: star, round of the day (earliest wins a tie), grinder for everyone tied', () => {
     const a = dailyAwards(f, '2026-10-10', tz);
@@ -401,17 +411,7 @@ describe('daily awards, seasons and wrapped', () => {
   });
 
   it('a season ranks by bid accuracy, not average, with more than 50 rounds', () => {
-    // a makes two bids in three, taking every trick: the best average. c makes every bid: the best accuracy.
-    const games = [0, 1].map((k) =>
-      kitGame({
-        id: 'acc' + k,
-        players: ['a', 'b', 'c'],
-        start: T0 + k * DAY,
-        rounds: rows(3, 30, (i) => (i % 3 ? [0, 2] : [1, 2])),
-        finished: true,
-      }),
-    );
-    const s = season(buildFacts(games, T0 + 5 * DAY), '2026-10', tz);
+    const s = season(buildFacts(accGames, T0 + 5 * DAY), '2026-10', tz);
     const row = (id: string) => s.standings.find((r) => r.playerId === id)!;
     expect(row('a').points / row('a').rounds).toBeGreaterThan(row('c').points / row('c').rounds);
     expect(s.standings.map((r) => [r.playerId, r.rank])).toEqual([
@@ -425,6 +425,12 @@ describe('daily awards, seasons and wrapped', () => {
       playerId: 'c',
       value: 1,
     });
+  });
+
+  it('a season gives no Sharpest: on accuracy it would always be the champion', () => {
+    const s = season(buildFacts(accGames, T0 + 5 * DAY), '2026-10', tz);
+    expect(s.awards.find((x) => x.code === 'season_champion')?.playerId).toBe('c');
+    expect(s.awards.filter((x) => x.code === 'season_sharpest')).toEqual([]);
   });
 
   it('a season crowns the champion', () => {

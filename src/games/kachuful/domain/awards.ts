@@ -100,12 +100,7 @@ export function season(f: Facts, month: string, tz?: string): Season {
   ] as const)
     for (const r of q.filter((x) => x.rank === rank))
       awards.push({ code, playerId: r.playerId, value: r.value });
-  awards.push(
-    ...best(
-      q.filter((r) => r.rounds >= 30).map((r) => [r.playerId, r.accuracy]),
-      'season_sharpest',
-    ),
-  );
+  // No Sharpest since standings rank on accuracy: it was always the champion. Past ones keep their definition.
   awards.push(
     ...best(
       q.map((r) => [r.playerId, r.games]),
