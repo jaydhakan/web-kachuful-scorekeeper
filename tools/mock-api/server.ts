@@ -97,6 +97,9 @@ import {
   spadesSeatKind,
 } from './spadesOnline';
 import { GAME_MOCKS, type GameMock, type MockCtx } from './progression/index';
+import { lookOf, mockGrant, resetWardrobe, spentBy, wardrobeRoutes } from './wardrobe';
+import { giftRoutes, resetGifts } from './gifts';
+import { finishedOf, milestoneRoutes, resetMilestones, sweepMilestones } from './milestones';
 import { gameCrowns, gameMedals, gamePlaces } from './progression/crowns';
 import { achievementSikke, levelOf, SIKKE } from '../../src/progression/sikke';
 import { dayRange as dayRangeIn, monthRange as monthRangeIn } from '../../src/progression/zone';
@@ -320,6 +323,9 @@ export function seed(now = Date.now()) {
   resetSpades(now);
   resetSeatInvites();
   resetSpadesOnline();
+  resetWardrobe();
+  resetGifts();
+  resetMilestones();
 }
 
 /** Adds to the activity feed (newest first), numbered as the server numbers it. */
@@ -402,6 +408,7 @@ function summaryOf(id: string, f?: Facts): PlayerSummary {
     ...p,
     email: null,
     photoUrl: photoUrl(p.id),
+    look: lookOf(p.id),
     games: mine.length,
     lastPlayedAt: last || null,
     createdByName: userName(p.createdBy),
@@ -569,6 +576,7 @@ const authOut = (u: UserRec) => ({
 const view = (p: Player, me: User | null): Player => ({
   ...p,
   photoUrl: photoUrl(p.id),
+  look: lookOf(p.id),
   email:
     me && (me.role === 'admin' || p.createdBy === me.id || p.linkedUserId === me.id)
       ? p.email
@@ -1330,7 +1338,7 @@ on('PUT', '/api/games/:id', ({ m, body, me }) => {
     },
     w.rev,
   );
-  const status = statusOf(medalsBefore, key);
+  const status = { ...statusOf(medalsBefore, key), milestones: sweepMilestones() };
   if (status.changes.length || status.bounties.length)
     for (const u of db.users.values())
       if (u.playerId && w.players.some((p) => p.playerId === u.playerId))
@@ -2048,10 +2056,13 @@ const sikkeEntries = (): MockSikke[] => {
   return out.sort((a, b) => b.earnedAt - a.earnedAt || (a.id < b.id ? -1 : 1));
 };
 const sikkeOf = (playerId: string, without: string | null = null) => {
-  const lifetime = sikkeEntries()
-    .filter((e) => e.playerId === playerId && (!without || e.gameId !== without))
-    .reduce((n, e) => n + e.amount, 0);
-  return { playerId, balance: lifetime, lifetime, level: levelOf(lifetime) };
+  const lifetime =
+    mockGrant(playerId) +
+    sikkeEntries()
+      .filter((e) => e.playerId === playerId && (!without || e.gameId !== without))
+      .reduce((n, e) => n + e.amount, 0);
+  const spent = spentBy(playerId);
+  return { playerId, balance: lifetime - spent, lifetime, spent, level: levelOf(lifetime) };
 };
 on('GET', '/api/players/:id/sikke', ({ m }) => {
   const id = resolve(m[0]);
@@ -2439,9 +2450,24 @@ spadesOnlineRoutes({
   RAW,
   players: () => [...db.players.values()],
   photoUrl,
+  look: lookOf,
   page,
 });
 registerSeatKind('spades-online', spadesSeatKind);
+
+const allSeatings = () => [
+  ...liveGames().map((g) => ({
+    playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
+    at: g.updatedAt,
+  })),
+  ...liveKt().map((g) => ({
+    playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
+    at: g.updatedAt,
+  })),
+  ...ishaaraSeatings(),
+  ...spadesSeatings(),
+  ...spadesOnlineSeatings(),
+];
 
 seatInviteRoutes({
   on,
@@ -2450,20 +2476,56 @@ seatInviteRoutes({
   players: () => [...db.players.values()],
   playerOfUser: (id) => db.users.get(id)?.playerId ?? null,
   photoUrl,
-  seatings: () => [
-    ...liveGames().map((g) => ({
-      playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
-      at: g.updatedAt,
-    })),
-    ...liveKt().map((g) => ({
-      playerIds: g.payload.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : [])),
-      at: g.updatedAt,
-    })),
-    ...ishaaraSeatings(),
-    ...spadesSeatings(),
-    ...spadesOnlineSeatings(),
-  ],
+  seatings: allSeatings,
 });
+
+// Wardrobe, Bazaar, gifts and milestones (backend-requests §3–§6).
+const rewardsKit = {
+  on,
+  err,
+  page,
+  players: () => [...db.players.values()],
+  resolve,
+  summaryOf: (id: string) => summaryOf(id),
+  earned: (id: string) => sikkeOf(id).lifetime,
+  finished: () =>
+    finishedOf(
+      liveGames().flatMap((r) => {
+        const g = fromWire(r);
+        const at = g.status === 'finished' ? gameEndedAt(g, Date.now()).at : null;
+        const playerIds = g.players.flatMap((p) => (p.playerId ? [resolve(p.playerId)] : []));
+        return at == null
+          ? []
+          : [{ game: 'kachuful' as const, gameId: r.key, endedAt: at, playerIds }];
+      }),
+      mockCtx.ktGames(),
+    ),
+  champions: () => {
+    const month = monthOf(Date.now(), TZ);
+    const f = facts();
+    const kachuful = [...new Set(f.rounds.map((r) => monthOf(r.doneAt, TZ)))]
+      .filter((mo) => mo < month)
+      .flatMap((mo) => season(f, mo, TZ).awards);
+    const others = Object.values(GAME_MOCKS).flatMap((m) =>
+      m
+        .months(mockCtx)
+        .filter((mo) => mo < month)
+        .flatMap((mo) => m.season(mockCtx, mo).awards),
+    );
+    return [...kachuful, ...others]
+      .filter((a) => a.code === 'season_champion')
+      .map((a) => a.playerId);
+  },
+  seatings: allSeatings,
+  touch: (id: string) => {
+    const p = db.players.get(id);
+    if (p) p.updatedAt = Date.now();
+  },
+  feed,
+};
+wardrobeRoutes(rewardsKit);
+giftRoutes(rewardsKit);
+milestoneRoutes(rewardsKit);
 
 /** Connect-style middleware for Vite's dev and preview servers. */
 export function mockApi(req: IncomingMessage, res: ServerResponse, next: () => void) {
@@ -2519,6 +2581,8 @@ export function mockApi(req: IncomingMessage, res: ServerResponse, next: () => v
       me,
       m: (route[1].exec(url.pathname) ?? []).slice(1),
     });
+    // Any write can finish a game somewhere: milestones it made go out on the user stream.
+    if (req.method !== 'GET' && !url.pathname.startsWith('/api/__mock')) sweepMilestones();
     if (out === STREAM || out === RAW) return;
     if (Array.isArray(out) && typeof out[0] === 'number') return send(out[0], out[1]);
     send(out === null ? 204 : 200, out);

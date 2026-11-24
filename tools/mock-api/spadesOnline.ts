@@ -32,7 +32,7 @@ import {
   type SpWho,
 } from '../../src/games/spades/domain/index';
 import type { SpTableSummary, SpViewOut } from '../../src/games/spades/online/sync/types';
-import type { Player } from '../../src/sync/types';
+import type { Look, Player } from '../../src/sync/types';
 import { pendingSeatInvites, type SeatKindRules } from './seatInvites';
 
 interface Me {
@@ -62,6 +62,8 @@ export interface SpadesKit {
   RAW: symbol;
   players(): Player[];
   photoUrl(playerId: string | null): string | null;
+  /** What the player wears (backend-requests §3), carried next to the photo. */
+  look?(playerId: string): Look | null;
   page<T>(items: T[], cursor: unknown, limit?: number): { items: T[]; nextCursor: string | null };
 }
 
@@ -112,6 +114,7 @@ function whoOf(me: Me): SpWho {
     emoji: p.emoji,
     color: p.color,
     photoUrl: kit.photoUrl(p.id),
+    look: kit.look?.(p.id) ?? null,
   };
 }
 
@@ -301,6 +304,7 @@ function summary(r: Rec, me: Me): SpTableSummary {
             emoji: x.who.emoji,
             color: x.who.color,
             photoUrl: x.who.photoUrl ?? null,
+            look: x.who.look ?? null,
           }
         : null,
     ),
@@ -375,6 +379,7 @@ export const spadesSeatKind: SeatKindRules = {
       emoji: p.emoji,
       color: p.color,
       photoUrl: kit.photoUrl(p.id),
+      look: kit.look?.(p.id) ?? null,
     };
     const res = sit(r.state, who, s, now());
     if (!res.ok) return 'filled';
