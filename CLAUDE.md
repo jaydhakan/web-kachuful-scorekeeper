@@ -36,6 +36,8 @@ Only `package-lock.json` exists. Node 20+. `npm run typecheck` covers all of `sr
 | Ishaara's rules             | `src/games/ishaara/domain` (`applyAction`): the server runs them; the app never deals or holds the key |
 | People (players, avatars)   | `src/people` (`Player`, `COLORS`, `nameKey`, `pidOf`) and `src/state/registry.ts`                      |
 | Account and admin pages     | `src/platform/pages`                                                                                   |
+| Crowns, banter at the table | `src/components/crowns` (`useCrowns`, `CrownName`, `useWinRateCrowns`) + `games/<game>/domain/banter.ts` |
+| Wardrobe, looks, gifts      | `src/wardrobe` (catalogue, art, `StageBustLazy`), `platform/pages/wardrobe`, `sync/rewardNews.ts`      |
 | UI primitives               | `src/components/ui/`                                                                                   |
 | Colours, themes, materials  | `src/styles/themes.css` + `src/styles/themes/<id>.css` (the only colour files) via Tailwind names      |
 

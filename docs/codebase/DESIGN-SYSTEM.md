@@ -61,6 +61,10 @@ Source of truth: `src/styles/themes.css` and each theme's `src/styles/themes/<id
   borders and glows. The focus ring is `--focus` (ink on the light themes).
   Emoji are for avatars and personality copy, never for UI icons.
 - A new component or state is added to all four themes at once.
+- **Wardrobe art** is coloured only with the cloth tokens (`--cloth-1`…`--cloth-8`, `--cloth-base`, `--cloth-line`,
+  `--cloth-line-w`) and the medal metals. An item's colour variants are pairs of cloth tokens, so all four themes stay
+  right. A complete set's flourish plays once per stage appearance, at most 600ms, and is a still flash under reduced
+  motion.
 - Component-intrinsic sizes (a 60px button, a 66px dealer chip) stay as arbitrary values; colours and font sizes do not.
 
 ## Themes

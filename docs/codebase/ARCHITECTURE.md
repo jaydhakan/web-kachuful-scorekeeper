@@ -67,6 +67,26 @@ the Spades scorekeeper work it out on the device, and Ishaara and online Spades 
 hand or turn ends (Spades online and Ishaara from the public state, so every phone shows the same). The Me page counts
 each game's achievements and shows every game's feed (`?game=all`).
 
+## Rewards: crowns, the Wardrobe, gifts and milestones
+
+- **Crowns at the table, every game:** medals (Badshah, Wazir, Senapati), Aaj ka Sitara and the Legend.
+  - Each game's root provides them with `CrownsValue` (`components/crowns/table.tsx`). Kachuful uses its
+    `state/medals.tsx`; the win-rate games use `useWinRateCrowns`, from the server's board signed in and the device's
+    finished games signed out.
+  - Screens read them with `useCrowns()`: `CrownName` (the name in metal), `DealLineText`, `BanterLine` and
+    `useCrownTakeover` ("Naya Badshah").
+  - Banter's rules are pure, one table per game in `games/<game>/domain/banter.ts`, with the shared cooldown and pick
+    in `progression/banter.ts`. The lines live in `games/<game>/strings/banter.ts`.
+- **The Wardrobe** (`src/wardrobe`):
+  - The catalogue (`catalog.ts`, exported to the `wardrobe-catalog` fixture) and the art: one module per slot in
+    `art/`, flat SVG in the cloth tokens only.
+  - `StageBust` (lazy). `AvatarFill` picks a tier by its measured size (dot, seat, hero, stage) and draws a player's
+    `look` from the registry, like the photo. Call sites never pass a size.
+  - The Wardrobe and Bazaar pages are lazy chunks in `platform/pages/wardrobe`, opened from Me.
+- **Gifts, firsts and group milestones** reach the app from the user stream and from upload responses
+  (`status.milestones`) into `sync/rewardNews.ts`. `components/rewards/RewardNews.tsx` plays each one as a Moment on
+  every page. A table's unopened gifts are asked for at the first deal (`usePendingGifts`).
+
 ## Paths and games
 
 One app, one service worker, one manifest (`id: '/'`). `main.tsx` calls `startRoute()` before the first render: old links on `/` (`?live=`, `?recap=`, `?invite=`, `?reset=`) move to `/kachuful?…`, an unknown path goes to `/`. `PlatformRoot` shows the landing page or the game the path names, each a lazy chunk; a game's store, sync and archive mount only under its path. `go(id)` pushes the path (dropping a game's open-sheet history entries first), and system Back returns. Each game's `peek()` reads its saved game straight from storage for the landing page's resume line, without loading the game. The build writes one HTML file per page with its own preview tags (`page-meta` in `vite.config.ts`), and `preload-shell` modulepreloads the chunks of the path's game for the screen size.
