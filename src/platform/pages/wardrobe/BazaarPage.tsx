@@ -68,7 +68,7 @@ function Stalls({ me, d, offline }: { me: Face; d: BazaarResp; offline: boolean 
         ) : (
           <StageBustLazy p={me} look={{ [it.slot]: { id: it.id, v: 0 } }} size={96} />
         )}
-        <span className="w-full truncate text-center text-14 font-bold">{w.name(it.id)}</span>
+        <span className="w-full text-center text-14 font-bold leading-tight [overflow-wrap:anywhere]">{w.name(it.id)}</span>
         <span className="text-12 text-[var(--tx2)]">
           {w.rarity[it.rarity]} ·{' '}
           {all ? w.bazaar.ownedAll : `${b.price.toLocaleString('en-IN')} 🪙`}
@@ -103,7 +103,7 @@ function Stalls({ me, d, offline }: { me: Face; d: BazaarResp; offline: boolean 
       </li>
     );
   };
-  const grid = 'grid grid-cols-2 gap-2 sm:grid-cols-3';
+  const grid = 'grid grid-cols-2 gap-2 roomy:grid-cols-3';
   return (
     <>
       <p className="mb-4 text-18 font-bold" aria-live="polite">

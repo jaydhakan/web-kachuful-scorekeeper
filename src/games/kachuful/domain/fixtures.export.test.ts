@@ -338,9 +338,9 @@ describe('golden fixtures for the backend', () => {
       expect(existsSync(DIR)).toBe(true);
       expect(
         readdirSync(DIR)
-          // kt-*, ishaara-*, spades-*, sikke-* and night-* belong elsewhere, each checked by its own export test.
+          // kt-*, ishaara-*, spades-*, sikke-*, night-* and wardrobe-* belong elsewhere, each checked by its own export test.
           .filter(
-            (f) => f.endsWith('.json') && !/^(kt|kaali-teeri|ishaara|spades|sikke|night)-/.test(f),
+            (f) => f.endsWith('.json') && !/^(kt|kaali-teeri|ishaara|spades|sikke|night|wardrobe)-/.test(f),
           )
           .sort(),
       ).toEqual(

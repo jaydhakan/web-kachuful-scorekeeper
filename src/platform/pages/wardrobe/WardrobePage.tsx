@@ -300,9 +300,9 @@ function Shelf({
                 ) : (
                   <StageBustLazy p={me} look={{ [slot]: { id: it.id, v } }} size={56} />
                 )}
-                <span className="w-full truncate text-center">{w.name(it.id)}</span>
+                <span className="w-full text-center leading-tight [overflow-wrap:anywhere]">{w.name(it.id)}</span>
                 {lock && (
-                  <span className="w-full truncate text-center text-[var(--tx2)]">
+                  <span className="w-full text-center text-[var(--tx2)]">
                     {lock.kind === 'price'
                       ? `${lock.price} 🪙`
                       : lock.kind === 'level'
@@ -403,7 +403,7 @@ function SavedLooks({
           const sl = saved[n] ?? null;
           return (
             <li key={n} className="glass flex min-h-14 items-center gap-2 rounded-2xl px-3">
-              <span className="flex-1 truncate text-16 font-bold">
+              <span className="flex-1 text-16 font-bold [overflow-wrap:anywhere]">
                 {sl ? (
                   sl.name
                 ) : (
