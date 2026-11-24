@@ -33,6 +33,7 @@ import { InboxList } from './InboxList';
 import { ClaimsList, useClaims } from './ClaimsList';
 import { MeAchievements, MeActivity, MeNights } from './MeProgress';
 import { WalletChip } from '@/components/sikke/Wallet';
+import { wardrobe } from '@/strings/wardrobe';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 
@@ -116,7 +117,25 @@ export function AccountPage() {
                 onEdit={() => setOpen('edit')}
               />
               <MeStats id={p.id} />
-              <WalletChip id={p.id} className="mb-6" />
+              <WalletChip id={p.id} className="mb-3" />
+              <div className="mb-6 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => actions.open({ screen: 'wardrobe' })}
+                  className="press glass flex min-h-14 items-center justify-center gap-2 px-3 text-16 font-bold"
+                >
+                  <span aria-hidden>👕</span>
+                  {wardrobe.title}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => actions.open({ screen: 'bazaar' })}
+                  className="press glass flex min-h-14 items-center justify-center gap-2 px-3 text-16 font-bold"
+                >
+                  <span aria-hidden>🛍️</span>
+                  {wardrobe.bazaar.title}
+                </button>
+              </div>
               <MeNights id={p.id} />
               <button
                 type="button"

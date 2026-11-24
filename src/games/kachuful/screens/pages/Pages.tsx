@@ -20,10 +20,21 @@ import { LivePage, RecapPage } from './ViewerPages';
 import { WrappedPage } from './WrappedPage';
 import { NightPage } from './NightPage';
 import { t } from '@/strings';
+import { wardrobe } from '@/strings/wardrobe';
+import { SLOTS, type Slot } from '@/wardrobe/types';
 
 // Only admins open it, so its screens and strings stay out of everyone else's download.
 const AdminPage = lazy(() =>
   import('@/platform/pages/AdminPage').then((m) => ({ default: m.AdminPage })),
+);
+
+// The Wardrobe and the Bazaar carry the art and the shop: their own chunk, fetched when opened.
+const WardrobePage = lazy(() => import('@/platform/pages/wardrobe/WardrobePage'));
+const BazaarPage = lazy(() => import('@/platform/pages/wardrobe/BazaarPage'));
+const Waiting = ({ title }: { title: string }) => (
+  <Page title={title}>
+    <Skeleton rows={4} />
+  </Page>
 );
 
 /** The screen for a route on the nav stack. Its own chunk: the game screens never wait for it. */
@@ -82,6 +93,24 @@ export default function Pages({ route }: { route: Route }) {
       return <RecapPage token={p.token ?? ''} />;
     case 'credits':
       return <CreditsPage />;
+    case 'wardrobe':
+      return (
+        <Suspense fallback={<Waiting title={wardrobe.title} />}>
+          <WardrobePage
+            tryOn={
+              p.id && p.slot && SLOTS.includes(p.slot as Slot)
+                ? { id: p.id, v: Number(p.v) || 0, slot: p.slot as Slot }
+                : undefined
+            }
+          />
+        </Suspense>
+      );
+    case 'bazaar':
+      return (
+        <Suspense fallback={<Waiting title={wardrobe.bazaar.title} />}>
+          <BazaarPage />
+        </Suspense>
+      );
     case 'import':
       return <ImportPage />;
     default:
