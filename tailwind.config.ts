@@ -50,7 +50,7 @@ export default {
   content: [
     './index.html',
     './src/*.{ts,tsx}',
-    './src/{assets,components,hooks,lib,people,platform,state,strings,styles,sync,test,theme}/**/*.{ts,tsx}',
+    './src/{assets,components,hooks,lib,people,platform,state,strings,styles,sync,test,theme,wardrobe}/**/*.{ts,tsx}',
     './src/games/{kachuful,kaali-teeri}/**/*.{ts,tsx}',
     // The moments every game shares; not `fx/lab`, which is dev-only and has its own sheet.
     './src/fx/*.{ts,tsx}',

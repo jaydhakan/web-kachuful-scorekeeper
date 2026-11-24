@@ -42,6 +42,7 @@ export default tseslint.config(
     files: [
       'src/components/**/*.tsx',
       'src/platform/**/*.tsx',
+      'src/wardrobe/**/*.tsx',
       'src/games/*/components/**/*.tsx',
       'src/games/*/screens/**/*.tsx',
       'src/games/*/sheets/**/*.tsx',
