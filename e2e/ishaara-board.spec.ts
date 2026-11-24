@@ -17,7 +17,7 @@ const words = (page: Page) => page.getByRole('list', { name: 'Words', exact: tru
 // invite banner's, which is marked).
 const live = (page: Page) =>
   page.locator(
-    'p.sr-only[role="status"][aria-live="polite"]:not([data-invite-live]):not([data-crown-news-live])',
+    'p.sr-only[role="status"][aria-live="polite"]:not([data-invite-live]):not([data-crown-news-live]):not([data-reward-news-live])',
   );
 const box = async (page: Page) => {
   const b = await words(page).boundingBox();

@@ -121,7 +121,7 @@ function Card({ shown }: { shown: Shown | null }) {
   const rm = useReducedMotion();
   return (
     <>
-      <p role="status" aria-live="polite" className="sr-only">
+      <p role="status" aria-live="polite" className="sr-only" data-reward-news-live>
         {shown?.said ?? ''}
       </p>
       <AnimatePresence>
