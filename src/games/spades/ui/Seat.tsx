@@ -1,3 +1,4 @@
+import { CrownName } from '@/components/crowns/CrownName';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AvatarFill, type Face } from '@/components/ui/Avatar';
 import { seatColor } from '@/theme/palette';
@@ -293,7 +294,7 @@ export function Seat({
         aria-hidden
         className="mt-1 text-13 font-bold leading-tight [overflow-wrap:anywhere] [text-shadow:0_1px_2px_color-mix(in_srgb,var(--shade)_50%,transparent)]"
       >
-        {name}
+        <CrownName p={{ id: face?.playerId ?? face?.id ?? '', name }} />
       </div>
       <span
         ref={pillRef}

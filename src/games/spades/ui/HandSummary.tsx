@@ -1,3 +1,4 @@
+import { BanterLine } from '@/components/crowns/BanterLine';
 import { m, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { Counter } from '@/components/ui/Counter';
@@ -29,6 +30,8 @@ export interface HandSummaryProps {
   verdict: string;
   /** A line over the verdict for a player's own team: made, set or Boston; none for someone watching. */
   headline?: string | null;
+  /** One line of table banter under the headline (REWARDS-PLAN §6.7). */
+  banter?: string | null;
   /** Count the points up (off for a reopened summary). */
   run?: boolean;
   /** Every card, when the hand was played online. */
@@ -118,6 +121,7 @@ export function HandSummary({
   order = TEAM_A_FIRST,
   verdict,
   headline = null,
+  banter = null,
   run = true,
   tricks,
   footer,
@@ -137,6 +141,7 @@ export function HandSummary({
   return (
     <div data-summary={handNo}>
       {headline && <p className="mb-1 text-18 font-bold">{headline}</p>}
+      {banter && <BanterLine text={banter} show anim={!rm} className="mb-2 text-14" />}
       <p className="mb-4 text-14 text-[var(--tx2)]">{verdict}</p>
       <div className="grid grid-cols-2 gap-2.5">
         {order.map((t) => {

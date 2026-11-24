@@ -1,3 +1,5 @@
+import { useCrownTakeover } from '@/components/crowns/CrownTakeover';
+import { useCrowns } from '@/components/crowns/table';
 import { m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { AvatarFill, type Face } from '@/components/ui/Avatar';
@@ -112,6 +114,16 @@ export function Winner({
     );
     return () => clearTimeout(id);
   }, [mine, rm]);
+
+  // Gold changing hands plays once the cheer is out (REWARDS-PLAN §6.7); fresh only within a minute of the end.
+  const [fresh] = useState(() => Date.now() - (table.finishedAt ?? 0) < 60_000);
+  const takeover = useCrownTakeover(
+    useCrowns(),
+    `crowns:spo:${table.id}`,
+    `game:${table.id}`,
+    fresh,
+    rm ? 300 : 1800,
+  );
 
   const openNext = () => table.next && spGo(`?table=${encodeURIComponent(table.next)}`);
   // The host started the rematch: their phone goes straight to its lobby; everyone else gets a Join button.
@@ -280,6 +292,7 @@ export function Winner({
           </button>
         </div>
       </div>
+      {takeover.node}
     </div>
   );
 }

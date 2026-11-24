@@ -1,3 +1,4 @@
+import { OnlineCrowns, useOnlineBanter } from './OnlineCrowns';
 import '@/games/spades/ui/play.css';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
@@ -118,7 +119,11 @@ export default function PlayTable() {
   const ctx = useTable();
   if (!ctx.view) return <TableSkeleton kind="felt" label={s.title.loading} />;
   if (ctx.view.table.status === 'cancelled') return <Cancelled onHome={() => spGo('')} />;
-  return <TableScreen ctx={ctx} view={ctx.view} />;
+  return (
+    <OnlineCrowns t={ctx.view.table}>
+      <TableScreen ctx={ctx} view={ctx.view} />
+    </OnlineCrowns>
+  );
 }
 
 interface Toast {
@@ -867,6 +872,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
       t.rules.target !== null && (after.a >= t.rules.target || after.b >= t.rules.target);
     return reached && after.a === after.b ? s.summary.tie : s.summary.target(t.rules.target);
   })();
+  const banter = useOnlineBanter(t);
   const headline =
     me !== null && last
       ? handHeadline(
@@ -1301,6 +1307,7 @@ function TableScreen({ ctx, view }: { ctx: TableCtx; view: SpView }) {
               order={teamOrder(me)}
               verdict={verdict}
               headline={headline}
+              banter={banter}
               tricks={last.tricks ?? null}
               footer={summaryFooter}
             />
