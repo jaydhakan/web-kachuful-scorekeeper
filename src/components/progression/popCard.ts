@@ -1,3 +1,4 @@
+import type { Face } from '@/components/ui/Avatar';
 import { byCode, type CatalogueView } from '@/progression/catalogue';
 
 export interface PopCard {
@@ -14,6 +15,8 @@ export interface PopCard {
   what?: string;
   /** Online, on each player's own phone: false when someone else earned it, so a big one shows as a compact card. */
   mine?: boolean;
+  /** Who earned it, as drawn: the big card shows their stage bust (wearing the item, for an unlock) instead of the emoji. */
+  face?: Face;
 }
 
 /** A moment's card: "Asha · Boston". */

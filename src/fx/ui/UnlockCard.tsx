@@ -8,6 +8,7 @@ import { anim, OUT, REDUCED_MS, TRAVEL, wait, EASE } from '@/fx/waapi';
 import { fx as s } from '@/strings/fx';
 import { palette, themeConfetti } from '@/theme/palette';
 import type { PopCard } from '@/components/progression/popCard';
+import { StageBustLazy } from '@/wardrobe/StageBustLazy';
 
 /** WOW-MOMENTS-PLAN A1: drop, turn, one sheen, read, then away; ≤ 2.5s in all. */
 const DROP_MS = 420;
@@ -181,7 +182,11 @@ export function UnlockCard({
             className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden rounded-[18px] border-2 border-[var(--medal-gold)] bg-[var(--surface-2)] px-4 text-center shadow-[0_24px_60px_-12px_color-mix(in_srgb,var(--shade)_80%,transparent),inset_0_0_0_5px_color-mix(in_srgb,var(--medal-gold)_22%,transparent)] [backface-visibility:hidden]"
           >
             <span className="mono-label text-12 text-[var(--gold-tx)]">{s.unlocked}</span>
-            <span className="text-64 leading-none">{card.emoji}</span>
+            {card.face ? (
+              <StageBustLazy p={card.face} size="min(36vw, 8.5rem)" pip={card.emoji} />
+            ) : (
+              <span className="text-64 leading-none">{card.emoji}</span>
+            )}
             {what && (
               <span className="disp text-22 font-extrabold leading-tight [overflow-wrap:anywhere]">
                 {what}

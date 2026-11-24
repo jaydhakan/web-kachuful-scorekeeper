@@ -55,3 +55,19 @@ describe('a scorekeeper round', () => {
     expect(screen.queryByText('Mira unlocked Grand Slam')).toBeNull();
   });
 });
+
+describe('the unlock card worn by', () => {
+  it('shows the earner as the stage bust, the emoji as its pip', async () => {
+    const face = { emoji: '🦊', color: '#E8A87C', look: { outfit: { id: 'kurta', v: 2 } } };
+    render(
+      <MomentPop pops={{ id: 5, cards: [{ ...big('Riya', true), face }] }} onDone={() => {}} />,
+    );
+    expect(await screen.findByText('Riya unlocked Grand Slam')).toBeInTheDocument();
+    const bust = await vi.waitFor(() => {
+      const el = document.querySelector('[data-unlock-face] [data-stage-bust]');
+      if (!el) throw new Error('no bust yet');
+      return el;
+    });
+    expect(bust.textContent).toContain('💯');
+  });
+});
