@@ -1,14 +1,14 @@
+import { StageBustLazy } from '@/wardrobe/StageBustLazy';
 import { m, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import type { Player } from '@/games/kachuful/domain';
 import { lastGame as s } from '@/games/kachuful/strings/night';
-import { Dot } from '@/components/ui/Dot';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { SPRING_SOFT } from '@/components/ui/motion';
 
 /**
  * The last game of the night's long ceremony (REWARDS-PLAN §7.1), after the slower podium: the winner on a stage
- * and "End the night". `bust` is where the winner's StageBust goes (`src/wardrobe`); until then their seat token.
+ * and "End the night". `bust` overrides the winners' stage busts (`src/wardrobe`).
  */
 export function FinalCeremony({
   winners,
@@ -38,7 +38,10 @@ export function FinalCeremony({
     >
       <span className="mono-label text-13 font-bold text-[var(--gold-tx)]">{s.kicker}</span>
       <div data-bust-slot aria-hidden className="my-1 flex justify-center gap-2">
-        {bust ?? winners.slice(0, 3).map((p) => <Dot key={p.id} p={p} s={72} />)}
+        {bust ??
+          winners
+            .slice(0, 3)
+            .map((p) => <StageBustLazy key={p.id} p={p} size={winners.length > 1 ? 88 : 128} />)}
       </div>
       <h2
         id="final-ceremony-title"
