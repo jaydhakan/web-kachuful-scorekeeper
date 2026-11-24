@@ -9,6 +9,7 @@ import type {
   SpView,
   SpGame,
 } from '../../domain';
+import type { Look } from '@/people';
 
 /** The /api/spades/tables/* shapes (backend-requests.md §4). Times are epoch ms. */
 
@@ -42,6 +43,7 @@ export interface SpSummarySeat {
   emoji: string;
   color: string;
   photoUrl?: string | null;
+  look?: Look | null;
 }
 
 /** A table in "my tables" (`GET /api/spades/tables`): read from the summary, never the payload. */

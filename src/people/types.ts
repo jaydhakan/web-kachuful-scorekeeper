@@ -21,3 +21,16 @@ export interface Seat {
   firstName?: string;
   lastName?: string;
 }
+
+/** A wardrobe slot (backend-requests §3); every slot of a look is optional. */
+export type LookSlot = 'outfit' | 'headwear' | 'neckwear' | 'frame' | 'aura' | 'badge' | 'title';
+
+/** One worn item: its catalogue id and colour variant (0 for a one-variant item); `number` only on the jersey. */
+export interface LookItem {
+  id: string;
+  v: number;
+  number?: number;
+}
+
+/** What a player wears, as the server stores it and every player embed carries it. */
+export type Look = Partial<Record<LookSlot, LookItem>>;

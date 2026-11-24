@@ -43,6 +43,13 @@ import type {
   User,
   WireGame,
   WrappedResp,
+  BazaarResp,
+  Gift,
+  Look,
+  MilestoneOut,
+  PurchaseResp,
+  SavedLook,
+  WardrobeResp,
 } from './types';
 import type { Metric } from '@/games/kachuful/domain';
 import type { GameId } from '@/platform/route';
@@ -215,6 +222,24 @@ export const ep = {
     get<Page<SikkeEntry>>(`/players/${id}/sikke/entries`, { cursor, limit: 50 }),
   gameSikke: (gameId: string, o?: CallOpts) =>
     call<GameSikkeResp>('GET', `/games/${gameId}/sikke`, undefined, o),
+  // Wardrobe, Bazaar, gifts and milestones (backend-requests §3–§6). Ids for writes come from the caller, so a resend never buys twice.
+  wardrobe: (o?: CallOpts) => call<WardrobeResp>('GET', '/me/wardrobe', undefined, o),
+  putLook: (look: Look) => put<Look>('/me/wardrobe/look', look),
+  putSavedLook: (slot: number, name: string, look: Look) =>
+    put<SavedLook>(`/me/wardrobe/saved/${slot}`, { name, look }),
+  deleteSavedLook: (slot: number) => del(`/me/wardrobe/saved/${slot}`),
+  bazaar: (o?: CallOpts) => call<BazaarResp>('GET', '/bazaar', undefined, o),
+  buy: (itemId: string, v: number, purchaseId: string) =>
+    post<PurchaseResp>('/bazaar/purchases', { itemId, v, purchaseId }),
+  sendGift: (itemId: string, v: number, toPlayerId: string, giftId: string) =>
+    post<Gift>('/gifts', { itemId, v, toPlayerId, giftId }),
+  /** Unopened gifts to any of these players (up to 12), for the table device as a game starts. */
+  pendingGifts: (players: string[], o?: CallOpts) =>
+    get<{ items: Gift[] }>('/gifts/pending', { players: players.join(',') }, o),
+  openGift: (id: string) => post<Gift>(`/gifts/${id}/open`),
+  myGifts: (cursor: string | null) => get<Page<Gift>>('/me/gifts', { cursor, limit: 50 }),
+  milestones: (cursor: string | null) =>
+    get<Page<MilestoneOut>>('/milestones', { cursor, limit: 50 }),
   // Crowns and nights (backend-requests §6, §7)
   crowns: (o?: CallOpts) =>
     call<CrownsResp>('GET', '/crowns' + query({ game: 'kachuful' }), undefined, o),

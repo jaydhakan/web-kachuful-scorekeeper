@@ -1,6 +1,6 @@
 // Relative, because the mock API and the fixture export load the domain outside Vite.
 import type { Rank, Suit } from '../../../lib/cards';
-import type { Direction, Player } from '../../../people/types';
+import type { Direction, Look, Player } from '../../../people/types';
 export type { Direction, Player, Rank, Suit };
 
 /** Seats 0 and 2 are team 'a', seats 1 and 3 team 'b'; play goes 0 → 1 → 2 → 3. */
@@ -102,6 +102,8 @@ export interface SpWho {
   emoji: string;
   color: string;
   photoUrl?: string | null;
+  /** What they wear (backend-requests §3); missing from an older server. */
+  look?: Look | null;
 }
 
 export interface SpSeat {

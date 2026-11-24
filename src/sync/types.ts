@@ -1,5 +1,5 @@
 /** The API's shapes as built. Times are epoch ms, ids UUID strings. */
-import type { Direction } from '@/people';
+import type { Direction, Look } from '@/people';
 import type { Decks, Game, Night, Trump, Wrapped } from '@/games/kachuful/domain';
 import type { GameId } from '@/platform/route';
 
@@ -52,6 +52,8 @@ export interface Player {
   anonymised?: boolean;
   /** Other names the same person plays under (one email, one person); missing from an older server. */
   aliases?: PlayerAlias[];
+  /** What they wear (backend-requests §3); null when never set, missing from an older server. */
+  look?: Look | null;
   createdAt: number;
   updatedAt: number;
 }
@@ -281,7 +283,15 @@ export interface LaddersResp {
 
 export interface Activity {
   id: number;
-  kind: 'achievement' | 'game_finished' | 'season_closed' | 'player_joined' | 'crown' | 'night';
+  kind:
+    | 'achievement'
+    | 'game_finished'
+    | 'season_closed'
+    | 'player_joined'
+    | 'crown'
+    | 'night'
+    | 'gift'
+    | 'milestone';
   /** The game the item is about (`game` is the finished game's summary); left out by an older server. */
   gameKind?: GameId;
   player: PlayerSummary | null;
@@ -344,6 +354,8 @@ export interface Bounty {
 export interface GameStatus {
   changes: CrownChange[];
   bounties: Bounty[];
+  /** Milestones this write created (backend-requests §6); missing from an older server. */
+  milestones?: MilestoneOut[];
 }
 
 /** GET /api/crowns: every crown, `holders` empty when nobody holds it. */
@@ -480,11 +492,13 @@ export interface SikkeLevel {
   next: number | null;
 }
 
-/** GET /api/players/{id}/sikke. */
+/** GET /api/players/{id}/sikke. `balance` is lifetime less `spent` (negative after a recompute lowered it). */
 export interface SikkeResp {
   playerId: string;
   balance: number;
   lifetime: number;
+  /** Missing from a server older than the Bazaar (backend-requests §4). */
+  spent?: number;
   level: SikkeLevel;
 }
 
@@ -511,4 +525,83 @@ export interface GameSikkeResp {
     level: SikkeLevel;
     levelUp: { from: number; to: number } | null;
   }[];
+}
+
+export type { Look, LookItem, LookSlot } from '@/people';
+
+/** What a player can spend (backend-requests §4); shown as 0 and blocks buying when negative. */
+export interface Balance {
+  earned: number;
+  spent: number;
+  balance: number;
+}
+
+export type OwnedSource = 'bought' | 'gift' | 'level' | 'honour';
+
+/** One owned (item, variant) pair; `at` is null for what's derived (level gifts, honours). */
+export interface OwnedItem {
+  id: string;
+  v: number;
+  source: OwnedSource;
+  at: number | null;
+}
+
+/** A look kept for later; it may hold items not owned yet, dropped when it's worn. */
+export interface SavedLook {
+  name: string;
+  look: Look;
+}
+
+/** GET /api/me/wardrobe: `saved` always has three slots. */
+export interface WardrobeResp {
+  owned: OwnedItem[];
+  look: Look;
+  saved: (SavedLook | null)[];
+  balance: Balance;
+}
+
+/** An item on sale; `owned` lists the variants already owned. */
+export interface BazaarItem {
+  id: string;
+  price: number;
+  owned: number[];
+}
+
+/** GET /api/bazaar: this week's stock (`week` like `2026-W48`) and the always-on commons. */
+export interface BazaarResp {
+  week: string;
+  refreshesAt: number;
+  weekly: BazaarItem[];
+  always: BazaarItem[];
+  balance: Balance;
+}
+
+/** POST /api/bazaar/purchases. */
+export interface PurchaseResp {
+  item: OwnedItem;
+  balance: Balance;
+}
+
+/** An item sent to a player (backend-requests §5); the receiver owns it at once, `openedAt` marks it shown. */
+export interface Gift {
+  id: string;
+  item: { id: string; v: number };
+  from: PlayerSummary;
+  to: PlayerSummary;
+  sentAt: number;
+  openedAt: number | null;
+}
+
+/**
+ * A group milestone (`group:spades:100`, `n` the count) or a first (`first:spades:boston`, `n` null), app-wide
+ * (backend-requests §6). `game` is null for the all-games count.
+ */
+export interface MilestoneOut {
+  key: string;
+  kind: 'group' | 'first';
+  game: GameId | null;
+  gameId: string | null;
+  n: number | null;
+  players: PlayerSummary[];
+  at: number;
 }

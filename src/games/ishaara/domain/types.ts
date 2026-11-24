@@ -1,5 +1,5 @@
 // One players registry for every game; relative, because the mock API loads the domain outside Vite.
-import type { Player } from '../../../people/types';
+import type { Look, Player } from '../../../people/types';
 export type { Player };
 
 export type Team = 'sun' | 'moon';
@@ -20,6 +20,8 @@ export interface IshaaraRules {
 export interface Seated extends Player {
   team: Team;
   role: Role;
+  /** What the seat's player wears, from the server (backend-requests §3); missing from an older one. */
+  look?: Look | null;
 }
 
 export interface Clue {

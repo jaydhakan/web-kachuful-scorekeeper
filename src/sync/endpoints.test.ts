@@ -323,3 +323,138 @@ describe('appearance, preferences and the active game', () => {
     });
   });
 });
+
+describe('wardrobe, bazaar, gifts and milestones (backend-requests §3–§6)', () => {
+  const BAL = { earned: 1200, spent: 300, balance: 900 };
+  const LOOK = { outfit: { id: 'jersey', v: 2, number: 7 }, frame: { id: 'neon_ring', v: 0 } };
+
+  it('reads and writes the wardrobe, saved looks by slot', async () => {
+    let calls = serve(200, {
+      owned: [{ id: 'kurta', v: 0, source: 'level', at: null }],
+      look: LOOK,
+      saved: [null, { name: 'Shaadi', look: LOOK }, null],
+      balance: BAL,
+    });
+    const w = (await ep.wardrobe()).data;
+    expect(calls()[0][0]).toBe('/api/me/wardrobe');
+    expect(w.saved).toHaveLength(3);
+    expect(w.balance.balance).toBe(900);
+    calls = serve(200, LOOK);
+    expect(await ep.putLook(LOOK)).toEqual(LOOK);
+    expect(calls()[0]).toMatchObject([
+      '/api/me/wardrobe/look',
+      { method: 'PUT', body: JSON.stringify(LOOK) },
+    ]);
+    calls = serve(200, { name: 'Shaadi', look: LOOK });
+    await ep.putSavedLook(1, 'Shaadi', LOOK);
+    expect(calls()[0]).toMatchObject([
+      '/api/me/wardrobe/saved/1',
+      { method: 'PUT', body: JSON.stringify({ name: 'Shaadi', look: LOOK }) },
+    ]);
+    calls = serve(204);
+    await ep.deleteSavedLook(2);
+    expect(calls()[0]).toMatchObject(['/api/me/wardrobe/saved/2', { method: 'DELETE' }]);
+  });
+
+  it('wardrobe errors: 409 no_player, 422 invalid_look with the slot', async () => {
+    serve(409, { code: 'no_player' });
+    expect(await fail(ep.wardrobe())).toMatchObject({ status: 409, code: 'no_player' });
+    serve(422, { code: 'invalid_look', slot: 'headwear' });
+    expect((await fail(ep.putLook({ headwear: { id: 'safa', v: 1 } })))?.body.slot).toBe(
+      'headwear',
+    );
+  });
+
+  it('the bazaar, and a purchase sent with the caller’s id', async () => {
+    let calls = serve(200, {
+      week: '2026-W48',
+      refreshesAt: 1795060800000,
+      weekly: [{ id: 'shawl', price: 750, owned: [] }],
+      always: [{ id: 'kurta', price: 100, owned: [0] }],
+      balance: BAL,
+    });
+    expect((await ep.bazaar()).data.week).toBe('2026-W48');
+    expect(calls()[0][0]).toBe('/api/bazaar');
+    calls = serve(200, {
+      item: { id: 'shawl', v: 1, source: 'bought', at: 1 },
+      balance: { ...BAL, spent: 1100, balance: 100 },
+    });
+    const out = await ep.buy('shawl', 1, 'p-1');
+    expect(out.item.source).toBe('bought');
+    expect(calls()[0]).toMatchObject([
+      '/api/bazaar/purchases',
+      { method: 'POST', body: '{"itemId":"shawl","v":1,"purchaseId":"p-1"}' },
+    ]);
+  });
+
+  it('purchase errors carry their codes and details', async () => {
+    serve(422, { code: 'not_enough_sikke', balance: 40, price: 300 });
+    expect(await fail(ep.buy('shades', 0, 'p'))).toMatchObject({
+      status: 422,
+      code: 'not_enough_sikke',
+      body: { balance: 40, price: 300 },
+    });
+    for (const [status, code] of [
+      [422, 'not_in_stock'],
+      [409, 'already_owned'],
+      [422, 'not_for_sale'],
+    ] as const) {
+      serve(status, { code });
+      expect(await fail(ep.buy('x', 0, 'p'))).toMatchObject({ status, code });
+    }
+  });
+
+  it('gifts: send, pending for a table, open, and my list', async () => {
+    const gift = {
+      id: 'g1',
+      item: { id: 'sherwani', v: 0 },
+      from: ASHA,
+      to: { ...ASHA, id: 'p2', displayName: 'Dev' },
+      sentAt: 1,
+      openedAt: null,
+    };
+    let calls = serve(200, gift);
+    await ep.sendGift('sherwani', 0, 'p2', 'g1');
+    expect(calls()[0]).toMatchObject([
+      '/api/gifts',
+      { method: 'POST', body: '{"itemId":"sherwani","v":0,"toPlayerId":"p2","giftId":"g1"}' },
+    ]);
+    calls = serve(200, { items: [gift] });
+    expect((await ep.pendingGifts(['p1', 'p2'])).items).toHaveLength(1);
+    expect(calls()[0][0]).toBe('/api/gifts/pending?players=p1%2Cp2');
+    calls = serve(200, { ...gift, openedAt: 2 });
+    expect((await ep.openGift('g1')).openedAt).toBe(2);
+    expect(calls()[0]).toMatchObject(['/api/gifts/g1/open', { method: 'POST' }]);
+    calls = serve(200, { items: [gift], nextCursor: 'c2' });
+    expect((await ep.myGifts('c1')).nextCursor).toBe('c2');
+    expect(calls()[0][0]).toBe('/api/me/gifts?cursor=c1&limit=50');
+    for (const [status, code] of [
+      [422, 'not_in_circle'],
+      [422, 'self_gift'],
+      [409, 'already_owned'],
+    ] as const) {
+      serve(status, { code });
+      expect(await fail(ep.sendGift('x', 0, 'p', 'g'))).toMatchObject({ status, code });
+    }
+  });
+
+  it('milestones page newest first', async () => {
+    const calls = serve(200, {
+      items: [
+        {
+          key: 'group:all:100',
+          kind: 'group',
+          game: null,
+          gameId: 'g9',
+          n: 100,
+          players: [ASHA],
+          at: 5,
+        },
+      ],
+      nextCursor: null,
+    });
+    const p = await ep.milestones(null);
+    expect(calls()[0][0]).toBe('/api/milestones?limit=50');
+    expect(p.items[0].n).toBe(100);
+  });
+});
