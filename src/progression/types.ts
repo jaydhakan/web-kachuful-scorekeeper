@@ -15,11 +15,23 @@ export interface AchievementDef {
   shame?: boolean;
   /** A surprise: the catalogue shows "???" until someone earns it (REWARDS-PLAN §8). */
   hidden?: boolean;
+  /** No longer given: the catalogue and its counts leave it out for anyone who never earned it. */
+  retired?: true;
 }
 
 /** Marks `codes` hidden in a catalogue (each game keeps its own list beside its catalogue). */
 export const hide = (defs: AchievementDef[], codes: readonly string[]): AchievementDef[] =>
   defs.map((d) => (codes.includes(d.code) ? { ...d, hidden: true } : d));
+
+/** Marks `codes` retired in a catalogue. */
+export const retire = (defs: AchievementDef[], codes: readonly string[]): AchievementDef[] =>
+  defs.map((d) => (codes.includes(d.code) ? { ...d, retired: true as const } : d));
+
+/** The catalogue as one player (or everyone) sees it: a retired code only where `earned` holds it. */
+export const shownCatalogue = <D extends AchievementDef>(
+  defs: readonly D[],
+  earned: { has: (code: string) => boolean },
+): D[] => defs.filter((d) => !d.retired || earned.has(d.code));
 
 /** One earned achievement (the contract's Achievement, without the server's row id). */
 export interface Earned {

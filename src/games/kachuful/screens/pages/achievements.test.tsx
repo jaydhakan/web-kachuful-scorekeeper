@@ -4,6 +4,7 @@ import { archive } from '@/state/archive';
 import { KEYS } from '@/state/persistence';
 import { ep } from '@/sync/endpoints';
 import type { Achievement } from '@/sync/types';
+import { ACHIEVEMENTS } from '@/games/kachuful/domain';
 import { AchievementsPage } from './AchievementsPage';
 
 const won = (code: string, playerId: string, earnedAt = 1): Achievement => ({
@@ -91,5 +92,32 @@ describe('achievements, signed in', () => {
     await show('x');
     await screen.findByText(/^Earned · /);
     expect(screen.queryByText('New')).not.toBeInTheDocument();
+  });
+
+  it('leaves a retired achievement out, and its count, unless the player earned it', async () => {
+    signIn();
+    vi.spyOn(ep, 'player').mockRejectedValue(new Error('offline'));
+    vi.spyOn(ep, 'achievements').mockResolvedValue({
+      items: [won('season_sharpest', 'x'), won('winner', 'y')],
+      nextCursor: null,
+    });
+    const total = ACHIEVEMENTS.length;
+    await show('y');
+    const summary = await screen.findByRole('region', { name: 'Achievements unlocked' });
+    await within(summary).findByText(`/ ${total - 1}`);
+    expect(screen.queryByText('Sharpest of the season')).not.toBeInTheDocument();
+  });
+
+  it('shows a retired achievement to someone who earned it, counted like any other', async () => {
+    signIn();
+    vi.spyOn(ep, 'player').mockRejectedValue(new Error('offline'));
+    vi.spyOn(ep, 'achievements').mockResolvedValue({
+      items: [won('season_sharpest', 'x')],
+      nextCursor: null,
+    });
+    await show('x');
+    const summary = await screen.findByRole('region', { name: 'Achievements unlocked' });
+    await within(summary).findByText(`/ ${ACHIEVEMENTS.length}`);
+    expect(screen.getByText('Sharpest of the season')).toBeInTheDocument();
   });
 });

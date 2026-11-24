@@ -2,7 +2,7 @@ import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { cardsOf, GROUPS } from '@/progression/cards';
 import { byCode } from '@/progression/catalogue';
-import type { AchievementDef, Earned, Ladder } from '@/progression/types';
+import { shownCatalogue, type AchievementDef, type Earned, type Ladder } from '@/progression/types';
 import { dayLabel } from '@/lib/dates';
 import { Chip, ChipRow, PageFrame, Section } from '@/components/ui/PageParts';
 import { Progress, ProgressRing } from '@/components/ui/Stats';
@@ -48,6 +48,7 @@ export function AchievementsView({
   const players = useMemo(() => [...new Set(list.map((e) => e.playerId))], [list]);
   const by = new Map<string, Earned[]>();
   for (const e of mine) by.set(e.code, [...(by.get(e.code) ?? []), e]);
+  const have = new Set(by.keys());
   // When this screen was last opened for each player, read once per visit: what came after it is "new".
   const seen = useRef(new Map<string, number | null>());
   if (who && !seen.current.has(who)) seen.current.set(who, loadAchSeen(who, prog.id));
@@ -93,9 +94,9 @@ export function AchievementsView({
         <RemotePending r={remote} />
       ) : (
         <>
-          <Summary have={new Set(by.keys())} everyone={!who} />
+          <Summary have={have} everyone={!who} />
           {GROUPS.map((g) => {
-            const cards = cardsOf(prog.catalogue, prog.ladders, g);
+            const cards = cardsOf(shownCatalogue(prog.catalogue, have), prog.ladders, g);
             return (
               cards.length > 0 && (
                 <Section key={g} title={prog.strings.groups[g]}>
@@ -139,7 +140,8 @@ export function AchievementsView({
 /** How much of the catalogue is unlocked, overall and by group; each code counts once. */
 function Summary({ have, everyone }: { have: Set<string>; everyone: boolean }) {
   const { prog } = useProgressionEnv();
-  const total = prog.catalogue.length;
+  const catalogue = shownCatalogue(prog.catalogue, have);
+  const total = catalogue.length;
   const n = have.size;
   const share = total ? n / total : 0;
   return (
@@ -160,7 +162,7 @@ function Summary({ have, everyone }: { have: Set<string>; everyone: boolean }) {
       </div>
       <ul className="grid flex-1 gap-2">
         {GROUPS.map((g) => {
-          const codes = prog.catalogue.filter((x) => x.group === g);
+          const codes = catalogue.filter((x) => x.group === g);
           if (!codes.length) return null;
           const got = codes.filter((x) => have.has(x.code)).length;
           const name = prog.strings.groups[g];

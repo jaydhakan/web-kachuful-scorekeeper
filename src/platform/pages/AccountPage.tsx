@@ -2,6 +2,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { emailKey, emailOk, NAME_MAX, tidyName } from '@/people';
 import { ACHIEVEMENTS } from '@/games/kachuful/domain';
+import { shownCatalogue } from '@/progression/types';
 import { agoTxt } from '@/lib/format';
 import { timeLabel } from '@/lib/dates';
 import { passwordOk } from '@/lib/password';
@@ -291,7 +292,9 @@ function MeStats({ id }: { id: string }) {
     );
   }
   const { rank, totals, achievements } = r.data;
-  const unlocked = new Set(achievements.map((a) => a.code)).size;
+  const codes = new Set(achievements.map((a) => a.code));
+  const unlocked = codes.size;
+  const total = shownCatalogue(ACHIEVEMENTS, codes).length;
   return (
     <div className="mb-3">
       {r.offline && r.fetchedAt && (
@@ -315,14 +318,14 @@ function MeStats({ id }: { id: string }) {
         />
         <HeroStat
           label={ac.achievements}
-          said={ac.achievementsSaid(unlocked, ACHIEVEMENTS.length)}
+          said={ac.achievementsSaid(unlocked, total)}
           value={
             <span className="inline-flex items-center gap-1.5">
-              <ProgressRing share={unlocked / ACHIEVEMENTS.length} className="h-6 w-6" />
+              <ProgressRing share={unlocked / total} className="h-6 w-6" />
               {unlocked}
             </span>
           }
-          sub={`/ ${ACHIEVEMENTS.length}`}
+          sub={`/ ${total}`}
           onClick={() => actions.open({ screen: 'achievements', params: { id } })}
         />
       </div>

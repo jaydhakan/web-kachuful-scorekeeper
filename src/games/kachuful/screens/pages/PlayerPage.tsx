@@ -46,6 +46,7 @@ import { SuitGlyph } from '@/components/ui/SuitGlyph';
 import { stagger } from '@/components/ui/stagger';
 import { TR } from '@/theme/trumps';
 import { achName } from '@/games/kachuful/strings/achievements';
+import { shownCatalogue } from '@/progression/types';
 import { ep } from '@/sync/endpoints';
 import { useRemote } from '@/sync/useRemote';
 import { t } from '@/strings';
@@ -90,7 +91,9 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const line = useMemo(() => pointsOverTime(f, id, range.from, range.to), [f, id, range]);
   const localEarned = useMemo(() => allAchievements(f).filter((e) => e.playerId === id), [f, id]);
   const earned: Earned[] = rProfile.data?.achievements ?? localEarned;
-  const unlocked = useMemo(() => new Set(earned.map((e) => e.code)).size, [earned]);
+  const codes = useMemo(() => new Set(earned.map((e) => e.code)), [earned]);
+  const unlocked = codes.size;
+  const total = useMemo(() => shownCatalogue(ACHIEVEMENTS, codes).length, [codes]);
   const localCal = useMemo(() => calendar(f, id), [f, id]);
   const cal = rCal.data?.days ?? localCal;
   // Signed in, who they play with comes from the server's list of their games, not just this device's.
@@ -201,14 +204,14 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             />
             <HeroStat
               label={t.hub.account.achievements}
-              said={t.hub.account.achievementsSaid(unlocked, ACHIEVEMENTS.length)}
+              said={t.hub.account.achievementsSaid(unlocked, total)}
               value={
                 <span className="inline-flex items-center gap-1.5">
-                  <ProgressRing share={unlocked / ACHIEVEMENTS.length} className="h-6 w-6" />
+                  <ProgressRing share={unlocked / total} className="h-6 w-6" />
                   {unlocked}
                 </span>
               }
-              sub={`/ ${ACHIEVEMENTS.length}`}
+              sub={`/ ${total}`}
               onClick={() => actions.open({ screen: 'achievements', params: { id } })}
             />
           </div>
@@ -335,9 +338,9 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
             aside={
               <span className="flex items-center gap-2">
                 <span className="flex items-center gap-1.5 text-13 font-bold tabular-nums text-[var(--tx2)]">
-                  <ProgressRing share={unlocked / ACHIEVEMENTS.length} className="h-6 w-6" />
+                  <ProgressRing share={unlocked / total} className="h-6 w-6" />
                   <span className="sr-only">{t.hub.ach.summary}: </span>
-                  {unlocked} / {ACHIEVEMENTS.length}
+                  {unlocked} / {total}
                 </span>
                 <button
                   type="button"

@@ -1,5 +1,5 @@
 import { peekProgression } from '@/progression/registry';
-import type { GameId } from '@/progression/types';
+import { shownCatalogue, type GameId } from '@/progression/types';
 import { ep } from '@/sync/endpoints';
 import { newsworthy, type Page as Paged } from '@/sync/types';
 import { useRemote } from '@/sync/useRemote';
@@ -21,8 +21,8 @@ import { progression as ps } from '@/strings/progression';
 const GAMES: readonly GameId[] = ['kachuful', 'kaali-teeri', 'spades', 'ishaara'];
 const PREVIEW = 3;
 
-/** How many different achievements I hold in each game: every page of my rows, the four games at once. */
-async function myCounts(id: string): Promise<Record<GameId, number>> {
+/** The different achievements I hold in each game: every page of my rows, the four games at once. */
+async function myCodes(id: string): Promise<Record<GameId, string[]>> {
   const one = async (game: GameId) => {
     const codes = new Set<string>();
     let cursor: string | null = null;
@@ -31,24 +31,26 @@ async function myCounts(id: string): Promise<Record<GameId, number>> {
       for (const e of p.items) codes.add(e.code);
       cursor = p.nextCursor;
     } while (cursor);
-    return [game, codes.size] as const;
+    return [game, [...codes]] as const;
   };
-  return Object.fromEntries(await Promise.all(GAMES.map(one))) as Record<GameId, number>;
+  return Object.fromEntries(await Promise.all(GAMES.map(one))) as Record<GameId, string[]>;
 }
 
 /** Each game's achievements I hold out of its catalogue; a row opens that game's Achievements page on me. */
 export function MeAchievements({ id }: { id: string }) {
   const { actions } = useApp();
   const cats = useEveryCatalogue(true);
-  const r = useRemote(`me:ach:${id}`, () => myCounts(id));
+  // Codes, not counts, so a retired code counts only where it was earned (a new cache key: the old held numbers).
+  const r = useRemote(`me:achc:${id}`, () => myCodes(id));
   return (
     <Section title={ps.everyGame}>
       <RemoteGate r={cats ? r : { ...r, data: null, error: null }} rows={GAMES.length}>
         {(counts) => (
           <ul className="glass overflow-hidden">
             {GAMES.map((g, i) => {
-              const of = peekProgression(g)?.catalogue.length ?? 0;
-              const n = counts[g] ?? 0;
+              const mine = new Set(counts[g] ?? []);
+              const of = shownCatalogue(peekProgression(g)?.catalogue ?? [], mine).length;
+              const n = mine.size;
               const name = platform.games[g].name;
               return (
                 <li key={g} className={i ? 'border-t border-ov/10' : ''}>
