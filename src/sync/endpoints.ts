@@ -17,6 +17,7 @@ import type {
   Bootstrap,
   Daily,
   GameSeasonResp,
+  GameMedalsResp,
   LaddersResp,
   GameSummary,
   HeadToHead,
@@ -216,6 +217,9 @@ export const ep = {
   /** Kachuful's medals as they stood before `excludeGame` (the game at the table). */
   medals: (excludeGame: string, o?: CallOpts) =>
     call<MedalsResp>('GET', '/medals' + query({ excludeGame }), undefined, o),
+  /** Another game's medals as they stood before `excludeGame`, ranked on win rate (backend-requests §1). */
+  gameMedals: (game: Exclude<GameId, 'kachuful'>, excludeGame: string, o?: CallOpts) =>
+    call<GameMedalsResp>('GET', '/medals' + query({ game, excludeGame }), undefined, o),
   // Sikke (rewards plan §9)
   sikke: (id: string, o?: CallOpts) => call<SikkeResp>('GET', `/players/${id}/sikke`, undefined, o),
   sikkeEntries: (id: string, cursor: string | null) =>
@@ -241,8 +245,8 @@ export const ep = {
   milestones: (cursor: string | null) =>
     get<Page<MilestoneOut>>('/milestones', { cursor, limit: 50 }),
   // Crowns and nights (backend-requests §6, §7)
-  crowns: (o?: CallOpts) =>
-    call<CrownsResp>('GET', '/crowns' + query({ game: 'kachuful' }), undefined, o),
+  crowns: (o?: CallOpts, game: GameId = 'kachuful') =>
+    call<CrownsResp>('GET', '/crowns' + query({ game }), undefined, o),
   crownReigns: (kind: CrownKind, cursor: string | null, sort: 'recent' | 'defences' = 'recent') =>
     get<Page<CrownReign>>('/crowns/reigns', { game: 'kachuful', kind, cursor, sort }),
   nights: (playerId: string, cursor: string | null) =>
@@ -250,8 +254,8 @@ export const ep = {
   night: (id: string, o?: CallOpts) => call<NightResp>('GET', `/nights/${id}`, undefined, o),
   closeNight: () => post<{ id: string }>('/nights/close'),
   /** Ended Kachuful games' places, without `excludeGame`, for the table intel line. */
-  places: (excludeGame: string, o?: CallOpts) =>
-    call<PlacesResp>('GET', '/places' + query({ excludeGame }), undefined, o),
+  places: (excludeGame: string, o?: CallOpts, game?: GameId) =>
+    call<PlacesResp>('GET', '/places' + query({ game: gameOf(game), excludeGame }), undefined, o),
   seasons: (o?: CallOpts, game?: GameId) =>
     call<{ season: string; champion: PlayerSummary | null }[]>(
       'GET',

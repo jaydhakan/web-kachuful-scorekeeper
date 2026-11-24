@@ -254,6 +254,23 @@ export interface MedalsResp {
   };
 }
 
+/**
+ * GET /api/medals?game= for every game but Kachuful (backend-requests §1): the month's win-rate standings without the
+ * game at the table, last month's top three, and today's wins for Aaj ka Sitara.
+ */
+export interface GameMedalsResp {
+  game: GameId;
+  season: string;
+  minGames: number;
+  standings: GameSeasonRow[];
+  lastSeason: GameSeasonRow[];
+  today: {
+    day: string;
+    games: number;
+    rows: { player: PlayerSummary; wins: number; games: number }[];
+  };
+}
+
 /** A standings row of a month ranked on win rate (`value`, 0–1): every game but Kachuful. */
 export interface GameSeasonRow {
   rank: number | null;
