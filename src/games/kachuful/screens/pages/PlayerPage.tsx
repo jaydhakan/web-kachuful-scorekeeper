@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react';
 import {
   ACH,
   ACHIEVEMENTS,
-  allAchievements,
+  deviceAchievements,
   calendar,
   opponents,
   pointsOverTime,
@@ -89,7 +89,10 @@ export function PlayerPage({ id, facts }: { id: string; facts?: Facts }) {
   const localStats = useMemo(() => profileStats(f, id, range.from, range.to), [f, id, range]);
   const s = rStats.data ?? localStats;
   const line = useMemo(() => pointsOverTime(f, id, range.from, range.to), [f, id, range]);
-  const localEarned = useMemo(() => allAchievements(f).filter((e) => e.playerId === id), [f, id]);
+  const localEarned = useMemo(
+    () => deviceAchievements(f).filter((e) => e.playerId === id),
+    [f, id],
+  );
   const earned: Earned[] = rProfile.data?.achievements ?? localEarned;
   const codes = useMemo(() => new Set(earned.map((e) => e.code)), [earned]);
   const unlocked = codes.size;

@@ -17,6 +17,7 @@ export * from './timeline';
 export * from './leaderboard';
 export * from './profile';
 export * from './achievements';
+export * from './giant';
 export * from './awards';
 export * from './validate';
 export * from './medals';

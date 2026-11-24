@@ -67,6 +67,7 @@ export const ACHIEVEMENTS: AchievementDef[] = retire(
       d('marathon', '🏃‍♂️', 'game'),
       d('full_house', '🏠', 'game'),
       d('night_owl', '🦉', 'game'),
+      d('giant_killer', '🪓', 'game'),
       d('first_win', '🥇', 'career'),
       d('back_to_back', '✌️', 'career'),
       d('hat_trick', '🎩', 'career', true),

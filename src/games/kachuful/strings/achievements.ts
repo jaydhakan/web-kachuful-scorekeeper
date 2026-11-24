@@ -54,6 +54,10 @@ export const achievements: Record<string, Entry> = {
   marathon: { name: 'Marathon', how: 'Play a game of 30 rounds or more' },
   full_house: { name: 'Full house', how: 'Play a 10-player game' },
   night_owl: { name: 'Night owl', how: 'Finish a game between 1 and 5 am' },
+  giant_killer: {
+    name: 'Giant Killer',
+    how: 'Finish above the Badshah 🥇 with no medal of your own (3 or more players)',
+  },
   first_win: { name: 'First win', how: 'Win your first game' },
   back_to_back: { name: 'Back to back', how: 'Win 2 games in a row' },
   hat_trick: { name: 'Hat-trick', how: 'Win 3 games in a row' },

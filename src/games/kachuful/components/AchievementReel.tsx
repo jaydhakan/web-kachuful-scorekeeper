@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import {
   ACH,
   ACHIEVEMENTS,
-  allAchievements,
+  deviceAchievements,
   LADDERS,
   pidOf,
   type Earned,
@@ -29,7 +29,7 @@ const CAT: CatalogueView = {
 const cache = new WeakMap<Facts, Earned[]>();
 const earnedOf = (f: Facts) => {
   let e = cache.get(f);
-  if (!e) cache.set(f, (e = allAchievements(f)));
+  if (!e) cache.set(f, (e = deviceAchievements(f)));
   return e;
 };
 

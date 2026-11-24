@@ -8,6 +8,7 @@ import {
   dailyAwards,
   gameFacts,
   gameEndedAt,
+  giantKillers,
   leaderboard,
   METRICS,
   rangeFor,
@@ -17,6 +18,7 @@ import {
   totals,
   validate,
   type Game,
+  type Holder,
 } from './index';
 
 /**
@@ -268,6 +270,44 @@ function build() {
     'set-accuracy',
     setFixture('bid accuracy ranks the month; an accuracy tie breaks on average', titles),
   );
+  // Giant Killer: the server passes its own medals as they stood when the game ended (`held`, by player id).
+  const four = (id: string, winners: (i: number) => number[]) =>
+    g({ id, players: ['a', 'b', 'c', 'd'], rounds: rows(4, 4, winners), finished: true });
+  const order = four('50000000-0000-4000-8000-000000000001', (i) => (i < 2 ? [1, 2] : [1]));
+  const tie = four('50000000-0000-4000-8000-000000000002', () => [1, 2]);
+  const two = g({
+    id: '50000000-0000-4000-8000-000000000003',
+    players: ['a', 'b'],
+    rounds: rows(2, 3, [1]),
+    finished: true,
+  });
+  const gold: Holder = { medal: 1, defending: false };
+  const giant = (name: string, game: Game, held: Record<string, Holder>) => {
+    const end = gameEndedAt(game, NOW).at;
+    return {
+      name,
+      game,
+      held,
+      places: Object.fromEntries(standings(game).map((s) => [s.p.playerId, s.rank])),
+      expect: giantKillers(gameFacts(game, end), new Map(Object.entries(held))),
+    };
+  };
+  add('giant-killer', {
+    kind: 'giant-killer',
+    name: 'finish strictly above every seated Badshah with no medal, at a table where 3+ played',
+    cases: [
+      giant('earned: b beats the Badshah c', order, { c: gold }),
+      giant('not earned: b holds a medal', order, {
+        c: gold,
+        b: { medal: 3, defending: false },
+      }),
+      giant('not with 2 players', two, { a: gold }),
+      giant('no Badshah seated', order, { zed: gold }),
+      giant('a defending Badshah counts', order, { d: { medal: 1, defending: true } }),
+      giant('tied with the Badshah is not above', tie, { c: gold }),
+      giant('tied above the Badshah: both earn', tie, { d: gold }),
+    ],
+  });
   return out;
 }
 

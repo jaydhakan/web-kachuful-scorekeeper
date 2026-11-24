@@ -1,6 +1,6 @@
 import {
   ACHIEVEMENTS,
-  allAchievements,
+  deviceAchievements,
   dailyAwards,
   LADDERS,
   ladderCounts,
@@ -47,7 +47,7 @@ export const progression: GameProgression<Facts> = {
   seasonMin: SEASON_MIN_ROUNDS,
   awardValue,
   device: {
-    earned: (f) => allAchievements(f),
+    earned: (f) => deviceAchievements(f),
     ladderCounts: (f, id) => ladderCounts(f, id),
     daily: (f, day) => dailyAwards(f, day),
     season: (f, month) => season(f, month),
