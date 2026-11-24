@@ -1,3 +1,4 @@
+import { TurnBanter } from '@/games/ishaara/screens/IshCrowns';
 import type { IshaaraTable } from '@/games/ishaara/state/useTable';
 import { table as s } from '@/games/ishaara/strings/table';
 import { IconButton } from '@/components/ui/IconButton';
@@ -84,6 +85,7 @@ export function Board({ table, onLeave, onRules, onFinished }: BoardProps) {
                 {Icon.menu}
               </IconButton>
               <TurnBanner game={game} />
+              <TurnBanter g={game} />
               <span className="flex min-w-12 justify-end">
                 <TurnTimer deadline={active ? game.deadline : null} offset={clockOffset} />
               </span>

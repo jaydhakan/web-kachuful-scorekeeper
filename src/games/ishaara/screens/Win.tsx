@@ -1,3 +1,5 @@
+import { useCrownTakeover } from '@/components/crowns/CrownTakeover';
+import { useCrowns } from '@/components/crowns/table';
 import { m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useRef, useState } from 'react';
 import {
@@ -79,6 +81,17 @@ export default function Win({ game }: { game: IshaaraPublic }) {
   // motion. finishedAt is the server's clock; a minute and a half covers any skew and the trap's hold.
   const [party, setParty] = useState(
     () => !rm && !!game.finishedAt && Math.abs(Date.now() - game.finishedAt) < JUST_FINISHED_MS,
+  );
+  // Gold changing hands plays after the cheer (REWARDS-PLAN §6.7), for a game that just ended only.
+  const [fresh] = useState(
+    () => !!game.finishedAt && Math.abs(Date.now() - game.finishedAt) < JUST_FINISHED_MS,
+  );
+  const takeover = useCrownTakeover(
+    useCrowns(),
+    `crowns:ish:${game.id}`,
+    `game:${game.id}`,
+    fresh,
+    rm ? 300 : 1800,
   );
   const headline = useRef<HTMLHeadingElement>(null);
   const [busy, setBusy] = useState(false);
@@ -282,6 +295,7 @@ export default function Win({ game }: { game: IshaaraPublic }) {
           </PrimaryButton>
         )}
       </div>
+      {takeover.node}
     </div>
   );
 }

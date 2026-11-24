@@ -72,16 +72,22 @@ export function serverBase(
   return {
     month: d.season,
     minGames: d.minGames,
-    rows: d.standings.map(unrow),
-    last: d.lastSeason.map(unrow),
+    // An older server answers in Kachuful's shape (no standings): nobody holds anything rather than a broken table.
+    rows: (Array.isArray(d.standings) ? d.standings : []).map(unrow),
+    last: (Array.isArray(d.lastSeason) ? d.lastSeason : []).map(unrow),
     today: {
-      games: d.today.games,
-      rows: new Map(d.today.rows.map((r) => [r.player.id, { wins: r.wins, games: r.games }])),
+      games: d.today?.games ?? 0,
+      rows: new Map(
+        (Array.isArray(d.today?.rows) ? d.today.rows : []).map((r) => [
+          r.player.id,
+          { wins: r.wins, games: r.games },
+        ]),
+      ),
     },
-    champions: (seasons ?? [])
+    champions: (Array.isArray(seasons) ? seasons : [])
       .filter((x) => x.season < d.season)
       .map((x) => x.champion?.id ?? null),
-    places: places?.games,
+    places: Array.isArray(places?.games) ? places.games : undefined,
   };
 }
 

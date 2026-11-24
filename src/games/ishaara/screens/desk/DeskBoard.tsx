@@ -1,3 +1,4 @@
+import { TurnBanter } from '@/games/ishaara/screens/IshCrowns';
 import { useIsPresent } from 'framer-motion';
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import {
@@ -91,6 +92,7 @@ export default function DeskBoard({ table, onLeave, onRules, onFinished }: Board
                 {Icon.menu}
               </IconButton>
               <TurnBanner game={game} />
+              <TurnBanter g={game} />
               <span className="flex min-w-12 justify-end">
                 <TurnTimer deadline={active ? game.deadline : null} offset={clockOffset} />
               </span>

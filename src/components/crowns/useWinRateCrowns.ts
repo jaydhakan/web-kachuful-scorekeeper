@@ -55,7 +55,7 @@ export function useWinRateCrowns(o: WinRateCrownsOpts): TableCrowns {
   const names = useMemo(() => {
     const d = medals.data;
     const m = new Map<string, string>();
-    for (const r of d ? [...d.standings, ...d.lastSeason] : [])
+    for (const r of d ? [...(d.standings ?? []), ...(d.lastSeason ?? [])] : [])
       m.set(r.player.id, r.player.displayName);
     return m;
   }, [medals.data]);

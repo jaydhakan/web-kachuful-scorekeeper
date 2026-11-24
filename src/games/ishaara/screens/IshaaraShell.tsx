@@ -1,3 +1,4 @@
+import { IshCrowns } from './IshCrowns';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
   Suspense,
@@ -88,15 +89,17 @@ function TableGame({
   const screen = status === 'finished' && onBoard ? 'board' : tableScreen(t.game.status);
   // Its own boundary: loading a screen's chunk must never suspend this component, which holds the link.
   return (
-    <Suspense fallback={<Loader />}>
-      {screen === 'waiting' ? (
-        <Waiting game={t.game} onLeave={actions.leave} />
-      ) : screen === 'win' ? (
-        <Win game={t.game} />
-      ) : (
-        <Board table={t} onLeave={actions.leave} onRules={onRules} onFinished={finished} />
-      )}
-    </Suspense>
+    <IshCrowns g={t.game}>
+      <Suspense fallback={<Loader />}>
+        {screen === 'waiting' ? (
+          <Waiting game={t.game} onLeave={actions.leave} />
+        ) : screen === 'win' ? (
+          <Win game={t.game} />
+        ) : (
+          <Board table={t} onLeave={actions.leave} onRules={onRules} onFinished={finished} />
+        )}
+      </Suspense>
+    </IshCrowns>
   );
 }
 
