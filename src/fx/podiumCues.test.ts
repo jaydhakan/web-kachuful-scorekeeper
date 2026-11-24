@@ -1,4 +1,5 @@
-import { revealPlan } from '@/components/ui/podiumReveal';
+import { CEREMONY_GAP_MS, revealPlan } from '@/components/ui/podiumReveal';
+import { GAME_END_MAX_MS } from '@/components/ui/motion';
 import { podiumCues } from './podiumCues';
 
 describe('podiumCues', () => {
@@ -22,5 +23,15 @@ describe('podiumCues', () => {
     expect(names(c)).toEqual(['thud', 'roll', 'fanfare']);
     expect(c.reduced).toEqual({ name: 'fanfare' });
     expect(c.settle).toEqual({ name: 'fanfare' });
+  });
+
+  it('the last game of the night is slower, cracks a patakha, and ends inside the 4s ceiling', () => {
+    const slow = revealPlan([1, 2, 3], CEREMONY_GAP_MS);
+    const c = podiumCues(slow, { ceremony: true });
+    expect(names(c)).toEqual(['thud', 'thud', 'roll', 'fanfare', 'patakha']);
+    expect(slow.done).toBeGreaterThan(revealPlan([1, 2, 3]).done);
+    // The plan, and the ceremony card's 300ms fade after it, end before the game end's ceiling.
+    expect(slow.done + 300).toBeLessThan(GAME_END_MAX_MS);
+    expect(c.cues.at(-1)!.at + 800).toBeLessThan(GAME_END_MAX_MS);
   });
 });

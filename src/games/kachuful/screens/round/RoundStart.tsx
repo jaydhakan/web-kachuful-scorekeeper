@@ -19,6 +19,7 @@ import { t } from '@/strings';
 import { MedalName } from '@/components/ui/MedalName';
 import { medals } from '@/strings/medals';
 import { useMedals } from '@/games/kachuful/state/medals';
+import { lastGame } from '@/games/kachuful/strings/night';
 
 // One column when upright; the title group on the left and the table on the right when short or wide.
 const ROOT =
@@ -82,10 +83,12 @@ export function RoundStart() {
     prev = seq?.prev ?? null;
   const needPass = r !== undefined && prev != null && prev !== r.dealerIndex;
   const last = r !== undefined && r.index + 1 === totalRounds(g);
+  // The last game of the night's first deal says so where "Last round" would (REWARDS-PLAN §7.1).
+  const banner = last ? t.start.lastRound : r?.index === 0 && g.lastOfNight ? lastGame.final : null;
   // The last round is dealt a third slower.
   const fly = last ? 0.69 : 0.52,
     gap = last ? 0.08 : 0.06;
-  const liftAt = (last ? LAST : 0) + WAIT + hold,
+  const liftAt = (banner ? LAST : 0) + WAIT + hold,
     lineAt = liftAt + LIFT + TURN + BEAT;
   // The deal's sounds ride the same constants as its motion; once per deal, and a skip or unmount drops them.
   const sound = useRef<CueRun | null>(null);
@@ -166,22 +169,23 @@ export function RoundStart() {
       }}
       className={ROOT}
     >
-      {last && (
+      {banner && (
         <span role="status" className="sr-only">
-          {live && t.start.lastRound}
+          {live && banner}
         </span>
       )}
       <div className="disp relative text-30 font-extrabold tracking-[-0.035em] @h-short:text-24 pane:[grid-area:2/1]">
         {/* On the last round the title's place says so first, over it, so nothing moves. */}
         <m.div
-          initial={last ? { opacity: 0 } : false}
-          animate={{ opacity: last && rm ? 0 : 1 }}
+          initial={banner ? { opacity: 0 } : false}
+          animate={{ opacity: banner && rm ? 0 : 1 }}
           transition={{ delay: LAST / 1000, duration: FADE / 1000 }}
         >
           {t.round.title(r.index + 1)}
         </m.div>
-        {last && (
+        {banner && (
           <m.div
+            data-deal-banner
             aria-hidden
             initial={rm ? false : { opacity: 0, scale: 0.96 }}
             animate={rm ? { opacity: 1 } : { opacity: [0, 1, 1, 0], scale: [0.96, 1, 1, 1] }}
@@ -191,7 +195,7 @@ export function RoundStart() {
             }}
             className="absolute inset-0 grid place-items-center whitespace-nowrap text-40 @h-short:text-32"
           >
-            {t.start.lastRound}
+            {banner}
           </m.div>
         )}
       </div>

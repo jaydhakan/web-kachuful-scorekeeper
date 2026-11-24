@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { demoGame, newRound, totalRounds, type Game } from '@/games/kachuful/domain';
 import { t } from '@/strings';
 import { MedalsValue, NO_MEDALS, type TableMedals } from '@/games/kachuful/state/medals';
+import { lastGame } from '@/games/kachuful/strings/night';
 import { RoundStart } from './RoundStart';
 
 // Framer Motion reads the motion preference once per file, so the hook itself is switched per test.
@@ -19,8 +20,8 @@ vi.mock('@/games/kachuful/state/store', () => ({
 }));
 
 /** Five players, no dealer-chip pass: the reveal is 1170ms, the whole deal 3200ms (4050ms on the last round). */
-function mount(index: number, rm = false) {
-  const g: Game = { ...demoGame(), rounds: [], lengthMode: '1cycle' };
+function mount(index: number, rm = false, extra: Partial<Game> = {}) {
+  const g: Game = { ...demoGame(), rounds: [], lengthMode: '1cycle', ...extra };
   g.players = g.players.slice(0, 5);
   const round = newRound(g, index);
   env.rm = rm;
@@ -189,5 +190,19 @@ describe('the medallists at round 1’s deal', () => {
     mountWith(0, [2], { intel: 'Dev beat Asha 7 of 9' });
     tick(1);
     expect(line()).not.toHaveTextContent('Dev beat Asha');
+  });
+
+  it('the last game of the night says "Final game" on its first deal only, at the usual pace plus the hold', () => {
+    const { unmount } = mount(0, false, { lastOfNight: true });
+    expect(screen.getByRole('status')).toHaveTextContent(lastGame.final);
+    expect(screen.getAllByText(lastGame.final)).toHaveLength(2);
+    // The 600ms title, then the usual 3200ms deal.
+    tick(3790);
+    expect(env.seqDone).not.toHaveBeenCalled();
+    tick(20);
+    expect(env.seqDone).toHaveBeenCalledTimes(1);
+    unmount();
+    mount(1, false, { lastOfNight: true });
+    expect(screen.queryByText(lastGame.final)).toBeNull();
   });
 });

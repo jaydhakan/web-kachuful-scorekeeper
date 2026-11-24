@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useRef, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { doneRounds, gameStats, standings, type Player } from '@/games/kachuful/domain';
 import {
   AchievementReel,
@@ -22,7 +22,7 @@ import { finalStandings } from '@/games/kachuful/lib/finalStandings';
 import { t } from '@/strings';
 import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
-import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
+import { CEREMONY_GAP_MS, NAME_MS, useReveal } from '@/components/ui/podiumReveal';
 import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
@@ -31,6 +31,8 @@ import { NightLink } from '@/games/kachuful/components/NightLink';
 import { GameSikke } from '@/components/sikke/GameSikke';
 import { BountyChips } from '@/components/crowns/BountyChips';
 import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
+import { FinalCeremony } from '@/games/kachuful/components/FinalCeremony';
+import { LastGameToggle } from '@/games/kachuful/components/LastGameToggle';
 
 const rankColor = (rank: number) =>
   rank === 1
@@ -85,15 +87,20 @@ export default function Winner() {
   const board = finalStandings(g);
   const people = st.flatMap(({ p }) => (p.playerId ? [{ ...p, id: p.playerId }] : []));
   const top = st.filter((x) => x.rank === 1).map((x) => x.p);
+  // The last game of the night reveals slower and ends on the ceremony (REWARDS-PLAN §7.1).
+  const ceremony = !!g.lastOfNight;
   const { play, plan, named } = useReveal(
     board.map((x) => x.rank),
     state.fresh,
+    ceremony ? CEREMONY_GAP_MS : undefined,
   );
   useWinnerSound(
     board.map((x) => x.rank),
     state.fresh,
     `win:${g.id}:${g.finishedAt ?? 0}`,
+    ceremony,
   );
+  const [lastNext, setLastNext] = useState(false);
   const how = howWon(reel, top);
   const headline = useRef<HTMLHeadingElement>(null);
   const filed = useFiledAway(g, top[0]);
@@ -122,17 +129,20 @@ export default function Winner() {
       className={PANE_GUTTERS}
       bar={
         // The buttons sit under the right-hand pane when short, and never stretch past 26rem on wide screens.
-        <div className="flex w-full gap-3 land:ml-auto land:w-[clamp(17rem,44vw,23rem)] md:mx-auto md:max-w-[26rem] wide:mx-auto wide:max-w-[26rem]">
-          <PrimaryButton
-            tone="glass"
-            className="gap-2 px-5"
-            onClick={() => actions.openSheet({ type: 'share' })}
-          >
-            {Icon.share} {t.winner.share}
-          </PrimaryButton>
-          <PrimaryButton className="flex-1" onClick={actions.rematch}>
-            {t.winner.rematch}
-          </PrimaryButton>
+        <div className="flex w-full flex-col gap-1 land:ml-auto land:w-[clamp(17rem,44vw,23rem)] md:mx-auto md:max-w-[26rem] wide:mx-auto wide:max-w-[26rem]">
+          <LastGameToggle on={lastNext} onChange={setLastNext} className="px-1" />
+          <div className="flex w-full gap-3">
+            <PrimaryButton
+              tone="glass"
+              className="gap-2 px-5"
+              onClick={() => actions.openSheet({ type: 'share' })}
+            >
+              {Icon.share} {t.winner.share}
+            </PrimaryButton>
+            <PrimaryButton className="flex-1" onClick={() => actions.rematch(lastNext)}>
+              {t.winner.rematch}
+            </PrimaryButton>
+          </div>
         </div>
       }
     >
@@ -186,6 +196,14 @@ export default function Winner() {
               )}
             </h2>
             <Podium standings={board} reveal={play ? plan : null} />
+            {ceremony && (
+              <FinalCeremony
+                winners={top}
+                delay={after}
+                onEndNight={() => actions.open({ screen: 'night' })}
+                className="mx-auto mt-4 max-w-[26rem]"
+              />
+            )}
           </div>
         </div>
         <div

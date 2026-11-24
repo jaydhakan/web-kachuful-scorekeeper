@@ -23,6 +23,8 @@ export interface RevealPlan {
 
 /** A leaderboard is opened often, so its steps follow each other sooner than a game's winner reveal. */
 export const BOARD_GAP_MS = 260;
+/** The last game of the night takes its time: still inside the game end's 4s ceiling with three on the podium. */
+export const CEREMONY_GAP_MS = 750;
 
 /** Lowest place first, the winner's step last; a place nobody holds (a tie above it, a short table) takes no turn. */
 export function revealPlan(ranks: number[], gap = STEP_GAP_MS): RevealPlan {
@@ -54,11 +56,11 @@ export const reveal = {
 };
 
 /** Runs a winner screen's reveal for a game just finished; otherwise (reopened, reduced motion) all is in place. */
-export function useReveal(ranks: number[], fresh: boolean) {
+export function useReveal(ranks: number[], fresh: boolean, gap = STEP_GAP_MS) {
   const rm = useReducedMotion();
   // Latched: the shell clears `fresh` when the confetti ends, which must neither replay nor cut the sequence.
   const [play] = useState(fresh && !rm);
-  const plan = revealPlan(ranks);
+  const plan = revealPlan(ranks, gap);
   const [named, setNamed] = useState(!play);
   useEffect(() => {
     if (!play) return;

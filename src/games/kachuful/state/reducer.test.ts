@@ -438,6 +438,19 @@ describe('finishing, rematch and undo', () => {
     expect(st.screen).toBe('round');
   });
 
+  it('a rematch marked the last game of the night says so, and the next one does not', () => {
+    const last = run(demo(), {
+      type: 'rematch',
+      id: 'g2',
+      syncId: 's2',
+      now: 5,
+      lastOfNight: true,
+    });
+    expect(last.game.lastOfNight).toBe(true);
+    const next = run(last, { type: 'rematch', id: 'g3', syncId: 's3', now: 6 });
+    expect('lastOfNight' in next.game).toBe(false);
+  });
+
   it('a rematch of a real finished game keeps it one Undo away', () => {
     const fin = run(initialState({ ...demoGame(), id: 'mine' }, 'winner', []), {
       type: 'finishGame',

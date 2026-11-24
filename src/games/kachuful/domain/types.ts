@@ -56,6 +56,8 @@ export interface Game {
   status: GameStatus;
   /** When the game ended (schema 3); older finished games use updatedAt. */
   finishedAt?: number;
+  /** Set from the winner screen's "Last game of the night": its deal says Final game, its end the long ceremony. */
+  lastOfNight?: true;
   ui: GameUi;
   schemaVersion?: number;
 }

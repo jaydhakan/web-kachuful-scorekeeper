@@ -140,7 +140,7 @@ export type Action =
   | { type: 'confirmRound' }
   | { type: 'nextRound' }
   | { type: 'finishGame' }
-  | { type: 'rematch'; id: string; syncId: string; now: number }
+  | { type: 'rematch'; id: string; syncId: string; now: number; lastOfNight?: boolean }
   | { type: 'editRound'; i: number; bids: Record<string, number>; results: Record<string, Outcome> }
   | { type: 'undo' }
   | { type: 'sheet'; sheet: SheetState | null }

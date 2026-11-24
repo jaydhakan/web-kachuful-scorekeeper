@@ -90,3 +90,15 @@ export const nights = {
     line: (who: string, amount: string) => `${who} ${amount}`,
   },
 };
+
+/** "Last game of the night" (REWARDS-PLAN §7.1): the rematch toggle, the deal's line and the long ceremony. */
+export const lastGame = {
+  toggle: 'Last game of the night',
+  toggleHint: 'The next deal says Final game, and its winner gets the long ceremony.',
+  final: 'Final game',
+  kicker: 'Last game of the night',
+  title: (names: string[]) =>
+    names.length > 1 ? `${list(names)} close the night` : `${list(names)} closes the night`,
+  sub: 'Wrap it up: tonight’s story is one tap away.',
+  end: nights.end,
+};

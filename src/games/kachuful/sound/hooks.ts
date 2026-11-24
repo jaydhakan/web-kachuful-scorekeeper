@@ -1,6 +1,6 @@
 import { useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { revealPlan } from '@/components/ui/podiumReveal';
+import { CEREMONY_GAP_MS, revealPlan } from '@/components/ui/podiumReveal';
 import { playCue } from '@/fx/feedback';
 import { podiumCues } from '@/fx/podiumCues';
 import {
@@ -22,14 +22,18 @@ export const resultsInBidOrder = (g: Game, r: Round): Extract<Outcome, string>[]
     return v ? [v] : [];
   });
 
-/** The winner reveal's sounds, once per finished game and only for one that just finished (never a reopened one). */
-export function useWinnerSound(ranks: number[], fresh: boolean, key: string) {
+/**
+ * The winner reveal's sounds, once per finished game and only for one that just finished (never a reopened one).
+ * `ceremony`: the last game of the night's slower reveal and its cracker.
+ */
+export function useWinnerSound(ranks: number[], fresh: boolean, key: string, ceremony = false) {
   const rm = useReducedMotion();
   // Latched like the reveal's own `play`: the shell clears `fresh` when the confetti ends, which must not cut it.
   const [go] = useState(fresh);
   useEffect(() => {
     if (!go) return;
-    const run = playOnce(key, podiumCues(revealPlan(ranks)), { reduced: !!rm });
+    const plan = revealPlan(ranks, ceremony ? CEREMONY_GAP_MS : undefined);
+    const run = playOnce(key, podiumCues(plan, { ceremony }), { reduced: !!rm });
     return () => run?.cancel();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one run per mount
   }, []);

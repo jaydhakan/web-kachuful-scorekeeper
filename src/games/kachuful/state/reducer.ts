@@ -429,7 +429,7 @@ function step(s: AppState, a: Action): AppState {
         a.syncId,
         a.now,
       );
-      return begin(s, g);
+      return begin(s, a.lastOfNight ? { ...g, lastOfNight: true } : g);
     }
     case 'editRound':
       return {

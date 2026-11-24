@@ -71,7 +71,8 @@ export interface Actions {
   finishGame(): void;
   /** Ends a game with no round done without a trace. */
   discardGame(): void;
-  rematch(): void;
+  /** `lastOfNight`: the winner screen's "Last game of the night" was on. */
+  rematch(lastOfNight?: boolean): void;
   editRound(i: number, bids: Record<string, number>, results: Record<string, Outcome>): void;
   undo(): void;
   openSheet(sheet: SheetState | null): void;
@@ -366,11 +367,17 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
       },
       nextRound: () => nav({ type: 'nextRound' }),
       finishGame: () => dispatch({ type: 'finishGame' }),
-      rematch: () => {
+      rematch: (lastOfNight) => {
         vibrate(HAPTIC.TAP);
         playCue({ name: 'riffle' });
         const now = Date.now();
-        nav({ type: 'rematch', id: 'g' + now, syncId: uuid(), now });
+        nav({
+          type: 'rematch',
+          id: 'g' + now,
+          syncId: uuid(),
+          now,
+          ...(lastOfNight && { lastOfNight }),
+        });
       },
       editRound: (i, bids, results) => dispatch({ type: 'editRound', i, bids, results }),
       undo: () => {

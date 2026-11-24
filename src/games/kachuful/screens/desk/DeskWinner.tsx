@@ -21,13 +21,15 @@ import { icon } from '@/components/ui/IconsMore';
 import { InkFill } from '@/components/ui/InkFill';
 import { Podium } from '@/components/ui/Podium';
 import { finalStandings } from '@/games/kachuful/lib/finalStandings';
-import { NAME_MS, useReveal } from '@/components/ui/podiumReveal';
+import { CEREMONY_GAP_MS, NAME_MS, useReveal } from '@/components/ui/podiumReveal';
 import { useWinnerSound } from '@/games/kachuful/sound/hooks';
 import { useFiledAway } from '@/games/kachuful/components/FiledAway';
 import { howWon } from '@/games/kachuful/lib/howWon';
 import { SeatName } from '@/games/kachuful/components/SeatName';
 import { NightLink } from '@/games/kachuful/components/NightLink';
 import { useMedalBeat, useMedalTakeover } from '@/games/kachuful/components/MedalTakeover';
+import { FinalCeremony } from '@/games/kachuful/components/FinalCeremony';
+import { LastGameToggle } from '@/games/kachuful/components/LastGameToggle';
 
 const Highlight = ({
   label,
@@ -69,18 +71,23 @@ export function DeskWinner() {
     S = gameStats(g),
     rm = useReducedMotion(),
     board = finalStandings(g);
-  useDeskKeys({ r: actions.rematch });
+  const [lastNext, setLastNext] = useState(false);
+  useDeskKeys({ r: () => actions.rematch(lastNext) });
+  // The last game of the night reveals slower and ends on the ceremony (REWARDS-PLAN §7.1).
+  const ceremony = !!g.lastOfNight;
   const reel = useGameAchievements(g);
   const [showReel, setShowReel] = useState(false);
   const top = st.filter((x) => x.rank === 1);
   const { play, plan } = useReveal(
     board.map((x) => x.rank),
     state.fresh,
+    ceremony ? CEREMONY_GAP_MS : undefined,
   );
   useWinnerSound(
     board.map((x) => x.rank),
     state.fresh,
     `win:${g.id}:${g.finishedAt ?? 0}`,
+    ceremony,
   );
   const how = howWon(
     reel,
@@ -156,9 +163,10 @@ export function DeskWinner() {
             >
               {t.common.home}
             </GhostButton>
+            <LastGameToggle on={lastNext} onChange={setLastNext} className="!w-auto" />
             <PrimaryButton
               className="!h-12 !rounded-[14px] px-5 !text-16"
-              onClick={actions.rematch}
+              onClick={() => actions.rematch(lastNext)}
             >
               {t.winner.rematch} <Kbd>R</Kbd>
             </PrimaryButton>
@@ -183,6 +191,14 @@ export function DeskWinner() {
           <Podium look="desk" standings={board} reveal={play ? plan : null} />
         </section>
         <aside className="flex min-h-0 flex-col gap-4">
+          {ceremony && (
+            <FinalCeremony
+              winners={top.map((x) => x.p)}
+              delay={after}
+              onEndNight={() => actions.open({ screen: 'night' })}
+              className="shrink-0"
+            />
+          )}
           <ol
             aria-label={t.desk.winner.ranking}
             className="glass scroll-thin flex shrink-0 flex-col gap-1 p-3.5 rail:max-h-[45%] rail:overflow-y-auto"
