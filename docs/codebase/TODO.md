@@ -59,7 +59,6 @@ Sound for Kachuful and Kaali Teeri is built (`src/fx`, `docs/codebase/ARCHITECTU
   - The forbidden-bid `knock` can't be tapped on a phone (the key is natively disabled); it fires only from the desk keyboard path.
   - A live spectator who never taps stays silent: audio unlocks on the first tap and the live pages don't call `armAudio`.
   - Kachuful's Summary has no tap-to-skip, so the plan's `settle` crown is built but unused there; the Sound Board's sequences are hand-copied timings, not the games' own plans.
-- **Late-night quiet** (decided "on" in REWARDS-PLAN, not built): sounds drop a level after a set hour. Not part of this task.
 
 ## Motion
 
@@ -212,7 +211,6 @@ About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gift
   progression env yet.
 - **Festival days (`src/fx/festival.ts`):** Kachuful's round 1 deal only. Lunar dates are listed through 2028 (Eid's
   tentative): add 2029's before the end of 2028.
-- **"Last game of the night"** toggle and its long ceremony wait for the stage bust (art).
 - **Crown news (backend-requests §6), app side:** the banner on the other phones (`components/crowns/CrownNews.tsx`),
   bounty chips on Kachuful's winner screen, crown and night rows in the feed, and round 1's "Beat Riya: +40 🪙".
   Seen in a browser on the mock (2026-11-21): the winner screen's chip and round 1's line at 390×844. Without an e2e:
@@ -231,10 +229,8 @@ About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gift
   with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
   table. `e2e/rewards-responsive.spec.ts` covers them on phones, a tablet and a laptop. `e2e/nights.spec.ts` skips on a
   reused mock server once tonight was ended (every recent game joins that night).
-- **Kachuful's retired "Sharpest of the season" still shows locked in the catalogue** (2026-11-23): no season gives
-  it now, so the Achievements page offers one nobody can earn and counts it in the total. Hiding a retired award
-  unless earned needs a flag on `AchievementDef` (and the server's counts to agree); ask Jay first.
-- **Giant Killer** achievement (beat the Badshah without a medal) needs a golden fixture first; not built.
+- **Last game of the night:** `FinalCeremony`'s `bust` slot shows the seat token; pass the winner's `StageBustLazy`
+  once the bust is in. The mock API doesn't award Giant Killer signed in (the device does, from its own medals).
 - **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
 
 ## Tests
