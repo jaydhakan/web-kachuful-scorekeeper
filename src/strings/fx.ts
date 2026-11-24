@@ -24,6 +24,8 @@ export const fx = {
   banter: 'Table banter',
   banterHint:
     'In Kachuful, a cheeky line each round about the month’s Badshah, Wazir and Senapati.',
+  quiet: 'Quieter after 11 pm',
+  quietHint: 'From 11 pm to 6 am the small clicks go quiet and big moments play softer.',
   /** The tap layer over a moment that holds the screen. */
   skip: 'Skip',
   /** The big unlock card's kicker, and the card that stands for the rest of a batch. */

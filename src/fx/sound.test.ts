@@ -1,5 +1,5 @@
 import { KEYS, storage } from '@/state/persistence';
-import { resetFxForTests } from './prefs';
+import { lateNight, nightGain, resetFxForTests } from './prefs';
 import {
   armAudio,
   cue,
@@ -71,8 +71,11 @@ beforeEach(() => {
   freqs.length = 0;
   resetFxForTests();
   resetLimiterForTests();
-  vi.useRealTimers();
+  // Midday, so late-night quiet (on by default) never changes a case; only the clock is fake.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 10, 24, 12));
 });
+afterEach(() => vi.useRealTimers());
 
 describe('the platform sounds', () => {
   it.each(NEW)('%s lasts at most 0.8s', (name) => {
@@ -178,5 +181,45 @@ describe('the platform sounds', () => {
     sfx('boom', true);
     expect(stops).toEqual([]);
     setSoundMode('all');
+  });
+});
+
+describe('quieter after 11 pm', () => {
+  const at = (h: number, min = 0) => vi.setSystemTime(new Date(2026, 10, 24, h, min));
+  const log = () => (window as unknown as { __fxLog?: { name: string; gain?: number }[] }).__fxLog;
+
+  it('is late from 23:00 until 06:00, by the device clock', () => {
+    expect(lateNight(new Date(2026, 10, 24, 22, 59))).toBe(false);
+    expect(lateNight(new Date(2026, 10, 24, 23, 0))).toBe(true);
+    expect(lateNight(new Date(2026, 10, 25, 5, 59))).toBe(true);
+    expect(lateNight(new Date(2026, 10, 25, 6, 0))).toBe(false);
+  });
+
+  it('drops ticks, halves moments and leaves beats; off, or by day, nothing changes', () => {
+    const late = new Date(2026, 10, 24, 23, 30);
+    expect(nightGain('tick', true, late)).toBeNull();
+    expect(nightGain('moment', true, late)).toBe(0.5);
+    expect(nightGain('beat', true, late)).toBe(1);
+    expect(nightGain('tick', false, late)).toBe(1);
+    expect(nightGain('tick', true, new Date(2026, 10, 24, 21))).toBe(1);
+  });
+
+  it('is on by default: a tick is silent and a moment plays at half after 11 pm', () => {
+    storage.set(KEYS.fx, { sounds: 'all', vibrate: true });
+    delete (window as unknown as { __fxLog?: unknown }).__fxLog;
+    at(23, 15);
+    cue('deal');
+    expect(stops).toEqual([]);
+    cue('crown');
+    cue('bell');
+    expect(log()).toMatchObject([{ name: 'crown' }, { name: 'bell', gain: 0.5 }]);
+    expect(log()![0].gain).toBeUndefined();
+  });
+
+  it('turned off, the night plays like the day', () => {
+    storage.set(KEYS.fx, { sounds: 'all', vibrate: true, quiet: false });
+    at(1);
+    cue('deal');
+    expect(stops.length).toBeGreaterThan(0);
   });
 });

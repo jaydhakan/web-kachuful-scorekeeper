@@ -3,7 +3,7 @@
  * nothing plays until the first tap unlocks audio or while the page is hidden. `sfx` follows Spades' own `mode`
  * (everyone's sounds, only those about them, or none; Spades plan D13).
  */
-import { readFx, type SoundLevel } from './prefs';
+import { nightGain, readFx, type SoundLevel } from './prefs';
 import { semis } from './pitch';
 
 export type SoundMode = 'all' | 'mine' | 'off';
@@ -426,6 +426,8 @@ export interface CueLogEntry {
   tier: SoundTier;
   at: number;
   pitch?: number;
+  /** Only when late-night quiet turned it down. */
+  gain?: number;
 }
 const LOG_MAX = 200;
 function record(e: CueLogEntry) {
@@ -436,15 +438,25 @@ function record(e: CueLogEntry) {
 }
 
 /**
- * Plays a sound under the platform's Sounds setting (every game but Spades, whose own mode wins there). `tier`
- * overrides the sound's own, for a sound used at a smaller moment (a small unlock's chime is a beat).
+ * Plays a sound under the platform's Sounds setting (every game but Spades, whose own mode wins there) and its
+ * late-night quiet. `tier` overrides the sound's own, for a sound used at a smaller moment (a small unlock's chime
+ * is a beat).
  */
 export function cue(name: SoundName, tier: SoundTier = SOUND_TIER[name], o: CueOpts = {}) {
   armAudio();
-  if (!tierAudible(readFx().sounds, tier)) return;
+  const fx = readFx();
+  if (!tierAudible(fx.sounds, tier)) return;
+  const night = nightGain(tier, fx.quiet);
+  if (night === null) return;
   if (import.meta.env.DEV || import.meta.env.VITE_FX_LOG)
-    record({ name, tier, at: Math.round(clock()), ...(o.pitch ? { pitch: o.pitch } : {}) });
-  play(name, o);
+    record({
+      name,
+      tier,
+      at: Math.round(clock()),
+      ...(o.pitch ? { pitch: o.pitch } : {}),
+      ...(night !== 1 ? { gain: (o.gain ?? 1) * night } : {}),
+    });
+  play(name, night === 1 ? o : { ...o, gain: (o.gain ?? 1) * night });
 }
 
 /** The Sound Board's play button: ignores the setting and the tier, keeps the limiter. */

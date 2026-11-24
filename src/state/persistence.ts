@@ -41,7 +41,7 @@ export const KEYS = {
   spLastSetup: 'spades.lastSetup',
   /** Boards on which this player was last seen in first place, so taking the top is celebrated once, not per visit. */
   boardTop: 'baithak.boardTop',
-  /** This device's sounds and vibration for every game (`src/fx/prefs.ts`): `{ sounds, vibrate }`. */
+  /** This device's sounds and vibration for every game (`src/fx/prefs.ts`): `{ sounds, vibrate, banter, quiet }`. */
   fx: 'baithak.fx',
   /** Per game, the newest closed season whose podium this device has revealed: `{ [game]: 'YYYY-MM' }`. */
   seasonShown: 'baithak.seasonShown',

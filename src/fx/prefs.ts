@@ -8,10 +8,12 @@ export interface FxPrefs {
   vibrate: boolean;
   /** Kachuful's line each round about the month's title holders (REWARDS-PLAN §6.7); added later, on by default. */
   banter: boolean;
+  /** "Quieter after 11 pm" (REWARDS-PLAN §11); added later, on by default. */
+  quiet: boolean;
 }
 
 /** "Big moments" by default, so a shared phone isn't beeping all night (WOW-MOMENTS-PLAN §9). */
-export const DEFAULT_FX: FxPrefs = { sounds: 'moments', vibrate: true, banter: true };
+export const DEFAULT_FX: FxPrefs = { sounds: 'moments', vibrate: true, banter: true, quiet: true };
 const LEVELS: readonly string[] = ['all', 'moments', 'off'];
 
 /** The in-game speaker button's order: All, then Big moments, then Off, then round again. */
@@ -26,7 +28,20 @@ export function readFx(): FxPrefs {
     sounds: LEVELS.includes(o.sounds as string) ? (o.sounds as SoundLevel) : DEFAULT_FX.sounds,
     vibrate: typeof o.vibrate === 'boolean' ? o.vibrate : DEFAULT_FX.vibrate,
     banter: typeof o.banter === 'boolean' ? o.banter : DEFAULT_FX.banter,
+    quiet: typeof o.quiet === 'boolean' ? o.quiet : DEFAULT_FX.quiet,
   };
+}
+
+/** Late at night by the device's clock: from 23:00 until 06:00. */
+export const lateNight = (d: Date) => d.getHours() >= 23 || d.getHours() < 6;
+
+/**
+ * What "Quieter after 11 pm" does to a sound of `tier`: null drops it (ticks), otherwise its gain (moments at half,
+ * beats as they are). Outside those hours, or with the setting off, every sound plays as it is.
+ */
+export function nightGain(tier: 'moment' | 'beat' | 'tick', quiet: boolean, now = new Date()) {
+  if (!quiet || !lateNight(now)) return 1;
+  return tier === 'tick' ? null : tier === 'moment' ? 0.5 : 1;
 }
 
 const subs = new Set<() => void>();

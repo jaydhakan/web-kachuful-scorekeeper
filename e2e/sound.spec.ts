@@ -10,11 +10,15 @@ interface Cue {
   pitch?: number;
 }
 
-/** Sets the device's Sounds before the app starts (the app saves its own settings, so never under it). */
-const sounds = (page: Page, level: Level) =>
+/**
+ * Sets the device's Sounds before the app starts (the app saves its own settings, so never under it). Late-night
+ * quiet is off, so a run after 11 pm hears the same.
+ */
+const sounds = (page: Page, level: Level, quiet = false) =>
   page.addInitScript(
-    (l) => localStorage.setItem('baithak.fx', JSON.stringify({ sounds: l, vibrate: true })),
-    level,
+    ([l, q]) =>
+      localStorage.setItem('baithak.fx', JSON.stringify({ sounds: l, vibrate: true, quiet: q })),
+    [level, quiet] as const,
   );
 const heard = (page: Page) =>
   page.evaluate(() => (window as unknown as { __fxLog?: Cue[] }).__fxLog ?? []);
@@ -56,6 +60,16 @@ test.describe('Kachuful sounds', () => {
     // Reduced motion: no per-player run and no tally, one sound for the whole reveal.
     expect(n).not.toContain('tally');
     expect(n.filter((x) => x === 'made' || x === 'missed')).toHaveLength(3);
+  });
+
+  test('after 11 pm, quieter (on by default) leaves the taps out and keeps the rest', async ({
+    page,
+  }) => {
+    await page.clock.setFixedTime(new Date(2026, 10, 24, 23, 30));
+    await sounds(page, 'all', true);
+    await kfRound(page);
+    await expect.poll(() => names(page)).toContain('thud');
+    expect(await names(page)).not.toContain('flick');
   });
 
   test('on Big moments a round is silent, and on Off nothing plays at all', async ({ page }) => {

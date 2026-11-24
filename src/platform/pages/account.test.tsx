@@ -143,6 +143,7 @@ describe('sounds and vibration', () => {
       sounds: 'off',
       vibrate: false,
       banter: true,
+      quiet: true,
     });
   });
 
@@ -154,6 +155,16 @@ describe('sounds and vibration', () => {
     await u.click(banter);
     expect(banter).toHaveAttribute('aria-checked', 'false');
     expect(JSON.parse(localStorage.getItem(KEYS.fx) ?? 'null')).toMatchObject({ banter: false });
+  });
+
+  it('has quieter after 11 pm on by default, and turns it off on this device', async () => {
+    await show();
+    const u = setup();
+    const quiet = screen.getByRole('switch', { name: /Quieter after 11 pm/ });
+    expect(quiet).toHaveAttribute('aria-checked', 'true');
+    await u.click(quiet);
+    expect(quiet).toHaveAttribute('aria-checked', 'false');
+    expect(JSON.parse(localStorage.getItem(KEYS.fx) ?? 'null')).toMatchObject({ quiet: false });
   });
 
   it('is there signed out too', () => {

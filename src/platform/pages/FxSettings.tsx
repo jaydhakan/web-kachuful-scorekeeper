@@ -6,7 +6,7 @@ import { ToggleTrack } from '@/components/ui/Toggle';
 import { useFxPrefs } from '@/fx/prefs';
 import { fx as s } from '@/strings/fx';
 
-/** This device's Sounds (All / Big moments / Off) and Vibration, for every game. */
+/** This device's Sounds (All / Big moments / Off), Vibration, banter and late-night quiet, for every game. */
 export function FxSettings() {
   const [prefs, set] = useFxPrefs();
   const uid = useId();
@@ -57,6 +57,20 @@ export function FxSettings() {
             <span className="text-14 text-[var(--tx2)]">{s.banterHint}</span>
           </span>
           <ToggleTrack on={prefs.banter} />
+        </m.button>
+        <m.button
+          type="button"
+          role="switch"
+          aria-checked={prefs.quiet}
+          onClick={() => set({ quiet: !prefs.quiet })}
+          whileTap="press"
+          className="flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl text-left"
+        >
+          <span className="flex flex-col">
+            <span className="text-15 font-bold">{s.quiet}</span>
+            <span className="text-14 text-[var(--tx2)]">{s.quietHint}</span>
+          </span>
+          <ToggleTrack on={prefs.quiet} />
         </m.button>
       </div>
     </Section>
