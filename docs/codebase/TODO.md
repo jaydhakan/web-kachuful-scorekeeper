@@ -184,11 +184,15 @@ are in DESIGN-SYSTEM.md (Motion, items 15–18, and "Moments"), and each moment 
 
 ## Rewards (merged 2026-11-21; the plan, `docs/REWARDS-PLAN.md`, is in git history)
 
-Built for Kachuful so far: medals (Badshah, Wazir, Senapati), Aaj ka Sitara, the Legend, banter with a "Table banter"
-switch, the chase, the end-of-game takeover, the table intel line, avatar moods, the moment budget's downgrade,
-per-game cap and nightly crown cap; faces on the Spades scorekeeper and Ishaara's clue card. Server side: crowns and
-reigns, bounties, nights with Tonight's Wrapped, Sikke (wallet, ledger, levels), hidden achievements and festival days.
-About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gifts were left out (Jay).
+The whole plan is built (finished 2026-11-24 on `feat/rewards-finish`):
+- **Crowns:** medals (Badshah, Wazir, Senapati), Aaj ka Sitara, the Legend, banter, the chase, the takeover and the
+  deal line, in every game, plus bounties in every game. Stat crowns are on every player page.
+- **Wardrobe:** the stage bust, 45 items with art, sets and flourishes, and the Wardrobe and Bazaar pages.
+- **Gifts, firsts and group milestones.**
+- **Giant Killer, late-night quiet** and the "Last game of the night" ceremony.
+
+Out by the plan's cut line: the voice pack, Player Cards, the Mausam track, the crew's room and the ticker. The
+Kursi was removed on purpose.
 
 - **Production: the `close-nights` timer is missing.** Done on 2026-11-23 (release `29fa8039ddfc`): migrations to
   0027, `recompute-crowns`, `close-nights --all` (15 nights), `recompute-sikke` (30 players). Still to add on the VPS:
@@ -198,17 +202,15 @@ About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gift
   once paid for beating a Kursi holder go only with `recompute-sikke`, after it; a closed night's stored total keeps
   them until one of its games is written again (`close-nights --all` skips stored nights). Needs a re-settle option
   on `close-nights` (a backend request) if any such bounty was paid in production.
-- **Not built (plan G5):** firsts and group milestones; they need a backend request first.
 - **Sikke tuning:** run `recompute-sikke --dry-run` on production data, then tune `LEVELS` and the prices (re-export
   `contract/fixtures/sikke-rules.json` and copy it to the backend's `tests/fixtures`).
 
 - **Not checked on a real phone or with motion on frame by frame** (e2e covers presence, reduced motion).
-- **Other games:** medals, Sitara and banter are Kachuful's only; the plan copies them to the other games after a
-  real night with Kachuful.
+- **Banter tuning (Jay, after a real night):** Kachuful's lines first; the other games' tables (`games/<game>/domain/
+  banter.ts`) and lines are new and untested at a table. The other games have no e2e for a medallist's name or a
+  line (unit and component tests only); Kaali Teeri has no e2e seeding helper for its archive.
 - **Live page:** a signed-in spectator sees the medals on the standings; banter isn't shown, and a
   signed-out spectator sees none (`GET /api/medals` needs a sign-in; a public read would be a backend request).
-- **Stat crowns (§6.2):** live under the name on Kachuful's player page only; the other games' player pages have no
-  progression env yet.
 - **Festival days (`src/fx/festival.ts`):** Kachuful's round 1 deal only. Lunar dates are listed through 2028 (Eid's
   tentative): add 2029's before the end of 2028.
 - **Crown news (backend-requests §6), app side:** the banner on the other phones (`components/crowns/CrownNews.tsx`),
@@ -229,9 +231,17 @@ About 81% of the plan's in-scope work; the Wardrobe (G4) and the Bazaar and gift
   with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
   table. `e2e/rewards-responsive.spec.ts` covers them on phones, a tablet and a laptop. `e2e/nights.spec.ts` skips on a
   reused mock server once tonight was ended (every recent game joins that night).
-- **Last game of the night:** `FinalCeremony`'s `bust` slot shows the seat token; pass the winner's `StageBustLazy`
-  once the bust is in. The mock API doesn't award Giant Killer signed in (the device does, from its own medals).
-- **Art waits on Jay:** the stage bust, frames and the Wardrobe (G0's style sheet comes first).
+- **Giant Killer:** the mock API doesn't award it signed in (the device does, from its own medals).
+- **Art (Jay to review):** every item is drawn (`/?lab=moments&tab=wardrobe`, all four themes), seen in a browser
+  only in Sunset Glass at 26–220px. At seat size a frame is only its colour ring.
+- **Stage bust, not wired yet:** `riseAndSettle` (`fx/stage.ts`) isn't called from any winner reveal or Naya
+  Badshah (the podium and the last game's ceremony stand the winner up without the flight). `PopCard.face` isn't
+  filled where unlock cards are made, and no seat passes a `pip`.
+- **Wardrobe and Bazaar:** checked by e2e against the mock only, at phone size. Not checked on a laptop, in the three
+  other themes, or against the real backend. No test for `409 no_player`. The mock records only one first
+  (`first:kachuful:ten_players`; the rest via `POST /api/__mock/milestone`) and Ishaara's mock seats carry no `look`.
+- **Gifts:** a gift feed item is stored as Kachuful's (the activity table needs a game), so a feed filtered by
+  another game won't show it. Production: prices and the weekly stock are as the plan's §9; tune with Sikke.
 
 ## Tests
 
