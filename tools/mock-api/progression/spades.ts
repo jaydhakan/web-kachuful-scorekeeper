@@ -1,8 +1,10 @@
 import {
   allAchievements,
   ladderCounts,
+  playerFacts,
   tableAsGame,
 } from '../../../src/games/spades/domain/achievements';
+import { allFacts } from '../../../src/games/spades/domain/boards';
 import {
   dailyAwards,
   playedMonths,
@@ -28,6 +30,8 @@ export const spadesProgression: GameMock = {
   daily: (ctx, date) => dailyAwards(games(), date, ctx.tz),
   season: (ctx, month) => spSeason(games(), month, ctx.tz),
   months: (ctx) => playedMonths(games(), ctx.tz),
+  facts: (ctx) =>
+    playerFacts(allFacts(games())).map((f) => ({ ...f, playerId: ctx.resolve(f.playerId) })),
   activity: (ctx) =>
     allAchievements(games(), ctx.tz)
       .reverse()

@@ -97,6 +97,7 @@ import {
   spadesSeatKind,
 } from './spadesOnline';
 import { GAME_MOCKS, type GameMock, type MockCtx } from './progression/index';
+import { gameCrowns, gameMedals, gamePlaces } from './progression/crowns';
 import { achievementSikke, levelOf, SIKKE } from '../../src/progression/sikke';
 import { dayRange as dayRangeIn, monthRange as monthRangeIn } from '../../src/progression/zone';
 import type { GameId } from '../../src/progression/types';
@@ -1795,6 +1796,11 @@ const factsWithout = (gameId: string | null) => {
   };
 };
 on('GET', '/api/medals', ({ url }) => {
+  const other = gameMock(url);
+  if (other)
+    return gameMedals(...other, mockCtx, url.searchParams.get('excludeGame'), (id) =>
+      summaryOf(id),
+    );
   const f = factsWithout(url.searchParams.get('excludeGame'));
   const month = monthOf(Date.now(), TZ);
   const [pf] = monthRangeIn(month, TZ);
@@ -1821,6 +1827,8 @@ on('GET', '/api/medals', ({ url }) => {
   };
 });
 on('GET', '/api/places', ({ url }) => {
+  const other = gameMock(url);
+  if (other) return { games: gamePlaces(other[1], mockCtx, url.searchParams.get('excludeGame')) };
   const f = factsWithout(url.searchParams.get('excludeGame'));
   return { games: placedGames(f).sort((a, b) => b.endedAt - a.endedAt) };
 });
@@ -1874,7 +1882,9 @@ function statusOf(before: Held, gameId: string) {
     });
   return { changes, bounties };
 }
-on('GET', '/api/crowns', () => {
+on('GET', '/api/crowns', ({ url }) => {
+  const other = gameMock(url);
+  if (other) return gameCrowns(other[1], mockCtx, (id) => summaryOf(id));
   const f = facts();
   const held = medalHolders(f);
   const item = (kind: string, ids: string[] = []) => ({

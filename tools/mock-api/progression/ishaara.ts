@@ -100,6 +100,7 @@ export const ishaaraProgression: GameMock = {
       awards: seasonAwards(now, standings(ctx, prevMonth(month)), within(rows(ctx), range)),
     };
   },
+  facts,
   months: (ctx) =>
     [...new Set(ishaaraFinished().map((g) => monthOf(endOf(g), ctx.tz)))].sort().reverse(),
   // The server feeds every achievement, turn moments included.

@@ -1,6 +1,12 @@
 import type { Activity } from '../../../src/sync/types';
 import type { KtGame } from '../../../src/games/kaali-teeri/domain/index';
-import type { Award, Earned, SeasonResult, WinRateRow } from '../../../src/progression/types';
+import type {
+  Award,
+  Earned,
+  PlayerGameFact,
+  SeasonResult,
+  WinRateRow,
+} from '../../../src/progression/types';
 /** What a game's mock reads from the shared in-memory server: the rest it keeps in its own module. */
 export interface MockCtx {
   tz: string;
@@ -26,6 +32,8 @@ export interface GameMock {
   months(ctx: MockCtx): string[];
   /** The game's own feed items (a finished game, say), newest first. */
   activity?(ctx: MockCtx): Omit<Activity, 'id'>[];
+  /** Every seat of every finished game (resolved ids), for medals, the Sitara and places (backend-requests §1). */
+  facts?(ctx: MockCtx): PlayerGameFact[];
 }
 
 /** A game with nothing to show yet. */

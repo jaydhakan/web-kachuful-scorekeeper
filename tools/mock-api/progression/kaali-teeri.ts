@@ -4,6 +4,7 @@ import {
   allAchievements,
   ktFacts,
   ladderCounts,
+  playerGames,
 } from '../../../src/games/kaali-teeri/domain/achievements';
 import {
   dailyAwards,
@@ -27,4 +28,5 @@ export const kaaliTeeriProgression: GameMock = {
   daily: (ctx, date) => dailyAwards(ktFacts(games(ctx)), date, ctx.tz),
   season: (ctx, month) => season(ktFacts(games(ctx)), month, ctx.tz),
   months: (ctx) => playedMonths(ktFacts(games(ctx)), ctx.tz),
+  facts: (ctx) => playerGames(ktFacts(games(ctx))),
 };
