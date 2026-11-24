@@ -46,6 +46,17 @@ export const COLOR_VARS = {
   'soon-bg': 'soon-bg',
   'soon-ink': 'soon-ink',
   'soon-edge': 'soon-edge',
+  // The Wardrobe's cloth (src/wardrobe/art): an item variant's colours, so no art carries a hex.
+  'cloth-1': 'cloth-1',
+  'cloth-2': 'cloth-2',
+  'cloth-3': 'cloth-3',
+  'cloth-4': 'cloth-4',
+  'cloth-5': 'cloth-5',
+  'cloth-6': 'cloth-6',
+  'cloth-7': 'cloth-7',
+  'cloth-8': 'cloth-8',
+  'cloth-base': 'cloth-base',
+  'cloth-line': 'cloth-line',
   // Names from before themes, kept so existing classes keep working.
   'felt-950': 'bg',
   'felt-900': 'surface-1',

@@ -107,6 +107,18 @@
   --seat-12: #b0c4d0;
   --seat-13: #7fe3f0;
   --seat-14: #ffc46b;
+  /* Cloth for the Wardrobe's art (src/wardrobe/art): saffron, maroon, indigo, leaf, cream, charcoal, peacock, rose; an item's variant picks from these. */
+  --cloth-1: #ffb000;
+  --cloth-2: #d02c41;
+  --cloth-3: #3350d6;
+  --cloth-4: #2e9b57;
+  --cloth-5: #fff4dc;
+  --cloth-6: #3a2616;
+  --cloth-7: #10a0ae;
+  --cloth-8: #ff86b5;
+  --cloth-base: #e8c97a;
+  --cloth-line: #2b1a0e;
+  --cloth-line-w: 1.4px;
   --fill-primary: var(--brand);
   --card-back-a: #2b1a0e;
   --card-back-b: #ee6a4b;
