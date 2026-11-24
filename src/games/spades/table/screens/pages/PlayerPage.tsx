@@ -1,3 +1,4 @@
+import { StatCrowns } from '@/components/progression/StatCrowns';
 import { m } from 'framer-motion';
 import { useMemo } from 'react';
 import { spHeadToHead, spPlayerStats } from '@/games/spades/domain/boards';
@@ -84,6 +85,9 @@ export default function PlayerPage({ id }: { id: string }) {
             <EmptyState icon="cards" title={p.missing} />
           ) : (
             <>
+              <div className="mb-4 flex justify-center empty:hidden">
+                <StatCrowns env={env} playerId={serverId ?? id} />
+              </div>
               {failed && (
                 <p role="alert" className="glass mb-4 p-3 text-14 text-[var(--warn)]">
                   {p.failed}

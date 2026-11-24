@@ -1,3 +1,5 @@
+import { StatCrowns } from '@/components/progression/StatCrowns';
+import { useKtProgressionEnv } from './ProgressionPages';
 import { useMemo } from 'react';
 import { opponents, playerGames, playerStats } from '@/games/kaali-teeri/domain';
 import { useKt } from '@/games/kaali-teeri/state/store';
@@ -28,10 +30,14 @@ export function PlayerPage({ id }: { id: string }) {
   const rivals = useMemo(() => opponents(src.games, id).slice(0, 5), [src.games, id]);
   const mate = s.mostPartner && who(s.mostPartner.playerId);
   const h2h = (b: string) => actions.openPage({ page: 'h2h', a: id, b });
+  const env = useKtProgressionEnv();
   return (
     <KtPage wide eyebrow={p.eyebrow} title={w.name}>
       <div className="mb-5 flex justify-center">
         <Avatar p={w} className="grid h-24 w-24 place-items-center rounded-full text-52" />
+      </div>
+      <div className="mb-5 flex justify-center empty:hidden">
+        <StatCrowns env={env} playerId={id} />
       </div>
       <div className="mb-5">
         <RowButton onClick={() => actions.openPage({ page: 'achievements', id })}>

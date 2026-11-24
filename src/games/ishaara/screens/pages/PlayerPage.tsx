@@ -1,3 +1,5 @@
+import { StatCrowns } from '@/components/progression/StatCrowns';
+import { useIshProgressionEnv } from './ProgressPage';
 import { useIshaaraLeaderboard, useIshaaraPlayerStats } from '@/games/ishaara/state/lists';
 import { ipg } from '@/games/ishaara/strings/pages';
 import { RemoteGate } from '@/components/RemoteGate';
@@ -16,10 +18,14 @@ const p = ipg.player,
 export function PlayerPage({ who }: { who: Who }) {
   const r = useIshaaraPlayerStats(who.id);
   const { open } = useHubNav();
+  const env = useIshProgressionEnv();
   return (
     <IshPage wide eyebrow={p.eyebrow} title={who.name}>
       <div className="mb-5 flex justify-center">
         <Avatar p={who} className="grid h-24 w-24 place-items-center rounded-full text-52" />
+      </div>
+      <div className="mb-5 flex justify-center empty:hidden">
+        <StatCrowns env={env} playerId={who.id} />
       </div>
       <div className="mb-5">
         <RowButton onClick={() => open({ page: 'achievements', id: who.id })}>
