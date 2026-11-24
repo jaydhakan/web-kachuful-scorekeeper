@@ -143,7 +143,7 @@ export function StageBust({
     <span
       data-stage-bust
       {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true })}
-      className={`relative inline-block shrink-0 ${className}`}
+      className={`relative block shrink-0 ${className}`}
       style={{ width: size, height: size, containerType: 'size' }}
     >
       <Stack p={p} url={url} look={worn ?? {}} hide={hide} />

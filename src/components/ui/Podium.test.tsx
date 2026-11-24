@@ -80,3 +80,21 @@ describe.each(['phone', 'desk'] as const)('Podium (%s)', (look) => {
       );
   });
 });
+
+describe('the winner on stage', () => {
+  it('stands a dressed winner up as the stage bust, crown over the face; others keep the disc', async () => {
+    const look = { outfit: { id: 'kurta', v: 0 }, headwear: { id: 'safa', v: 0 } };
+    const c = show(
+      <Podium standings={[{ ...three[0], look }, { ...three[1], look }, three[2]]} reveal={null} />,
+    );
+    expect(c.querySelectorAll('[data-podium-bust]')).toHaveLength(1);
+    expect(c.querySelector('[data-podium-bust]')?.hasAttribute('data-confetti-origin')).toBe(false);
+    expect(c.querySelector('[data-podium-bust] [data-crown]')).not.toBeNull();
+    await vi.waitFor(() => expect(c.querySelector('[data-stage-bust]')).not.toBeNull());
+  });
+
+  it('leaves an undressed winner exactly as before', () => {
+    const c = show(<Podium standings={three} reveal={null} />);
+    expect(c.querySelector('[data-podium-bust]')).toBeNull();
+  });
+});

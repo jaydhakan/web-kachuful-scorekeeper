@@ -2,7 +2,10 @@ import { m, useReducedMotion, type MotionProps } from 'framer-motion';
 import { fmt, sgnN, trunc } from '@/lib/format';
 import { seatColor } from '@/theme/palette';
 import { t } from '@/strings';
-import { AvatarFill, type Face } from './Avatar';
+import type { ReactNode } from 'react';
+import { StageBustLazy } from '@/wardrobe/StageBustLazy';
+import { dressed } from '@/wardrobe/ring';
+import { AvatarFill, useLook, type Face } from './Avatar';
 import { SPRING_POP } from './motion';
 import {
   LAND_AFTER_MS,
@@ -143,20 +146,14 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
               className="flex min-w-0 max-w-[70px] flex-col items-center text-center text-13 font-bold leading-tight [overflow-wrap:anywhere] wide:max-w-[7rem]"
               style={tied.length > 1 ? { maxWidth: `max(${w}, 3.5rem)` } : undefined}
             >
-              <span
-                aria-hidden
-                data-confetti-origin={origin(k, i)}
-                className={`relative grid place-items-center rounded-full border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]' : 'border-ov/25'}`}
-                style={{
-                  background: seatColor(x.color),
-                  width: w,
-                  height: w,
-                  fontSize: `calc(${w} * 0.56)`,
-                }}
-              >
-                <AvatarFill p={x} />
-                {k === 1 && <Crown at={crownAt(0.9)} />}
-              </span>
+              <Disc
+                x={x}
+                w={w}
+                font={`calc(${w} * 0.56)`}
+                origin={origin(k, i)}
+                ring={`border-2 ${k === 1 ? 'border-gold shadow-[0_0_28px_color-mix(in_srgb,var(--medal-gold)_60%,transparent)]' : 'border-ov/25'}`}
+                crown={k === 1 ? <Crown at={crownAt(0.9)} /> : null}
+              />
               <span aria-hidden>{trunc(x.name)}</span>
             </m.div>
           ))}
@@ -198,20 +195,14 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
               {...land(k, i, 0.7 + (3 - k) * 0.15, { y: -40, opacity: 0, scale: 0.6 })}
               className="flex min-w-0 flex-col items-center"
             >
-              <span
-                aria-hidden
-                data-confetti-origin={origin(k, i)}
-                className={`relative grid place-items-center rounded-full border-[3px] ${s.ring}`}
-                style={{
-                  width: av,
-                  height: av,
-                  fontSize: av * 0.56,
-                  background: seatColor(x.color),
-                }}
-              >
-                <AvatarFill p={x} />
-                {k === 1 && <Crown at={crownAt(0.7)} />}
-              </span>
+              <Disc
+                x={x}
+                w={av}
+                font={av * 0.56}
+                origin={origin(k, i)}
+                ring={`border-[3px] ${s.ring}`}
+                crown={k === 1 ? <Crown at={crownAt(0.7)} /> : null}
+              />
               <span className="mt-2 max-w-[9rem] text-center text-20 font-bold leading-tight [overflow-wrap:anywhere]">
                 {x.name}
               </span>
@@ -248,5 +239,61 @@ export function Podium({ standings: st, look = 'phone', reveal }: PodiumProps) {
     <div data-steps className="flex w-full max-w-[40rem] items-end justify-center gap-4">
       {([2, 1, 3] as const).map(desk)}
     </div>
+  );
+}
+
+// The Taj takes the headwear's place on the winner (REWARDS-PLAN §4.2).
+const NO_HAT = ['headwear'] as const;
+
+/**
+ * A place's face. The winner with a look takes the stage bust (§3.1), which stands up out of the face's box so the
+ * steps never move, with the crown over its face.
+ */
+function Disc({
+  x,
+  w,
+  font,
+  ring,
+  origin,
+  crown,
+}: {
+  x: PodiumStanding;
+  w: string | number;
+  font: string | number;
+  ring: string;
+  origin: string | undefined;
+  crown: ReactNode;
+}) {
+  const look = useLook(x);
+  if (crown && dressed(look))
+    return (
+      <span
+        aria-hidden
+        data-confetti-origin={origin}
+        data-podium-bust
+        className="relative"
+        style={{ width: w, height: w }}
+      >
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2">
+          <StageBustLazy
+            p={x}
+            look={look}
+            hide={NO_HAT}
+            size={typeof w === 'number' ? w * 1.6 : `calc(${w} * 1.6)`}
+            over={crown}
+          />
+        </span>
+      </span>
+    );
+  return (
+    <span
+      aria-hidden
+      data-confetti-origin={origin}
+      className={`relative grid place-items-center rounded-full ${ring}`}
+      style={{ background: seatColor(x.color), width: w, height: w, fontSize: font }}
+    >
+      <AvatarFill p={x} />
+      {crown}
+    </span>
   );
 }
