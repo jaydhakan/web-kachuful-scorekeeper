@@ -3,7 +3,9 @@ import { usePhoto, useLook, type Face } from '@/components/ui/Avatar';
 import { seatColor } from '@/theme/palette';
 import { artOf, toneOf } from './art';
 import { Base } from './art/base';
-import type { Look, LookItem, Slot } from './types';
+import { completeSets } from './catalog';
+import type { Look, LookItem, SetId, Slot } from './types';
+import './flourish.css';
 
 /**
  * The stage bust (REWARDS-PLAN §4.2), a lazy chunk: aura, outfit, face disc, neckwear, headwear, frame, badge, pip.
@@ -125,6 +127,48 @@ export interface StageBustProps {
   className?: string;
 }
 
+// Each set's flourish (REWARDS-PLAN §4.4): glyphs placed in percent of the bust; the CSS plays them once.
+const FLOURISH: Record<SetId, { kind: string; at: [x: number, y: number, glyph: string][] }> = {
+  shaadi: {
+    kind: '',
+    at: [
+      [20, 10, '🌼'],
+      [45, 2, '🌸'],
+      [72, 8, '🌼'],
+      [86, 24, '🌸'],
+    ],
+  },
+  cricket: { kind: 'wf-ball', at: [[74, 16, '🏏']] },
+  monsoon: {
+    kind: '',
+    at: [
+      [26, 20, '💧'],
+      [50, 8, '💧'],
+      [72, 22, '💧'],
+    ],
+  },
+  office: { kind: 'wf-tag', at: [[60, 70, '📴']] },
+  sardi: { kind: 'wf-breath', at: [[62, 50, '💨']] },
+};
+
+function Flourish({ look }: { look: Look }) {
+  const set = completeSets(look)[0];
+  if (!set) return null;
+  const f = FLOURISH[set];
+  return (
+    <span data-flourish={set} aria-hidden className={`wf ${f.kind}`}>
+      {f.at.map(([x, y, g], i) => (
+        <span
+          key={i}
+          style={{ left: `${x}%`, top: `${y}%`, fontSize: '9cqw', animationDelay: `${i * 60}ms` }}
+        >
+          {g}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /** The full bust, unclipped, for the moments one player owns the screen. */
 export function StageBust({
   p,
@@ -147,6 +191,7 @@ export function StageBust({
       style={{ width: size, height: size, containerType: 'size' }}
     >
       <Stack p={p} url={url} look={worn ?? {}} hide={hide} />
+      <Flourish look={worn ?? {}} />
       {pip != null && (
         <span
           className="absolute grid place-items-center rounded-full bg-[var(--surface-1)] leading-none shadow-[0_0_0_1.5px_var(--bg)]"

@@ -1,0 +1,93 @@
+/* A complete set's flourish on the stage bust: once per appearance, at most 600ms, transform and opacity only. */
+.wf {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.wf > * {
+  position: absolute;
+  opacity: 0;
+  animation: wf-fall 600ms ease-out forwards;
+}
+.wf-ball > * {
+  animation-name: wf-bounce;
+}
+.wf-tag > * {
+  animation-name: wf-flip;
+  animation-fill-mode: both;
+}
+.wf-breath > * {
+  animation-name: wf-puff;
+}
+@keyframes wf-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-30%);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(60%);
+  }
+}
+@keyframes wf-bounce {
+  0% {
+    opacity: 1;
+    transform: translateY(-80%);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-30%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+@keyframes wf-flip {
+  0% {
+    opacity: 0;
+    transform: rotateX(90deg);
+  }
+  40%,
+  80% {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: rotateX(0);
+  }
+}
+@keyframes wf-puff {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4) translateX(20%);
+  }
+}
+/* Reduced motion: the flourish's still, shown and then hidden. */
+@media (prefers-reduced-motion: reduce) {
+  .wf > * {
+    animation: wf-still 600ms steps(1, end) forwards;
+    transform: none;
+  }
+  @keyframes wf-still {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}
