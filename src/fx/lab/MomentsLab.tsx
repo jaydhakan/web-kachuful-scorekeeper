@@ -10,6 +10,10 @@ import { forceReducedMotion, setTimeScale } from '../waapi';
 import { ENTRIES } from './entries';
 
 const SoundBoard = lazy(() => import('./SoundBoard'));
+const WardrobeLab = lazy(() => import('./Wardrobe'));
+
+type Tab = 'moments' | 'sounds' | 'wardrobe';
+const TABS: Tab[] = ['moments', 'sounds', 'wardrobe'];
 
 type Speed = '1' | '0.25';
 type Size = 'phone' | 'desk';
@@ -23,10 +27,11 @@ const SIZES: Record<Size, { w: number; h: number }> = {
  * off, the four themes, and phone and desk sizes. Where a moment's feel is approved, and what e2e screenshots.
  */
 export default function MomentsLab() {
-  const [tab, setTab] = useState<'moments' | 'sounds'>(() =>
-    new URLSearchParams(location.search).get('tab') === 'sounds' ? 'sounds' : 'moments',
-  );
-  const pick = (v: 'moments' | 'sounds') => {
+  const [tab, setTab] = useState<Tab>(() => {
+    const t = new URLSearchParams(location.search).get('tab') as Tab;
+    return TABS.includes(t) ? t : 'moments';
+  });
+  const pick = (v: Tab) => {
     armAudio();
     setTab(v);
     const u = new URL(location.href);
@@ -45,13 +50,12 @@ export default function MomentsLab() {
           options={[
             { v: 'moments', label: 'Moments' },
             { v: 'sounds', label: 'Sound Board' },
+            { v: 'wardrobe', label: 'Wardrobe' },
           ]}
         />
       </div>
-      {tab === 'sounds' ? (
-        <Suspense fallback={null}>
-          <SoundBoard />
-        </Suspense>
+      {tab !== 'moments' ? (
+        <Suspense fallback={null}>{tab === 'sounds' ? <SoundBoard /> : <WardrobeLab />}</Suspense>
       ) : (
         <Moments />
       )}
