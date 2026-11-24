@@ -14,6 +14,7 @@ import { sessionOf } from '@/sync/account';
 import { ep } from '@/sync/endpoints';
 import { playersWaiting, pullPlayers, pushPlayers, upsertPlayers } from '@/sync/players';
 import { putStatus } from '@/sync/news';
+import { putMilestones } from '@/sync/rewardNews';
 import { setSyncStatus } from '@/sync/status';
 import { isTombstone, type Achievement, type GameSummary, type WireGame } from '@/sync/types';
 
@@ -290,7 +291,7 @@ async function pushGames(userId: string) {
         earned: [...((now.earned as Achievement[] | undefined) ?? []), ...out.earned],
       });
       if (out.remap) remap(out.remap);
-      if (out.status)
+      if (out.status) {
         putStatus({
           ...out.status,
           game: 'kachuful',
@@ -298,6 +299,8 @@ async function pushGames(userId: string) {
           local: true,
           at: Date.now(),
         });
+        putMilestones(out.status.milestones ?? [], true);
+      }
       archive.del('outbox', 'put:' + r.syncId);
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;

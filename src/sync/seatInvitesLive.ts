@@ -10,8 +10,9 @@ import {
 } from './seatInvites';
 import { putUpdate, type SeatInviteUpdate } from './seatInviteSignals';
 import { clearNews, putNight, putStatus } from './news';
+import { clearRewardNews, putGift, putMilestones } from './rewardNews';
 import { followStream, type Frame } from './sse';
-import type { GameStatus } from './types';
+import type { GameStatus, Gift, MilestoneOut } from './types';
 import type { GameId } from '@/platform/route';
 import { onSession, signedInAs } from './session';
 
@@ -51,6 +52,10 @@ export function applyFrame(f: Frame) {
       at: Date.now(),
     });
   } else if (f.event === 'night' && typeof d.id === 'string') putNight(d.id);
+  else if (f.event === 'gift-received' && isObj(d.gift) && typeof d.gift.id === 'string')
+    putGift(d.gift as unknown as Gift);
+  else if (f.event === 'milestone' && isObj(d.milestone) && typeof d.milestone.key === 'string')
+    putMilestones([d.milestone as unknown as MilestoneOut], false);
 }
 
 let running: (() => void) | null = null;
@@ -105,6 +110,7 @@ export function startSeatInvites(): () => void {
     if (user) {
       clearSeatInvites();
       clearNews();
+      clearRewardNews();
     }
     user = next;
     open();
