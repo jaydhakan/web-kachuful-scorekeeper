@@ -6,6 +6,7 @@ import { EASE, MOMENT_MAX_MS, SPRING_POP } from '@/components/ui/motion';
 import { HAPTIC } from '@/fx/feedback';
 import { momentRoot, PRIORITY, takeCrownShow, useMoments } from '@/fx/moments';
 import { useMedals } from '@/games/kachuful/state/medals';
+import { playOnce } from '@/games/kachuful/sound/once';
 import type { Game } from '@/games/kachuful/domain';
 import { medals as s } from '@/strings/medals';
 import { palette } from '@/theme/palette';
@@ -54,7 +55,7 @@ export function useMedalTakeover(g: Game, fresh: boolean, afterMs: number) {
               tier: 'moment',
               priority: PRIORITY.verdict,
               scope: `game:${g.syncId}`,
-              sound: 'crown',
+              sound: 'shehnai',
               haptic: HAPTIC.BIG,
               play,
               reduced: play,
@@ -147,17 +148,37 @@ function Takeover({
 
 /**
  * The small line under the headline when nothing takes the screen: a new Wazir or Senapati or a Badshah who held on,
- * and a new Sitara (a beat, no show). Two at most, joined.
+ * and a new Sitara (a beat, no show). Two at most, joined. With `sound`, a game just ended twinkles for the change.
  */
-export function useMedalBeat(): string | null {
+export function useMedalBeat(sound?: {
+  key: string;
+  fresh: boolean;
+  afterMs: number;
+}): string | null {
   const { changes, defended, sitara } = useMedals();
+  const rm = useReducedMotion();
+  const [justEnded] = useState(!!sound?.fresh);
   const lines: string[] = [];
+  let swap = false;
   if (!changes.some((c) => c.to === 1 && c.from !== 1)) {
     const moved = changes.find((c) => c.to === 2 || c.to === 3);
     if (moved) lines.push(s.movedTo(moved.to as 2 | 3, moved.name));
     else if (defended) lines.push(s.defended);
+    swap = !!moved;
   }
   // Tonight's lead moved to someone at this table.
   if (sitara.rising.length) lines.push(s.newSitara(sitara.rising.join(', ')));
+  // A Wazir or Senapati swap, or a new Sitara, twinkles once as its line shows (REWARDS-PLAN §12).
+  const twinkle = justEnded && !!sound && (swap || sitara.rising.length > 0);
+  useEffect(() => {
+    if (!twinkle || !sound) return;
+    const run = playOnce(
+      sound.key,
+      { cues: [{ at: sound.afterMs, name: 'twinkle' }], reduced: { name: 'twinkle' } },
+      { reduced: !!rm },
+    );
+    return () => run?.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, for the game that just ended
+  }, [twinkle]);
   return lines.length ? lines.join(' · ') : null;
 }
