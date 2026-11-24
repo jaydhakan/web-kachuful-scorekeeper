@@ -234,6 +234,12 @@ Kursi was removed on purpose.
   with End the night, and "Your night is ready" on Me and the landing page. The mock groups every game as one
   table. `e2e/rewards-responsive.spec.ts` covers them on phones, a tablet and a laptop. `e2e/nights.spec.ts` skips on a
   reused mock server once tonight was ended (every recent game joins that night).
+- **Production deploy of the rewards finish (backend):** `alembic upgrade head` (0028 wardrobe, spends and gifts; 0029
+  milestones), then `recompute-crowns`, `recompute-sikke` (Kachuful's bounty rows are re-keyed per game) and
+  `recompute-milestones`, in that order. Not verified against production data.
+- **Backend loose ends:** crown reigns don't follow a player merge (Giant Killer reads who held gold by id);
+  `services/crowns` repeats each game's season loader (the progression registry would be a circular import); the
+  milestones merge path and the online Spades and Ishaara stream path have no test of their own.
 - **Giant Killer:** the mock API doesn't award it signed in (the device does, from its own medals).
 - **Art (Jay to review):** every item is drawn (`/?lab=moments&tab=wardrobe`, all four themes), seen in a browser
   only in Sunset Glass at 26–220px. At seat size a frame is only its colour ring.
