@@ -1,3 +1,4 @@
+import type { GameStatus } from '@/sync/types';
 import type { SpGame, SpResult, TeamId } from '@/games/spades/domain/types';
 import type { PlayerSummary, Tombstone } from '@/sync/types';
 import type { SpPeriod, SpSort, SpTotals } from '../../domain/boards';
@@ -17,6 +18,8 @@ export interface SpPutResp {
   rev: number;
   earned: unknown[];
   remap?: Record<string, string> | null;
+  /** Titles, bounties and milestones this write moved (backend-requests §1, §6); left out by an older server. */
+  status?: GameStatus;
 }
 
 export interface SpSummaryPlayer {

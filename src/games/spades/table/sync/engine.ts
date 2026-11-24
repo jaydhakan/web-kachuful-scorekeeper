@@ -1,3 +1,5 @@
+import { putStatus } from '@/sync/news';
+import { putMilestones } from '@/sync/rewardNews';
 /**
  * Spades table mode's push/pull loop, with Kaali Teeri's semantics (games/kaali-teeri/sync/engine.ts): players first
  * (the shared registry), then games; pulls this account's games into `spGames`; settles stale uploads with a conflict
@@ -290,6 +292,10 @@ async function pushGames(userId: string) {
       const out = await spEp.putGame(toWire(r.game));
       archive.put('spGames', { ...archive.get('spGames', r.syncId)!, syncedRev: out.rev });
       if (out.remap) remap(out.remap);
+      if (out.status) {
+        putStatus({ ...out.status, game: 'spades', gameId: r.syncId, local: true, at: Date.now() });
+        putMilestones(out.status.milestones ?? [], true);
+      }
       archive.del('outbox', spPutId(r.syncId));
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;

@@ -1,3 +1,5 @@
+import { useCrownTakeover } from '@/components/crowns/CrownTakeover';
+import { useCrowns } from '@/components/crowns/table';
 import { m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { handLines, seatsOf, type SpGame, type TeamId } from '@/games/spades/domain';
@@ -86,6 +88,14 @@ export default function Winner() {
   const signedIn = !!signedInAs(useSession());
   const src = useSpGames();
   const who = useWho(src.games);
+  // Gold changing hands plays once the confetti has started (REWARDS-PLAN §6.7).
+  const takeover = useCrownTakeover(
+    useCrowns(),
+    `crowns:sp:${g?.syncId}:${g?.finishedAt ?? 0}`,
+    `game:${g?.syncId}`,
+    fresh,
+    rm ? 300 : 1800,
+  );
   const header = (
     <IconButton chrome label={s.home} onClick={() => spGo('')}>
       {Icon.back}
@@ -238,6 +248,7 @@ export default function Winner() {
           </div>
         </div>
       </Scaffold>
+      {takeover.node}
       {party && (
         <Suspense fallback={null}>
           <Confetti

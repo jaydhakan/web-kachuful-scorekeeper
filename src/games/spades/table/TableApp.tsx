@@ -3,17 +3,22 @@ import { DeskShell } from '@/games/spades/chunks';
 import type { TablePage } from '@/games/spades/nav';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MQ } from '@/theme/breakpoints';
-import { SpTableProvider } from './state/store';
+import { SpTableProvider, useSp } from './state/store';
+import { SpCrowns } from './SpCrowns';
 import Shell from './screens/Screens';
 
 function Root({ page }: { page: TablePage | null }) {
   const big = useMediaQuery(MQ.big);
-  return big ? (
-    <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
-      <DeskShell page={page} />
-    </Suspense>
-  ) : (
-    <Shell page={page} />
+  return (
+    <SpCrowns g={useSp().state.game}>
+      {big ? (
+        <Suspense fallback={<div className="app-root scr-bg h-full w-full" />}>
+          <DeskShell page={page} />
+        </Suspense>
+      ) : (
+        <Shell page={page} />
+      )}
+    </SpCrowns>
   );
 }
 

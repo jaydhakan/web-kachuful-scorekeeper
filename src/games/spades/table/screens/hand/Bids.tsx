@@ -1,3 +1,7 @@
+import { CrownName } from '@/components/crowns/CrownName';
+import { DealLineText, hasDealLine, seatedMedals } from '@/components/crowns/DealLine';
+import { useCrowns } from '@/components/crowns/table';
+import { usePendingGifts } from '@/components/rewards/usePendingGifts';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useRef, useState } from 'react';
 import { vibrate } from '@/hooks/useHaptics';
@@ -49,6 +53,14 @@ export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
   useHoldMoments(true);
   const { actions } = useSp();
   const rm = useReducedMotion();
+  // The first hand names the seated medallists; gifts waiting for anyone seated open at the next pause (§5, §6.7).
+  const crowns = useCrowns();
+  usePendingGifts(
+    g.players.map((p) => p.playerId),
+    h.index === 0,
+  );
+  const seated = h.index === 0 ? seatedMedals(g.players, crowns.held) : [];
+  const line = h.index === 0 && hasDealLine(seated, crowns);
   const cur = toBid(h);
   const [blindFor, setBlindFor] = useState<Seat | null>(null);
   const blind = cur !== null && blindFor === cur;
@@ -97,6 +109,15 @@ export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
         </>
       }
     >
+      {line && (
+        <p data-deal-line className="mb-3 text-15 font-semibold">
+          <DealLineText
+            seated={seated}
+            intel={seated.length ? null : crowns.intel}
+            bounty={crowns.bounty}
+          />
+        </p>
+      )}
       <h2 className="mb-2 text-15 font-semibold text-[var(--tx2)]">{s.bids.heading}</h2>
       <ol className="mb-4 flex flex-col gap-2">
         {bidOrder(h.dealer).map((k) => {
@@ -116,7 +137,9 @@ export default function Bids({ g, h }: { g: SpGame; h: SpHand }) {
                 <Dot p={p} s={40} />
               </span>
               <span className="flex min-w-0 flex-1 flex-col">
-                <span className="min-w-0 [overflow-wrap:anywhere] text-16 font-bold">{p.name}</span>
+                <span className="min-w-0 [overflow-wrap:anywhere] text-16 font-bold">
+                  <CrownName p={{ id: p.id, name: p.name }} chase />
+                </span>
                 <TeamBand t={t} />
               </span>
               <span aria-hidden className="relative grid min-w-[4rem] justify-items-end">

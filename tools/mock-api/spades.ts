@@ -4,6 +4,7 @@
  * as the server's stats. Online tables (`spades-online`) are not here.
  */
 import { createHash } from 'node:crypto';
+import { sweepMilestones } from './milestones';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   STANDARD_RULES,
@@ -181,7 +182,9 @@ export function spadesRoutes(k: SpadesKit) {
     if (bad) throw err(422, 'invalid_game', { ...bad });
     const rec = put(w, prev?.ownerId ?? me!.id, h, prev);
     k.changed(rec);
-    return { rev: w.rev, earned: [], ...(Object.keys(remap).length && { remap }) };
+    // The mock moves no Spades titles on a write; milestones it does (backend-requests §1, §6).
+    const status = { changes: [], bounties: [], milestones: sweepMilestones() };
+    return { rev: w.rev, earned: [], status, ...(Object.keys(remap).length && { remap }) };
   });
 
   on('GET', '/api/spades/games', ({ url, me }) => {

@@ -1,3 +1,5 @@
+import { BanterLine } from '@/components/crowns/BanterLine';
+import { useSpBanter } from '@/games/spades/table/SpCrowns';
 import { m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
@@ -199,6 +201,7 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
     if (state.fresh) actions.setFresh(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, as the summary opens
   }, []);
+  const banter = useSpBanter(g, h);
   const data = lineOf(g, h.index);
   if (!data) return null;
   const { line, before } = data;
@@ -238,6 +241,7 @@ export default function Summary({ g, h }: { g: SpGame; h: SpHand }) {
         >
           {verdict(g)}
         </p>
+        {banter && <BanterLine text={banter} show anim={fresh} className="mb-3 text-14" />}
         <div className="grid grid-cols-1 gap-2 min-[340px]:grid-cols-2">
           {(['a', 'b'] as const).map((t) => (
             <Column
