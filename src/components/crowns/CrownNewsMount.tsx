@@ -7,7 +7,11 @@ const News = lazy<ComponentType>(() =>
   import('./CrownNews').catch(() => ({ default: (): null => null })),
 );
 
-/** Crown news for the whole site, from the platform root: signed in only, loaded once the first page has painted. */
+const Rewards = lazy<ComponentType>(() =>
+  import('@/components/rewards/RewardNews').catch(() => ({ default: (): null => null })),
+);
+
+/** Crown news, firsts, milestones and gifts for the whole site, from the platform root: signed in only, loaded once the first page has painted. */
 export function CrownNewsMount() {
   const on = !!signedInAs(useSession());
   const [idle, setIdle] = useState(false);
@@ -16,6 +20,7 @@ export function CrownNewsMount() {
   return (
     <Suspense fallback={null}>
       <News />
+      <Rewards />
     </Suspense>
   );
 }

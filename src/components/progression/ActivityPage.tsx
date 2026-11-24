@@ -1,3 +1,5 @@
+import { milestones as ms } from '@/strings/milestones';
+import { wardrobe } from '@/strings/wardrobe';
 import { m } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { byCode } from '@/progression/catalogue';
@@ -121,6 +123,20 @@ export function ActivityPage({ game }: { game?: GameId | 'all' }) {
 const progOf = (a: Activity, own: GameProgression) =>
   !a.gameKind || a.gameKind === own.id ? own : (peekProgression(a.gameKind) ?? null);
 
+/** A gift opened or a milestone reached (backend-requests §5, §6), or null for any other kind. */
+function rewardLine(a: Activity): [string, string] | null {
+  if (a.kind === 'milestone') {
+    const l = ms.line(String(a.data.key ?? ''), typeof a.data.n === 'number' ? a.data.n : null);
+    return l && [l.glyph, l.line];
+  }
+  if (a.kind !== 'gift') return null;
+  const to = (a.data.to as { displayName?: string } | undefined)?.displayName ?? '';
+  return [
+    '🎁',
+    ms.gift.feed(a.player?.displayName ?? '', to, wardrobe.name(String(a.data.itemId ?? ''))),
+  ];
+}
+
 /** One feed item; in a feed of every game (`every`) it says which game it is from. */
 export function ActivityRow({ a, every = false }: { a: Activity; every?: boolean }) {
   const { prog, openGame, openPlayer, openNight, person } = useProgressionEnv();
@@ -130,23 +146,26 @@ export function ActivityRow({ a, every = false }: { a: Activity; every?: boolean
   const nameOf = (id: string) => (who?.id === id ? who.displayName : person(id).name);
   const crown = a.kind === 'crown' ? crownLine(a, nameOf) : null;
   const night = a.kind === 'night' ? nightLine(a, nameOf) : null;
+  const reward = rewardLine(a);
   const [emoji, text] = crown
     ? crown
-    : night
-      ? [icon('moon', 'h-6 w-6'), night.text]
-      : a.kind === 'achievement' && code
-        ? [
-            (p && byCode(p).get(code)?.emoji) ?? '🏅',
-            ac.earned(who?.displayName ?? '', p?.strings.achievements[code]?.name ?? code),
-          ]
-        : a.kind === 'game_finished'
-          ? [icon('flag', 'h-6 w-6'), finishedLine(a)]
-          : a.kind === 'player_joined'
-            ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
-            : [
-                icon('crown', 'h-6 w-6 text-[var(--gold-tx)]'),
-                ac.season(String(a.data.season ?? '')),
-              ];
+    : reward
+      ? reward
+      : night
+        ? [icon('moon', 'h-6 w-6'), night.text]
+        : a.kind === 'achievement' && code
+          ? [
+              (p && byCode(p).get(code)?.emoji) ?? '🏅',
+              ac.earned(who?.displayName ?? '', p?.strings.achievements[code]?.name ?? code),
+            ]
+          : a.kind === 'game_finished'
+            ? [icon('flag', 'h-6 w-6'), finishedLine(a)]
+            : a.kind === 'player_joined'
+              ? [icon('wave', 'h-6 w-6'), ac.joined(who?.displayName ?? '')]
+              : [
+                  icon('crown', 'h-6 w-6 text-[var(--gold-tx)]'),
+                  ac.season(String(a.data.season ?? '')),
+                ];
   // A game opens only in its own game's pages; from another game's feed, its player does.
   const own = (a.gameKind ?? 'kachuful') === prog.id;
   const go = () =>

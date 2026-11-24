@@ -157,7 +157,20 @@ export function milestoneRoutes(k: RewardsKit) {
         return { armed: true };
       }
       const key = typeof body.key === 'string' ? body.key : `group:all:${done.length}`;
-      return force(key, done[0]);
+      // `names` seats those players instead of the latest game's, so a test can choose who hears it.
+      const names = Array.isArray(body.names) ? body.names : null;
+      const ids =
+        names &&
+        kit
+          .players()
+          .filter((p) => names.includes(p.displayName))
+          .map((p) => p.id);
+      return force(
+        key,
+        ids
+          ? ({ ...(done[0] ?? { gameId: null, endedAt: Date.now() }), playerIds: ids } as Finished)
+          : done[0],
+      );
     },
     'public',
   );

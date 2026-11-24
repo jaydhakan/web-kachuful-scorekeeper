@@ -1,3 +1,4 @@
+import { usePendingGifts } from '@/components/rewards/usePendingGifts';
 import { AnimatePresence, m, useReducedMotion, type MotionStyle } from 'framer-motion';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { type CueRun } from '@/fx/sequence';
@@ -134,6 +135,11 @@ export function RoundStart() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, ready]);
   const { held, intel, bounty } = useMedals();
+  // Round 1's deal is a pause: gifts waiting for anyone seated open here (§5).
+  usePendingGifts(
+    g.players.map((p) => p.id),
+    r?.index === 0,
+  );
   if (!r) return null;
   const th = TR[r.trump];
   // Round 1's deal names the month's medallists at the table: one gets a line, two or more a "vs" (§6.7).
