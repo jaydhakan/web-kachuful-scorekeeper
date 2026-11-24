@@ -2,9 +2,9 @@
 import { doneRounds } from './rounds';
 import { totals } from './scoring';
 import type { Game, Round } from './types';
+import { COOLDOWN, type Mark } from '../../../progression/banter';
 
-/** What a seated player holds: a medal, Aaj ka Sitara or the Legend. */
-export type Mark = 'gold' | 'silver' | 'bronze' | 'sitara' | 'legend';
+export { COOLDOWN, pickIndex, type Mark } from '../../../progression/banter';
 
 export type BanterKind =
   | 'soleMiss'
@@ -32,8 +32,6 @@ const MEDAL: Partial<Record<Mark, number>> = { gold: 1, silver: 2, bronze: 3 };
 /** A Legend only hears the respectful lines. */
 const RESPECTFUL: ReadonlySet<BanterKind> = new Set(['bigMake', 'soleMake']);
 export const BIG_BID = 5;
-/** The same kind of line isn't heard twice within this many rounds. */
-export const COOLDOWN = 3;
 
 type R = Pick<Round, 'bids' | 'results' | 'hookHits' | 'dealerIndex'>;
 
@@ -121,11 +119,4 @@ export function banterLog(g: Game, marks: ReadonlyMap<string, Mark>): (Banter | 
     log.push(candidates(g, done, i, marks).find((b) => !recent.has(b.kind)) ?? null);
   });
   return log;
-}
-
-/** A stable pick from a pool, the same on every phone for the same game and round. */
-export function pickIndex(seed: string, n: number): number {
-  let h = 2166136261;
-  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
-  return (h >>> 0) % Math.max(1, n);
 }

@@ -25,15 +25,4 @@ export function plusPoints(
   return out;
 }
 
-/** The Legend: whoever holds the most closed seasons' titles, at least two (ties share). */
-export function legendOf(champions: readonly (string | null)[]): string[] {
-  const n = new Map<string, number>();
-  for (const id of champions) if (id) n.set(id, (n.get(id) ?? 0) + 1);
-  const best = Math.max(0, ...n.values());
-  return best >= 2
-    ? [...n]
-        .filter(([, v]) => v === best)
-        .map(([id]) => id)
-        .sort()
-    : [];
-}
+export { legendOf } from '../../../progression/medals';

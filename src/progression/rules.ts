@@ -164,22 +164,28 @@ export function winRateStandings(
     if (p.won) r.wins++;
     by.set(p.playerId, r);
   }
-  const rows: WinRateRow[] = [...by].map(([playerId, r]) => ({
-    playerId,
+  return rankWinRate(
+    [...by].map(([playerId, r]) => ({ playerId, rank: null, qualified: false, value: 0, ...r })),
+    minGames,
+  );
+}
+
+/** Ranks win-rate rows from their games and wins, as `winRateStandings` does (rate, qualified and rank are rewritten). */
+export function rankWinRate(rows: readonly WinRateRow[], minGames: number): WinRateRow[] {
+  const out: WinRateRow[] = rows.map((r) => ({
+    ...r,
     rank: null,
     qualified: r.games >= minGames,
-    value: r.wins / r.games,
-    games: r.games,
-    wins: r.wins,
+    value: r.games ? r.wins / r.games : 0,
   }));
   const order = (a: WinRateRow, b: WinRateRow) =>
     b.value - a.value || b.games - a.games || (a.playerId < b.playerId ? -1 : 1);
-  const q = rows.filter((r) => r.qualified).sort(order);
+  const q = out.filter((r) => r.qualified).sort(order);
   q.forEach((r, k) => {
     const prev = q[k - 1];
     r.rank = prev && prev.value === r.value && prev.games === r.games ? prev.rank : k + 1;
   });
-  return [...q, ...rows.filter((r) => !r.qualified).sort(order)];
+  return [...q, ...out.filter((r) => !r.qualified).sort(order)];
 }
 
 /** Champion, runner-up and third: everyone ranked 1, 2 or 3 (a tie shares the place). */
