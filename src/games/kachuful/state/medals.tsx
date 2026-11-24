@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 import type { MedalMark } from '@/components/ui/MedalName';
+import { NO_CROWNS, type TableCrowns } from '@/components/crowns/table';
 import {
   banterLog,
   buildFacts,
@@ -16,8 +17,6 @@ import {
   type Game,
   type Holder,
   type Mark,
-  type MedalChase,
-  type MedalChange,
   type MedalRow,
   type Medals,
   type Player,
@@ -46,43 +45,13 @@ import { whoIs } from './useFacts';
 const MARK: Record<1 | 2 | 3, Mark> = { 1: 'gold', 2: 'silver', 3: 'bronze' };
 
 /** What the table knows about medals (REWARDS-PLAN §6.7); every map is keyed by the game's `Player.id`. */
-export interface TableMedals {
-  /** Medals as they stood before this game. */
-  held: ReadonlyMap<string, Holder>;
-  /** Medals if the game ended now. */
-  after: ReadonlyMap<string, Holder>;
-  chase: MedalChase;
-  marks: ReadonlyMap<string, Mark>;
+export interface TableMedals extends TableCrowns {
   /** One line per round done (null where nothing fits). */
   banter: (Banter | null)[];
-  /** Every medal that would move if the game ended now, gold first, with names (a holder may not be seated). */
-  changes: (MedalChange & { name: string })[];
-  /** The seat id of a Badshah who kept gold and finished above every other medallist at the table. */
-  defended: string | null;
-  /** Aaj ka Sitara's seats: before this game, and with it as it stands. */
-  sitara: { held: ReadonlySet<string>; now: ReadonlySet<string>; rising: string[] };
-  /** The Legend's seats (the most season titles, all-time). */
-  legend: ReadonlySet<string>;
-  /** Round 1's other line: a rivalry or a milestone among the seated, worded (§6.5). */
-  intel: string | null;
-  /** Round 1's line under a seated Badshah at a table of 3+: "Beat Riya: +40 🪙" (§6.4). */
-  bounty: string | null;
 }
 
 /** Nothing to show: no game at the table, or no board yet. */
-export const NO_MEDALS: TableMedals = {
-  held: new Map(),
-  after: new Map(),
-  chase: { slipping: new Set(), onTrack: new Map() },
-  marks: new Map(),
-  banter: [],
-  changes: [],
-  defended: null,
-  sitara: { held: new Set(), now: new Set(), rising: [] },
-  legend: new Set(),
-  intel: null,
-  bounty: null,
-};
+export const NO_MEDALS: TableMedals = { ...NO_CROWNS, banter: [] };
 
 interface Base {
   month: string;
