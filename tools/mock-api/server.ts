@@ -1447,7 +1447,9 @@ on('PUT', '/api/kaali-teeri/games/:id', ({ m, body, me }) => {
   });
   db.version++;
   notify(m[0], 'game', liveBody(db.ktGames.get(m[0])!), w.rev);
-  return { rev: w.rev, earned: [], ...(Object.keys(remap).length && { remap }) };
+  // The mock moves no Kaali Teeri titles on a write; milestones it does (backend-requests §1, §6).
+  const status = { changes: [], bounties: [], milestones: sweepMilestones() };
+  return { rev: w.rev, earned: [], status, ...(Object.keys(remap).length && { remap }) };
 });
 on('GET', '/api/kaali-teeri/games', ({ url, me }) => {
   const since = Number(url.searchParams.get('updatedSince')) || 0;

@@ -1,4 +1,7 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { BanterLine } from '@/components/crowns/BanterLine';
+import { CrownName } from '@/components/crowns/CrownName';
+import { useKtBanter } from '@/games/kaali-teeri/screens/KtCrowns';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   dealerFor,
@@ -140,8 +143,13 @@ type Data = ReturnType<typeof useSummaryData>;
 /** "Made: Meera's team took 190 of 180 · ♥ trump", and the standings for assistive tech once they settle. */
 export function ResultLine({ d, h }: { d: Data; h: KtHand }) {
   const { good, line, stage, final, delta, res, sweeping } = d;
+  const { state } = useKt();
+  const banter = useKtBanter(state.game!, h);
   return (
     <>
+      {banter && (
+        <BanterLine text={banter} show={stage >= 1} anim={d.fresh} className="mb-1.5 text-14" />
+      )}
       <div className="relative mb-3">
         <m.p
           initial={false}
@@ -257,7 +265,7 @@ export function StandingsList({ d, h }: { d: Data; h: KtHand }) {
               />
               <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
                 <span className="block max-w-full break-words text-17 font-bold leading-[1.2] tracking-[-0.015em] @[26rem]:text-18">
-                  {x.p.name}
+                  <CrownName p={{ id: x.p.id, name: x.p.name }} chase={stage >= 3} />
                 </span>
                 {(role || res.sweep !== 'none') && (
                   <span className="flex flex-wrap gap-1">

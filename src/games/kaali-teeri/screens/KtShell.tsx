@@ -1,6 +1,7 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { curHand } from '@/games/kaali-teeri/state/select';
+import { KtCrowns } from './KtCrowns';
 import { useKt } from '@/games/kaali-teeri/state/store';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useVisualViewport } from '@/hooks/useVisualViewport';
@@ -81,70 +82,72 @@ export default function KtShell() {
     }),
   };
   return (
-    <div
-      ref={root}
-      data-game="kaali-teeri"
-      className="app-root scr-bg grain relative h-full w-full"
-      style={{ '--trump': th.acc, '--trump-glow': th.glow, '--suit': th.col } as CSSProperties}
-    >
-      {/* The page recedes while a sheet or modal is over it: transform only, and not at all under reduced motion. */}
-      <m.div
-        className="absolute inset-0"
-        initial={false}
-        animate={rm ? undefined : { scale: sheet || modal ? 0.975 : 1 }}
-        transition={SPRING_SOFT}
-        {...(blocked ? { inert: '' as const } : {})}
+    <KtCrowns g={game}>
+      <div
+        ref={root}
+        data-game="kaali-teeri"
+        className="app-root scr-bg grain relative h-full w-full"
+        style={{ '--trump': th.acc, '--trump-glow': th.glow, '--suit': th.col } as CSSProperties}
       >
-        <div
-          aria-hidden
-          className="ambient pointer-events-none absolute -top-48 left-1/2 box-content h-[max(360px,45vh)] w-[max(520px,70vw)] rounded-full p-16 opacity-90"
-        />
-        <AnimatePresence custom={dir} initial={false} mode="popLayout">
-          <m.div
-            key={key}
-            custom={dir}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.42, ease: EASE }}
-            className="absolute inset-0"
-          >
-            {content}
-          </m.div>
-        </AnimatePresence>
-        <Banner banner={banner} />
-      </m.div>
-      <ServiceWorker />
-      <Toast toast={toast} onUndo={actions.undo} onDismiss={actions.dismissToast} />
-      {moments && (
-        <Suspense fallback={null}>
-          <MomentCards />
-        </Suspense>
-      )}
-      <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
-      <AnimatePresence>{modal && <Confirm key={modal} />}</AnimatePresence>
-      <AnimatePresence>
-        {dealing && (
-          <Suspense key={`deal-${deal.index}`} fallback={null}>
-            <Deal />
+        {/* The page recedes while a sheet or modal is over it: transform only, and not at all under reduced motion. */}
+        <m.div
+          className="absolute inset-0"
+          initial={false}
+          animate={rm ? undefined : { scale: sheet || modal ? 0.975 : 1 }}
+          transition={SPRING_SOFT}
+          {...(blocked ? { inert: '' as const } : {})}
+        >
+          <div
+            aria-hidden
+            className="ambient pointer-events-none absolute -top-48 left-1/2 box-content h-[max(360px,45vh)] w-[max(520px,70vw)] rounded-full p-16 opacity-90"
+          />
+          <AnimatePresence custom={dir} initial={false} mode="popLayout">
+            <m.div
+              key={key}
+              custom={dir}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.42, ease: EASE }}
+              className="absolute inset-0"
+            >
+              {content}
+            </m.div>
+          </AnimatePresence>
+          <Banner banner={banner} />
+        </m.div>
+        <ServiceWorker />
+        <Toast toast={toast} onUndo={actions.undo} onDismiss={actions.dismissToast} />
+        {moments && (
+          <Suspense fallback={null}>
+            <MomentCards />
           </Suspense>
         )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {state.corrupt && (
-          <Modal
-            key="repair"
-            locked
-            text={t.modals.repair.text}
-            cancel={t.modals.repair.keep}
-            ok={t.modals.repair.reset}
-            danger
-            onCancel={() => actions.repairSave('keep')}
-            onOk={() => actions.repairSave('reset')}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+        <AnimatePresence>{sheet && <SheetHost key={sheet.type} />}</AnimatePresence>
+        <AnimatePresence>{modal && <Confirm key={modal} />}</AnimatePresence>
+        <AnimatePresence>
+          {dealing && (
+            <Suspense key={`deal-${deal.index}`} fallback={null}>
+              <Deal />
+            </Suspense>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {state.corrupt && (
+            <Modal
+              key="repair"
+              locked
+              text={t.modals.repair.text}
+              cancel={t.modals.repair.keep}
+              ok={t.modals.repair.reset}
+              danger
+              onCancel={() => actions.repairSave('keep')}
+              onOk={() => actions.repairSave('reset')}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </KtCrowns>
   );
 }

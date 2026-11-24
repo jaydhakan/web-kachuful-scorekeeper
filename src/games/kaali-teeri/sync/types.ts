@@ -1,3 +1,4 @@
+import type { GameStatus } from '@/sync/types';
 import type { KtGame, KtPlayerStats, KtHeadToHead } from '@/games/kaali-teeri/domain';
 import type { PlayerSummary, Tombstone } from '@/sync/types';
 
@@ -11,6 +12,8 @@ export interface KtPutResp {
   rev: number;
   earned: unknown[];
   remap?: Record<string, string> | null;
+  /** Titles, bounties and milestones this write moved (backend-requests §1, §6); left out by an older server. */
+  status?: GameStatus;
 }
 
 export interface KtSummaryPlayer {

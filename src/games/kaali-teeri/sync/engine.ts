@@ -1,3 +1,5 @@
+import { putStatus } from '@/sync/news';
+import { putMilestones } from '@/sync/rewardNews';
 /**
  * Kaali Teeri's push/pull loop, with Kachuful's semantics (games/kachuful/sync/engine.ts): players first (the shared
  * registry), then games; pulls this account's games into `ktGames`; settles stale uploads with a conflict copy. It
@@ -278,6 +280,16 @@ async function pushGames(userId: string) {
       const out = await ktEp.putGame(toWire(r.game));
       archive.put('ktGames', { ...archive.get('ktGames', r.syncId)!, syncedRev: out.rev });
       if (out.remap) remap(out.remap);
+      if (out.status) {
+        putStatus({
+          ...out.status,
+          game: 'kaali-teeri',
+          gameId: r.syncId,
+          local: true,
+          at: Date.now(),
+        });
+        putMilestones(out.status.milestones ?? [], true);
+      }
       archive.del('outbox', putId(r.syncId));
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;

@@ -1,3 +1,6 @@
+import { DealLineText, hasDealLine, seatedMedals } from '@/components/crowns/DealLine';
+import { useCrowns } from '@/components/crowns/table';
+import { usePendingGifts } from '@/components/rewards/usePendingGifts';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useKt } from '@/games/kaali-teeri/state/store';
@@ -43,7 +46,12 @@ export default function Deal() {
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- advances only with the stage
   }, [stage, rm]);
+  const crowns = useCrowns();
+  // The first deal is a pause: gifts waiting for anyone seated open here, and the medallists are named (§5, §6.7).
+  usePendingGifts(g?.players.map((p) => p.playerId) ?? [], h?.index === 0);
   if (!g || !h || rm) return null;
+  const seated = h.index === 0 ? seatedMedals(g.players, crowns.held) : [];
+  const line = h.index === 0 && hasDealLine(seated, crowns);
   const from = toPct('full', seatPos('full', n, h.dealerIndex, g.direction));
   const skip = () => {
     sound.cancel();
@@ -129,6 +137,15 @@ export default function Deal() {
                 {s.dealerDeals(g.players[h.dealerIndex].name)}
               </div>
               <TakeOut n={n} className="justify-center" />
+              {line && (
+                <p data-deal-line className="text-16 font-semibold">
+                  <DealLineText
+                    seated={seated}
+                    intel={seated.length ? null : crowns.intel}
+                    bounty={crowns.bounty}
+                  />
+                </p>
+              )}
             </m.div>
           )}
         </AnimatePresence>

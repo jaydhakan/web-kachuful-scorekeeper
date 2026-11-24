@@ -1,3 +1,6 @@
+import { CrownName } from '@/components/crowns/CrownName';
+import { useCrownTakeover } from '@/components/crowns/CrownTakeover';
+import { useCrowns } from '@/components/crowns/table';
 import { m, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { doneHands, gamePlayerRows, standings, type KtGame } from '@/games/kaali-teeri/domain';
@@ -63,6 +66,14 @@ export default function Winner() {
   const [announce] = useState(fresh && board.length > 0);
   useCuePlan(announce && g ? `kt-win:${g.syncId}` : null, podiumCues(plan), { reduced: !!rm });
   const after = named ? 0 : plan.done / 1000;
+  // Gold changing hands plays after the podium (REWARDS-PLAN §6.7).
+  const takeover = useCrownTakeover(
+    useCrowns(),
+    `crowns:kt:${g?.syncId}:${g?.finishedAt ?? 0}`,
+    `game:${g?.syncId}`,
+    fresh,
+    play ? plan.done + 400 : 300,
+  );
   const home = () => actions.go('home', -1);
   if (!g || !doneHands(g).length)
     return (
@@ -160,7 +171,7 @@ export default function Winner() {
                     </div>
                     <Dot p={x.p} s={40} />
                     <div className="min-w-0 flex-1 text-18 font-bold tracking-[-0.015em] break-words [text-wrap:balance] land:text-16">
-                      {x.p.name}
+                      <CrownName p={{ id: x.p.id, name: x.p.name }} after />
                     </div>
                     <div className="disp tick text-26 font-extrabold tracking-[-0.03em] land:text-22">
                       {fmt(x.t)}
@@ -188,6 +199,7 @@ export default function Winner() {
           </div>
         </div>
       </Scaffold>
+      {takeover.node}
       {fresh && !rm && (
         <Suspense fallback={null}>
           <Confetti

@@ -137,7 +137,7 @@ export function RoundStart() {
   const { held, intel, bounty } = useMedals();
   // Round 1's deal is a pause: gifts waiting for anyone seated open here (§5).
   usePendingGifts(
-    g.players.map((p) => p.id),
+    g.players.map((p) => p.playerId),
     r?.index === 0,
   );
   if (!r) return null;
