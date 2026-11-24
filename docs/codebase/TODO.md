@@ -24,7 +24,10 @@ The open work for this repo, in one place. Add an item when something is left un
   Kachuful shells and React share, so the landing page loads it too: `kachuful/state/medals.tsx` (8 KB minified),
   `fx/moments.tsx`, banter (strings and rule table), `domain/medals.ts`, `domain/night.ts`, `SeatName`,
   `intel.ts`. The festival dressing is lazy (`fx/ui/FestivalTableLazy.tsx`). The fix is structural: React and the
-  vendor code in a chunk of their own, so the landing page stops loading Kachuful's shared code.
+  vendor code in a chunk of their own, so the landing page stops loading Kachuful's shared code. After the rewards
+  finish (2026-11-24): landing 185.0 (+3.9), phone 182.0 (+3.9), large screen 214.2 (+5.3), Spades 187.1 (+4.1), CSS
+  25.6 (+0.2). It's `shell-common` again: the avatar tiers' shared observer, the first deal's gift check and the feed's
+  gift and milestone rows. The Wardrobe, the Bazaar, the bust, the art and the reward moments are lazy chunks.
 
 ## Platform (Baithak)
 
