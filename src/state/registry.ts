@@ -19,6 +19,8 @@ export const recFromServer = (p: ServerPlayer, prev?: PlayerRec): PlayerRec => (
   // The server hides other people's emails; keep one this device already had.
   email: p.email ?? prev?.email ?? null,
   photoUrl: p.photoUrl,
+  // An older server sends none: keep what this device already knew.
+  look: p.look !== undefined ? p.look : prev?.look,
   firstName: p.firstName,
   lastName: p.lastName,
   emoji: p.emoji,

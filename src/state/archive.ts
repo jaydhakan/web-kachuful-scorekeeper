@@ -2,6 +2,7 @@ import { doneRounds, type Game } from '@/games/kachuful/domain';
 import type { KtGame } from '@/games/kaali-teeri/domain';
 import type { IshaaraPublic } from '@/games/ishaara/domain/types';
 import type { SpGame } from '@/games/spades/domain/types';
+import type { Look } from '@/people';
 
 /**
  * Everything this device keeps beyond the current game: finished games, the player registry, the sync outbox,
@@ -56,6 +57,8 @@ export interface PlayerRec {
   email?: string | null;
   /** The server's photo for this player (versioned, cached forever); none means the emoji. */
   photoUrl?: string | null;
+  /** What they wear, from the server (backend-requests §3); none means the plain avatar. */
+  look?: Look | null;
   firstName?: string | null;
   lastName?: string | null;
   emoji: string;
