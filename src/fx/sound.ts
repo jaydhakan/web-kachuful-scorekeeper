@@ -41,7 +41,10 @@ export type SoundName =
   | 'undo'
   | 'fanfare'
   | 'coin'
-  | 'ghungroo';
+  | 'ghungroo'
+  | 'shehnai'
+  | 'patakha'
+  | 'twinkle';
 
 /** Which kind of event a sound belongs to (WOW-MOMENTS-PLAN §2.1); the platform's "Big moments" plays only `moment`. */
 export type SoundTier = 'moment' | 'beat' | 'tick';
@@ -80,6 +83,9 @@ export const SOUND_TIER: Record<SoundName, SoundTier> = {
   fanfare: 'moment',
   coin: 'tick',
   ghungroo: 'beat',
+  shehnai: 'moment',
+  patakha: 'beat',
+  twinkle: 'beat',
 };
 
 /** How one play is shaped: `rate` multiplies every frequency (a pitch), `gain` every volume. */
@@ -361,6 +367,31 @@ const SYNTH: Record<SoundName, (a: AudioContext) => void> = {
   ghungroo: (a) => {
     for (let i = 0; i < 6; i++) tone(a, 2637 + (i % 3) * 330, 0.12, { vol: 0.03, delay: i * 0.06 });
     noise(a, 0.25, { freq: 6000, q: 2, vol: 0.03 });
+  },
+  // The Taj taken (REWARDS-PLAN §11): a reed glides up and holds, then falls away cheekily; 0.9s.
+  shehnai: (a) => {
+    tone(a, 392, 0.32, { type: 'sawtooth', vol: 0.045, to: 587 });
+    tone(a, 587, 0.18, { type: 'sawtooth', vol: 0.045, delay: 0.3 });
+    tone(a, 784, 0.18, { type: 'triangle', vol: 0.02, delay: 0.3 });
+    tone(a, 622, 0.4, { type: 'sawtooth', vol: 0.04, to: 370, delay: 0.5 });
+  },
+  // A cracker: the crack and its thump, then a crackle of small sparks; 0.8s.
+  patakha: (a) => {
+    noise(a, 0.12, { freq: 1300, q: 0.5, vol: 0.22 });
+    tone(a, 75, 0.2, { vol: 0.14, to: 45 });
+    for (let i = 0; i < 10; i++)
+      noise(a, 0.03, {
+        freq: 3500 + Math.random() * 3500,
+        q: 3,
+        vol: 0.03 + Math.random() * 0.03,
+        delay: 0.15 + i * 0.06 + Math.random() * 0.02,
+      });
+  },
+  // A star settling on a seat (Sitara, a medal swap): three high glints; 0.3s.
+  twinkle: (a) => {
+    tone(a, 2093, 0.12, { vol: 0.035 });
+    tone(a, 2637, 0.12, { vol: 0.03, delay: 0.07 });
+    tone(a, 3136, 0.18, { vol: 0.025, delay: 0.12 });
   },
 };
 

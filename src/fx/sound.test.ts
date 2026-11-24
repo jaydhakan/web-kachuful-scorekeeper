@@ -92,6 +92,17 @@ describe('the platform sounds', () => {
     expect(length()).toBeLessThanOrEqual(name === 'fanfare' ? 1.6 : 0.8);
   });
 
+  it.each([
+    ['shehnai', 0.9],
+    ['patakha', 0.8],
+    ['twinkle', 0.3],
+  ] as const)('the reward sound %s lasts at most %ss', (name, max) => {
+    storage.set(KEYS.fx, { sounds: 'all', vibrate: true });
+    cue(name);
+    expect(stops.length).toBeGreaterThan(0);
+    expect(length()).toBeLessThanOrEqual(max + 1e-9);
+  });
+
   it('"Big moments", the default, plays only moment-tier sounds', () => {
     cue('crown');
     cue('heartbeat');
@@ -114,7 +125,7 @@ describe('the platform sounds', () => {
   });
 
   it('every sound declares a tier, and the levels gate them', () => {
-    expect(Object.keys(SOUND_TIER)).toHaveLength(34);
+    expect(Object.keys(SOUND_TIER)).toHaveLength(37);
     expect(tierAudible('all', 'tick')).toBe(true);
     expect(tierAudible('moments', 'moment')).toBe(true);
     expect(tierAudible('moments', 'beat')).toBe(false);
